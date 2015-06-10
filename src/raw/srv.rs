@@ -2,7 +2,7 @@ use super::*;
 use super::super::{Result, Handle};
 
 #[link(name="ctru")]
-extern {
+extern "C" {
     pub fn srvInit() -> Result;
     pub fn srvExit() -> Result;
     pub fn srvGetSessionHandle() -> * const Handle;
