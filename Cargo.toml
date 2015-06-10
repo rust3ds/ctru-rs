@@ -1,0 +1,14 @@
+[package]
+name = "ctru-rs"
+version = "0.1.0"
+description = "A safe wrapper around smealum's ctrulib."
+authors = ["Ronald Kinard <furyhunter600@gmail.com>"]
+links = "ctru"
+build = "build.rs"
+
+[lib]
+name = "ctru"
+crate-type = ["rlib"]
+
+[dependencies.core]
+git="https://github.com/hackndev/rust-libcore"
