@@ -12,6 +12,7 @@ pub type s64 = i64;
 
 // UHH, DUNNO HOW TO USE VOLATILES ????
 pub type vu8 = u8;
+pub type vu32 = u32;
 
 // typedef uint8_t u8;
 // typedef uint16_t u16;

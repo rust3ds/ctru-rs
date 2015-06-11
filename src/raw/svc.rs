@@ -3,7 +3,6 @@ use super::super::{Handle, Result};
 
 extern crate core;
 use core::clone::Clone;
-use core::default::Default;
 
 #[repr(C)]
 pub enum MemOp {
@@ -50,13 +49,9 @@ pub struct MemInfo {
 }
 
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Clone, Copy)]
 pub struct PageInfo {
     pub flags: u32,
-}
-
-impl Clone for PageInfo {
-    fn clone(&self) -> Self { *self }
 }
 
 #[repr(C)]

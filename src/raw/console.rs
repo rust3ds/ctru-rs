@@ -1,18 +1,22 @@
 extern crate core;
 
-use core::option::Option;
 use super::c_void;
 
 use super::gfx::*;
 
+#[repr(C)]
+#[derive(Clone, Copy)]
 pub struct ConsoleFont {
     pub gfx: *mut u8,
     pub asciiOffset: u16,
     pub numChars: u16,
 }
 
-pub type ConsolePrint = Option<extern "C" fn(con: *mut c_void, c: i32) -> u8>;
+#[repr(C)]
+pub type ConsolePrint = extern "C" fn(con: *mut c_void, c: i32) -> u8;
 
+#[repr(C)]
+#[derive(Clone, Copy)]
 pub struct PrintConsole {
     pub font: ConsoleFont,
     pub frameBuffer: *mut u16,

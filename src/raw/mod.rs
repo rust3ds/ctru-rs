@@ -1,5 +1,7 @@
 #![allow(non_camel_case_types)]
+#![allow(non_snake_case)]
 #![allow(overflowing_literals)]
+#![allow(raw_pointer_derive)]
 
 pub mod console;
 pub mod gfx;
