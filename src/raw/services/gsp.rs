@@ -30,7 +30,7 @@ pub enum GSP_FramebufferFormats {
 }
 
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Clone, Copy)]
 pub struct GSP_CaptureInfoEntry { //See this for GSP_CaptureInfoEntry and GSP_CaptureInfo: http://3dbrew.org/wiki/GSPGPU:ImportDisplayCaptureInfo
 	framebuf0_vaddr: *mut u32,
 	framebuf1_vaddr: *mut u32,
@@ -38,18 +38,10 @@ pub struct GSP_CaptureInfoEntry { //See this for GSP_CaptureInfoEntry and GSP_Ca
 	framebuf_widthbytesize: u32,
 }
 
-impl Clone for GSP_CaptureInfoEntry {
-    fn clone(&self) -> Self { *self }
-}
-
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Clone, Copy)]
 pub struct GSP_CaptureInfo {
 	screencapture: [GSP_CaptureInfoEntry; 2usize]
-}
-
-impl Clone for GSP_CaptureInfo {
-    fn clone(&self) -> Self { *self }
 }
 
 #[repr(C)]
