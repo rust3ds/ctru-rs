@@ -9,7 +9,7 @@ pub fn GSP_REBASE_REG(r: u32) {
 }
 
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Clone, Copy)]
 pub struct GSP_FramebufferInfo {
 	active_framebuf: u32, //"0=first, 1=second"
 	framebuf0_vaddr: *mut u32, //"Framebuffer virtual address, for the main screen this is the 3D left framebuffer"
@@ -18,10 +18,6 @@ pub struct GSP_FramebufferInfo {
 	format: u32,//"Framebuffer format, this u16 is written to the low u16 for LCD register 0x1EF00X70."
 	framebuf_dispselect: u32, //"Value for 0x1EF00X78, controls which framebuffer is displayed"
 	unk: u32 //"?"
-}
-
-impl Clone for GSP_FramebufferInfo {
-    fn clone(&self) -> Self { *self }
 }
 
 #[repr(C)]
