@@ -1,6 +1,3 @@
-extern crate core;
-use core::option::Option;
-
 use ::{Handle, Result};
 use ::raw::c_void;
 

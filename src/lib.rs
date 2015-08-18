@@ -1,10 +1,7 @@
-#![feature(core)]
 #![feature(no_std)]
 #![no_std]
 #![crate_type = "rlib"]
 #![crate_name = "ctru"]
-
-extern crate core;
 
 pub mod raw;
 

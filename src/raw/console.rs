@@ -1,5 +1,3 @@
-extern crate core;
-
 use super::c_void;
 
 use super::gfx::*;
