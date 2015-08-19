@@ -16,9 +16,6 @@ pub mod services;
 
 pub use self::types::*;
 
-extern crate core;
-use core::option::Option;
-
 #[repr(u8)]
 pub enum c_void {
     __variant1,

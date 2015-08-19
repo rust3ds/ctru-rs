@@ -1,8 +1,5 @@
 use super::super::types::*;
 
-extern crate core;
-use core::clone::Clone;
-
 #[inline]
 pub fn GSP_REBASE_REG(r: u32) {
     ((r)-0x1EB00000);

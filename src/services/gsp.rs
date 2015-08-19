@@ -1,5 +1,3 @@
-use ::Result;
-
 use ::raw::services::gsp;
 
 pub enum Event {

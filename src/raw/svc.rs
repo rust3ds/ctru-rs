@@ -1,9 +1,6 @@
 use super::*;
 use super::super::{Handle, Result};
 
-extern crate core;
-use core::clone::Clone;
-
 #[repr(C)]
 pub enum MemOp {
     MEMOP_FREE = 1,
