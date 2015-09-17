@@ -18,6 +18,7 @@ pub struct GSP_FramebufferInfo {
 }
 
 #[repr(C)]
+#[derive(Clone, Copy)]
 pub enum GSP_FramebufferFormats {
 	GSP_RGBA8_OES=0, //pixel_size = 4-bytes
 	GSP_BGR8_OES=1, //pixel_size = 3-bytes

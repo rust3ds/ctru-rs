@@ -1,7 +1,5 @@
 use ::Result;
 
-use core::ops::Fn;
-
 use ::raw::services::apt;
 
 pub enum AppStatus {
@@ -102,7 +100,7 @@ pub fn return_to_menu() -> () {
 ///     false
 /// });
 /// ```
-pub fn main_loop<F>(f: F) -> () where F : Fn() -> bool {
+pub fn main_loop<F>(mut f: F) -> () where F : FnMut() -> bool {
     unsafe {
         while apt::aptMainLoop() != 0 {
             if !f() { break; }
