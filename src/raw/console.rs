@@ -52,7 +52,7 @@ pub enum debugDevice {
     CONSOLE = 2,
 }
 
-#[link(name = "ctru")]
+
 extern "C" {
     pub fn consoleSetFont(console: *mut PrintConsole, font: *mut ConsoleFont) -> ();
     pub fn consoleSetWindow(console: *mut PrintConsole, x: i32, y: i32, width: i32, height: i32) -> ();

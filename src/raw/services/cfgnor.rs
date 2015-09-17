@@ -1,6 +1,6 @@
 use ::Result;
 
-#[link(name = "ctru")]
+
 extern "C" {
     pub fn CFGNOR_Initialize(value: u8) -> Result;
     pub fn CFGNOR_Shutdown() -> Result;

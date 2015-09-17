@@ -96,15 +96,16 @@ pub fn return_to_menu() -> () {
 ///
 /// # Examples
 ///
-/// ```
+/// ```rust
 /// main_loop(|| {
 ///     // do things here
+///     false
 /// });
 /// ```
-pub fn main_loop<F>(f: F) -> () where F : Fn() -> () {
+pub fn main_loop<F>(f: F) -> () where F : Fn() -> bool {
     unsafe {
         while apt::aptMainLoop() != 0 {
-            f();
+            if !f() { break; }
         }
     }
 }

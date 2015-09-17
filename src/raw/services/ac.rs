@@ -1,6 +1,6 @@
 use ::{Handle, Result};
 
-#[link(name = "ctru")]
+
 extern "C" {
     pub fn acInit() -> Result;
     pub fn acExit() -> Result;

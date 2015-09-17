@@ -1,7 +1,7 @@
 use ::Result;
 use ::raw::c_void;
 
-#[link(name = "ctru")]
+
 extern "C" {
     pub fn hbInit() -> Result;
     pub fn hbExit() -> ();

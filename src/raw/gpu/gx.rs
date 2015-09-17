@@ -62,7 +62,7 @@ pub fn GX_TRANSFER_SCALING(x) {
 
 use ctru::Result;
 
-#[link(name = "ctru")]
+
 extern "C" {
     pub fn GX_RequestDma(gxbuf: *mut u32, src: *mut u32, dst: *mut u32, length: u32) -> Result;
     pub fn GX_SetCommandList_Last(gxbuf: *mut u32, buf0a: *mut u32, buf0s: u32, flags: u8) -> Result;

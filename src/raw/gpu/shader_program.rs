@@ -27,7 +27,7 @@ pub struct shaderProgram_s {
 
 use ctru::Result;
 
-#[link(name = "ctru")]
+
 extern "C" {
     pub fn shaderInstanceInit(si: *mut shaderInstance_s, dvle: *mut DVLE_s) -> Result;
     pub fn shaderInstanceFree(si: *mut shaderInstance_s) -> Result;

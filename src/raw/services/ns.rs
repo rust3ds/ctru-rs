@@ -1,6 +1,6 @@
 use ::Result;
 
-#[link(name = "ctru")]
+
 extern "C" {
     pub fn nsInit() -> Result;
     pub fn nsExit() -> Result;

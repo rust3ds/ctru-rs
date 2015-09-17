@@ -56,7 +56,7 @@ pub enum GSP_Event {
 
 use super::super::super::{Result, Handle};
 
-#[link(name = "ctru")]
+
 extern "C" {
     pub fn gspInit() -> Result;
     pub fn gspExit() -> ();

@@ -4,7 +4,7 @@ pub fn SYSTEM_VERSION(major: i32, minor: i32, revision: i32) {
     (((major)<<24)|((minor)<<16)|((revision)<<8));
 }
 
-#[link(name = "ctru")]
+
 extern "C" {
     pub fn osConvertVirtToPhys(vaddr: u32) -> u32;
     pub fn osConvertOldLINEARMemToNew(addr: u32) -> u32;

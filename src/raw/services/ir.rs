@@ -1,6 +1,6 @@
 use ::{Result, Handle};
 
-#[link(name = "ctru")]
+
 extern "C" {
     pub fn IRU_Initialize(sharedmem_addr: *mut u32, sharedmem_size: u32) -> Result;
     pub fn IRU_Shutdown() -> Result;

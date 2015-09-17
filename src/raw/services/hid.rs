@@ -77,7 +77,7 @@ pub enum HID_Event {
 	HIDEVENT_MAX, // used to know how many events there are
 }
 
-#[link(name = "ctru")]
+
 extern "C" {
     pub static hidMemHandle: Handle;
     pub static hidSharedMem: *mut vu32;

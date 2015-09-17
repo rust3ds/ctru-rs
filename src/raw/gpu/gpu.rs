@@ -256,7 +256,7 @@ pub enum GPU_SHADER_TYPE {
 	GPU_GEOMETRY_SHADER=0x1
 }
 
-#[link(name = "ctru")]
+
 extern "C" {
     pub fn GPU_Init(gsphandle: *mut Handle) -> ();
     pub fn GPU_Reset(gxbuf: *mut u32, gpuBuf: *mut u32, gpuBufSize: u32) -> ();

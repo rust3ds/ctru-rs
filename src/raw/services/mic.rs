@@ -1,6 +1,6 @@
 use ::{Result, Handle};
 
-#[link(name = "ctru")]
+
 extern "C" {
     pub fn MIC_Initialize(sharedmem: *mut u32, sharedmem_size: u32,  control: u8, recording: u8, unk0: u8, unk1: u8, unk2: u8) -> Result;
     pub fn MIC_Shutdown() -> Result;

@@ -9,6 +9,3 @@ build = "build.rs"
 [lib]
 name = "ctru"
 crate-type = ["rlib"]
-
-[dependencies.core]
-git="https://github.com/hackndev/rust-libcore"

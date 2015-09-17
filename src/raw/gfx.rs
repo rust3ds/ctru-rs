@@ -23,7 +23,7 @@ pub enum gfx3dSide_t {
     GFX_RIGHT = 1
 }
 
-#[link(name = "ctru")]
+
 extern "C" {
     pub static mut gfxTopLeftFramebuffers: [*mut u8; 2usize];
     pub static mut gfxTopRightFramebuffers: [*mut u8; 2usize];

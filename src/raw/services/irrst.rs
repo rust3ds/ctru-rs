@@ -3,7 +3,7 @@ use ::raw::types::*;
 
 use super::hid::circlePosition;
 
-#[link(name = "ctru")]
+
 extern "C" {
     pub static irrstMemHandle: Handle;
     pub static irrstSharedMem: *mut vu32;

@@ -96,7 +96,7 @@ pub struct DVLB_s {
 
 use ctru::raw::types::*;
 
-#[link(name = "ctru")]
+
 extern "C" {
     pub fn DVLB_ParseFile(shbinData: *mut u32, shbinSize: u32) -> *mut DVLB_s;
     pub fn DVLB_Free(dvlb: *mut DVLB_s) -> ();

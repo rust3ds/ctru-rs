@@ -10,7 +10,7 @@ pub struct TitleList {
 	unknown2: [u8; 6usize]
 }
 
-#[link(name = "ctru")]
+
 extern "C" {
     pub fn amInit() -> Result;
     pub fn amExit() -> Result;

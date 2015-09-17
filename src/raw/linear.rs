@@ -1,6 +1,6 @@
 use super::c_void;
 
-#[link(name = "ctru")]
+
 extern "C" {
     pub fn linearAlloc(size: i32) -> *mut c_void;
     pub fn linearMemAlign(size: i32, alignment: i32) -> *mut c_void;

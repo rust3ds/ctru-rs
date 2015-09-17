@@ -74,7 +74,7 @@ pub struct aptHookCookie {
     param: *mut c_void,
 }
 
-#[link(name = "ctru")]
+
 extern "C" {
     pub static mut aptEvents: [Handle; 3usize];
 

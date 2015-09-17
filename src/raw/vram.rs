@@ -1,6 +1,6 @@
 use super::types::*;
 
-#[link(name = "ctru")]
+
 extern "C" {
     pub fn vramAlloc(size: isize) -> *mut c_void;
     pub fn vramMemAlign(size: isize, alignment: isize) -> *mut c_void;
