@@ -25,25 +25,14 @@ You can build your homebrew projects through Cargo just as easily as any other
 platform. Add this to your `Cargo.toml`:
 
 ```toml
-    [dependencies.core]
-    git="https://github.com/hackndev/rust-libcore"
-
     [dependencies.ctru-rs]
     git="https://github.com/Furyhunter/ctru-rs"
 ```
 
-Copy the `3ds.json` target file to your project root and pass `--target
-3ds.json` whenever building. The instructions above for cargo configuration and
-environment still apply. It's recommended that you put the `bin` dir in your
-dkA root to your path.
-
-Your homebrew's crate must specify that it does not use `std`, because `std`
-is not available for the 3ds. `core` is a small subset of `std`'s functionality
-that is platform agnostic. You can `use core::prelude::*` to recover much of
-std's prelude, after `extern crate core`. This library makes use of core only.
+**It is highly recommended to use the [template
+project.](https://github.com/Furyhunter/rust3ds-template)**
 
 ## Contributing
 
-This is a thin wrapper library **only**, any additional Rust-centric support
-code for the 3DS will be put into another package. However, the wrapper is
-incomplete, so PR's to finish it are helpful.
+PR's are welcome. Organization of rust specific features and wrapper
+functionality has not been decided on yet.
