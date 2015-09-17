@@ -258,7 +258,6 @@ impl Clone for DebugEventInfo {
 // getLocalThreadStorage and getThreadCommandBuffer can't be implemented
 // due to asm. Custom build step may be necessary.
 
-#[link(name="ctru")]
 extern "C" {
     pub fn svcControlMemory(addr_out: *mut u32, addr0: u32, addr1: u32, size: u32, op: MemOp, perm: MemPerm) -> s32;
     pub fn svcQueryMemory(info: *mut MemInfo, out: *mut PageInfo, addr: u32) -> s32;

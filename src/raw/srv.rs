@@ -1,7 +1,6 @@
 use super::*;
 use super::super::{Result, Handle};
 
-#[link(name="ctru")]
 extern "C" {
     pub fn srvInit() -> Result;
     pub fn srvExit() -> Result;
