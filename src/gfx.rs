@@ -23,17 +23,47 @@ pub enum Side {
     Right
 }
 
-#[inline] fn screen_to_raw(s: Screen) -> gfx::gfxScreen_t {
-    match s {
-        Screen::Top => gfx::gfxScreen_t::GFX_TOP,
-        Screen::Bottom => gfx::gfxScreen_t::GFX_BOTTOM
+impl From<gfx::gfxScreen_t> for Screen {
+    #[inline] fn from(g: gfx::gfxScreen_t) -> Screen {
+        use ::raw::gfx::gfxScreen_t::*;
+        use self::Screen::*;
+        match g {
+            GFX_TOP => Top,
+            GFX_BOTTOM => Bottom
+        }
     }
 }
 
-#[inline] fn side3d_to_raw(s: Side) -> gfx::gfx3dSide_t {
-    match s {
-        Side::Left => gfx::gfx3dSide_t::GFX_LEFT,
-        Side::Right => gfx::gfx3dSide_t::GFX_RIGHT
+impl From<Screen> for gfx::gfxScreen_t {
+    #[inline] fn from(g: Screen) -> gfx::gfxScreen_t {
+        use ::raw::gfx::gfxScreen_t::*;
+        use self::Screen::*;
+        match g {
+            Top => GFX_TOP,
+            Bottom => GFX_BOTTOM
+        }
+    }
+}
+
+impl From<gfx::gfx3dSide_t> for Side {
+    #[inline] fn from(s: gfx::gfx3dSide_t) -> Side {
+        use ::raw::gfx::gfx3dSide_t::*;
+        use self::Side::*;
+        match s {
+            GFX_LEFT => Left,
+            GFX_RIGHT => Right
+        }
+    }
+}
+
+impl From<Side> for gfx::gfx3dSide_t {
+    #[inline] fn from(s: Side) -> gfx::gfx3dSide_t {
+        use ::raw::gfx::gfx3dSide_t::*;
+        use self::Side::*;
+        match s {
+            Left => GFX_LEFT,
+            Right => GFX_RIGHT
+        }
     }
 }
 
@@ -45,12 +75,13 @@ impl Gfx {
     }
 
     pub fn get_framebuffer(& mut self, screen: Screen, side: Side) -> (&'static mut [u8], u16, u16) {
+        use core::convert::Into;
         unsafe {
             use core::slice::from_raw_parts_mut;
 
             let mut w: u16 = 0;
             let mut h: u16 = 0;
-            let buf: *mut u8 = gfx::gfxGetFramebuffer(screen_to_raw(screen), side3d_to_raw(side), &mut w as *mut u16, &mut h as &mut u16);
+            let buf: *mut u8 = gfx::gfxGetFramebuffer(screen.into(), side.into(), &mut w as *mut u16, &mut h as &mut u16);
 
             let fbfmt = self.get_framebuffer_format(screen);
 
@@ -73,20 +104,20 @@ impl Gfx {
     pub fn get_framebuffer_format(&self, screen: Screen) -> FramebufferFormat {
         use core::convert::Into;
         unsafe {
-            gfx::gfxGetScreenFormat(screen_to_raw(screen)).into()
+            gfx::gfxGetScreenFormat(screen.into()).into()
         }
     }
 
     pub fn set_framebuffer_format(&mut self, screen: Screen, fmt: FramebufferFormat) {
         use core::convert::Into;
         unsafe {
-            gfx::gfxSetScreenFormat(screen_to_raw(screen), fmt.into())
+            gfx::gfxSetScreenFormat(screen.into(), fmt.into())
         }
     }
 
     pub fn set_double_buffering(&mut self, screen: Screen, enabled: bool) {
         unsafe {
-            gfx::gfxSetDoubleBuffering(screen_to_raw(screen), match enabled { true => 1u8, false => 0u8 })
+            gfx::gfxSetDoubleBuffering(screen.into(), match enabled { true => 1u8, false => 0u8 })
         };
     }
 }
