@@ -1,5 +1,5 @@
-use super::*;
-use super::super::{Result, Handle};
+use ::raw::*;
+use ::{Result, Handle};
 
 extern "C" {
     pub fn srvInit() -> Result;

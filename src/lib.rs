@@ -13,6 +13,9 @@ pub mod srv;
 pub mod gfx;
 pub mod services;
 
+pub use srv::Srv;
+pub use gfx::Gfx;
+
 #[lang = "stack_exhausted"] extern fn stack_exhausted() {}
 #[lang = "eh_personality"] extern fn eh_personality() {}
 #[lang = "panic_fmt"] fn panic_fmt() -> ! { loop {} }

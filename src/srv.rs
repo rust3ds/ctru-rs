@@ -1,13 +1,26 @@
-use ::Result;
-use ::raw::srv;
+use ::raw::srv::*;
 
-pub fn init() -> Result {
-    unsafe {
-        return srv::srvInit();
+use core::marker::PhantomData;
+
+pub struct Srv {
+    pd: PhantomData<i32>
+}
+
+impl Srv {
+    pub fn new() -> Result<Srv, i32> {
+        unsafe {
+            let r = srvInit();
+            if r < 0 {
+                Err(r)
+            } else {
+                Ok(Srv { pd: PhantomData })
+            }
+        }
     }
 }
-pub fn exit() -> Result {
-    unsafe {
-        return srv::srvExit();
+
+impl Drop for Srv {
+    fn drop(&mut self) {
+        unsafe { srvExit() };
     }
 }
