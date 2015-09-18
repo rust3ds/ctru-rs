@@ -1,4 +1,4 @@
-use ::Result;
+use core::marker::PhantomData;
 
 use ::raw::services::apt;
 
@@ -14,96 +14,97 @@ pub enum AppStatus {
     AppletClosed
 }
 
-
-fn to_raw_appstatus(status: AppStatus) -> apt::APP_STATUS {
-    use self::AppStatus::*;
-    match status {
-        NotInitialized => apt::APP_STATUS::APP_NOTINITIALIZED,
-        Running => apt::APP_STATUS::APP_RUNNING,
-        Suspended => apt::APP_STATUS::APP_SUSPENDED,
-        Exiting => apt::APP_STATUS::APP_EXITING,
-        Suspending => apt::APP_STATUS::APP_SUSPENDING,
-        SleepMode => apt::APP_STATUS::APP_SLEEPMODE,
-        PrepareSleepMode => apt::APP_STATUS::APP_PREPARE_SLEEPMODE,
-        AppletStarted => apt::APP_STATUS::APP_APPLETSTARTED,
-        AppletClosed => apt::APP_STATUS::APP_APPLETCLOSED,
-    }
-}
-
-fn from_raw_appstatus(status: apt::APP_STATUS) -> AppStatus {
-    use self::AppStatus::*;
-    match status {
-         apt::APP_STATUS::APP_NOTINITIALIZED => NotInitialized,
-         apt::APP_STATUS::APP_RUNNING => Running,
-         apt::APP_STATUS::APP_SUSPENDED => Suspended,
-         apt::APP_STATUS::APP_EXITING => Exiting,
-         apt::APP_STATUS::APP_SUSPENDING => Suspending,
-         apt::APP_STATUS::APP_SLEEPMODE => SleepMode,
-         apt::APP_STATUS::APP_PREPARE_SLEEPMODE => PrepareSleepMode,
-         apt::APP_STATUS::APP_APPLETSTARTED => AppletStarted,
-         apt::APP_STATUS::APP_APPLETCLOSED => AppletClosed
-    }
-}
-
-pub fn init() -> Result {
-    unsafe {
-        return apt::aptInit();
-    }
-}
-
-pub fn exit() -> () {
-    unsafe {
-        apt::aptExit();
-    }
-}
-
-pub fn get_status() -> AppStatus {
-    unsafe {
-        return from_raw_appstatus(apt::aptGetStatus());
-    }
-}
-
-pub fn set_status(status: AppStatus) -> () {
-    unsafe {
-        apt::aptSetStatus(to_raw_appstatus(status));
-    }
-}
-
-/// Return to the home menu.
-///
-/// When `get_status` returns `AppStatus::Suspending`, you should call this,
-/// otherwise the app will be left stuck in that state.
-///
-/// The program will not return from this function until the system returns
-/// to the application, or when the status changes to `AppStatus::Exiting`.
-///
-/// # Examples
-///
-/// ```
-/// if get_status() == Suspending {
-///     return_to_menu();
-/// }
-/// ```
-pub fn return_to_menu() -> () {
-    unsafe {
-        apt::aptReturnToMenu();
-    }
-}
-
-/// Execute a function repeatedly until the apt main loop is over.
-///
-/// # Examples
-///
-/// ```rust
-/// main_loop(|| {
-///     // do things here
-///     false
-/// });
-/// ```
-pub fn main_loop<F>(mut f: F) -> () where F : FnMut() -> bool {
-    unsafe {
-        while apt::aptMainLoop() != 0 {
-            if !f() { break; }
+impl From<AppStatus> for apt::APP_STATUS {
+    fn from(a: AppStatus) -> apt::APP_STATUS {
+        use self::AppStatus::*;
+        match a {
+            NotInitialized => apt::APP_STATUS::APP_NOTINITIALIZED,
+            Running => apt::APP_STATUS::APP_RUNNING,
+            Suspended => apt::APP_STATUS::APP_SUSPENDED,
+            Exiting => apt::APP_STATUS::APP_EXITING,
+            Suspending => apt::APP_STATUS::APP_SUSPENDING,
+            SleepMode => apt::APP_STATUS::APP_SLEEPMODE,
+            PrepareSleepMode => apt::APP_STATUS::APP_PREPARE_SLEEPMODE,
+            AppletStarted => apt::APP_STATUS::APP_APPLETSTARTED,
+            AppletClosed => apt::APP_STATUS::APP_APPLETCLOSED,
         }
     }
+}
+
+impl From<apt::APP_STATUS> for AppStatus {
+    fn from(a: apt::APP_STATUS) -> AppStatus {
+        use self::AppStatus::*;
+        match a {
+             apt::APP_STATUS::APP_NOTINITIALIZED => NotInitialized,
+             apt::APP_STATUS::APP_RUNNING => Running,
+             apt::APP_STATUS::APP_SUSPENDED => Suspended,
+             apt::APP_STATUS::APP_EXITING => Exiting,
+             apt::APP_STATUS::APP_SUSPENDING => Suspending,
+             apt::APP_STATUS::APP_SLEEPMODE => SleepMode,
+             apt::APP_STATUS::APP_PREPARE_SLEEPMODE => PrepareSleepMode,
+             apt::APP_STATUS::APP_APPLETSTARTED => AppletStarted,
+             apt::APP_STATUS::APP_APPLETCLOSED => AppletClosed
+        }
+    }
+}
+
+pub struct Apt {
+    pd: PhantomData<()>
+}
+
+impl Apt {
+    pub fn new() -> Result<Apt, i32> {
+        unsafe {
+            let r = apt::aptInit();
+            if r < 0 {
+                Err(r)
+            } else {
+                Ok(Apt { pd: PhantomData })
+            }
+        }
+    }
+
+    pub fn get_status(&self) -> AppStatus {
+        unsafe { apt::aptGetStatus().into() }
+    }
+
+    pub fn set_status(&mut self, status: AppStatus) {
+        unsafe { apt::aptSetStatus(status.into()) };
+    }
+
+    /// Return to the home menu.
+    ///
+    /// When `get_status` returns `AppStatus::Suspending`, you should call this,
+    /// otherwise the app will be left stuck in that state.
+    ///
+    /// The program will not return from this function until the system returns
+    /// to the application, or when the status changes to `AppStatus::Exiting`.
+    pub fn return_to_menu(&mut self) {
+        unsafe { apt::aptReturnToMenu() };
+    }
+
+    pub fn main_loop(&mut self, app: &mut Application) {
+        unsafe {
+            while apt::aptMainLoop() != 0 {
+                app.main_loop(self);
+                if app.ready_to_quit() {
+                    self.set_status(AppStatus::Exiting)
+                }
+            }
+        };
+    }
+}
+
+impl Drop for Apt {
+    fn drop(&mut self) {
+        unsafe { apt::aptExit() };
+    }
+}
+
+pub trait Application {
+    /// Program app loop body.
+    fn main_loop(&mut self, apt: &mut Apt);
+
+    /// True if the application is ready to quit.
+    fn ready_to_quit(&self) -> bool;
 }
