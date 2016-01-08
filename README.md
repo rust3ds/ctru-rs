@@ -41,7 +41,7 @@ functionality has not been decided on yet.
 
 Copyright (C) Ronald Kinard, 2015-2016
 
-As with the original ctrulib, this library is licensed under BSD 3-Clause. This
+As with the original ctrulib, this library is licensed under zlib. This
 applies to every file in the tree, unless otherwise noted.
 
     This software is provided 'as-is', without any express or implied
