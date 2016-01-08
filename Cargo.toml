@@ -5,6 +5,7 @@ description = "A safe wrapper around smealum's ctrulib."
 authors = ["Ronald Kinard <furyhunter600@gmail.com>"]
 links = "ctru"
 build = "build.rs"
+license = "https://opensource.org/licenses/BSD-3-Clause"
 
 [lib]
 name = "ctru"
