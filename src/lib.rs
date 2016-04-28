@@ -1,4 +1,3 @@
-#![feature(no_std)]
 #![feature(lang_items)]
 #![no_std]
 #![crate_type = "rlib"]
@@ -19,6 +18,5 @@ pub use srv::Srv;
 pub use gfx::Gfx;
 pub use sdmc::Sdmc;
 
-#[lang = "stack_exhausted"] extern fn stack_exhausted() {}
 #[lang = "eh_personality"] extern fn eh_personality() {}
 #[lang = "panic_fmt"] fn panic_fmt() -> ! { loop {} }

@@ -10,7 +10,6 @@ pub struct ConsoleFont {
     pub numChars: u16,
 }
 
-#[repr(C)]
 pub type ConsolePrint = extern "C" fn(con: *mut c_void, c: i32) -> u8;
 
 #[repr(C)]
