@@ -1,4 +1,4 @@
-use ::raw::gfx;
+use libctru::gfx;
 
 use core::default::Default;
 use core::marker::PhantomData;
@@ -25,7 +25,7 @@ pub enum Side {
 
 impl From<gfx::gfxScreen_t> for Screen {
     #[inline] fn from(g: gfx::gfxScreen_t) -> Screen {
-        use ::raw::gfx::gfxScreen_t::*;
+        use libctru::gfx::gfxScreen_t::*;
         use self::Screen::*;
         match g {
             GFX_TOP => Top,
@@ -36,7 +36,7 @@ impl From<gfx::gfxScreen_t> for Screen {
 
 impl From<Screen> for gfx::gfxScreen_t {
     #[inline] fn from(g: Screen) -> gfx::gfxScreen_t {
-        use ::raw::gfx::gfxScreen_t::*;
+        use libctru::gfx::gfxScreen_t::*;
         use self::Screen::*;
         match g {
             Top => GFX_TOP,
@@ -47,7 +47,7 @@ impl From<Screen> for gfx::gfxScreen_t {
 
 impl From<gfx::gfx3dSide_t> for Side {
     #[inline] fn from(s: gfx::gfx3dSide_t) -> Side {
-        use ::raw::gfx::gfx3dSide_t::*;
+        use libctru::gfx::gfx3dSide_t::*;
         use self::Side::*;
         match s {
             GFX_LEFT => Left,
@@ -58,7 +58,7 @@ impl From<gfx::gfx3dSide_t> for Side {
 
 impl From<Side> for gfx::gfx3dSide_t {
     #[inline] fn from(s: Side) -> gfx::gfx3dSide_t {
-        use ::raw::gfx::gfx3dSide_t::*;
+        use libctru::gfx::gfx3dSide_t::*;
         use self::Side::*;
         match s {
             Left => GFX_LEFT,

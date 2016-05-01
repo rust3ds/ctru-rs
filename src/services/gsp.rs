@@ -1,4 +1,4 @@
-use ::raw::services::gsp;
+use libctru::services::gsp;
 
 use core::convert::From;
 
@@ -36,7 +36,7 @@ impl FramebufferFormat {
 
 impl From<gsp::GSP_FramebufferFormats> for FramebufferFormat {
     #[inline] fn from(g: gsp::GSP_FramebufferFormats) -> FramebufferFormat {
-        use ::raw::services::gsp::GSP_FramebufferFormats::*;
+        use libctru::services::gsp::GSP_FramebufferFormats::*;
         use self::FramebufferFormat::*;
         match g {
             GSP_RGBA8_OES => Rgba8,
@@ -50,7 +50,7 @@ impl From<gsp::GSP_FramebufferFormats> for FramebufferFormat {
 
 impl From<FramebufferFormat> for gsp::GSP_FramebufferFormats {
     #[inline] fn from(g: FramebufferFormat) -> gsp::GSP_FramebufferFormats {
-        use ::raw::services::gsp::GSP_FramebufferFormats::*;
+        use libctru::services::gsp::GSP_FramebufferFormats::*;
         use self::FramebufferFormat::*;
         match g {
             Rgba8 => GSP_RGBA8_OES,
@@ -63,7 +63,7 @@ impl From<FramebufferFormat> for gsp::GSP_FramebufferFormats {
 }
 
 fn to_raw_event(ev: Event) -> gsp::GSP_Event {
-    use ::raw::services::gsp::GSP_Event::*;
+    use libctru::services::gsp::GSP_Event::*;
     use self::Event::*;
 
     match ev {

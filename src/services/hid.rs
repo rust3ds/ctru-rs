@@ -1,7 +1,7 @@
 use core::convert::Into;
 use core::marker::PhantomData;
 
-use ::raw::services::hid;
+use libctru::services::hid;
 
 pub enum PadKey {
     A,
@@ -37,7 +37,7 @@ pub enum PadKey {
 
 impl From<PadKey> for u32 {
     fn from(p: PadKey) -> u32 {
-        use ::raw::services::hid::PAD_KEY::*;
+        use libctru::services::hid::PAD_KEY::*;
         use self::PadKey::*;
 
         match p {

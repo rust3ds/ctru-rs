@@ -1,6 +1,6 @@
 use core::marker::PhantomData;
 
-use ::raw::services::apt;
+use libctru::services::apt;
 
 pub enum AppStatus {
     NotInitialized,
