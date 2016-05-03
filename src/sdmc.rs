@@ -1,6 +1,6 @@
 use core::marker::PhantomData;
 
-use ::raw::sdmc::*;
+use libctru::sdmc::*;
 
 pub struct Sdmc {
     pd: PhantomData<i32>

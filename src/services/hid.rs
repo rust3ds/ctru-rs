@@ -1,7 +1,7 @@
 use core::convert::Into;
 use core::marker::PhantomData;
 
-use ::raw::services::hid;
+use libctru::services::hid;
 
 pub enum PadKey {
     A,
@@ -37,7 +37,7 @@ pub enum PadKey {
 
 impl From<PadKey> for u32 {
     fn from(p: PadKey) -> u32 {
-        use ::raw::services::hid::PAD_KEY::*;
+        use libctru::services::hid::PAD_KEY::*;
         use self::PadKey::*;
 
         match p {
@@ -80,7 +80,7 @@ pub struct Hid {
 impl Hid {
     pub fn new() -> Result<Hid, i32> {
         unsafe {
-            let r = hid::hidInit(hid::HID_SHAREDMEM_DEFAULT as *mut u32);
+            let r = hid::hidInit();
             if r < 0 {
                 Err(r)
             } else {

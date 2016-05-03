@@ -1,4 +1,4 @@
-use ::raw::services::gsp;
+use libctru::services::gspgpu;
 
 use core::convert::From;
 
@@ -34,9 +34,9 @@ impl FramebufferFormat {
     }
 }
 
-impl From<gsp::GSP_FramebufferFormats> for FramebufferFormat {
-    #[inline] fn from(g: gsp::GSP_FramebufferFormats) -> FramebufferFormat {
-        use ::raw::services::gsp::GSP_FramebufferFormats::*;
+impl From<gspgpu::GSPGPU_FramebufferFormats> for FramebufferFormat {
+    #[inline] fn from(g: gspgpu::GSPGPU_FramebufferFormats) -> FramebufferFormat {
+        use libctru::services::gspgpu::GSPGPU_FramebufferFormats::*;
         use self::FramebufferFormat::*;
         match g {
             GSP_RGBA8_OES => Rgba8,
@@ -48,9 +48,9 @@ impl From<gsp::GSP_FramebufferFormats> for FramebufferFormat {
     }
 }
 
-impl From<FramebufferFormat> for gsp::GSP_FramebufferFormats {
-    #[inline] fn from(g: FramebufferFormat) -> gsp::GSP_FramebufferFormats {
-        use ::raw::services::gsp::GSP_FramebufferFormats::*;
+impl From<FramebufferFormat> for gspgpu::GSPGPU_FramebufferFormats {
+    #[inline] fn from(g: FramebufferFormat) -> gspgpu::GSPGPU_FramebufferFormats {
+        use libctru::services::gspgpu::GSPGPU_FramebufferFormats::*;
         use self::FramebufferFormat::*;
         match g {
             Rgba8 => GSP_RGBA8_OES,
@@ -62,18 +62,18 @@ impl From<FramebufferFormat> for gsp::GSP_FramebufferFormats {
     }
 }
 
-fn to_raw_event(ev: Event) -> gsp::GSP_Event {
-    use ::raw::services::gsp::GSP_Event::*;
+fn to_raw_event(ev: Event) -> gspgpu::GSPGPU_Event {
+    use libctru::services::gspgpu::GSPGPU_Event::*;
     use self::Event::*;
 
     match ev {
-        Psc0 => GSPEVENT_PSC0,
-        Psc1 => GSPEVENT_PSC1,
-        VBlank0 => GSPEVENT_VBlank0,
-        VBlank1 => GSPEVENT_VBlank1,
-        PPF => GSPEVENT_PPF,
-        P3D => GSPEVENT_P3D,
-        DMA => GSPEVENT_DMA
+        Psc0 => GSPGPU_EVENT_PSC0,
+        Psc1 => GSPGPU_EVENT_PSC1,
+        VBlank0 => GSPGPU_EVENT_VBlank0,
+        VBlank1 => GSPGPU_EVENT_VBlank1,
+        PPF => GSPGPU_EVENT_PPF,
+        P3D => GSPGPU_EVENT_P3D,
+        DMA => GSPGPU_EVENT_DMA
     }
 }
 
@@ -91,6 +91,6 @@ fn to_raw_event(ev: Event) -> gsp::GSP_Event {
 pub fn wait_for_event(ev: Event) -> () {
     unsafe {
         // TODO second argument?
-        gsp::gspWaitForEvent(to_raw_event(ev), 0);
+        gspgpu::gspWaitForEvent(to_raw_event(ev), 0);
     }
 }

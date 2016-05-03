@@ -1,6 +1,6 @@
 use core::marker::PhantomData;
 
-use ::raw::services::apt;
+use libctru::services::apt;
 
 pub enum AppStatus {
     NotInitialized,
@@ -14,36 +14,36 @@ pub enum AppStatus {
     AppletClosed
 }
 
-impl From<AppStatus> for apt::APP_STATUS {
-    fn from(a: AppStatus) -> apt::APP_STATUS {
+impl From<AppStatus> for apt::APT_AppStatus {
+    fn from(a: AppStatus) -> apt::APT_AppStatus {
         use self::AppStatus::*;
         match a {
-            NotInitialized => apt::APP_STATUS::APP_NOTINITIALIZED,
-            Running => apt::APP_STATUS::APP_RUNNING,
-            Suspended => apt::APP_STATUS::APP_SUSPENDED,
-            Exiting => apt::APP_STATUS::APP_EXITING,
-            Suspending => apt::APP_STATUS::APP_SUSPENDING,
-            SleepMode => apt::APP_STATUS::APP_SLEEPMODE,
-            PrepareSleepMode => apt::APP_STATUS::APP_PREPARE_SLEEPMODE,
-            AppletStarted => apt::APP_STATUS::APP_APPLETSTARTED,
-            AppletClosed => apt::APP_STATUS::APP_APPLETCLOSED,
+            NotInitialized => apt::APT_AppStatus::APP_NOTINITIALIZED,
+            Running => apt::APT_AppStatus::APP_RUNNING,
+            Suspended => apt::APT_AppStatus::APP_SUSPENDED,
+            Exiting => apt::APT_AppStatus::APP_EXITING,
+            Suspending => apt::APT_AppStatus::APP_SUSPENDING,
+            SleepMode => apt::APT_AppStatus::APP_SLEEPMODE,
+            PrepareSleepMode => apt::APT_AppStatus::APP_PREPARE_SLEEPMODE,
+            AppletStarted => apt::APT_AppStatus::APP_APPLETSTARTED,
+            AppletClosed => apt::APT_AppStatus::APP_APPLETCLOSED,
         }
     }
 }
 
-impl From<apt::APP_STATUS> for AppStatus {
-    fn from(a: apt::APP_STATUS) -> AppStatus {
+impl From<apt::APT_AppStatus> for AppStatus {
+    fn from(a: apt::APT_AppStatus) -> AppStatus {
         use self::AppStatus::*;
         match a {
-             apt::APP_STATUS::APP_NOTINITIALIZED => NotInitialized,
-             apt::APP_STATUS::APP_RUNNING => Running,
-             apt::APP_STATUS::APP_SUSPENDED => Suspended,
-             apt::APP_STATUS::APP_EXITING => Exiting,
-             apt::APP_STATUS::APP_SUSPENDING => Suspending,
-             apt::APP_STATUS::APP_SLEEPMODE => SleepMode,
-             apt::APP_STATUS::APP_PREPARE_SLEEPMODE => PrepareSleepMode,
-             apt::APP_STATUS::APP_APPLETSTARTED => AppletStarted,
-             apt::APP_STATUS::APP_APPLETCLOSED => AppletClosed
+             apt::APT_AppStatus::APP_NOTINITIALIZED => NotInitialized,
+             apt::APT_AppStatus::APP_RUNNING => Running,
+             apt::APT_AppStatus::APP_SUSPENDED => Suspended,
+             apt::APT_AppStatus::APP_EXITING => Exiting,
+             apt::APT_AppStatus::APP_SUSPENDING => Suspending,
+             apt::APT_AppStatus::APP_SLEEPMODE => SleepMode,
+             apt::APT_AppStatus::APP_PREPARE_SLEEPMODE => PrepareSleepMode,
+             apt::APT_AppStatus::APP_APPLETSTARTED => AppletStarted,
+             apt::APT_AppStatus::APP_APPLETCLOSED => AppletClosed
         }
     }
 }

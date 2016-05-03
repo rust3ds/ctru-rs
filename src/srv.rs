@@ -1,4 +1,4 @@
-use ::raw::srv::*;
+use libctru::srv::*;
 
 use core::marker::PhantomData;
 
