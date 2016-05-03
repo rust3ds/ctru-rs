@@ -5,9 +5,6 @@
 
 extern crate ctru_sys as libctru;
 
-pub type Result = i32;
-pub type Handle = u32;
-
 pub mod srv;
 pub mod gfx;
 pub mod sdmc;

@@ -80,7 +80,7 @@ pub struct Hid {
 impl Hid {
     pub fn new() -> Result<Hid, i32> {
         unsafe {
-            let r = hid::hidInit(hid::HID_SHAREDMEM_DEFAULT as *mut u32);
+            let r = hid::hidInit();
             if r < 0 {
                 Err(r)
             } else {

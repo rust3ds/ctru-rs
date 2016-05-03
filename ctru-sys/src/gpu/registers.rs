@@ -1,3 +1,4 @@
+//Miscellaneous registers (0x000-0x03F)
 pub const GPUREG_0000: i32 = 0x0000;
 pub const GPUREG_0001: i32 = 0x0001;
 pub const GPUREG_0002: i32 = 0x0002;
@@ -62,6 +63,8 @@ pub const GPUREG_003C: i32 = 0x003C;
 pub const GPUREG_003D: i32 = 0x003D;
 pub const GPUREG_003E: i32 = 0x003E;
 pub const GPUREG_003F: i32 = 0x003F;
+
+//Rasterizer registers (0x040-0x07F)
 pub const GPUREG_FACECULLING_CONFIG: i32 = 0x0040;
 pub const GPUREG_0041: i32 = 0x0041;
 pub const GPUREG_0042: i32 = 0x0042;
@@ -126,6 +129,8 @@ pub const GPUREG_007C: i32 = 0x007C;
 pub const GPUREG_007D: i32 = 0x007D;
 pub const GPUREG_007E: i32 = 0x007E;
 pub const GPUREG_007F: i32 = 0x007F;
+
+//Texturing registers (0x080-0x0FF)
 pub const GPUREG_TEXUNITS_CONFIG: i32 = 0x0080;
 pub const GPUREG_0081: i32 = 0x0081;
 pub const GPUREG_TEXUNIT0_DIM: i32 = 0x0082;
@@ -254,6 +259,8 @@ pub const GPUREG_TEXENV5_CONFIG4: i32 = 0x00FC;
 pub const GPUREG_00FD: i32 = 0x00FD;
 pub const GPUREG_00FE: i32 = 0x00FE;
 pub const GPUREG_00FF: i32 = 0x00FF;
+
+//Framebuffer registers (0x100-0x13F)
 pub const GPUREG_COLOROUTPUT_CONFIG: i32 = 0x0100;
 pub const GPUREG_BLEND_CONFIG: i32 = 0x0101;
 pub const GPUREG_COLORLOGICOP_CONFIG: i32 = 0x0102;
@@ -318,6 +325,8 @@ pub const GPUREG_013C: i32 = 0x013C;
 pub const GPUREG_013D: i32 = 0x013D;
 pub const GPUREG_013E: i32 = 0x013E;
 pub const GPUREG_013F: i32 = 0x013F;
+
+//Fragment lighting registers (0x140-0x1FF)
 pub const GPUREG_0140: i32 = 0x0140;
 pub const GPUREG_0141: i32 = 0x0141;
 pub const GPUREG_0142: i32 = 0x0142;
@@ -510,6 +519,8 @@ pub const GPUREG_01FC: i32 = 0x01FC;
 pub const GPUREG_01FD: i32 = 0x01FD;
 pub const GPUREG_01FE: i32 = 0x01FE;
 pub const GPUREG_01FF: i32 = 0x01FF;
+
+//Geometry pipeline registers (0x200-0x27F)
 pub const GPUREG_ATTRIBBUFFERS_LOC: i32 = 0x0200;
 pub const GPUREG_ATTRIBBUFFERS_FORMAT_LOW: i32 = 0x0201;
 pub const GPUREG_ATTRIBBUFFERS_FORMAT_HIGH: i32 = 0x0202;
@@ -638,6 +649,8 @@ pub const GPUREG_027C: i32 = 0x027C;
 pub const GPUREG_027D: i32 = 0x027D;
 pub const GPUREG_027E: i32 = 0x027E;
 pub const GPUREG_027F: i32 = 0x027F;
+
+//Geometry shader registers (0x280-0x2AF)
 pub const GPUREG_GSH_BOOLUNIFORM: i32 = 0x0280;
 pub const GPUREG_GSH_INTUNIFORM_I0: i32 = 0x0281;
 pub const GPUREG_GSH_INTUNIFORM_I1: i32 = 0x0282;
@@ -665,6 +678,8 @@ pub const GPUREG_GSH_OPDESCS_CONFIG: i32 = 0x02A5;
 pub const GPUREG_GSH_OPDESCS_DATA: i32 = 0x02A6;
 pub const GPUREG_02AE: i32 = 0x02AE;
 pub const GPUREG_02AF: i32 = 0x02AF;
+
+//Vertex shader registers (0x2B0-0x2DF)
 pub const GPUREG_VSH_BOOLUNIFORM: i32 = 0x02B0;
 pub const GPUREG_VSH_INTUNIFORM_I0: i32 = 0x02B1;
 pub const GPUREG_VSH_INTUNIFORM_I1: i32 = 0x02B2;
@@ -692,6 +707,8 @@ pub const GPUREG_VSH_OPDESCS_CONFIG: i32 = 0x02D5;
 pub const GPUREG_VSH_OPDESCS_DATA: i32 = 0x02D6;
 pub const GPUREG_02DE: i32 = 0x02DE;
 pub const GPUREG_02DF: i32 = 0x02DF;
+
+//Unknown registers (0x2E0-0x2FF)
 pub const GPUREG_02E0: i32 = 0x02E0;
 pub const GPUREG_02E1: i32 = 0x02E1;
 pub const GPUREG_02E2: i32 = 0x02E2;
@@ -723,4 +740,4 @@ pub const GPUREG_02FB: i32 = 0x02FB;
 pub const GPUREG_02FC: i32 = 0x02FC;
 pub const GPUREG_02FD: i32 = 0x02FD;
 pub const GPUREG_02FE: i32 = 0x02FE;
-pub const GPUREG_02FF: i32 = 0x02FF
+pub const GPUREG_02FF: i32 = 0x02FF;

@@ -1,5 +1,5 @@
 [package]
 name = "ctru-sys"
-version = "0.1.0"
-authors = ["Ronald Kinard <furyhunter600@gmail.com>", "FenrirWolf <fenrirwolf@gmail.com>"]
+version = "0.2.0"
+authors = ["Ronald Kinard <furyhunter600@gmail.com>"]
 license = "https://en.wikipedia.org/wiki/Zlib_License"

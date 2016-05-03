@@ -1,9 +1,8 @@
-use ::{Handle, Result};
-
+use ::Result;
 
 extern "C" {
     pub fn acInit() -> Result;
-    pub fn acExit() -> Result;
-    pub fn ACU_GetWifiStatus(servhandle: *mut Handle, out: *mut u32) -> Result;
-    pub fn ACU_WaitInternetConnection() -> Result;
+    pub fn acExit();
+    pub fn acWaitInternetConnection() -> Result;
+    pub fn ACU_GetWifiStatus(out: *mut u32) -> Result;
 }
