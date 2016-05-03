@@ -1,4 +1,4 @@
 # Authors
 
- * FuryHunter
+ * Furyhunter
  * FenrirWolf
