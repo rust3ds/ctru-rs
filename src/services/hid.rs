@@ -32,7 +32,7 @@ pub enum PadKey {
     Up,
     Down,
     Left,
-    Right
+    Right,
 }
 
 impl From<PadKey> for u32 {
@@ -68,13 +68,13 @@ impl From<PadKey> for u32 {
             DPadLeft => KEY_DLEFT as u32,
             DPadRight => KEY_DRIGHT as u32,
             DPadUp => KEY_DUP as u32,
-            DPadDown => KEY_DDOWN as u32
+            DPadDown => KEY_DDOWN as u32,
         }
     }
 }
 
 pub struct Hid {
-    pd: PhantomData<i32>
+    pd: PhantomData<i32>,
 }
 
 impl Hid {

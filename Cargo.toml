@@ -1,15 +1,18 @@
 [package]
-name = "ctru-rs"
-version = "0.2.0"
-description = "A safe wrapper around smealum's ctrulib."
-authors = ["Ronald Kinard <furyhunter600@gmail.com>"] 
-links = "ctru"
+authors = ["Ronald Kinard <furyhunter600@gmail.com>"]
 build = "build.rs"
+description = "A safe wrapper around smealum's ctrulib."
 license = "https://en.wikipedia.org/wiki/Zlib_License"
-
-[lib]
-name = "ctru"
-crate-type = ["rlib"]
+links = "ctru"
+name = "ctru-rs"
+version = "0.2.1"
 
 [dependencies]
-ctru-sys = { path = "ctru-sys" }
+rcstring = "0.2.1"
+
+[dependencies.ctru-sys]
+path = "ctru-sys"
+
+[lib]
+crate-type = ["rlib"]
+name = "ctru"

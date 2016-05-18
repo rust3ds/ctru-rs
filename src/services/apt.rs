@@ -11,7 +11,7 @@ pub enum AppStatus {
     SleepMode,
     PrepareSleepMode,
     AppletStarted,
-    AppletClosed
+    AppletClosed,
 }
 
 impl From<AppStatus> for apt::APT_AppStatus {
@@ -35,21 +35,21 @@ impl From<apt::APT_AppStatus> for AppStatus {
     fn from(a: apt::APT_AppStatus) -> AppStatus {
         use self::AppStatus::*;
         match a {
-             apt::APT_AppStatus::APP_NOTINITIALIZED => NotInitialized,
-             apt::APT_AppStatus::APP_RUNNING => Running,
-             apt::APT_AppStatus::APP_SUSPENDED => Suspended,
-             apt::APT_AppStatus::APP_EXITING => Exiting,
-             apt::APT_AppStatus::APP_SUSPENDING => Suspending,
-             apt::APT_AppStatus::APP_SLEEPMODE => SleepMode,
-             apt::APT_AppStatus::APP_PREPARE_SLEEPMODE => PrepareSleepMode,
-             apt::APT_AppStatus::APP_APPLETSTARTED => AppletStarted,
-             apt::APT_AppStatus::APP_APPLETCLOSED => AppletClosed
+            apt::APT_AppStatus::APP_NOTINITIALIZED => NotInitialized,
+            apt::APT_AppStatus::APP_RUNNING => Running,
+            apt::APT_AppStatus::APP_SUSPENDED => Suspended,
+            apt::APT_AppStatus::APP_EXITING => Exiting,
+            apt::APT_AppStatus::APP_SUSPENDING => Suspending,
+            apt::APT_AppStatus::APP_SLEEPMODE => SleepMode,
+            apt::APT_AppStatus::APP_PREPARE_SLEEPMODE => PrepareSleepMode,
+            apt::APT_AppStatus::APP_APPLETSTARTED => AppletStarted,
+            apt::APT_AppStatus::APP_APPLETCLOSED => AppletClosed,
         }
     }
 }
 
 pub struct Apt {
-    pd: PhantomData<()>
+    pd: PhantomData<()>,
 }
 
 impl Apt {
