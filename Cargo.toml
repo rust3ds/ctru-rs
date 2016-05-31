@@ -7,9 +7,6 @@ links = "ctru"
 name = "ctru-rs"
 version = "0.2.1"
 
-[dependencies]
-rcstring = "0.2.1"
-
 [dependencies.ctru-sys]
 path = "ctru-sys"
 

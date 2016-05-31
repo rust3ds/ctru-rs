@@ -18,12 +18,13 @@
   "dynamic-linking": false,
   "no-compiler-rt": true,
   "exe-suffix": ".elf",
-  "pre-link-args": ["-specs",
+  "is-like-windows": true,
+  "function-sections": false,
+  "pre-link-args": [
+    "-specs",
     "3dsx.specs",
     "-march=armv6k",
     "-mtune=mpcore",
     "-mfloat-abi=hard"
-  ],
-  "is-like-windows": true,
-  "function-sections": false
+  ]
 }

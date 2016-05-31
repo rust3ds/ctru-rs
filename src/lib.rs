@@ -1,5 +1,5 @@
-#![no_std]
 #![feature(lang_items, alloc, collections, slice_concat_ext, macro_reexport, allow_internal_unstable)]
+#![no_std]
 #![crate_type = "rlib"]
 #![crate_name = "ctru"]
 
@@ -8,8 +8,6 @@ extern crate alloc;
 extern crate collections;
 
 extern crate ctru_sys as libctru;
-#[macro_use]
-extern crate rcstring;
 
 pub mod console;
 pub mod srv;
