@@ -1,31 +1,42 @@
-use libctru::console::{PrintConsole, consoleInit, consoleClear};
+use libctru::console::{consoleInit, consoleClear};
 use libctru::gfx;
 
+use core::default::Default;
+use core::marker::PhantomData;
 use core::ptr;
 
 extern "C" {
     fn putchar(ch: u8) -> i32;
 }
 
-pub fn console_default_init() -> *mut PrintConsole {
-    unsafe { consoleInit(gfx::gfxScreen_t::GFX_TOP, ptr::null_mut()) }
+pub struct Console {
+    pd: PhantomData<i32>,
 }
 
-pub fn console_write<'a>(s: &'a str) {
-    unsafe {
-        for c in s.as_bytes().iter() {
-            putchar(*c);
+impl Console {
+    pub fn write<'a>(&mut self, s: &'a str) {
+        unsafe {
+            for ch in s.as_bytes().iter() {
+                putchar(*ch);
+            }
         }
     }
-}
 
-pub fn console_writeln<'a>(s: &'a str) {
-    unsafe {
-        console_write(s);
-        putchar('\n' as u8);
+    pub fn writeln<'a>(&mut self, s: &'a str) {
+        unsafe {
+            self.write(s);
+            putchar('\n' as u8);
+        }
+    }
+
+    pub fn clear(&mut self) {
+        unsafe { consoleClear() }
     }
 }
 
-pub fn console_clear() {
-    unsafe { consoleClear() }
+impl Default for Console {
+    fn default() -> Self {
+        unsafe { consoleInit(gfx::gfxScreen_t::GFX_TOP, ptr::null_mut()); }
+        Console { pd: PhantomData }
+    }
 }

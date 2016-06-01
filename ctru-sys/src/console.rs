@@ -35,26 +35,31 @@ pub struct PrintConsole {
     pub consoleInitialised: u8,
 }
 
-pub const CONSOLE_COLOR_BOLD:    i32 = 1;
-pub const CONSOLE_COLOR_FAINT:   i32 = 2;
-pub const CONSOLE_ITALIC:        i32 = 4;
-pub const CONSOLE_UNDERLINE:     i32 = 8;
-pub const CONSOLE_BLINK_SLOW:    i32 = 16;
-pub const CONSOLE_BLINK_FAST:    i32 = 32;
+pub const CONSOLE_COLOR_BOLD: i32 = 1;
+pub const CONSOLE_COLOR_FAINT: i32 = 2;
+pub const CONSOLE_ITALIC: i32 = 4;
+pub const CONSOLE_UNDERLINE: i32 = 8;
+pub const CONSOLE_BLINK_SLOW: i32 = 16;
+pub const CONSOLE_BLINK_FAST: i32 = 32;
 pub const CONSOLE_COLOR_REVERSE: i32 = 64;
-pub const CONSOLE_CONCEAL:       i32 = 128;
+pub const CONSOLE_CONCEAL: i32 = 128;
 
 #[repr(C)]
 pub enum debugDevice {
-    NULL    = 0,
-    _3DMOO   = 1,
+    NULL = 0,
+    _3DMOO = 1,
     CONSOLE = 2,
 }
 
 
 extern "C" {
     pub fn consoleSetFont(console: *mut PrintConsole, font: *mut ConsoleFont) -> ();
-    pub fn consoleSetWindow(console: *mut PrintConsole, x: i32, y: i32, width: i32, height: i32) -> ();
+    pub fn consoleSetWindow(console: *mut PrintConsole,
+                            x: i32,
+                            y: i32,
+                            width: i32,
+                            height: i32)
+                            -> ();
     pub fn consoleGetDefault() -> *mut PrintConsole;
     pub fn consoleSelect(console: *mut PrintConsole) -> *mut PrintConsole;
     pub fn consoleInit(screen: gfxScreen_t, console: *mut PrintConsole) -> *mut PrintConsole;
