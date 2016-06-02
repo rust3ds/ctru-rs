@@ -10,11 +10,11 @@ extern "C" {
 }
 
 pub struct Console {
-    pd: PhantomData<i32>,
+    pd: PhantomData<()>,
 }
 
 impl Console {
-    pub fn write<'a>(&mut self, s: &'a str) {
+    pub fn print<'a>(&mut self, s: &'a str) {
         unsafe {
             for ch in s.as_bytes().iter() {
                 putchar(*ch);
@@ -22,9 +22,9 @@ impl Console {
         }
     }
 
-    pub fn writeln<'a>(&mut self, s: &'a str) {
+    pub fn println<'a>(&mut self, s: &'a str) {
         unsafe {
-            self.write(s);
+            self.print(s);
             putchar('\n' as u8);
         }
     }

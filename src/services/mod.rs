@@ -3,4 +3,4 @@ pub mod hid;
 pub mod gspgpu;
 
 pub use self::hid::Hid;
-pub use self::apt::{Apt, Application};
+pub use self::apt::Apt;
