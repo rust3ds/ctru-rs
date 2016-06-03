@@ -1,5 +1,5 @@
 use {Handle, Result};
-use c_void;
+use libc::c_void;
 use ThreadFunc;
 
 pub enum Struct_Thread_tag { }

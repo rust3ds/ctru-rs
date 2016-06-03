@@ -79,7 +79,7 @@ impl Apt {
     }
 
     pub fn main_loop(&mut self) -> bool {
-        unsafe { 
+        unsafe {
             match apt::aptMainLoop() {
                 1 => true,
                 0 => false,

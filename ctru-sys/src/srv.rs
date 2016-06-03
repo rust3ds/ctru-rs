@@ -1,5 +1,5 @@
 use {Result, Handle};
-use c_void;
+use libc::c_void;
 
 extern "C" {
     pub fn srvInit() -> Result;

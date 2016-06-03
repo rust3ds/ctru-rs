@@ -1,6 +1,7 @@
 // TODO: Determine if anonymous enums are properly represented (they probably aren't)
 
 use ::{Handle, Result};
+use ::libc::c_void;
 
 #[derive(Clone, Copy)]
 #[repr(C)]
@@ -276,7 +277,7 @@ pub type FS_DeviceMoveContext = Struct_Unnamed24;
 pub struct Struct_Unnamed25 {
     pub _type: FS_PathType,
     pub size: u32,
-    pub data: *const ::c_void,
+    pub data: *const c_void,
 }
 impl ::core::clone::Clone for Struct_Unnamed25 {
     fn clone(&self) -> Self { *self }
@@ -305,12 +306,12 @@ extern "C" {
     pub fn fsExit();
     pub fn fsUseSession(session: Handle, sdmc: u8);
     pub fn fsEndUseSession();
-    pub fn fsMakePath(_type: FS_PathType, path: *const ::c_void)
+    pub fn fsMakePath(_type: FS_PathType, path: *const c_void)
      -> FS_Path;
     pub fn fsGetSessionHandle() -> *mut Handle;
     pub fn FSUSER_Control(action: FS_Action,
-                          input: *mut ::c_void, inputSize: u32,
-                          output: *mut ::c_void,
+                          input: *mut c_void, inputSize: u32,
+                          output: *mut c_void,
                           outputSize: u32) -> Result;
     pub fn FSUSER_Initialize(session: Handle) -> Result;
     pub fn FSUSER_OpenFile(out: *mut Handle, archive: FS_Archive,
@@ -339,9 +340,9 @@ extern "C" {
     pub fn FSUSER_OpenArchive(archive: *mut FS_Archive) -> Result;
     pub fn FSUSER_ControlArchive(archive: FS_Archive,
                                  action: FS_ArchiveAction,
-                                 input: *mut ::c_void,
+                                 input: *mut c_void,
                                  inputSize: u32,
-                                 output: *mut ::c_void,
+                                 output: *mut c_void,
                                  outputSize: u32) -> Result;
     pub fn FSUSER_CloseArchive(archive: *mut FS_Archive) -> Result;
     pub fn FSUSER_GetFreeBytes(freeBytes: *mut u64, archive: FS_Archive)
@@ -495,22 +496,22 @@ extern "C" {
                                          titleUniqueId: u32,
                                          titleVariation: u8) -> Result;
     pub fn FSUSER_ControlSecureSave(action: FS_SecureSaveAction,
-                                    input: *mut ::c_void,
+                                    input: *mut c_void,
                                     inputSize: u32,
-                                    output: *mut ::c_void,
+                                    output: *mut c_void,
                                     outputSize: u32) -> Result;
     pub fn FSUSER_GetMediaType(mediaType: *mut FS_MediaType) -> Result;
     pub fn FSFILE_Control(handle: Handle, action: FS_FileAction,
-                          input: *mut ::c_void, inputSize: u32,
-                          output: *mut ::c_void,
+                          input: *mut c_void, inputSize: u32,
+                          output: *mut c_void,
                           outputSize: u32) -> Result;
     pub fn FSFILE_OpenSubFile(handle: Handle, subFile: *mut Handle,
                               offset: u64, size: u64) -> Result;
     pub fn FSFILE_Read(handle: Handle, bytesRead: *mut u32, offset: u64,
-                       buffer: *mut ::c_void, size: u32)
+                       buffer: *mut c_void, size: u32)
      -> Result;
     pub fn FSFILE_Write(handle: Handle, bytesWritten: *mut u32, offset: u64,
-                        buffer: *const ::c_void, size: u32,
+                        buffer: *const c_void, size: u32,
                         flags: u32) -> Result;
     pub fn FSFILE_GetSize(handle: Handle, size: *mut u64) -> Result;
     pub fn FSFILE_SetSize(handle: Handle, size: u64) -> Result;
@@ -524,8 +525,8 @@ extern "C" {
     pub fn FSFILE_OpenLinkFile(handle: Handle, linkFile: *mut Handle)
      -> Result;
     pub fn FSDIR_Control(handle: Handle, action: FS_DirectoryAction,
-                         input: *mut ::c_void, inputSize: u32,
-                         output: *mut ::c_void,
+                         input: *mut c_void, inputSize: u32,
+                         output: *mut c_void,
                          outputSize: u32) -> Result;
     pub fn FSDIR_Read(handle: Handle, entriesRead: *mut u32,
                       entryCount: u32, entries: *mut FS_DirectoryEntry)

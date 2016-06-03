@@ -1,4 +1,4 @@
-use c_void;
+use libc::c_void;
 
 use super::gfx::*;
 
