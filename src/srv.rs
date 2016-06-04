@@ -3,7 +3,7 @@ use libctru::srv::*;
 use core::marker::PhantomData;
 
 pub struct Srv {
-    pd: PhantomData<i32>
+    pd: PhantomData<i32>,
 }
 
 impl Srv {

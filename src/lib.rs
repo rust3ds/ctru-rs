@@ -1,10 +1,15 @@
+#![feature(lang_items, alloc, collections, macro_reexport, allow_internal_unstable)]
 #![no_std]
-#![feature(lang_items)]
 #![crate_type = "rlib"]
 #![crate_name = "ctru"]
 
+extern crate alloc;
+#[macro_reexport(format, vec)]
+extern crate collections;
+
 extern crate ctru_sys as libctru;
 
+pub mod console;
 pub mod srv;
 pub mod gfx;
 pub mod sdmc;
@@ -15,5 +20,9 @@ pub use srv::Srv;
 pub use gfx::Gfx;
 pub use sdmc::Sdmc;
 
-#[lang = "eh_personality"] extern fn eh_personality() {}
-#[lang = "panic_fmt"] fn panic_fmt() -> ! { loop {} }
+#[lang = "eh_personality"]
+extern "C" fn eh_personality() {}
+#[lang = "panic_fmt"]
+fn panic_fmt() -> ! {
+    loop {}
+}

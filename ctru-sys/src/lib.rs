@@ -14,6 +14,7 @@ pub mod gfx;
 pub mod gpu;
 pub mod ipc;
 pub mod lock;
+pub mod libc;
 pub mod os;
 pub mod sdmc;
 pub mod srv;
@@ -29,10 +30,4 @@ pub use self::types::*;
 pub type Result = i32;
 pub type Handle = u32;
 
-#[repr(u8)]
-pub enum c_void {
-    __variant1,
-    __variant2,
-}
-
-pub type ThreadFunc = Option<extern "C" fn(arg1: *mut c_void) -> ()>;
+pub type ThreadFunc = Option<extern "C" fn(arg1: *mut libc::c_void) -> ()>;

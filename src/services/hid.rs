@@ -32,7 +32,7 @@ pub enum PadKey {
     Up,
     Down,
     Left,
-    Right
+    Right,
 }
 
 impl From<PadKey> for u32 {
@@ -68,25 +68,18 @@ impl From<PadKey> for u32 {
             DPadLeft => KEY_DLEFT as u32,
             DPadRight => KEY_DRIGHT as u32,
             DPadUp => KEY_DUP as u32,
-            DPadDown => KEY_DDOWN as u32
+            DPadDown => KEY_DDOWN as u32,
         }
     }
 }
 
 pub struct Hid {
-    pd: PhantomData<i32>
+    pd: PhantomData<()>,
 }
 
 impl Hid {
-    pub fn new() -> Result<Hid, i32> {
-        unsafe {
-            let r = hid::hidInit();
-            if r < 0 {
-                Err(r)
-            } else {
-                Ok(Hid { pd: PhantomData })
-            }
-        }
+    pub fn new() -> Hid {
+        Hid { pd: PhantomData }
     }
 
     pub fn scan_input(&mut self) {
@@ -124,11 +117,5 @@ impl Hid {
                 return false;
             }
         }
-    }
-}
-
-impl Drop for Hid {
-    fn drop(&mut self) {
-        unsafe { hid::hidExit() };
     }
 }

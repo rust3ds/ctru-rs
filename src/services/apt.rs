@@ -11,22 +11,23 @@ pub enum AppStatus {
     SleepMode,
     PrepareSleepMode,
     AppletStarted,
-    AppletClosed
+    AppletClosed,
 }
 
 impl From<AppStatus> for apt::APT_AppStatus {
     fn from(a: AppStatus) -> apt::APT_AppStatus {
         use self::AppStatus::*;
+        use libctru::services::apt::APT_AppStatus::*;
         match a {
-            NotInitialized => apt::APT_AppStatus::APP_NOTINITIALIZED,
-            Running => apt::APT_AppStatus::APP_RUNNING,
-            Suspended => apt::APT_AppStatus::APP_SUSPENDED,
-            Exiting => apt::APT_AppStatus::APP_EXITING,
-            Suspending => apt::APT_AppStatus::APP_SUSPENDING,
-            SleepMode => apt::APT_AppStatus::APP_SLEEPMODE,
-            PrepareSleepMode => apt::APT_AppStatus::APP_PREPARE_SLEEPMODE,
-            AppletStarted => apt::APT_AppStatus::APP_APPLETSTARTED,
-            AppletClosed => apt::APT_AppStatus::APP_APPLETCLOSED,
+            NotInitialized => APP_NOTINITIALIZED,
+            Running => APP_RUNNING,
+            Suspended => APP_SUSPENDED,
+            Exiting => APP_EXITING,
+            Suspending => APP_SUSPENDING,
+            SleepMode => APP_SLEEPMODE,
+            PrepareSleepMode => APP_PREPARE_SLEEPMODE,
+            AppletStarted => APP_APPLETSTARTED,
+            AppletClosed => APP_APPLETCLOSED,
         }
     }
 }
@@ -34,34 +35,28 @@ impl From<AppStatus> for apt::APT_AppStatus {
 impl From<apt::APT_AppStatus> for AppStatus {
     fn from(a: apt::APT_AppStatus) -> AppStatus {
         use self::AppStatus::*;
+        use libctru::services::apt::APT_AppStatus::*;
         match a {
-             apt::APT_AppStatus::APP_NOTINITIALIZED => NotInitialized,
-             apt::APT_AppStatus::APP_RUNNING => Running,
-             apt::APT_AppStatus::APP_SUSPENDED => Suspended,
-             apt::APT_AppStatus::APP_EXITING => Exiting,
-             apt::APT_AppStatus::APP_SUSPENDING => Suspending,
-             apt::APT_AppStatus::APP_SLEEPMODE => SleepMode,
-             apt::APT_AppStatus::APP_PREPARE_SLEEPMODE => PrepareSleepMode,
-             apt::APT_AppStatus::APP_APPLETSTARTED => AppletStarted,
-             apt::APT_AppStatus::APP_APPLETCLOSED => AppletClosed
+            APP_NOTINITIALIZED => NotInitialized,
+            APP_RUNNING => Running,
+            APP_SUSPENDED => Suspended,
+            APP_EXITING => Exiting,
+            APP_SUSPENDING => Suspending,
+            APP_SLEEPMODE => SleepMode,
+            APP_PREPARE_SLEEPMODE => PrepareSleepMode,
+            APP_APPLETSTARTED => AppletStarted,
+            APP_APPLETCLOSED => AppletClosed,
         }
     }
 }
 
 pub struct Apt {
-    pd: PhantomData<()>
+    pd: PhantomData<()>,
 }
 
 impl Apt {
-    pub fn new() -> Result<Apt, i32> {
-        unsafe {
-            let r = apt::aptInit();
-            if r < 0 {
-                Err(r)
-            } else {
-                Ok(Apt { pd: PhantomData })
-            }
-        }
+    pub fn new() -> Apt {
+        Apt { pd: PhantomData }
     }
 
     pub fn get_status(&self) -> AppStatus {
@@ -80,31 +75,16 @@ impl Apt {
     /// The program will not return from this function until the system returns
     /// to the application, or when the status changes to `AppStatus::Exiting`.
     pub fn return_to_menu(&mut self) {
-        unsafe { apt::aptReturnToMenu() };
+        unsafe { apt::aptReturnToMenu() }
     }
 
-    pub fn main_loop(&mut self, app: &mut Application) {
+    pub fn main_loop(&mut self) -> bool {
         unsafe {
-            while apt::aptMainLoop() != 0 {
-                app.main_loop(self);
-                if app.ready_to_quit() {
-                    self.set_status(AppStatus::Exiting)
-                }
+            match apt::aptMainLoop() {
+                1 => true,
+                0 => false,
+                _ => unreachable!(),
             }
-        };
+        }
     }
-}
-
-impl Drop for Apt {
-    fn drop(&mut self) {
-        unsafe { apt::aptExit() };
-    }
-}
-
-pub trait Application {
-    /// Program app loop body.
-    fn main_loop(&mut self, apt: &mut Apt);
-
-    /// True if the application is ready to quit.
-    fn ready_to_quit(&self) -> bool;
 }

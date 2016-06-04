@@ -3,7 +3,7 @@ use core::marker::PhantomData;
 use libctru::sdmc::*;
 
 pub struct Sdmc {
-    pd: PhantomData<i32>
+    pd: PhantomData<i32>,
 }
 
 impl Sdmc {
@@ -21,8 +21,6 @@ impl Sdmc {
 
 impl Drop for Sdmc {
     fn drop(&mut self) {
-        unsafe {
-            sdmcExit()
-        };
+        unsafe { sdmcExit() };
     }
 }

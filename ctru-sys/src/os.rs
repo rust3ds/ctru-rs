@@ -1,6 +1,7 @@
 //TODO: Fix Bindgen's issues again. 
 
 use ::Result;
+use libc::c_void;
 use types::*;
 
 #[inline]
@@ -35,9 +36,9 @@ impl ::core::default::Default for Struct_Unnamed2 {
 }
 pub type OS_VersionBin = Struct_Unnamed2;
 extern "C" {
-    pub fn osConvertVirtToPhys(vaddr: *const ::c_void) -> u32;
-    pub fn osConvertOldLINEARMemToNew(vaddr: *const ::c_void)
-     -> *mut ::c_void;
+    pub fn osConvertVirtToPhys(vaddr: *const c_void) -> u32;
+    pub fn osConvertOldLINEARMemToNew(vaddr: *const c_void)
+     -> *mut c_void;
     pub fn osStrError(error: u32) -> *const u8;
     pub fn osGetMemRegionUsed(region: MemRegion) -> s64;
     pub fn osGetTime() -> u64;
