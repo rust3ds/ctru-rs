@@ -74,12 +74,19 @@ impl From<PadKey> for u32 {
 }
 
 pub struct Hid {
-    pd: PhantomData<()>,
+    pd: PhantomData<i32>
 }
 
 impl Hid {
-    pub fn new() -> Hid {
-        Hid { pd: PhantomData }
+    pub fn new() -> Result<Hid, i32> {
+        unsafe {
+            let r = hid::hidInit();
+            if r < 0 {
+                Err(r)
+            } else {
+                Ok(Hid { pd: PhantomData })
+            }
+        }
     }
 
     pub fn scan_input(&mut self) {
@@ -117,5 +124,11 @@ impl Hid {
                 return false;
             }
         }
+    }
+}
+
+impl Drop for Hid {
+    fn drop(&mut self) {
+        unsafe { hid::hidExit() };
     }
 }

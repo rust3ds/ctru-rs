@@ -51,13 +51,21 @@ impl From<apt::APT_AppStatus> for AppStatus {
 }
 
 pub struct Apt {
-    pd: PhantomData<()>,
+    pd: PhantomData<i32>
 }
 
 impl Apt {
-    pub fn new() -> Apt {
-        Apt { pd: PhantomData }
+    pub fn new() -> Result<Apt, i32> {
+        unsafe {
+            let r = apt::aptInit();
+            if r < 0 {
+                Err(r)
+            } else {
+                Ok(Apt { pd: PhantomData })
+            }
+        }
     }
+
 
     pub fn get_status(&self) -> AppStatus {
         unsafe { apt::aptGetStatus().into() }
@@ -86,5 +94,11 @@ impl Apt {
                 _ => unreachable!(),
             }
         }
+    }
+}
+
+impl Drop for Apt {
+    fn drop(&mut self) {
+        unsafe { apt::aptExit() };
     }
 }
