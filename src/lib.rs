@@ -1,11 +1,7 @@
-#![feature(lang_items, alloc, collections, macro_reexport, allow_internal_unstable)]
+#![feature(lang_items)]
 #![no_std]
 #![crate_type = "rlib"]
 #![crate_name = "ctru"]
-
-extern crate alloc;
-#[macro_reexport(format, vec)]
-extern crate collections;
 
 extern crate ctru_sys as libctru;
 
