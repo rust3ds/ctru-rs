@@ -7,7 +7,7 @@ pub struct Sdmc {
 }
 
 impl Sdmc {
-    pub fn new() -> Result<Self, i32> {
+    pub fn new() -> Result<Sdmc, i32> {
         unsafe {
             let r = sdmcInit();
             if r < 0 {
