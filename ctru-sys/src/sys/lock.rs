@@ -1,7 +1,5 @@
 //<sys/lock.h> from devkitArm, needed for synchronization.rs to compile
 
-//TODO: I don't even know this thing looks really spooky
-
 pub type _LOCK_T = i32;
 #[repr(C)]
 #[derive(Copy)]
