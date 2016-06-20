@@ -26,11 +26,11 @@ platform. Add this to your `Cargo.toml`:
 
 ```toml
     [dependencies.ctru-rs]
-    git="https://github.com/Furyhunter/ctru-rs"
+    git="https://github.com/rust3ds/ctru-rs"
 ```
 
 **It is highly recommended to use the [template
-project.](https://github.com/Furyhunter/rust3ds-template)**
+project.](https://github.com/rust3ds/rust3ds-template)**
 
 ## Contributing
 
