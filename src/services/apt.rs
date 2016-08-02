@@ -86,7 +86,7 @@ impl Apt {
         unsafe { apt::aptReturnToMenu() }
     }
 
-    pub fn main_loop(&mut self) -> bool {
+    pub fn main_loop(&self) -> bool {
         unsafe {
             match apt::aptMainLoop() {
                 1 => true,

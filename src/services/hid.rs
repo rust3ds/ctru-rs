@@ -89,7 +89,7 @@ impl Hid {
         }
     }
 
-    pub fn scan_input(&mut self) {
+    pub fn scan_input(&self) {
         unsafe { hid::hidScanInput() };
     }
 
