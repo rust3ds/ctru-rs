@@ -55,7 +55,7 @@ pub struct Apt {
 }
 
 impl Apt {
-    pub fn new() -> Result<Apt, i32> {
+    pub fn init() -> Result<Apt, i32> {
         unsafe {
             let r = apt::aptInit();
             if r < 0 {

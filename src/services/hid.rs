@@ -78,7 +78,7 @@ pub struct Hid {
 }
 
 impl Hid {
-    pub fn new() -> Result<Hid, i32> {
+    pub fn init() -> Result<Hid, i32> {
         unsafe {
             let r = hid::hidInit();
             if r < 0 {

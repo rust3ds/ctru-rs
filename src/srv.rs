@@ -7,7 +7,7 @@ pub struct Srv {
 }
 
 impl Srv {
-    pub fn new() -> Result<Srv, i32> {
+    pub fn init() -> Result<Srv, i32> {
         unsafe {
             let r = srvInit();
             if r < 0 {
