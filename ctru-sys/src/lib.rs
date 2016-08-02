@@ -1,5 +1,7 @@
 /*
  * C bindings generation: 
+ * bindgen --match=file.h --use-core --ctypes-prefix=libc -- --sysroot=$DEVKITARM/arm-none-eabi -I$CTRULIB/include $CTRULIB/include/3ds.h
+ *
  * bindgen --sysroot=$DEVKITARM/arm-none-eabi -I$CTRULIB/include $CTRULIB/include/3ds.h
  */
 
