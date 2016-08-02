@@ -7,5 +7,6 @@ pub enum c_void {
 }
 
 extern "C" {
+    pub fn abort() -> !;
     pub fn write(fd: i32, buf: *const c_void, count: usize) -> isize;
 }
