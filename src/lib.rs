@@ -11,14 +11,8 @@ pub mod gfx;
 pub mod sdmc;
 
 pub mod services;
+pub mod panic;
 
 pub use srv::Srv;
 pub use gfx::Gfx;
 pub use sdmc::Sdmc;
-
-#[lang = "eh_personality"]
-extern "C" fn eh_personality() {}
-#[lang = "panic_fmt"]
-fn panic_fmt() -> ! {
-    unsafe { libctru::libc::abort() }
-}
