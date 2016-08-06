@@ -1,9 +1,12 @@
-#![feature(lang_items)]
+#![feature(alloc, collections, lang_items)]
 #![no_std]
 #![crate_type = "rlib"]
 #![crate_name = "ctru"]
 
 extern crate ctru_sys as libctru;
+
+extern crate alloc;
+extern crate collections;
 
 pub mod console;
 pub mod srv;
