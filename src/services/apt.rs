@@ -66,26 +66,6 @@ impl Apt {
         }
     }
 
-
-    pub fn get_status(&self) -> AppStatus {
-        unsafe { apt::aptGetStatus().into() }
-    }
-
-    pub fn set_status(&mut self, status: AppStatus) {
-        unsafe { apt::aptSetStatus(status.into()) };
-    }
-
-    /// Return to the home menu.
-    ///
-    /// When `get_status` returns `AppStatus::Suspending`, you should call this,
-    /// otherwise the app will be left stuck in that state.
-    ///
-    /// The program will not return from this function until the system returns
-    /// to the application, or when the status changes to `AppStatus::Exiting`.
-    pub fn return_to_menu(&mut self) {
-        unsafe { apt::aptReturnToMenu() }
-    }
-
     pub fn main_loop(&self) -> bool {
         unsafe {
             match apt::aptMainLoop() {
