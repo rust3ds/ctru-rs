@@ -106,7 +106,7 @@ impl Archive {
         }
     }
 
-    pub fn id(&self) -> ArchiveID {
+    pub fn get_id(&self) -> ArchiveID {
         self.id
     }
 }
@@ -135,7 +135,7 @@ impl OpenOptions {
         unsafe {
             let mut file_handle: u32 = 0;
             let wide = path.as_os_str().encode_wide().collect::<Vec<_>>();
-            let ctr_path = fsMakePath(PathType::UTF16.into(), wide.as_slice().as_ptr() as *mut _);
+            let ctr_path = fsMakePath(PathType::UTF16.into(), wide.as_ptr() as *mut _);
             let ret = FSUSER_OpenFile(&mut file_handle, self.arch_handle, ctr_path, flags, 0);
             if ret < 0 {
                 Err(ret)
