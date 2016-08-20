@@ -53,6 +53,7 @@ pub struct Archive {
 
 pub struct File {
     handle: u32,
+    offset: u64,
 }
 
 pub struct OpenOptions {
@@ -111,6 +112,41 @@ impl Archive {
     }
 }
 
+impl File {
+    pub fn len(&self) -> Result<u64, i32> {
+        unsafe {
+            let mut len = 0;
+            let r = FSFILE_GetSize(self.handle, &mut len);
+            if r < 0 {
+                Err(r)
+            } else {
+                Ok(len)
+            }
+        }
+    }
+
+    pub fn read(&mut self, buf: &mut [u8]) -> Result<u32, i32> {
+        unsafe {
+            let mut n_read = 0;
+            let r = FSFILE_Read(
+                self.handle,
+                &mut n_read,
+                self.offset,
+                buf.as_mut_ptr() as _,
+                buf.len() as u32
+            );
+
+            self.offset += n_read as u64;
+
+            if r < 0 {
+                Err(r)
+            } else {
+                Ok(n_read)
+            }
+        }
+    }
+}
+
 impl OpenOptions {
     pub fn read(&mut self, read: bool) -> &mut OpenOptions {
         self.read = read;
@@ -140,7 +176,10 @@ impl OpenOptions {
             if ret < 0 {
                 Err(ret)
             } else {
-                Ok(File { handle: file_handle })
+                Ok(File {
+                    handle: file_handle,
+                    offset: 0,
+                })
             }
         }
     }
