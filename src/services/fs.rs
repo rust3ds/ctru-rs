@@ -113,6 +113,18 @@ impl Archive {
 }
 
 impl File {
+    pub fn len(&self) -> Result<u64, i32> {
+        unsafe {
+            let mut len = 0;
+            let r = FSFILE_GetSize(self.handle, &mut len);
+            if r < 0 {
+                Err(r)
+            } else {
+                Ok(len)
+            }
+        }
+    }
+
     pub fn read(&mut self, buf: &mut [u8]) -> Result<u32, i32> {
         unsafe {
             let mut n_read = 0;
