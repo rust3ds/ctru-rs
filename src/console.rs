@@ -35,6 +35,10 @@ impl Default for Console {
 
 impl Write for Console {
     fn write_str(&mut self, s: &str) -> fmt::Result {
+        // Writing 0 bytes to the console fails
+        if s.is_empty() {
+            return Ok(())
+        }
         unsafe { consoleSelect(&mut self.context); }
         let ret = unsafe { libc::write(libc::STDOUT_FILENO, s.as_ptr() as *const _, s.len()) };
         if ret == s.len() as isize {
