@@ -22,7 +22,8 @@ pub type size_t = usize;
 pub type ssize_t = isize;
 
 extern "C" {
-    pub fn write(fd: c_int, buf: *const c_void, count: size_t) -> ssize_t;
+    pub fn __errno() -> *const c_int;
     pub fn memchr(cx: *const c_void, c: c_int, n: size_t) -> *mut c_void;
     pub fn memrchr(cx: *const c_void, c: c_int, n: size_t) -> *mut c_void;
+    pub fn write(fd: c_int, buf: *const c_void, count: size_t) -> ssize_t;
 }
