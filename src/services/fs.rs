@@ -79,7 +79,7 @@ impl Fs {
         let mut handle = 0u64;
         unsafe {
             let id = ArchiveID::Sdmc;
-            let path = fsMakePath(PathType::Empty.into(), ptr::null() as *const _);
+            let path = fsMakePath(PathType::Empty.into(), ptr::null() as _);
             let ret = FSUSER_OpenArchive(&mut handle, id.into(), path);
             if ret < 0 {
                 Err(ret)
@@ -125,7 +125,7 @@ impl File {
         }
     }
 
-    pub fn read(&mut self, buf: &mut [u8]) -> Result<u32, i32> {
+    pub fn read(&mut self, buf: &mut [u8]) -> Result<usize, i32> {
         unsafe {
             let mut n_read = 0;
             let r = FSFILE_Read(
@@ -135,13 +135,31 @@ impl File {
                 buf.as_mut_ptr() as _,
                 buf.len() as u32
             );
-
             self.offset += n_read as u64;
-
             if r < 0 {
                 Err(r)
             } else {
-                Ok(n_read)
+                Ok(n_read as usize)
+            }
+        }
+    }
+
+    pub fn write(&mut self, buf: &[u8]) -> Result<usize, i32> {
+        unsafe {
+            let mut n_written = 0;
+            let r = FSFILE_Write(
+                self.handle,
+                &mut n_written,
+                self.offset,
+                buf.as_ptr() as _,
+                buf.len() as u32,
+                FS_WRITE_FLUSH | FS_WRITE_UPDATE_TIME
+            );
+            self.offset += n_written as u64;
+            if r < 0 {
+                Err(r)
+            } else {
+                Ok(n_written as usize)
             }
         }
     }
@@ -169,9 +187,9 @@ impl OpenOptions {
 
     fn _open(&self, path: &Path, flags: u32) -> Result<File, i32> {
         unsafe {
-            let mut file_handle: u32 = 0;
+            let mut file_handle = 0;
             let wide = path.as_os_str().encode_wide().collect::<Vec<_>>();
-            let ctr_path = fsMakePath(PathType::UTF16.into(), wide.as_ptr() as *mut _);
+            let ctr_path = fsMakePath(PathType::UTF16.into(), wide.as_ptr() as _);
             let ret = FSUSER_OpenFile(&mut file_handle, self.arch_handle, ctr_path, flags, 0);
             if ret < 0 {
                 Err(ret)
@@ -188,6 +206,7 @@ impl OpenOptions {
         match (self.read, self.write, self.create) {
             (true,  false, false) => FS_OPEN_READ,
             (false, true,  false) => FS_OPEN_WRITE,
+            (false, true,  true)  => FS_OPEN_WRITE | FS_OPEN_CREATE,
             (true,  false, true)  => FS_OPEN_READ | FS_OPEN_CREATE,
             (true,  true,  false) => FS_OPEN_READ | FS_OPEN_WRITE,
             (true,  true,  true)  => FS_OPEN_READ | FS_OPEN_WRITE | FS_OPEN_CREATE,
