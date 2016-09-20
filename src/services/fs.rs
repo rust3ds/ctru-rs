@@ -56,6 +56,7 @@ pub struct File {
     offset: u64,
 }
 
+#[derive(Clone)]
 pub struct OpenOptions {
     read: bool,
     write: bool,
@@ -76,7 +77,7 @@ impl Fs {
     }
 
     pub fn sdmc(&self) -> Result<Archive, i32> {
-        let mut handle = 0u64;
+        let mut handle = 0;
         unsafe {
             let id = ArchiveID::Sdmc;
             let path = fsMakePath(PathType::Empty.into(), ptr::null() as _);
@@ -94,25 +95,20 @@ impl Fs {
 }
 
 impl Archive {
-    pub fn file_open(&self, path: &Path) -> Result<File, i32> {
-        self.file_open_options().read(true).create(true).open(path)
-    }
-
-    pub fn file_open_options(&self) -> OpenOptions {
-        OpenOptions {
-            read: false,
-            write: false,
-            create: false,
-            arch_handle: self.handle,
-        }
-    }
-
     pub fn get_id(&self) -> ArchiveID {
         self.id
     }
 }
 
 impl File {
+    pub fn open<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<File, i32> {
+        OpenOptions::new().read(true).archive(arch).open(path)
+    }
+
+    pub fn create<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<File, i32> {
+        OpenOptions::new().write(true).create(true).archive(arch).open(path)
+    }
+
     pub fn len(&self) -> Result<u64, i32> {
         unsafe {
             let mut len = 0;
@@ -121,6 +117,17 @@ impl File {
                 Err(r)
             } else {
                 Ok(len)
+            }
+        }
+    }
+
+    pub fn set_len(&mut self, len: u64) -> Result<(), i32> {
+        unsafe {
+            let r = FSFILE_SetSize(self.handle, len);
+            if r < 0 {
+                Err(r)
+            } else {
+                Ok(())
             }
         }
     }
@@ -166,6 +173,15 @@ impl File {
 }
 
 impl OpenOptions {
+    pub fn new() -> OpenOptions {
+        OpenOptions {
+            read: false,
+            write: false,
+            create: false,
+            arch_handle: 0,
+        }
+    }
+
     pub fn read(&mut self, read: bool) -> &mut OpenOptions {
         self.read = read;
         self
@@ -178,6 +194,11 @@ impl OpenOptions {
 
     pub fn create(&mut self, create: bool) -> &mut OpenOptions {
         self.create = create;
+        self
+    }
+
+    pub fn archive(&mut self, archive: &Archive) -> &mut OpenOptions {
+        self.arch_handle = archive.handle;
         self
     }
 
@@ -223,7 +244,6 @@ impl Drop for Fs {
     }
 }
 
-
 impl Drop for Archive {
     fn drop(&mut self) {
         unsafe {
@@ -250,20 +270,6 @@ impl From<PathType> for FS_PathType {
             Binary => PATH_BINARY,
             ASCII => PATH_ASCII,
             UTF16 => PATH_UTF16,
-        }
-    }
-}
-
-impl From<FS_PathType> for PathType {
-    fn from(f: FS_PathType) -> Self {
-        use self::PathType::*;
-        use libctru::services::fs::FS_PathType::*;
-        match f {
-            PATH_INVALID => Invalid,
-            PATH_EMPTY => Empty,
-            PATH_BINARY => Binary,
-            PATH_ASCII => ASCII,
-            PATH_UTF16 => UTF16,
         }
     }
 }
