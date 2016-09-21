@@ -77,13 +77,13 @@ impl Fs {
     }
 
     pub fn sdmc(&self) -> Result<Archive, i32> {
-        let mut handle = 0;
         unsafe {
+            let mut handle = 0;
             let id = ArchiveID::Sdmc;
             let path = fsMakePath(PathType::Empty.into(), ptr::null() as _);
-            let ret = FSUSER_OpenArchive(&mut handle, id.into(), path);
-            if ret < 0 {
-                Err(ret)
+            let r = FSUSER_OpenArchive(&mut handle, id.into(), path);
+            if r < 0 {
+                Err(r)
             } else {
                 Ok(Archive {
                     handle: handle,
@@ -211,9 +211,9 @@ impl OpenOptions {
             let mut file_handle = 0;
             let wide = path.as_os_str().encode_wide().collect::<Vec<_>>();
             let ctr_path = fsMakePath(PathType::UTF16.into(), wide.as_ptr() as _);
-            let ret = FSUSER_OpenFile(&mut file_handle, self.arch_handle, ctr_path, flags, 0);
-            if ret < 0 {
-                Err(ret)
+            let r = FSUSER_OpenFile(&mut file_handle, self.arch_handle, ctr_path, flags, 0);
+            if r < 0 {
+                Err(r)
             } else {
                 Ok(File {
                     handle: file_handle,
@@ -232,6 +232,19 @@ impl OpenOptions {
             (true,  true,  false) => FS_OPEN_READ | FS_OPEN_WRITE,
             (true,  true,  true)  => FS_OPEN_READ | FS_OPEN_WRITE | FS_OPEN_CREATE,
             _ => 0, //failure case
+        }
+    }
+}
+
+pub fn remove_file<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<(), i32> {
+    unsafe {
+        let wide = path.as_ref().as_os_str().encode_wide().collect::<Vec<_>>();
+        let ctr_path = fsMakePath(PathType::UTF16.into(), wide.as_ptr() as _);
+        let r = FSUSER_DeleteFile(arch.handle, ctr_path);
+        if r < 0 {
+            Err(r)
+        } else {
+            Ok(())
         }
     }
 }
