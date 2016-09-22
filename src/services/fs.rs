@@ -1,5 +1,6 @@
 use core::marker::PhantomData;
 use core::ptr;
+use core::slice;
 use collections::Vec;
 
 use path::Path;
@@ -151,6 +152,12 @@ impl File {
         }
     }
 
+    pub fn read_to_end(&mut self, buf: &mut Vec<u8>) -> Result<usize, i32> {
+        unsafe {
+            read_to_end_uninitialized(self, buf)
+        }
+    }
+
     pub fn write(&mut self, buf: &[u8]) -> Result<usize, i32> {
         unsafe {
             let mut n_written = 0;
@@ -245,6 +252,33 @@ pub fn remove_file<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<(), i32> {
             Err(r)
         } else {
             Ok(())
+        }
+    }
+}
+
+// Adapted from sys/common/io.rs in libstd
+unsafe fn read_to_end_uninitialized(f: &mut File, buf: &mut Vec<u8>) -> Result<usize, i32> {
+    let start_len = buf.len();
+    buf.reserve(16);
+
+    // Always try to read into the empty space of the vector (from the length to the capacity).
+    // If the vector ever fills up then we reserve an extra byte which should trigger the normal
+    // reallocation routines for the vector, which will likely double the size.
+    //
+    // This function is similar to the read_to_end function in std::io, but the logic about
+    // reservations and slicing is different enough that this is duplicated here.
+    loop {
+        if buf.len() == buf.capacity() {
+            buf.reserve(1);
+        }
+
+        let buf_slice = slice::from_raw_parts_mut(buf.as_mut_ptr().offset(buf.len() as isize),
+                                                  buf.capacity() - buf.len());
+
+        match f.read(buf_slice) {
+            Ok(0) => { return Ok(buf.len() - start_len); }
+            Ok(n) => { let len = buf.len() + n; buf.set_len(len); },
+            Err(e) => { return Err(e); }
         }
     }
 }
