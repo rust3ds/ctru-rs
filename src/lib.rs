@@ -13,6 +13,7 @@
 #![crate_name = "ctru"]
 
 extern crate alloc;
+extern crate alloc_system;
 extern crate collections;
 extern crate rustc_unicode;
 

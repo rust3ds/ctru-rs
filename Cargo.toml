@@ -10,6 +10,9 @@ version = "0.4.0"
 [dependencies.ctru-sys]
 path = "ctru-sys"
 
+[dependencies.alloc_system3ds]
+git = "https://github.com/rust3ds/alloc_system3ds"
+
 [lib]
 crate-type = ["rlib"]
 name = "ctru"
