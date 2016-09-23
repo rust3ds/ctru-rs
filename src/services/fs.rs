@@ -167,7 +167,7 @@ impl File {
                 self.offset,
                 buf.as_ptr() as _,
                 buf.len() as u32,
-                FS_WRITE_FLUSH | FS_WRITE_UPDATE_TIME
+                FS_WRITE_UPDATE_TIME
             );
             self.offset += n_written as u64;
             if r < 0 {
