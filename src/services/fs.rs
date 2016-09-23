@@ -243,6 +243,45 @@ impl OpenOptions {
     }
 }
 
+pub fn create_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<(), i32> {
+    unsafe {
+        let wide = path.as_ref().as_os_str().encode_wide().collect::<Vec<_>>();
+        let ctr_path = fsMakePath(PathType::UTF16.into(), wide.as_ptr() as _);
+        let r = FSUSER_CreateDirectory(arch.handle, ctr_path, FS_ATTRIBUTE_DIRECTORY);
+        if r < 0 {
+            Err(r)
+        } else {
+            Ok(())
+        }
+    }
+}
+
+pub fn remove_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<(), i32> {
+    unsafe {
+        let wide = path.as_ref().as_os_str().encode_wide().collect::<Vec<_>>();
+        let ctr_path = fsMakePath(PathType::UTF16.into(), wide.as_ptr() as _);
+        let r = FSUSER_DeleteDirectory(arch.handle, ctr_path);
+        if r < 0 {
+            Err(r)
+        } else {
+            Ok(())
+        }
+    }
+}
+
+pub fn remove_dir_all<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<(), i32> {
+    unsafe {
+        let wide = path.as_ref().as_os_str().encode_wide().collect::<Vec<_>>();
+        let ctr_path = fsMakePath(PathType::UTF16.into(), wide.as_ptr() as _);
+        let r = FSUSER_DeleteDirectoryRecursively(arch.handle, ctr_path);
+        if r < 0 {
+            Err(r)
+        } else {
+            Ok(())
+        }
+    }
+}
+
 pub fn remove_file<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<(), i32> {
     unsafe {
         let wide = path.as_ref().as_os_str().encode_wide().collect::<Vec<_>>();
