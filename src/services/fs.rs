@@ -216,9 +216,9 @@ impl OpenOptions {
     fn _open(&self, path: &Path, flags: u32) -> Result<File, i32> {
         unsafe {
             let mut file_handle = 0;
-            let wide = path.as_os_str().encode_wide().collect::<Vec<_>>();
-            let ctr_path = fsMakePath(PathType::UTF16.into(), wide.as_ptr() as _);
-            let r = FSUSER_OpenFile(&mut file_handle, self.arch_handle, ctr_path, flags, 0);
+            let path = to_utf16(path);
+            let fs_path = fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
+            let r = FSUSER_OpenFile(&mut file_handle, self.arch_handle, fs_path, flags, 0);
             if r < 0 {
                 Err(r)
             } else {
@@ -245,9 +245,9 @@ impl OpenOptions {
 
 pub fn create_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<(), i32> {
     unsafe {
-        let wide = path.as_ref().as_os_str().encode_wide().collect::<Vec<_>>();
-        let ctr_path = fsMakePath(PathType::UTF16.into(), wide.as_ptr() as _);
-        let r = FSUSER_CreateDirectory(arch.handle, ctr_path, FS_ATTRIBUTE_DIRECTORY);
+        let path = to_utf16(path);
+        let fs_path = fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
+        let r = FSUSER_CreateDirectory(arch.handle, fs_path, FS_ATTRIBUTE_DIRECTORY);
         if r < 0 {
             Err(r)
         } else {
@@ -258,9 +258,9 @@ pub fn create_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<(), i32> {
 
 pub fn remove_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<(), i32> {
     unsafe {
-        let wide = path.as_ref().as_os_str().encode_wide().collect::<Vec<_>>();
-        let ctr_path = fsMakePath(PathType::UTF16.into(), wide.as_ptr() as _);
-        let r = FSUSER_DeleteDirectory(arch.handle, ctr_path);
+        let path = to_utf16(path);
+        let fs_path = fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
+        let r = FSUSER_DeleteDirectory(arch.handle, fs_path);
         if r < 0 {
             Err(r)
         } else {
@@ -271,9 +271,9 @@ pub fn remove_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<(), i32> {
 
 pub fn remove_dir_all<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<(), i32> {
     unsafe {
-        let wide = path.as_ref().as_os_str().encode_wide().collect::<Vec<_>>();
-        let ctr_path = fsMakePath(PathType::UTF16.into(), wide.as_ptr() as _);
-        let r = FSUSER_DeleteDirectoryRecursively(arch.handle, ctr_path);
+        let path = to_utf16(path);
+        let fs_path = fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
+        let r = FSUSER_DeleteDirectoryRecursively(arch.handle, fs_path);
         if r < 0 {
             Err(r)
         } else {
@@ -284,9 +284,9 @@ pub fn remove_dir_all<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<(), i32
 
 pub fn remove_file<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<(), i32> {
     unsafe {
-        let wide = path.as_ref().as_os_str().encode_wide().collect::<Vec<_>>();
-        let ctr_path = fsMakePath(PathType::UTF16.into(), wide.as_ptr() as _);
-        let r = FSUSER_DeleteFile(arch.handle, ctr_path);
+        let path = to_utf16(path);
+        let fs_path = fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
+        let r = FSUSER_DeleteFile(arch.handle, fs_path);
         if r < 0 {
             Err(r)
         } else {
@@ -294,6 +294,35 @@ pub fn remove_file<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<(), i32> {
         }
     }
 }
+
+pub fn rename<P, Q>(arch: &Archive, from: P, to: Q) -> Result<(), i32>
+    where P: AsRef<Path>,
+          Q: AsRef<Path> {
+
+    unsafe {
+        let from = to_utf16(from);
+        let to = to_utf16(to);
+
+        let fs_from = fsMakePath(PathType::UTF16.into(), from.as_ptr() as _);
+        let fs_to = fsMakePath(PathType::UTF16.into(), to.as_ptr() as _);
+
+        let r = FSUSER_RenameFile(arch.handle, fs_from, arch.handle, fs_to);
+        if r == 0 {
+            return Ok(())
+        }
+        let r = FSUSER_RenameDirectory(arch.handle, fs_from, arch.handle, fs_to);
+        if r == 0 {
+            return Ok(())
+        }
+        Err((r))
+    }
+}
+
+// TODO: Determine if interior NULLs are premitted in 3DS file paths
+fn to_utf16<S: AsRef<Path>>(path: S) -> Vec<u16> {
+    path.as_ref().as_os_str().encode_wide().collect::<Vec<_>>()
+}
+
 
 // Adapted from sys/common/io.rs in libstd
 unsafe fn read_to_end_uninitialized(f: &mut File, buf: &mut Vec<u8>) -> Result<usize, i32> {
