@@ -1,9 +1,12 @@
 use core::marker::PhantomData;
 use core::ptr;
 use core::slice;
+use core::mem;
+use alloc::arc::Arc;
 use collections::Vec;
 
-use path::Path;
+use path::{Path, PathBuf};
+use ffi::OsString;
 
 use libctru::services::fs::*;
 
@@ -65,6 +68,21 @@ pub struct OpenOptions {
     arch_handle: u64,
 }
 
+pub struct ReadDir {
+    handle: Dir,
+    root: Arc<PathBuf>,
+}
+
+pub struct DirEntry {
+    root: Arc<PathBuf>,
+    entry: FS_DirectoryEntry,
+}
+
+struct Dir(u32);
+
+unsafe impl Send for Dir {}
+unsafe impl Sync for Dir {}
+
 impl Fs {
     pub fn init() -> Result<Fs, i32> {
         unsafe {
@@ -103,11 +121,11 @@ impl Archive {
 
 impl File {
     pub fn open<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<File, i32> {
-        OpenOptions::new().read(true).archive(arch).open(path)
+        OpenOptions::new().read(true).archive(arch).open(path.as_ref())
     }
 
     pub fn create<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<File, i32> {
-        OpenOptions::new().write(true).create(true).archive(arch).open(path)
+        OpenOptions::new().write(true).create(true).archive(arch).open(path.as_ref())
     }
 
     pub fn len(&self) -> Result<u64, i32> {
@@ -243,9 +261,44 @@ impl OpenOptions {
     }
 }
 
+impl Iterator for ReadDir {
+    type Item = Result<DirEntry, i32>;
+
+    fn next(&mut self) -> Option<Result<DirEntry, i32>> {
+        unsafe {
+            let mut ret = DirEntry {
+                entry: mem::zeroed(),
+                root: self.root.clone(),
+            };
+            let mut entries_read = 0;
+            let entry_count = 1;
+            let r = FSDIR_Read(self.handle.0, &mut entries_read, entry_count, &mut ret.entry);
+
+            if r < 0 {
+                return Some(Err(r))
+            }
+            if entries_read != entry_count {
+                return None
+            }
+            Some(Ok(ret))
+        }
+    }
+}
+
+impl DirEntry {
+    pub fn path(&self) -> PathBuf {
+        self.root.join(&self.file_name())
+    }
+
+    pub fn file_name(&self) -> OsString {
+        let filename = truncate_utf16_at_nul(&self.entry.name);
+        OsString::from_wide(filename)
+    }
+}
+
 pub fn create_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<(), i32> {
     unsafe {
-        let path = to_utf16(path);
+        let path = to_utf16(path.as_ref());
         let fs_path = fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
         let r = FSUSER_CreateDirectory(arch.handle, fs_path, FS_ATTRIBUTE_DIRECTORY);
         if r < 0 {
@@ -258,7 +311,7 @@ pub fn create_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<(), i32> {
 
 pub fn remove_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<(), i32> {
     unsafe {
-        let path = to_utf16(path);
+        let path = to_utf16(path.as_ref());
         let fs_path = fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
         let r = FSUSER_DeleteDirectory(arch.handle, fs_path);
         if r < 0 {
@@ -271,7 +324,7 @@ pub fn remove_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<(), i32> {
 
 pub fn remove_dir_all<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<(), i32> {
     unsafe {
-        let path = to_utf16(path);
+        let path = to_utf16(path.as_ref());
         let fs_path = fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
         let r = FSUSER_DeleteDirectoryRecursively(arch.handle, fs_path);
         if r < 0 {
@@ -282,9 +335,13 @@ pub fn remove_dir_all<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<(), i32
     }
 }
 
+pub fn read_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<ReadDir, i32> {
+    readdir(&arch, path.as_ref())
+}
+
 pub fn remove_file<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<(), i32> {
     unsafe {
-        let path = to_utf16(path);
+        let path = to_utf16(path.as_ref());
         let fs_path = fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
         let r = FSUSER_DeleteFile(arch.handle, fs_path);
         if r < 0 {
@@ -300,8 +357,8 @@ pub fn rename<P, Q>(arch: &Archive, from: P, to: Q) -> Result<(), i32>
           Q: AsRef<Path> {
 
     unsafe {
-        let from = to_utf16(from);
-        let to = to_utf16(to);
+        let from = to_utf16(from.as_ref());
+        let to = to_utf16(to.as_ref());
 
         let fs_from = fsMakePath(PathType::UTF16.into(), from.as_ptr() as _);
         let fs_to = fsMakePath(PathType::UTF16.into(), to.as_ptr() as _);
@@ -318,11 +375,34 @@ pub fn rename<P, Q>(arch: &Archive, from: P, to: Q) -> Result<(), i32>
     }
 }
 
-// TODO: Determine if interior NULLs are premitted in 3DS file paths
-fn to_utf16<S: AsRef<Path>>(path: S) -> Vec<u16> {
-    path.as_ref().as_os_str().encode_wide().collect::<Vec<_>>()
+fn readdir(arch: &Archive, p: &Path) -> Result<ReadDir, i32> {
+    unsafe {
+        let mut handle = 0;
+        let root = Arc::new(p.to_path_buf());
+        let path = to_utf16(p);
+        let fs_path = fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
+        let r = FSUSER_OpenDirectory(&mut handle, arch.handle, fs_path);
+        if r < 0 {
+            Err(r)
+        } else {
+            Ok(ReadDir { handle: Dir(handle), root: root })
+        }
+    }
 }
 
+// TODO: Determine if interior NULLs are premitted in 3DS file paths
+fn to_utf16(path: &Path) -> Vec<u16> {
+    path.as_os_str().encode_wide().collect::<Vec<_>>()
+}
+
+// Adapted from sys/windows/fs.rs in libstd
+fn truncate_utf16_at_nul<'a>(v: &'a [u16]) -> &'a [u16] {
+    match v.iter().position(|c| *c == 0) {
+        // don't include the 0
+        Some(i) => &v[..i],
+        None => v
+    }
+}
 
 // Adapted from sys/common/io.rs in libstd
 unsafe fn read_to_end_uninitialized(f: &mut File, buf: &mut Vec<u8>) -> Result<usize, i32> {
@@ -371,6 +451,14 @@ impl Drop for File {
     fn drop(&mut self) {
         unsafe {
             FSFILE_Close(self.handle);
+        }
+    }
+}
+
+impl Drop for Dir {
+    fn drop(&mut self) {
+        unsafe {
+            FSDIR_Close(self.0);
         }
     }
 }
