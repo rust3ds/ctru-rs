@@ -73,14 +73,16 @@ pub struct OpenOptions {
     arch_handle: u64,
 }
 
-pub struct ReadDir {
+pub struct ReadDir<'a> {
     handle: Dir,
     root: Arc<PathBuf>,
+    arch: &'a Archive,
 }
 
-pub struct DirEntry {
+pub struct DirEntry<'a> {
     entry: FS_DirectoryEntry,
     root: Arc<PathBuf>,
+    arch: &'a Archive,
 }
 
 struct Dir(u32);
@@ -282,14 +284,15 @@ impl OpenOptions {
     }
 }
 
-impl Iterator for ReadDir {
-    type Item = Result<DirEntry, i32>;
+impl<'a> Iterator for ReadDir<'a> {
+    type Item = Result<DirEntry<'a>, i32>;
 
-    fn next(&mut self) -> Option<Result<DirEntry, i32>> {
+    fn next(&mut self) -> Option<Result<DirEntry<'a>, i32>> {
         unsafe {
             let mut ret = DirEntry {
                 entry: mem::zeroed(),
                 root: self.root.clone(),
+                arch: self.arch,
             };
             let mut entries_read = 0;
             let entry_count = 1;
@@ -306,15 +309,13 @@ impl Iterator for ReadDir {
     }
 }
 
-impl DirEntry {
+impl<'a> DirEntry<'a> {
     pub fn path(&self) -> PathBuf {
         self.root.join(&self.file_name())
     }
 
-    // Requiring the user to explicitly pass in the Archive here is pretty ugly,
-    // But I'm not sure of how else to do it right now.
-    pub fn metadata(&self, arch: &Archive) -> Result<Metadata, i32> {
-        metadata(&arch, self.path())
+    pub fn metadata(&self) -> Result<Metadata, i32> {
+        metadata(self.arch, self.path())
     }
 
     pub fn file_name(&self) -> OsString {
@@ -412,7 +413,7 @@ pub fn rename<P, Q>(arch: &Archive, from: P, to: Q) -> Result<(), i32>
     }
 }
 
-fn readdir(arch: &Archive, p: &Path) -> Result<ReadDir, i32> {
+fn readdir<'a>(arch: &'a Archive, p: &Path) -> Result<ReadDir<'a>, i32> {
     unsafe {
         let mut handle = 0;
         let root = Arc::new(p.to_path_buf());
@@ -422,7 +423,7 @@ fn readdir(arch: &Archive, p: &Path) -> Result<ReadDir, i32> {
         if r < 0 {
             Err(r)
         } else {
-            Ok(ReadDir { handle: Dir(handle), root: root })
+            Ok(ReadDir { handle: Dir(handle), root: root, arch: arch})
         }
     }
 }
