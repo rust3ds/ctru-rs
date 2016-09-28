@@ -60,6 +60,11 @@ pub struct File {
     offset: u64,
 }
 
+pub struct Metadata {
+    attributes: u32,
+    size: u64,
+}
+
 #[derive(Clone)]
 pub struct OpenOptions {
     read: bool,
@@ -74,8 +79,8 @@ pub struct ReadDir {
 }
 
 pub struct DirEntry {
-    root: Arc<PathBuf>,
     entry: FS_DirectoryEntry,
+    root: Arc<PathBuf>,
 }
 
 struct Dir(u32);
@@ -128,18 +133,6 @@ impl File {
         OpenOptions::new().write(true).create(true).archive(arch).open(path.as_ref())
     }
 
-    pub fn len(&self) -> Result<u64, i32> {
-        unsafe {
-            let mut len = 0;
-            let r = FSFILE_GetSize(self.handle, &mut len);
-            if r < 0 {
-                Err(r)
-            } else {
-                Ok(len)
-            }
-        }
-    }
-
     pub fn set_len(&mut self, len: u64) -> Result<(), i32> {
         unsafe {
             let r = FSFILE_SetSize(self.handle, len);
@@ -147,6 +140,20 @@ impl File {
                 Err(r)
             } else {
                 Ok(())
+            }
+        }
+    }
+
+    // Right now the only file metadata we really have is file size
+    // This will probably expand later on
+    pub fn metadata(&self) -> Result<Metadata, i32> {
+        unsafe {
+            let mut size = 0;
+            let r = FSFILE_GetSize(self.handle, &mut size);
+            if r < 0 {
+                Err(r)
+            } else {
+                Ok(Metadata { attributes: 0, size: size })
             }
         }
     }
@@ -194,6 +201,20 @@ impl File {
                 Ok(n_written as usize)
             }
         }
+    }
+}
+
+impl Metadata {
+    pub fn is_dir(&self) -> bool {
+        self.attributes == self.attributes | FS_ATTRIBUTE_DIRECTORY
+    }
+
+    pub fn is_file(&self) -> bool {
+        !self.is_dir()
+    }
+
+    pub fn len(&self) -> u64 {
+        self.size
     }
 }
 
@@ -290,6 +311,12 @@ impl DirEntry {
         self.root.join(&self.file_name())
     }
 
+    // Requiring the user to explicitly pass in the Archive here is pretty ugly,
+    // But I'm not sure of how else to do it right now.
+    pub fn metadata(&self, arch: &Archive) -> Result<Metadata, i32> {
+        metadata(&arch, self.path())
+    }
+
     pub fn file_name(&self) -> OsString {
         let filename = truncate_utf16_at_nul(&self.entry.name);
         OsString::from_wide(filename)
@@ -306,6 +333,16 @@ pub fn create_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<(), i32> {
         } else {
             Ok(())
         }
+    }
+}
+
+pub fn metadata<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<Metadata, i32> {
+    let maybe_file = File::open(&arch, path.as_ref());
+    let maybe_dir = read_dir(&arch, path.as_ref());
+    match (maybe_file, maybe_dir) {
+        (Ok(file), _) => file.metadata(),
+        (_, Ok(_dir)) => Ok(Metadata { attributes: FS_ATTRIBUTE_DIRECTORY, size: 0 }),
+        (Err(r), _)   => Err(r),
     }
 }
 
@@ -390,7 +427,7 @@ fn readdir(arch: &Archive, p: &Path) -> Result<ReadDir, i32> {
     }
 }
 
-// TODO: Determine if interior NULLs are premitted in 3DS file paths
+// TODO: Determine if we should check UTF-16 paths for interior NULs
 fn to_utf16(path: &Path) -> Vec<u16> {
     path.as_os_str().encode_wide().collect::<Vec<_>>()
 }
