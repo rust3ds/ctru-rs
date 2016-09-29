@@ -337,6 +337,19 @@ pub fn create_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<(), i32> {
     }
 }
 
+pub fn create_dir_all<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<(), i32> {
+    let path = path.as_ref();
+    let mut dir = PathBuf::new();
+    let mut result = Ok(());
+
+    for component in path.components() {
+        let component = component.as_os_str();
+        dir.push(component);
+        result = create_dir(arch, &dir);
+    }
+    result
+}
+
 pub fn metadata<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<Metadata, i32> {
     let maybe_file = File::open(&arch, path.as_ref());
     let maybe_dir = read_dir(&arch, path.as_ref());
@@ -374,7 +387,18 @@ pub fn remove_dir_all<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<(), i32
 }
 
 pub fn read_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<ReadDir, i32> {
-    readdir(&arch, path.as_ref())
+    unsafe {
+        let mut handle = 0;
+        let root = Arc::new(path.as_ref().to_path_buf());
+        let path = to_utf16(path.as_ref());
+        let fs_path = fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
+        let r = FSUSER_OpenDirectory(&mut handle, arch.handle, fs_path);
+        if r < 0 {
+            Err(r)
+        } else {
+            Ok(ReadDir { handle: Dir(handle), root: root, arch: arch})
+        }
+    }
 }
 
 pub fn remove_file<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<(), i32> {
@@ -410,21 +434,6 @@ pub fn rename<P, Q>(arch: &Archive, from: P, to: Q) -> Result<(), i32>
             return Ok(())
         }
         Err((r))
-    }
-}
-
-fn readdir<'a>(arch: &'a Archive, p: &Path) -> Result<ReadDir<'a>, i32> {
-    unsafe {
-        let mut handle = 0;
-        let root = Arc::new(p.to_path_buf());
-        let path = to_utf16(p);
-        let fs_path = fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
-        let r = FSUSER_OpenDirectory(&mut handle, arch.handle, fs_path);
-        if r < 0 {
-            Err(r)
-        } else {
-            Ok(ReadDir { handle: Dir(handle), root: root, arch: arch})
-        }
     }
 }
 
