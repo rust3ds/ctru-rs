@@ -155,6 +155,8 @@ pub struct Metadata {
 pub struct OpenOptions {
     read: bool,
     write: bool,
+    append: bool,
+    truncate: bool,
     create: bool,
     arch_handle: u64,
 }
@@ -415,6 +417,8 @@ impl OpenOptions {
         OpenOptions {
             read: false,
             write: false,
+            append: false,
+            truncate: false,
             create: false,
             arch_handle: 0,
         }
@@ -438,6 +442,31 @@ impl OpenOptions {
     /// its contents, without truncating it.
     pub fn write(&mut self, write: bool) -> &mut OpenOptions {
         self.write = write;
+        self
+    }
+
+    /// Sets the option for the append mode.
+    ///
+    /// This option, when true, means that writes will append to a file instead
+    /// of overwriting previous contents. Note that setting .write(true).append(true)
+    /// has the same effect as setting only .append(true).
+    ///
+    /// If both truncate and append are set to true, the file will simply be truncated
+    pub fn append(&mut self, append: bool) -> &mut OpenOptions {
+        // we're going to be cheeky and just manually set write access here
+        self.append = append;
+        self.write = append;
+        self
+    }
+
+    /// Sets the option for truncating a previous file.
+    ///
+    /// If a file is successfully opened with this option set it will truncate
+    /// the file to 0 length if it already exists.
+    ///
+    /// The file must be opened with write access for truncate to work.
+    pub fn truncate(&mut self, truncate: bool) -> &mut OpenOptions {
+        self.truncate = truncate;
         self
     }
 
@@ -486,13 +515,28 @@ impl OpenOptions {
             let fs_path = fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
             let r = FSUSER_OpenFile(&mut file_handle, self.arch_handle, fs_path, flags, 0);
             if r < 0 {
-                Err(r)
-            } else {
-                Ok(File {
-                    handle: file_handle,
-                    offset: 0,
-                })
+                return Err(r);
             }
+
+            let mut file = File { handle: file_handle, offset: 0 };
+
+            // We have write access if append is true, so we *should* be
+            // fine unwrapping here
+            if self.append {
+                file.offset = file.metadata().unwrap().len();
+            }
+
+            // we might not have write access even if truncate is true,
+            // so let's use try!
+            //
+            // But let's also set the offset to 0 just in case both
+            // append and truncate are true
+            if self.truncate {
+                try!(file.set_len(0));
+                file.offset = 0;
+            }
+
+            Ok(file)
         }
     }
 
@@ -548,7 +592,8 @@ impl<'a> DirEntry<'a> {
         metadata(self.arch, self.path())
     }
 
-    /// Return the file type for the file that this entry points at.
+    /// Returns the bare file name of this directory entry without any other leading path
+    /// component.
     pub fn file_name(&self) -> OsString {
         let filename = truncate_utf16_at_nul(&self.entry.name);
         OsString::from_wide(filename)
