@@ -520,22 +520,17 @@ impl OpenOptions {
 
             let mut file = File { handle: file_handle, offset: 0 };
 
-            // We have write access if append is true, so we *should* be
-            // fine unwrapping here
             if self.append {
-                file.offset = file.metadata().unwrap().len();
+                let metadata = try!(file.metadata());
+                file.offset = metadata.len();
             }
 
-            // we might not have write access even if truncate is true,
-            // so let's use try!
-            //
-            // But let's also set the offset to 0 just in case both
-            // append and truncate are true
+            // set the offset to 0 just in case both append and truncate were
+            // set to true
             if self.truncate {
                 try!(file.set_len(0));
                 file.offset = 0;
             }
-
             Ok(file)
         }
     }
