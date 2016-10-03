@@ -453,9 +453,7 @@ impl OpenOptions {
     ///
     /// If both truncate and append are set to true, the file will simply be truncated
     pub fn append(&mut self, append: bool) -> &mut OpenOptions {
-        // we're going to be cheeky and just manually set write access here
         self.append = append;
-        self.write = append;
         self
     }
 
@@ -536,7 +534,7 @@ impl OpenOptions {
     }
 
     fn get_open_flags(&self) -> u32 {
-        match (self.read, self.write, self.create) {
+        match (self.read, self.write || self.append, self.create) {
             (true,  false, false) => FS_OPEN_READ,
             (false, true,  false) => FS_OPEN_WRITE,
             (false, true,  true)  => FS_OPEN_WRITE | FS_OPEN_CREATE,
