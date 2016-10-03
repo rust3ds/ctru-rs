@@ -54,7 +54,7 @@ pub enum ArchiveID {
 /// Represents the filesystem service. No file IO can be performed
 /// until an instance of this struct is created.
 ///
-/// The service exits when this struct goes out of scope. 
+/// The service exits when all instances of this struct go out of scope. 
 pub struct Fs {
     pd: PhantomData<i32>,
 }
@@ -208,8 +208,13 @@ impl Fs {
     /// # Errors
     ///
     /// This function will return Err if there was an error initializing the
-    /// FS service. This typically reflects a problem with the execution
-    /// environment and not necessarily your program itself.
+    /// FS service, which in practice should never happen unless there is
+    /// an error in the execution environment (i.e. the homebrew launcher
+    /// somehow fails to provide fs:USER permissions)
+    ///
+    /// ctrulib services are reference counted, so this function may be called
+    /// as many times as desired and the service will not exit until all
+    /// instances of Fs drop out of scope.
     pub fn init() -> Result<Fs, i32> {
         unsafe {
             let r = fsInit();
@@ -264,11 +269,11 @@ impl File {
     /// # Examples
     ///
     /// ```no_run
-    /// use ctru::servies::fs::{Fs, File};
+    /// use ctru::services::fs::{Fs, File};
     ///
     /// let fs = Fs::init().unwrap()
     /// let sdmc_archive = fs.sdmc().unwrap()
-    /// let mut f = File::open("/foo.txt").unwrap();
+    /// let mut f = File::open(&sdmc_archive, "/foo.txt").unwrap();
     /// ```
     pub fn open<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<File, i32> {
         OpenOptions::new().read(true).archive(arch).open(path.as_ref())
@@ -290,11 +295,11 @@ impl File {
     /// # Examples
     ///
     /// ```no_run
-    /// use ctru::servies::fs::{Fs, File};
+    /// use ctru::services::fs::{Fs, File};
     ///
     /// let fs = Fs::init().unwrap()
     /// let sdmc_archive = fs.sdmc().unwrap()
-    /// let mut f = File::create("/foo.txt").unwrap();
+    /// let mut f = File::create(&sdmc_archive, "/foo.txt").unwrap();
     /// ```
     pub fn create<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<File, i32> {
         OpenOptions::new().write(true).create(true).archive(arch).open(path.as_ref())
