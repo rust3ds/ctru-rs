@@ -39,7 +39,9 @@ functionality has not been decided on yet.
 
 ## License
 
-Copyright (C) Ronald Kinard, 2015-2016
+Copyright (C) Rust 3DS Project authors, 2015-2016
+
+See AUTHORS.md.
 
 As with the original ctrulib, this library is licensed under zlib. This
 applies to every file in the tree, unless otherwise noted.
