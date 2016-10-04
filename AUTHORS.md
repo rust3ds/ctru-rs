@@ -1,4 +1,4 @@
 # Authors
 
- * Furyhunter
- * FenrirWolf
+ * [Eidolon](https://github.com/HybridEidolon)
+ * [FenrirWolf](https://github.com/FenrirWolf)
