@@ -1,10 +1,13 @@
 #![feature(alloc)]
 #![feature(collections)]
 #![feature(char_escape_debug)]
+#![feature(int_error_internals)]
 #![feature(lang_items)]
 #![feature(question_mark)]
+#![feature(reflect_marker)]
 #![feature(slice_patterns)]
 #![feature(str_internals)]
+#![feature(try_from)]
 #![feature(unicode)]
 
 #![no_std]
@@ -26,6 +29,7 @@ pub mod services;
 pub mod sdmc;
 
 pub mod ascii;
+pub mod error;
 pub mod ffi;
 pub mod panic;
 pub mod path;
