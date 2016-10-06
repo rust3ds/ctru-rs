@@ -17,7 +17,7 @@
 
 extern crate alloc;
 extern crate alloc_system;
-extern crate collections;
+#[macro_use] extern crate collections;
 extern crate rustc_unicode;
 
 extern crate ctru_sys as libctru;
@@ -31,6 +31,8 @@ pub mod sdmc;
 pub mod ascii;
 pub mod error;
 pub mod ffi;
+pub mod io;
+pub mod memchr;
 pub mod panic;
 pub mod path;
 

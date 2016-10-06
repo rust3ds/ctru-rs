@@ -67,7 +67,7 @@ pub fn memchr(needle: u8, haystack: &[u8]) -> Option<usize> {
 /// ```
 pub fn memrchr(needle: u8, haystack: &[u8]) -> Option<usize> {
     fn memrchr_specific(needle: u8, haystack: &[u8]) -> Option<usize> {
-        use libc;
+        use libctru::libc;
 
         // GNU's memrchr() will - unlike memchr() - error if haystack is empty.
         if haystack.is_empty() {
