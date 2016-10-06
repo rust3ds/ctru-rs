@@ -22,5 +22,4 @@ pub trait FromInner<Inner> {
     fn from_inner(inner: Inner) -> Self;
 }
 
-pub mod os;
 pub mod wtf8;
