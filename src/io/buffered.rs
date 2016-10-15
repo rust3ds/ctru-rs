@@ -12,7 +12,6 @@
 
 use io::prelude::*;
 
-use core::marker::Reflect;
 use core::cmp;
 use error;
 use core::fmt;
@@ -557,7 +556,7 @@ impl<W> From<IntoInnerError<W>> for Error {
     fn from(iie: IntoInnerError<W>) -> Error { iie.1 }
 }
 
-impl<W: Reflect + Send + fmt::Debug> error::Error for IntoInnerError<W> {
+impl<W: Send + fmt::Debug> error::Error for IntoInnerError<W> {
     fn description(&self) -> &str {
         error::Error::description(self.error())
     }

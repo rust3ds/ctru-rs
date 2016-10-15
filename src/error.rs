@@ -53,7 +53,6 @@ use core::any::TypeId;
 use core::cell;
 use rustc_unicode::char;
 use core::fmt::{self, Debug, Display};
-use core::marker::Reflect;
 use core::mem::transmute;
 use core::num;
 use core::str;
@@ -61,7 +60,7 @@ use collections::string::{self, String};
 use alloc::boxed::Box;
 
 /// Base functionality for all errors in Rust.
-pub trait Error: Debug + Display + Reflect {
+pub trait Error: Debug + Display {
     /// A short description of the error.
     ///
     /// The description should not contain newlines or sentence-ending
