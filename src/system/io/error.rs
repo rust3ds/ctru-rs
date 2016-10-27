@@ -8,13 +8,10 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use alloc::boxed::Box;
-use core::convert::Into;
-use core::fmt;
-use core::marker::{Send, Sync};
-use core::option::Option::{self, Some, None};
-use core::result;
-use error;
+
+use std::error;
+use std::fmt;
+use std::result;
 
 /// A specialized [`Result`](../result/enum.Result.html) type for I/O
 /// operations.

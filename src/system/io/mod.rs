@@ -247,17 +247,13 @@
 //! contract. The implementation of many of these functions are subject to change over
 //! time and may call fewer or more syscalls/library functions.
 
-
-use core::cmp;
+use std::cmp;
 use rustc_unicode::str as core_str;
-use error as std_error;
-use core::fmt;
-use core::result;
-use core::str;
-use memchr;
-
-use collections::Vec;
-use collections::String;
+use std::error as std_error;
+use std::fmt;
+use std::result;
+use std::str;
+use std::memchr;
 
 pub use self::buffered::{BufReader, BufWriter, LineWriter};
 pub use self::buffered::IntoInnerError;

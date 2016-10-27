@@ -8,14 +8,10 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use core::cmp;
-use io::{self, SeekFrom, Read, Write, Seek, BufRead, Error, ErrorKind};
-use core::fmt;
-use core::mem;
-
-use collections::boxed::Box;
-use collections::Vec;
-use collections::String;
+use std::cmp;
+use std::io::{self, SeekFrom, Read, Write, Seek, BufRead, Error, ErrorKind};
+use std::fmt;
+use std::mem;
 
 // =============================================================================
 // Forwarding implementations

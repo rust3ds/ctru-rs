@@ -11,8 +11,8 @@ use core::mem;
 use alloc::arc::Arc;
 use collections::Vec;
 
-use path::{Path, PathBuf};
-use ffi::OsString;
+use std::path::{Path, PathBuf};
+use std::ffi::OsString;
 
 use libctru::services::fs::*;
 

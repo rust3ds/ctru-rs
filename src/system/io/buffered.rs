@@ -10,16 +10,13 @@
 
 //! Buffering wrappers for I/O traits
 
-use io::prelude::*;
+use std::io::prelude::*;
 
-use core::cmp;
-use error;
-use core::fmt;
-use io::{self, DEFAULT_BUF_SIZE, Error, ErrorKind, SeekFrom};
-use memchr;
-
-use collections::boxed::Box;
-use collections::Vec;
+use std::cmp;
+use std::error;
+use std::fmt;
+use std::io::{self, DEFAULT_BUF_SIZE, Error, ErrorKind, SeekFrom};
+use std::memchr;
 
 /// The `BufReader` struct adds buffering to any reader.
 ///

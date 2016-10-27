@@ -8,22 +8,19 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use ascii;
-use collections::borrow::{Cow, Borrow, ToOwned};
-use core::cmp::Ordering;
-use error::Error;
-use core::fmt::{self, Write};
-use io;
+use std::ascii;
+use std::borrow::{Cow, Borrow};
+use std::cmp::Ordering;
+use std::error::Error;
+use std::fmt::{self, Write};
+use std::io;
 use libctru::libc::{self, c_char};
-use core::mem;
-use memchr;
-use core::ops;
-use core::ptr;
-use core::slice;
-use core::str::{self, Utf8Error};
-use alloc::boxed::Box;
-use collections::Vec;
-use collections::String;
+use std::mem;
+use system::memchr;
+use std::ops;
+use std::ptr;
+use std::slice;
+use std::str::{self, Utf8Error};
 
 /// A type representing an owned C-compatible string
 ///

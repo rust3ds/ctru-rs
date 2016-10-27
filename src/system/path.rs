@@ -97,21 +97,19 @@
 //! normalization is possible to build on top of the components APIs,
 //! and will be included in this library in the near future.
 
-use ascii::*;
-use collections::borrow::{Borrow, ToOwned, Cow};
-use core::cmp;
+use std::ascii::*;
+use std::borrow::{Borrow, ToOwned, Cow};
+use std::cmp;
 //use error::Error;
-use core::fmt;
+use std::fmt;
 //use fs;
-use core::hash::{Hash, Hasher};
+use std::hash::{Hash, Hasher};
 //use io;
-use core::iter;
-use core::mem;
-use core::ops::{self, Deref};
-use collections::String;
-use collections::Vec;
+use std::mem;
+use std::ops::{self, Deref};
+use std::iter;
 
-use ffi::{OsStr, OsString};
+use std::ffi::{OsStr, OsString};
 
 use self::platform::{is_sep_byte, is_verbatim_sep, MAIN_SEP_STR, parse_prefix};
 
@@ -134,7 +132,7 @@ use self::platform::{is_sep_byte, is_verbatim_sep, MAIN_SEP_STR, parse_prefix};
 
 mod platform {
     use super::Prefix;
-    use ffi::OsStr;
+    use std::ffi::OsStr;
 
     #[inline]
     pub fn is_sep_byte(b: u8) -> bool {
