@@ -15,6 +15,30 @@ use std::ffi::OsString;
 
 use libctru::services::fs::*;
 
+bitflags! {
+    flags FsOpen: u32 {
+        const FS_OPEN_READ = 1,
+        const FS_OPEN_WRITE = 2,
+        const FS_OPEN_CREATE = 4,
+    }
+}
+
+bitflags! {
+    flags FsWrite: u32 {
+        const FS_WRITE_FLUSH = 1,
+        const FS_WRITE_UPDATE_TIME = 256,
+    }
+}
+
+bitflags! {
+    flags FsAttribute: u32 {
+        const FS_ATTRIBUTE_DIRECTORY = 1,
+        const FS_ATTRIBUTE_HIDDEN = 256,
+        const FS_ATTRIBUTE_ARCHIVE = 65536,
+        const FS_ATTRIBUTE_READ_ONLY = 16777216,
+    }
+}
+
 #[derive(Copy, Clone, Debug)]
 pub enum PathType {
     Invalid,
@@ -382,7 +406,7 @@ impl File {
                 self.offset,
                 buf.as_ptr() as _,
                 buf.len() as u32,
-                FS_WRITE_UPDATE_TIME
+                FS_WRITE_UPDATE_TIME.bits
             );
             self.offset += n_written as u64;
             if r < 0 {
@@ -397,7 +421,7 @@ impl File {
 impl Metadata {
     /// Returns whether this metadata is for a directory.
     pub fn is_dir(&self) -> bool {
-        self.attributes == self.attributes | FS_ATTRIBUTE_DIRECTORY
+        self.attributes == self.attributes | FS_ATTRIBUTE_DIRECTORY.bits
     }
 
     /// Returns whether this metadata is for a regular file.
@@ -510,12 +534,12 @@ impl OpenOptions {
         self._open(path.as_ref(), self.get_open_flags())
     }
 
-    fn _open(&self, path: &Path, flags: u32) -> Result<File, i32> {
+    fn _open(&self, path: &Path, flags: FsOpen) -> Result<File, i32> {
         unsafe {
             let mut file_handle = 0;
             let path = to_utf16(path);
             let fs_path = fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
-            let r = FSUSER_OpenFile(&mut file_handle, self.arch_handle, fs_path, flags, 0);
+            let r = FSUSER_OpenFile(&mut file_handle, self.arch_handle, fs_path, flags.bits, 0);
             if r < 0 {
                 return Err(r);
             }
@@ -537,7 +561,7 @@ impl OpenOptions {
         }
     }
 
-    fn get_open_flags(&self) -> u32 {
+    fn get_open_flags(&self) -> FsOpen {
         match (self.read, self.write || self.append, self.create) {
             (true,  false, false) => FS_OPEN_READ,
             (false, true,  false) => FS_OPEN_WRITE,
@@ -545,7 +569,7 @@ impl OpenOptions {
             (true,  false, true)  => FS_OPEN_READ | FS_OPEN_CREATE,
             (true,  true,  false) => FS_OPEN_READ | FS_OPEN_WRITE,
             (true,  true,  true)  => FS_OPEN_READ | FS_OPEN_WRITE | FS_OPEN_CREATE,
-            _ => 0, //failure case
+            _ => FsOpen::empty(), //failure case
         }
     }
 }
@@ -609,7 +633,7 @@ pub fn create_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<(), i32> {
     unsafe {
         let path = to_utf16(path.as_ref());
         let fs_path = fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
-        let r = FSUSER_CreateDirectory(arch.handle, fs_path, FS_ATTRIBUTE_DIRECTORY);
+        let r = FSUSER_CreateDirectory(arch.handle, fs_path, FS_ATTRIBUTE_DIRECTORY.bits);
         if r < 0 {
             Err(r)
         } else {
@@ -646,7 +670,7 @@ pub fn metadata<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<Metadata, i32
     let maybe_dir = read_dir(&arch, path.as_ref());
     match (maybe_file, maybe_dir) {
         (Ok(file), _) => file.metadata(),
-        (_, Ok(_dir)) => Ok(Metadata { attributes: FS_ATTRIBUTE_DIRECTORY, size: 0 }),
+        (_, Ok(_dir)) => Ok(Metadata { attributes: FS_ATTRIBUTE_DIRECTORY.bits, size: 0 }),
         (Err(r), _)   => Err(r),
     }
 }
