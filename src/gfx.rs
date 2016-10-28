@@ -1,8 +1,8 @@
 use libctru::gfx;
 
-use core::default::Default;
-use core::marker::PhantomData;
-use core::ops::Drop;
+use std::default::Default;
+use std::marker::PhantomData;
+use std::ops::Drop;
 
 use services::gspgpu::FramebufferFormat;
 
@@ -82,9 +82,9 @@ impl Gfx {
     }
 
     pub fn get_framebuffer(&mut self, screen: Screen, side: Side) -> (&'static mut [u8], u16, u16) {
-        use core::convert::Into;
+        use std::convert::Into;
         unsafe {
-            use core::slice::from_raw_parts_mut;
+            use std::slice::from_raw_parts_mut;
 
             let mut w: u16 = 0;
             let mut h: u16 = 0;
@@ -112,12 +112,12 @@ impl Gfx {
     }
 
     pub fn get_framebuffer_format(&self, screen: Screen) -> FramebufferFormat {
-        use core::convert::Into;
+        use std::convert::Into;
         unsafe { gfx::gfxGetScreenFormat(screen.into()).into() }
     }
 
     pub fn set_framebuffer_format(&mut self, screen: Screen, fmt: FramebufferFormat) {
-        use core::convert::Into;
+        use std::convert::Into;
         unsafe { gfx::gfxSetScreenFormat(screen.into(), fmt.into()) }
     }
 

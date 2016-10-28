@@ -10,7 +10,7 @@
 
 #![allow(missing_copy_implementations)]
 
-use std::io::{self, Read, Write, ErrorKind, BufRead};
+use io::{self, Read, Write, ErrorKind, BufRead};
 
 /// Copies the entire contents of a reader into a writer.
 ///

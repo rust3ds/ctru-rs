@@ -8,10 +8,10 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use std::cmp;
-use std::io::{self, SeekFrom, Read, Write, Seek, BufRead, Error, ErrorKind};
-use std::fmt;
-use std::mem;
+use cmp;
+use io::{self, SeekFrom, Read, Write, Seek, BufRead, Error, ErrorKind};
+use fmt;
+use mem;
 
 // =============================================================================
 // Forwarding implementations

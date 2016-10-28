@@ -1,0 +1,17 @@
+[package]
+name = "std"
+version = "0.0.0"
+authors = ["Ronald Kinard <furyhunter600@gmail.com>"]
+license = "https://en.wikipedia.org/wiki/Zlib_License"
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies.alloc_system3ds]
+git = "https://github.com/rust3ds/alloc_system3ds"
+
+[dependencies.ctru-sys]
+path = "../ctru-sys"
+
+[dependencies.spin]
+version = "0.4"

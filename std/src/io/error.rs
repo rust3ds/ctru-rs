@@ -9,9 +9,9 @@
 // except according to those terms.
 
 
-use std::error;
-use std::fmt;
-use std::result;
+use error;
+use fmt;
+use result;
 
 /// A specialized [`Result`](../result/enum.Result.html) type for I/O
 /// operations.

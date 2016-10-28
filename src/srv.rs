@@ -1,6 +1,6 @@
 use libctru::srv::*;
 
-use core::marker::PhantomData;
+use std::marker::PhantomData;
 
 pub struct Srv {
     pd: PhantomData<i32>,

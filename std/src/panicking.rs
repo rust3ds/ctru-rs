@@ -11,11 +11,8 @@
 //! Implementation of various bits and pieces of the `panic!` macro and
 //! associated runtime pieces.
 
-use core::fmt::{self, Display, Write};
-use core::any::Any;
-
-use collections::String;
-use collections::boxed::Box;
+use fmt::{self, Display};
+use any::Any;
 
 ///The compiler wants this to be here. Otherwise it won't be happy. And we like happy compilers.
 #[lang = "eh_personality"]
@@ -36,6 +33,8 @@ extern fn panic_fmt(msg: fmt::Arguments, file: &'static str, line: u32) -> ! {
 #[inline(never)]
 #[cold]
 pub fn begin_panic_fmt(msg: &fmt::Arguments, file_line: &(&'static str, u32)) -> ! {
+    use fmt::Write;
+
     let mut s = String::new();
     let _ = s.write_fmt(*msg);
     begin_panic(s, file_line);
@@ -45,21 +44,13 @@ pub fn begin_panic_fmt(msg: &fmt::Arguments, file_line: &(&'static str, u32)) ->
 #[inline(never)]
 #[cold]
 pub fn begin_panic<M: Any + Send + Display>(msg: M, file_line: &(&'static str, u32)) -> ! {
-    use gfx::Screen;
-    use console::Console;
-
     let msg = Box::new(msg);
     let (file, line) = *file_line;
 
-    let mut error_top = Console::init(Screen::Top);
-    let mut error_bottom = Console::init(Screen::Bottom);
-
-    write!(error_top, "--------------------------------------------------").unwrap();
-    writeln!(error_top, "PANIC in {} at line {}:", file, line).unwrap();
-    writeln!(error_top, "    {}", msg).unwrap();
-    write!(error_top, "\x1b[29;00H--------------------------------------------------").unwrap();
-
-    write!(error_bottom, "").unwrap();     
+    println!("--------------------------------------------------");
+    println!("PANIC in {} at line {}:", file, line);
+    println!("    {}", msg);
+    println!("\x1b[29;00H--------------------------------------------------");
 
     loop {}
 }

@@ -1,6 +1,6 @@
 use libctru::services::gspgpu;
 
-use core::convert::From;
+use std::convert::From;
 
 pub enum Event {
     Psc0,

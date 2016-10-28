@@ -247,19 +247,20 @@
 //! contract. The implementation of many of these functions are subject to change over
 //! time and may call fewer or more syscalls/library functions.
 
-use std::cmp;
+use cmp;
 use rustc_unicode::str as core_str;
-use std::error as std_error;
-use std::fmt;
-use std::result;
-use std::str;
-use std::memchr;
+use error as std_error;
+use fmt;
+use result;
+use str;
+use memchr;
 
 pub use self::buffered::{BufReader, BufWriter, LineWriter};
 pub use self::buffered::IntoInnerError;
 pub use self::cursor::Cursor;
 pub use self::error::{Result, Error, ErrorKind};
 pub use self::util::{copy, sink, Sink, empty, Empty, repeat, Repeat};
+pub use self::print::{STDOUT, _print};
 
 //pub use self::stdio::{stdin, stdout, stderr, _print, Stdin, Stdout, Stderr};
 //pub use self::stdio::{StdoutLock, StderrLock, StdinLock};
@@ -272,6 +273,7 @@ mod cursor;
 mod error;
 mod impls;
 mod util;
+mod print;
 
 //mod lazy;
 //mod stdio;

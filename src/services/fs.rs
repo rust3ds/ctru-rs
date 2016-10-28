@@ -4,12 +4,11 @@
 //! Only the SD card is currently supported.
 
 
-use core::marker::PhantomData;
-use core::ptr;
-use core::slice;
-use core::mem;
-use alloc::arc::Arc;
-use collections::Vec;
+use std::marker::PhantomData;
+use std::ptr;
+use std::slice;
+use std::mem;
+use std::arc::Arc;
 
 use std::path::{Path, PathBuf};
 use std::ffi::OsString;

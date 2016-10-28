@@ -3,9 +3,9 @@ use libctru::libc;
 
 use gfx::Screen;
 
-use core::fmt::{self, Write};
-use core::default::Default;
-use core::ptr;
+use std::fmt::{self, Write};
+use std::default::Default;
+use std::ptr;
 
 pub struct Console {
     context: PrintConsole,

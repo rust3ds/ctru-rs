@@ -1,5 +1,5 @@
-use core::convert::Into;
-use core::marker::PhantomData;
+use std::convert::Into;
+use std::marker::PhantomData;
 
 use libctru::services::hid;
 

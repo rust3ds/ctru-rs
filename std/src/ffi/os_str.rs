@@ -8,16 +8,16 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use std::borrow::{Borrow, Cow};
-use std::fmt::{self, Debug};
-use std::mem;
-use std::ops;
-use std::cmp;
-use std::hash::{Hash, Hasher};
+use borrow::{Borrow, Cow};
+use fmt::{self, Debug};
+use mem;
+use ops;
+use cmp;
+use hash::{Hash, Hasher};
 
-use system::sys::wtf8::{Wtf8, Wtf8Buf};
-use system::sys::{AsInner, IntoInner, FromInner};
-pub use system::sys::wtf8::EncodeWide;
+use sys::wtf8::{Wtf8, Wtf8Buf};
+use sys::{AsInner, IntoInner, FromInner};
+pub use sys::wtf8::EncodeWide;
 
 /// A type that can represent owned, mutable platform-native strings, but is
 /// cheaply inter-convertible with Rust strings.

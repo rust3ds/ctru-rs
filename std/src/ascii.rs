@@ -10,9 +10,8 @@
 
 //! Operations on ASCII strings and characters.
 
-use core::mem;
-use core::ops::Range;
-use collections::{String, Vec};
+use mem;
+use ops::Range;
 
 /// Extension methods for ASCII-subset only operations on string slices.
 ///

@@ -49,15 +49,14 @@
 // coherence challenge (e.g., specialization, neg impls, etc) we can
 // reconsider what crate these items belong in.
 
-use core::any::TypeId;
-use core::cell;
-use rustc_unicode::char;
-use core::fmt::{self, Debug, Display};
-use core::mem::transmute;
-use core::num;
-use core::str;
-use collections::string::{self, String};
-use alloc::boxed::Box;
+use any::TypeId;
+use cell;
+use char;
+use fmt::{self, Debug, Display};
+use mem::transmute;
+use num;
+use str;
+use string;
 
 /// Base functionality for all errors in Rust.
 pub trait Error: Debug + Display {

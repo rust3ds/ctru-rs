@@ -8,19 +8,19 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use std::ascii;
-use std::borrow::{Cow, Borrow};
-use std::cmp::Ordering;
-use std::error::Error;
-use std::fmt::{self, Write};
-use std::io;
+use ascii;
+use borrow::{Cow, Borrow};
+use cmp::Ordering;
+use error::Error;
+use fmt::{self, Write};
+use io;
 use libctru::libc::{self, c_char};
-use std::mem;
-use system::memchr;
-use std::ops;
-use std::ptr;
-use std::slice;
-use std::str::{self, Utf8Error};
+use mem;
+use memchr;
+use ops;
+use ptr;
+use slice;
+use str::{self, Utf8Error};
 
 /// A type representing an owned C-compatible string
 ///

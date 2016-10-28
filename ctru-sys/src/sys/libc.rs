@@ -17,6 +17,8 @@ pub type c_long = i32;
 pub type c_ulong = u32;
 pub type c_longlong = i64;
 pub type c_ulonglong = u64;
+pub type c_float = f32;
+pub type c_double = f64;
 
 pub type size_t = usize;
 pub type ssize_t = isize;

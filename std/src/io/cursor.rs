@@ -8,10 +8,10 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use std::io::prelude::*;
+use io::prelude::*;
 
-use std::cmp;
-use std::io::{self, SeekFrom, Error, ErrorKind};
+use cmp;
+use io::{self, SeekFrom, Error, ErrorKind};
 
 /// A `Cursor` wraps another type and provides it with a
 /// [`Seek`](trait.Seek.html) implementation.

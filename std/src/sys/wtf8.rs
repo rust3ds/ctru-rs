@@ -27,16 +27,16 @@
 
 use core::str::next_code_point;
 
-use std::ascii::*;
-use std::borrow::Cow;
+use ascii::*;
+use borrow::Cow;
 use rustc_unicode::char;
-use std::fmt;
-use std::hash::{Hash, Hasher};
-use std::iter::FromIterator;
-use std::mem;
-use std::ops;
-use std::slice;
-use std::str;
+use fmt;
+use hash::{Hash, Hasher};
+use iter::FromIterator;
+use mem;
+use ops;
+use slice;
+use str;
 use super::AsInner;
 
 const UTF8_REPLACEMENT_CHARACTER: &'static [u8] = b"\xEF\xBF\xBD";
