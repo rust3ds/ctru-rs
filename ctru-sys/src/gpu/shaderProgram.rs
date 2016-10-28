@@ -1,4 +1,3 @@
-use ::Result;
 use ::types::*;
 use gpu::shbin::*;
 

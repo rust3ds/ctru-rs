@@ -1,6 +1,5 @@
 //TODO: Fix Bindgen's issues again. 
 
-use ::Result;
 use libc::c_void;
 use types::*;
 

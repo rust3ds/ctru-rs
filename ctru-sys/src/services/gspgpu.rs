@@ -1,4 +1,3 @@
-use ::{Handle, Result};
 use ::libc::c_void;
 use ::types::*;
 
@@ -73,8 +72,6 @@ pub enum GSPGPU_Event {
     GSPGPU_EVENT_DMA = 6,
     GSPGPU_EVENT_MAX = 7,
 }
-
-use ThreadFunc;
 
 extern "C" {
     pub fn gspInit() -> Result;

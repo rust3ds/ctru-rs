@@ -1,4 +1,3 @@
-use ::{Result, Handle};
 use ::types::*;
 
 use super::hid::circlePosition;

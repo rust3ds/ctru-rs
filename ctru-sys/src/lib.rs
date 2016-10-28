@@ -25,8 +25,3 @@ pub mod types;
 
 pub use self::sys::*;
 pub use self::types::*;
-
-pub type Result = i32;
-pub type Handle = u32;
-
-pub type ThreadFunc = Option<extern "C" fn(arg1: *mut libc::c_void) -> ()>;

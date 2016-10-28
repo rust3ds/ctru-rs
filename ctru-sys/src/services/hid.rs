@@ -1,5 +1,4 @@
 use ::types::*;
-use ::{Result, Handle};
 
 pub const HID_SHAREDMEM_DEFAULT: u32 = 0x10000000;
 

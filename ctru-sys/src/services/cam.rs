@@ -1,7 +1,6 @@
 // TODO: Determine if anonymous enums are properly represented (they probably aren't)
 
-use ::{Handle, Result};
-use libc::c_void;
+use ::libc::c_void;
 use ::types::*;
 
 #[derive(Clone, Copy)]
