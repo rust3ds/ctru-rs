@@ -22,6 +22,10 @@ pub type vs32 = s32;
 pub type vs64 = s64;
 pub type Handle = u32_;
 pub type Result = s32;
+pub type size_t = usize;
+pub type ssize_t = isize;
+pub type uint32_t = u32;
+pub type uint16_t = u16;
 pub type ThreadFunc =
     ::core::option::Option<unsafe extern "C" fn(arg1: *mut ::libc::c_void)>;
 pub type voidfn = ::core::option::Option<extern "C" fn()>;
