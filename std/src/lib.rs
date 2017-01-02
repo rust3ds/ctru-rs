@@ -30,7 +30,7 @@ extern crate core as __core;
 #[macro_reexport(vec, format)]
 extern crate collections as core_collections;
 extern crate alloc;
-extern crate rustc_unicode;
+extern crate std_unicode;
 
 extern crate alloc_system;
 
@@ -65,7 +65,7 @@ pub use core_collections::str;
 pub use core_collections::string;
 pub use core_collections::vec;
 
-pub use rustc_unicode::char;
+pub use std_unicode::char;
 
 #[macro_use]
 pub mod macros;

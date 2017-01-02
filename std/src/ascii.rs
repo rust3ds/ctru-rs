@@ -430,7 +430,7 @@ static ASCII_UPPERCASE_MAP: [u8; 256] = [
 #[cfg(test)]
 mod tests {
     use super::*;
-    use rustc_unicode::char::from_u32;
+    use std_unicode::char::from_u32;
     use collections::string::ToString;
 
     #[test]
