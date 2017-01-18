@@ -1,8 +1,6 @@
 [package]
 name = "std"
 version = "0.0.0"
-authors = ["Ronald Kinard <furyhunter600@gmail.com>"]
-license = "https://en.wikipedia.org/wiki/Zlib_License"
 
 [lib]
 crate-type = ["rlib"]

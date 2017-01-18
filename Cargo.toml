@@ -14,8 +14,5 @@ name = "ctru"
 [dependencies.ctru-sys]
 path = "ctru-sys"
 
-[dependencies.std]
-path = "std"
-
 [dependencies.bitflags]
 version = "0.7.0"
