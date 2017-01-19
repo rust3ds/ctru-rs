@@ -4,12 +4,12 @@ use std::fs;
 
 use std::option::Option::{self, Some, None};
 
-const ENV_DKP: &'static str = "CTRULIB";
+const ENV_DKP: &'static str = "DEVKITPRO";
 
 fn find_libctru() -> Option<PathBuf> {
     if let Ok(value) = env::var(ENV_DKP) {
         let mut path = PathBuf::from(value);
-        path.push("lib");
+        path.push("libctru/lib");
         // metadata returns Err if the dir does not exist
         if let Ok(metadata) = fs::metadata(path.as_path()) {
             if metadata.is_dir() {

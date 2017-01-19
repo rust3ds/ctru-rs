@@ -8,10 +8,12 @@ use std::marker::PhantomData;
 use std::ptr;
 use std::slice;
 use std::mem;
-use std::arc::Arc;
+use std::sync::Arc;
 
 use std::path::{Path, PathBuf};
 use std::ffi::OsString;
+
+use widestring::{WideCString, WideCStr};
 
 use libctru::services::fs::*;
 
@@ -616,8 +618,11 @@ impl<'a> DirEntry<'a> {
     /// Returns the bare file name of this directory entry without any other leading path
     /// component.
     pub fn file_name(&self) -> OsString {
-        let filename = truncate_utf16_at_nul(&self.entry.name);
-        OsString::from_wide(filename)
+        unsafe { 
+            let filename = truncate_utf16_at_nul(&self.entry.name);
+            let filename = WideCStr::from_ptr_str(filename.as_ptr());
+            filename.to_os_string()
+        }
     }
 }
 
@@ -797,8 +802,8 @@ pub fn rename<P, Q>(arch: &Archive, from: P, to: Q) -> Result<(), i32>
 }
 
 // TODO: Determine if we should check UTF-16 paths for interior NULs
-fn to_utf16(path: &Path) -> Vec<u16> {
-    path.as_os_str().encode_wide().collect::<Vec<_>>()
+fn to_utf16(path: &Path) -> WideCString {
+    WideCString::from_str(path).unwrap()
 }
 
 // Adapted from sys/windows/fs.rs in libstd

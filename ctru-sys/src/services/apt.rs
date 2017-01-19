@@ -143,7 +143,7 @@ pub type aptMessageCb =
     ::core::option::Option<unsafe extern "C" fn(user: *mut ::libc::c_void,
                                                 sender: NS_APPID,
                                                 msg: *mut ::libc::c_void,
-                                                msgsize: size_t)>;
+                                                msgsize: ::libc::size_t)>;
 extern "C" {
     pub fn aptInit() -> Result;
     pub fn aptExit();
@@ -157,7 +157,7 @@ extern "C" {
     pub fn aptSetMessageCallback(callback: aptMessageCb,
                                  user: *mut ::libc::c_void);
     pub fn aptLaunchLibraryApplet(appId: NS_APPID, buf: *mut ::libc::c_void,
-                                  bufsize: size_t, handle: Handle) -> u8;
+                                  bufsize: ::libc::size_t, handle: Handle) -> u8;
     pub fn APT_GetLockHandle(flags: u16_, lockHandle: *mut Handle) -> Result;
     pub fn APT_Initialize(appId: NS_APPID, attr: APT_AppletAttr,
                           signalEvent: *mut Handle, resumeEvent: *mut Handle)
@@ -178,31 +178,31 @@ extern "C" {
                                     titleversion: *mut u16_) -> Result;
     pub fn APT_GetProgramID(pProgramID: *mut u64_) -> Result;
     pub fn APT_PrepareToJumpToHomeMenu() -> Result;
-    pub fn APT_JumpToHomeMenu(param: *const ::libc::c_void, paramSize: size_t,
+    pub fn APT_JumpToHomeMenu(param: *const ::libc::c_void, paramSize: ::libc::size_t,
                               handle: Handle) -> Result;
     pub fn APT_PrepareToJumpToApplication(exiting: u8) -> Result;
     pub fn APT_JumpToApplication(param: *const ::libc::c_void,
-                                 paramSize: size_t, handle: Handle) -> Result;
+                                 paramSize: ::libc::size_t, handle: Handle) -> Result;
     pub fn APT_IsRegistered(appID: NS_APPID, out: *mut u8) -> Result;
     pub fn APT_InquireNotification(appID: u32_, signalType: *mut APT_Signal)
      -> Result;
     pub fn APT_NotifyToWait(appID: NS_APPID) -> Result;
     pub fn APT_AppletUtility(id: ::libc::c_int, out: *mut ::libc::c_void,
-                             outSize: size_t, in_: *const ::libc::c_void,
-                             inSize: size_t) -> Result;
+                             outSize: ::libc::size_t, in_: *const ::libc::c_void,
+                             inSize: ::libc::size_t) -> Result;
     pub fn APT_SleepIfShellClosed() -> Result;
     pub fn APT_TryLockTransition(transition: u32_, succeeded: *mut u8)
      -> Result;
     pub fn APT_UnlockTransition(transition: u32_) -> Result;
     pub fn APT_GlanceParameter(appID: NS_APPID, buffer: *mut ::libc::c_void,
-                               bufferSize: size_t, sender: *mut NS_APPID,
+                               bufferSize: ::libc::size_t, sender: *mut NS_APPID,
                                command: *mut APT_Command,
-                               actualSize: *mut size_t,
+                               actualSize: *mut ::libc::size_t,
                                parameter: *mut Handle) -> Result;
     pub fn APT_ReceiveParameter(appID: NS_APPID, buffer: *mut ::libc::c_void,
-                                bufferSize: size_t, sender: *mut NS_APPID,
+                                bufferSize: ::libc::size_t, sender: *mut NS_APPID,
                                 command: *mut APT_Command,
-                                actualSize: *mut size_t,
+                                actualSize: *mut ::libc::size_t,
                                 parameter: *mut Handle) -> Result;
     pub fn APT_SendParameter(source: NS_APPID, dest: NS_APPID,
                              command: APT_Command,
@@ -217,24 +217,24 @@ extern "C" {
     pub fn APT_ReplySleepNotificationComplete(appID: NS_APPID) -> Result;
     pub fn APT_PrepareToCloseApplication(cancelPreload: u8) -> Result;
     pub fn APT_CloseApplication(param: *const ::libc::c_void,
-                                paramSize: size_t, handle: Handle) -> Result;
+                                paramSize: ::libc::size_t, handle: Handle) -> Result;
     pub fn APT_SetAppCpuTimeLimit(percent: u32_) -> Result;
     pub fn APT_GetAppCpuTimeLimit(percent: *mut u32_) -> Result;
     pub fn APT_CheckNew3DS(out: *mut u8) -> Result;
     pub fn APT_PrepareToDoApplicationJump(flags: u8_, programID: u64_,
                                           mediatype: u8_) -> Result;
     pub fn APT_DoApplicationJump(param: *const ::libc::c_void,
-                                 paramSize: size_t,
+                                 paramSize: ::libc::size_t,
                                  hmac: *const ::libc::c_void) -> Result;
     pub fn APT_PrepareToStartLibraryApplet(appID: NS_APPID) -> Result;
     pub fn APT_StartLibraryApplet(appID: NS_APPID,
                                   param: *const ::libc::c_void,
-                                  paramSize: size_t, handle: Handle)
+                                  paramSize: ::libc::size_t, handle: Handle)
      -> Result;
     pub fn APT_PrepareToStartSystemApplet(appID: NS_APPID) -> Result;
     pub fn APT_StartSystemApplet(appID: NS_APPID,
                                  param: *const ::libc::c_void,
-                                 paramSize: size_t, handle: Handle) -> Result;
+                                 paramSize: ::libc::size_t, handle: Handle) -> Result;
     pub fn APT_GetSharedFont(fontHandle: *mut Handle, mapAddr: *mut u32_)
      -> Result;
 }

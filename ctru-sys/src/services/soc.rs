@@ -92,7 +92,7 @@ extern "C" {
     pub fn socInit(context_addr: *mut u32_, context_size: u32_) -> Result;
     pub fn socExit() -> Result;
     pub fn gethostid() -> ::libc::c_long;
-    pub fn gethostname(name: *mut ::libc::c_char, namelen: size_t)
+    pub fn gethostname(name: *mut ::libc::c_char, namelen: ::libc::size_t)
      -> ::libc::c_int;
     pub fn SOCU_ShutdownSockets() -> ::libc::c_int;
     pub fn SOCU_CloseSockets() -> ::libc::c_int;

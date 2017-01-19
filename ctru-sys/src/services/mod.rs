@@ -25,7 +25,6 @@ pub mod ptmsysm;
 pub mod ptmu;
 pub mod pxidev;
 pub mod qtm;
-pub mod soc;
 pub mod srvpm;
 pub mod sslc;
 pub mod uds;

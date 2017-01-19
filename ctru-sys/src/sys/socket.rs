@@ -4,8 +4,8 @@
          non_camel_case_types,
          non_upper_case_globals,
          non_snake_case)]
-pub type socklen_t = uint32_t;
-pub type sa_family_t = uint16_t;
+pub type socklen_t = ::libc::uint32_t;
+pub type sa_family_t = ::libc::uint16_t;
 #[repr(C)]
 #[derive(Copy, Clone)]
 #[derive(Debug)]
@@ -53,17 +53,17 @@ extern "C" {
                       optlen: *mut socklen_t) -> ::libc::c_int;
     pub fn listen(sockfd: ::libc::c_int, backlog: ::libc::c_int)
      -> ::libc::c_int;
-    pub fn recv(sockfd: ::libc::c_int, buf: *mut ::libc::c_void, len: size_t,
-                flags: ::libc::c_int) -> ssize_t;
+    pub fn recv(sockfd: ::libc::c_int, buf: *mut ::libc::c_void, len: ::libc::size_t,
+                flags: ::libc::c_int) -> ::libc::ssize_t;
     pub fn recvfrom(sockfd: ::libc::c_int, buf: *mut ::libc::c_void,
-                    len: size_t, flags: ::libc::c_int,
+                    len: ::libc::size_t, flags: ::libc::c_int,
                     src_addr: *mut sockaddr, addrlen: *mut socklen_t)
-     -> ssize_t;
+     -> ::libc::ssize_t;
     pub fn send(sockfd: ::libc::c_int, buf: *const ::libc::c_void,
-                len: size_t, flags: ::libc::c_int) -> ssize_t;
+                len: ::libc::size_t, flags: ::libc::c_int) -> ::libc::ssize_t;
     pub fn sendto(sockfd: ::libc::c_int, buf: *const ::libc::c_void,
-                  len: size_t, flags: ::libc::c_int,
-                  dest_addr: *const sockaddr, addrlen: socklen_t) -> ssize_t;
+                  len: ::libc::size_t, flags: ::libc::c_int,
+                  dest_addr: *const sockaddr, addrlen: socklen_t) -> ::libc::ssize_t;
     pub fn setsockopt(sockfd: ::libc::c_int, level: ::libc::c_int,
                       optname: ::libc::c_int, optval: *const ::libc::c_void,
                       optlen: socklen_t) -> ::libc::c_int;
@@ -73,5 +73,3 @@ extern "C" {
                   protocol: ::libc::c_int) -> ::libc::c_int;
     pub fn sockatmark(sockfd: ::libc::c_int) -> ::libc::c_int;
 }
-
-use ::types::*;

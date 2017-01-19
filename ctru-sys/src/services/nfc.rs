@@ -116,10 +116,10 @@ extern "C" {
     pub fn nfcGetTagInfo(out: *mut NFC_TagInfo) -> Result;
     pub fn nfcOpenAppData(amiibo_appid: u32_) -> Result;
     pub fn nfcInitializeWriteAppData(amiibo_appid: u32_,
-                                     buf: *const ::libc::c_void, size: size_t)
+                                     buf: *const ::libc::c_void, size: ::libc::size_t)
      -> Result;
-    pub fn nfcReadAppData(buf: *mut ::libc::c_void, size: size_t) -> Result;
-    pub fn nfcWriteAppData(buf: *const ::libc::c_void, size: size_t,
+    pub fn nfcReadAppData(buf: *mut ::libc::c_void, size: ::libc::size_t) -> Result;
+    pub fn nfcWriteAppData(buf: *const ::libc::c_void, size: ::libc::size_t,
                            taginfo: *mut NFC_TagInfo) -> Result;
     pub fn nfcGetAmiiboSettings(out: *mut NFC_AmiiboSettings) -> Result;
     pub fn nfcGetAmiiboConfig(out: *mut NFC_AmiiboConfig) -> Result;

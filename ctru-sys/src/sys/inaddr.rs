@@ -5,11 +5,10 @@
          non_upper_case_globals,
          non_snake_case)]
 
-use ::types::*;
 use super::socket::*;
 
-pub type in_port_t = uint16_t;
-pub type in_addr_t = uint32_t;
+pub type in_port_t = ::libc::uint16_t;
+pub type in_addr_t = ::libc::uint32_t;
 #[repr(C)]
 #[derive(Copy, Clone)]
 #[derive(Debug)]
@@ -41,4 +40,3 @@ pub struct ip_mreq {
 impl ::core::default::Default for ip_mreq {
     fn default() -> Self { unsafe { ::core::mem::zeroed() } }
 }
-

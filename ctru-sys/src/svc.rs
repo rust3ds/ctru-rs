@@ -4,10 +4,6 @@
          non_camel_case_types,
          non_upper_case_globals,
          non_snake_case)]
-
-use ::{Handle, Result};
-use ::ThreadFunc;
-
 #[derive(Copy, Clone)]
 #[repr(u32)]
 #[derive(Debug)]
@@ -56,10 +52,10 @@ pub enum MemPerm {
 #[derive(Copy, Clone)]
 #[derive(Debug)]
 pub struct MemInfo {
-    pub base_addr: u32,
-    pub size: u32,
-    pub perm: u32,
-    pub state: u32,
+    pub base_addr: u32_,
+    pub size: u32_,
+    pub perm: u32_,
+    pub state: u32_,
 }
 impl ::core::default::Default for MemInfo {
     fn default() -> Self { unsafe { ::core::mem::zeroed() } }
@@ -68,7 +64,7 @@ impl ::core::default::Default for MemInfo {
 #[derive(Copy, Clone)]
 #[derive(Debug)]
 pub struct PageInfo {
-    pub flags: u32,
+    pub flags: u32_,
 }
 impl ::core::default::Default for PageInfo {
     fn default() -> Self { unsafe { ::core::mem::zeroed() } }
@@ -99,10 +95,10 @@ pub enum ProcessEventReason { REASON_CREATE = 1, REASON_ATTACH = 2, }
 #[derive(Copy, Clone)]
 #[derive(Debug)]
 pub struct ProcessEvent {
-    pub program_id: u64,
-    pub process_name: [u8; 8usize],
-    pub process_id: u32,
-    pub reason: u32,
+    pub program_id: u64_,
+    pub process_name: [u8_; 8usize],
+    pub process_id: u32_,
+    pub reason: u32_,
 }
 impl ::core::default::Default for ProcessEvent {
     fn default() -> Self { unsafe { ::core::mem::zeroed() } }
@@ -119,7 +115,7 @@ pub enum ExitProcessEventReason {
 #[derive(Copy, Clone)]
 #[derive(Debug)]
 pub struct ExitProcessEvent {
-    pub reason: u32,
+    pub reason: u32_,
 }
 impl ::core::default::Default for ExitProcessEvent {
     fn default() -> Self { unsafe { ::core::mem::zeroed() } }
@@ -128,9 +124,9 @@ impl ::core::default::Default for ExitProcessEvent {
 #[derive(Copy, Clone)]
 #[derive(Debug)]
 pub struct CreateThreadEvent {
-    pub creator_thread_id: u32,
-    pub base_addr: u32,
-    pub entry_point: u32,
+    pub creator_thread_id: u32_,
+    pub base_addr: u32_,
+    pub entry_point: u32_,
 }
 impl ::core::default::Default for CreateThreadEvent {
     fn default() -> Self { unsafe { ::core::mem::zeroed() } }
@@ -148,7 +144,7 @@ pub enum ExitThreadEventReason {
 #[derive(Copy, Clone)]
 #[derive(Debug)]
 pub struct ExitThreadEvent {
-    pub reason: u32,
+    pub reason: u32_,
 }
 impl ::core::default::Default for ExitThreadEvent {
     fn default() -> Self { unsafe { ::core::mem::zeroed() } }
@@ -179,9 +175,9 @@ pub enum ExceptionEventType {
 #[derive(Copy, Clone)]
 #[derive(Debug)]
 pub struct ExceptionEvent {
-    pub type_: u32,
-    pub address: u32,
-    pub argument: u32,
+    pub type_: u32_,
+    pub address: u32_,
+    pub argument: u32_,
 }
 impl ::core::default::Default for ExceptionEvent {
     fn default() -> Self { unsafe { ::core::mem::zeroed() } }
@@ -190,7 +186,7 @@ impl ::core::default::Default for ExceptionEvent {
 #[derive(Copy, Clone)]
 #[derive(Debug)]
 pub struct SchedulerInOutEvent {
-    pub clock_tick: u64,
+    pub clock_tick: u64_,
 }
 impl ::core::default::Default for SchedulerInOutEvent {
     fn default() -> Self { unsafe { ::core::mem::zeroed() } }
@@ -199,8 +195,8 @@ impl ::core::default::Default for SchedulerInOutEvent {
 #[derive(Copy, Clone)]
 #[derive(Debug)]
 pub struct SyscallInOutEvent {
-    pub clock_tick: u64,
-    pub syscall: u32,
+    pub clock_tick: u64_,
+    pub syscall: u32_,
     _bindgen_padding_0_: [u8; 4usize],
 }
 impl ::core::default::Default for SyscallInOutEvent {
@@ -210,8 +206,8 @@ impl ::core::default::Default for SyscallInOutEvent {
 #[derive(Copy, Clone)]
 #[derive(Debug)]
 pub struct OutputStringEvent {
-    pub string_addr: u32,
-    pub string_size: u32,
+    pub string_addr: u32_,
+    pub string_size: u32_,
 }
 impl ::core::default::Default for OutputStringEvent {
     fn default() -> Self { unsafe { ::core::mem::zeroed() } }
@@ -220,10 +216,10 @@ impl ::core::default::Default for OutputStringEvent {
 #[derive(Copy, Clone)]
 #[derive(Debug)]
 pub struct MapEvent {
-    pub mapped_addr: u32,
-    pub mapped_size: u32,
-    pub memperm: u32,
-    pub memstate: u32,
+    pub mapped_addr: u32_,
+    pub mapped_size: u32_,
+    pub memperm: u32_,
+    pub memstate: u32_,
 }
 impl ::core::default::Default for MapEvent {
     fn default() -> Self { unsafe { ::core::mem::zeroed() } }
@@ -250,9 +246,9 @@ pub enum DebugEventType {
 #[derive(Copy, Clone)]
 #[derive(Debug)]
 pub struct DebugEventInfo {
-    pub type_: u32,
-    pub thread_id: u32,
-    pub unknown: [u32; 2usize],
+    pub type_: u32_,
+    pub thread_id: u32_,
+    pub unknown: [u32_; 2usize],
     pub _bindgen_data_1_: [u64; 3usize],
 }
 impl DebugEventInfo {
@@ -300,21 +296,21 @@ impl ::core::default::Default for DebugEventInfo {
 #[derive(Copy, Clone)]
 #[derive(Debug)]
 pub struct CodeSetInfo {
-    pub name: [u8; 8usize],
-    pub unk1: u16,
-    pub unk2: u16,
-    pub unk3: u32,
-    pub text_addr: u32,
-    pub text_size: u32,
-    pub ro_addr: u32,
-    pub ro_size: u32,
-    pub rw_addr: u32,
-    pub rw_size: u32,
-    pub text_size_total: u32,
-    pub ro_size_total: u32,
-    pub rw_size_total: u32,
-    pub unk4: u32,
-    pub program_id: u64,
+    pub name: [u8_; 8usize],
+    pub unk1: u16_,
+    pub unk2: u16_,
+    pub unk3: u32_,
+    pub text_addr: u32_,
+    pub text_size: u32_,
+    pub ro_addr: u32_,
+    pub ro_size: u32_,
+    pub rw_addr: u32_,
+    pub rw_size: u32_,
+    pub text_size_total: u32_,
+    pub ro_size_total: u32_,
+    pub rw_size_total: u32_,
+    pub unk4: u32_,
+    pub program_id: u64_,
 }
 impl ::core::default::Default for CodeSetInfo {
     fn default() -> Self { unsafe { ::core::mem::zeroed() } }
@@ -324,62 +320,62 @@ impl ::core::default::Default for CodeSetInfo {
 #[derive(Debug)]
 pub struct StartupInfo {
     pub priority: ::libc::c_int,
-    pub stack_size: u32,
+    pub stack_size: u32_,
     pub argc: ::libc::c_int,
-    pub argv: *mut u16,
-    pub envp: *mut u16,
+    pub argv: *mut u16_,
+    pub envp: *mut u16_,
 }
 impl ::core::default::Default for StartupInfo {
     fn default() -> Self { unsafe { ::core::mem::zeroed() } }
 }
 extern "C" {
-    pub fn svcControlMemory(addr_out: *mut u32, addr0: u32, addr1: u32,
-                            size: u32, op: MemOp, perm: MemPerm) -> Result;
-    pub fn svcControlProcessMemory(process: Handle, addr0: u32, addr1: u32,
-                                   size: u32, type_: u32, perm: u32)
+    pub fn svcControlMemory(addr_out: *mut u32_, addr0: u32_, addr1: u32_,
+                            size: u32_, op: MemOp, perm: MemPerm) -> Result;
+    pub fn svcControlProcessMemory(process: Handle, addr0: u32_, addr1: u32_,
+                                   size: u32_, type_: u32_, perm: u32_)
      -> Result;
-    pub fn svcCreateMemoryBlock(memblock: *mut Handle, addr: u32, size: u32,
+    pub fn svcCreateMemoryBlock(memblock: *mut Handle, addr: u32_, size: u32_,
                                 my_perm: MemPerm, other_perm: MemPerm)
      -> Result;
-    pub fn svcMapMemoryBlock(memblock: Handle, addr: u32, my_perm: MemPerm,
+    pub fn svcMapMemoryBlock(memblock: Handle, addr: u32_, my_perm: MemPerm,
                              other_perm: MemPerm) -> Result;
-    pub fn svcMapProcessMemory(process: Handle, startAddr: u32,
-                               endAddr: u32) -> Result;
-    pub fn svcUnmapProcessMemory(process: Handle, startAddr: u32,
-                                 endAddr: u32) -> Result;
-    pub fn svcUnmapMemoryBlock(memblock: Handle, addr: u32) -> Result;
+    pub fn svcMapProcessMemory(process: Handle, startAddr: u32_,
+                               endAddr: u32_) -> Result;
+    pub fn svcUnmapProcessMemory(process: Handle, startAddr: u32_,
+                                 endAddr: u32_) -> Result;
+    pub fn svcUnmapMemoryBlock(memblock: Handle, addr: u32_) -> Result;
     pub fn svcStartInterProcessDma(dma: *mut Handle, dstProcess: Handle,
                                    dst: *mut ::libc::c_void,
                                    srcProcess: Handle,
-                                   src: *const ::libc::c_void, size: u32,
+                                   src: *const ::libc::c_void, size: u32_,
                                    dmaConfig: *mut ::libc::c_void) -> Result;
     pub fn svcStopDma(dma: Handle) -> Result;
     pub fn svcGetDmaState(dmaState: *mut ::libc::c_void, dma: Handle)
      -> Result;
-    pub fn svcQueryMemory(info: *mut MemInfo, out: *mut PageInfo, addr: u32)
+    pub fn svcQueryMemory(info: *mut MemInfo, out: *mut PageInfo, addr: u32_)
      -> Result;
     pub fn svcQueryProcessMemory(info: *mut MemInfo, out: *mut PageInfo,
-                                 process: Handle, addr: u32) -> Result;
+                                 process: Handle, addr: u32_) -> Result;
     pub fn svcInvalidateProcessDataCache(process: Handle,
                                          addr: *mut ::libc::c_void,
-                                         size: u32) -> Result;
+                                         size: u32_) -> Result;
     pub fn svcFlushProcessDataCache(process: Handle,
-                                    addr: *const ::libc::c_void, size: u32)
+                                    addr: *const ::libc::c_void, size: u32_)
      -> Result;
     pub fn svcReadProcessMemory(buffer: *mut ::libc::c_void, debug: Handle,
-                                addr: u32, size: u32) -> Result;
+                                addr: u32_, size: u32_) -> Result;
     pub fn svcWriteProcessMemory(debug: Handle, buffer: *const ::libc::c_void,
-                                 addr: u32, size: u32) -> Result;
-    pub fn svcOpenProcess(process: *mut Handle, processId: u32) -> Result;
+                                 addr: u32_, size: u32_) -> Result;
+    pub fn svcOpenProcess(process: *mut Handle, processId: u32_) -> Result;
     pub fn svcExitProcess();
     pub fn svcTerminateProcess(process: Handle) -> Result;
-    pub fn svcGetProcessInfo(out: *mut i64, process: Handle, type_: u32)
+    pub fn svcGetProcessInfo(out: *mut s64, process: Handle, type_: u32_)
      -> Result;
-    pub fn svcGetProcessId(out: *mut u32, handle: Handle) -> Result;
-    pub fn svcGetProcessList(processCount: *mut i32, processIds: *mut u32,
-                             processIdMaxCount: i32) -> Result;
+    pub fn svcGetProcessId(out: *mut u32_, handle: Handle) -> Result;
+    pub fn svcGetProcessList(processCount: *mut s32, processIds: *mut u32_,
+                             processIdMaxCount: s32) -> Result;
     pub fn svcCreatePort(portServer: *mut Handle, portClient: *mut Handle,
-                         name: *const ::libc::c_char, maxSessions: i32)
+                         name: *const ::libc::c_char, maxSessions: s32)
      -> Result;
     pub fn svcConnectToPort(out: *mut Handle, portName: *const ::libc::c_char)
      -> Result;
@@ -388,94 +384,96 @@ extern "C" {
                             ro_ptr: *mut ::libc::c_void,
                             data_ptr: *mut ::libc::c_void) -> Result;
     pub fn svcCreateProcess(out: *mut Handle, codeset: Handle,
-                            arm11kernelcaps: *const u32,
-                            arm11kernelcaps_num: u32) -> Result;
+                            arm11kernelcaps: *const u32_,
+                            arm11kernelcaps_num: u32_) -> Result;
     pub fn svcSetProcessAffinityMask(process: Handle,
-                                     affinitymask: *const u8,
-                                     processorcount: i32) -> Result;
-    pub fn svcSetProcessIdealProcessor(process: Handle, processorid: i32)
+                                     affinitymask: *const u8_,
+                                     processorcount: s32) -> Result;
+    pub fn svcSetProcessIdealProcessor(process: Handle, processorid: s32)
      -> Result;
     pub fn svcRun(process: Handle, info: *const StartupInfo) -> Result;
     pub fn svcCreateThread(thread: *mut Handle, entrypoint: ThreadFunc,
-                           arg: u32, stack_top: *mut u32,
-                           thread_priority: i32, processor_id: i32) -> Result;
-    pub fn svcOpenThread(thread: *mut Handle, process: Handle, threadId: u32)
+                           arg: u32_, stack_top: *mut u32_,
+                           thread_priority: s32, processor_id: s32) -> Result;
+    pub fn svcOpenThread(thread: *mut Handle, process: Handle, threadId: u32_)
      -> Result;
     pub fn svcExitThread();
-    pub fn svcSleepThread(ns: i64);
-    pub fn svcGetThreadPriority(out: *mut i32, handle: Handle) -> Result;
-    pub fn svcSetThreadPriority(thread: Handle, prio: i32) -> Result;
-    pub fn svcGetThreadAffinityMask(affinitymask: *mut u8, thread: Handle,
-                                    processorcount: i32) -> Result;
-    pub fn svcSetThreadAffinityMask(thread: Handle, affinitymask: *const u8,
-                                    processorcount: i32) -> Result;
-    pub fn svcGetThreadIdealProcessor(processorid: *mut i32, thread: Handle)
+    pub fn svcSleepThread(ns: s64);
+    pub fn svcGetThreadPriority(out: *mut s32, handle: Handle) -> Result;
+    pub fn svcSetThreadPriority(thread: Handle, prio: s32) -> Result;
+    pub fn svcGetThreadAffinityMask(affinitymask: *mut u8_, thread: Handle,
+                                    processorcount: s32) -> Result;
+    pub fn svcSetThreadAffinityMask(thread: Handle, affinitymask: *const u8_,
+                                    processorcount: s32) -> Result;
+    pub fn svcGetThreadIdealProcessor(processorid: *mut s32, thread: Handle)
      -> Result;
-    pub fn svcSetThreadIdealProcessor(thread: Handle, processorid: i32)
+    pub fn svcSetThreadIdealProcessor(thread: Handle, processorid: s32)
      -> Result;
-    pub fn svcGetProcessorID() -> i32;
-    pub fn svcGetThreadId(out: *mut u32, handle: Handle) -> Result;
+    pub fn svcGetProcessorID() -> s32;
+    pub fn svcGetThreadId(out: *mut u32_, handle: Handle) -> Result;
     pub fn svcGetResourceLimit(resourceLimit: *mut Handle, process: Handle)
      -> Result;
-    pub fn svcGetResourceLimitLimitValues(values: *mut i64,
+    pub fn svcGetResourceLimitLimitValues(values: *mut s64,
                                           resourceLimit: Handle,
-                                          names: *mut u32, nameCount: i32)
+                                          names: *mut u32_, nameCount: s32)
      -> Result;
-    pub fn svcGetResourceLimitCurrentValues(values: *mut i64,
+    pub fn svcGetResourceLimitCurrentValues(values: *mut s64,
                                             resourceLimit: Handle,
-                                            names: *mut u32, nameCount: i32)
+                                            names: *mut u32_, nameCount: s32)
      -> Result;
-    pub fn svcGetProcessIdOfThread(out: *mut u32, handle: Handle) -> Result;
-    pub fn svcGetThreadInfo(out: *mut i64, thread: Handle,
+    pub fn svcGetProcessIdOfThread(out: *mut u32_, handle: Handle) -> Result;
+    pub fn svcGetThreadInfo(out: *mut s64, thread: Handle,
                             type_: ThreadInfoType) -> Result;
     pub fn svcCreateMutex(mutex: *mut Handle, initially_locked: u8) -> Result;
     pub fn svcReleaseMutex(handle: Handle) -> Result;
-    pub fn svcCreateSemaphore(semaphore: *mut Handle, initial_count: i32,
-                              max_count: i32) -> Result;
-    pub fn svcReleaseSemaphore(count: *mut i32, semaphore: Handle,
-                               release_count: i32) -> Result;
+    pub fn svcCreateSemaphore(semaphore: *mut Handle, initial_count: s32,
+                              max_count: s32) -> Result;
+    pub fn svcReleaseSemaphore(count: *mut s32, semaphore: Handle,
+                               release_count: s32) -> Result;
     pub fn svcCreateEvent(event: *mut Handle, reset_type: ResetType)
      -> Result;
     pub fn svcSignalEvent(handle: Handle) -> Result;
     pub fn svcClearEvent(handle: Handle) -> Result;
-    pub fn svcWaitSynchronization(handle: Handle, nanoseconds: i64) -> Result;
-    pub fn svcWaitSynchronizationN(out: *mut i32, handles: *mut Handle,
-                                   handles_num: i32, wait_all: u8,
-                                   nanoseconds: i64) -> Result;
+    pub fn svcWaitSynchronization(handle: Handle, nanoseconds: s64) -> Result;
+    pub fn svcWaitSynchronizationN(out: *mut s32, handles: *mut Handle,
+                                   handles_num: s32, wait_all: u8,
+                                   nanoseconds: s64) -> Result;
     pub fn svcCreateAddressArbiter(arbiter: *mut Handle) -> Result;
-    pub fn svcArbitrateAddress(arbiter: Handle, addr: u32,
-                               type_: ArbitrationType, value: i32,
-                               nanoseconds: i64) -> Result;
+    pub fn svcArbitrateAddress(arbiter: Handle, addr: u32_,
+                               type_: ArbitrationType, value: s32,
+                               nanoseconds: s64) -> Result;
     pub fn svcSendSyncRequest(session: Handle) -> Result;
     pub fn svcAcceptSession(session: *mut Handle, port: Handle) -> Result;
-    pub fn svcReplyAndReceive(index: *mut i32, handles: *mut Handle,
-                              handleCount: i32, replyTarget: Handle)
+    pub fn svcReplyAndReceive(index: *mut s32, handles: *mut Handle,
+                              handleCount: s32, replyTarget: Handle)
      -> Result;
-    pub fn svcBindInterrupt(interruptId: u32, event: Handle, priority: i32,
+    pub fn svcBindInterrupt(interruptId: u32_, event: Handle, priority: s32,
                             isManualClear: u8) -> Result;
-    pub fn svcUnbindInterrupt(interruptId: u32, event: Handle) -> Result;
+    pub fn svcUnbindInterrupt(interruptId: u32_, event: Handle) -> Result;
     pub fn svcCreateTimer(timer: *mut Handle, reset_type: ResetType)
      -> Result;
-    pub fn svcSetTimer(timer: Handle, initial: i64, interval: i64) -> Result;
+    pub fn svcSetTimer(timer: Handle, initial: s64, interval: s64) -> Result;
     pub fn svcCancelTimer(timer: Handle) -> Result;
     pub fn svcClearTimer(timer: Handle) -> Result;
-    pub fn svcGetSystemTick() -> u64;
+    pub fn svcGetSystemTick() -> u64_;
     pub fn svcCloseHandle(handle: Handle) -> Result;
     pub fn svcDuplicateHandle(out: *mut Handle, original: Handle) -> Result;
-    pub fn svcGetSystemInfo(out: *mut i64, type_: u32, param: i32) -> Result;
-    pub fn svcKernelSetState(type_: u32, param0: u32, param1: u32,
-                             param2: u32) -> Result;
+    pub fn svcGetSystemInfo(out: *mut s64, type_: u32_, param: s32) -> Result;
+    pub fn svcKernelSetState(type_: u32_, param0: u32_, param1: u32_,
+                             param2: u32_) -> Result;
     pub fn svcBreak(breakReason: UserBreakType);
     pub fn svcOutputDebugString(str: *const ::libc::c_char,
                                 length: ::libc::c_int) -> Result;
-    pub fn svcDebugActiveProcess(debug: *mut Handle, processId: u32)
+    pub fn svcDebugActiveProcess(debug: *mut Handle, processId: u32_)
      -> Result;
     pub fn svcBreakDebugProcess(debug: Handle) -> Result;
     pub fn svcTerminateDebugProcess(debug: Handle) -> Result;
     pub fn svcGetProcessDebugEvent(info: *mut DebugEventInfo, debug: Handle)
      -> Result;
-    pub fn svcContinueDebugEvent(debug: Handle, flags: u32) -> Result;
+    pub fn svcContinueDebugEvent(debug: Handle, flags: u32_) -> Result;
     pub fn svcBackdoor(callback:
-                           ::core::option::Option<extern "C" fn() -> i32>)
+                           ::core::option::Option<extern "C" fn() -> s32>)
      -> Result;
 }
+
+use ::types::*;

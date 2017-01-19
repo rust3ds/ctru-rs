@@ -1,2 +1,10 @@
-[target.3ds.dependencies]
-collections = {}
+[dependencies.collections]
+
+[dependencies.ctr-libc]
+path = "ctr-libc"
+default-features = false
+stage = 0
+
+[dependencies.std]
+path = "ctr-std"
+stage = 1

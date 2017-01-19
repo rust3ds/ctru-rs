@@ -1,0 +1,13 @@
+[package]
+name = "std"
+version = "0.0.0"
+license = "MIT/Apache 2.0"
+
+[dependencies.compiler_builtins]
+git = "https://github.com/rust-lang-nursery/compiler-builtins"
+
+[dependencies.alloc_system]
+version = "0.1.1"
+
+[dependencies.spin]
+version = "0.4"

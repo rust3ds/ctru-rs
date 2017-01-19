@@ -47,7 +47,7 @@ extern "C" {
                                              nonce: *mut u8_) -> Result;
     pub fn PS_GetLocalFriendCodeSeed(seed: *mut u64_) -> Result;
     pub fn PS_GetDeviceId(device_id: *mut u32_) -> Result;
-    pub fn PS_GenerateRandomBytes(out: *mut ::libc::c_void, len: size_t)
+    pub fn PS_GenerateRandomBytes(out: *mut ::libc::c_void, len: ::libc::size_t)
      -> Result;
 }
 use ::types::*;

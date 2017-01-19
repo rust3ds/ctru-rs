@@ -3,6 +3,7 @@
 
 #[macro_use]
 extern crate bitflags;
+extern crate widestring;
 
 extern crate ctru_sys as libctru;
 

@@ -12,7 +12,10 @@ crate-type = ["rlib"]
 name = "ctru"
 
 [dependencies.ctru-sys]
-path = "ctru-sys"
+path = "../ctru-sys"
 
 [dependencies.bitflags]
 version = "0.7.0"
+
+[dependencies.widestring]
+widestring = "0.2.2"

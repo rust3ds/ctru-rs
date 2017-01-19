@@ -89,9 +89,9 @@ extern "C" {
                                internal_retval: *mut ::libc::c_int,
                                out: *mut u32_) -> Result;
     pub fn sslcRead(context: *mut sslcContext, buf: *mut ::libc::c_void,
-                    len: size_t, peek: u8) -> Result;
+                    len: ::libc::size_t, peek: u8) -> Result;
     pub fn sslcWrite(context: *mut sslcContext, buf: *const ::libc::c_void,
-                     len: size_t) -> Result;
+                     len: ::libc::size_t) -> Result;
     pub fn sslcContextSetRootCertChain(context: *mut sslcContext,
                                        handle: u32_) -> Result;
     pub fn sslcContextSetClientCert(context: *mut sslcContext, handle: u32_)
