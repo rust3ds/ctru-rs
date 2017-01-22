@@ -6,6 +6,10 @@ license = "MIT/Apache 2.0"
 [dependencies.compiler_builtins]
 git = "https://github.com/rust-lang-nursery/compiler-builtins"
 
+[dependencies.ctr-libc]
+path = "../ctr-libc"
+default-features = false
+
 [dependencies.alloc_system]
 version = "0.1.1"
 

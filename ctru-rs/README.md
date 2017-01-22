@@ -1,16 +1,17 @@
 # ctru-rs
 
-A Rust wrapper library for smealum's [ctrulib](https://github.com/smealum/ctrulib).
+A Rust wrapper library for smealum's
+[ctrulib](https://github.com/smealum/ctrulib).
 
 See the [3DS project template](https://github.com/rust3ds/rust3ds-template) for instructions on how to use this library.
 
 ## Structure
 
-This repository is organized as follows:
-* `ctru-rs`: Safe, idiomatic wrapper around `ctru-sys`.
-* `ctru-sys`: Low-level, unsafe bindings to ctrulib
-* `ctr-std`: A partial implementation of the Rust standard library for the 3DS.
-* `ctr-libc`: C types and functions used by ctru-sys and ctr-std.
+This library is meant to expose 3DS-specific functionality. Common functionality is implemented in `ctr-std` when possible.
+
+## Contributing
+
+PR's are welcome. Organization of rust specific features and wrapper functionality are still being decided on.
 
 ## License
 
@@ -41,4 +42,3 @@ applies to every file in the tree, unless otherwise noted.
 Rust is primarily distributed under the terms of both the MIT license and the Apache License (Version 2.0), with portions covered by various BSD-like licenses.
 
 See [LICENSE-APACHE](https://github.com/rust-lang/rust/blob/master/LICENSE-APACHE), [LICENSE-MIT](https://github.com/rust-lang/rust/blob/master/LICENSE-MIT), and [COPYRIGHT](https://github.com/rust-lang/rust/blob/master/COPYRIGHT) for details.
-
