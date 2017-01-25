@@ -10,20 +10,7 @@
 
 #![allow(bad_style, overflowing_literals, improper_ctypes, non_camel_case_types)]
 
-// Attributes needed when building as part of the standard library
-#![cfg_attr(stdbuild, feature(no_std, core, core_slice_ext, staged_api, custom_attribute, cfg_target_vendor))]
-#![cfg_attr(stdbuild, feature(link_cfg))]
-#![cfg_attr(stdbuild, no_std)]
-#![cfg_attr(stdbuild, staged_api)]
-#![cfg_attr(stdbuild, allow(warnings))]
-#![cfg_attr(stdbuild, unstable(feature = "libc",
-                               reason = "use `libc` from crates.io",
-                               issue = "27783"))]
-
-#![cfg_attr(not(feature = "use_std"), no_std)]
-
-#[cfg(all(not(stdbuild), not(dox), feature = "use_std"))]
-extern crate std as core;
+#![no_std]
 
 mod constants;
 mod functions;

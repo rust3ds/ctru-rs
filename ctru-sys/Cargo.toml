@@ -5,4 +5,4 @@ authors = ["Ronald Kinard <furyhunter600@gmail.com>"]
 license = "https://en.wikipedia.org/wiki/Zlib_License"
 
 [dependencies]
-ctr-libc = { path = "../ctr-libc", default-features = false }
+ctr-libc = { path = "../ctr-libc" }

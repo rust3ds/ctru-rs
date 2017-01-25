@@ -2,7 +2,6 @@
 
 [dependencies.ctr-libc]
 path = "../ctr-libc"
-default-features = false
 stage = 1
 
 [dependencies.std]
