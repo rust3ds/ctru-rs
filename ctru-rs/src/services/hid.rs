@@ -78,11 +78,11 @@ pub struct Hid {
 }
 
 impl Hid {
-    pub fn init() -> Result<Hid, i32> {
+    pub fn init() -> ::Result<Hid> {
         unsafe {
             let r = hid::hidInit();
             if r < 0 {
-                Err(r)
+                Err(::Error::from(r))
             } else {
                 Ok(Hid { pd: PhantomData })
             }

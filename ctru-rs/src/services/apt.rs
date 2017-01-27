@@ -7,11 +7,11 @@ pub struct Apt {
 }
 
 impl Apt {
-    pub fn init() -> Result<Apt, i32> {
+    pub fn init() -> ::Result<Apt> {
         unsafe {
             let r = apt::aptInit();
             if r < 0 {
-                Err(r)
+                Err(::Error::from(r))
             } else {
                 Ok(Apt { pd: PhantomData })
             }

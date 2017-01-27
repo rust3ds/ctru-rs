@@ -7,11 +7,11 @@ pub struct Srv {
 }
 
 impl Srv {
-    pub fn init() -> Result<Srv, i32> {
+    pub fn init() -> ::Result<Srv> {
         unsafe {
             let r = srvInit();
             if r < 0 {
-                Err(r)
+                Err(::Error::from(r))
             } else {
                 Ok(Srv { pd: PhantomData })
             }

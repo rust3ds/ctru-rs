@@ -7,11 +7,11 @@ pub struct Sdmc {
 }
 
 impl Sdmc {
-    pub fn init() -> Result<Sdmc, i32> {
+    pub fn init() -> ::Result<Sdmc> {
         unsafe {
             let r = sdmcInit();
             if r < 0 {
-                Err(r)
+                Err(::Error::from(r))
             } else {
                 Ok(Sdmc { pd: PhantomData })
             }
