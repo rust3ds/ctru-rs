@@ -3,15 +3,18 @@
 //! This module contains basic methods to manipulate the contents of the 3DS's filesystem.
 //! Only the SD card is currently supported.
 
+use std::io::{Read, Write};
+use std::io::Error as IoError;
+use std::io::Result as IoResult;
+use std::io::ErrorKind as IoErrorKind;
 
+use std::ffi::OsString;
 use std::marker::PhantomData;
 use std::ptr;
 use std::slice;
 use std::mem;
-use std::sync::Arc;
-
 use std::path::{Path, PathBuf};
-use std::ffi::OsString;
+use std::sync::Arc;
 
 use widestring::{WideCString, WideCStr};
 
@@ -107,6 +110,63 @@ pub struct Archive {
 /// on what options It was opened with.
 ///
 /// Files are automatically closed when they go out of scope.
+///
+/// # Examples
+///
+/// Create a new file and write bytes to it:
+///
+/// ```no_run
+/// use std::io::prelude::*;
+/// use ctru::services::fs::{Fs, File};
+///
+/// # fn foo() -> std::io::Result<()> {
+/// let fs = Fs::init()?;
+/// let sdmc = fs.sdmc()?;
+///
+/// let mut file = File::create(&sdmc, "/foo.txt")?;
+/// file.write_all(b"Hello, world!")?;
+/// # Ok(())
+/// #}
+/// ```
+///
+/// Read the contents of a file into a `String`::
+///
+/// ```no_run
+/// use std::io::prelude::*;
+/// use ctru::services::fs::{Fs, File};
+///
+/// # fn foo() -> std::io::Result<()> {
+/// let fs = Fs::init()?;
+/// let sdmc = fs.sdmc()?;
+///
+/// let mut file = File::open(&sdmc, "/foo.txt")?;
+/// let mut contents = String::new();
+/// file.read_to_string(&mut contents)?;
+/// assert_eq!(contents, "Hello, world!");
+/// # Ok(())
+/// #}
+/// ```
+///
+/// It can be more efficient to read the contents of a file with a buffered
+/// `Read`er. This can be accomplished with `BufReader<R>`:
+///
+/// ```no_run
+/// use std::io::BufReader;
+/// use std::io::prelude::*;
+/// use ctru::services::fs::{Fs, File};
+///
+/// # fn foo() -> std::io::Result<()> {
+/// let fs = Fs::init()?;
+/// let sdmc = fs.sdmc()?;
+///
+/// let file = File::open(&sdmc, "/foo.txt")?;
+/// let mut buf_reader = BufReader::new(file);
+/// let mut contents = String::new();
+/// buf_reader.read_to_string(&mut contents)?;
+/// assert_eq!(contents, "Hello, world!");
+/// # Ok(())
+/// # }
+/// ```
 pub struct File {
     handle: u32,
     offset: u64,
@@ -240,11 +300,11 @@ impl Fs {
     /// ctrulib services are reference counted, so this function may be called
     /// as many times as desired and the service will not exit until all
     /// instances of Fs drop out of scope.
-    pub fn init() -> Result<Fs, i32> {
+    pub fn init() -> ::Result<Fs> {
         unsafe {
             let r = fsInit();
             if r < 0 {
-                Err(r)
+                Err(::Error::from(r))
             } else {
                 Ok(Fs { pd: PhantomData })
             }
@@ -252,14 +312,14 @@ impl Fs {
     }
 
     /// Returns a handle to the SDMC (memory card) Archive.
-    pub fn sdmc(&self) -> Result<Archive, i32> {
+    pub fn sdmc(&self) -> ::Result<Archive> {
         unsafe {
             let mut handle = 0;
             let id = ArchiveID::Sdmc;
             let path = fsMakePath(PathType::Empty.into(), ptr::null() as _);
             let r = FSUSER_OpenArchive(&mut handle, id.into(), path);
             if r < 0 {
-                Err(r)
+                Err(::Error::from(r))
             } else {
                 Ok(Archive {
                     handle: handle,
@@ -300,7 +360,7 @@ impl File {
     /// let sdmc_archive = fs.sdmc().unwrap()
     /// let mut f = File::open(&sdmc_archive, "/foo.txt").unwrap();
     /// ```
-    pub fn open<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<File, i32> {
+    pub fn open<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<File> {
         OpenOptions::new().read(true).archive(arch).open(path.as_ref())
     }
 
@@ -326,7 +386,7 @@ impl File {
     /// let sdmc_archive = fs.sdmc().unwrap()
     /// let mut f = File::create(&sdmc_archive, "/foo.txt").unwrap();
     /// ```
-    pub fn create<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<File, i32> {
+    pub fn create<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<File> {
         OpenOptions::new().write(true).create(true).archive(arch).open(path.as_ref())
     }
 
@@ -335,11 +395,15 @@ impl File {
     /// If the size is less than the current file's size, then the file will be shrunk. If it is
     /// greater than the current file's size, then the file will be extended to size and have all
     /// of the intermediate data filled in with 0s.
-    pub fn set_len(&mut self, size: u64) -> Result<(), i32> {
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the file is not opened for writing.
+    pub fn set_len(&mut self, size: u64) -> IoResult<()> {
         unsafe {
             let r = FSFILE_SetSize(self.handle, size);
             if r < 0 {
-                Err(r)
+                Err(IoError::new(IoErrorKind::PermissionDenied, ::Error::from(r)))
             } else {
                 Ok(())
             }
@@ -347,26 +411,21 @@ impl File {
     }
 
     /// Queries metadata about the underlying file.
-    pub fn metadata(&self) -> Result<Metadata, i32> {
+    pub fn metadata(&self) -> IoResult<Metadata> {
         // The only metadata we have for files right now is file size.
         // This is likely to change in the future.
         unsafe {
             let mut size = 0;
             let r = FSFILE_GetSize(self.handle, &mut size);
             if r < 0 {
-                Err(r)
+                Err(IoError::new(IoErrorKind::PermissionDenied, ::Error::from(r)))
             } else {
                 Ok(Metadata { attributes: 0, size: size })
             }
         }
     }
 
-    /// Pull some bytes from the file into the specified buffer, returning
-    /// how many bytes were read.
-    ///
-    /// This function will become private when std::io support is ported
-    /// to this library.
-    pub fn read(&mut self, buf: &mut [u8]) -> Result<usize, i32> {
+    fn read(&mut self, buf: &mut [u8]) -> IoResult<usize> {
         unsafe {
             let mut n_read = 0;
             let r = FSFILE_Read(
@@ -378,28 +437,18 @@ impl File {
             );
             self.offset += n_read as u64;
             if r < 0 {
-                Err(r)
+                Err(IoError::new(IoErrorKind::Other, ::Error::from(r)))
             } else {
                 Ok(n_read as usize)
             }
         }
     }
 
-    /// Read all bytes until EOF in this source, placing them into buf.
-    /// 
-    /// This function will become private when std::io support is ported
-    /// to this library.
-    pub fn read_to_end(&mut self, buf: &mut Vec<u8>) -> Result<usize, i32> {
-        unsafe {
-            read_to_end_uninitialized(self, buf)
-        }
+    fn read_to_end(&mut self, buf: &mut Vec<u8>) -> IoResult<usize> {
+		unsafe { read_to_end_uninitialized(self, buf) }
     }
 
-    /// Write a buffer into this object, returning how many bytes were written.
-    ///
-    /// This function will become private when std::io support is ported
-    /// to this library.
-    pub fn write(&mut self, buf: &[u8]) -> Result<usize, i32> {
+    fn write(&mut self, buf: &[u8]) -> IoResult<usize> {
         unsafe {
             let mut n_written = 0;
             let r = FSFILE_Write(
@@ -408,11 +457,11 @@ impl File {
                 self.offset,
                 buf.as_ptr() as _,
                 buf.len() as u32,
-                FS_WRITE_UPDATE_TIME.bits
+                FS_WRITE_UPDATE_TIME.bits()
             );
             self.offset += n_written as u64;
             if r < 0 {
-                Err(r)
+                Err(IoError::new(IoErrorKind::Other, ::Error::from(r)))
             } else {
                 Ok(n_written as usize)
             }
@@ -532,31 +581,31 @@ impl OpenOptions {
     /// * Invalid combinations of open options.
     ///
     /// [`Archive`]: struct.Archive.html
-    pub fn open<P: AsRef<Path>>(&self, path: P) -> Result<File, i32> {
+    pub fn open<P: AsRef<Path>>(&self, path: P) -> IoResult<File> {
         self._open(path.as_ref(), self.get_open_flags())
     }
 
-    fn _open(&self, path: &Path, flags: FsOpen) -> Result<File, i32> {
+    fn _open(&self, path: &Path, flags: FsOpen) -> IoResult<File> {
         unsafe {
             let mut file_handle = 0;
             let path = to_utf16(path);
             let fs_path = fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
             let r = FSUSER_OpenFile(&mut file_handle, self.arch_handle, fs_path, flags.bits, 0);
             if r < 0 {
-                return Err(r);
+                return Err(IoError::new(IoErrorKind::Other, ::Error::from(r)));
             }
 
             let mut file = File { handle: file_handle, offset: 0 };
 
             if self.append {
-                let metadata = try!(file.metadata());
+                let metadata = file.metadata()?;
                 file.offset = metadata.len();
             }
 
             // set the offset to 0 just in case both append and truncate were
             // set to true
             if self.truncate {
-                try!(file.set_len(0));
+                file.set_len(0)?;
                 file.offset = 0;
             }
             Ok(file)
@@ -577,9 +626,9 @@ impl OpenOptions {
 }
 
 impl<'a> Iterator for ReadDir<'a> {
-    type Item = Result<DirEntry<'a>, i32>;
+    type Item = IoResult<DirEntry<'a>>;
 
-    fn next(&mut self) -> Option<Result<DirEntry<'a>, i32>> {
+    fn next(&mut self) -> Option<IoResult<DirEntry<'a>>> {
         unsafe {
             let mut ret = DirEntry {
                 entry: mem::zeroed(),
@@ -591,7 +640,7 @@ impl<'a> Iterator for ReadDir<'a> {
             let r = FSDIR_Read(self.handle.0, &mut entries_read, entry_count, &mut ret.entry);
 
             if r < 0 {
-                return Some(Err(r))
+                return Some(Err(IoError::new(IoErrorKind::Other, ::Error::from(r))))
             }
             if entries_read != entry_count {
                 return None
@@ -611,7 +660,7 @@ impl<'a> DirEntry<'a> {
     }
 
     /// Return the metadata for the file that this entry points at.
-    pub fn metadata(&self) -> Result<Metadata, i32> {
+    pub fn metadata(&self) -> IoResult<Metadata> {
         metadata(self.arch, self.path())
     }
 
@@ -634,13 +683,13 @@ impl<'a> DirEntry<'a> {
 /// but is not limited to just these cases:
 ///
 /// * User lacks permissions to create directory at `path` 
-pub fn create_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<(), i32> {
+pub fn create_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
     unsafe {
         let path = to_utf16(path.as_ref());
         let fs_path = fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
         let r = FSUSER_CreateDirectory(arch.handle, fs_path, FS_ATTRIBUTE_DIRECTORY.bits);
         if r < 0 {
-            Err(r)
+            Err(IoError::new(IoErrorKind::Other, ::Error::from(r)))
         } else {
             Ok(())
         }
@@ -656,7 +705,7 @@ pub fn create_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<(), i32> {
 ///
 /// * If any directory in the path specified by `path` does not already exist
 ///   and it could not be created otherwise.
-pub fn create_dir_all<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<(), i32> {
+pub fn create_dir_all<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
     let path = path.as_ref();
     let mut dir = PathBuf::new();
     let mut result = Ok(());
@@ -670,13 +719,13 @@ pub fn create_dir_all<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<(), i32
 }
 
 /// Given a path, query the file system to get information about a file, directory, etc
-pub fn metadata<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<Metadata, i32> {
+pub fn metadata<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<Metadata> {
     let maybe_file = File::open(&arch, path.as_ref());
     let maybe_dir = read_dir(&arch, path.as_ref());
     match (maybe_file, maybe_dir) {
         (Ok(file), _) => file.metadata(),
         (_, Ok(_dir)) => Ok(Metadata { attributes: FS_ATTRIBUTE_DIRECTORY.bits, size: 0 }),
-        (Err(r), _)   => Err(r),
+        (Err(e), _)   => Err(e),
     }
 }
 
@@ -689,13 +738,13 @@ pub fn metadata<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<Metadata, i32
 ///
 /// * The user lacks permissions to remove the directory at the provided path.
 /// * The directory isn't empty.
-pub fn remove_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<(), i32> {
+pub fn remove_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
     unsafe {
         let path = to_utf16(path.as_ref());
         let fs_path = fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
         let r = FSUSER_DeleteDirectory(arch.handle, fs_path);
         if r < 0 {
-            Err(r)
+            Err(IoError::new(IoErrorKind::Other, ::Error::from(r)))
         } else {
             Ok(())
         }
@@ -707,13 +756,13 @@ pub fn remove_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<(), i32> {
 /// # Errors
 ///
 /// see `file::remove_file` and `fs::remove_dir`
-pub fn remove_dir_all<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<(), i32> {
+pub fn remove_dir_all<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
     unsafe {
         let path = to_utf16(path.as_ref());
         let fs_path = fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
         let r = FSUSER_DeleteDirectoryRecursively(arch.handle, fs_path);
         if r < 0 {
-            Err(r)
+            Err(IoError::new(IoErrorKind::Other, ::Error::from(r)))
         } else {
             Ok(())
         }
@@ -731,7 +780,7 @@ pub fn remove_dir_all<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<(), i32
 /// * The provided path doesn't exist.
 /// * The process lacks permissions to view the contents.
 /// * The path points at a non-directory file.
-pub fn read_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<ReadDir, i32> {
+pub fn read_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<ReadDir> {
     unsafe {
         let mut handle = 0;
         let root = Arc::new(path.as_ref().to_path_buf());
@@ -739,7 +788,7 @@ pub fn read_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<ReadDir, i32>
         let fs_path = fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
         let r = FSUSER_OpenDirectory(&mut handle, arch.handle, fs_path);
         if r < 0 {
-            Err(r)
+            Err(IoError::new(IoErrorKind::Other, ::Error::from(r)))
         } else {
             Ok(ReadDir { handle: Dir(handle), root: root, arch: arch})
         }
@@ -755,13 +804,13 @@ pub fn read_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<ReadDir, i32>
 ///
 /// * path points to a directory.
 /// * The user lacks permissions to remove the file.
-pub fn remove_file<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<(), i32> {
+pub fn remove_file<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
     unsafe {
         let path = to_utf16(path.as_ref());
         let fs_path = fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
         let r = FSUSER_DeleteFile(arch.handle, fs_path);
         if r < 0 {
-            Err(r)
+            Err(IoError::new(IoErrorKind::Other, ::Error::from(r)))
         } else {
             Ok(())
         }
@@ -778,7 +827,7 @@ pub fn remove_file<P: AsRef<Path>>(arch: &Archive, path: P) -> Result<(), i32> {
 ///
 /// * from does not exist.
 /// * The user lacks permissions to view contents.
-pub fn rename<P, Q>(arch: &Archive, from: P, to: Q) -> Result<(), i32>
+pub fn rename<P, Q>(arch: &Archive, from: P, to: Q) -> IoResult<()>
     where P: AsRef<Path>,
           Q: AsRef<Path> {
 
@@ -797,7 +846,7 @@ pub fn rename<P, Q>(arch: &Archive, from: P, to: Q) -> Result<(), i32>
         if r == 0 {
             return Ok(())
         }
-        Err((r))
+        Err(IoError::new(IoErrorKind::Other, ::Error::from(r)))
     }
 }
 
@@ -815,8 +864,19 @@ fn truncate_utf16_at_nul<'a>(v: &'a [u16]) -> &'a [u16] {
     }
 }
 
-// Adapted from sys/common/io.rs in libstd
-unsafe fn read_to_end_uninitialized(f: &mut File, buf: &mut Vec<u8>) -> Result<usize, i32> {
+// Copied from sys/common/io.rs in libstd
+
+// Provides read_to_end functionality over an uninitialized buffer.
+// This function is unsafe because it calls the underlying
+// read function with a slice into uninitialized memory. The default
+// implementation of read_to_end for readers will zero out new memory in
+// the buf before passing it to read, but avoiding this zero can often
+// lead to a fairly significant performance win.
+//
+// Implementations using this method have to adhere to two guarantees:
+//  *  The implementation of read never reads the buffer provided.
+//  *  The implementation of read correctly reports how many bytes were written.
+unsafe fn read_to_end_uninitialized(r: &mut Read, buf: &mut Vec<u8>) -> IoResult<usize> {
     let start_len = buf.len();
     buf.reserve(16);
 
@@ -834,11 +894,32 @@ unsafe fn read_to_end_uninitialized(f: &mut File, buf: &mut Vec<u8>) -> Result<u
         let buf_slice = slice::from_raw_parts_mut(buf.as_mut_ptr().offset(buf.len() as isize),
                                                   buf.capacity() - buf.len());
 
-        match f.read(buf_slice) {
+        match r.read(buf_slice) {
             Ok(0) => { return Ok(buf.len() - start_len); }
             Ok(n) => { let len = buf.len() + n; buf.set_len(len); },
+            Err(ref e) if e.kind() == IoErrorKind::Interrupted => { }
             Err(e) => { return Err(e); }
         }
+    }
+}
+
+impl Read for File {
+    fn read(&mut self, buf: &mut [u8]) -> IoResult<usize> {
+        self.read(buf)
+    }
+
+    fn read_to_end(&mut self, buf: &mut Vec<u8>) -> IoResult<usize> {
+        self.read_to_end(buf)
+    }
+}
+
+impl Write for File {
+    fn write(&mut self, buf: &[u8]) -> IoResult<usize> {
+        self.write(buf)
+    }
+
+    fn flush(&mut self) -> IoResult<()> {
+        Ok(())
     }
 }
 
