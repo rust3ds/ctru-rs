@@ -50,10 +50,10 @@ pub fn begin_panic<M: Any + Send + Display>(msg: M, file_line: &(&'static str, u
     let msg = Box::new(msg);
     let (file, line) = *file_line;
 
-    println!("--------------------------------------------------");
+    print!("--------------------------------------------------");
     println!("PANIC in {} at line {}:", file, line);
     println!("    {}", msg);
-    println!("\x1b[29;00H--------------------------------------------------");
+    print!("\x1b[29;00H--------------------------------------------------");
 
     loop {}
 }
