@@ -3,7 +3,7 @@
 //! This module contains basic methods to manipulate the contents of the 3DS's filesystem.
 //! Only the SD card is currently supported.
 
-use std::io::{Read, Write};
+use std::io::{Read, Write, Seek, SeekFrom};
 use std::io::Error as IoError;
 use std::io::Result as IoResult;
 use std::io::ErrorKind as IoErrorKind;
@@ -923,6 +923,27 @@ impl Write for File {
     }
 }
 
+impl Seek for File {
+    fn seek(&mut self, pos: SeekFrom) -> IoResult<u64> {
+        match pos {
+            SeekFrom::Start(off) => {
+                self.offset = off;
+            },
+            SeekFrom::End(off) => {
+                let mut temp = self.metadata()?.len() as i64;
+                temp += off;
+                self.offset = temp as u64;
+            },
+            SeekFrom::Current(off) => {
+                let mut temp = self.offset as i64;
+                temp += off;
+                self.offset = temp as u64;
+            },
+        }
+        Ok(self.offset)
+    }
+}
+
 impl Drop for Fs {
     fn drop(&mut self) {
         unsafe {
@@ -983,7 +1004,7 @@ impl From<ArchiveID> for FS_ArchiveID {
             SdmcWriteOnly => ARCHIVE_SDMC_WRITE_ONLY,
             BossExtdata => ARCHIVE_BOSS_EXTDATA,
             CardSpiFS => ARCHIVE_CARD_SPIFS,
-            ExtDataAndBossExtdata => ARCHIVE_EXTDATA_AND_BOSS_EXTDATA, 
+            ExtDataAndBossExtdata => ARCHIVE_EXTDATA_AND_BOSS_EXTDATA,
             SystemSaveData2 => ARCHIVE_SYSTEM_SAVEDATA2,
             NandRW => ARCHIVE_NAND_RW,
             NandRO => ARCHIVE_NAND_RO,
