@@ -1,6 +1,5 @@
-use ::{Handle, Result};
-use ::libc::c_void;
 use ::types::*;
+use ::libc::c_void;
 
 #[derive(Clone, Copy)]
 #[repr(C)]

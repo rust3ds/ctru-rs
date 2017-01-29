@@ -1,41 +1,16 @@
 # ctru-rs
 
-A Rust wrapper library for smealum's
-[ctrulib](https://github.com/smealum/ctrulib). Intended for use only when
-targeting CTR.
+A Rust wrapper library for smealum's [ctrulib](https://github.com/smealum/ctrulib).
 
-## How to build
+See the [3DS project template](https://github.com/rust3ds/rust3ds-template) for instructions on how to use this library.
 
-1. Install the devkitARM toolchain for your system. Make sure `DEVKITPRO` is
-   set in your environment.
-2. Modify ~/.cargo/config and add the following lines:
+## Structure
 
-```toml
-    [target.3ds]
-    ar = "/path/to/arm-none-eabi-ar"
-```
-
-3. Build with `cargo build --target 3ds.json`.
-4. A dkA linkable .rlib (static library) will be generated. Read below for
-instructions on using.
-
-## How to use
-
-You can build your homebrew projects through Cargo just as easily as any other
-platform. Add this to your `Cargo.toml`:
-
-```toml
-    [dependencies.ctru-rs]
-    git="https://github.com/rust3ds/ctru-rs"
-```
-
-**It is highly recommended to use the [template
-project.](https://github.com/rust3ds/rust3ds-template)**
-
-## Contributing
-
-PR's are welcome. Organization of rust specific features and wrapper
-functionality has not been decided on yet.
+This repository is organized as follows:
+* `ctru-rs`: Safe, idiomatic wrapper around `ctru-sys`.
+* `ctru-sys`: Low-level, unsafe bindings to ctrulib
+* `ctr-std`: A partial implementation of the Rust standard library for the 3DS.
+* `ctr-libc`: C types and functions used by ctru-sys and ctr-std.
 
 ## License
 
@@ -66,3 +41,4 @@ applies to every file in the tree, unless otherwise noted.
 Rust is primarily distributed under the terms of both the MIT license and the Apache License (Version 2.0), with portions covered by various BSD-like licenses.
 
 See [LICENSE-APACHE](https://github.com/rust-lang/rust/blob/master/LICENSE-APACHE), [LICENSE-MIT](https://github.com/rust-lang/rust/blob/master/LICENSE-MIT), and [COPYRIGHT](https://github.com/rust-lang/rust/blob/master/COPYRIGHT) for details.
+

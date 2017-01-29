@@ -1,0 +1,5 @@
+[dependencies.collections]
+
+[dependencies.ctr-libc]
+path = "../ctr-libc"
+stage = 1
