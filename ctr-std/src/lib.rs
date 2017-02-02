@@ -2,6 +2,8 @@
 #![feature(allow_internal_unstable)]
 #![feature(box_syntax)]
 #![feature(collections)]
+#![feature(collections_bound)]
+#![feature(collections_range)]
 #![feature(const_fn)]
 #![feature(compiler_builtins_lib)]
 #![feature(core_intrinsics)]
@@ -135,6 +137,7 @@ pub mod f32;
 pub mod f64;
 
 pub mod ascii;
+pub mod collections;
 pub mod error;
 pub mod ffi;
 pub mod io;
