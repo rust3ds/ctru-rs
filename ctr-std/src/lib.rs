@@ -14,6 +14,7 @@
 #![feature(int_error_internals)]
 #![feature(lang_items)]
 #![feature(macro_reexport)]
+#![feature(oom)]
 #![feature(optin_builtin_traits)]
 #![feature(prelude_import)]
 #![feature(raw)]
@@ -148,6 +149,7 @@ pub mod num;
 pub mod os;
 pub mod path;
 pub mod sync;
+pub mod time;
 
 // Platform-abstraction modules
 #[macro_use]
