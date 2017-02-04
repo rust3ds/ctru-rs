@@ -138,8 +138,8 @@ mod inner {
             let ms = monotonic_ms();
 
             let s = libc::timeval {
-                tv_sec: (ms / 1_000_000) as i32,
-                tv_usec: (ms % 1_000_000) as i32,
+                tv_sec: (ms / 1_000_000) as libc::time_t,
+                tv_usec: (ms % 1_000_000) as libc::c_long,
             };
             return Instant::from(s)
         }
