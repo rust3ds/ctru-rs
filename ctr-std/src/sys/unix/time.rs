@@ -111,6 +111,9 @@ mod inner {
 
     use super::Timespec;
 
+    use spin;
+    use libctru;
+
     #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
     pub struct Instant {
         t: Timespec,
@@ -131,18 +134,13 @@ mod inner {
     };
 
     impl Instant {
-        // devkitARM does not expose monotonic time functions or types,
-        // so we fall back to constructing Instant with gettimeofday(2)
         pub fn now() -> Instant {
-            use ptr;
+            let ms = monotonic_ms();
 
-            let mut s = libc::timeval {
-                tv_sec: 0,
-                tv_usec: 0,
+            let s = libc::timeval {
+                tv_sec: ms as i32 * 1_000_000,
+                tv_usec: ms as i32,
             };
-            cvt(unsafe {
-                libc::gettimeofday(&mut s, ptr::null_mut())
-            }).unwrap();
             return Instant::from(s)
         }
 
@@ -159,6 +157,35 @@ mod inner {
         pub fn sub_duration(&self, other: &Duration) -> Instant {
             Instant { t: self.t.sub_duration(other) }
         }
+    }
+
+    // The initial system tick after which all Instants occur
+    static TICK: spin::Once<u64> = spin::Once::new();
+
+    // Returns a monotonic timer in microseconds
+    //
+    // Note that svcGetSystemTick always runs at 268MHz, even on a
+    // New 3DS running in 804MHz mode
+    //
+    // See https://www.3dbrew.org/wiki/Hardware#Common_hardware
+    fn monotonic_ms() -> u64 {
+        let first_tick = get_first_tick();
+        let current_tick = get_system_tick();
+        (current_tick - first_tick / 268)
+    }
+
+    // The first time this function is called, it generates and returns the
+    // initial system tick used to create Instants
+    //
+    // subsequent calls to this function return the previously generated
+    // tick value
+    fn get_first_tick() -> u64 {
+        *TICK.call_once(get_system_tick)
+    }
+
+    // Gets the current system tick
+    fn get_system_tick() -> u64 {
+        unsafe { libctru::svc::svcGetSystemTick() }
     }
 
     impl fmt::Debug for Instant {

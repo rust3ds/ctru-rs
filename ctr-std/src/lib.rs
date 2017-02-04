@@ -52,6 +52,7 @@ extern crate compiler_builtins;
 
 // 3ds-specific dependencies
 extern crate ctr_libc as libc;
+extern crate ctru_sys as libctru;
 
 // stealing spin's mutex implementation for now
 extern crate spin;
