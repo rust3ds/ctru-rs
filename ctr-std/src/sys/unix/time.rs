@@ -135,11 +135,11 @@ mod inner {
 
     impl Instant {
         pub fn now() -> Instant {
-            let ms = monotonic_ms();
+            let usec = monotonic_usec();
 
             let s = libc::timeval {
-                tv_sec: (ms / 1_000_000) as libc::time_t,
-                tv_usec: (ms % 1_000_000) as libc::c_long,
+                tv_sec: (usec / 1_000_000) as libc::time_t,
+                tv_usec: (usec % 1_000_000) as libc::c_long,
             };
             return Instant::from(s)
         }
@@ -162,16 +162,17 @@ mod inner {
     // The initial system tick after which all Instants occur
     static TICK: spin::Once<u64> = spin::Once::new();
 
-    // Returns a monotonic timer in microseconds
+    // A source of monotonic time based on ticks of the 3DS CPU. Returns the
+    // number of microseconds elapsed since an arbitrary time in the past
     //
     // Note that svcGetSystemTick always runs at 268MHz, even on a
     // New 3DS running in 804MHz mode
     //
     // See https://www.3dbrew.org/wiki/Hardware#Common_hardware
-    fn monotonic_ms() -> u64 {
+    fn monotonic_usec() -> u64 {
         let first_tick = get_first_tick();
         let current_tick = get_system_tick();
-        (current_tick - first_tick / 268)
+        (current_tick - first_tick) / 268
     }
 
     // The first time this function is called, it generates and returns the
