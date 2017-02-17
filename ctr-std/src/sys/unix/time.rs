@@ -107,16 +107,18 @@ mod inner {
     use fmt;
     use libc;
     use sys::cvt;
+    use sys_common::mul_div_u64;
     use time::Duration;
 
+    use super::NSEC_PER_SEC;
     use super::Timespec;
 
     use spin;
     use libctru;
 
-    #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
+    #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Debug)]
     pub struct Instant {
-        t: Timespec,
+        t: u64
     }
 
     #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
@@ -135,27 +137,29 @@ mod inner {
 
     impl Instant {
         pub fn now() -> Instant {
-            let usec = monotonic_usec();
-
-            let s = libc::timeval {
-                tv_sec: (usec / 1_000_000) as libc::time_t,
-                tv_usec: (usec % 1_000_000) as libc::c_long,
-            };
-            return Instant::from(s)
+            Instant { t: ctr_absolute_time() }
         }
 
         pub fn sub_instant(&self, other: &Instant) -> Duration {
-            self.t.sub_timespec(&other.t).unwrap_or_else(|_| {
-                panic!("other was less than the current instant")
-            })
+            let info = info();
+            let diff = self.t.checked_sub(other.t)
+                           .expect("second instant is later than self");
+            let nanos = mul_div_u64(diff, info.numer as u64, info.denom as u64);
+            Duration::new(nanos / NSEC_PER_SEC, (nanos % NSEC_PER_SEC) as u32)
         }
 
         pub fn add_duration(&self, other: &Duration) -> Instant {
-            Instant { t: self.t.add_duration(other) }
+            Instant {
+                t: self.t.checked_add(dur2intervals(other))
+                       .expect("overflow when adding duration to instant"),
+            }
         }
 
         pub fn sub_duration(&self, other: &Duration) -> Instant {
-            Instant { t: self.t.sub_duration(other) }
+            Instant {
+                t: self.t.checked_sub(dur2intervals(other))
+                       .expect("overflow when adding duration to instant"),
+            }
         }
     }
 
@@ -163,16 +167,11 @@ mod inner {
     static TICK: spin::Once<u64> = spin::Once::new();
 
     // A source of monotonic time based on ticks of the 3DS CPU. Returns the
-    // number of microseconds elapsed since an arbitrary time in the past
-    //
-    // Note that svcGetSystemTick always runs at 268MHz, even on a
-    // New 3DS running in 804MHz mode
-    //
-    // See https://www.3dbrew.org/wiki/Hardware#Common_hardware
-    fn monotonic_usec() -> u64 {
+    // number of system ticks elapsed since an arbitrary point in the past
+    fn ctr_absolute_time() -> u64 {
         let first_tick = get_first_tick();
         let current_tick = get_system_tick();
-        (current_tick - first_tick) / 268
+        current_tick - first_tick
     }
 
     // The first time this function is called, it generates and returns the
@@ -185,32 +184,36 @@ mod inner {
     }
 
     // Gets the current system tick
+    #[inline]
     fn get_system_tick() -> u64 {
         unsafe { libctru::svc::svcGetSystemTick() }
     }
 
-    impl fmt::Debug for Instant {
-        fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-            f.debug_struct("Instant")
-             .field("tv_sec", &self.t.t.tv_sec)
-             .field("tv_nsec", &self.t.t.tv_nsec)
-             .finish()
+    // A struct representing the clock speed of the 3DS
+    struct CtrClockInfo {
+        numer: u32,
+        denom: u32,
+    }
+
+    // Initializes the CtrClockInfo struct
+    //
+    // Note that svcGetSystemTick always runs at 268MHz (268,111,856Hz), even
+    // on a New 3DS running in 804MHz mode
+    //
+    // See https://www.3dbrew.org/wiki/Hardware#Common_hardware
+    fn info() -> CtrClockInfo {
+        CtrClockInfo {
+            numer: 1_000_000_000,
+            denom: 268_111_856,
         }
     }
 
-    impl From<libc::timeval> for Instant {
-        fn from(t: libc::timeval) -> Instant {
-            Instant::from(libc::timespec {
-                tv_sec: t.tv_sec,
-                tv_nsec: (t.tv_usec * 1000) as libc::c_long,
-            })
-        }
-    }
-
-    impl From<libc::timespec> for Instant {
-        fn from(t: libc::timespec) -> Instant {
-            Instant { t: Timespec { t: t } }
-        }
+    fn dur2intervals(dur: &Duration) -> u64 {
+        let info = info();
+        let nanos = dur.as_secs().checked_mul(NSEC_PER_SEC).and_then(|nanos| {
+            nanos.checked_add(dur.subsec_nanos() as u64)
+        }).expect("overflow converting duration to nanoseconds");
+        mul_div_u64(nanos, info.denom as u64, info.numer as u64)
     }
 
     impl SystemTime {
