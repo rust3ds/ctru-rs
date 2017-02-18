@@ -25,6 +25,7 @@
 #![allow(missing_docs)]
 
 pub mod io;
+pub mod thread_local;
 
 // common error constructors
 

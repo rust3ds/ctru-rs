@@ -1,6 +1,7 @@
 #![feature(alloc)]
 #![feature(allow_internal_unstable)]
 #![feature(box_syntax)]
+#![feature(cfg_target_thread_local)]
 #![feature(collections)]
 #![feature(collections_bound)]
 #![feature(collections_range)]
@@ -136,6 +137,8 @@ pub use std_unicode::char;
 pub mod f32;
 pub mod f64;
 
+#[macro_use]
+pub mod thread;
 pub mod ascii;
 pub mod collections;
 pub mod error;
