@@ -11,10 +11,12 @@
 #![allow(missing_docs, bad_style)]
 
 pub mod ext;
+pub mod fast_thread_local;
 pub mod memchr;
 pub mod os;
 pub mod os_str;
 pub mod path;
+pub mod thread_local;
 
 use io::ErrorKind;
 use libc;
