@@ -9,8 +9,10 @@
 #![feature(compiler_builtins_lib)]
 #![feature(core_intrinsics)]
 #![feature(char_escape_debug)]
+#![feature(dropck_eyepatch)]
 #![feature(float_extras)]
 #![feature(fused)]
+#![feature(generic_param_attrs)]
 #![feature(int_error_internals)]
 #![feature(lang_items)]
 #![feature(macro_reexport)]
@@ -51,6 +53,7 @@ extern crate compiler_builtins;
 
 // 3ds-specific dependencies
 extern crate ctr_libc as libc;
+extern crate ctru_sys as libctru;
 
 // stealing spin's mutex implementation for now
 extern crate spin;
