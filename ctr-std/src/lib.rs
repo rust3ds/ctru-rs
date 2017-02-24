@@ -11,6 +11,7 @@
 #![feature(char_escape_debug)]
 #![feature(dropck_eyepatch)]
 #![feature(float_extras)]
+#![feature(fnbox)]
 #![feature(fused)]
 #![feature(generic_param_attrs)]
 #![feature(int_error_internals)]

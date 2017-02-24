@@ -11,9 +11,18 @@
 //! Implementation of various bits and pieces of the `panic!` macro and
 //! associated runtime pieces.
 
+use io::prelude::*;
+
 use any::Any;
+use cell::RefCell;
 use fmt;
 use __core::fmt::Display;
+
+thread_local! {
+    pub static LOCAL_STDERR: RefCell<Option<Box<Write + Send>>> = {
+        RefCell::new(None)
+    }
+}
 
 ///The compiler wants this to be here. Otherwise it won't be happy. And we like happy compilers.
 #[lang = "eh_personality"]
