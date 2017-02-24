@@ -13,6 +13,7 @@
 pub mod ext;
 pub mod fast_thread_local;
 pub mod memchr;
+pub mod mutex;
 pub mod os;
 pub mod os_str;
 pub mod path;

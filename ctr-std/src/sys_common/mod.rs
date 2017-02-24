@@ -25,6 +25,9 @@
 #![allow(missing_docs)]
 
 pub mod io;
+pub mod mutex;
+pub mod poison;
+pub mod remutex;
 pub mod thread_local;
 
 // common error constructors

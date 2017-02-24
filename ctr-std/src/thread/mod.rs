@@ -193,3 +193,8 @@ pub use self::local::{LocalKey, LocalKeyState};
 #[doc(hidden)] pub use sys::fast_thread_local::Key as __FastLocalKeyInner;
 #[unstable(feature = "libstd_thread_internals", issue = "0")]
 #[doc(hidden)] pub use self::local::os::Key as __OsLocalKeyInner;
+
+// We don't have stack unwinding, so this should always be false
+pub fn panicking() -> bool {
+    false
+}
