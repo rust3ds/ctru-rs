@@ -195,6 +195,8 @@ pub use self::local::{LocalKey, LocalKeyState};
 #[doc(hidden)] pub use self::local::os::Key as __OsLocalKeyInner;
 
 // We don't have stack unwinding, so this should always be false
+#[inline]
+#[stable(feature = "rust1", since = "1.0.0")]
 pub fn panicking() -> bool {
     false
 }
