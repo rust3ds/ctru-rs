@@ -1,19 +1,15 @@
-use std::marker::PhantomData;
-
 use libctru::services::apt;
 
-pub struct Apt {
-    pd: PhantomData<i32>
-}
+pub struct Apt(());
 
 impl Apt {
     pub fn init() -> ::Result<Apt> {
         unsafe {
             let r = apt::aptInit();
             if r < 0 {
-                Err(::Error::from(r))
+                Err(r.into())
             } else {
-                Ok(Apt { pd: PhantomData })
+                Ok(Apt(()))
             }
         }
     }

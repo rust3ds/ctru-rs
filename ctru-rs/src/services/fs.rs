@@ -9,7 +9,6 @@ use std::io::Result as IoResult;
 use std::io::ErrorKind as IoErrorKind;
 
 use std::ffi::OsString;
-use std::marker::PhantomData;
 use std::ptr;
 use std::slice;
 use std::mem;
@@ -83,9 +82,7 @@ pub enum ArchiveID {
 /// until an instance of this struct is created.
 ///
 /// The service exits when all instances of this struct go out of scope. 
-pub struct Fs {
-    pd: PhantomData<i32>,
-}
+pub struct Fs(());
 
 /// Handle to an open filesystem archive.
 ///
@@ -304,9 +301,9 @@ impl Fs {
         unsafe {
             let r = fsInit();
             if r < 0 {
-                Err(::Error::from(r))
+                Err(r.into())
             } else {
-                Ok(Fs { pd: PhantomData })
+                Ok(Fs(()))
             }
         }
     }

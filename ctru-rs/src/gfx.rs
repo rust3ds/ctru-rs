@@ -1,15 +1,11 @@
 use libctru::gfx;
 
 use std::default::Default;
-use std::marker::PhantomData;
 use std::ops::Drop;
 
 use services::gspgpu::FramebufferFormat;
 
-pub struct Gfx {
-    // we do this to prevent people from making a Gfx struct manually
-    pd: PhantomData<i32>,
-}
+pub struct Gfx(());
 
 #[derive(Copy, Clone)]
 pub enum Screen {
@@ -135,7 +131,7 @@ impl Gfx {
 impl Default for Gfx {
     fn default() -> Self {
         unsafe { gfx::gfxInitDefault() };
-        Gfx { pd: PhantomData }
+        Gfx(())
     }
 }
 

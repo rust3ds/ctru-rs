@@ -1,19 +1,15 @@
 use libctru::srv::*;
 
-use std::marker::PhantomData;
-
-pub struct Srv {
-    pd: PhantomData<i32>,
-}
+pub struct Srv(());
 
 impl Srv {
     pub fn init() -> ::Result<Srv> {
         unsafe {
             let r = srvInit();
             if r < 0 {
-                Err(::Error::from(r))
+                Err(r.into())
             } else {
-                Ok(Srv { pd: PhantomData })
+                Ok(Srv(()))
             }
         }
     }

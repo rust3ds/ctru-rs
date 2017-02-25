@@ -1,5 +1,4 @@
 use std::convert::Into;
-use std::marker::PhantomData;
 
 use libctru::services::hid;
 
@@ -73,18 +72,16 @@ impl From<PadKey> for u32 {
     }
 }
 
-pub struct Hid {
-    pd: PhantomData<i32>
-}
+pub struct Hid(());
 
 impl Hid {
     pub fn init() -> ::Result<Hid> {
         unsafe {
             let r = hid::hidInit();
             if r < 0 {
-                Err(::Error::from(r))
+                Err(r.into())
             } else {
-                Ok(Hid { pd: PhantomData })
+                Ok(Hid(()))
             }
         }
     }

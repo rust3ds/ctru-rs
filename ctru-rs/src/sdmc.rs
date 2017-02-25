@@ -1,19 +1,15 @@
-use std::marker::PhantomData;
-
 use libctru::sdmc::*;
 
-pub struct Sdmc {
-    pd: PhantomData<i32>,
-}
+pub struct Sdmc(());
 
 impl Sdmc {
     pub fn init() -> ::Result<Sdmc> {
         unsafe {
             let r = sdmcInit();
             if r < 0 {
-                Err(::Error::from(r))
+                Err(r.into())
             } else {
-                Ok(Sdmc { pd: PhantomData })
+                Ok(Sdmc(()))
             }
         }
     }
