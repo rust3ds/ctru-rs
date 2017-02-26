@@ -24,6 +24,7 @@
 
 #![allow(missing_docs)]
 
+pub mod at_exit_imp;
 pub mod io;
 pub mod mutex;
 pub mod poison;
@@ -54,6 +55,20 @@ pub trait IntoInner<Inner> {
 #[doc(hidden)]
 pub trait FromInner<Inner> {
     fn from_inner(inner: Inner) -> Self;
+}
+
+/// Enqueues a procedure to run when the main thread exits.
+///
+/// Currently these closures are only run once the main *Rust* thread exits.
+/// Once the `at_exit` handlers begin running, more may be enqueued, but not
+/// infinitely so. Eventually a handler registration will be forced to fail.
+///
+/// Returns `Ok` if the handler was successfully registered, meaning that the
+/// closure will be run once the main thread exits. Returns `Err` to indicate
+/// that the closure could not be registered, meaning that it is not scheduled
+/// to be run.
+pub fn at_exit<F: FnOnce() + Send + 'static>(f: F) -> Result<(), ()> {
+    if at_exit_imp::push(Box::new(f)) {Ok(())} else {Err(())}
 }
 
 macro_rules! rtabort {
