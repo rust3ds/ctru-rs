@@ -1,6 +1,7 @@
 #![feature(alloc)]
 #![feature(allow_internal_unstable)]
 #![feature(box_syntax)]
+#![feature(cfg_target_has_atomic)]
 #![feature(cfg_target_thread_local)]
 #![feature(collections)]
 #![feature(collections_bound)]
@@ -11,23 +12,30 @@
 #![feature(char_escape_debug)]
 #![feature(dropck_eyepatch)]
 #![feature(float_extras)]
+#![feature(fn_traits)]
 #![feature(fnbox)]
 #![feature(fused)]
 #![feature(generic_param_attrs)]
 #![feature(int_error_internals)]
+#![feature(integer_atomics)]
 #![feature(lang_items)]
 #![feature(macro_reexport)]
 #![feature(oom)]
+#![feature(on_unimplemented)]
 #![feature(optin_builtin_traits)]
 #![feature(prelude_import)]
 #![feature(raw)]
+#![feature(shared)]
 #![feature(slice_concat_ext)]
 #![feature(slice_patterns)]
 #![feature(staged_api)]
 #![feature(str_internals)]
 #![feature(thread_local)]
 #![feature(try_from)]
+#![feature(unboxed_closures)]
 #![feature(unicode)]
+#![feature(unique)]
+#![feature(untagged_unions)]
 #![feature(zero_one)]
 #![allow(non_camel_case_types, dead_code, unused_features)]
 #![no_std]
@@ -151,6 +159,7 @@ pub mod ffi;
 pub mod io;
 pub mod num;
 pub mod os;
+pub mod panic;
 pub mod path;
 pub mod sync;
 pub mod time;
