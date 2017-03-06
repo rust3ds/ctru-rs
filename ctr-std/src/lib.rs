@@ -65,9 +65,6 @@ extern crate compiler_builtins;
 extern crate ctr_libc as libc;
 extern crate ctru_sys as libctru;
 
-// stealing spin's mutex implementation for now
-extern crate spin;
-
 // The standard macros that are not built-in to the compiler.
 #[macro_use]
 mod macros;
