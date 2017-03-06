@@ -56,7 +56,7 @@ pub fn begin_panic_fmt(msg: &fmt::Arguments, file_line: &(&'static str, u32)) ->
 }
 
 /// We don't have stack unwinding, so all we do is print the panic message
-/// and then loop forever
+/// and then crash or hang the application
 #[inline(never)]
 #[cold]
 pub fn begin_panic<M: Any + Send + Display>(msg: M, file_line: &(&'static str, u32)) -> ! {
@@ -73,6 +73,18 @@ pub fn begin_panic<M: Any + Send + Display>(msg: M, file_line: &(&'static str, u
     println!("PANIC in {} at line {}:", file, line);
     println!("    {}", msg);
 
+    // Terminate the process to ensure that all threads cease when panicking.
+    unsafe { ::libctru::svc::svcExitProcess() }
+
+    // On 3DS hardware, code execution will have terminated at the above function.
+    //
+    // Citra, however, will simply ignore the function and control flow becomes trapped
+    // in the following loop instead. However, this means that other threads may continue
+    // to run after a panic!
+    //
+    // This is actually a better outcome than calling libc::abort(), which seemingly
+    // causes the emulator to step into unreachable code, prompting it to freak out
+    // and spew endless nonsense into the console log.
     loop {}
 }
 
