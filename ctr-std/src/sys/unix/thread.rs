@@ -18,7 +18,7 @@ use ptr;
 use sys_common::thread::start_thread;
 use time::Duration;
 
-use libctru::svc::svcSleepThread;
+use libctru::svc::{svcSleepThread, svcGetThreadPriority};
 use libctru::thread::{threadCreate, threadJoin, threadFree};
 use libctru::thread::Thread as ThreadHandle;
 
@@ -36,8 +36,15 @@ impl Thread {
         let p = box p;
         let stack_size = cmp::max(stack, 4 * 1024);
 
+        // this retrieves the main thread's priority value. child threads need
+        // to be spawned with a greater priority (smaller priority value) than
+        // the main thread
+        let mut priority = 0;
+        svcGetThreadPriority(&mut priority, 0xFFFF8000);
+        priority -= 1;
+
         let handle = threadCreate(Some(thread_func), &*p as *const _ as *mut _,
-                                  stack_size, 0x29, -2, 0);
+                                  stack_size, priority, -2, 0);
 
         return if handle == ptr::null_mut() {
             Err(io::Error::from_raw_os_error(libc::EAGAIN))
