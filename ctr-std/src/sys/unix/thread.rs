@@ -34,7 +34,7 @@ unsafe impl Sync for Thread {}
 impl Thread {
     pub unsafe fn new<'a>(stack: usize, p: Box<FnBox() + 'a>) -> io::Result<Thread> {
         let p = box p;
-        let stack_size = cmp::max(stack, 4 * 1024);
+        let stack_size = cmp::max(stack, 0x10000);
 
         // this retrieves the main thread's priority value. child threads need
         // to be spawned with a greater priority (smaller priority value) than
