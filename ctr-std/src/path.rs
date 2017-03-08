@@ -25,11 +25,18 @@
 //!
 //! ```rust
 //! use std::path::Path;
+//! use std::ffi::OsStr;
 //!
 //! let path = Path::new("/tmp/foo/bar.txt");
-//! let file = path.file_name();
+//!
+//! let parent = path.parent();
+//! assert_eq!(parent, Some(Path::new("/tmp/foo")));
+//!
+//! let file_stem = path.file_stem();
+//! assert_eq!(file_stem, Some(OsStr::new("bar")));
+//!
 //! let extension = path.extension();
-//! let parent_dir = path.parent();
+//! assert_eq!(extension, Some(OsStr::new("txt")));
 //! ```
 //!
 //! To build or modify paths, use `PathBuf`:
@@ -104,9 +111,9 @@ use borrow::{Borrow, Cow};
 use cmp;
 use error::Error;
 use fmt;
-//use fs;
+use fs;
 use hash::{Hash, Hasher};
-//use io;
+use io;
 use iter::{self, FusedIterator};
 use mem;
 use ops::{self, Deref};
@@ -247,7 +254,9 @@ pub fn is_separator(c: char) -> bool {
     c.is_ascii() && is_sep_byte(c as u8)
 }
 
-/// The primary separator for the current platform
+/// The primary separator of path components for the current platform.
+///
+/// For example, `/` on Unix and `\` on Windows.
 #[stable(feature = "rust1", since = "1.0.0")]
 pub const MAIN_SEPARATOR: char = ::sys::path::MAIN_SEP;
 
@@ -448,7 +457,17 @@ pub enum Component<'a> {
 }
 
 impl<'a> Component<'a> {
-    /// Extracts the underlying `OsStr` slice
+    /// Extracts the underlying `OsStr` slice.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use std::path::Path;
+    ///
+    /// let path = Path::new("./tmp/foo/bar.txt");
+    /// let components: Vec<_> = path.components().map(|comp| comp.as_os_str()).collect();
+    /// assert_eq!(&components, &[".", "tmp", "foo", "bar.txt"]);
+    /// ```
     #[stable(feature = "rust1", since = "1.0.0")]
     pub fn as_os_str(self) -> &'a OsStr {
         match self {
@@ -983,17 +1002,24 @@ impl PathBuf {
     ///
     /// # Examples
     ///
+    /// Pushing a relative path extends the existing path:
+    ///
     /// ```
     /// use std::path::PathBuf;
     ///
-    /// let mut path = PathBuf::new();
-    /// path.push("/tmp");
+    /// let mut path = PathBuf::from("/tmp");
     /// path.push("file.bk");
     /// assert_eq!(path, PathBuf::from("/tmp/file.bk"));
+    /// ```
     ///
-    /// // Pushing an absolute path replaces the current path
-    /// path.push("/etc/passwd");
-    /// assert_eq!(path, PathBuf::from("/etc/passwd"));
+    /// Pushing an absolute path replaces the existing path:
+    ///
+    /// ```
+    /// use std::path::PathBuf;
+    ///
+    /// let mut path = PathBuf::from("/tmp");
+    /// path.push("/etc");
+    /// assert_eq!(path, PathBuf::from("/etc"));
     /// ```
     #[stable(feature = "rust1", since = "1.0.0")]
     pub fn push<P: AsRef<Path>>(&mut self, path: P) {
@@ -1312,13 +1338,19 @@ impl AsRef<OsStr> for PathBuf {
 ///
 /// ```
 /// use std::path::Path;
+/// use std::ffi::OsStr;
 ///
 /// let path = Path::new("/tmp/foo/bar.txt");
-/// let file = path.file_name();
-/// let extension = path.extension();
-/// let parent_dir = path.parent();
-/// ```
 ///
+/// let parent = path.parent();
+/// assert_eq!(parent, Some(Path::new("/tmp/foo")));
+///
+/// let file_stem = path.file_stem();
+/// assert_eq!(file_stem, Some(OsStr::new("bar")));
+///
+/// let extension = path.extension();
+/// assert_eq!(extension, Some(OsStr::new("txt")));
+/// ```
 #[stable(feature = "rust1", since = "1.0.0")]
 pub struct Path {
     inner: OsStr,
@@ -1849,7 +1881,7 @@ impl Path {
     /// This is an alias to [`fs::metadata`].
     ///
     /// [`fs::metadata`]: ../fs/fn.metadata.html
-    #[cfg(feature = "fs_not_implemented")]
+    #[stable(feature = "path_ext", since = "1.5.0")]
     pub fn metadata(&self) -> io::Result<fs::Metadata> {
         fs::metadata(self)
     }
@@ -1859,7 +1891,7 @@ impl Path {
     /// This is an alias to [`fs::symlink_metadata`].
     ///
     /// [`fs::symlink_metadata`]: ../fs/fn.symlink_metadata.html
-    #[cfg(feature = "fs_not_implemented")]
+    #[stable(feature = "path_ext", since = "1.5.0")]
     pub fn symlink_metadata(&self) -> io::Result<fs::Metadata> {
         fs::symlink_metadata(self)
     }
@@ -1870,7 +1902,7 @@ impl Path {
     /// This is an alias to [`fs::canonicalize`].
     ///
     /// [`fs::canonicalize`]: ../fs/fn.canonicalize.html
-    #[cfg(feature = "fs_not_implemented")]
+    #[stable(feature = "path_ext", since = "1.5.0")]
     pub fn canonicalize(&self) -> io::Result<PathBuf> {
         fs::canonicalize(self)
     }
@@ -1880,7 +1912,7 @@ impl Path {
     /// This is an alias to [`fs::read_link`].
     ///
     /// [`fs::read_link`]: ../fs/fn.read_link.html
-    #[cfg(feature = "fs_not_implemented")]
+    #[stable(feature = "path_ext", since = "1.5.0")]
     pub fn read_link(&self) -> io::Result<PathBuf> {
         fs::read_link(self)
     }
@@ -1895,7 +1927,7 @@ impl Path {
     /// [`io::Result`]: ../io/type.Result.html
     /// [`DirEntry`]: ../fs/struct.DirEntry.html
     /// [`fs::read_dir`]: ../fs/fn.read_dir.html
-     #[cfg(feature = "fs_not_implemented")]
+    #[stable(feature = "path_ext", since = "1.5.0")]
     pub fn read_dir(&self) -> io::Result<fs::ReadDir> {
         fs::read_dir(self)
     }
@@ -1911,7 +1943,7 @@ impl Path {
     /// use std::path::Path;
     /// assert_eq!(Path::new("does_not_exist.txt").exists(), false);
     /// ```
-    #[cfg(feature = "fs_not_implemented")]
+    #[stable(feature = "path_ext", since = "1.5.0")]
     pub fn exists(&self) -> bool {
         fs::metadata(self).is_ok()
     }
@@ -1928,7 +1960,7 @@ impl Path {
     /// assert_eq!(Path::new("./is_a_directory/").is_file(), false);
     /// assert_eq!(Path::new("a_file.txt").is_file(), true);
     /// ```
-    #[cfg(feature = "fs_not_implemented")]
+    #[stable(feature = "path_ext", since = "1.5.0")]
     pub fn is_file(&self) -> bool {
         fs::metadata(self).map(|m| m.is_file()).unwrap_or(false)
     }
@@ -1945,7 +1977,7 @@ impl Path {
     /// assert_eq!(Path::new("./is_a_directory/").is_dir(), true);
     /// assert_eq!(Path::new("a_file.txt").is_dir(), false);
     /// ```
-    #[cfg(feature = "fs_not_implemented")]
+    #[stable(feature = "path_ext", since = "1.5.0")]
     pub fn is_dir(&self) -> bool {
         fs::metadata(self).map(|m| m.is_dir()).unwrap_or(false)
     }

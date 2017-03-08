@@ -145,6 +145,7 @@ pub mod f64;
 #[macro_use]
 pub mod thread;
 pub mod ascii;
+pub mod fs;
 pub mod collections;
 pub mod error;
 pub mod ffi;

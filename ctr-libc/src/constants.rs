@@ -103,6 +103,15 @@ pub const O_NONBLOCK: ::c_int = 16384;
 pub const O_NOCTTY: ::c_int = 32768;
 pub const FD_CLOEXEC: ::c_int = 1;
 
+pub const S_IFIFO: ::mode_t = 4096;
+pub const S_IFCHR: ::mode_t = 8192;
+pub const S_IFDIR: ::mode_t = 16384;
+pub const S_IFBLK: ::mode_t = 24576;
+pub const S_IFREG: ::mode_t = 32768;
+pub const S_IFLNK: ::mode_t = 40960;
+pub const S_IFSOCK: ::mode_t = 49152;
+pub const S_IFMT: ::mode_t = 61440;
+
 pub const DT_FIFO: u8 = 1;
 pub const DT_CHR: u8 = 2;
 pub const DT_DIR: u8 = 4;

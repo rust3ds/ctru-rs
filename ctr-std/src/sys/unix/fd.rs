@@ -109,6 +109,24 @@ impl FileDesc {
                 .map(|n| n as usize)
         }
     }
+
+    // This is a unix-specific operation that the 3DS likely doesn't support.
+    // However, there's no reason to make calling this function an error either.
+    pub fn set_cloexec(&self) -> io::Result<()> {
+        Ok(())
+    }
+
+    // This is a unix-specific operation that the 3DS likely doesn't support.
+    // However, there's no reason to make calling this function an error either.
+    pub fn set_nonblocking(&self) -> io::Result<()> {
+        Ok(())
+    }
+
+    // The sdmc and romfs devoptabs definitely don't support this operation.
+    // Not sure if it will be needed for network support or not.
+    pub fn duplicate(&self) -> io::Result<FileDesc> {
+        unimplemented!()
+    }
 }
 
 impl<'a> Read for &'a FileDesc {
