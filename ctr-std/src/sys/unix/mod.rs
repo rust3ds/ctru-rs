@@ -26,6 +26,7 @@ pub mod os_str;
 pub mod path;
 pub mod rwlock;
 pub mod thread;
+pub mod rand;
 pub mod thread_local;
 pub mod time;
 
