@@ -11,11 +11,13 @@
 #![feature(core_intrinsics)]
 #![feature(char_escape_debug)]
 #![feature(dropck_eyepatch)]
+#![feature(dropck_parametricity)]
 #![feature(float_extras)]
 #![feature(fn_traits)]
 #![feature(fnbox)]
 #![feature(fused)]
 #![feature(generic_param_attrs)]
+#![feature(heap_api)]
 #![feature(int_error_internals)]
 #![feature(integer_atomics)]
 #![feature(lang_items)]
@@ -25,7 +27,9 @@
 #![feature(optin_builtin_traits)]
 #![feature(prelude_import)]
 #![feature(raw)]
+#![feature(rand)]
 #![feature(shared)]
+#![feature(sip_hash_13)]
 #![feature(slice_concat_ext)]
 #![feature(slice_patterns)]
 #![feature(staged_api)]
@@ -54,6 +58,7 @@ extern crate core as __core;
 #[macro_reexport(vec, format)]
 extern crate collections as core_collections;
 
+#[allow(deprecated)] extern crate rand as core_rand;
 extern crate alloc;
 extern crate std_unicode;
 extern crate alloc_system;
@@ -169,11 +174,23 @@ mod sys;
 
 // Private support modules
 mod panicking;
+mod rand;
 mod memchr;
 
 // The runtime entry point and a few unstable public functions used by the
 // compiler
 pub mod rt;
+
+// Some external utilities of the standard library rely on randomness (aka
+// rustc_back::TempDir and tests) and need a way to get at the OS rng we've got
+// here. This module is not at all intended for stabilization as-is, however,
+// but it may be stabilized long-term. As a result we're exposing a hidden,
+// unstable module so we can get our build working.
+#[doc(hidden)]
+#[unstable(feature = "rand", issue = "0")]
+pub mod __rand {
+    pub use rand::{thread_rng, ThreadRng, Rng};
+}
 
 // NOTE: These two are "undefined" symbols that LLVM emits but that
 // we never actually use

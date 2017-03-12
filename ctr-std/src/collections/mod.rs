@@ -430,18 +430,17 @@ pub use core_collections::{binary_heap, btree_map, btree_set};
 #[stable(feature = "rust1", since = "1.0.0")]
 pub use core_collections::{linked_list, vec_deque};
 
-#[cfg(feature = "not_yet_implemented")]
+#[stable(feature = "rust1", since = "1.0.0")]
 pub use self::hash_map::HashMap;
-#[cfg(feature = "not_yet_implemented")]
+#[stable(feature = "rust1", since = "1.0.0")]
 pub use self::hash_set::HashSet;
 
 #[stable(feature = "rust1", since = "1.0.0")]
 pub use core_collections::range;
 
-#[cfg(feature = "not_yet_implemented")]
 mod hash;
 
-#[cfg(feature = "not_yet_implemented")]
+#[stable(feature = "rust1", since = "1.0.0")]
 pub mod hash_map {
     //! A hash map implementation which uses linear probing with Robin
     //! Hood bucket stealing.
@@ -449,7 +448,7 @@ pub mod hash_map {
     pub use super::hash::map::*;
 }
 
-#[cfg(feature = "not_yet_implemented")]
+#[stable(feature = "rust1", since = "1.0.0")]
 pub mod hash_set {
     //! An implementation of a hash set using the underlying representation of a
     //! HashMap where the value is ().

@@ -1,5 +1,7 @@
 [dependencies.collections]
 
+[dependencies.rand]
+
 [dependencies.ctr-libc]
 path = "../ctr-libc"
 stage = 1
