@@ -106,6 +106,7 @@ impl Ord for Timespec {
 mod inner {
     use fmt;
     use libc;
+    use sync::Once;
     use sys::cvt;
     use sys_common::mul_div_u64;
     use time::Duration;
@@ -113,7 +114,6 @@ mod inner {
     use super::NSEC_PER_SEC;
     use super::Timespec;
 
-    use spin;
     use libctru;
 
     #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Debug)]
@@ -164,7 +164,7 @@ mod inner {
     }
 
     // The initial system tick after which all Instants occur
-    static TICK: spin::Once<u64> = spin::Once::new();
+    static mut TICK: u64 = 0;
 
     // A source of monotonic time based on ticks of the 3DS CPU. Returns the
     // number of system ticks elapsed since an arbitrary point in the past
@@ -180,7 +180,13 @@ mod inner {
     // subsequent calls to this function return the previously generated
     // tick value
     fn get_first_tick() -> u64 {
-        *TICK.call_once(get_system_tick)
+        static ONCE: Once = Once::new();
+        unsafe { 
+            ONCE.call_once(|| {
+                TICK = get_system_tick();
+            });
+            TICK
+        }
     }
 
     // Gets the current system tick
@@ -201,11 +207,12 @@ mod inner {
     // on a New 3DS running in 804MHz mode
     //
     // See https://www.3dbrew.org/wiki/Hardware#Common_hardware
-    fn info() -> CtrClockInfo {
-        CtrClockInfo {
+    fn info() -> &'static CtrClockInfo {
+        static INFO: CtrClockInfo = CtrClockInfo {
             numer: 1_000_000_000,
             denom: 268_111_856,
-        }
+        };
+        &INFO
     }
 
     fn dur2intervals(dur: &Duration) -> u64 {

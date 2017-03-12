@@ -13,6 +13,7 @@
 use io::{self, ErrorKind};
 use libc;
 
+pub mod condvar;
 pub mod ext;
 pub mod fast_thread_local;
 pub mod fd;
@@ -22,6 +23,8 @@ pub mod mutex;
 pub mod os;
 pub mod os_str;
 pub mod path;
+pub mod rwlock;
+pub mod thread;
 pub mod thread_local;
 pub mod time;
 
