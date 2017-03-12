@@ -17,6 +17,7 @@ pub mod condvar;
 pub mod ext;
 pub mod fast_thread_local;
 pub mod fd;
+pub mod fs;
 pub mod stdio;
 pub mod memchr;
 pub mod mutex;
