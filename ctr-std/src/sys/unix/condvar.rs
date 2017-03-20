@@ -80,7 +80,7 @@ impl Condvar {
                 if *lock != ptr::null_mut() {
                     panic!("Condvar used with more than one Mutex");
                 }
-                
+
                 atomic_cxchg(lock as *mut usize, 0, mutex::raw(mutex) as usize);
             }
 
@@ -91,7 +91,7 @@ impl Condvar {
             svcArbitrateAddress(arbiter,
                                 *self.lock.get() as u32,
                                 ArbitrationType::ARBITRATION_WAIT_IF_LESS_THAN,
-                                0,
+                                2,
                                 0);
 
             mutex.lock();
@@ -99,9 +99,38 @@ impl Condvar {
     }
 
     #[inline]
-    pub fn wait_timeout(&self, _mutex: &Mutex, _dur: Duration) -> bool {
-        ::sys_common::util::dumb_print(format_args!("condvar wait_timeout\n"));
-        unimplemented!();
+    pub fn wait_timeout(&self, mutex: &Mutex, dur: Duration) -> bool {
+        use time::Instant;
+
+        unsafe {
+            let lock = self.lock.get();
+
+            if *lock != mutex::raw(mutex) {
+                if *lock != ptr::null_mut() {
+                    panic!("Condvar used with more than one Mutex");
+                }
+
+                atomic_cxchg(lock as *mut usize, 0, mutex::raw(mutex) as usize);
+            }
+
+            let now = Instant::now();
+
+            let nanos = dur.as_secs() * 1_000_000_000 + dur.subsec_nanos() as u64;
+
+            mutex.unlock();
+
+            let arbiter = __sync_get_arbiter();
+
+            svcArbitrateAddress(arbiter,
+                                *self.lock.get() as u32,
+                                ArbitrationType::ARBITRATION_WAIT_IF_LESS_THAN_TIMEOUT,
+                                2,
+                                nanos as i64);
+
+            mutex.lock();
+
+            now.elapsed() < dur
+        }
     }
 
     #[inline]
