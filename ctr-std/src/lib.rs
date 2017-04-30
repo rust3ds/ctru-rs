@@ -4,8 +4,8 @@
 #![feature(cfg_target_has_atomic)]
 #![feature(cfg_target_thread_local)]
 #![feature(collections)]
-#![feature(collections_bound)]
 #![feature(collections_range)]
+#![feature(core_float)]
 #![feature(const_fn)]
 #![feature(compiler_builtins_lib)]
 #![feature(core_intrinsics)]
@@ -43,6 +43,7 @@
 #![feature(zero_one)]
 #![allow(non_camel_case_types, dead_code, unused_features)]
 #![no_std]
+
 
 #![stable(feature = "rust1", since = "1.0.0")]
 

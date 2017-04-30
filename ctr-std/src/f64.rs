@@ -186,36 +186,6 @@ impl f64 {
     #[inline]
     pub fn classify(self) -> FpCategory { num::Float::classify(self) }
 
-    /// Returns the mantissa, base 2 exponent, and sign as integers, respectively.
-    /// The original number can be recovered by `sign * mantissa * 2 ^ exponent`.
-    /// The floating point encoding is documented in the [Reference][floating-point].
-    ///
-    /// ```
-    /// #![feature(float_extras)]
-    ///
-    /// let num = 2.0f64;
-    ///
-    /// // (8388608, -22, 1)
-    /// let (mantissa, exponent, sign) = num.integer_decode();
-    /// let sign_f = sign as f64;
-    /// let mantissa_f = mantissa as f64;
-    /// let exponent_f = num.powf(exponent as f64);
-    ///
-    /// // 1 * 8388608 * 2^(-22) == 2
-    /// let abs_difference = (sign_f * mantissa_f * exponent_f - num).abs();
-    ///
-    /// assert!(abs_difference < 1e-10);
-    /// ```
-    /// [floating-point]: ../reference.html#machine-types
-    #[unstable(feature = "float_extras", reason = "signature is undecided",
-               issue = "27752")]
-    #[rustc_deprecated(since = "1.11.0",
-                       reason = "never really came to fruition and easily \
-                                 implementable outside the standard library")]
-    #[inline]
-    #[allow(deprecated)]
-    pub fn integer_decode(self) -> (u64, i16, i8) { num::Float::integer_decode(self) }
-
     /// Returns the largest integer less than or equal to a number.
     ///
     /// ```
