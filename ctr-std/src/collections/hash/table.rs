@@ -672,13 +672,13 @@ impl<K, V> RawTable<K, V> {
         let hashes_size = self.capacity * size_of::<HashUint>();
         let pairs_size = self.capacity * size_of::<(K, V)>();
 
-        let buffer = *self.hashes as *mut u8;
+        let buffer = self.hashes.as_ptr();
         let (pairs_offset, _, oflo) =
             calculate_offsets(hashes_size, pairs_size, align_of::<(K, V)>());
         debug_assert!(!oflo, "capacity overflow");
         unsafe {
             RawBucket {
-                hash: *self.hashes,
+                hash: self.hashes.as_ptr(),
                 pair: buffer.offset(pairs_offset as isize) as *const _,
                 _marker: marker::PhantomData,
             }
@@ -690,7 +690,7 @@ impl<K, V> RawTable<K, V> {
     pub fn new(capacity: usize) -> RawTable<K, V> {
         unsafe {
             let ret = RawTable::new_uninitialized(capacity);
-            ptr::write_bytes(*ret.hashes, 0, capacity);
+            ptr::write_bytes(ret.hashes.as_ptr(), 0, capacity);
             ret
         }
     }
@@ -709,7 +709,7 @@ impl<K, V> RawTable<K, V> {
     fn raw_buckets(&self) -> RawBuckets<K, V> {
         RawBuckets {
             raw: self.first_bucket_raw(),
-            hashes_end: unsafe { self.hashes.offset(self.capacity as isize) },
+            hashes_end: unsafe { self.hashes.as_ptr().offset(self.capacity as isize) },
             marker: marker::PhantomData,
         }
     }
@@ -983,13 +983,13 @@ impl<'a, K, V> Iterator for Drain<'a, K, V> {
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
-        let size = unsafe { (**self.table).size() };
+        let size = unsafe { (*self.table.as_mut_ptr()).size() };
         (size, Some(size))
     }
 }
 impl<'a, K, V> ExactSizeIterator for Drain<'a, K, V> {
     fn len(&self) -> usize {
-        unsafe { (**self.table).size() }
+        unsafe { (*self.table.as_mut_ptr()).size() }
     }
 }
 
@@ -1063,7 +1063,7 @@ impl<K, V> Drop for RawTable<K, V> {
         debug_assert!(!oflo, "should be impossible");
 
         unsafe {
-            deallocate(*self.hashes as *mut u8, size, align);
+            deallocate(self.hashes.as_ptr() as *mut u8, size, align);
             // Remember how everything was allocated out of one buffer
             // during initialization? We only need one call to free here.
         }
