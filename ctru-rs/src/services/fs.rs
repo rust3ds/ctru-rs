@@ -17,8 +17,6 @@ use std::sync::Arc;
 
 use widestring::{WideCString, WideCStr};
 
-use libctru::services::fs::*;
-
 bitflags! {
     flags FsOpen: u32 {
         const FS_OPEN_READ = 1,
@@ -271,7 +269,7 @@ pub struct ReadDir<'a> {
 /// filesystem. Each entry can be inspected via methods to learn about the full
 /// path or possibly other metadata.
 pub struct DirEntry<'a> {
-    entry: FS_DirectoryEntry,
+    entry: ::libctru::FS_DirectoryEntry,
     root: Arc<PathBuf>,
     arch: &'a Archive,
 }
@@ -299,7 +297,7 @@ impl Fs {
     /// instances of Fs drop out of scope.
     pub fn init() -> ::Result<Fs> {
         unsafe {
-            let r = fsInit();
+            let r = ::libctru::fsInit();
             if r < 0 {
                 Err(r.into())
             } else {
@@ -313,8 +311,8 @@ impl Fs {
         unsafe {
             let mut handle = 0;
             let id = ArchiveID::Sdmc;
-            let path = fsMakePath(PathType::Empty.into(), ptr::null() as _);
-            let r = FSUSER_OpenArchive(&mut handle, id.into(), path);
+            let path = ::libctru::fsMakePath(PathType::Empty.into(), ptr::null() as _);
+            let r = ::libctru::FSUSER_OpenArchive(&mut handle, id.into(), path);
             if r < 0 {
                 Err(::Error::from(r))
             } else {
@@ -398,7 +396,7 @@ impl File {
     /// This function will return an error if the file is not opened for writing.
     pub fn set_len(&mut self, size: u64) -> IoResult<()> {
         unsafe {
-            let r = FSFILE_SetSize(self.handle, size);
+            let r = ::libctru::FSFILE_SetSize(self.handle, size);
             if r < 0 {
                 Err(IoError::new(IoErrorKind::PermissionDenied, ::Error::from(r)))
             } else {
@@ -413,7 +411,7 @@ impl File {
         // This is likely to change in the future.
         unsafe {
             let mut size = 0;
-            let r = FSFILE_GetSize(self.handle, &mut size);
+            let r = ::libctru::FSFILE_GetSize(self.handle, &mut size);
             if r < 0 {
                 Err(IoError::new(IoErrorKind::PermissionDenied, ::Error::from(r)))
             } else {
@@ -425,7 +423,7 @@ impl File {
     fn read(&mut self, buf: &mut [u8]) -> IoResult<usize> {
         unsafe {
             let mut n_read = 0;
-            let r = FSFILE_Read(
+            let r = ::libctru::FSFILE_Read(
                 self.handle,
                 &mut n_read,
                 self.offset,
@@ -448,7 +446,7 @@ impl File {
     fn write(&mut self, buf: &[u8]) -> IoResult<usize> {
         unsafe {
             let mut n_written = 0;
-            let r = FSFILE_Write(
+            let r = ::libctru::FSFILE_Write(
                 self.handle,
                 &mut n_written,
                 self.offset,
@@ -586,8 +584,9 @@ impl OpenOptions {
         unsafe {
             let mut file_handle = 0;
             let path = to_utf16(path);
-            let fs_path = fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
-            let r = FSUSER_OpenFile(&mut file_handle, self.arch_handle, fs_path, flags.bits, 0);
+            let fs_path = ::libctru::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
+            let r = ::libctru::FSUSER_OpenFile(&mut file_handle, self.arch_handle,
+                                               fs_path, flags.bits, 0);
             if r < 0 {
                 return Err(IoError::new(IoErrorKind::Other, ::Error::from(r)));
             }
@@ -634,7 +633,8 @@ impl<'a> Iterator for ReadDir<'a> {
             };
             let mut entries_read = 0;
             let entry_count = 1;
-            let r = FSDIR_Read(self.handle.0, &mut entries_read, entry_count, &mut ret.entry);
+            let r = ::libctru::FSDIR_Read(self.handle.0, &mut entries_read,
+                                          entry_count, &mut ret.entry);
 
             if r < 0 {
                 return Some(Err(IoError::new(IoErrorKind::Other, ::Error::from(r))))
@@ -683,8 +683,9 @@ impl<'a> DirEntry<'a> {
 pub fn create_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
     unsafe {
         let path = to_utf16(path.as_ref());
-        let fs_path = fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
-        let r = FSUSER_CreateDirectory(arch.handle, fs_path, FS_ATTRIBUTE_DIRECTORY.bits);
+        let fs_path = ::libctru::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
+        let r = ::libctru::FSUSER_CreateDirectory(arch.handle, fs_path,
+                                                  FS_ATTRIBUTE_DIRECTORY.bits);
         if r < 0 {
             Err(IoError::new(IoErrorKind::Other, ::Error::from(r)))
         } else {
@@ -738,8 +739,8 @@ pub fn metadata<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<Metadata> {
 pub fn remove_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
     unsafe {
         let path = to_utf16(path.as_ref());
-        let fs_path = fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
-        let r = FSUSER_DeleteDirectory(arch.handle, fs_path);
+        let fs_path = ::libctru::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
+        let r = ::libctru::FSUSER_DeleteDirectory(arch.handle, fs_path);
         if r < 0 {
             Err(IoError::new(IoErrorKind::Other, ::Error::from(r)))
         } else {
@@ -756,8 +757,8 @@ pub fn remove_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
 pub fn remove_dir_all<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
     unsafe {
         let path = to_utf16(path.as_ref());
-        let fs_path = fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
-        let r = FSUSER_DeleteDirectoryRecursively(arch.handle, fs_path);
+        let fs_path = ::libctru::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
+        let r = ::libctru::FSUSER_DeleteDirectoryRecursively(arch.handle, fs_path);
         if r < 0 {
             Err(IoError::new(IoErrorKind::Other, ::Error::from(r)))
         } else {
@@ -782,8 +783,8 @@ pub fn read_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<ReadDir> {
         let mut handle = 0;
         let root = Arc::new(path.as_ref().to_path_buf());
         let path = to_utf16(path.as_ref());
-        let fs_path = fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
-        let r = FSUSER_OpenDirectory(&mut handle, arch.handle, fs_path);
+        let fs_path = ::libctru::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
+        let r = ::libctru::FSUSER_OpenDirectory(&mut handle, arch.handle, fs_path);
         if r < 0 {
             Err(IoError::new(IoErrorKind::Other, ::Error::from(r)))
         } else {
@@ -804,8 +805,8 @@ pub fn read_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<ReadDir> {
 pub fn remove_file<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
     unsafe {
         let path = to_utf16(path.as_ref());
-        let fs_path = fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
-        let r = FSUSER_DeleteFile(arch.handle, fs_path);
+        let fs_path = ::libctru::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
+        let r = ::libctru::FSUSER_DeleteFile(arch.handle, fs_path);
         if r < 0 {
             Err(IoError::new(IoErrorKind::Other, ::Error::from(r)))
         } else {
@@ -832,14 +833,14 @@ pub fn rename<P, Q>(arch: &Archive, from: P, to: Q) -> IoResult<()>
         let from = to_utf16(from.as_ref());
         let to = to_utf16(to.as_ref());
 
-        let fs_from = fsMakePath(PathType::UTF16.into(), from.as_ptr() as _);
-        let fs_to = fsMakePath(PathType::UTF16.into(), to.as_ptr() as _);
+        let fs_from = ::libctru::fsMakePath(PathType::UTF16.into(), from.as_ptr() as _);
+        let fs_to = ::libctru::fsMakePath(PathType::UTF16.into(), to.as_ptr() as _);
 
-        let r = FSUSER_RenameFile(arch.handle, fs_from, arch.handle, fs_to);
+        let r = ::libctru::FSUSER_RenameFile(arch.handle, fs_from, arch.handle, fs_to);
         if r == 0 {
             return Ok(())
         }
-        let r = FSUSER_RenameDirectory(arch.handle, fs_from, arch.handle, fs_to);
+        let r = ::libctru::FSUSER_RenameDirectory(arch.handle, fs_from, arch.handle, fs_to);
         if r == 0 {
             return Ok(())
         }
@@ -944,7 +945,7 @@ impl Seek for File {
 impl Drop for Fs {
     fn drop(&mut self) {
         unsafe {
-            fsExit();
+            ::libctru::fsExit();
         }
     }
 }
@@ -952,7 +953,7 @@ impl Drop for Fs {
 impl Drop for Archive {
     fn drop(&mut self) {
         unsafe {
-            FSUSER_CloseArchive(self.handle);
+            ::libctru::FSUSER_CloseArchive(self.handle);
         }
     }
 }
@@ -960,7 +961,7 @@ impl Drop for Archive {
 impl Drop for File {
     fn drop(&mut self) {
         unsafe {
-            FSFILE_Close(self.handle);
+            ::libctru::FSFILE_Close(self.handle);
         }
     }
 }
@@ -968,15 +969,15 @@ impl Drop for File {
 impl Drop for Dir {
     fn drop(&mut self) {
         unsafe {
-            FSDIR_Close(self.0);
+            ::libctru::FSDIR_Close(self.0);
         }
     }
 }
 
-impl From<PathType> for FS_PathType {
+impl From<PathType> for ::libctru::FS_PathType {
     fn from(p: PathType) -> Self {
         use self::PathType::*;
-        use libctru::services::fs::FS_PathType::*;
+        use ::libctru::FS_PathType::*;
         match p {
             Invalid => PATH_INVALID,
             Empty => PATH_EMPTY,
@@ -987,10 +988,11 @@ impl From<PathType> for FS_PathType {
     }
 }
 
-impl From<ArchiveID> for FS_ArchiveID {
+impl From<ArchiveID> for ::libctru::FS_ArchiveID {
     fn from(a: ArchiveID) -> Self {
         use self::ArchiveID::*;
-        use libctru::services::fs::FS_ArchiveID::*;
+        use ::libctru::FS_ArchiveID::*;
+
         match a {
             RomFS => ARCHIVE_ROMFS,
             Savedata => ARCHIVE_SAVEDATA,

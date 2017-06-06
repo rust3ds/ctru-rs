@@ -3,30 +3,28 @@ use std::ptr;
 
 use gfx::Screen;
 
-use libctru::console::*;
-
 pub struct Console {
-    context: PrintConsole,
+    context: ::libctru::PrintConsole,
 }
 
 impl Console {
     pub fn init(screen: Screen) -> Self {
         unsafe {
-            let ret = *(consoleInit(screen.into(), ptr::null_mut()));
+            let ret = *(::libctru::consoleInit(screen.into(), ptr::null_mut()));
             Console { context: ret }
         }
     }
 
     pub fn select(&mut self) {
-        unsafe { consoleSelect(&mut self.context); }
+        unsafe { ::libctru::consoleSelect(&mut self.context); }
     }
 
     pub fn set_window(&mut self, x: i32, y: i32, width: i32, height: i32) {
-        unsafe { consoleSetWindow(&mut self.context, x, y, width, height) }
+        unsafe { ::libctru::consoleSetWindow(&mut self.context, x, y, width, height) }
     } 
 
     pub fn clear(&mut self) {
-        unsafe { consoleClear() }
+        unsafe { ::libctru::consoleClear() }
     }
 }
 

@@ -1,5 +1,3 @@
-use libctru::gfx;
-
 use std::default::Default;
 use std::ops::Drop;
 
@@ -19,10 +17,10 @@ pub enum Side {
     Right,
 }
 
-impl From<gfx::gfxScreen_t> for Screen {
+impl From<::libctru::gfxScreen_t> for Screen {
     #[inline]
-    fn from(g: gfx::gfxScreen_t) -> Screen {
-        use libctru::gfx::gfxScreen_t::*;
+    fn from(g: ::libctru::gfxScreen_t) -> Screen {
+        use ::libctru::gfxScreen_t::*;
         use self::Screen::*;
         match g {
             GFX_TOP => Top,
@@ -31,10 +29,10 @@ impl From<gfx::gfxScreen_t> for Screen {
     }
 }
 
-impl From<Screen> for gfx::gfxScreen_t {
+impl From<Screen> for ::libctru::gfxScreen_t {
     #[inline]
-    fn from(g: Screen) -> gfx::gfxScreen_t {
-        use libctru::gfx::gfxScreen_t::*;
+    fn from(g: Screen) -> ::libctru::gfxScreen_t {
+        use ::libctru::gfxScreen_t::*;
         use self::Screen::*;
         match g {
             Top => GFX_TOP,
@@ -43,10 +41,10 @@ impl From<Screen> for gfx::gfxScreen_t {
     }
 }
 
-impl From<gfx::gfx3dSide_t> for Side {
+impl From<::libctru::gfx3dSide_t> for Side {
     #[inline]
-    fn from(s: gfx::gfx3dSide_t) -> Side {
-        use libctru::gfx::gfx3dSide_t::*;
+    fn from(s: ::libctru::gfx3dSide_t) -> Side {
+        use ::libctru::gfx3dSide_t::*;
         use self::Side::*;
         match s {
             GFX_LEFT => Left,
@@ -55,10 +53,10 @@ impl From<gfx::gfx3dSide_t> for Side {
     }
 }
 
-impl From<Side> for gfx::gfx3dSide_t {
+impl From<Side> for ::libctru::gfx3dSide_t {
     #[inline]
-    fn from(s: Side) -> gfx::gfx3dSide_t {
-        use libctru::gfx::gfx3dSide_t::*;
+    fn from(s: Side) -> ::libctru::gfx3dSide_t {
+        use ::libctru::gfx3dSide_t::*;
         use self::Side::*;
         match s {
             Left => GFX_LEFT,
@@ -70,10 +68,7 @@ impl From<Side> for gfx::gfx3dSide_t {
 impl Gfx {
     pub fn set_3d_enabled(&mut self, enabled: bool) {
         unsafe {
-            gfx::gfxSet3D(match enabled {
-                true => 1u8,
-                false => 0u8,
-            });
+            ::libctru::gfxSet3D(enabled)
         }
     }
 
@@ -84,7 +79,7 @@ impl Gfx {
 
             let mut w: u16 = 0;
             let mut h: u16 = 0;
-            let buf: *mut u8 = gfx::gfxGetFramebuffer(screen.into(),
+            let buf: *mut u8 = ::libctru::gfxGetFramebuffer(screen.into(),
                                                       side.into(),
                                                       &mut w as *mut u16,
                                                       &mut h as &mut u16);
@@ -96,47 +91,44 @@ impl Gfx {
     }
 
     pub fn flush_buffers(&mut self) {
-        unsafe { gfx::gfxFlushBuffers() };
+        unsafe { ::libctru::gfxFlushBuffers() };
     }
 
     pub fn swap_buffers(&mut self) {
-        unsafe { gfx::gfxSwapBuffers() };
+        unsafe { ::libctru::gfxSwapBuffers() };
     }
 
     pub fn swap_buffers_gpu(&mut self) {
-        unsafe { gfx::gfxSwapBuffersGpu() };
+        unsafe { ::libctru::gfxSwapBuffersGpu() };
     }
 
     pub fn get_framebuffer_format(&self, screen: Screen) -> FramebufferFormat {
         use std::convert::Into;
-        unsafe { gfx::gfxGetScreenFormat(screen.into()).into() }
+        unsafe { ::libctru::gfxGetScreenFormat(screen.into()).into() }
     }
 
-    pub fn set_framebuffer_format(&mut self, screen: Screen, fmt: FramebufferFormat) {
+    pub fn set_framebuffer_format(&mut self, screen: Screen,
+                                             fmt: FramebufferFormat) {
         use std::convert::Into;
-        unsafe { gfx::gfxSetScreenFormat(screen.into(), fmt.into()) }
+        unsafe { ::libctru::gfxSetScreenFormat(screen.into(), fmt.into()) }
     }
 
     pub fn set_double_buffering(&mut self, screen: Screen, enabled: bool) {
         unsafe {
-            gfx::gfxSetDoubleBuffering(screen.into(),
-                                       match enabled {
-                                           true => 1u8,
-                                           false => 0u8,
-                                       })
-        };
+            ::libctru::gfxSetDoubleBuffering(screen.into(), enabled)
+        }
     }
 }
 
 impl Default for Gfx {
     fn default() -> Self {
-        unsafe { gfx::gfxInitDefault() };
+        unsafe { ::libctru::gfxInitDefault() };
         Gfx(())
     }
 }
 
 impl Drop for Gfx {
     fn drop(&mut self) {
-        unsafe { gfx::gfxExit() };
+        unsafe { ::libctru::gfxExit() };
     }
 }

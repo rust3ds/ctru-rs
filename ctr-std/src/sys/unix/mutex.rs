@@ -11,12 +11,10 @@
 use cell::UnsafeCell;
 use mem;
 
-use libctru::synchronization;
-
-pub struct Mutex { inner: UnsafeCell<synchronization::LightLock> }
+pub struct Mutex { inner: UnsafeCell<::libctru::LightLock> }
 
 #[inline]
-pub unsafe fn raw(m: &Mutex) -> *mut synchronization::LightLock {
+pub unsafe fn raw(m: &Mutex) -> *mut ::libctru::LightLock {
     m.inner.get()
 }
 
@@ -30,19 +28,19 @@ impl Mutex {
     }
     #[inline]
     pub unsafe fn init(&mut self) {
-        synchronization::LightLock_Init(self.inner.get());
+        ::libctru::LightLock_Init(self.inner.get());
     }
     #[inline]
     pub unsafe fn lock(&self) {
-        synchronization::LightLock_Lock(self.inner.get());
+        ::libctru::LightLock_Lock(self.inner.get());
     }
     #[inline]
     pub unsafe fn unlock(&self) {
-        synchronization::LightLock_Unlock(self.inner.get());
+        ::libctru::LightLock_Unlock(self.inner.get());
     }
     #[inline]
     pub unsafe fn try_lock(&self) -> bool {
-        match synchronization::LightLock_TryLock(self.inner.get()) {
+        match ::libctru::LightLock_TryLock(self.inner.get()) {
             0 => true,
             _ => false,
         }
@@ -51,7 +49,7 @@ impl Mutex {
     pub unsafe fn destroy(&self) {}
 }
 
-pub struct ReentrantMutex { inner: UnsafeCell<synchronization::RecursiveLock> }
+pub struct ReentrantMutex { inner: UnsafeCell<::libctru::RecursiveLock> }
 
 unsafe impl Send for ReentrantMutex {}
 unsafe impl Sync for ReentrantMutex {}
@@ -62,19 +60,19 @@ impl ReentrantMutex {
     }
     #[inline]
     pub unsafe fn init(&mut self) {
-        synchronization::RecursiveLock_Init(self.inner.get());
+        ::libctru::RecursiveLock_Init(self.inner.get());
     }
     #[inline]
     pub unsafe fn lock(&self) {
-        synchronization::RecursiveLock_Lock(self.inner.get());
+        ::libctru::RecursiveLock_Lock(self.inner.get());
     }
     #[inline]
     pub unsafe fn unlock(&self) {
-        synchronization::RecursiveLock_Unlock(self.inner.get());
+        ::libctru::RecursiveLock_Unlock(self.inner.get());
     }
     #[inline]
     pub unsafe fn try_lock(&self) -> bool {
-        match synchronization::RecursiveLock_TryLock(self.inner.get()) {
+        match ::libctru::RecursiveLock_TryLock(self.inner.get()) {
             0 => true,
             _ => false,
         }

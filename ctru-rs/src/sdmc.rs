@@ -1,11 +1,9 @@
-use libctru::sdmc::*;
-
 pub struct Sdmc(());
 
 impl Sdmc {
     pub fn init() -> ::Result<Sdmc> {
         unsafe {
-            let r = sdmcInit();
+            let r = ::libctru::sdmcInit();
             if r < 0 {
                 Err(r.into())
             } else {
@@ -17,6 +15,6 @@ impl Sdmc {
 
 impl Drop for Sdmc {
     fn drop(&mut self) {
-        unsafe { sdmcExit() };
+        unsafe { ::libctru::sdmcExit() };
     }
 }

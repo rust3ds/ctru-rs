@@ -12,7 +12,7 @@ use io::{self, Error, ErrorKind};
 use mem;
 use rand::Rng;
 
-use libctru::services::sslc::{sslcInit, sslcExit, sslcGenerateRandomData};
+use libctru::{sslcInit, sslcExit, sslcGenerateRandomData};
 
 pub struct OsRng(());
 

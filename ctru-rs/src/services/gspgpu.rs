@@ -1,5 +1,3 @@
-use libctru::services::gspgpu;
-
 use std::convert::From;
 
 pub enum Event {
@@ -34,10 +32,10 @@ impl FramebufferFormat {
     }
 }
 
-impl From<gspgpu::GSPGPU_FramebufferFormats> for FramebufferFormat {
+impl From<::libctru::GSPGPU_FramebufferFormats> for FramebufferFormat {
     #[inline]
-    fn from(g: gspgpu::GSPGPU_FramebufferFormats) -> FramebufferFormat {
-        use libctru::services::gspgpu::GSPGPU_FramebufferFormats::*;
+    fn from(g: ::libctru::GSPGPU_FramebufferFormats) -> FramebufferFormat {
+        use ::libctru::GSPGPU_FramebufferFormats::*;
         use self::FramebufferFormat::*;
         match g {
             GSP_RGBA8_OES => Rgba8,
@@ -49,10 +47,10 @@ impl From<gspgpu::GSPGPU_FramebufferFormats> for FramebufferFormat {
     }
 }
 
-impl From<FramebufferFormat> for gspgpu::GSPGPU_FramebufferFormats {
+impl From<FramebufferFormat> for ::libctru::GSPGPU_FramebufferFormats {
     #[inline]
-    fn from(g: FramebufferFormat) -> gspgpu::GSPGPU_FramebufferFormats {
-        use libctru::services::gspgpu::GSPGPU_FramebufferFormats::*;
+    fn from(g: FramebufferFormat) -> ::libctru::GSPGPU_FramebufferFormats {
+        use ::libctru::GSPGPU_FramebufferFormats::*;
         use self::FramebufferFormat::*;
         match g {
             Rgba8 => GSP_RGBA8_OES,
@@ -64,8 +62,8 @@ impl From<FramebufferFormat> for gspgpu::GSPGPU_FramebufferFormats {
     }
 }
 
-fn to_raw_event(ev: Event) -> gspgpu::GSPGPU_Event {
-    use libctru::services::gspgpu::GSPGPU_Event::*;
+fn to_raw_event(ev: Event) -> ::libctru::GSPGPU_Event {
+    use ::libctru::GSPGPU_Event::*;
     use self::Event::*;
 
     match ev {
@@ -93,6 +91,6 @@ fn to_raw_event(ev: Event) -> gspgpu::GSPGPU_Event {
 pub fn wait_for_event(ev: Event) -> () {
     unsafe {
         // TODO second argument?
-        gspgpu::gspWaitForEvent(to_raw_event(ev), 0);
+        ::libctru::gspWaitForEvent(to_raw_event(ev), false);
     }
 }
