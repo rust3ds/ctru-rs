@@ -1,6 +1,9 @@
 #![crate_type = "rlib"]
 #![crate_name = "ctru"]
 
+// Temporary workaround for a Xargo(?) issue
+#![feature(rustc_private)]
+
 #[macro_use]
 extern crate bitflags;
 extern crate widestring;
