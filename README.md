@@ -10,7 +10,6 @@ This repository is organized as follows:
 * `ctru-rs`: Safe, idiomatic wrapper around `ctru-sys`.
 * `ctru-sys`: Low-level, unsafe bindings to ctrulib
 * `ctr-std`: A partial implementation of the Rust standard library for the 3DS.
-* `ctr-libc`: C types and functions used by ctru-sys and ctr-std.
 
 ## License
 
