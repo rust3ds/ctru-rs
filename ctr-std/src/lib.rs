@@ -1,5 +1,6 @@
 #![feature(alloc)]
 #![feature(allocator_api)]
+#![feature(allocator_internals)]
 #![feature(alloc_system)]
 #![feature(allow_internal_unstable)]
 #![feature(box_syntax)]
@@ -46,7 +47,7 @@
 #![allow(non_camel_case_types, dead_code, unused_features)]
 #![no_std]
 
-
+#![cfg_attr(not(stage0), default_lib_allocator)]
 #![stable(feature = "rust1", since = "1.0.0")]
 
 #[prelude_import]
@@ -169,6 +170,7 @@ pub mod panic;
 pub mod path;
 pub mod sync;
 pub mod time;
+pub mod heap;
 
 // Platform-abstraction modules
 #[macro_use]
