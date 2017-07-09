@@ -1,4 +1,5 @@
 #![feature(alloc)]
+#![feature(allocator_api)]
 #![feature(alloc_system)]
 #![feature(allow_internal_unstable)]
 #![feature(box_syntax)]

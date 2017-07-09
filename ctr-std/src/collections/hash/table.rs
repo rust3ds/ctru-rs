@@ -10,7 +10,8 @@
 
 #![allow(deprecated)]
 
-use alloc::heap::{EMPTY, allocate, deallocate};
+use sys::alloc::Heap;
+use alloc::allocator::{Alloc,Layout};
 
 use cmp;
 use hash::{BuildHasher, Hash, Hasher};
@@ -622,7 +623,7 @@ impl<K, V> RawTable<K, V> {
             return RawTable {
                 size: 0,
                 capacity: 0,
-                hashes: Unique::new(EMPTY as *mut HashUint),
+                hashes: Unique::empty(),
                 marker: marker::PhantomData,
             };
         }
@@ -653,10 +654,8 @@ impl<K, V> RawTable<K, V> {
                     .expect("capacity overflow"),
                 "capacity overflow");
 
-        let buffer = allocate(size, alignment);
-        if buffer.is_null() {
-            ::alloc::oom()
-        }
+        let layout = Layout::from_size_align(size, alignment).expect("invalid alloc layout");
+        let buffer = Heap.alloc(layout).unwrap_or_else(|err| Heap.oom(err));
 
         let hashes = buffer.offset(hash_offset as isize) as *mut HashUint;
 
@@ -1063,7 +1062,8 @@ impl<K, V> Drop for RawTable<K, V> {
         debug_assert!(!oflo, "should be impossible");
 
         unsafe {
-            deallocate(self.hashes.as_ptr() as *mut u8, size, align);
+            let layout = Layout::from_size_align(size, align).expect("invalid alloc layout");
+            Heap.dealloc(self.hashes.as_ptr() as *mut u8, layout);
             // Remember how everything was allocated out of one buffer
             // during initialization? We only need one call to free here.
         }
