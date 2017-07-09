@@ -1,4 +1,5 @@
 #![feature(alloc)]
+#![feature(alloc_system)]
 #![feature(allow_internal_unstable)]
 #![feature(box_syntax)]
 #![feature(cfg_target_has_atomic)]

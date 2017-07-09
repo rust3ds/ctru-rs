@@ -11,6 +11,3 @@ path = "../ctr-libc"
 
 [dependencies.ctru-sys]
 path = "../ctru-sys"
-
-[dependencies.alloc_system]
-version = "0.1.1"
