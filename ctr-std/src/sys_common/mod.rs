@@ -27,6 +27,7 @@
 pub mod at_exit_imp;
 pub mod condvar;
 pub mod io;
+pub mod memchr;
 pub mod mutex;
 pub mod poison;
 pub mod remutex;

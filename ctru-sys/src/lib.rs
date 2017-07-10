@@ -8,7 +8,7 @@
 #![allow(non_camel_case_types, non_snake_case, overflowing_literals)]
 #![feature(untagged_unions)]
 
-extern crate ctr_libc as libc;
+extern crate libc;
 
 pub mod applets;
 pub mod console;
