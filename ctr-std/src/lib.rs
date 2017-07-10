@@ -25,9 +25,11 @@
 #![feature(integer_atomics)]
 #![feature(lang_items)]
 #![feature(macro_reexport)]
+#![feature(needs_drop)]
 #![feature(oom)]
 #![feature(on_unimplemented)]
 #![feature(optin_builtin_traits)]
+#![feature(placement_new_protocol)]
 #![feature(prelude_import)]
 #![feature(raw)]
 #![feature(rand)]
@@ -54,15 +56,14 @@
 #[allow(unused)]
 use prelude::v1::*;
 
-#[macro_reexport(assert, assert_eq, debug_assert, debug_assert_eq,
-                 unreachable, unimplemented, write, writeln, try)]
+#[macro_reexport(assert, assert_eq, assert_ne, debug_assert, debug_assert_eq,
+                 debug_assert_ne, unreachable, unimplemented, write, writeln, try)]
 extern crate core as __core;
+
+#[allow(deprecated)] extern crate rand as core_rand;
 
 #[macro_use]
 #[macro_reexport(vec, format)]
-extern crate collections as core_collections;
-
-#[allow(deprecated)] extern crate rand as core_rand;
 extern crate alloc;
 extern crate std_unicode;
 extern crate alloc_system;
@@ -139,17 +140,17 @@ pub use alloc::boxed;
 #[stable(feature = "rust1", since = "1.0.0")]
 pub use alloc::rc;
 #[stable(feature = "rust1", since = "1.0.0")]
-pub use core_collections::borrow;
+pub use alloc::borrow;
 #[stable(feature = "rust1", since = "1.0.0")]
-pub use core_collections::fmt;
+pub use alloc::fmt;
 #[stable(feature = "rust1", since = "1.0.0")]
-pub use core_collections::slice;
+pub use alloc::slice;
 #[stable(feature = "rust1", since = "1.0.0")]
-pub use core_collections::str;
+pub use alloc::str;
 #[stable(feature = "rust1", since = "1.0.0")]
-pub use core_collections::string;
+pub use alloc::string;
 #[stable(feature = "rust1", since = "1.0.0")]
-pub use core_collections::vec;
+pub use alloc::vec;
 #[stable(feature = "rust1", since = "1.0.0")]
 pub use std_unicode::char;
 

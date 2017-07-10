@@ -29,7 +29,6 @@ pub mod thread;
 pub mod rand;
 pub mod thread_local;
 pub mod time;
-pub mod alloc;
 
 #[cfg(not(test))]
 pub fn init() {
