@@ -63,12 +63,12 @@ extern crate collections as core_collections;
 extern crate alloc;
 extern crate std_unicode;
 extern crate alloc_system;
+extern crate libc;
 
 // compiler-rt intrinsics
 extern crate compiler_builtins;
 
 // 3ds-specific dependencies
-extern crate ctr_libc as libc;
 extern crate ctru_sys as libctru;
 
 // The standard macros that are not built-in to the compiler.
