@@ -76,10 +76,6 @@ pub fn at_exit<F: FnOnce() + Send + 'static>(f: F) -> Result<(), ()> {
     if at_exit_imp::push(Box::new(f)) {Ok(())} else {Err(())}
 }
 
-macro_rules! rtabort {
-    ($($t:tt)*) => (::sys_common::util::abort(format_args!($($t)*)))
-}
-
 // Computes (value*numer)/denom without overflow, as long as both
 // (numer*denom) and the overall result fit into i64 (which is the case
 // for our time conversions).
