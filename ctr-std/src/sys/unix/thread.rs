@@ -18,9 +18,9 @@ use ptr;
 use sys_common::thread::start_thread;
 use time::Duration;
 
-use libctru::svc::{svcSleepThread, svcGetThreadPriority};
-use libctru::thread::{threadCreate, threadJoin, threadFree};
-use libctru::thread::Thread as ThreadHandle;
+use libctru::{svcSleepThread, svcGetThreadPriority};
+use libctru::{threadCreate, threadJoin, threadFree};
+use libctru::Thread as ThreadHandle;
 
 pub struct Thread {
     handle: ThreadHandle,
@@ -44,7 +44,7 @@ impl Thread {
         priority -= 1;
 
         let handle = threadCreate(Some(thread_func), &*p as *const _ as *mut _,
-                                  stack_size, priority, -2, 0);
+                                  stack_size, priority, -2, false);
 
         return if handle == ptr::null_mut() {
             Err(io::Error::from_raw_os_error(libc::EAGAIN))

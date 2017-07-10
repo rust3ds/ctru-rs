@@ -192,7 +192,7 @@ mod inner {
     // Gets the current system tick
     #[inline]
     fn get_system_tick() -> u64 {
-        unsafe { libctru::svc::svcGetSystemTick() }
+        unsafe { libctru::svcGetSystemTick() }
     }
 
     // A struct representing the clock speed of the 3DS
