@@ -63,8 +63,8 @@ pub fn begin_panic<M: Any + Send + Display>(msg: M, file_line: &(&'static str, u
     let msg = Box::new(msg);
     let (file, line) = *file_line;
 
-    use libctru::console::consoleInit;
-    use libctru::gfx::gfxScreen_t;
+    use libctru::consoleInit;
+    use libctru::gfxScreen_t;
 
     // set up a new console, overwriting whatever was on the top screen
     // before we started panicking
@@ -74,7 +74,7 @@ pub fn begin_panic<M: Any + Send + Display>(msg: M, file_line: &(&'static str, u
     println!("    {}", msg);
 
     // Terminate the process to ensure that all threads cease when panicking.
-    unsafe { ::libctru::svc::svcExitProcess() }
+    unsafe { ::libctru::svcExitProcess() }
 
     // On 3DS hardware, code execution will have terminated at the above function.
     //

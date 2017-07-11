@@ -17,8 +17,8 @@ use time::Duration;
 
 use sys::mutex::{self, Mutex};
 
-use libctru::synchronization::{__sync_get_arbiter, LightLock};
-use libctru::svc::{svcArbitrateAddress, ArbitrationType};
+use libctru::{__sync_get_arbiter, LightLock};
+use libctru::{svcArbitrateAddress, ArbitrationType};
 
 pub struct Condvar {
     lock: UnsafeCell<*mut LightLock>,

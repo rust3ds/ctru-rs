@@ -1,7 +1,5 @@
 use std::convert::Into;
 
-use libctru::services::hid;
-
 pub enum PadKey {
     A,
     B,
@@ -36,9 +34,8 @@ pub enum PadKey {
 
 impl From<PadKey> for u32 {
     fn from(p: PadKey) -> u32 {
-        use libctru::services::hid::PAD_KEY::*;
         use self::PadKey::*;
-
+        use ::libctru::_bindgen_ty_18::*;
         match p {
             Up => KEY_DUP as u32 | KEY_CPAD_UP as u32,
             Down => KEY_DDOWN as u32 | KEY_CPAD_DOWN as u32,
@@ -77,7 +74,7 @@ pub struct Hid(());
 impl Hid {
     pub fn init() -> ::Result<Hid> {
         unsafe {
-            let r = hid::hidInit();
+            let r = ::libctru::hidInit();
             if r < 0 {
                 Err(r.into())
             } else {
@@ -87,13 +84,13 @@ impl Hid {
     }
 
     pub fn scan_input(&self) {
-        unsafe { hid::hidScanInput() };
+        unsafe { ::libctru::hidScanInput() };
     }
 
     pub fn key_down(&self, key: PadKey) -> bool {
         let k: u32 = key.into();
         unsafe {
-            if hid::hidKeysDown() & k != 0 {
+            if ::libctru::hidKeysDown() & k != 0 {
                 true
             } else {
                 false
@@ -104,7 +101,7 @@ impl Hid {
     pub fn key_held(&self, key: PadKey) -> bool {
         let k: u32 = key.into();
         unsafe {
-            if hid::hidKeysHeld() & k != 0 {
+            if ::libctru::hidKeysHeld() & k != 0 {
                 true
             } else {
                 false
@@ -115,7 +112,7 @@ impl Hid {
     pub fn key_up(&self, key: PadKey) -> bool {
         let k: u32 = key.into();
         unsafe {
-            if hid::hidKeysUp() & k != 0 {
+            if ::libctru::hidKeysUp() & k != 0 {
                 return true;
             } else {
                 return false;
@@ -126,6 +123,6 @@ impl Hid {
 
 impl Drop for Hid {
     fn drop(&mut self) {
-        unsafe { hid::hidExit() };
+        unsafe { ::libctru::hidExit() };
     }
 }

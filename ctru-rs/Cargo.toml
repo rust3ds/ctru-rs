@@ -3,7 +3,8 @@ authors = ["Ronald Kinard <furyhunter600@gmail.com>"]
 description = "A safe wrapper around smealum's ctrulib."
 license = "https://en.wikipedia.org/wiki/Zlib_License"
 name = "ctru-rs"
-version = "0.5.0"
+links = "ctru"
+version = "0.5.1"
 
 [lib]
 crate-type = ["rlib"]
@@ -11,6 +12,7 @@ name = "ctru"
 
 [dependencies.ctru-sys]
 path = "../ctru-sys"
+version = "0.4"
 
 [dependencies.bitflags]
 version = "0.7.0"

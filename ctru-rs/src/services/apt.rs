@@ -1,11 +1,9 @@
-use libctru::services::apt;
-
 pub struct Apt(());
 
 impl Apt {
     pub fn init() -> ::Result<Apt> {
         unsafe {
-            let r = apt::aptInit();
+            let r = ::libctru::aptInit();
             if r < 0 {
                 Err(r.into())
             } else {
@@ -16,17 +14,13 @@ impl Apt {
 
     pub fn main_loop(&self) -> bool {
         unsafe {
-            match apt::aptMainLoop() {
-                1 => true,
-                0 => false,
-                _ => unreachable!(),
-            }
+            ::libctru::aptMainLoop()
         }
     }
 }
 
 impl Drop for Apt {
     fn drop(&mut self) {
-        unsafe { apt::aptExit() };
+        unsafe { ::libctru::aptExit() };
     }
 }
