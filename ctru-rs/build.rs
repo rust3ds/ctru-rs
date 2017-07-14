@@ -1,7 +1,11 @@
 use std::env;
-use std::path::PathBuf;
 
 fn main() {
-    let dkp_path = PathBuf::from(env::var("DEVKITPRO").unwrap());
-    println!("cargo:rustc-link-search=native={}", dkp_path.join("libctru/lib").display());
+    let dkp_path = env::var("DEVKITPRO").unwrap();
+
+    println!("cargo:rustc-link-search=native={}/libctru/lib", dkp_path);
+    println!("cargo:rustc-link-lib=static={}", match env::var("PROFILE").unwrap().as_str() {
+        "debug" => "ctrud",
+        _       => "ctru",
+    });
 }
