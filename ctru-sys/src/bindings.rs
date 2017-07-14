@@ -1070,8 +1070,16 @@ pub struct FpuRegisters {
 #[repr(C)]
 #[derive(Copy)]
 pub union FpuRegisters__bindgen_ty_1 {
+    pub __bindgen_anon_1: FpuRegisters__bindgen_ty_1__bindgen_ty_1,
+    pub s: [f32; 32usize],
+}
+#[repr(C, packed)]
+#[derive(Copy)]
+pub struct FpuRegisters__bindgen_ty_1__bindgen_ty_1 {
     pub d: [f64; 16usize],
-    pub f: [f32; 32usize],
+}
+impl Clone for FpuRegisters__bindgen_ty_1__bindgen_ty_1 {
+    fn clone(&self) -> Self { *self }
 }
 impl Clone for FpuRegisters__bindgen_ty_1 {
     fn clone(&self) -> Self { *self }
@@ -1493,9 +1501,9 @@ impl Clone for AttachProcessEvent {
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum ExitProcessEventReason {
-    EXITPROCESS_EVENT_NONE = 0,
+    EXITPROCESS_EVENT_EXIT = 0,
     EXITPROCESS_EVENT_TERMINATE = 1,
-    EXITPROCESS_EVENT_UNHANDLED_EXCEPTION = 2,
+    EXITPROCESS_EVENT_DEBUG_TERMINATE = 2,
 }
 #[repr(C)]
 #[derive(Copy)]
@@ -1518,9 +1526,9 @@ impl Clone for AttachThreadEvent {
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum ExitThreadEventReason {
-    EXITTHREAD_EVENT_NONE = 0,
+    EXITTHREAD_EVENT_EXIT = 0,
     EXITTHREAD_EVENT_TERMINATE = 1,
-    EXITTHREAD_EVENT_UNHANDLED_EXC = 2,
+    EXITTHREAD_EVENT_EXIT_PROCESS = 2,
     EXITTHREAD_EVENT_TERMINATE_PROCESS = 3,
 }
 #[repr(C)]
@@ -1590,7 +1598,7 @@ impl Clone for UserBreakExceptionEvent {
 #[repr(C)]
 #[derive(Copy)]
 pub struct DebuggerBreakExceptionEvent {
-    pub threads: [*mut libc::c_void; 4usize],
+    pub thread_ids: [s32; 4usize],
 }
 impl Clone for DebuggerBreakExceptionEvent {
     fn clone(&self) -> Self { *self }
@@ -1701,7 +1709,7 @@ impl Clone for DebugEventInfo {
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum DebugFlags {
-    DBG_NO_ERRF_CPU_EXCEPTION_DUMPS = 1,
+    DBG_INHIBIT_USER_CPU_EXCEPTION_HANDLERS = 1,
     DBG_SIGNAL_FAULT_EXCEPTION_EVENTS = 2,
     DBG_SIGNAL_SCHEDULE_EVENTS = 4,
     DBG_SIGNAL_SYSCALL_EVENTS = 8,
@@ -1788,12 +1796,12 @@ extern "C" {
                              other_perm: MemPerm) -> Result;
 }
 extern "C" {
-    pub fn svcMapProcessMemory(process: Handle, startAddr: u32, endAddr: u32)
+    pub fn svcMapProcessMemory(process: Handle, destAddress: u32, size: u32)
      -> Result;
 }
 extern "C" {
-    pub fn svcUnmapProcessMemory(process: Handle, startAddr: u32,
-                                 endAddr: u32) -> Result;
+    pub fn svcUnmapProcessMemory(process: Handle, destAddress: u32, size: u32)
+     -> Result;
 }
 extern "C" {
     pub fn svcUnmapMemoryBlock(memblock: Handle, addr: u32) -> Result;
@@ -1822,6 +1830,10 @@ extern "C" {
     pub fn svcInvalidateProcessDataCache(process: Handle,
                                          addr: *mut libc::c_void, size: u32)
      -> Result;
+}
+extern "C" {
+    pub fn svcStoreProcessDataCache(process: Handle, addr: *mut libc::c_void,
+                                    size: u32) -> Result;
 }
 extern "C" {
     pub fn svcFlushProcessDataCache(process: Handle,
@@ -1873,8 +1885,16 @@ extern "C" {
                             arm11kernelcaps_num: u32) -> Result;
 }
 extern "C" {
+    pub fn svcGetProcessAffinityMask(affinitymask: *mut u8, process: Handle,
+                                     processorcount: s32) -> Result;
+}
+extern "C" {
     pub fn svcSetProcessAffinityMask(process: Handle, affinitymask: *const u8,
                                      processorcount: s32) -> Result;
+}
+extern "C" {
+    pub fn svcGetProcessIdealProcessor(processorid: *mut s32, process: Handle)
+     -> Result;
 }
 extern "C" {
     pub fn svcSetProcessIdealProcessor(process: Handle, processorid: s32)
@@ -1943,6 +1963,18 @@ extern "C" {
      -> Result;
 }
 extern "C" {
+    pub fn svcSetProcessResourceLimits(process: Handle, resourceLimit: Handle)
+     -> Result;
+}
+extern "C" {
+    pub fn svcCreateResourceLimit(resourceLimit: *mut Handle) -> Result;
+}
+extern "C" {
+    pub fn svcSetResourceLimitValues(resourceLimit: Handle, names: *const u32,
+                                     values: *const s64, nameCount: s32)
+     -> Result;
+}
+extern "C" {
     pub fn svcGetProcessIdOfThread(out: *mut u32, handle: Handle) -> Result;
 }
 extern "C" {
@@ -1994,6 +2026,14 @@ extern "C" {
     pub fn svcSendSyncRequest(session: Handle) -> Result;
 }
 extern "C" {
+    pub fn svcCreateSessionToPort(clientSession: *mut Handle,
+                                  clientPort: Handle) -> Result;
+}
+extern "C" {
+    pub fn svcCreateSession(serverSession: *mut Handle,
+                            clientSession: *mut Handle) -> Result;
+}
+extern "C" {
     pub fn svcAcceptSession(session: *mut Handle, port: Handle) -> Result;
 }
 extern "C" {
@@ -2037,6 +2077,12 @@ extern "C" {
 }
 extern "C" {
     pub fn svcGetSystemInfo(out: *mut s64, type_: u32, param: s32) -> Result;
+}
+extern "C" {
+    pub fn svcSetGpuProt(useApplicationRestriction: bool) -> Result;
+}
+extern "C" {
+    pub fn svcSetWifiEnabled(enabled: bool) -> Result;
 }
 extern "C" {
     pub fn svcKernelSetState(type_: u32, ...) -> Result;
@@ -2191,11 +2237,11 @@ pub enum ERRF_ExceptionType {
 pub struct ERRF_ExceptionInfo {
     pub type_: ERRF_ExceptionType,
     pub reserved: [u8; 3usize],
-    pub reg1: u32,
-    pub reg2: u32,
+    pub fsr: u32,
+    pub far: u32,
     pub fpexc: u32,
     pub fpinst: u32,
-    pub fpint2: u32,
+    pub fpinst2: u32,
 }
 impl Clone for ERRF_ExceptionInfo {
     fn clone(&self) -> Self { *self }
@@ -2224,7 +2270,7 @@ pub struct ERRF_FatalErrInfo {
 #[repr(C)]
 pub union ERRF_FatalErrInfo__bindgen_ty_1 {
     pub exception_data: ERRF_ExceptionData,
-    pub failure_mesg: [libc::c_char; 60usize],
+    pub failure_mesg: [libc::c_char; 96usize],
 }
 extern "C" {
     pub fn errfInit() -> Result;
@@ -2245,6 +2291,10 @@ extern "C" {
     pub fn ERRF_ThrowResultWithMessage(failure: Result,
                                        message: *const libc::c_char)
      -> Result;
+}
+extern "C" {
+    pub fn ERRF_ExceptionHandler(excep: *mut ERRF_ExceptionInfo,
+                                 regs: *mut CpuRegisters);
 }
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -2414,6 +2464,10 @@ pub struct Thread_tag {
     _unused: [u8; 0],
 }
 pub type Thread = *mut Thread_tag;
+pub type ExceptionHandler =
+    ::core::option::Option<unsafe extern "C" fn(excep:
+                                                    *mut ERRF_ExceptionInfo,
+                                                regs: *mut CpuRegisters)>;
 extern "C" {
     pub fn threadCreate(entrypoint: ThreadFunc, arg: *mut libc::c_void,
                         stack_size: usize, prio: libc::c_int,
@@ -2430,6 +2484,9 @@ extern "C" {
 }
 extern "C" {
     pub fn threadJoin(thread: Thread, timeout_ns: u64) -> Result;
+}
+extern "C" {
+    pub fn threadDetach(thread: Thread);
 }
 extern "C" {
     pub fn threadGetCurrent() -> Thread;
@@ -2672,11 +2729,12 @@ pub struct PrintConsole {
 impl Clone for PrintConsole {
     fn clone(&self) -> Self { *self }
 }
+pub const debugDevice_3DMOO: debugDevice = debugDevice::debugDevice_SVC;
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum debugDevice {
     debugDevice_NULL = 0,
-    debugDevice_3DMOO = 1,
+    debugDevice_SVC = 1,
     debugDevice_CONSOLE = 2,
 }
 extern "C" {
@@ -2706,9 +2764,15 @@ extern "C" {
 pub const RUNFLAG_APTWORKAROUND: _bindgen_ty_5 =
     _bindgen_ty_5::RUNFLAG_APTWORKAROUND;
 pub const RUNFLAG_APTREINIT: _bindgen_ty_5 = _bindgen_ty_5::RUNFLAG_APTREINIT;
+pub const RUNFLAG_APTCHAINLOAD: _bindgen_ty_5 =
+    _bindgen_ty_5::RUNFLAG_APTCHAINLOAD;
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum _bindgen_ty_5 { RUNFLAG_APTWORKAROUND = 1, RUNFLAG_APTREINIT = 2, }
+pub enum _bindgen_ty_5 {
+    RUNFLAG_APTWORKAROUND = 1,
+    RUNFLAG_APTREINIT = 2,
+    RUNFLAG_APTCHAINLOAD = 4,
+}
 extern "C" {
     pub fn envGetHandle(name: *const libc::c_char) -> Handle;
 }
@@ -4236,6 +4300,9 @@ extern "C" {
 extern "C" {
     pub fn aptLaunchLibraryApplet(appId: NS_APPID, buf: *mut libc::c_void,
                                   bufsize: usize, handle: Handle) -> bool;
+}
+extern "C" {
+    pub fn aptSetChainloader(programID: u64, mediatype: u8);
 }
 extern "C" {
     pub fn APT_GetLockHandle(flags: u16, lockHandle: *mut Handle) -> Result;
@@ -5925,6 +5992,9 @@ extern "C" {
 extern "C" {
     pub fn GSPLCD_GetVendors(vendors: *mut u8) -> Result;
 }
+extern "C" {
+    pub fn GSPLCD_GetBrightness(screen: u32, brightness: *mut u32) -> Result;
+}
 pub const KEY_A: _bindgen_ty_18 = _bindgen_ty_18::KEY_A;
 pub const KEY_B: _bindgen_ty_18 = _bindgen_ty_18::KEY_B;
 pub const KEY_SELECT: _bindgen_ty_18 = _bindgen_ty_18::KEY_SELECT;
@@ -6351,6 +6421,11 @@ extern "C" {
     pub fn httpcAddPostDataAscii(context: *mut httpcContext,
                                  name: *const libc::c_char,
                                  value: *const libc::c_char) -> Result;
+}
+extern "C" {
+    pub fn httpcAddPostDataBinary(context: *mut httpcContext,
+                                  name: *const libc::c_char, value: *const u8,
+                                  len: u32) -> Result;
 }
 extern "C" {
     pub fn httpcAddPostDataRaw(context: *mut httpcContext, data: *const u32,
@@ -7060,6 +7135,9 @@ extern "C" {
 }
 extern "C" {
     pub fn PTMU_GetTotalStepCount(steps: *mut u32) -> Result;
+}
+extern "C" {
+    pub fn PTMU_GetAdapterState(out: *mut bool) -> Result;
 }
 extern "C" {
     pub fn ptmSysmInit() -> Result;
@@ -8262,6 +8340,62 @@ pub enum GX_FILL_CONTROL {
 extern "C" {
     pub static mut gxCmdBuf: *mut u32;
 }
+#[repr(C)]
+#[derive(Copy)]
+pub union gxCmdEntry_s {
+    pub data: [u32; 8usize],
+    pub __bindgen_anon_1: gxCmdEntry_s__bindgen_ty_1,
+}
+#[repr(C)]
+#[derive(Copy)]
+pub struct gxCmdEntry_s__bindgen_ty_1 {
+    pub type_: u8,
+    pub unk1: u8,
+    pub unk2: u8,
+    pub unk3: u8,
+    pub args: [u32; 7usize],
+}
+impl Clone for gxCmdEntry_s__bindgen_ty_1 {
+    fn clone(&self) -> Self { *self }
+}
+impl Clone for gxCmdEntry_s {
+    fn clone(&self) -> Self { *self }
+}
+#[repr(C)]
+#[derive(Copy)]
+pub struct tag_gxCmdQueue_s {
+    pub entries: *mut gxCmdEntry_s,
+    pub maxEntries: u16,
+    pub numEntries: u16,
+    pub curEntry: u16,
+    pub lastEntry: u16,
+    pub callback: ::core::option::Option<unsafe extern "C" fn(arg1:
+                                                                  *mut tag_gxCmdQueue_s)>,
+    pub user: *mut libc::c_void,
+}
+impl Clone for tag_gxCmdQueue_s {
+    fn clone(&self) -> Self { *self }
+}
+pub type gxCmdQueue_s = tag_gxCmdQueue_s;
+extern "C" {
+    pub fn gxCmdQueueClear(queue: *mut gxCmdQueue_s);
+}
+extern "C" {
+    pub fn gxCmdQueueAdd(queue: *mut gxCmdQueue_s,
+                         entry: *const gxCmdEntry_s);
+}
+extern "C" {
+    pub fn gxCmdQueueRun(queue: *mut gxCmdQueue_s);
+}
+extern "C" {
+    pub fn gxCmdQueueStop(queue: *mut gxCmdQueue_s);
+}
+extern "C" {
+    pub fn gxCmdQueueWait(queue: *mut gxCmdQueue_s, timeout: s64) -> bool;
+}
+extern "C" {
+    pub fn GX_BindQueue(queue: *mut gxCmdQueue_s);
+}
 extern "C" {
     pub fn GX_RequestDma(src: *mut u32, dst: *mut u32, length: u32) -> Result;
 }
@@ -8384,10 +8518,10 @@ pub enum GPU_PROCTEX_FILTER {
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum GPU_PROCTEX_LUTID {
     GPU_LUT_NOISE = 0,
-    GPU_LUT_RGBMAP = 1,
-    GPU_LUT_ALPHAMAP = 2,
-    GPU_LUT_COLOR = 3,
-    GPU_LUT_COLORDIF = 4,
+    GPU_LUT_RGBMAP = 2,
+    GPU_LUT_ALPHAMAP = 3,
+    GPU_LUT_COLOR = 4,
+    GPU_LUT_COLORDIF = 5,
 }
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -8647,6 +8781,15 @@ pub enum GPU_LIGHTLUTSELECT {
 }
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum GPU_FOGMODE { GPU_NO_FOG = 0, GPU_FOG = 5, GPU_GAS = 7, }
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum GPU_GASMODE { GPU_PLAIN_DENSITY = 0, GPU_DEPTH_DENSITY = 1, }
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum GPU_GASLUTINPUT { GPU_GAS_DENSITY = 0, GPU_GAS_LIGHT_FACTOR = 1, }
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum GPU_Primitive_t {
     GPU_TRIANGLES = 0,
     GPU_TRIANGLE_STRIP = 256,
@@ -8666,16 +8809,6 @@ extern "C" {
     pub static mut gpuCmdBufOffset: u32;
 }
 extern "C" {
-    pub fn GPUCMD_SetBuffer(adr: *mut u32, size: u32, offset: u32);
-}
-extern "C" {
-    pub fn GPUCMD_SetBufferOffset(offset: u32);
-}
-extern "C" {
-    pub fn GPUCMD_GetBuffer(adr: *mut *mut u32, size: *mut u32,
-                            offset: *mut u32);
-}
-extern "C" {
     pub fn GPUCMD_AddRawCommands(cmd: *const u32, size: u32);
 }
 extern "C" {
@@ -8686,6 +8819,9 @@ extern "C" {
 }
 extern "C" {
     pub fn GPUCMD_Add(header: u32, param: *const u32, paramlength: u32);
+}
+extern "C" {
+    pub fn GPUCMD_Split(addr: *mut *mut u32, size: *mut u32);
 }
 extern "C" {
     pub fn GPUCMD_Finalize();
@@ -9413,6 +9549,71 @@ extern "C" {
     pub fn swkbdInputText(swkbd: *mut SwkbdState, buf: *mut libc::c_char,
                           bufsize: usize) -> SwkbdButton;
 }
+pub const ERROR_LANGUAGE_FLAG: _bindgen_ty_28 =
+    _bindgen_ty_28::ERROR_LANGUAGE_FLAG;
+pub const ERROR_WORD_WRAP_FLAG: _bindgen_ty_28 =
+    _bindgen_ty_28::ERROR_WORD_WRAP_FLAG;
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum _bindgen_ty_28 {
+    ERROR_LANGUAGE_FLAG = 256,
+    ERROR_WORD_WRAP_FLAG = 512,
+}
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum errorType {
+    ERROR_CODE = 0,
+    ERROR_TEXT = 1,
+    ERROR_EULA = 2,
+    ERROR_TYPE_EULA_FIRST_BOOT = 3,
+    ERROR_TYPE_EULA_DRAW_ONLY = 4,
+    ERROR_TYPE_AGREE = 5,
+    ERROR_CODE_LANGUAGE = 256,
+    ERROR_TEXT_LANGUAGE = 257,
+    ERROR_EULA_LANGUAGE = 258,
+    ERROR_TEXT_WORD_WRAP = 513,
+    ERROR_TEXT_LANGUAGE_WORD_WRAP = 769,
+}
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum errorScreenFlag { ERROR_NORMAL = 0, ERROR_STEREO = 1, }
+#[repr(i32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum errorReturnCode {
+    ERROR_UNKNOWN = -1,
+    ERROR_NONE = 0,
+    ERROR_SUCCESS = 1,
+    ERROR_NOT_SUPPORTED = 2,
+    ERROR_HOME_BUTTON = 10,
+    ERROR_SOFTWARE_RESET = 11,
+    ERROR_POWER_BUTTON = 12,
+}
+#[repr(C)]
+pub struct errorConf {
+    pub type_: errorType,
+    pub errorCode: libc::c_int,
+    pub upperScreenFlag: errorScreenFlag,
+    pub useLanguage: u16,
+    pub Text: [u16; 1900usize],
+    pub homeButton: bool,
+    pub softwareReset: bool,
+    pub appJump: bool,
+    pub returnCode: errorReturnCode,
+    pub eulaVersion: u16,
+}
+extern "C" {
+    pub fn errorInit(err: *mut errorConf, type_: errorType,
+                     lang: CFG_Language);
+}
+extern "C" {
+    pub fn errorCode(err: *mut errorConf, error: libc::c_int);
+}
+extern "C" {
+    pub fn errorText(err: *mut errorConf, text: *const libc::c_char);
+}
+extern "C" {
+    pub fn errorDisp(err: *mut errorConf);
+}
 #[repr(C)]
 pub struct sdmc_dir_t {
     pub magic: u32,
@@ -9538,12 +9739,12 @@ impl Clone for tag_CWDH_s {
     fn clone(&self) -> Self { *self }
 }
 pub type CWDH_s = tag_CWDH_s;
-pub const CMAP_TYPE_DIRECT: _bindgen_ty_28 = _bindgen_ty_28::CMAP_TYPE_DIRECT;
-pub const CMAP_TYPE_TABLE: _bindgen_ty_28 = _bindgen_ty_28::CMAP_TYPE_TABLE;
-pub const CMAP_TYPE_SCAN: _bindgen_ty_28 = _bindgen_ty_28::CMAP_TYPE_SCAN;
+pub const CMAP_TYPE_DIRECT: _bindgen_ty_29 = _bindgen_ty_29::CMAP_TYPE_DIRECT;
+pub const CMAP_TYPE_TABLE: _bindgen_ty_29 = _bindgen_ty_29::CMAP_TYPE_TABLE;
+pub const CMAP_TYPE_SCAN: _bindgen_ty_29 = _bindgen_ty_29::CMAP_TYPE_SCAN;
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum _bindgen_ty_28 {
+pub enum _bindgen_ty_29 {
     CMAP_TYPE_DIRECT = 0,
     CMAP_TYPE_TABLE = 1,
     CMAP_TYPE_SCAN = 2,
@@ -9660,15 +9861,15 @@ impl Clone for fontGlyphPos_s__bindgen_ty_2 {
 impl Clone for fontGlyphPos_s {
     fn clone(&self) -> Self { *self }
 }
-pub const GLYPH_POS_CALC_VTXCOORD: _bindgen_ty_29 =
-    _bindgen_ty_29::GLYPH_POS_CALC_VTXCOORD;
-pub const GLYPH_POS_AT_BASELINE: _bindgen_ty_29 =
-    _bindgen_ty_29::GLYPH_POS_AT_BASELINE;
-pub const GLYPH_POS_Y_POINTS_UP: _bindgen_ty_29 =
-    _bindgen_ty_29::GLYPH_POS_Y_POINTS_UP;
+pub const GLYPH_POS_CALC_VTXCOORD: _bindgen_ty_30 =
+    _bindgen_ty_30::GLYPH_POS_CALC_VTXCOORD;
+pub const GLYPH_POS_AT_BASELINE: _bindgen_ty_30 =
+    _bindgen_ty_30::GLYPH_POS_AT_BASELINE;
+pub const GLYPH_POS_Y_POINTS_UP: _bindgen_ty_30 =
+    _bindgen_ty_30::GLYPH_POS_Y_POINTS_UP;
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum _bindgen_ty_29 {
+pub enum _bindgen_ty_30 {
     GLYPH_POS_CALC_VTXCOORD = 1,
     GLYPH_POS_AT_BASELINE = 2,
     GLYPH_POS_Y_POINTS_UP = 4,
