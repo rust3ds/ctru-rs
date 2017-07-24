@@ -32,8 +32,6 @@ pub mod time;
 
 #[cfg(not(test))]
 pub fn init() {
-    use alloc::oom;
-
     // By default, some platforms will send a *signal* when an EPIPE error
     // would otherwise be delivered. This runtime doesn't install a SIGPIPE
     // handler, causing it to kill the program, which isn't exactly what we
@@ -43,24 +41,6 @@ pub fn init() {
     // to prevent this problem.
     unsafe {
         reset_sigpipe();
-    }
-
-    oom::set_oom_handler(oom_handler);
-
-    // A nicer handler for out-of-memory situations than the default one. This
-    // one prints a message to stderr before aborting. It is critical that this
-    // code does not allocate any memory since we are in an OOM situation. Any
-    // errors are ignored while printing since there's nothing we can do about
-    // them and we are about to exit anyways.
-    fn oom_handler() -> ! {
-        use intrinsics;
-        let msg = "fatal runtime error: out of memory\n";
-        unsafe {
-            libc::write(libc::STDERR_FILENO,
-                        msg.as_ptr() as *const libc::c_void,
-                        msg.len());
-            intrinsics::abort();
-        }
     }
 
 	// I don't think we have signal handling on the 3DS, so let's leave this

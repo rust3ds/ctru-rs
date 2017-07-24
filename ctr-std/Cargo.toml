@@ -6,12 +6,12 @@ license = "MIT/Apache 2.0"
 [dependencies.compiler_builtins]
 git = "https://github.com/rust-lang-nursery/compiler-builtins"
 
+[dependencies.alloc_system]
+git = "https://github.com/rust3ds/alloc_system3ds"
+
 [dependencies.libc]
 version = "0.2"
 default-features = false
 
 [dependencies.ctru-sys]
 path = "../ctru-sys"
-
-[dependencies.alloc_system]
-version = "0.1"
