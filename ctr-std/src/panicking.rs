@@ -57,6 +57,10 @@ pub fn begin_panic_fmt(msg: &fmt::Arguments, file_line: &(&'static str, u32)) ->
 
 /// We don't have stack unwinding, so all we do is print the panic message
 /// and then crash or hang the application
+#[unstable(feature = "libstd_sys_internals",
+           reason = "used by the panic! macro",
+           issue = "0")]
+#[inline(never)] #[cold]
 #[inline(never)]
 #[cold]
 pub fn begin_panic<M: Any + Send + Display>(msg: M, file_line: &(&'static str, u32)) -> ! {
