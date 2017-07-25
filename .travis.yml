@@ -1,0 +1,14 @@
+language: rust
+
+rust:
+   - nightly-2017-07-18
+   - nightly
+
+matrix:
+   allow_failures:
+      - rust: nightly
+
+script:
+   - cd ctr-std
+   - cargo build
+   - cargo test
