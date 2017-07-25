@@ -15,11 +15,10 @@ use io::prelude::*;
 
 use any::Any;
 use cell::RefCell;
-use fmt;
+use fmt::{self, Display};
 use mem;
 use ptr;
 use raw;
-use __core::fmt::Display;
 
 thread_local! {
     pub static LOCAL_STDERR: RefCell<Option<Box<Write + Send>>> = {
@@ -68,29 +67,28 @@ pub fn begin_panic<M: Any + Send + Display>(msg: M, file_line_col: &(&'static st
     let msg = Box::new(msg);
     let (file, line, col) = *file_line_col;
 
-    use libctru::consoleInit;
-    use libctru::gfxScreen_t;
+    // 3DS-specific code begins here
+    use libctru::{errorInit, errorText, errorDisp, svcExitProcess,
+                  errorConf, errorType, CFG_Language};
+    use libc;
 
-    // set up a new console, overwriting whatever was on the top screen
-    // before we started panicking
-    let _console = unsafe { consoleInit(gfxScreen_t::GFX_TOP, ptr::null_mut()) };
+    unsafe {
+        // Setup error payload
+        let error_text = format!("thread '{}' panicked at '{}', {}:{}:{}",
+                            "<unnamed>", msg, file, line, col);
+        let mut error_conf: errorConf = mem::uninitialized();
+        errorInit(&mut error_conf,
+                  errorType::ERROR_TEXT_WORD_WRAP,
+                  CFG_Language::CFG_LANGUAGE_EN);
+        errorText(&mut error_conf, error_text.as_ptr() as *const libc::c_char);
 
-    println!("PANIC in {} at line {}:", file, line);
-    println!("    {}", msg);
+        // Display error via Error applet
+        errorDisp(&mut error_conf);
 
-    // Terminate the process to ensure that all threads cease when panicking.
-    unsafe { ::libctru::svcExitProcess() }
-
-    // On 3DS hardware, code execution will have terminated at the above function.
-    //
-    // Citra, however, will simply ignore the function and control flow becomes trapped
-    // in the following loop instead. However, this means that other threads may continue
-    // to run after a panic!
-    //
-    // This is actually a better outcome than calling libc::abort(), which seemingly
-    // causes the emulator to step into unreachable code, prompting it to freak out
-    // and spew endless nonsense into the console log.
-    loop {}
+        // Now that we're all done printing, it's time to exit the program.
+        // We don't have stack unwinding yet, so we just forcibly end the process
+        svcExitProcess()
+    }
 }
 
 /// Invoke a closure, capturing the cause of an unwinding panic if one occurs.
