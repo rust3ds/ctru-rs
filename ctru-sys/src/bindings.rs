@@ -1844,7 +1844,7 @@ extern "C" {
     pub fn svcOpenProcess(process: *mut Handle, processId: u32) -> Result;
 }
 extern "C" {
-    pub fn svcExitProcess();
+    pub fn svcExitProcess() -> !;
 }
 extern "C" {
     pub fn svcTerminateProcess(process: Handle) -> Result;

@@ -15,11 +15,10 @@ use io::prelude::*;
 
 use any::Any;
 use cell::RefCell;
-use fmt;
+use fmt::{self, Display};
 use mem;
 use ptr;
 use raw;
-use __core::fmt::Display;
 
 thread_local! {
     pub static LOCAL_STDERR: RefCell<Option<Box<Write + Send>>> = {
@@ -33,8 +32,11 @@ pub extern fn eh_personality() {}
 
 /// Entry point of panic from the libcore crate.
 #[lang = "panic_fmt"]
-pub extern fn rust_begin_panic(msg: fmt::Arguments, file: &'static str, line: u32) -> ! {
-    begin_panic_fmt(&msg, &(file, line))
+pub extern fn rust_begin_panic(msg: fmt::Arguments,
+                               file: &'static str,
+                               line: u32,
+                               col: u32) -> ! {
+    begin_panic_fmt(&msg, &(file, line, col))
 }
 
 /// The entry point for panicking with a formatted message.
@@ -47,45 +49,75 @@ pub extern fn rust_begin_panic(msg: fmt::Arguments, file: &'static str, line: u3
            reason = "used by the panic! macro",
            issue = "0")]
 #[inline(never)] #[cold]
-pub fn begin_panic_fmt(msg: &fmt::Arguments, file_line: &(&'static str, u32)) -> ! {
+pub fn begin_panic_fmt(msg: &fmt::Arguments, file_line_col: &(&'static str, u32, u32)) -> ! {
     use fmt::Write;
 
     let mut s = String::new();
     let _ = s.write_fmt(*msg);
-    begin_panic(s, file_line);
+    begin_panic(s, file_line_col);
 }
 
-/// We don't have stack unwinding, so all we do is print the panic message
-/// and then crash or hang the application
-#[inline(never)]
-#[cold]
-pub fn begin_panic<M: Any + Send + Display>(msg: M, file_line: &(&'static str, u32)) -> ! {
+// Citra doesn't support the Error applet yet
+#[cfg(feature = "citra")]
+#[unstable(feature = "libstd_sys_internals",
+           reason = "used by the panic! macro",
+           issue = "0")]
+#[inline(never)] #[cold]
+pub fn begin_panic<M: Any + Send + Display>(msg: M, file_line_col: &(&'static str, u32, u32)) -> ! {
     let msg = Box::new(msg);
-    let (file, line) = *file_line;
+    let (file, line, col) = *file_line_col;
 
-    use libctru::consoleInit;
-    use libctru::gfxScreen_t;
+    // 3DS-specific code begins here
+    use libctru::{consoleInit, gfxScreen_t};
 
-    // set up a new console, overwriting whatever was on the top screen
-    // before we started panicking
-    let _console = unsafe { consoleInit(gfxScreen_t::GFX_TOP, ptr::null_mut()) };
+    unsafe {
+        // set up a new console, overwriting whatever was on the top screen
+        // before we started panicking
+        let _console = consoleInit(gfxScreen_t::GFX_TOP, ptr::null_mut());
 
-    println!("PANIC in {} at line {}:", file, line);
-    println!("    {}", msg);
+        println!("thread '{}' panicked at '{}', {}:{}:{}",
+                 "<unnamed>", msg, file, line, col);
 
-    // Terminate the process to ensure that all threads cease when panicking.
-    unsafe { ::libctru::svcExitProcess() }
+        // Citra seems to ignore calls to svcExitProcess, and libc::abort()
+        // causes it to lock up and fill the console with endless debug statements.
+        // So instead of terminating the program, we just let it spin in the following
+        // loop. This means that any background threads might continue to run after
+        // this thread panics, but there's not a lot we can do about that currently.
+        loop { }
+    }
+}
 
-    // On 3DS hardware, code execution will have terminated at the above function.
-    //
-    // Citra, however, will simply ignore the function and control flow becomes trapped
-    // in the following loop instead. However, this means that other threads may continue
-    // to run after a panic!
-    //
-    // This is actually a better outcome than calling libc::abort(), which seemingly
-    // causes the emulator to step into unreachable code, prompting it to freak out
-    // and spew endless nonsense into the console log.
-    loop {}
+#[cfg(not(feature = "citra"))]
+#[unstable(feature = "libstd_sys_internals",
+           reason = "used by the panic! macro",
+           issue = "0")]
+#[inline(never)] #[cold]
+pub fn begin_panic<M: Any + Send + Display>(msg: M, file_line_col: &(&'static str, u32, u32)) -> ! {
+    let msg = Box::new(msg);
+    let (file, line, col) = *file_line_col;
+
+    // 3DS-specific code begins here
+    use libctru::{errorInit, errorText, errorDisp, svcExitProcess,
+                  errorConf, errorType, CFG_Language};
+    use libc;
+
+    unsafe {
+        // Setup error payload
+        let error_text = format!("thread '{}' panicked at '{}', {}:{}:{}",
+                                 "<unnamed>", msg, file, line, col);
+        let mut error_conf: errorConf = mem::uninitialized();
+        errorInit(&mut error_conf,
+                  errorType::ERROR_TEXT_WORD_WRAP,
+                  CFG_Language::CFG_LANGUAGE_EN);
+        errorText(&mut error_conf, error_text.as_ptr() as *const libc::c_char);
+
+        // Display error
+        errorDisp(&mut error_conf);
+
+        // Now that we're all done printing, it's time to exit the program.
+        // We don't have stack unwinding yet, so we just forcibly end the process
+        svcExitProcess()
+    }
 }
 
 /// Invoke a closure, capturing the cause of an unwinding panic if one occurs.
