@@ -33,8 +33,11 @@ pub extern fn eh_personality() {}
 
 /// Entry point of panic from the libcore crate.
 #[lang = "panic_fmt"]
-pub extern fn rust_begin_panic(msg: fmt::Arguments, file: &'static str, line: u32) -> ! {
-    begin_panic_fmt(&msg, &(file, line))
+pub extern fn rust_begin_panic(msg: fmt::Arguments,
+                               file: &'static str,
+                               line: u32,
+                               col: u32) -> ! {
+    begin_panic_fmt(&msg, &(file, line, col))
 }
 
 /// The entry point for panicking with a formatted message.
@@ -47,12 +50,12 @@ pub extern fn rust_begin_panic(msg: fmt::Arguments, file: &'static str, line: u3
            reason = "used by the panic! macro",
            issue = "0")]
 #[inline(never)] #[cold]
-pub fn begin_panic_fmt(msg: &fmt::Arguments, file_line: &(&'static str, u32)) -> ! {
+pub fn begin_panic_fmt(msg: &fmt::Arguments, file_line_col: &(&'static str, u32, u32)) -> ! {
     use fmt::Write;
 
     let mut s = String::new();
     let _ = s.write_fmt(*msg);
-    begin_panic(s, file_line);
+    begin_panic(s, file_line_col);
 }
 
 /// We don't have stack unwinding, so all we do is print the panic message
@@ -61,11 +64,9 @@ pub fn begin_panic_fmt(msg: &fmt::Arguments, file_line: &(&'static str, u32)) ->
            reason = "used by the panic! macro",
            issue = "0")]
 #[inline(never)] #[cold]
-#[inline(never)]
-#[cold]
-pub fn begin_panic<M: Any + Send + Display>(msg: M, file_line: &(&'static str, u32)) -> ! {
+pub fn begin_panic<M: Any + Send + Display>(msg: M, file_line_col: &(&'static str, u32, u32)) -> ! {
     let msg = Box::new(msg);
-    let (file, line) = *file_line;
+    let (file, line, col) = *file_line_col;
 
     use libctru::consoleInit;
     use libctru::gfxScreen_t;
