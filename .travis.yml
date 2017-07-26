@@ -9,7 +9,7 @@ matrix:
       - rust: nightly
 
 install:
-   - set -euo pipefail
+   - set -eo pipefail
    - pushd /tmp
 
    # Install DevkitARM
