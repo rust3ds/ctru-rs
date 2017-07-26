@@ -18,9 +18,9 @@ use ptr;
 use sys_common::thread::start_thread;
 use time::Duration;
 
-use libctru::{svcSleepThread, svcGetThreadPriority};
-use libctru::{threadCreate, threadJoin, threadFree};
-use libctru::Thread as ThreadHandle;
+use libctru::{svcSleepThread, svcGetThreadPriority,
+              threadCreate, threadJoin, threadFree, threadDetach,
+              Thread as ThreadHandle};
 
 pub struct Thread {
     handle: ThreadHandle,
@@ -36,12 +36,8 @@ impl Thread {
         let p = box p;
         let stack_size = cmp::max(stack, 0x10000);
 
-        // this retrieves the main thread's priority value. child threads need
-        // to be spawned with a greater priority (smaller priority value) than
-        // the main thread
         let mut priority = 0;
         svcGetThreadPriority(&mut priority, 0xFFFF8000);
-        priority -= 1;
 
         let handle = threadCreate(Some(thread_func), &*p as *const _ as *mut _,
                                   stack_size, priority, -2, false);
@@ -59,11 +55,11 @@ impl Thread {
     }
 
     pub fn yield_now() {
-        unimplemented!()
+        unsafe { svcSleepThread(0) }
     }
 
     pub fn set_name(_name: &CStr) {
-        // can't set thread names on the 3DS
+        // threads aren't named in libctru
     }
 
     pub fn sleep(dur: Duration) {
@@ -82,12 +78,20 @@ impl Thread {
         }
     }
 
-    pub fn id(&self) -> usize {
-        unimplemented!()
+    pub fn id(&self) -> ThreadHandle {
+        self.handle
     }
 
-    pub fn into_id(self) -> usize {
-        unimplemented!()
+    pub fn into_id(self) -> ThreadHandle {
+        let handle = self.handle;
+        mem::forget(self);
+        handle
+    }
+}
+
+impl Drop for Thread {
+    fn drop(&mut self) {
+        unsafe { threadDetach(self.handle) }
     }
 }
 

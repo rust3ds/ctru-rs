@@ -12,7 +12,6 @@
 
 use cell::RefCell;
 use thread::Thread;
-use thread::LocalKeyState;
 
 struct ThreadInfo {
     stack_guard: Option<usize>,
@@ -23,19 +22,15 @@ thread_local! { static THREAD_INFO: RefCell<Option<ThreadInfo>> = RefCell::new(N
 
 impl ThreadInfo {
     fn with<R, F>(f: F) -> Option<R> where F: FnOnce(&mut ThreadInfo) -> R {
-        if THREAD_INFO.state() == LocalKeyState::Destroyed {
-            return None
-        }
-
-        THREAD_INFO.with(move |c| {
+        THREAD_INFO.try_with(move |c| {
             if c.borrow().is_none() {
                 *c.borrow_mut() = Some(ThreadInfo {
                     stack_guard: None,
-                    thread: NewThread::new(None),
+                    thread: Thread::new(None),
                 })
             }
-            Some(f(c.borrow_mut().as_mut().unwrap()))
-        })
+            f(c.borrow_mut().as_mut().unwrap())
+        }).ok()
     }
 }
 
@@ -53,9 +48,4 @@ pub fn set(stack_guard: Option<usize>, thread: Thread) {
         stack_guard: stack_guard,
         thread: thread,
     }));
-}
-
-// a hack to get around privacy restrictions; implemented by `std::thread`
-pub trait NewThread {
-    fn new(name: Option<String>) -> Self;
 }
