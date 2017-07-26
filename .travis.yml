@@ -8,6 +8,30 @@ matrix:
    allow_failures:
       - rust: nightly
 
+install:
+   - set -euo pipefail
+   - pushd /tmp
+
+   # Install DevkitARM
+   - export DEVKITPRO="$HOME/dkp"
+   - export DEVKITARM="$DEVKITPRO/devkitARM"
+   - export PATH="$PATH:$DEVKITARM/bin"
+   - wget https://raw.githubusercontent.com/devkitPro/installer/master/perl/devkitARMupdate.pl
+   - chmod +x devkitARMupdate.pl
+   - ./devkitARMupdate.pl "$DEVKITPRO"
+
+   # Install Xargo
+   - cargo install xargo --git https://github.com/FenrirWolf/xargo --rev metadata
+
+   # Install Rust source
+   - rustup component add rust-src
+
+   - popd
+
 script:
-   - cd ctr-std
-   - cargo build
+   - (cd ctr-std && cargo build)
+   - | # Build all examples
+      for example in examples/*; do
+         [ -e "$example" ] || continue
+         cd "$example" && xargo build
+      done
