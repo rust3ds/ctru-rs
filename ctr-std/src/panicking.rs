@@ -19,6 +19,7 @@ use fmt::{self, Display};
 use mem;
 use ptr;
 use raw;
+use sys_common::thread_info;
 
 thread_local! {
     pub static LOCAL_STDERR: RefCell<Option<Box<Write + Send>>> = {
@@ -74,15 +75,22 @@ pub fn begin_panic<M: Any + Send + Display>(msg: M, file_line_col: &(&'static st
     let (file, line, col) = *file_line_col;
 
     // 3DS-specific code begins here
-    use libctru::{consoleInit, gfxScreen_t};
+    use libctru::{consoleInit, consoleClear, gfxScreen_t, threadGetCurrent};
 
     unsafe {
-        // set up a new console, overwriting whatever was on the top screen
+        // Set up a new console, overwriting whatever was on the top screen
         // before we started panicking
         let _console = consoleInit(gfxScreen_t::GFX_TOP, ptr::null_mut());
+        consoleClear();
+
+        // Determine thread name
+        let thread = thread_info::current_thread();
+        let name = thread.as_ref()
+            .and_then(|t| t.name())
+            .unwrap_or(if threadGetCurrent() == ptr::null_mut() {"main"} else {"<unnamed>"});
 
         println!("thread '{}' panicked at '{}', {}:{}:{}",
-                 "<unnamed>", msg, file, line, col);
+                 name, msg, file, line, col);
 
         // Citra seems to ignore calls to svcExitProcess, and libc::abort()
         // causes it to lock up and fill the console with endless debug statements.
@@ -103,14 +111,20 @@ pub fn begin_panic<M: Any + Send + Display>(msg: M, file_line_col: &(&'static st
     let (file, line, col) = *file_line_col;
 
     // 3DS-specific code begins here
-    use libctru::{errorInit, errorText, errorDisp, svcExitProcess,
+    use libctru::{errorInit, errorText, errorDisp, svcExitProcess, threadGetCurrent,
                   errorConf, errorType, CFG_Language};
     use libc;
 
     unsafe {
+        // Determine thread name
+        let thread = thread_info::current_thread();
+        let name = thread.as_ref()
+            .and_then(|t| t.name())
+            .unwrap_or(if threadGetCurrent() == ptr::null_mut() {"main"} else {"<unnamed>"});
+
         // Setup error payload
         let error_text = format!("thread '{}' panicked at '{}', {}:{}:{}",
-                                 "<unnamed>", msg, file, line, col);
+                                 name, msg, file, line, col);
         let mut error_conf: errorConf = mem::uninitialized();
         errorInit(&mut error_conf,
                   errorType::ERROR_TEXT_WORD_WRAP,
