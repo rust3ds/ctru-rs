@@ -30,8 +30,4 @@ install:
 
 script:
    - (cd ctr-std && cargo build)
-   - | # Build all examples
-      for example in examples/*; do
-         [ -e "$example" ] || continue
-         cd "$example" && xargo build
-      done
+   - (cd examples && xargo build)
