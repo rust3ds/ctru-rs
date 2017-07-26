@@ -11,4 +11,3 @@ matrix:
 script:
    - cd ctr-std
    - cargo build
-   - cargo test
