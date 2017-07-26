@@ -1,0 +1,15 @@
+[build]
+target = "3ds"
+
+[target.3ds]
+linker = "arm-none-eabi-gcc"
+rustflags = [
+    "-Clink-arg=-specs=3dsx.specs",
+    "-Clink-arg=-mfloat-abi=hard",
+    "-Clink-arg=-march=armv6k",
+    "-Clink-arg=-mtune=mpcore",
+    "-Clink-arg=-mfpu=vfp",
+    "-Clink-arg=-mtp=soft",
+    "-Clink-arg=-lsysbase",
+    "-Clink-arg=-lc"
+]

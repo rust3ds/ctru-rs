@@ -1,0 +1,9 @@
+[package]
+name = "examples"
+version = "0.1.0"
+
+[dependencies]
+ctru-rs = { path = "../ctru-rs" }
+
+[profile.release]
+lto = true

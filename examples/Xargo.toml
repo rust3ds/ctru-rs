@@ -1,0 +1,6 @@
+[dependencies.collections]
+[dependencies.rand]
+
+[dependencies.std]
+path = "../ctr-std"
+stage = 1
