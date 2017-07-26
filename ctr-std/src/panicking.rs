@@ -30,6 +30,12 @@ thread_local! {
 #[lang = "eh_personality"]
 pub extern fn eh_personality() {}
 
+/// Determines whether the current thread is unwinding because of panic.
+// Which it won't be, since we still don't have stack unwinding.
+pub fn panicking() -> bool {
+    false
+}
+
 /// Entry point of panic from the libcore crate.
 #[lang = "panic_fmt"]
 pub extern fn rust_begin_panic(msg: fmt::Arguments,
