@@ -18,26 +18,29 @@ use std::sync::Arc;
 use widestring::{WideCString, WideCStr};
 
 bitflags! {
-    flags FsOpen: u32 {
-        const FS_OPEN_READ = 1,
-        const FS_OPEN_WRITE = 2,
-        const FS_OPEN_CREATE = 4,
+    #[derive(Default)]
+    struct FsOpen: u32 {
+        const FS_OPEN_READ   = 1;
+        const FS_OPEN_WRITE  = 2;
+        const FS_OPEN_CREATE = 4;
     }
 }
 
 bitflags! {
-    flags FsWrite: u32 {
-        const FS_WRITE_FLUSH = 1,
-        const FS_WRITE_UPDATE_TIME = 256,
+    #[derive(Default)]
+    struct FsWrite: u32 {
+        const FS_WRITE_FLUSH       =   1;
+        const FS_WRITE_UPDATE_TIME = 256;
     }
 }
 
 bitflags! {
-    flags FsAttribute: u32 {
-        const FS_ATTRIBUTE_DIRECTORY = 1,
-        const FS_ATTRIBUTE_HIDDEN = 256,
-        const FS_ATTRIBUTE_ARCHIVE = 65536,
-        const FS_ATTRIBUTE_READ_ONLY = 16777216,
+    #[derive(Default)]
+    struct FsAttribute: u32 {
+        const FS_ATTRIBUTE_DIRECTORY =        1;
+        const FS_ATTRIBUTE_HIDDEN    =      256;
+        const FS_ATTRIBUTE_ARCHIVE   =    65536;
+        const FS_ATTRIBUTE_READ_ONLY = 16777216;
     }
 }
 
@@ -467,7 +470,7 @@ impl File {
 impl Metadata {
     /// Returns whether this metadata is for a directory.
     pub fn is_dir(&self) -> bool {
-        self.attributes == self.attributes | FS_ATTRIBUTE_DIRECTORY.bits
+        self.attributes == self.attributes | FS_ATTRIBUTE_DIRECTORY.bits()
     }
 
     /// Returns whether this metadata is for a regular file.
@@ -586,7 +589,7 @@ impl OpenOptions {
             let path = to_utf16(path);
             let fs_path = ::libctru::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
             let r = ::libctru::FSUSER_OpenFile(&mut file_handle, self.arch_handle,
-                                               fs_path, flags.bits, 0);
+                                               fs_path, flags.bits(), 0);
             if r < 0 {
                 return Err(IoError::new(IoErrorKind::Other, ::Error::from(r)));
             }
@@ -685,7 +688,7 @@ pub fn create_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
         let path = to_utf16(path.as_ref());
         let fs_path = ::libctru::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
         let r = ::libctru::FSUSER_CreateDirectory(arch.handle, fs_path,
-                                                  FS_ATTRIBUTE_DIRECTORY.bits);
+                                                  FS_ATTRIBUTE_DIRECTORY.bits());
         if r < 0 {
             Err(IoError::new(IoErrorKind::Other, ::Error::from(r)))
         } else {
@@ -722,7 +725,7 @@ pub fn metadata<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<Metadata> {
     let maybe_dir = read_dir(&arch, path.as_ref());
     match (maybe_file, maybe_dir) {
         (Ok(file), _) => file.metadata(),
-        (_, Ok(_dir)) => Ok(Metadata { attributes: FS_ATTRIBUTE_DIRECTORY.bits, size: 0 }),
+        (_, Ok(_dir)) => Ok(Metadata { attributes: FS_ATTRIBUTE_DIRECTORY.bits(), size: 0 }),
         (Err(e), _)   => Err(e),
     }
 }
