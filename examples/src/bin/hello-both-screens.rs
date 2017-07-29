@@ -3,7 +3,7 @@ extern crate ctru;
 use ctru::gfx::{Gfx, Screen};
 use ctru::console::Console;
 use ctru::services::apt::Apt;
-use ctru::services::hid::{Hid, PadKey};
+use ctru::services::hid::{self, Hid};
 
 fn main() {
     // Initialize services
@@ -35,7 +35,7 @@ fn main() {
         gfx.swap_buffers();
 
         hid.scan_input();
-        if hid.key_down(PadKey::Start) {
+        if hid.keys_down().contains(hid::KEY_START) {
             break;
         }
     }
