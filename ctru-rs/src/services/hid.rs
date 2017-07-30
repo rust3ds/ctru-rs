@@ -81,18 +81,18 @@ impl Hid {
 
     /// Returns a bitflag struct representing which buttons have just been pressed
     /// on the current frame (and were not pressed on the previous frame).
-    pub fn keys_held(&self) -> KeyPad {
+    pub fn keys_down(&self) -> KeyPad {
         unsafe {
-            let keys = ::libctru::hidKeysHeld();
+            let keys = ::libctru::hidKeysDown();
             KeyPad::from_bits_truncate(keys)
         }
     }
 
     /// Returns a bitflag struct representing which buttons have been held down
     /// during the current frame.
-    pub fn keys_down(&self) -> KeyPad {
+    pub fn keys_held(&self) -> KeyPad {
         unsafe {
-            let keys = ::libctru::hidKeysDown();
+            let keys = ::libctru::hidKeysHeld();
             KeyPad::from_bits_truncate(keys)
         }
     }
