@@ -111,7 +111,8 @@ pub fn begin_panic<M: Any + Send + Display>(msg: M, file_line_col: &(&'static st
     let (file, line, col) = *file_line_col;
 
     // 3DS-specific code begins here
-    use libctru::{errorInit, errorText, errorDisp, svcExitProcess, threadGetCurrent,
+    use libctru::{errorInit, errorText, errorDisp,
+                  APT_HardwareResetAsync, svcExitProcess, threadGetCurrent,
                   errorConf, errorType, CFG_Language};
     use libc;
 
@@ -135,7 +136,10 @@ pub fn begin_panic<M: Any + Send + Display>(msg: M, file_line_col: &(&'static st
         errorDisp(&mut error_conf);
 
         // Now that we're all done printing, it's time to exit the program.
-        // We don't have stack unwinding yet, so we just forcibly end the process
+        // We don't have stack unwinding yet, so let's just trigger a reboot
+        APT_HardwareResetAsync();
+
+        // If rebooting fails for some reason, we extra-forcibly end the program
         svcExitProcess()
     }
 }
