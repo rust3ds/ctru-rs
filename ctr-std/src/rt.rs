@@ -22,6 +22,7 @@
             issue = "0")]
 #![doc(hidden)]
 
+use panic;
 use mem;
 
 // Reexport some of our utilities which are expected by other crates.
@@ -31,6 +32,8 @@ pub use panicking::{begin_panic, begin_panic_fmt};
 #[lang = "start"]
 #[allow(unused_variables)]
 fn lang_start(main: *const u8, argc: isize, argv: *const *const u8) -> isize {
-    unsafe { mem::transmute::<_, fn()>(main)(); }
+    let _ = unsafe {
+        panic::catch_unwind(mem::transmute::<_, fn()>(main))
+    };
     0
 }

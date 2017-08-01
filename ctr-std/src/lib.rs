@@ -26,6 +26,7 @@
 #![feature(lang_items)]
 #![feature(macro_reexport)]
 #![feature(needs_drop)]
+#![feature(needs_panic_runtime)]
 #![feature(oom)]
 #![feature(on_unimplemented)]
 #![feature(optin_builtin_traits)]
@@ -45,9 +46,12 @@
 #![feature(unicode)]
 #![feature(unique)]
 #![feature(untagged_unions)]
+#![feature(unwind_attributes)]
 #![feature(zero_one)]
 #![allow(non_camel_case_types, dead_code, unused_features)]
 #![no_std]
+
+#![needs_panic_runtime]
 
 #![cfg_attr(not(stage0), default_lib_allocator)]
 #![stable(feature = "rust1", since = "1.0.0")]
@@ -196,21 +200,4 @@ pub mod rt;
 #[unstable(feature = "rand", issue = "0")]
 pub mod __rand {
     pub use rand::{thread_rng, ThreadRng, Rng};
-}
-
-// NOTE: These two are "undefined" symbols that LLVM emits but that
-// we never actually use
-#[doc(hidden)]
-
-#[stable(feature = "3ds", since = "1.0.0")]
-#[no_mangle]
-pub unsafe extern "C" fn __aeabi_unwind_cpp_pr0() {
-    intrinsics::unreachable()
-}
-
-#[stable(feature = "3ds", since = "1.0.0")]
-#[doc(hidden)]
-#[no_mangle]
-pub unsafe extern "C" fn __aeabi_unwind_cpp_pr1() {
-    intrinsics::unreachable()
 }
