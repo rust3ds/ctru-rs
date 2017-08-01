@@ -354,25 +354,17 @@ fn default_hook(info: &PanicInfo) {
     };
 
     // 3DS-specific code begins here
-    use libctru::{consoleInit, consoleDebugInit, debugDevice,
-                  consoleClear, gfxScreen_t, threadGetCurrent};
+    use libctru::{consoleDebugInit, debugDevice};
     use sys::stdio::Stderr;
 
     let mut err = Stderr::new().ok();
     let thread = thread_info::current_thread();
-    let name;
+    let name = thread.as_ref()
+            .and_then(|t| t.name())
+            .unwrap_or("<unnamed>");
 
     unsafe {
-        // Set up a new console, overwriting whatever was on the bottom screen
-        // before we started panicking
-        let _console = consoleInit(gfxScreen_t::GFX_BOTTOM, ptr::null_mut());
-        consoleClear();
         consoleDebugInit(debugDevice::debugDevice_CONSOLE);
-
-        // Determine thread name
-        name = thread.as_ref()
-            .and_then(|t| t.name())
-            .unwrap_or(if threadGetCurrent() == ptr::null_mut() {"main"} else {"<unnamed>"});
     }
 
     let write = |err: &mut ::io::Write| {
@@ -405,10 +397,6 @@ fn default_hook(info: &PanicInfo) {
         (None, Some(ref mut err)) => { write(err) }
         _ => {}
     }
-    // Citra will crash and die horribly if we allow it to go further than this,
-    // So we just trap control flow in this loop instead. You'll still see the panic
-    // message, and Citra won't die quite as horribly. It's a win-win! Well, mostly.
-    loop { }
 }
 
 #[cfg(not(feature = "citra"))]
@@ -441,17 +429,18 @@ fn default_hook(info: &PanicInfo) {
         }
     };
 
+
     // 3DS-specific code begins here
-    use libctru::{errorInit, errorText, errorDisp, threadGetCurrent,
+    use libctru::{errorInit, errorText, errorDisp,
                   errorConf, errorType, CFG_Language};
     use libc;
 
-    unsafe {
-        let thread = thread_info::current_thread();
-        let name = thread.as_ref()
-            .and_then(|t| t.name())
-            .unwrap_or(if threadGetCurrent() == ptr::null_mut() {"main"} else {"<unnamed>"});
+    let thread = thread_info::current_thread();
+    let name = thread.as_ref()
+        .and_then(|t| t.name())
+        .unwrap_or("<unnamed>");
 
+    unsafe {
         // Setup error payload
         let error_text = format!("thread '{}' panicked at '{}', {}:{}:{}",
                                  name, msg, file, line, col);
