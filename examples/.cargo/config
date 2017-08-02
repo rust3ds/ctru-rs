@@ -10,6 +10,9 @@ rustflags = [
     "-Clink-arg=-mtune=mpcore",
     "-Clink-arg=-mfpu=vfp",
     "-Clink-arg=-mtp=soft",
+    "-Clink-arg=-z",
+    "-Clink-arg=muldefs",
+    "-Clink-arg=-lgcc",
     "-Clink-arg=-lsysbase",
     "-Clink-arg=-lc"
 ]

@@ -14,6 +14,5 @@
   "relocation-model": "static",
   "executables": true,
   "exe-suffix": ".elf",
-  "panic-strategy": "abort",
   "linker-flavor": "gcc"
 }

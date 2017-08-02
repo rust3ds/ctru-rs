@@ -5,5 +5,9 @@ version = "0.1.0"
 [dependencies]
 ctru-rs = { path = "../ctru-rs" }
 
+
+[profile.dev]
+lto = true
+
 [profile.release]
 lto = true

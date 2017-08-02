@@ -22,8 +22,8 @@ use rc::Rc;
 use sync::{Arc, Mutex, RwLock, atomic};
 use thread::Result;
 
-//#[stable(feature = "panic_hooks", since = "1.10.0")]
-//pub use panicking::{take_hook, set_hook, PanicInfo, Location};
+#[stable(feature = "panic_hooks", since = "1.10.0")]
+pub use panicking::{take_hook, set_hook, PanicInfo, Location};
 
 /// A marker trait which represents "panic safe" types in Rust.
 ///
@@ -112,7 +112,7 @@ pub trait UnwindSafe {}
 /// This is a "helper marker trait" used to provide impl blocks for the
 /// `UnwindSafe` trait, for more information see that documentation.
 #[stable(feature = "catch_unwind", since = "1.9.0")]
-#[rustc_on_unimplemented = "the type {Self} contains interior mutability \
+#[rustc_on_unimplemented = "the type {Self} may contain interior mutability \
                             and a reference may not be safely transferrable \
                             across a catch_unwind boundary"]
 pub trait RefUnwindSafe {}
@@ -388,7 +388,6 @@ pub fn catch_unwind<F: FnOnce() -> R + UnwindSafe, R>(f: F) -> Result<R> {
 /// }
 /// ```
 #[stable(feature = "resume_unwind", since = "1.9.0")]
-// we always abort so I'm pretty sure there's no reason to ever call this
-pub fn resume_unwind(_payload: Box<Any + Send>) -> ! {
-    unimplemented!()
+pub fn resume_unwind(payload: Box<Any + Send>) -> ! {
+    panicking::update_count_then_panic(payload)
 }
