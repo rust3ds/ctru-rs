@@ -980,13 +980,12 @@ impl Drop for Dir {
 impl From<PathType> for ::libctru::FS_PathType {
     fn from(p: PathType) -> Self {
         use self::PathType::*;
-        use ::libctru::FS_PathType::*;
         match p {
-            Invalid => PATH_INVALID,
-            Empty => PATH_EMPTY,
-            Binary => PATH_BINARY,
-            ASCII => PATH_ASCII,
-            UTF16 => PATH_UTF16,
+            Invalid => ::libctru::PATH_INVALID,
+            Empty => ::libctru::PATH_EMPTY,
+            Binary => ::libctru::PATH_BINARY,
+            ASCII => ::libctru::PATH_ASCII,
+            UTF16 => ::libctru::PATH_UTF16,
         }
     }
 }
@@ -994,31 +993,29 @@ impl From<PathType> for ::libctru::FS_PathType {
 impl From<ArchiveID> for ::libctru::FS_ArchiveID {
     fn from(a: ArchiveID) -> Self {
         use self::ArchiveID::*;
-        use ::libctru::FS_ArchiveID::*;
-
         match a {
-            RomFS => ARCHIVE_ROMFS,
-            Savedata => ARCHIVE_SAVEDATA,
-            Extdata => ARCHIVE_EXTDATA,
-            SharedExtdata => ARCHIVE_SHARED_EXTDATA,
-            SystemSavedata => ARCHIVE_SYSTEM_SAVEDATA,
-            Sdmc => ARCHIVE_SDMC,
-            SdmcWriteOnly => ARCHIVE_SDMC_WRITE_ONLY,
-            BossExtdata => ARCHIVE_BOSS_EXTDATA,
-            CardSpiFS => ARCHIVE_CARD_SPIFS,
-            ExtDataAndBossExtdata => ARCHIVE_EXTDATA_AND_BOSS_EXTDATA,
-            SystemSaveData2 => ARCHIVE_SYSTEM_SAVEDATA2,
-            NandRW => ARCHIVE_NAND_RW,
-            NandRO => ARCHIVE_NAND_RO,
-            NandROWriteAccess => ARCHIVE_NAND_RO_WRITE_ACCESS,
-            SaveDataAndContent => ARCHIVE_SAVEDATA_AND_CONTENT,
-            SaveDataAndContent2 => ARCHIVE_SAVEDATA_AND_CONTENT2,
-            NandCtrFS => ARCHIVE_NAND_CTR_FS,
-            TwlPhoto => ARCHIVE_TWL_PHOTO,
-            NandTwlFS => ARCHIVE_NAND_TWL_FS,
-            GameCardSavedata => ARCHIVE_GAMECARD_SAVEDATA,
-            UserSavedata => ARCHIVE_USER_SAVEDATA,
-            DemoSavedata => ARCHIVE_DEMO_SAVEDATA,
+            RomFS => ::libctru::ARCHIVE_ROMFS,
+            Savedata => ::libctru::ARCHIVE_SAVEDATA,
+            Extdata => ::libctru::ARCHIVE_EXTDATA,
+            SharedExtdata => ::libctru::ARCHIVE_SHARED_EXTDATA,
+            SystemSavedata => ::libctru::ARCHIVE_SYSTEM_SAVEDATA,
+            Sdmc => ::libctru::ARCHIVE_SDMC,
+            SdmcWriteOnly => ::libctru::ARCHIVE_SDMC_WRITE_ONLY,
+            BossExtdata => ::libctru::ARCHIVE_BOSS_EXTDATA,
+            CardSpiFS => ::libctru::ARCHIVE_CARD_SPIFS,
+            ExtDataAndBossExtdata => ::libctru::ARCHIVE_EXTDATA_AND_BOSS_EXTDATA,
+            SystemSaveData2 => ::libctru::ARCHIVE_SYSTEM_SAVEDATA2,
+            NandRW => ::libctru::ARCHIVE_NAND_RW,
+            NandRO => ::libctru::ARCHIVE_NAND_RO,
+            NandROWriteAccess => ::libctru::ARCHIVE_NAND_RO_WRITE_ACCESS,
+            SaveDataAndContent => ::libctru::ARCHIVE_SAVEDATA_AND_CONTENT,
+            SaveDataAndContent2 => ::libctru::ARCHIVE_SAVEDATA_AND_CONTENT2,
+            NandCtrFS => ::libctru::ARCHIVE_NAND_CTR_FS,
+            TwlPhoto => ::libctru::ARCHIVE_TWL_PHOTO,
+            NandTwlFS => ::libctru::ARCHIVE_NAND_TWL_FS,
+            GameCardSavedata => ::libctru::ARCHIVE_GAMECARD_SAVEDATA,
+            UserSavedata => ::libctru::ARCHIVE_USER_SAVEDATA,
+            DemoSavedata => ::libctru::ARCHIVE_DEMO_SAVEDATA,
         }
     }
 }

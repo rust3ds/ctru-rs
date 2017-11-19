@@ -18,49 +18,43 @@ pub enum Side {
 }
 
 impl From<::libctru::gfxScreen_t> for Screen {
-    #[inline]
     fn from(g: ::libctru::gfxScreen_t) -> Screen {
-        use ::libctru::gfxScreen_t::*;
         use self::Screen::*;
         match g {
-            GFX_TOP => Top,
-            GFX_BOTTOM => Bottom,
+            ::libctru::GFX_TOP => Top,
+            ::libctru::GFX_BOTTOM => Bottom,
+            _ => unreachable!(),
         }
     }
 }
 
 impl From<Screen> for ::libctru::gfxScreen_t {
-    #[inline]
     fn from(g: Screen) -> ::libctru::gfxScreen_t {
-        use ::libctru::gfxScreen_t::*;
         use self::Screen::*;
         match g {
-            Top => GFX_TOP,
-            Bottom => GFX_BOTTOM,
+            Top => ::libctru::GFX_TOP,
+            Bottom => ::libctru::GFX_BOTTOM,
         }
     }
 }
 
 impl From<::libctru::gfx3dSide_t> for Side {
-    #[inline]
     fn from(s: ::libctru::gfx3dSide_t) -> Side {
-        use ::libctru::gfx3dSide_t::*;
         use self::Side::*;
         match s {
-            GFX_LEFT => Left,
-            GFX_RIGHT => Right,
+            ::libctru::GFX_LEFT => Left,
+            ::libctru::GFX_RIGHT => Right,
+            _ => unreachable!(),
         }
     }
 }
 
 impl From<Side> for ::libctru::gfx3dSide_t {
-    #[inline]
     fn from(s: Side) -> ::libctru::gfx3dSide_t {
-        use ::libctru::gfx3dSide_t::*;
         use self::Side::*;
         match s {
-            Left => GFX_LEFT,
-            Right => GFX_RIGHT,
+            Left => ::libctru::GFX_LEFT,
+            Right => ::libctru::GFX_RIGHT,
         }
     }
 }

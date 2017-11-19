@@ -431,8 +431,7 @@ fn default_hook(info: &PanicInfo) {
 
 
     // 3DS-specific code begins here
-    use libctru::{errorInit, errorText, errorDisp,
-                  errorConf, errorType, CFG_Language};
+    use libctru::{errorInit, errorText, errorDisp, errorConf};
     use libc;
 
     let thread = thread_info::current_thread();
@@ -447,8 +446,8 @@ fn default_hook(info: &PanicInfo) {
 
         let mut error_conf: errorConf = mem::uninitialized();
         errorInit(&mut error_conf,
-                  errorType::ERROR_TEXT_WORD_WRAP,
-                  CFG_Language::CFG_LANGUAGE_EN);
+                  ::libctru::ERROR_TEXT_WORD_WRAP,
+                  ::libctru::CFG_LANGUAGE_EN);
         errorText(&mut error_conf, error_text.as_ptr() as *const libc::c_char);
 
         // Display error

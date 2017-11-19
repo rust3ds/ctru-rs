@@ -10,8 +10,8 @@ pub struct Console {
 impl Console {
     pub fn init(screen: Screen) -> Self {
         unsafe {
-            let ret = *(::libctru::consoleInit(screen.into(), ptr::null_mut()));
-            Console { context: ret }
+            let context = ptr::read(::libctru::consoleInit(screen.into(), ptr::null_mut()));
+            Console { context, }
         }
     }
 

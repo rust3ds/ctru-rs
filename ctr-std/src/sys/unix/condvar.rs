@@ -17,11 +17,8 @@ use time::Duration;
 
 use sys::mutex::{self, Mutex};
 
-use libctru::{__sync_get_arbiter, LightLock};
-use libctru::{svcArbitrateAddress, ArbitrationType};
-
 pub struct Condvar {
-    lock: UnsafeCell<*mut LightLock>,
+    lock: UnsafeCell<*mut ::libctru::LightLock>,
 }
 
 unsafe impl Send for Condvar {}
@@ -42,11 +39,11 @@ impl Condvar {
     #[inline]
     pub fn notify_one(&self) {
         unsafe {
-            let arbiter = __sync_get_arbiter();
+            let arbiter = ::libctru::__sync_get_arbiter();
 
-            svcArbitrateAddress(arbiter,
+            ::libctru::svcArbitrateAddress(arbiter,
                                 *self.lock.get() as u32,
-                                ArbitrationType::ARBITRATION_SIGNAL,
+                                ::libctru::ARBITRATION_SIGNAL,
                                 1,
                                 0);
         }
@@ -61,11 +58,11 @@ impl Condvar {
                 return;
             }
 
-            let arbiter = __sync_get_arbiter();
+            let arbiter = ::libctru::__sync_get_arbiter();
 
-            svcArbitrateAddress(arbiter,
+            ::libctru::svcArbitrateAddress(arbiter,
                                 *self.lock.get() as u32,
-                                ArbitrationType::ARBITRATION_SIGNAL,
+                                ::libctru::ARBITRATION_SIGNAL,
                                 -1,
                                 0);
         }
@@ -86,11 +83,11 @@ impl Condvar {
 
             mutex.unlock();
 
-            let arbiter = __sync_get_arbiter();
+            let arbiter = ::libctru::__sync_get_arbiter();
 
-            svcArbitrateAddress(arbiter,
+            ::libctru::svcArbitrateAddress(arbiter,
                                 *self.lock.get() as u32,
-                                ArbitrationType::ARBITRATION_WAIT_IF_LESS_THAN,
+                                ::libctru::ARBITRATION_WAIT_IF_LESS_THAN,
                                 2,
                                 0);
 
@@ -119,11 +116,11 @@ impl Condvar {
 
             mutex.unlock();
 
-            let arbiter = __sync_get_arbiter();
+            let arbiter = ::libctru::__sync_get_arbiter();
 
-            svcArbitrateAddress(arbiter,
+            ::libctru::svcArbitrateAddress(arbiter,
                                 *self.lock.get() as u32,
-                                ArbitrationType::ARBITRATION_WAIT_IF_LESS_THAN_TIMEOUT,
+                                ::libctru::ARBITRATION_WAIT_IF_LESS_THAN_TIMEOUT,
                                 2,
                                 nanos as i64);
 

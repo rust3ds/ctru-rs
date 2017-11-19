@@ -35,14 +35,14 @@ impl FramebufferFormat {
 impl From<::libctru::GSPGPU_FramebufferFormats> for FramebufferFormat {
     #[inline]
     fn from(g: ::libctru::GSPGPU_FramebufferFormats) -> FramebufferFormat {
-        use ::libctru::GSPGPU_FramebufferFormats::*;
         use self::FramebufferFormat::*;
         match g {
-            GSP_RGBA8_OES => Rgba8,
-            GSP_BGR8_OES => Bgr8,
-            GSP_RGB565_OES => Rgb565,
-            GSP_RGB5_A1_OES => Rgb5A1,
-            GSP_RGBA4_OES => Rgba4,
+            ::libctru::GSP_RGBA8_OES => Rgba8,
+            ::libctru::GSP_BGR8_OES => Bgr8,
+            ::libctru::GSP_RGB565_OES => Rgb565,
+            ::libctru::GSP_RGB5_A1_OES => Rgb5A1,
+            ::libctru::GSP_RGBA4_OES => Rgba4,
+            _ => unreachable!(),
         }
     }
 }
@@ -50,30 +50,28 @@ impl From<::libctru::GSPGPU_FramebufferFormats> for FramebufferFormat {
 impl From<FramebufferFormat> for ::libctru::GSPGPU_FramebufferFormats {
     #[inline]
     fn from(g: FramebufferFormat) -> ::libctru::GSPGPU_FramebufferFormats {
-        use ::libctru::GSPGPU_FramebufferFormats::*;
         use self::FramebufferFormat::*;
         match g {
-            Rgba8 => GSP_RGBA8_OES,
-            Bgr8 => GSP_BGR8_OES,
-            Rgb565 => GSP_RGB565_OES,
-            Rgb5A1 => GSP_RGB5_A1_OES,
-            Rgba4 => GSP_RGBA4_OES,
+            Rgba8 => ::libctru::GSP_RGBA8_OES,
+            Bgr8 => ::libctru::GSP_BGR8_OES,
+            Rgb565 => ::libctru::GSP_RGB565_OES,
+            Rgb5A1 => ::libctru::GSP_RGB5_A1_OES,
+            Rgba4 => ::libctru::GSP_RGBA4_OES,
         }
     }
 }
 
 fn to_raw_event(ev: Event) -> ::libctru::GSPGPU_Event {
-    use ::libctru::GSPGPU_Event::*;
     use self::Event::*;
 
     match ev {
-        Psc0 => GSPGPU_EVENT_PSC0,
-        Psc1 => GSPGPU_EVENT_PSC1,
-        VBlank0 => GSPGPU_EVENT_VBlank0,
-        VBlank1 => GSPGPU_EVENT_VBlank1,
-        PPF => GSPGPU_EVENT_PPF,
-        P3D => GSPGPU_EVENT_P3D,
-        DMA => GSPGPU_EVENT_DMA,
+        Psc0 => ::libctru::GSPGPU_EVENT_PSC0,
+        Psc1 => ::libctru::GSPGPU_EVENT_PSC1,
+        VBlank0 => ::libctru::GSPGPU_EVENT_VBlank0,
+        VBlank1 => ::libctru::GSPGPU_EVENT_VBlank1,
+        PPF => ::libctru::GSPGPU_EVENT_PPF,
+        P3D => ::libctru::GSPGPU_EVENT_P3D,
+        DMA => ::libctru::GSPGPU_EVENT_DMA,
     }
 }
 

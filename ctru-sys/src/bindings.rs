@@ -3,13 +3,15 @@
 #[repr(C)]
 #[derive(Default)]
 pub struct __IncompleteArrayField<T>(::core::marker::PhantomData<T>);
-impl <T> __IncompleteArrayField<T> {
+impl<T> __IncompleteArrayField<T> {
     #[inline]
     pub fn new() -> Self {
         __IncompleteArrayField(::core::marker::PhantomData)
     }
     #[inline]
-    pub unsafe fn as_ptr(&self) -> *const T { ::core::mem::transmute(self) }
+    pub unsafe fn as_ptr(&self) -> *const T {
+        ::core::mem::transmute(self)
+    }
     #[inline]
     pub unsafe fn as_mut_ptr(&mut self) -> *mut T {
         ::core::mem::transmute(self)
@@ -23,18 +25,63 @@ impl <T> __IncompleteArrayField<T> {
         ::core::slice::from_raw_parts_mut(self.as_mut_ptr(), len)
     }
 }
-impl <T> ::core::fmt::Debug for __IncompleteArrayField<T> {
+impl<T> ::core::fmt::Debug for __IncompleteArrayField<T> {
     fn fmt(&self, fmt: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
         fmt.write_str("__IncompleteArrayField")
     }
 }
-impl <T> ::core::clone::Clone for __IncompleteArrayField<T> {
+impl<T> ::core::clone::Clone for __IncompleteArrayField<T> {
     #[inline]
-    fn clone(&self) -> Self { Self::new() }
+    fn clone(&self) -> Self {
+        Self::new()
+    }
 }
-impl <T> ::core::marker::Copy for __IncompleteArrayField<T> { }
+impl<T> ::core::marker::Copy for __IncompleteArrayField<T> {}
+#[repr(C)]
+pub struct __BindgenUnionField<T>(::core::marker::PhantomData<T>);
+impl<T> __BindgenUnionField<T> {
+    #[inline]
+    pub fn new() -> Self {
+        __BindgenUnionField(::core::marker::PhantomData)
+    }
+    #[inline]
+    pub unsafe fn as_ref(&self) -> &T {
+        ::core::mem::transmute(self)
+    }
+    #[inline]
+    pub unsafe fn as_mut(&mut self) -> &mut T {
+        ::core::mem::transmute(self)
+    }
+}
+impl<T> ::core::default::Default for __BindgenUnionField<T> {
+    #[inline]
+    fn default() -> Self {
+        Self::new()
+    }
+}
+impl<T> ::core::clone::Clone for __BindgenUnionField<T> {
+    #[inline]
+    fn clone(&self) -> Self {
+        Self::new()
+    }
+}
+impl<T> ::core::marker::Copy for __BindgenUnionField<T> {}
+impl<T> ::core::fmt::Debug for __BindgenUnionField<T> {
+    fn fmt(&self, fmt: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
+        fmt.write_str("__BindgenUnionField")
+    }
+}
+impl<T> ::core::hash::Hash for __BindgenUnionField<T> {
+    fn hash<H: ::core::hash::Hasher>(&self, _state: &mut H) {}
+}
+impl<T> ::core::cmp::PartialEq for __BindgenUnionField<T> {
+    fn eq(&self, _other: &__BindgenUnionField<T>) -> bool {
+        true
+    }
+}
+impl<T> ::core::cmp::Eq for __BindgenUnionField<T> {}
 pub const _NEWLIB_VERSION_H__: libc::c_uint = 1;
-pub const _NEWLIB_VERSION: &'static [u8; 6usize] = b"2.5.0\x00";
+pub const _NEWLIB_VERSION: &'static [u8; 6usize] = b"2.5.0\0";
 pub const __NEWLIB__: libc::c_uint = 2;
 pub const __NEWLIB_MINOR__: libc::c_uint = 5;
 pub const __NEWLIB_PATCHLEVEL__: libc::c_uint = 0;
@@ -62,15 +109,15 @@ pub const ___int_least16_t_defined: libc::c_uint = 1;
 pub const ___int_least32_t_defined: libc::c_uint = 1;
 pub const ___int_least64_t_defined: libc::c_uint = 1;
 pub const __int20: libc::c_uint = 2;
-pub const __INT8: &'static [u8; 3usize] = b"hh\x00";
-pub const __INT16: &'static [u8; 2usize] = b"h\x00";
-pub const __INT64: &'static [u8; 3usize] = b"ll\x00";
-pub const __FAST8: &'static [u8; 3usize] = b"hh\x00";
-pub const __FAST16: &'static [u8; 2usize] = b"h\x00";
-pub const __FAST64: &'static [u8; 3usize] = b"ll\x00";
-pub const __LEAST8: &'static [u8; 3usize] = b"hh\x00";
-pub const __LEAST16: &'static [u8; 2usize] = b"h\x00";
-pub const __LEAST64: &'static [u8; 3usize] = b"ll\x00";
+pub const __INT8: &'static [u8; 3usize] = b"hh\0";
+pub const __INT16: &'static [u8; 2usize] = b"h\0";
+pub const __INT64: &'static [u8; 3usize] = b"ll\0";
+pub const __FAST8: &'static [u8; 3usize] = b"hh\0";
+pub const __FAST16: &'static [u8; 2usize] = b"h\0";
+pub const __FAST64: &'static [u8; 3usize] = b"ll\0";
+pub const __LEAST8: &'static [u8; 3usize] = b"hh\0";
+pub const __LEAST16: &'static [u8; 2usize] = b"h\0";
+pub const __LEAST64: &'static [u8; 3usize] = b"ll\0";
 pub const __int8_t_defined: libc::c_uint = 1;
 pub const __int16_t_defined: libc::c_uint = 1;
 pub const __int32_t_defined: libc::c_uint = 1;
@@ -982,6 +1029,12 @@ pub const SWKBD_MAX_WORD_LEN: libc::c_uint = 40;
 pub const SWKBD_MAX_BUTTON_TEXT_LEN: libc::c_uint = 16;
 pub const SWKBD_MAX_HINT_TEXT_LEN: libc::c_uint = 64;
 pub const SWKBD_MAX_CALLBACK_MSG_LEN: libc::c_uint = 256;
+pub const MIISELECTOR_MAGIC: libc::c_uint = 333326543;
+pub const MIISELECTOR_TITLE_LEN: libc::c_uint = 64;
+pub const MIISELECTOR_GUESTMII_SLOTS: libc::c_uint = 6;
+pub const MIISELECTOR_USERMII_SLOTS: libc::c_uint = 100;
+pub const MIISELECTOR_MIIDATA_SIZE: libc::c_uint = 92;
+pub const MIISELECTOR_GUESTMII_NAME_LEN: libc::c_uint = 12;
 pub const SDMC_DIRITER_MAGIC: libc::c_uint = 1935961443;
 pub type __int8_t = libc::c_schar;
 pub type __uint8_t = libc::c_uchar;
@@ -1023,13 +1076,10 @@ pub type int_fast64_t = libc::c_longlong;
 pub type uint_fast64_t = libc::c_ulonglong;
 pub type wchar_t = libc::c_uint;
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct max_align_t {
     pub __clang_max_align_nonce1: libc::c_longlong,
     pub __clang_max_align_nonce2: f64,
-}
-impl Clone for max_align_t {
-    fn clone(&self) -> Self { *self }
 }
 pub type s8 = i8;
 pub type s16 = i16;
@@ -1045,11 +1095,9 @@ pub type vs32 = s32;
 pub type vs64 = s64;
 pub type Handle = u32;
 pub type Result = s32;
-pub type ThreadFunc =
-    ::core::option::Option<unsafe extern "C" fn(arg1: *mut libc::c_void)>;
+pub type ThreadFunc = ::core::option::Option<unsafe extern "C" fn(arg1: *mut libc::c_void)>;
 pub type voidfn = ::core::option::Option<unsafe extern "C" fn()>;
 #[repr(C)]
-#[derive(Copy)]
 pub struct CpuRegisters {
     pub r: [u32; 13usize],
     pub sp: u32,
@@ -1057,629 +1105,366 @@ pub struct CpuRegisters {
     pub pc: u32,
     pub cpsr: u32,
 }
-impl Clone for CpuRegisters {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
 pub struct FpuRegisters {
     pub __bindgen_anon_1: FpuRegisters__bindgen_ty_1,
     pub fpscr: u32,
     pub fpexc: u32,
 }
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub union FpuRegisters__bindgen_ty_1 {
     pub __bindgen_anon_1: FpuRegisters__bindgen_ty_1__bindgen_ty_1,
     pub s: [f32; 32usize],
+    _bindgen_union_align: [u32; 32usize],
 }
 #[repr(C, packed)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct FpuRegisters__bindgen_ty_1__bindgen_ty_1 {
     pub d: [f64; 16usize],
 }
-impl Clone for FpuRegisters__bindgen_ty_1__bindgen_ty_1 {
-    fn clone(&self) -> Self { *self }
-}
-impl Clone for FpuRegisters__bindgen_ty_1 {
-    fn clone(&self) -> Self { *self }
-}
-impl Clone for FpuRegisters {
-    fn clone(&self) -> Self { *self }
-}
-pub const RL_SUCCESS: _bindgen_ty_1 = _bindgen_ty_1::RL_SUCCESS;
-pub const RL_INFO: _bindgen_ty_1 = _bindgen_ty_1::RL_INFO;
-pub const RL_FATAL: _bindgen_ty_1 = _bindgen_ty_1::RL_FATAL;
-pub const RL_RESET: _bindgen_ty_1 = _bindgen_ty_1::RL_RESET;
-pub const RL_REINITIALIZE: _bindgen_ty_1 = _bindgen_ty_1::RL_REINITIALIZE;
-pub const RL_USAGE: _bindgen_ty_1 = _bindgen_ty_1::RL_USAGE;
-pub const RL_PERMANENT: _bindgen_ty_1 = _bindgen_ty_1::RL_PERMANENT;
-pub const RL_TEMPORARY: _bindgen_ty_1 = _bindgen_ty_1::RL_TEMPORARY;
-pub const RL_STATUS: _bindgen_ty_1 = _bindgen_ty_1::RL_STATUS;
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum _bindgen_ty_1 {
-    RL_SUCCESS = 0,
-    RL_INFO = 1,
-    RL_FATAL = 31,
-    RL_RESET = 30,
-    RL_REINITIALIZE = 29,
-    RL_USAGE = 28,
-    RL_PERMANENT = 27,
-    RL_TEMPORARY = 26,
-    RL_STATUS = 25,
-}
-pub const RS_SUCCESS: _bindgen_ty_2 = _bindgen_ty_2::RS_SUCCESS;
-pub const RS_NOP: _bindgen_ty_2 = _bindgen_ty_2::RS_NOP;
-pub const RS_WOULDBLOCK: _bindgen_ty_2 = _bindgen_ty_2::RS_WOULDBLOCK;
-pub const RS_OUTOFRESOURCE: _bindgen_ty_2 = _bindgen_ty_2::RS_OUTOFRESOURCE;
-pub const RS_NOTFOUND: _bindgen_ty_2 = _bindgen_ty_2::RS_NOTFOUND;
-pub const RS_INVALIDSTATE: _bindgen_ty_2 = _bindgen_ty_2::RS_INVALIDSTATE;
-pub const RS_NOTSUPPORTED: _bindgen_ty_2 = _bindgen_ty_2::RS_NOTSUPPORTED;
-pub const RS_INVALIDARG: _bindgen_ty_2 = _bindgen_ty_2::RS_INVALIDARG;
-pub const RS_WRONGARG: _bindgen_ty_2 = _bindgen_ty_2::RS_WRONGARG;
-pub const RS_CANCELED: _bindgen_ty_2 = _bindgen_ty_2::RS_CANCELED;
-pub const RS_STATUSCHANGED: _bindgen_ty_2 = _bindgen_ty_2::RS_STATUSCHANGED;
-pub const RS_INTERNAL: _bindgen_ty_2 = _bindgen_ty_2::RS_INTERNAL;
-pub const RS_INVALIDRESVAL: _bindgen_ty_2 = _bindgen_ty_2::RS_INVALIDRESVAL;
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum _bindgen_ty_2 {
-    RS_SUCCESS = 0,
-    RS_NOP = 1,
-    RS_WOULDBLOCK = 2,
-    RS_OUTOFRESOURCE = 3,
-    RS_NOTFOUND = 4,
-    RS_INVALIDSTATE = 5,
-    RS_NOTSUPPORTED = 6,
-    RS_INVALIDARG = 7,
-    RS_WRONGARG = 8,
-    RS_CANCELED = 9,
-    RS_STATUSCHANGED = 10,
-    RS_INTERNAL = 11,
-    RS_INVALIDRESVAL = 63,
-}
-pub const RM_COMMON: _bindgen_ty_3 = _bindgen_ty_3::RM_COMMON;
-pub const RM_KERNEL: _bindgen_ty_3 = _bindgen_ty_3::RM_KERNEL;
-pub const RM_UTIL: _bindgen_ty_3 = _bindgen_ty_3::RM_UTIL;
-pub const RM_FILE_SERVER: _bindgen_ty_3 = _bindgen_ty_3::RM_FILE_SERVER;
-pub const RM_LOADER_SERVER: _bindgen_ty_3 = _bindgen_ty_3::RM_LOADER_SERVER;
-pub const RM_TCB: _bindgen_ty_3 = _bindgen_ty_3::RM_TCB;
-pub const RM_OS: _bindgen_ty_3 = _bindgen_ty_3::RM_OS;
-pub const RM_DBG: _bindgen_ty_3 = _bindgen_ty_3::RM_DBG;
-pub const RM_DMNT: _bindgen_ty_3 = _bindgen_ty_3::RM_DMNT;
-pub const RM_PDN: _bindgen_ty_3 = _bindgen_ty_3::RM_PDN;
-pub const RM_GSP: _bindgen_ty_3 = _bindgen_ty_3::RM_GSP;
-pub const RM_I2C: _bindgen_ty_3 = _bindgen_ty_3::RM_I2C;
-pub const RM_GPIO: _bindgen_ty_3 = _bindgen_ty_3::RM_GPIO;
-pub const RM_DD: _bindgen_ty_3 = _bindgen_ty_3::RM_DD;
-pub const RM_CODEC: _bindgen_ty_3 = _bindgen_ty_3::RM_CODEC;
-pub const RM_SPI: _bindgen_ty_3 = _bindgen_ty_3::RM_SPI;
-pub const RM_PXI: _bindgen_ty_3 = _bindgen_ty_3::RM_PXI;
-pub const RM_FS: _bindgen_ty_3 = _bindgen_ty_3::RM_FS;
-pub const RM_DI: _bindgen_ty_3 = _bindgen_ty_3::RM_DI;
-pub const RM_HID: _bindgen_ty_3 = _bindgen_ty_3::RM_HID;
-pub const RM_CAM: _bindgen_ty_3 = _bindgen_ty_3::RM_CAM;
-pub const RM_PI: _bindgen_ty_3 = _bindgen_ty_3::RM_PI;
-pub const RM_PM: _bindgen_ty_3 = _bindgen_ty_3::RM_PM;
-pub const RM_PM_LOW: _bindgen_ty_3 = _bindgen_ty_3::RM_PM_LOW;
-pub const RM_FSI: _bindgen_ty_3 = _bindgen_ty_3::RM_FSI;
-pub const RM_SRV: _bindgen_ty_3 = _bindgen_ty_3::RM_SRV;
-pub const RM_NDM: _bindgen_ty_3 = _bindgen_ty_3::RM_NDM;
-pub const RM_NWM: _bindgen_ty_3 = _bindgen_ty_3::RM_NWM;
-pub const RM_SOC: _bindgen_ty_3 = _bindgen_ty_3::RM_SOC;
-pub const RM_LDR: _bindgen_ty_3 = _bindgen_ty_3::RM_LDR;
-pub const RM_ACC: _bindgen_ty_3 = _bindgen_ty_3::RM_ACC;
-pub const RM_ROMFS: _bindgen_ty_3 = _bindgen_ty_3::RM_ROMFS;
-pub const RM_AM: _bindgen_ty_3 = _bindgen_ty_3::RM_AM;
-pub const RM_HIO: _bindgen_ty_3 = _bindgen_ty_3::RM_HIO;
-pub const RM_UPDATER: _bindgen_ty_3 = _bindgen_ty_3::RM_UPDATER;
-pub const RM_MIC: _bindgen_ty_3 = _bindgen_ty_3::RM_MIC;
-pub const RM_FND: _bindgen_ty_3 = _bindgen_ty_3::RM_FND;
-pub const RM_MP: _bindgen_ty_3 = _bindgen_ty_3::RM_MP;
-pub const RM_MPWL: _bindgen_ty_3 = _bindgen_ty_3::RM_MPWL;
-pub const RM_AC: _bindgen_ty_3 = _bindgen_ty_3::RM_AC;
-pub const RM_HTTP: _bindgen_ty_3 = _bindgen_ty_3::RM_HTTP;
-pub const RM_DSP: _bindgen_ty_3 = _bindgen_ty_3::RM_DSP;
-pub const RM_SND: _bindgen_ty_3 = _bindgen_ty_3::RM_SND;
-pub const RM_DLP: _bindgen_ty_3 = _bindgen_ty_3::RM_DLP;
-pub const RM_HIO_LOW: _bindgen_ty_3 = _bindgen_ty_3::RM_HIO_LOW;
-pub const RM_CSND: _bindgen_ty_3 = _bindgen_ty_3::RM_CSND;
-pub const RM_SSL: _bindgen_ty_3 = _bindgen_ty_3::RM_SSL;
-pub const RM_AM_LOW: _bindgen_ty_3 = _bindgen_ty_3::RM_AM_LOW;
-pub const RM_NEX: _bindgen_ty_3 = _bindgen_ty_3::RM_NEX;
-pub const RM_FRIENDS: _bindgen_ty_3 = _bindgen_ty_3::RM_FRIENDS;
-pub const RM_RDT: _bindgen_ty_3 = _bindgen_ty_3::RM_RDT;
-pub const RM_APPLET: _bindgen_ty_3 = _bindgen_ty_3::RM_APPLET;
-pub const RM_NIM: _bindgen_ty_3 = _bindgen_ty_3::RM_NIM;
-pub const RM_PTM: _bindgen_ty_3 = _bindgen_ty_3::RM_PTM;
-pub const RM_MIDI: _bindgen_ty_3 = _bindgen_ty_3::RM_MIDI;
-pub const RM_MC: _bindgen_ty_3 = _bindgen_ty_3::RM_MC;
-pub const RM_SWC: _bindgen_ty_3 = _bindgen_ty_3::RM_SWC;
-pub const RM_FATFS: _bindgen_ty_3 = _bindgen_ty_3::RM_FATFS;
-pub const RM_NGC: _bindgen_ty_3 = _bindgen_ty_3::RM_NGC;
-pub const RM_CARD: _bindgen_ty_3 = _bindgen_ty_3::RM_CARD;
-pub const RM_CARDNOR: _bindgen_ty_3 = _bindgen_ty_3::RM_CARDNOR;
-pub const RM_SDMC: _bindgen_ty_3 = _bindgen_ty_3::RM_SDMC;
-pub const RM_BOSS: _bindgen_ty_3 = _bindgen_ty_3::RM_BOSS;
-pub const RM_DBM: _bindgen_ty_3 = _bindgen_ty_3::RM_DBM;
-pub const RM_CONFIG: _bindgen_ty_3 = _bindgen_ty_3::RM_CONFIG;
-pub const RM_PS: _bindgen_ty_3 = _bindgen_ty_3::RM_PS;
-pub const RM_CEC: _bindgen_ty_3 = _bindgen_ty_3::RM_CEC;
-pub const RM_IR: _bindgen_ty_3 = _bindgen_ty_3::RM_IR;
-pub const RM_UDS: _bindgen_ty_3 = _bindgen_ty_3::RM_UDS;
-pub const RM_PL: _bindgen_ty_3 = _bindgen_ty_3::RM_PL;
-pub const RM_CUP: _bindgen_ty_3 = _bindgen_ty_3::RM_CUP;
-pub const RM_GYROSCOPE: _bindgen_ty_3 = _bindgen_ty_3::RM_GYROSCOPE;
-pub const RM_MCU: _bindgen_ty_3 = _bindgen_ty_3::RM_MCU;
-pub const RM_NS: _bindgen_ty_3 = _bindgen_ty_3::RM_NS;
-pub const RM_NEWS: _bindgen_ty_3 = _bindgen_ty_3::RM_NEWS;
-pub const RM_RO: _bindgen_ty_3 = _bindgen_ty_3::RM_RO;
-pub const RM_GD: _bindgen_ty_3 = _bindgen_ty_3::RM_GD;
-pub const RM_CARD_SPI: _bindgen_ty_3 = _bindgen_ty_3::RM_CARD_SPI;
-pub const RM_EC: _bindgen_ty_3 = _bindgen_ty_3::RM_EC;
-pub const RM_WEB_BROWSER: _bindgen_ty_3 = _bindgen_ty_3::RM_WEB_BROWSER;
-pub const RM_TEST: _bindgen_ty_3 = _bindgen_ty_3::RM_TEST;
-pub const RM_ENC: _bindgen_ty_3 = _bindgen_ty_3::RM_ENC;
-pub const RM_PIA: _bindgen_ty_3 = _bindgen_ty_3::RM_PIA;
-pub const RM_ACT: _bindgen_ty_3 = _bindgen_ty_3::RM_ACT;
-pub const RM_VCTL: _bindgen_ty_3 = _bindgen_ty_3::RM_VCTL;
-pub const RM_OLV: _bindgen_ty_3 = _bindgen_ty_3::RM_OLV;
-pub const RM_NEIA: _bindgen_ty_3 = _bindgen_ty_3::RM_NEIA;
-pub const RM_NPNS: _bindgen_ty_3 = _bindgen_ty_3::RM_NPNS;
-pub const RM_AVD: _bindgen_ty_3 = _bindgen_ty_3::RM_AVD;
-pub const RM_L2B: _bindgen_ty_3 = _bindgen_ty_3::RM_L2B;
-pub const RM_MVD: _bindgen_ty_3 = _bindgen_ty_3::RM_MVD;
-pub const RM_NFC: _bindgen_ty_3 = _bindgen_ty_3::RM_NFC;
-pub const RM_UART: _bindgen_ty_3 = _bindgen_ty_3::RM_UART;
-pub const RM_SPM: _bindgen_ty_3 = _bindgen_ty_3::RM_SPM;
-pub const RM_QTM: _bindgen_ty_3 = _bindgen_ty_3::RM_QTM;
-pub const RM_NFP: _bindgen_ty_3 = _bindgen_ty_3::RM_NFP;
-pub const RM_APPLICATION: _bindgen_ty_3 = _bindgen_ty_3::RM_APPLICATION;
-pub const RM_INVALIDRESVAL: _bindgen_ty_3 = _bindgen_ty_3::RM_INVALIDRESVAL;
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum _bindgen_ty_3 {
-    RM_COMMON = 0,
-    RM_KERNEL = 1,
-    RM_UTIL = 2,
-    RM_FILE_SERVER = 3,
-    RM_LOADER_SERVER = 4,
-    RM_TCB = 5,
-    RM_OS = 6,
-    RM_DBG = 7,
-    RM_DMNT = 8,
-    RM_PDN = 9,
-    RM_GSP = 10,
-    RM_I2C = 11,
-    RM_GPIO = 12,
-    RM_DD = 13,
-    RM_CODEC = 14,
-    RM_SPI = 15,
-    RM_PXI = 16,
-    RM_FS = 17,
-    RM_DI = 18,
-    RM_HID = 19,
-    RM_CAM = 20,
-    RM_PI = 21,
-    RM_PM = 22,
-    RM_PM_LOW = 23,
-    RM_FSI = 24,
-    RM_SRV = 25,
-    RM_NDM = 26,
-    RM_NWM = 27,
-    RM_SOC = 28,
-    RM_LDR = 29,
-    RM_ACC = 30,
-    RM_ROMFS = 31,
-    RM_AM = 32,
-    RM_HIO = 33,
-    RM_UPDATER = 34,
-    RM_MIC = 35,
-    RM_FND = 36,
-    RM_MP = 37,
-    RM_MPWL = 38,
-    RM_AC = 39,
-    RM_HTTP = 40,
-    RM_DSP = 41,
-    RM_SND = 42,
-    RM_DLP = 43,
-    RM_HIO_LOW = 44,
-    RM_CSND = 45,
-    RM_SSL = 46,
-    RM_AM_LOW = 47,
-    RM_NEX = 48,
-    RM_FRIENDS = 49,
-    RM_RDT = 50,
-    RM_APPLET = 51,
-    RM_NIM = 52,
-    RM_PTM = 53,
-    RM_MIDI = 54,
-    RM_MC = 55,
-    RM_SWC = 56,
-    RM_FATFS = 57,
-    RM_NGC = 58,
-    RM_CARD = 59,
-    RM_CARDNOR = 60,
-    RM_SDMC = 61,
-    RM_BOSS = 62,
-    RM_DBM = 63,
-    RM_CONFIG = 64,
-    RM_PS = 65,
-    RM_CEC = 66,
-    RM_IR = 67,
-    RM_UDS = 68,
-    RM_PL = 69,
-    RM_CUP = 70,
-    RM_GYROSCOPE = 71,
-    RM_MCU = 72,
-    RM_NS = 73,
-    RM_NEWS = 74,
-    RM_RO = 75,
-    RM_GD = 76,
-    RM_CARD_SPI = 77,
-    RM_EC = 78,
-    RM_WEB_BROWSER = 79,
-    RM_TEST = 80,
-    RM_ENC = 81,
-    RM_PIA = 82,
-    RM_ACT = 83,
-    RM_VCTL = 84,
-    RM_OLV = 85,
-    RM_NEIA = 86,
-    RM_NPNS = 87,
-    RM_AVD = 90,
-    RM_L2B = 91,
-    RM_MVD = 92,
-    RM_NFC = 93,
-    RM_UART = 94,
-    RM_SPM = 95,
-    RM_QTM = 96,
-    RM_NFP = 97,
-    RM_APPLICATION = 254,
-    RM_INVALIDRESVAL = 255,
-}
-pub const RD_SUCCESS: _bindgen_ty_4 = _bindgen_ty_4::RD_SUCCESS;
-pub const RD_INVALID_RESULT_VALUE: _bindgen_ty_4 =
-    _bindgen_ty_4::RD_INVALID_RESULT_VALUE;
-pub const RD_TIMEOUT: _bindgen_ty_4 = _bindgen_ty_4::RD_TIMEOUT;
-pub const RD_OUT_OF_RANGE: _bindgen_ty_4 = _bindgen_ty_4::RD_OUT_OF_RANGE;
-pub const RD_ALREADY_EXISTS: _bindgen_ty_4 = _bindgen_ty_4::RD_ALREADY_EXISTS;
-pub const RD_CANCEL_REQUESTED: _bindgen_ty_4 =
-    _bindgen_ty_4::RD_CANCEL_REQUESTED;
-pub const RD_NOT_FOUND: _bindgen_ty_4 = _bindgen_ty_4::RD_NOT_FOUND;
-pub const RD_ALREADY_INITIALIZED: _bindgen_ty_4 =
-    _bindgen_ty_4::RD_ALREADY_INITIALIZED;
-pub const RD_NOT_INITIALIZED: _bindgen_ty_4 =
-    _bindgen_ty_4::RD_NOT_INITIALIZED;
-pub const RD_INVALID_HANDLE: _bindgen_ty_4 = _bindgen_ty_4::RD_INVALID_HANDLE;
-pub const RD_INVALID_POINTER: _bindgen_ty_4 =
-    _bindgen_ty_4::RD_INVALID_POINTER;
-pub const RD_INVALID_ADDRESS: _bindgen_ty_4 =
-    _bindgen_ty_4::RD_INVALID_ADDRESS;
-pub const RD_NOT_IMPLEMENTED: _bindgen_ty_4 =
-    _bindgen_ty_4::RD_NOT_IMPLEMENTED;
-pub const RD_OUT_OF_MEMORY: _bindgen_ty_4 = _bindgen_ty_4::RD_OUT_OF_MEMORY;
-pub const RD_MISALIGNED_SIZE: _bindgen_ty_4 =
-    _bindgen_ty_4::RD_MISALIGNED_SIZE;
-pub const RD_MISALIGNED_ADDRESS: _bindgen_ty_4 =
-    _bindgen_ty_4::RD_MISALIGNED_ADDRESS;
-pub const RD_BUSY: _bindgen_ty_4 = _bindgen_ty_4::RD_BUSY;
-pub const RD_NO_DATA: _bindgen_ty_4 = _bindgen_ty_4::RD_NO_DATA;
-pub const RD_INVALID_COMBINATION: _bindgen_ty_4 =
-    _bindgen_ty_4::RD_INVALID_COMBINATION;
-pub const RD_INVALID_ENUM_VALUE: _bindgen_ty_4 =
-    _bindgen_ty_4::RD_INVALID_ENUM_VALUE;
-pub const RD_INVALID_SIZE: _bindgen_ty_4 = _bindgen_ty_4::RD_INVALID_SIZE;
-pub const RD_ALREADY_DONE: _bindgen_ty_4 = _bindgen_ty_4::RD_ALREADY_DONE;
-pub const RD_NOT_AUTHORIZED: _bindgen_ty_4 = _bindgen_ty_4::RD_NOT_AUTHORIZED;
-pub const RD_TOO_LARGE: _bindgen_ty_4 = _bindgen_ty_4::RD_TOO_LARGE;
-pub const RD_INVALID_SELECTION: _bindgen_ty_4 =
-    _bindgen_ty_4::RD_INVALID_SELECTION;
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum _bindgen_ty_4 {
-    RD_SUCCESS = 0,
-    RD_INVALID_RESULT_VALUE = 1023,
-    RD_TIMEOUT = 1022,
-    RD_OUT_OF_RANGE = 1021,
-    RD_ALREADY_EXISTS = 1020,
-    RD_CANCEL_REQUESTED = 1019,
-    RD_NOT_FOUND = 1018,
-    RD_ALREADY_INITIALIZED = 1017,
-    RD_NOT_INITIALIZED = 1016,
-    RD_INVALID_HANDLE = 1015,
-    RD_INVALID_POINTER = 1014,
-    RD_INVALID_ADDRESS = 1013,
-    RD_NOT_IMPLEMENTED = 1012,
-    RD_OUT_OF_MEMORY = 1011,
-    RD_MISALIGNED_SIZE = 1010,
-    RD_MISALIGNED_ADDRESS = 1009,
-    RD_BUSY = 1008,
-    RD_NO_DATA = 1007,
-    RD_INVALID_COMBINATION = 1006,
-    RD_INVALID_ENUM_VALUE = 1005,
-    RD_INVALID_SIZE = 1004,
-    RD_ALREADY_DONE = 1003,
-    RD_NOT_AUTHORIZED = 1002,
-    RD_TOO_LARGE = 1001,
-    RD_INVALID_SELECTION = 1000,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum IPC_BufferRights {
-    IPC_BUFFER_R = 2,
-    IPC_BUFFER_W = 4,
-    IPC_BUFFER_RW = 6,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum MemOp {
-    MEMOP_FREE = 1,
-    MEMOP_RESERVE = 2,
-    MEMOP_ALLOC = 3,
-    MEMOP_MAP = 4,
-    MEMOP_UNMAP = 5,
-    MEMOP_PROT = 6,
-    MEMOP_REGION_APP = 256,
-    MEMOP_REGION_SYSTEM = 512,
-    MEMOP_REGION_BASE = 768,
-    MEMOP_OP_MASK = 255,
-    MEMOP_REGION_MASK = 3840,
-    MEMOP_LINEAR_FLAG = 65536,
-    MEMOP_ALLOC_LINEAR = 65539,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum MemState {
-    MEMSTATE_FREE = 0,
-    MEMSTATE_RESERVED = 1,
-    MEMSTATE_IO = 2,
-    MEMSTATE_STATIC = 3,
-    MEMSTATE_CODE = 4,
-    MEMSTATE_PRIVATE = 5,
-    MEMSTATE_SHARED = 6,
-    MEMSTATE_CONTINUOUS = 7,
-    MEMSTATE_ALIASED = 8,
-    MEMSTATE_ALIAS = 9,
-    MEMSTATE_ALIASCODE = 10,
-    MEMSTATE_LOCKED = 11,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum MemPerm {
-    MEMPERM_READ = 1,
-    MEMPERM_WRITE = 2,
-    MEMPERM_EXECUTE = 4,
-    MEMPERM_DONTCARE = 268435456,
-}
+pub const RL_SUCCESS: _bindgen_ty_1 = 0;
+pub const RL_INFO: _bindgen_ty_1 = 1;
+pub const RL_FATAL: _bindgen_ty_1 = 31;
+pub const RL_RESET: _bindgen_ty_1 = 30;
+pub const RL_REINITIALIZE: _bindgen_ty_1 = 29;
+pub const RL_USAGE: _bindgen_ty_1 = 28;
+pub const RL_PERMANENT: _bindgen_ty_1 = 27;
+pub const RL_TEMPORARY: _bindgen_ty_1 = 26;
+pub const RL_STATUS: _bindgen_ty_1 = 25;
+pub type _bindgen_ty_1 = libc::c_uint;
+pub const RS_SUCCESS: _bindgen_ty_2 = 0;
+pub const RS_NOP: _bindgen_ty_2 = 1;
+pub const RS_WOULDBLOCK: _bindgen_ty_2 = 2;
+pub const RS_OUTOFRESOURCE: _bindgen_ty_2 = 3;
+pub const RS_NOTFOUND: _bindgen_ty_2 = 4;
+pub const RS_INVALIDSTATE: _bindgen_ty_2 = 5;
+pub const RS_NOTSUPPORTED: _bindgen_ty_2 = 6;
+pub const RS_INVALIDARG: _bindgen_ty_2 = 7;
+pub const RS_WRONGARG: _bindgen_ty_2 = 8;
+pub const RS_CANCELED: _bindgen_ty_2 = 9;
+pub const RS_STATUSCHANGED: _bindgen_ty_2 = 10;
+pub const RS_INTERNAL: _bindgen_ty_2 = 11;
+pub const RS_INVALIDRESVAL: _bindgen_ty_2 = 63;
+pub type _bindgen_ty_2 = libc::c_uint;
+pub const RM_COMMON: _bindgen_ty_3 = 0;
+pub const RM_KERNEL: _bindgen_ty_3 = 1;
+pub const RM_UTIL: _bindgen_ty_3 = 2;
+pub const RM_FILE_SERVER: _bindgen_ty_3 = 3;
+pub const RM_LOADER_SERVER: _bindgen_ty_3 = 4;
+pub const RM_TCB: _bindgen_ty_3 = 5;
+pub const RM_OS: _bindgen_ty_3 = 6;
+pub const RM_DBG: _bindgen_ty_3 = 7;
+pub const RM_DMNT: _bindgen_ty_3 = 8;
+pub const RM_PDN: _bindgen_ty_3 = 9;
+pub const RM_GSP: _bindgen_ty_3 = 10;
+pub const RM_I2C: _bindgen_ty_3 = 11;
+pub const RM_GPIO: _bindgen_ty_3 = 12;
+pub const RM_DD: _bindgen_ty_3 = 13;
+pub const RM_CODEC: _bindgen_ty_3 = 14;
+pub const RM_SPI: _bindgen_ty_3 = 15;
+pub const RM_PXI: _bindgen_ty_3 = 16;
+pub const RM_FS: _bindgen_ty_3 = 17;
+pub const RM_DI: _bindgen_ty_3 = 18;
+pub const RM_HID: _bindgen_ty_3 = 19;
+pub const RM_CAM: _bindgen_ty_3 = 20;
+pub const RM_PI: _bindgen_ty_3 = 21;
+pub const RM_PM: _bindgen_ty_3 = 22;
+pub const RM_PM_LOW: _bindgen_ty_3 = 23;
+pub const RM_FSI: _bindgen_ty_3 = 24;
+pub const RM_SRV: _bindgen_ty_3 = 25;
+pub const RM_NDM: _bindgen_ty_3 = 26;
+pub const RM_NWM: _bindgen_ty_3 = 27;
+pub const RM_SOC: _bindgen_ty_3 = 28;
+pub const RM_LDR: _bindgen_ty_3 = 29;
+pub const RM_ACC: _bindgen_ty_3 = 30;
+pub const RM_ROMFS: _bindgen_ty_3 = 31;
+pub const RM_AM: _bindgen_ty_3 = 32;
+pub const RM_HIO: _bindgen_ty_3 = 33;
+pub const RM_UPDATER: _bindgen_ty_3 = 34;
+pub const RM_MIC: _bindgen_ty_3 = 35;
+pub const RM_FND: _bindgen_ty_3 = 36;
+pub const RM_MP: _bindgen_ty_3 = 37;
+pub const RM_MPWL: _bindgen_ty_3 = 38;
+pub const RM_AC: _bindgen_ty_3 = 39;
+pub const RM_HTTP: _bindgen_ty_3 = 40;
+pub const RM_DSP: _bindgen_ty_3 = 41;
+pub const RM_SND: _bindgen_ty_3 = 42;
+pub const RM_DLP: _bindgen_ty_3 = 43;
+pub const RM_HIO_LOW: _bindgen_ty_3 = 44;
+pub const RM_CSND: _bindgen_ty_3 = 45;
+pub const RM_SSL: _bindgen_ty_3 = 46;
+pub const RM_AM_LOW: _bindgen_ty_3 = 47;
+pub const RM_NEX: _bindgen_ty_3 = 48;
+pub const RM_FRIENDS: _bindgen_ty_3 = 49;
+pub const RM_RDT: _bindgen_ty_3 = 50;
+pub const RM_APPLET: _bindgen_ty_3 = 51;
+pub const RM_NIM: _bindgen_ty_3 = 52;
+pub const RM_PTM: _bindgen_ty_3 = 53;
+pub const RM_MIDI: _bindgen_ty_3 = 54;
+pub const RM_MC: _bindgen_ty_3 = 55;
+pub const RM_SWC: _bindgen_ty_3 = 56;
+pub const RM_FATFS: _bindgen_ty_3 = 57;
+pub const RM_NGC: _bindgen_ty_3 = 58;
+pub const RM_CARD: _bindgen_ty_3 = 59;
+pub const RM_CARDNOR: _bindgen_ty_3 = 60;
+pub const RM_SDMC: _bindgen_ty_3 = 61;
+pub const RM_BOSS: _bindgen_ty_3 = 62;
+pub const RM_DBM: _bindgen_ty_3 = 63;
+pub const RM_CONFIG: _bindgen_ty_3 = 64;
+pub const RM_PS: _bindgen_ty_3 = 65;
+pub const RM_CEC: _bindgen_ty_3 = 66;
+pub const RM_IR: _bindgen_ty_3 = 67;
+pub const RM_UDS: _bindgen_ty_3 = 68;
+pub const RM_PL: _bindgen_ty_3 = 69;
+pub const RM_CUP: _bindgen_ty_3 = 70;
+pub const RM_GYROSCOPE: _bindgen_ty_3 = 71;
+pub const RM_MCU: _bindgen_ty_3 = 72;
+pub const RM_NS: _bindgen_ty_3 = 73;
+pub const RM_NEWS: _bindgen_ty_3 = 74;
+pub const RM_RO: _bindgen_ty_3 = 75;
+pub const RM_GD: _bindgen_ty_3 = 76;
+pub const RM_CARD_SPI: _bindgen_ty_3 = 77;
+pub const RM_EC: _bindgen_ty_3 = 78;
+pub const RM_WEB_BROWSER: _bindgen_ty_3 = 79;
+pub const RM_TEST: _bindgen_ty_3 = 80;
+pub const RM_ENC: _bindgen_ty_3 = 81;
+pub const RM_PIA: _bindgen_ty_3 = 82;
+pub const RM_ACT: _bindgen_ty_3 = 83;
+pub const RM_VCTL: _bindgen_ty_3 = 84;
+pub const RM_OLV: _bindgen_ty_3 = 85;
+pub const RM_NEIA: _bindgen_ty_3 = 86;
+pub const RM_NPNS: _bindgen_ty_3 = 87;
+pub const RM_AVD: _bindgen_ty_3 = 90;
+pub const RM_L2B: _bindgen_ty_3 = 91;
+pub const RM_MVD: _bindgen_ty_3 = 92;
+pub const RM_NFC: _bindgen_ty_3 = 93;
+pub const RM_UART: _bindgen_ty_3 = 94;
+pub const RM_SPM: _bindgen_ty_3 = 95;
+pub const RM_QTM: _bindgen_ty_3 = 96;
+pub const RM_NFP: _bindgen_ty_3 = 97;
+pub const RM_APPLICATION: _bindgen_ty_3 = 254;
+pub const RM_INVALIDRESVAL: _bindgen_ty_3 = 255;
+pub type _bindgen_ty_3 = libc::c_uint;
+pub const RD_SUCCESS: _bindgen_ty_4 = 0;
+pub const RD_INVALID_RESULT_VALUE: _bindgen_ty_4 = 1023;
+pub const RD_TIMEOUT: _bindgen_ty_4 = 1022;
+pub const RD_OUT_OF_RANGE: _bindgen_ty_4 = 1021;
+pub const RD_ALREADY_EXISTS: _bindgen_ty_4 = 1020;
+pub const RD_CANCEL_REQUESTED: _bindgen_ty_4 = 1019;
+pub const RD_NOT_FOUND: _bindgen_ty_4 = 1018;
+pub const RD_ALREADY_INITIALIZED: _bindgen_ty_4 = 1017;
+pub const RD_NOT_INITIALIZED: _bindgen_ty_4 = 1016;
+pub const RD_INVALID_HANDLE: _bindgen_ty_4 = 1015;
+pub const RD_INVALID_POINTER: _bindgen_ty_4 = 1014;
+pub const RD_INVALID_ADDRESS: _bindgen_ty_4 = 1013;
+pub const RD_NOT_IMPLEMENTED: _bindgen_ty_4 = 1012;
+pub const RD_OUT_OF_MEMORY: _bindgen_ty_4 = 1011;
+pub const RD_MISALIGNED_SIZE: _bindgen_ty_4 = 1010;
+pub const RD_MISALIGNED_ADDRESS: _bindgen_ty_4 = 1009;
+pub const RD_BUSY: _bindgen_ty_4 = 1008;
+pub const RD_NO_DATA: _bindgen_ty_4 = 1007;
+pub const RD_INVALID_COMBINATION: _bindgen_ty_4 = 1006;
+pub const RD_INVALID_ENUM_VALUE: _bindgen_ty_4 = 1005;
+pub const RD_INVALID_SIZE: _bindgen_ty_4 = 1004;
+pub const RD_ALREADY_DONE: _bindgen_ty_4 = 1003;
+pub const RD_NOT_AUTHORIZED: _bindgen_ty_4 = 1002;
+pub const RD_TOO_LARGE: _bindgen_ty_4 = 1001;
+pub const RD_INVALID_SELECTION: _bindgen_ty_4 = 1000;
+pub type _bindgen_ty_4 = libc::c_uint;
+pub const IPC_BUFFER_R: IPC_BufferRights = 2;
+pub const IPC_BUFFER_W: IPC_BufferRights = 4;
+pub const IPC_BUFFER_RW: IPC_BufferRights = 6;
+pub type IPC_BufferRights = libc::c_uint;
+pub const MEMOP_FREE: MemOp = 1;
+pub const MEMOP_RESERVE: MemOp = 2;
+pub const MEMOP_ALLOC: MemOp = 3;
+pub const MEMOP_MAP: MemOp = 4;
+pub const MEMOP_UNMAP: MemOp = 5;
+pub const MEMOP_PROT: MemOp = 6;
+pub const MEMOP_REGION_APP: MemOp = 256;
+pub const MEMOP_REGION_SYSTEM: MemOp = 512;
+pub const MEMOP_REGION_BASE: MemOp = 768;
+pub const MEMOP_OP_MASK: MemOp = 255;
+pub const MEMOP_REGION_MASK: MemOp = 3840;
+pub const MEMOP_LINEAR_FLAG: MemOp = 65536;
+pub const MEMOP_ALLOC_LINEAR: MemOp = 65539;
+pub type MemOp = libc::c_uint;
+pub const MEMSTATE_FREE: MemState = 0;
+pub const MEMSTATE_RESERVED: MemState = 1;
+pub const MEMSTATE_IO: MemState = 2;
+pub const MEMSTATE_STATIC: MemState = 3;
+pub const MEMSTATE_CODE: MemState = 4;
+pub const MEMSTATE_PRIVATE: MemState = 5;
+pub const MEMSTATE_SHARED: MemState = 6;
+pub const MEMSTATE_CONTINUOUS: MemState = 7;
+pub const MEMSTATE_ALIASED: MemState = 8;
+pub const MEMSTATE_ALIAS: MemState = 9;
+pub const MEMSTATE_ALIASCODE: MemState = 10;
+pub const MEMSTATE_LOCKED: MemState = 11;
+pub type MemState = libc::c_uint;
+pub const MEMPERM_READ: MemPerm = 1;
+pub const MEMPERM_WRITE: MemPerm = 2;
+pub const MEMPERM_EXECUTE: MemPerm = 4;
+pub const MEMPERM_DONTCARE: MemPerm = 268435456;
+pub type MemPerm = libc::c_uint;
 #[repr(C)]
-#[derive(Copy)]
 pub struct MemInfo {
     pub base_addr: u32,
     pub size: u32,
     pub perm: u32,
     pub state: u32,
 }
-impl Clone for MemInfo {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
 pub struct PageInfo {
     pub flags: u32,
 }
-impl Clone for PageInfo {
-    fn clone(&self) -> Self { *self }
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum ArbitrationType {
-    ARBITRATION_SIGNAL = 0,
-    ARBITRATION_WAIT_IF_LESS_THAN = 1,
-    ARBITRATION_DECREMENT_AND_WAIT_IF_LESS_THAN = 2,
-    ARBITRATION_WAIT_IF_LESS_THAN_TIMEOUT = 3,
-    ARBITRATION_DECREMENT_AND_WAIT_IF_LESS_THAN_TIMEOUT = 4,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum ResetType { RESET_ONESHOT = 0, RESET_STICKY = 1, RESET_PULSE = 2, }
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum ThreadInfoType { THREADINFO_TYPE_UNKNOWN = 0, }
+pub const ARBITRATION_SIGNAL: ArbitrationType = 0;
+pub const ARBITRATION_WAIT_IF_LESS_THAN: ArbitrationType = 1;
+pub const ARBITRATION_DECREMENT_AND_WAIT_IF_LESS_THAN: ArbitrationType = 2;
+pub const ARBITRATION_WAIT_IF_LESS_THAN_TIMEOUT: ArbitrationType = 3;
+pub const ARBITRATION_DECREMENT_AND_WAIT_IF_LESS_THAN_TIMEOUT: ArbitrationType = 4;
+pub type ArbitrationType = libc::c_uint;
+pub const RESET_ONESHOT: ResetType = 0;
+pub const RESET_STICKY: ResetType = 1;
+pub const RESET_PULSE: ResetType = 2;
+pub type ResetType = libc::c_uint;
+pub const THREADINFO_TYPE_UNKNOWN: ThreadInfoType = 0;
+pub type ThreadInfoType = libc::c_uint;
+pub const RESLIMIT_PRIORITY: ResourceLimitType = 0;
+pub const RESLIMIT_COMMIT: ResourceLimitType = 1;
+pub const RESLIMIT_THREAD: ResourceLimitType = 2;
+pub const RESLIMIT_EVENT: ResourceLimitType = 3;
+pub const RESLIMIT_MUTEX: ResourceLimitType = 4;
+pub const RESLIMIT_SEMAPHORE: ResourceLimitType = 5;
+pub const RESLIMIT_TIMER: ResourceLimitType = 6;
+pub const RESLIMIT_SHAREDMEMORY: ResourceLimitType = 7;
+pub const RESLIMIT_ADDRESSARBITER: ResourceLimitType = 8;
+pub const RESLIMIT_CPUTIME: ResourceLimitType = 9;
+pub const RESLIMIT_BIT: ResourceLimitType = 2147483648;
+pub type ResourceLimitType = libc::c_uint;
 #[repr(C)]
-#[derive(Copy)]
 pub struct AttachProcessEvent {
     pub program_id: u64,
     pub process_name: [libc::c_char; 8usize],
     pub process_id: u32,
     pub other_flags: u32,
 }
-impl Clone for AttachProcessEvent {
-    fn clone(&self) -> Self { *self }
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum ExitProcessEventReason {
-    EXITPROCESS_EVENT_EXIT = 0,
-    EXITPROCESS_EVENT_TERMINATE = 1,
-    EXITPROCESS_EVENT_DEBUG_TERMINATE = 2,
-}
+pub const EXITPROCESS_EVENT_EXIT: ExitProcessEventReason = 0;
+pub const EXITPROCESS_EVENT_TERMINATE: ExitProcessEventReason = 1;
+pub const EXITPROCESS_EVENT_DEBUG_TERMINATE: ExitProcessEventReason = 2;
+pub type ExitProcessEventReason = libc::c_uint;
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct ExitProcessEvent {
     pub reason: ExitProcessEventReason,
 }
-impl Clone for ExitProcessEvent {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
 pub struct AttachThreadEvent {
     pub creator_thread_id: u32,
     pub thread_local_storage: u32,
     pub entry_point: u32,
 }
-impl Clone for AttachThreadEvent {
-    fn clone(&self) -> Self { *self }
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum ExitThreadEventReason {
-    EXITTHREAD_EVENT_EXIT = 0,
-    EXITTHREAD_EVENT_TERMINATE = 1,
-    EXITTHREAD_EVENT_EXIT_PROCESS = 2,
-    EXITTHREAD_EVENT_TERMINATE_PROCESS = 3,
-}
+pub const EXITTHREAD_EVENT_EXIT: ExitThreadEventReason = 0;
+pub const EXITTHREAD_EVENT_TERMINATE: ExitThreadEventReason = 1;
+pub const EXITTHREAD_EVENT_EXIT_PROCESS: ExitThreadEventReason = 2;
+pub const EXITTHREAD_EVENT_TERMINATE_PROCESS: ExitThreadEventReason = 3;
+pub type ExitThreadEventReason = libc::c_uint;
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct ExitThreadEvent {
     pub reason: ExitThreadEventReason,
 }
-impl Clone for ExitThreadEvent {
-    fn clone(&self) -> Self { *self }
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum UserBreakType {
-    USERBREAK_PANIC = 0,
-    USERBREAK_ASSERT = 1,
-    USERBREAK_USER = 2,
-    USERBREAK_LOAD_RO = 3,
-    USERBREAK_UNLOAD_RO = 4,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum ExceptionEventType {
-    EXCEVENT_UNDEFINED_INSTRUCTION = 0,
-    EXCEVENT_PREFETCH_ABORT = 1,
-    EXCEVENT_DATA_ABORT = 2,
-    EXCEVENT_UNALIGNED_DATA_ACCESS = 3,
-    EXCEVENT_ATTACH_BREAK = 4,
-    EXCEVENT_STOP_POINT = 5,
-    EXCEVENT_USER_BREAK = 6,
-    EXCEVENT_DEBUGGER_BREAK = 7,
-    EXCEVENT_UNDEFINED_SYSCALL = 8,
-}
+pub const USERBREAK_PANIC: UserBreakType = 0;
+pub const USERBREAK_ASSERT: UserBreakType = 1;
+pub const USERBREAK_USER: UserBreakType = 2;
+pub const USERBREAK_LOAD_RO: UserBreakType = 3;
+pub const USERBREAK_UNLOAD_RO: UserBreakType = 4;
+pub type UserBreakType = libc::c_uint;
+pub const EXCEVENT_UNDEFINED_INSTRUCTION: ExceptionEventType = 0;
+pub const EXCEVENT_PREFETCH_ABORT: ExceptionEventType = 1;
+pub const EXCEVENT_DATA_ABORT: ExceptionEventType = 2;
+pub const EXCEVENT_UNALIGNED_DATA_ACCESS: ExceptionEventType = 3;
+pub const EXCEVENT_ATTACH_BREAK: ExceptionEventType = 4;
+pub const EXCEVENT_STOP_POINT: ExceptionEventType = 5;
+pub const EXCEVENT_USER_BREAK: ExceptionEventType = 6;
+pub const EXCEVENT_DEBUGGER_BREAK: ExceptionEventType = 7;
+pub const EXCEVENT_UNDEFINED_SYSCALL: ExceptionEventType = 8;
+pub type ExceptionEventType = libc::c_uint;
 #[repr(C)]
-#[derive(Copy)]
 pub struct FaultExceptionEvent {
     pub fault_information: u32,
 }
-impl Clone for FaultExceptionEvent {
-    fn clone(&self) -> Self { *self }
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum StopPointType {
-    STOPPOINT_SVC_FF = 0,
-    STOPPOINT_BREAKPOINT = 1,
-    STOPPOINT_WATCHPOINT = 2,
-}
+pub const STOPPOINT_SVC_FF: StopPointType = 0;
+pub const STOPPOINT_BREAKPOINT: StopPointType = 1;
+pub const STOPPOINT_WATCHPOINT: StopPointType = 2;
+pub type StopPointType = libc::c_uint;
 #[repr(C)]
-#[derive(Copy)]
 pub struct StopPointExceptionEvent {
     pub type_: StopPointType,
     pub fault_information: u32,
 }
-impl Clone for StopPointExceptionEvent {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
 pub struct UserBreakExceptionEvent {
     pub type_: UserBreakType,
     pub croInfo: u32,
     pub croInfoSize: u32,
 }
-impl Clone for UserBreakExceptionEvent {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct DebuggerBreakExceptionEvent {
     pub thread_ids: [s32; 4usize],
 }
-impl Clone for DebuggerBreakExceptionEvent {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
 pub struct ExceptionEvent {
     pub type_: ExceptionEventType,
     pub address: u32,
     pub __bindgen_anon_1: ExceptionEvent__bindgen_ty_1,
 }
 #[repr(C)]
-#[derive(Copy)]
-pub union ExceptionEvent__bindgen_ty_1 {
-    pub fault: FaultExceptionEvent,
-    pub stop_point: StopPointExceptionEvent,
-    pub user_break: UserBreakExceptionEvent,
-    pub debugger_break: DebuggerBreakExceptionEvent,
-}
-impl Clone for ExceptionEvent__bindgen_ty_1 {
-    fn clone(&self) -> Self { *self }
-}
-impl Clone for ExceptionEvent {
-    fn clone(&self) -> Self { *self }
+pub struct ExceptionEvent__bindgen_ty_1 {
+    pub fault: __BindgenUnionField<FaultExceptionEvent>,
+    pub stop_point: __BindgenUnionField<StopPointExceptionEvent>,
+    pub user_break: __BindgenUnionField<UserBreakExceptionEvent>,
+    pub debugger_break: __BindgenUnionField<DebuggerBreakExceptionEvent>,
+    pub bindgen_union_field: [u32; 4usize],
 }
 #[repr(C)]
-#[derive(Copy)]
 pub struct ScheduleInOutEvent {
     pub clock_tick: u64,
 }
-impl Clone for ScheduleInOutEvent {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
 pub struct SyscallInOutEvent {
     pub clock_tick: u64,
     pub syscall: u32,
 }
-impl Clone for SyscallInOutEvent {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
 pub struct OutputStringEvent {
     pub string_addr: u32,
     pub string_size: u32,
 }
-impl Clone for OutputStringEvent {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
 pub struct MapEvent {
     pub mapped_addr: u32,
     pub mapped_size: u32,
     pub memperm: MemPerm,
     pub memstate: MemState,
 }
-impl Clone for MapEvent {
-    fn clone(&self) -> Self { *self }
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum DebugEventType {
-    DBGEVENT_ATTACH_PROCESS = 0,
-    DBGEVENT_ATTACH_THREAD = 1,
-    DBGEVENT_EXIT_THREAD = 2,
-    DBGEVENT_EXIT_PROCESS = 3,
-    DBGEVENT_EXCEPTION = 4,
-    DBGEVENT_DLL_LOAD = 5,
-    DBGEVENT_DLL_UNLOAD = 6,
-    DBGEVENT_SCHEDULE_IN = 7,
-    DBGEVENT_SCHEDULE_OUT = 8,
-    DBGEVENT_SYSCALL_IN = 9,
-    DBGEVENT_SYSCALL_OUT = 10,
-    DBGEVENT_OUTPUT_STRING = 11,
-    DBGEVENT_MAP = 12,
-}
+pub const DBGEVENT_ATTACH_PROCESS: DebugEventType = 0;
+pub const DBGEVENT_ATTACH_THREAD: DebugEventType = 1;
+pub const DBGEVENT_EXIT_THREAD: DebugEventType = 2;
+pub const DBGEVENT_EXIT_PROCESS: DebugEventType = 3;
+pub const DBGEVENT_EXCEPTION: DebugEventType = 4;
+pub const DBGEVENT_DLL_LOAD: DebugEventType = 5;
+pub const DBGEVENT_DLL_UNLOAD: DebugEventType = 6;
+pub const DBGEVENT_SCHEDULE_IN: DebugEventType = 7;
+pub const DBGEVENT_SCHEDULE_OUT: DebugEventType = 8;
+pub const DBGEVENT_SYSCALL_IN: DebugEventType = 9;
+pub const DBGEVENT_SYSCALL_OUT: DebugEventType = 10;
+pub const DBGEVENT_OUTPUT_STRING: DebugEventType = 11;
+pub const DBGEVENT_MAP: DebugEventType = 12;
+pub type DebugEventType = libc::c_uint;
 #[repr(C)]
-#[derive(Copy)]
 pub struct DebugEventInfo {
     pub type_: DebugEventType,
     pub thread_id: u32,
@@ -1688,63 +1473,43 @@ pub struct DebugEventInfo {
     pub __bindgen_anon_1: DebugEventInfo__bindgen_ty_1,
 }
 #[repr(C)]
-#[derive(Copy)]
-pub union DebugEventInfo__bindgen_ty_1 {
-    pub attach_process: AttachProcessEvent,
-    pub attach_thread: AttachThreadEvent,
-    pub exit_thread: ExitThreadEvent,
-    pub exit_process: ExitProcessEvent,
-    pub exception: ExceptionEvent,
-    pub scheduler: ScheduleInOutEvent,
-    pub syscall: SyscallInOutEvent,
-    pub output_string: OutputStringEvent,
-    pub map: MapEvent,
+pub struct DebugEventInfo__bindgen_ty_1 {
+    pub attach_process: __BindgenUnionField<AttachProcessEvent>,
+    pub attach_thread: __BindgenUnionField<AttachThreadEvent>,
+    pub exit_thread: __BindgenUnionField<ExitThreadEvent>,
+    pub exit_process: __BindgenUnionField<ExitProcessEvent>,
+    pub exception: __BindgenUnionField<ExceptionEvent>,
+    pub scheduler: __BindgenUnionField<ScheduleInOutEvent>,
+    pub syscall: __BindgenUnionField<SyscallInOutEvent>,
+    pub output_string: __BindgenUnionField<OutputStringEvent>,
+    pub map: __BindgenUnionField<MapEvent>,
+    pub bindgen_union_field: [u64; 3usize],
 }
-impl Clone for DebugEventInfo__bindgen_ty_1 {
-    fn clone(&self) -> Self { *self }
-}
-impl Clone for DebugEventInfo {
-    fn clone(&self) -> Self { *self }
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum DebugFlags {
-    DBG_INHIBIT_USER_CPU_EXCEPTION_HANDLERS = 1,
-    DBG_SIGNAL_FAULT_EXCEPTION_EVENTS = 2,
-    DBG_SIGNAL_SCHEDULE_EVENTS = 4,
-    DBG_SIGNAL_SYSCALL_EVENTS = 8,
-    DBG_SIGNAL_MAP_EVENTS = 16,
-}
+pub const DBG_INHIBIT_USER_CPU_EXCEPTION_HANDLERS: DebugFlags = 1;
+pub const DBG_SIGNAL_FAULT_EXCEPTION_EVENTS: DebugFlags = 2;
+pub const DBG_SIGNAL_SCHEDULE_EVENTS: DebugFlags = 4;
+pub const DBG_SIGNAL_SYSCALL_EVENTS: DebugFlags = 8;
+pub const DBG_SIGNAL_MAP_EVENTS: DebugFlags = 16;
+pub type DebugFlags = libc::c_uint;
 #[repr(C)]
-#[derive(Copy)]
 pub struct ThreadContext {
     pub cpu_registers: CpuRegisters,
     pub fpu_registers: FpuRegisters,
 }
-impl Clone for ThreadContext {
-    fn clone(&self) -> Self { *self }
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum ThreadContextControlFlags {
-    THREADCONTEXT_CONTROL_CPU_GPRS = 1,
-    THREADCONTEXT_CONTROL_CPU_SPRS = 2,
-    THREADCONTEXT_CONTROL_FPU_GPRS = 4,
-    THREADCONTEXT_CONTROL_FPU_SPRS = 8,
-    THREADCONTEXT_CONTROL_CPU_REGS = 3,
-    THREADCONTEXT_CONTROL_FPU_REGS = 12,
-    THREADCONTEXT_CONTROL_ALL = 15,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum DebugThreadParameter {
-    DBGTHREAD_PARAMETER_PRIORITY = 0,
-    DBGTHREAD_PARAMETER_SCHEDULING_MASK_LOW = 1,
-    DBGTHREAD_PARAMETER_CPU_IDEAL = 2,
-    DBGTHREAD_PARAMETER_CPU_CREATOR = 3,
-}
+pub const THREADCONTEXT_CONTROL_CPU_GPRS: ThreadContextControlFlags = 1;
+pub const THREADCONTEXT_CONTROL_CPU_SPRS: ThreadContextControlFlags = 2;
+pub const THREADCONTEXT_CONTROL_FPU_GPRS: ThreadContextControlFlags = 4;
+pub const THREADCONTEXT_CONTROL_FPU_SPRS: ThreadContextControlFlags = 8;
+pub const THREADCONTEXT_CONTROL_CPU_REGS: ThreadContextControlFlags = 3;
+pub const THREADCONTEXT_CONTROL_FPU_REGS: ThreadContextControlFlags = 12;
+pub const THREADCONTEXT_CONTROL_ALL: ThreadContextControlFlags = 15;
+pub type ThreadContextControlFlags = libc::c_uint;
+pub const DBGTHREAD_PARAMETER_PRIORITY: DebugThreadParameter = 0;
+pub const DBGTHREAD_PARAMETER_SCHEDULING_MASK_LOW: DebugThreadParameter = 1;
+pub const DBGTHREAD_PARAMETER_CPU_IDEAL: DebugThreadParameter = 2;
+pub const DBGTHREAD_PARAMETER_CPU_CREATOR: DebugThreadParameter = 3;
+pub type DebugThreadParameter = libc::c_uint;
 #[repr(C)]
-#[derive(Copy)]
 pub struct CodeSetInfo {
     pub name: [u8; 8usize],
     pub unk1: u16,
@@ -1762,11 +1527,7 @@ pub struct CodeSetInfo {
     pub unk4: u32,
     pub program_id: u64,
 }
-impl Clone for CodeSetInfo {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
 pub struct StartupInfo {
     pub priority: libc::c_int,
     pub stack_size: u32,
@@ -1774,43 +1535,62 @@ pub struct StartupInfo {
     pub argv: *mut u16,
     pub envp: *mut u16,
 }
-impl Clone for StartupInfo {
-    fn clone(&self) -> Self { *self }
+extern "C" {
+    pub fn svcControlMemory(
+        addr_out: *mut u32,
+        addr0: u32,
+        addr1: u32,
+        size: u32,
+        op: MemOp,
+        perm: MemPerm,
+    ) -> Result;
 }
 extern "C" {
-    pub fn svcControlMemory(addr_out: *mut u32, addr0: u32, addr1: u32,
-                            size: u32, op: MemOp, perm: MemPerm) -> Result;
+    pub fn svcControlProcessMemory(
+        process: Handle,
+        addr0: u32,
+        addr1: u32,
+        size: u32,
+        type_: u32,
+        perm: u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn svcControlProcessMemory(process: Handle, addr0: u32, addr1: u32,
-                                   size: u32, type_: u32, perm: u32)
-     -> Result;
+    pub fn svcCreateMemoryBlock(
+        memblock: *mut Handle,
+        addr: u32,
+        size: u32,
+        my_perm: MemPerm,
+        other_perm: MemPerm,
+    ) -> Result;
 }
 extern "C" {
-    pub fn svcCreateMemoryBlock(memblock: *mut Handle, addr: u32, size: u32,
-                                my_perm: MemPerm, other_perm: MemPerm)
-     -> Result;
+    pub fn svcMapMemoryBlock(
+        memblock: Handle,
+        addr: u32,
+        my_perm: MemPerm,
+        other_perm: MemPerm,
+    ) -> Result;
 }
 extern "C" {
-    pub fn svcMapMemoryBlock(memblock: Handle, addr: u32, my_perm: MemPerm,
-                             other_perm: MemPerm) -> Result;
+    pub fn svcMapProcessMemory(process: Handle, destAddress: u32, size: u32) -> Result;
 }
 extern "C" {
-    pub fn svcMapProcessMemory(process: Handle, destAddress: u32, size: u32)
-     -> Result;
-}
-extern "C" {
-    pub fn svcUnmapProcessMemory(process: Handle, destAddress: u32, size: u32)
-     -> Result;
+    pub fn svcUnmapProcessMemory(process: Handle, destAddress: u32, size: u32) -> Result;
 }
 extern "C" {
     pub fn svcUnmapMemoryBlock(memblock: Handle, addr: u32) -> Result;
 }
 extern "C" {
-    pub fn svcStartInterProcessDma(dma: *mut Handle, dstProcess: Handle,
-                                   dst: *mut libc::c_void, srcProcess: Handle,
-                                   src: *const libc::c_void, size: u32,
-                                   dmaConfig: *mut libc::c_void) -> Result;
+    pub fn svcStartInterProcessDma(
+        dma: *mut Handle,
+        dstProcess: Handle,
+        dst: *mut libc::c_void,
+        srcProcess: Handle,
+        src: *const libc::c_void,
+        size: u32,
+        dmaConfig: *mut libc::c_void,
+    ) -> Result;
 }
 extern "C" {
     pub fn svcStopDma(dma: Handle) -> Result;
@@ -1819,26 +1599,32 @@ extern "C" {
     pub fn svcGetDmaState(dmaState: *mut libc::c_void, dma: Handle) -> Result;
 }
 extern "C" {
-    pub fn svcQueryMemory(info: *mut MemInfo, out: *mut PageInfo, addr: u32)
-     -> Result;
+    pub fn svcQueryMemory(info: *mut MemInfo, out: *mut PageInfo, addr: u32) -> Result;
 }
 extern "C" {
-    pub fn svcQueryProcessMemory(info: *mut MemInfo, out: *mut PageInfo,
-                                 process: Handle, addr: u32) -> Result;
+    pub fn svcQueryProcessMemory(
+        info: *mut MemInfo,
+        out: *mut PageInfo,
+        process: Handle,
+        addr: u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn svcInvalidateProcessDataCache(process: Handle,
-                                         addr: *mut libc::c_void, size: u32)
-     -> Result;
+    pub fn svcInvalidateProcessDataCache(
+        process: Handle,
+        addr: *mut libc::c_void,
+        size: u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn svcStoreProcessDataCache(process: Handle, addr: *mut libc::c_void,
-                                    size: u32) -> Result;
+    pub fn svcStoreProcessDataCache(process: Handle, addr: *mut libc::c_void, size: u32) -> Result;
 }
 extern "C" {
-    pub fn svcFlushProcessDataCache(process: Handle,
-                                    addr: *const libc::c_void, size: u32)
-     -> Result;
+    pub fn svcFlushProcessDataCache(
+        process: Handle,
+        addr: *const libc::c_void,
+        size: u32,
+    ) -> Result;
 }
 extern "C" {
     pub fn svcOpenProcess(process: *mut Handle, processId: u32) -> Result;
@@ -1850,67 +1636,89 @@ extern "C" {
     pub fn svcTerminateProcess(process: Handle) -> Result;
 }
 extern "C" {
-    pub fn svcGetProcessInfo(out: *mut s64, process: Handle, type_: u32)
-     -> Result;
+    pub fn svcGetProcessInfo(out: *mut s64, process: Handle, type_: u32) -> Result;
 }
 extern "C" {
     pub fn svcGetProcessId(out: *mut u32, handle: Handle) -> Result;
 }
 extern "C" {
-    pub fn svcGetProcessList(processCount: *mut s32, processIds: *mut u32,
-                             processIdMaxCount: s32) -> Result;
+    pub fn svcGetProcessList(
+        processCount: *mut s32,
+        processIds: *mut u32,
+        processIdMaxCount: s32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn svcGetThreadList(threadCount: *mut s32, threadIds: *mut u32,
-                            threadIdMaxCount: s32, process: Handle) -> Result;
+    pub fn svcGetThreadList(
+        threadCount: *mut s32,
+        threadIds: *mut u32,
+        threadIdMaxCount: s32,
+        process: Handle,
+    ) -> Result;
 }
 extern "C" {
-    pub fn svcCreatePort(portServer: *mut Handle, portClient: *mut Handle,
-                         name: *const libc::c_char, maxSessions: s32)
-     -> Result;
+    pub fn svcCreatePort(
+        portServer: *mut Handle,
+        portClient: *mut Handle,
+        name: *const libc::c_char,
+        maxSessions: s32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn svcConnectToPort(out: *mut Handle, portName: *const libc::c_char)
-     -> Result;
+    pub fn svcConnectToPort(out: *mut Handle, portName: *const libc::c_char) -> Result;
 }
 extern "C" {
-    pub fn svcCreateCodeSet(out: *mut Handle, info: *const CodeSetInfo,
-                            code_ptr: *mut libc::c_void,
-                            ro_ptr: *mut libc::c_void,
-                            data_ptr: *mut libc::c_void) -> Result;
+    pub fn svcCreateCodeSet(
+        out: *mut Handle,
+        info: *const CodeSetInfo,
+        code_ptr: *mut libc::c_void,
+        ro_ptr: *mut libc::c_void,
+        data_ptr: *mut libc::c_void,
+    ) -> Result;
 }
 extern "C" {
-    pub fn svcCreateProcess(out: *mut Handle, codeset: Handle,
-                            arm11kernelcaps: *const u32,
-                            arm11kernelcaps_num: u32) -> Result;
+    pub fn svcCreateProcess(
+        out: *mut Handle,
+        codeset: Handle,
+        arm11kernelcaps: *const u32,
+        arm11kernelcaps_num: u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn svcGetProcessAffinityMask(affinitymask: *mut u8, process: Handle,
-                                     processorcount: s32) -> Result;
+    pub fn svcGetProcessAffinityMask(
+        affinitymask: *mut u8,
+        process: Handle,
+        processorcount: s32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn svcSetProcessAffinityMask(process: Handle, affinitymask: *const u8,
-                                     processorcount: s32) -> Result;
+    pub fn svcSetProcessAffinityMask(
+        process: Handle,
+        affinitymask: *const u8,
+        processorcount: s32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn svcGetProcessIdealProcessor(processorid: *mut s32, process: Handle)
-     -> Result;
+    pub fn svcGetProcessIdealProcessor(processorid: *mut s32, process: Handle) -> Result;
 }
 extern "C" {
-    pub fn svcSetProcessIdealProcessor(process: Handle, processorid: s32)
-     -> Result;
+    pub fn svcSetProcessIdealProcessor(process: Handle, processorid: s32) -> Result;
 }
 extern "C" {
     pub fn svcRun(process: Handle, info: *const StartupInfo) -> Result;
 }
 extern "C" {
-    pub fn svcCreateThread(thread: *mut Handle, entrypoint: ThreadFunc,
-                           arg: u32, stack_top: *mut u32,
-                           thread_priority: s32, processor_id: s32) -> Result;
+    pub fn svcCreateThread(
+        thread: *mut Handle,
+        entrypoint: ThreadFunc,
+        arg: u32,
+        stack_top: *mut u32,
+        thread_priority: s32,
+        processor_id: s32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn svcOpenThread(thread: *mut Handle, process: Handle, threadId: u32)
-     -> Result;
+    pub fn svcOpenThread(thread: *mut Handle, process: Handle, threadId: u32) -> Result;
 }
 extern "C" {
     pub fn svcExitThread();
@@ -1925,20 +1733,24 @@ extern "C" {
     pub fn svcSetThreadPriority(thread: Handle, prio: s32) -> Result;
 }
 extern "C" {
-    pub fn svcGetThreadAffinityMask(affinitymask: *mut u8, thread: Handle,
-                                    processorcount: s32) -> Result;
+    pub fn svcGetThreadAffinityMask(
+        affinitymask: *mut u8,
+        thread: Handle,
+        processorcount: s32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn svcSetThreadAffinityMask(thread: Handle, affinitymask: *const u8,
-                                    processorcount: s32) -> Result;
+    pub fn svcSetThreadAffinityMask(
+        thread: Handle,
+        affinitymask: *const u8,
+        processorcount: s32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn svcGetThreadIdealProcessor(processorid: *mut s32, thread: Handle)
-     -> Result;
+    pub fn svcGetThreadIdealProcessor(processorid: *mut s32, thread: Handle) -> Result;
 }
 extern "C" {
-    pub fn svcSetThreadIdealProcessor(thread: Handle, processorid: s32)
-     -> Result;
+    pub fn svcSetThreadIdealProcessor(thread: Handle, processorid: s32) -> Result;
 }
 extern "C" {
     pub fn svcGetProcessorID() -> s32;
@@ -1947,58 +1759,59 @@ extern "C" {
     pub fn svcGetThreadId(out: *mut u32, handle: Handle) -> Result;
 }
 extern "C" {
-    pub fn svcGetResourceLimit(resourceLimit: *mut Handle, process: Handle)
-     -> Result;
+    pub fn svcGetResourceLimit(resourceLimit: *mut Handle, process: Handle) -> Result;
 }
 extern "C" {
-    pub fn svcGetResourceLimitLimitValues(values: *mut s64,
-                                          resourceLimit: Handle,
-                                          names: *mut u32, nameCount: s32)
-     -> Result;
+    pub fn svcGetResourceLimitLimitValues(
+        values: *mut s64,
+        resourceLimit: Handle,
+        names: *mut ResourceLimitType,
+        nameCount: s32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn svcGetResourceLimitCurrentValues(values: *mut s64,
-                                            resourceLimit: Handle,
-                                            names: *mut u32, nameCount: s32)
-     -> Result;
+    pub fn svcGetResourceLimitCurrentValues(
+        values: *mut s64,
+        resourceLimit: Handle,
+        names: *mut ResourceLimitType,
+        nameCount: s32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn svcSetProcessResourceLimits(process: Handle, resourceLimit: Handle)
-     -> Result;
+    pub fn svcSetProcessResourceLimits(process: Handle, resourceLimit: Handle) -> Result;
 }
 extern "C" {
     pub fn svcCreateResourceLimit(resourceLimit: *mut Handle) -> Result;
 }
 extern "C" {
-    pub fn svcSetResourceLimitValues(resourceLimit: Handle, names: *const u32,
-                                     values: *const s64, nameCount: s32)
-     -> Result;
+    pub fn svcSetResourceLimitValues(
+        resourceLimit: Handle,
+        names: *const ResourceLimitType,
+        values: *const s64,
+        nameCount: s32,
+    ) -> Result;
 }
 extern "C" {
     pub fn svcGetProcessIdOfThread(out: *mut u32, handle: Handle) -> Result;
 }
 extern "C" {
-    pub fn svcGetThreadInfo(out: *mut s64, thread: Handle,
-                            type_: ThreadInfoType) -> Result;
+    pub fn svcGetThreadInfo(out: *mut s64, thread: Handle, type_: ThreadInfoType) -> Result;
 }
 extern "C" {
-    pub fn svcCreateMutex(mutex: *mut Handle, initially_locked: bool)
-     -> Result;
+    pub fn svcCreateMutex(mutex: *mut Handle, initially_locked: bool) -> Result;
 }
 extern "C" {
     pub fn svcReleaseMutex(handle: Handle) -> Result;
 }
 extern "C" {
-    pub fn svcCreateSemaphore(semaphore: *mut Handle, initial_count: s32,
-                              max_count: s32) -> Result;
+    pub fn svcCreateSemaphore(semaphore: *mut Handle, initial_count: s32, max_count: s32)
+        -> Result;
 }
 extern "C" {
-    pub fn svcReleaseSemaphore(count: *mut s32, semaphore: Handle,
-                               release_count: s32) -> Result;
+    pub fn svcReleaseSemaphore(count: *mut s32, semaphore: Handle, release_count: s32) -> Result;
 }
 extern "C" {
-    pub fn svcCreateEvent(event: *mut Handle, reset_type: ResetType)
-     -> Result;
+    pub fn svcCreateEvent(event: *mut Handle, reset_type: ResetType) -> Result;
 }
 extern "C" {
     pub fn svcSignalEvent(handle: Handle) -> Result;
@@ -2010,48 +1823,59 @@ extern "C" {
     pub fn svcWaitSynchronization(handle: Handle, nanoseconds: s64) -> Result;
 }
 extern "C" {
-    pub fn svcWaitSynchronizationN(out: *mut s32, handles: *mut Handle,
-                                   handles_num: s32, wait_all: bool,
-                                   nanoseconds: s64) -> Result;
+    pub fn svcWaitSynchronizationN(
+        out: *mut s32,
+        handles: *const Handle,
+        handles_num: s32,
+        wait_all: bool,
+        nanoseconds: s64,
+    ) -> Result;
 }
 extern "C" {
     pub fn svcCreateAddressArbiter(arbiter: *mut Handle) -> Result;
 }
 extern "C" {
-    pub fn svcArbitrateAddress(arbiter: Handle, addr: u32,
-                               type_: ArbitrationType, value: s32,
-                               nanoseconds: s64) -> Result;
+    pub fn svcArbitrateAddress(
+        arbiter: Handle,
+        addr: u32,
+        type_: ArbitrationType,
+        value: s32,
+        nanoseconds: s64,
+    ) -> Result;
 }
 extern "C" {
     pub fn svcSendSyncRequest(session: Handle) -> Result;
 }
 extern "C" {
-    pub fn svcCreateSessionToPort(clientSession: *mut Handle,
-                                  clientPort: Handle) -> Result;
+    pub fn svcCreateSessionToPort(clientSession: *mut Handle, clientPort: Handle) -> Result;
 }
 extern "C" {
-    pub fn svcCreateSession(serverSession: *mut Handle,
-                            clientSession: *mut Handle) -> Result;
+    pub fn svcCreateSession(serverSession: *mut Handle, clientSession: *mut Handle) -> Result;
 }
 extern "C" {
     pub fn svcAcceptSession(session: *mut Handle, port: Handle) -> Result;
 }
 extern "C" {
-    pub fn svcReplyAndReceive(index: *mut s32, handles: *mut Handle,
-                              handleCount: s32, replyTarget: Handle)
-     -> Result;
+    pub fn svcReplyAndReceive(
+        index: *mut s32,
+        handles: *const Handle,
+        handleCount: s32,
+        replyTarget: Handle,
+    ) -> Result;
 }
 extern "C" {
-    pub fn svcBindInterrupt(interruptId: u32, eventOrSemaphore: Handle,
-                            priority: s32, isManualClear: bool) -> Result;
+    pub fn svcBindInterrupt(
+        interruptId: u32,
+        eventOrSemaphore: Handle,
+        priority: s32,
+        isManualClear: bool,
+    ) -> Result;
 }
 extern "C" {
-    pub fn svcUnbindInterrupt(interruptId: u32, eventOrSemaphore: Handle)
-     -> Result;
+    pub fn svcUnbindInterrupt(interruptId: u32, eventOrSemaphore: Handle) -> Result;
 }
 extern "C" {
-    pub fn svcCreateTimer(timer: *mut Handle, reset_type: ResetType)
-     -> Result;
+    pub fn svcCreateTimer(timer: *mut Handle, reset_type: ResetType) -> Result;
 }
 extern "C" {
     pub fn svcSetTimer(timer: Handle, initial: s64, interval: s64) -> Result;
@@ -2072,8 +1896,7 @@ extern "C" {
     pub fn svcDuplicateHandle(out: *mut Handle, original: Handle) -> Result;
 }
 extern "C" {
-    pub fn svcGetHandleInfo(out: *mut s64, handle: Handle, param: u32)
-     -> Result;
+    pub fn svcGetHandleInfo(out: *mut s64, handle: Handle, param: u32) -> Result;
 }
 extern "C" {
     pub fn svcGetSystemInfo(out: *mut s64, type_: u32, param: s32) -> Result;
@@ -2091,16 +1914,13 @@ extern "C" {
     pub fn svcBreak(breakReason: UserBreakType);
 }
 extern "C" {
-    pub fn svcBreakRO(breakReason: UserBreakType,
-                      croInfo: *const libc::c_void, croInfoSize: u32);
+    pub fn svcBreakRO(breakReason: UserBreakType, croInfo: *const libc::c_void, croInfoSize: u32);
 }
 extern "C" {
-    pub fn svcOutputDebugString(str: *const libc::c_char, length: s32)
-     -> Result;
+    pub fn svcOutputDebugString(str: *const libc::c_char, length: s32) -> Result;
 }
 extern "C" {
-    pub fn svcDebugActiveProcess(debug: *mut Handle, processId: u32)
-     -> Result;
+    pub fn svcDebugActiveProcess(debug: *mut Handle, processId: u32) -> Result;
 }
 extern "C" {
     pub fn svcBreakDebugProcess(debug: Handle) -> Result;
@@ -2109,49 +1929,711 @@ extern "C" {
     pub fn svcTerminateDebugProcess(debug: Handle) -> Result;
 }
 extern "C" {
-    pub fn svcGetProcessDebugEvent(info: *mut DebugEventInfo, debug: Handle)
-     -> Result;
+    pub fn svcGetProcessDebugEvent(info: *mut DebugEventInfo, debug: Handle) -> Result;
 }
 extern "C" {
     pub fn svcContinueDebugEvent(debug: Handle, flags: DebugFlags) -> Result;
 }
 extern "C" {
-    pub fn svcGetDebugThreadContext(context: *mut ThreadContext,
-                                    debug: Handle, threadId: u32,
-                                    controlFlags: ThreadContextControlFlags)
-     -> Result;
+    pub fn svcGetDebugThreadContext(
+        context: *mut ThreadContext,
+        debug: Handle,
+        threadId: u32,
+        controlFlags: ThreadContextControlFlags,
+    ) -> Result;
 }
 extern "C" {
-    pub fn svcSetDebugThreadContext(debug: Handle, threadId: u32,
-                                    context: *mut ThreadContext,
-                                    controlFlags: ThreadContextControlFlags)
-     -> Result;
+    pub fn svcSetDebugThreadContext(
+        debug: Handle,
+        threadId: u32,
+        context: *mut ThreadContext,
+        controlFlags: ThreadContextControlFlags,
+    ) -> Result;
 }
 extern "C" {
-    pub fn svcQueryDebugProcessMemory(info: *mut MemInfo, out: *mut PageInfo,
-                                      debug: Handle, addr: u32) -> Result;
+    pub fn svcQueryDebugProcessMemory(
+        info: *mut MemInfo,
+        out: *mut PageInfo,
+        debug: Handle,
+        addr: u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn svcReadProcessMemory(buffer: *mut libc::c_void, debug: Handle,
-                                addr: u32, size: u32) -> Result;
+    pub fn svcReadProcessMemory(
+        buffer: *mut libc::c_void,
+        debug: Handle,
+        addr: u32,
+        size: u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn svcWriteProcessMemory(debug: Handle, buffer: *const libc::c_void,
-                                 addr: u32, size: u32) -> Result;
+    pub fn svcWriteProcessMemory(
+        debug: Handle,
+        buffer: *const libc::c_void,
+        addr: u32,
+        size: u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn svcSetHardwareBreakPoint(registerId: s32, control: u32, value: u32)
-     -> Result;
+    pub fn svcSetHardwareBreakPoint(registerId: s32, control: u32, value: u32) -> Result;
 }
 extern "C" {
-    pub fn svcGetDebugThreadParam(unused: *mut s64, out: *mut u32,
-                                  debug: Handle, threadId: u32,
-                                  parameter: DebugThreadParameter) -> Result;
+    pub fn svcGetDebugThreadParam(
+        unused: *mut s64,
+        out: *mut u32,
+        debug: Handle,
+        threadId: u32,
+        parameter: DebugThreadParameter,
+    ) -> Result;
 }
 extern "C" {
-    pub fn svcBackdoor(callback:
-                           ::core::option::Option<unsafe extern "C" fn()
-                                                      -> s32>) -> Result;
+    pub fn svcBackdoor(callback: ::core::option::Option<unsafe extern "C" fn() -> s32>) -> Result;
+}
+pub const ARM9DESC_MOUNT_NAND: _bindgen_ty_5 = 1;
+pub const ARM9DESC_MOUNT_NANDRO_RW: _bindgen_ty_5 = 2;
+pub const ARM9DESC_MOUNT_TWLN: _bindgen_ty_5 = 4;
+pub const ARM9DESC_MOUNT_WNAND: _bindgen_ty_5 = 8;
+pub const ARM9DESC_MOUNT_CARDSPI: _bindgen_ty_5 = 16;
+pub const ARM9DESC_USE_SDIF3: _bindgen_ty_5 = 32;
+pub const ARM9DESC_CREATE_SEED: _bindgen_ty_5 = 64;
+pub const ARM9DESC_USE_CARD_SPI: _bindgen_ty_5 = 128;
+pub const ARM9DESC_SD_APPLICATION: _bindgen_ty_5 = 256;
+pub const ARM9DESC_MOUNT_SDMC_RW: _bindgen_ty_5 = 512;
+pub type _bindgen_ty_5 = libc::c_uint;
+pub const FSACCESS_CATEGORY_SYSTEM_APPLICATION: _bindgen_ty_6 = 1;
+pub const FSACCESS_CATEGORY_HARDWARE_CHECK: _bindgen_ty_6 = 2;
+pub const FSACCESS_CATEGORY_FILESYSTEM_TOOL: _bindgen_ty_6 = 4;
+pub const FSACCESS_DEBUG: _bindgen_ty_6 = 8;
+pub const FSACCESS_TWLCARD_BACKUP: _bindgen_ty_6 = 16;
+pub const FSACCESS_TWLNAND_DATA: _bindgen_ty_6 = 32;
+pub const FSACCESS_BOSS: _bindgen_ty_6 = 64;
+pub const FSACCESS_SDMC_RW: _bindgen_ty_6 = 128;
+pub const FSACCESS_CORE: _bindgen_ty_6 = 256;
+pub const FSACCESS_NANDRO_RO: _bindgen_ty_6 = 512;
+pub const FSACCESS_NANDRW: _bindgen_ty_6 = 1024;
+pub const FSACCESS_NANDRO_RW: _bindgen_ty_6 = 2048;
+pub const FSACCESS_CATEGORY_SYSTEM_SETTINGS: _bindgen_ty_6 = 4096;
+pub const FSACCESS_CARDBOARD: _bindgen_ty_6 = 8192;
+pub const FSACCESS_EXPORT_IMPORT_IVS: _bindgen_ty_6 = 16384;
+pub const FSACCESS_SDMC_WO: _bindgen_ty_6 = 32768;
+pub const FSACCESS_SWITCH_CLEANUP: _bindgen_ty_6 = 65536;
+pub const FSACCESS_SAVEDATA_MOVE: _bindgen_ty_6 = 131072;
+pub const FSACCESS_SHOP: _bindgen_ty_6 = 262144;
+pub const FSACCESS_SHELL: _bindgen_ty_6 = 524288;
+pub const FSACCESS_CATEGORY_HOME_MENU: _bindgen_ty_6 = 1048576;
+pub const FSACCESS_SEEDDB: _bindgen_ty_6 = 2097152;
+pub type _bindgen_ty_6 = libc::c_uint;
+pub const RESLIMIT_CATEGORY_APPLICATION: ResourceLimitCategory = 0;
+pub const RESLIMIT_CATEGORY_SYS_APPLET: ResourceLimitCategory = 1;
+pub const RESLIMIT_CATEGORY_LIB_APPLET: ResourceLimitCategory = 2;
+pub const RESLIMIT_CATEGORY_OTHER: ResourceLimitCategory = 3;
+pub type ResourceLimitCategory = libc::c_uint;
+pub const SYSMODE_O3DS_PROD: SystemMode = 0;
+pub const SYSMODE_N3DS_PROD: SystemMode = 1;
+pub const SYSMODE_DEV1: SystemMode = 2;
+pub const SYSMODE_DEV2: SystemMode = 3;
+pub const SYSMODE_DEV3: SystemMode = 4;
+pub const SYSMODE_DEV4: SystemMode = 5;
+pub type SystemMode = libc::c_uint;
+#[repr(C)]
+pub struct ExHeader_SystemInfoFlags {
+    pub reserved: [u8; 5usize],
+    pub _bitfield_1: u8,
+    pub remaster_version: u16,
+}
+impl ExHeader_SystemInfoFlags {
+    #[inline]
+    pub fn compress_exefs_code(&self) -> bool {
+        let mut unit_field_val: u8 = unsafe { ::core::mem::uninitialized() };
+        unsafe {
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_1 as *const _ as *const u8,
+                &mut unit_field_val as *mut u8 as *mut u8,
+                ::core::mem::size_of::<u8>(),
+            )
+        };
+        let mask = 0x1 as u8;
+        let val = (unit_field_val & mask) >> 0usize;
+        unsafe { ::core::mem::transmute(val as u8) }
+    }
+    #[inline]
+    pub fn set_compress_exefs_code(&mut self, val: bool) {
+        let mask = 0x1 as u8;
+        let val = val as u8 as u8;
+        let mut unit_field_val: u8 = unsafe { ::core::mem::uninitialized() };
+        unsafe {
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_1 as *const _ as *const u8,
+                &mut unit_field_val as *mut u8 as *mut u8,
+                ::core::mem::size_of::<u8>(),
+            )
+        };
+        unit_field_val &= !mask;
+        unit_field_val |= (val << 0usize) & mask;
+        unsafe {
+            ::core::ptr::copy_nonoverlapping(
+                &unit_field_val as *const _ as *const u8,
+                &mut self._bitfield_1 as *mut _ as *mut u8,
+                ::core::mem::size_of::<u8>(),
+            );
+        }
+    }
+    #[inline]
+    pub fn is_sd_application(&self) -> bool {
+        let mut unit_field_val: u8 = unsafe { ::core::mem::uninitialized() };
+        unsafe {
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_1 as *const _ as *const u8,
+                &mut unit_field_val as *mut u8 as *mut u8,
+                ::core::mem::size_of::<u8>(),
+            )
+        };
+        let mask = 0x2 as u8;
+        let val = (unit_field_val & mask) >> 1usize;
+        unsafe { ::core::mem::transmute(val as u8) }
+    }
+    #[inline]
+    pub fn set_is_sd_application(&mut self, val: bool) {
+        let mask = 0x2 as u8;
+        let val = val as u8 as u8;
+        let mut unit_field_val: u8 = unsafe { ::core::mem::uninitialized() };
+        unsafe {
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_1 as *const _ as *const u8,
+                &mut unit_field_val as *mut u8 as *mut u8,
+                ::core::mem::size_of::<u8>(),
+            )
+        };
+        unit_field_val &= !mask;
+        unit_field_val |= (val << 1usize) & mask;
+        unsafe {
+            ::core::ptr::copy_nonoverlapping(
+                &unit_field_val as *const _ as *const u8,
+                &mut self._bitfield_1 as *mut _ as *mut u8,
+                ::core::mem::size_of::<u8>(),
+            );
+        }
+    }
+    #[inline]
+    pub const fn new_bitfield_1(compress_exefs_code: bool, is_sd_application: bool) -> u8 {
+        ((0 | ((compress_exefs_code as u8 as u8) << 0usize) & (0x1 as u8))
+            | ((is_sd_application as u8 as u8) << 1usize) & (0x2 as u8))
+    }
+}
+#[repr(C)]
+pub struct ExHeader_CodeSectionInfo {
+    pub address: u32,
+    pub num_pages: u32,
+    pub size: u32,
+}
+#[repr(C)]
+pub struct ExHeader_CodeSetInfo {
+    pub name: [libc::c_char; 8usize],
+    pub flags: ExHeader_SystemInfoFlags,
+    pub text: ExHeader_CodeSectionInfo,
+    pub stack_size: u32,
+    pub rodata: ExHeader_CodeSectionInfo,
+    pub reserved: u32,
+    pub data: ExHeader_CodeSectionInfo,
+    pub bss_size: u32,
+}
+#[repr(C)]
+pub struct ExHeader_SystemInfo {
+    pub savedata_size: u64,
+    pub jump_id: u64,
+    pub reserved: [u8; 48usize],
+}
+#[repr(C)]
+pub struct ExHeader_SystemControlInfo {
+    pub codeset_info: ExHeader_CodeSetInfo,
+    pub dependencies: [u64; 48usize],
+    pub system_info: ExHeader_SystemInfo,
+}
+#[repr(C)]
+pub struct ExHeader_Arm11StorageInfo {
+    pub extdata_id: u64,
+    pub system_savedata_ids: [u32; 2usize],
+    pub accessible_savedata_ids: u64,
+    pub fs_access_info: u32,
+    pub _bitfield_1: u32,
+}
+impl ExHeader_Arm11StorageInfo {
+    #[inline]
+    pub fn reserved(&self) -> u32 {
+        let mut unit_field_val: u32 = unsafe { ::core::mem::uninitialized() };
+        unsafe {
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_1 as *const _ as *const u8,
+                &mut unit_field_val as *mut u32 as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            )
+        };
+        let mask = 0xffffff as u32;
+        let val = (unit_field_val & mask) >> 0usize;
+        unsafe { ::core::mem::transmute(val as u32) }
+    }
+    #[inline]
+    pub fn set_reserved(&mut self, val: u32) {
+        let mask = 0xffffff as u32;
+        let val = val as u32 as u32;
+        let mut unit_field_val: u32 = unsafe { ::core::mem::uninitialized() };
+        unsafe {
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_1 as *const _ as *const u8,
+                &mut unit_field_val as *mut u32 as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            )
+        };
+        unit_field_val &= !mask;
+        unit_field_val |= (val << 0usize) & mask;
+        unsafe {
+            ::core::ptr::copy_nonoverlapping(
+                &unit_field_val as *const _ as *const u8,
+                &mut self._bitfield_1 as *mut _ as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            );
+        }
+    }
+    #[inline]
+    pub fn no_romfs(&self) -> bool {
+        let mut unit_field_val: u32 = unsafe { ::core::mem::uninitialized() };
+        unsafe {
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_1 as *const _ as *const u8,
+                &mut unit_field_val as *mut u32 as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            )
+        };
+        let mask = 0x1000000 as u32;
+        let val = (unit_field_val & mask) >> 24usize;
+        unsafe { ::core::mem::transmute(val as u8) }
+    }
+    #[inline]
+    pub fn set_no_romfs(&mut self, val: bool) {
+        let mask = 0x1000000 as u32;
+        let val = val as u8 as u32;
+        let mut unit_field_val: u32 = unsafe { ::core::mem::uninitialized() };
+        unsafe {
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_1 as *const _ as *const u8,
+                &mut unit_field_val as *mut u32 as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            )
+        };
+        unit_field_val &= !mask;
+        unit_field_val |= (val << 24usize) & mask;
+        unsafe {
+            ::core::ptr::copy_nonoverlapping(
+                &unit_field_val as *const _ as *const u8,
+                &mut self._bitfield_1 as *mut _ as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            );
+        }
+    }
+    #[inline]
+    pub fn use_extended_savedata_access(&self) -> bool {
+        let mut unit_field_val: u32 = unsafe { ::core::mem::uninitialized() };
+        unsafe {
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_1 as *const _ as *const u8,
+                &mut unit_field_val as *mut u32 as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            )
+        };
+        let mask = 0x2000000 as u32;
+        let val = (unit_field_val & mask) >> 25usize;
+        unsafe { ::core::mem::transmute(val as u8) }
+    }
+    #[inline]
+    pub fn set_use_extended_savedata_access(&mut self, val: bool) {
+        let mask = 0x2000000 as u32;
+        let val = val as u8 as u32;
+        let mut unit_field_val: u32 = unsafe { ::core::mem::uninitialized() };
+        unsafe {
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_1 as *const _ as *const u8,
+                &mut unit_field_val as *mut u32 as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            )
+        };
+        unit_field_val &= !mask;
+        unit_field_val |= (val << 25usize) & mask;
+        unsafe {
+            ::core::ptr::copy_nonoverlapping(
+                &unit_field_val as *const _ as *const u8,
+                &mut self._bitfield_1 as *mut _ as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            );
+        }
+    }
+    #[inline]
+    pub const fn new_bitfield_1(
+        reserved: u32,
+        no_romfs: bool,
+        use_extended_savedata_access: bool,
+    ) -> u32 {
+        (((0 | ((reserved as u32 as u32) << 0usize) & (0xffffff as u32))
+            | ((no_romfs as u8 as u32) << 24usize) & (0x1000000 as u32))
+            | ((use_extended_savedata_access as u8 as u32) << 25usize) & (0x2000000 as u32))
+    }
+}
+#[repr(C)]
+pub struct ExHeader_Arm11CoreInfo {
+    pub core_version: u32,
+    pub _bitfield_1: [u8; 3usize],
+    pub priority: u8,
+}
+impl ExHeader_Arm11CoreInfo {
+    #[inline]
+    pub fn use_cpu_clockrate_804MHz(&self) -> bool {
+        let mut unit_field_val: u32 = unsafe { ::core::mem::uninitialized() };
+        unsafe {
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_1 as *const _ as *const u8,
+                &mut unit_field_val as *mut u32 as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            )
+        };
+        let mask = 0x1 as u32;
+        let val = (unit_field_val & mask) >> 0usize;
+        unsafe { ::core::mem::transmute(val as u8) }
+    }
+    #[inline]
+    pub fn set_use_cpu_clockrate_804MHz(&mut self, val: bool) {
+        let mask = 0x1 as u32;
+        let val = val as u8 as u32;
+        let mut unit_field_val: u32 = unsafe { ::core::mem::uninitialized() };
+        unsafe {
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_1 as *const _ as *const u8,
+                &mut unit_field_val as *mut u32 as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            )
+        };
+        unit_field_val &= !mask;
+        unit_field_val |= (val << 0usize) & mask;
+        unsafe {
+            ::core::ptr::copy_nonoverlapping(
+                &unit_field_val as *const _ as *const u8,
+                &mut self._bitfield_1 as *mut _ as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            );
+        }
+    }
+    #[inline]
+    pub fn enable_l2c(&self) -> bool {
+        let mut unit_field_val: u32 = unsafe { ::core::mem::uninitialized() };
+        unsafe {
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_1 as *const _ as *const u8,
+                &mut unit_field_val as *mut u32 as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            )
+        };
+        let mask = 0x2 as u32;
+        let val = (unit_field_val & mask) >> 1usize;
+        unsafe { ::core::mem::transmute(val as u8) }
+    }
+    #[inline]
+    pub fn set_enable_l2c(&mut self, val: bool) {
+        let mask = 0x2 as u32;
+        let val = val as u8 as u32;
+        let mut unit_field_val: u32 = unsafe { ::core::mem::uninitialized() };
+        unsafe {
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_1 as *const _ as *const u8,
+                &mut unit_field_val as *mut u32 as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            )
+        };
+        unit_field_val &= !mask;
+        unit_field_val |= (val << 1usize) & mask;
+        unsafe {
+            ::core::ptr::copy_nonoverlapping(
+                &unit_field_val as *const _ as *const u8,
+                &mut self._bitfield_1 as *mut _ as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            );
+        }
+    }
+    #[inline]
+    pub fn flag1_unused(&self) -> u8 {
+        let mut unit_field_val: u32 = unsafe { ::core::mem::uninitialized() };
+        unsafe {
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_1 as *const _ as *const u8,
+                &mut unit_field_val as *mut u32 as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            )
+        };
+        let mask = 0xfc as u32;
+        let val = (unit_field_val & mask) >> 2usize;
+        unsafe { ::core::mem::transmute(val as u8) }
+    }
+    #[inline]
+    pub fn set_flag1_unused(&mut self, val: u8) {
+        let mask = 0xfc as u32;
+        let val = val as u8 as u32;
+        let mut unit_field_val: u32 = unsafe { ::core::mem::uninitialized() };
+        unsafe {
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_1 as *const _ as *const u8,
+                &mut unit_field_val as *mut u32 as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            )
+        };
+        unit_field_val &= !mask;
+        unit_field_val |= (val << 2usize) & mask;
+        unsafe {
+            ::core::ptr::copy_nonoverlapping(
+                &unit_field_val as *const _ as *const u8,
+                &mut self._bitfield_1 as *mut _ as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            );
+        }
+    }
+    #[inline]
+    pub fn n3ds_system_mode(&self) -> SystemMode {
+        let mut unit_field_val: u32 = unsafe { ::core::mem::uninitialized() };
+        unsafe {
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_1 as *const _ as *const u8,
+                &mut unit_field_val as *mut u32 as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            )
+        };
+        let mask = 0xf00 as u32;
+        let val = (unit_field_val & mask) >> 8usize;
+        unsafe { ::core::mem::transmute(val as u32) }
+    }
+    #[inline]
+    pub fn set_n3ds_system_mode(&mut self, val: SystemMode) {
+        let mask = 0xf00 as u32;
+        let val = val as u32 as u32;
+        let mut unit_field_val: u32 = unsafe { ::core::mem::uninitialized() };
+        unsafe {
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_1 as *const _ as *const u8,
+                &mut unit_field_val as *mut u32 as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            )
+        };
+        unit_field_val &= !mask;
+        unit_field_val |= (val << 8usize) & mask;
+        unsafe {
+            ::core::ptr::copy_nonoverlapping(
+                &unit_field_val as *const _ as *const u8,
+                &mut self._bitfield_1 as *mut _ as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            );
+        }
+    }
+    #[inline]
+    pub fn flag2_unused(&self) -> u8 {
+        let mut unit_field_val: u32 = unsafe { ::core::mem::uninitialized() };
+        unsafe {
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_1 as *const _ as *const u8,
+                &mut unit_field_val as *mut u32 as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            )
+        };
+        let mask = 0xf000 as u32;
+        let val = (unit_field_val & mask) >> 12usize;
+        unsafe { ::core::mem::transmute(val as u8) }
+    }
+    #[inline]
+    pub fn set_flag2_unused(&mut self, val: u8) {
+        let mask = 0xf000 as u32;
+        let val = val as u8 as u32;
+        let mut unit_field_val: u32 = unsafe { ::core::mem::uninitialized() };
+        unsafe {
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_1 as *const _ as *const u8,
+                &mut unit_field_val as *mut u32 as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            )
+        };
+        unit_field_val &= !mask;
+        unit_field_val |= (val << 12usize) & mask;
+        unsafe {
+            ::core::ptr::copy_nonoverlapping(
+                &unit_field_val as *const _ as *const u8,
+                &mut self._bitfield_1 as *mut _ as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            );
+        }
+    }
+    #[inline]
+    pub fn ideal_processor(&self) -> u8 {
+        let mut unit_field_val: u32 = unsafe { ::core::mem::uninitialized() };
+        unsafe {
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_1 as *const _ as *const u8,
+                &mut unit_field_val as *mut u32 as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            )
+        };
+        let mask = 0x30000 as u32;
+        let val = (unit_field_val & mask) >> 16usize;
+        unsafe { ::core::mem::transmute(val as u8) }
+    }
+    #[inline]
+    pub fn set_ideal_processor(&mut self, val: u8) {
+        let mask = 0x30000 as u32;
+        let val = val as u8 as u32;
+        let mut unit_field_val: u32 = unsafe { ::core::mem::uninitialized() };
+        unsafe {
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_1 as *const _ as *const u8,
+                &mut unit_field_val as *mut u32 as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            )
+        };
+        unit_field_val &= !mask;
+        unit_field_val |= (val << 16usize) & mask;
+        unsafe {
+            ::core::ptr::copy_nonoverlapping(
+                &unit_field_val as *const _ as *const u8,
+                &mut self._bitfield_1 as *mut _ as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            );
+        }
+    }
+    #[inline]
+    pub fn affinity_mask(&self) -> u8 {
+        let mut unit_field_val: u32 = unsafe { ::core::mem::uninitialized() };
+        unsafe {
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_1 as *const _ as *const u8,
+                &mut unit_field_val as *mut u32 as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            )
+        };
+        let mask = 0xc0000 as u32;
+        let val = (unit_field_val & mask) >> 18usize;
+        unsafe { ::core::mem::transmute(val as u8) }
+    }
+    #[inline]
+    pub fn set_affinity_mask(&mut self, val: u8) {
+        let mask = 0xc0000 as u32;
+        let val = val as u8 as u32;
+        let mut unit_field_val: u32 = unsafe { ::core::mem::uninitialized() };
+        unsafe {
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_1 as *const _ as *const u8,
+                &mut unit_field_val as *mut u32 as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            )
+        };
+        unit_field_val &= !mask;
+        unit_field_val |= (val << 18usize) & mask;
+        unsafe {
+            ::core::ptr::copy_nonoverlapping(
+                &unit_field_val as *const _ as *const u8,
+                &mut self._bitfield_1 as *mut _ as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            );
+        }
+    }
+    #[inline]
+    pub fn o3ds_system_mode(&self) -> SystemMode {
+        let mut unit_field_val: u32 = unsafe { ::core::mem::uninitialized() };
+        unsafe {
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_1 as *const _ as *const u8,
+                &mut unit_field_val as *mut u32 as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            )
+        };
+        let mask = 0xf00000 as u32;
+        let val = (unit_field_val & mask) >> 20usize;
+        unsafe { ::core::mem::transmute(val as u32) }
+    }
+    #[inline]
+    pub fn set_o3ds_system_mode(&mut self, val: SystemMode) {
+        let mask = 0xf00000 as u32;
+        let val = val as u32 as u32;
+        let mut unit_field_val: u32 = unsafe { ::core::mem::uninitialized() };
+        unsafe {
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_1 as *const _ as *const u8,
+                &mut unit_field_val as *mut u32 as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            )
+        };
+        unit_field_val &= !mask;
+        unit_field_val |= (val << 20usize) & mask;
+        unsafe {
+            ::core::ptr::copy_nonoverlapping(
+                &unit_field_val as *const _ as *const u8,
+                &mut self._bitfield_1 as *mut _ as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            );
+        }
+    }
+    #[inline]
+    pub const fn new_bitfield_1(
+        use_cpu_clockrate_804MHz: bool,
+        enable_l2c: bool,
+        flag1_unused: u8,
+        n3ds_system_mode: SystemMode,
+        flag2_unused: u8,
+        ideal_processor: u8,
+        affinity_mask: u8,
+        o3ds_system_mode: SystemMode,
+    ) -> u32 {
+        ((((((((0 | ((use_cpu_clockrate_804MHz as u8 as u32) << 0usize) & (0x1 as u32))
+            | ((enable_l2c as u8 as u32) << 1usize) & (0x2 as u32))
+            | ((flag1_unused as u8 as u32) << 2usize) & (0xfc as u32))
+            | ((n3ds_system_mode as u32 as u32) << 8usize) & (0xf00 as u32))
+            | ((flag2_unused as u8 as u32) << 12usize) & (0xf000 as u32))
+            | ((ideal_processor as u8 as u32) << 16usize) & (0x30000 as u32))
+            | ((affinity_mask as u8 as u32) << 18usize) & (0xc0000 as u32))
+            | ((o3ds_system_mode as u32 as u32) << 20usize) & (0xf00000 as u32))
+    }
+}
+#[repr(C)]
+pub struct ExHeader_Arm11SystemLocalCapabilities {
+    pub title_id: u64,
+    pub core_info: ExHeader_Arm11CoreInfo,
+    pub reslimits: [u16; 16usize],
+    pub storage_info: ExHeader_Arm11StorageInfo,
+    pub service_access: [[libc::c_char; 8usize]; 34usize],
+    pub reserved: [u8; 15usize],
+    pub reslimit_category: ResourceLimitCategory,
+}
+#[repr(C)]
+pub struct ExHeader_Arm11KernelCapabilities {
+    pub descriptors: [u32; 28usize],
+    pub reserved: [u8; 16usize],
+}
+#[repr(C)]
+pub struct ExHeader_Arm9AccessControl {
+    pub descriptors: [u8; 15usize],
+    pub descriptor_version: u8,
+}
+#[repr(C)]
+pub struct ExHeader_AccessControlInfo {
+    pub local_caps: ExHeader_Arm11SystemLocalCapabilities,
+    pub kernel_caps: ExHeader_Arm11KernelCapabilities,
+    pub access_control: ExHeader_Arm9AccessControl,
+}
+#[repr(C)]
+pub struct ExHeader_Info {
+    pub sci: ExHeader_SystemControlInfo,
+    pub aci: ExHeader_AccessControlInfo,
+}
+#[repr(C)]
+pub struct ExHeader_AccessDescriptor {
+    pub signature: [u8; 256usize],
+    pub ncchModulus: [u8; 256usize],
+    pub acli: ExHeader_AccessControlInfo,
+}
+#[repr(C)]
+pub struct ExHeader {
+    pub info: ExHeader_Info,
+    pub access_descriptor: ExHeader_AccessDescriptor,
 }
 extern "C" {
     pub fn srvInit() -> Result;
@@ -2163,8 +2645,7 @@ extern "C" {
     pub fn srvGetSessionHandle() -> *mut Handle;
 }
 extern "C" {
-    pub fn srvGetServiceHandle(out: *mut Handle, name: *const libc::c_char)
-     -> Result;
+    pub fn srvGetServiceHandle(out: *mut Handle, name: *const libc::c_char) -> Result;
 }
 extern "C" {
     pub fn srvRegisterClient() -> Result;
@@ -2173,19 +2654,20 @@ extern "C" {
     pub fn srvEnableNotification(semaphoreOut: *mut Handle) -> Result;
 }
 extern "C" {
-    pub fn srvRegisterService(out: *mut Handle, name: *const libc::c_char,
-                              maxSessions: libc::c_int) -> Result;
+    pub fn srvRegisterService(
+        out: *mut Handle,
+        name: *const libc::c_char,
+        maxSessions: libc::c_int,
+    ) -> Result;
 }
 extern "C" {
     pub fn srvUnregisterService(name: *const libc::c_char) -> Result;
 }
 extern "C" {
-    pub fn srvGetServiceHandleDirect(out: *mut Handle,
-                                     name: *const libc::c_char) -> Result;
+    pub fn srvGetServiceHandleDirect(out: *mut Handle, name: *const libc::c_char) -> Result;
 }
 extern "C" {
-    pub fn srvRegisterPort(name: *const libc::c_char, clientHandle: Handle)
-     -> Result;
+    pub fn srvRegisterPort(name: *const libc::c_char, clientHandle: Handle) -> Result;
 }
 extern "C" {
     pub fn srvUnregisterPort(name: *const libc::c_char) -> Result;
@@ -2206,34 +2688,28 @@ extern "C" {
     pub fn srvPublishToSubscriber(notificationId: u32, flags: u32) -> Result;
 }
 extern "C" {
-    pub fn srvPublishAndGetSubscriber(processIdCountOut: *mut u32,
-                                      processIdsOut: *mut u32,
-                                      notificationId: u32) -> Result;
+    pub fn srvPublishAndGetSubscriber(
+        processIdCountOut: *mut u32,
+        processIdsOut: *mut u32,
+        notificationId: u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn srvIsServiceRegistered(registeredOut: *mut bool,
-                                  name: *const libc::c_char) -> Result;
+    pub fn srvIsServiceRegistered(registeredOut: *mut bool, name: *const libc::c_char) -> Result;
 }
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum ERRF_ErrType {
-    ERRF_ERRTYPE_GENERIC = 0,
-    ERRF_ERRTYPE_MEM_CORRUPT = 1,
-    ERRF_ERRTYPE_CARD_REMOVED = 2,
-    ERRF_ERRTYPE_EXCEPTION = 3,
-    ERRF_ERRTYPE_FAILURE = 4,
-    ERRF_ERRTYPE_LOGGED = 5,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum ERRF_ExceptionType {
-    ERRF_EXCEPTION_PREFETCH_ABORT = 0,
-    ERRF_EXCEPTION_DATA_ABORT = 1,
-    ERRF_EXCEPTION_UNDEFINED = 2,
-    ERRF_EXCEPTION_VFP = 3,
-}
+pub const ERRF_ERRTYPE_GENERIC: ERRF_ErrType = 0;
+pub const ERRF_ERRTYPE_MEM_CORRUPT: ERRF_ErrType = 1;
+pub const ERRF_ERRTYPE_CARD_REMOVED: ERRF_ErrType = 2;
+pub const ERRF_ERRTYPE_EXCEPTION: ERRF_ErrType = 3;
+pub const ERRF_ERRTYPE_FAILURE: ERRF_ErrType = 4;
+pub const ERRF_ERRTYPE_LOGGED: ERRF_ErrType = 5;
+pub type ERRF_ErrType = libc::c_uint;
+pub const ERRF_EXCEPTION_PREFETCH_ABORT: ERRF_ExceptionType = 0;
+pub const ERRF_EXCEPTION_DATA_ABORT: ERRF_ExceptionType = 1;
+pub const ERRF_EXCEPTION_UNDEFINED: ERRF_ExceptionType = 2;
+pub const ERRF_EXCEPTION_VFP: ERRF_ExceptionType = 3;
+pub type ERRF_ExceptionType = libc::c_uint;
 #[repr(C)]
-#[derive(Copy)]
 pub struct ERRF_ExceptionInfo {
     pub type_: ERRF_ExceptionType,
     pub reserved: [u8; 3usize],
@@ -2243,17 +2719,10 @@ pub struct ERRF_ExceptionInfo {
     pub fpinst: u32,
     pub fpinst2: u32,
 }
-impl Clone for ERRF_ExceptionInfo {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
 pub struct ERRF_ExceptionData {
     pub excep: ERRF_ExceptionInfo,
     pub regs: CpuRegisters,
-}
-impl Clone for ERRF_ExceptionData {
-    fn clone(&self) -> Self { *self }
 }
 #[repr(C)]
 pub struct ERRF_FatalErrInfo {
@@ -2268,9 +2737,10 @@ pub struct ERRF_FatalErrInfo {
     pub data: ERRF_FatalErrInfo__bindgen_ty_1,
 }
 #[repr(C)]
-pub union ERRF_FatalErrInfo__bindgen_ty_1 {
-    pub exception_data: ERRF_ExceptionData,
-    pub failure_mesg: [libc::c_char; 96usize],
+pub struct ERRF_FatalErrInfo__bindgen_ty_1 {
+    pub exception_data: __BindgenUnionField<ERRF_ExceptionData>,
+    pub failure_mesg: __BindgenUnionField<[libc::c_char; 96usize]>,
+    pub bindgen_union_field: [u32; 24usize],
 }
 extern "C" {
     pub fn errfInit() -> Result;
@@ -2288,33 +2758,22 @@ extern "C" {
     pub fn ERRF_ThrowResult(failure: Result) -> Result;
 }
 extern "C" {
-    pub fn ERRF_ThrowResultWithMessage(failure: Result,
-                                       message: *const libc::c_char)
-     -> Result;
+    pub fn ERRF_ThrowResultWithMessage(failure: Result, message: *const libc::c_char) -> Result;
 }
 extern "C" {
-    pub fn ERRF_ExceptionHandler(excep: *mut ERRF_ExceptionInfo,
-                                 regs: *mut CpuRegisters);
+    pub fn ERRF_ExceptionHandler(excep: *mut ERRF_ExceptionInfo, regs: *mut CpuRegisters);
 }
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum MemRegion {
-    MEMREGION_ALL = 0,
-    MEMREGION_APPLICATION = 1,
-    MEMREGION_SYSTEM = 2,
-    MEMREGION_BASE = 3,
-}
+pub const MEMREGION_ALL: MemRegion = 0;
+pub const MEMREGION_APPLICATION: MemRegion = 1;
+pub const MEMREGION_SYSTEM: MemRegion = 2;
+pub const MEMREGION_BASE: MemRegion = 3;
+pub type MemRegion = libc::c_uint;
 #[repr(C)]
-#[derive(Copy)]
 pub struct TickCounter {
     pub elapsed: u64,
     pub reference: u64,
 }
-impl Clone for TickCounter {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
 pub struct OS_VersionBin {
     pub build: u8,
     pub minor: u8,
@@ -2323,15 +2782,11 @@ pub struct OS_VersionBin {
     pub region: libc::c_char,
     pub reserved_x5: [u8; 3usize],
 }
-impl Clone for OS_VersionBin {
-    fn clone(&self) -> Self { *self }
-}
 extern "C" {
     pub fn osConvertVirtToPhys(vaddr: *const libc::c_void) -> u32;
 }
 extern "C" {
-    pub fn osConvertOldLINEARMemToNew(vaddr: *const libc::c_void)
-     -> *mut libc::c_void;
+    pub fn osConvertOldLINEARMemToNew(vaddr: *const libc::c_void) -> *mut libc::c_void;
 }
 extern "C" {
     pub fn osStrError(error: u32) -> *const libc::c_char;
@@ -2349,26 +2804,26 @@ extern "C" {
     pub fn osSetSpeedupEnable(enable: bool);
 }
 extern "C" {
-    pub fn osGetSystemVersionData(nver_versionbin: *mut OS_VersionBin,
-                                  cver_versionbin: *mut OS_VersionBin)
-     -> Result;
+    pub fn osGetSystemVersionData(
+        nver_versionbin: *mut OS_VersionBin,
+        cver_versionbin: *mut OS_VersionBin,
+    ) -> Result;
 }
 extern "C" {
-    pub fn osGetSystemVersionDataString(nver_versionbin: *mut OS_VersionBin,
-                                        cver_versionbin: *mut OS_VersionBin,
-                                        sysverstr: *mut libc::c_char,
-                                        sysverstr_maxsize: u32) -> Result;
+    pub fn osGetSystemVersionDataString(
+        nver_versionbin: *mut OS_VersionBin,
+        cver_versionbin: *mut OS_VersionBin,
+        sysverstr: *mut libc::c_char,
+        sysverstr_maxsize: u32,
+    ) -> Result;
 }
 pub type _LOCK_T = i32;
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct __lock_t {
     pub lock: _LOCK_T,
     pub thread_tag: u32,
     pub counter: u32,
-}
-impl Clone for __lock_t {
-    fn clone(&self) -> Self { *self }
 }
 pub type _LOCK_RECURSIVE_T = __lock_t;
 extern "C" {
@@ -2399,19 +2854,22 @@ extern "C" {
     pub fn __libc_lock_try_acquire(lock: *mut _LOCK_T) -> libc::c_int;
 }
 extern "C" {
-    pub fn __libc_lock_try_acquire_recursive(lock: *mut _LOCK_RECURSIVE_T)
-     -> libc::c_int;
+    pub fn __libc_lock_try_acquire_recursive(lock: *mut _LOCK_RECURSIVE_T) -> libc::c_int;
 }
 pub type LightLock = _LOCK_T;
 pub type RecursiveLock = _LOCK_RECURSIVE_T;
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct LightEvent {
     pub state: s32,
     pub lock: LightLock,
 }
-impl Clone for LightEvent {
-    fn clone(&self) -> Self { *self }
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct LightSemaphore {
+    pub current_count: s32,
+    pub num_threads_acq: s16,
+    pub max_count: s16,
 }
 extern "C" {
     pub fn __sync_get_arbiter() -> Handle;
@@ -2458,20 +2916,33 @@ extern "C" {
 extern "C" {
     pub fn LightEvent_Wait(event: *mut LightEvent);
 }
+extern "C" {
+    pub fn LightSemaphore_Init(semaphore: *mut LightSemaphore, initial_count: s16, max_count: s16);
+}
+extern "C" {
+    pub fn LightSemaphore_Acquire(semaphore: *mut LightSemaphore, count: s32);
+}
+extern "C" {
+    pub fn LightSemaphore_Release(semaphore: *mut LightSemaphore, count: s32);
+}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct Thread_tag {
     _unused: [u8; 0],
 }
 pub type Thread = *mut Thread_tag;
-pub type ExceptionHandler =
-    ::core::option::Option<unsafe extern "C" fn(excep:
-                                                    *mut ERRF_ExceptionInfo,
-                                                regs: *mut CpuRegisters)>;
+pub type ExceptionHandler = ::core::option::Option<
+    unsafe extern "C" fn(excep: *mut ERRF_ExceptionInfo, regs: *mut CpuRegisters),
+>;
 extern "C" {
-    pub fn threadCreate(entrypoint: ThreadFunc, arg: *mut libc::c_void,
-                        stack_size: usize, prio: libc::c_int,
-                        affinity: libc::c_int, detached: bool) -> Thread;
+    pub fn threadCreate(
+        entrypoint: ThreadFunc,
+        arg: *mut libc::c_void,
+        stack_size: usize,
+        prio: libc::c_int,
+        affinity: libc::c_int,
+        detached: bool,
+    ) -> Thread;
 }
 extern "C" {
     pub fn threadGetHandle(thread: Thread) -> Handle;
@@ -2495,7 +2966,6 @@ extern "C" {
     pub fn threadExit(rc: libc::c_int);
 }
 #[repr(C)]
-#[derive(Copy)]
 pub struct GSPGPU_FramebufferInfo {
     pub active_framebuf: u32,
     pub framebuf0_vaddr: *mut u32,
@@ -2505,49 +2975,32 @@ pub struct GSPGPU_FramebufferInfo {
     pub framebuf_dispselect: u32,
     pub unk: u32,
 }
-impl Clone for GSPGPU_FramebufferInfo {
-    fn clone(&self) -> Self { *self }
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GSPGPU_FramebufferFormats {
-    GSP_RGBA8_OES = 0,
-    GSP_BGR8_OES = 1,
-    GSP_RGB565_OES = 2,
-    GSP_RGB5_A1_OES = 3,
-    GSP_RGBA4_OES = 4,
-}
+pub const GSP_RGBA8_OES: GSPGPU_FramebufferFormats = 0;
+pub const GSP_BGR8_OES: GSPGPU_FramebufferFormats = 1;
+pub const GSP_RGB565_OES: GSPGPU_FramebufferFormats = 2;
+pub const GSP_RGB5_A1_OES: GSPGPU_FramebufferFormats = 3;
+pub const GSP_RGBA4_OES: GSPGPU_FramebufferFormats = 4;
+pub type GSPGPU_FramebufferFormats = libc::c_uint;
 #[repr(C)]
-#[derive(Copy)]
 pub struct GSPGPU_CaptureInfoEntry {
     pub framebuf0_vaddr: *mut u32,
     pub framebuf1_vaddr: *mut u32,
     pub format: u32,
     pub framebuf_widthbytesize: u32,
 }
-impl Clone for GSPGPU_CaptureInfoEntry {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
 pub struct GSPGPU_CaptureInfo {
     pub screencapture: [GSPGPU_CaptureInfoEntry; 2usize],
 }
-impl Clone for GSPGPU_CaptureInfo {
-    fn clone(&self) -> Self { *self }
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GSPGPU_Event {
-    GSPGPU_EVENT_PSC0 = 0,
-    GSPGPU_EVENT_PSC1 = 1,
-    GSPGPU_EVENT_VBlank0 = 2,
-    GSPGPU_EVENT_VBlank1 = 3,
-    GSPGPU_EVENT_PPF = 4,
-    GSPGPU_EVENT_P3D = 5,
-    GSPGPU_EVENT_DMA = 6,
-    GSPGPU_EVENT_MAX = 7,
-}
+pub const GSPGPU_EVENT_PSC0: GSPGPU_Event = 0;
+pub const GSPGPU_EVENT_PSC1: GSPGPU_Event = 1;
+pub const GSPGPU_EVENT_VBlank0: GSPGPU_Event = 2;
+pub const GSPGPU_EVENT_VBlank1: GSPGPU_Event = 3;
+pub const GSPGPU_EVENT_PPF: GSPGPU_Event = 4;
+pub const GSPGPU_EVENT_P3D: GSPGPU_Event = 5;
+pub const GSPGPU_EVENT_DMA: GSPGPU_Event = 6;
+pub const GSPGPU_EVENT_MAX: GSPGPU_Event = 7;
+pub type GSPGPU_Event = libc::c_uint;
 extern "C" {
     pub fn gspInit() -> Result;
 }
@@ -2555,12 +3008,16 @@ extern "C" {
     pub fn gspExit();
 }
 extern "C" {
-    pub fn gspSetEventCallback(id: GSPGPU_Event, cb: ThreadFunc,
-                               data: *mut libc::c_void, oneShot: bool);
+    pub fn gspSetEventCallback(
+        id: GSPGPU_Event,
+        cb: ThreadFunc,
+        data: *mut libc::c_void,
+        oneShot: bool,
+    );
 }
 extern "C" {
-    pub fn gspInitEventHandler(gspEvent: Handle, gspSharedMem: *mut vu8,
-                               gspThreadId: u8) -> Result;
+    pub fn gspInitEventHandler(gspEvent: Handle, gspSharedMem: *mut vu8, gspThreadId: u8)
+        -> Result;
 }
 extern "C" {
     pub fn gspExitEventHandler();
@@ -2572,8 +3029,7 @@ extern "C" {
     pub fn gspWaitForAnyEvent() -> GSPGPU_Event;
 }
 extern "C" {
-    pub fn gspSubmitGxCommand(sharedGspCmdBuf: *mut u32, gxCommand: *mut u32)
-     -> Result;
+    pub fn gspSubmitGxCommand(sharedGspCmdBuf: *mut u32, gxCommand: *mut u32) -> Result;
 }
 extern "C" {
     pub fn GSPGPU_AcquireRight(flags: u8) -> Result;
@@ -2582,9 +3038,7 @@ extern "C" {
     pub fn GSPGPU_ReleaseRight() -> Result;
 }
 extern "C" {
-    pub fn GSPGPU_ImportDisplayCaptureInfo(captureinfo:
-                                               *mut GSPGPU_CaptureInfo)
-     -> Result;
+    pub fn GSPGPU_ImportDisplayCaptureInfo(captureinfo: *mut GSPGPU_CaptureInfo) -> Result;
 }
 extern "C" {
     pub fn GSPGPU_SaveVramSysArea() -> Result;
@@ -2596,35 +3050,37 @@ extern "C" {
     pub fn GSPGPU_SetLcdForceBlack(flags: u8) -> Result;
 }
 extern "C" {
-    pub fn GSPGPU_SetBufferSwap(screenid: u32,
-                                framebufinfo: *mut GSPGPU_FramebufferInfo)
-     -> Result;
+    pub fn GSPGPU_SetBufferSwap(screenid: u32, framebufinfo: *mut GSPGPU_FramebufferInfo)
+        -> Result;
 }
 extern "C" {
-    pub fn GSPGPU_FlushDataCache(adr: *const libc::c_void, size: u32)
-     -> Result;
+    pub fn GSPGPU_FlushDataCache(adr: *const libc::c_void, size: u32) -> Result;
 }
 extern "C" {
-    pub fn GSPGPU_InvalidateDataCache(adr: *const libc::c_void, size: u32)
-     -> Result;
+    pub fn GSPGPU_InvalidateDataCache(adr: *const libc::c_void, size: u32) -> Result;
 }
 extern "C" {
-    pub fn GSPGPU_WriteHWRegs(regAddr: u32, data: *mut u32, size: u8)
-     -> Result;
+    pub fn GSPGPU_WriteHWRegs(regAddr: u32, data: *mut u32, size: u8) -> Result;
 }
 extern "C" {
-    pub fn GSPGPU_WriteHWRegsWithMask(regAddr: u32, data: *mut u32,
-                                      datasize: u8, maskdata: *mut u32,
-                                      masksize: u8) -> Result;
+    pub fn GSPGPU_WriteHWRegsWithMask(
+        regAddr: u32,
+        data: *mut u32,
+        datasize: u8,
+        maskdata: *mut u32,
+        masksize: u8,
+    ) -> Result;
 }
 extern "C" {
-    pub fn GSPGPU_ReadHWRegs(regAddr: u32, data: *mut u32, size: u8)
-     -> Result;
+    pub fn GSPGPU_ReadHWRegs(regAddr: u32, data: *mut u32, size: u8) -> Result;
 }
 extern "C" {
-    pub fn GSPGPU_RegisterInterruptRelayQueue(eventHandle: Handle, flags: u32,
-                                              outMemHandle: *mut Handle,
-                                              threadID: *mut u8) -> Result;
+    pub fn GSPGPU_RegisterInterruptRelayQueue(
+        eventHandle: Handle,
+        flags: u32,
+        outMemHandle: *mut Handle,
+        threadID: *mut u8,
+    ) -> Result;
 }
 extern "C" {
     pub fn GSPGPU_UnregisterInterruptRelayQueue() -> Result;
@@ -2632,19 +3088,24 @@ extern "C" {
 extern "C" {
     pub fn GSPGPU_TriggerCmdReqQueue() -> Result;
 }
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum gfxScreen_t { GFX_TOP = 0, GFX_BOTTOM = 1, }
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum gfx3dSide_t { GFX_LEFT = 0, GFX_RIGHT = 1, }
+extern "C" {
+    pub fn GSPGPU_SetLedForceOff(disable: bool) -> Result;
+}
+pub const GFX_TOP: gfxScreen_t = 0;
+pub const GFX_BOTTOM: gfxScreen_t = 1;
+pub type gfxScreen_t = libc::c_uint;
+pub const GFX_LEFT: gfx3dSide_t = 0;
+pub const GFX_RIGHT: gfx3dSide_t = 1;
+pub type gfx3dSide_t = libc::c_uint;
 extern "C" {
     pub fn gfxInitDefault();
 }
 extern "C" {
-    pub fn gfxInit(topFormat: GSPGPU_FramebufferFormats,
-                   bottomFormat: GSPGPU_FramebufferFormats,
-                   vrambuffers: bool);
+    pub fn gfxInit(
+        topFormat: GSPGPU_FramebufferFormats,
+        bottomFormat: GSPGPU_FramebufferFormats,
+        vrambuffers: bool,
+    );
 }
 extern "C" {
     pub fn gfxExit();
@@ -2656,12 +3117,10 @@ extern "C" {
     pub fn gfxIs3D() -> bool;
 }
 extern "C" {
-    pub fn gfxSetScreenFormat(screen: gfxScreen_t,
-                              format: GSPGPU_FramebufferFormats);
+    pub fn gfxSetScreenFormat(screen: gfxScreen_t, format: GSPGPU_FramebufferFormats);
 }
 extern "C" {
-    pub fn gfxGetScreenFormat(screen: gfxScreen_t)
-     -> GSPGPU_FramebufferFormats;
+    pub fn gfxGetScreenFormat(screen: gfxScreen_t) -> GSPGPU_FramebufferFormats;
 }
 extern "C" {
     pub fn gfxSetDoubleBuffering(screen: gfxScreen_t, doubleBuffering: bool);
@@ -2679,8 +3138,12 @@ extern "C" {
     pub fn gfxSwapBuffersGpu();
 }
 extern "C" {
-    pub fn gfxGetFramebuffer(screen: gfxScreen_t, side: gfx3dSide_t,
-                             width: *mut u16, height: *mut u16) -> *mut u8;
+    pub fn gfxGetFramebuffer(
+        screen: gfxScreen_t,
+        side: gfx3dSide_t,
+        width: *mut u16,
+        height: *mut u16,
+    ) -> *mut u8;
 }
 extern "C" {
     pub static mut gfxTopLeftFramebuffers: [*mut u8; 2usize];
@@ -2691,21 +3154,16 @@ extern "C" {
 extern "C" {
     pub static mut gfxBottomFramebuffers: [*mut u8; 2usize];
 }
-pub type ConsolePrint =
-    ::core::option::Option<unsafe extern "C" fn(con: *mut libc::c_void,
-                                                c: libc::c_int) -> bool>;
+pub type ConsolePrint = ::core::option::Option<
+    unsafe extern "C" fn(con: *mut libc::c_void, c: libc::c_int) -> bool,
+>;
 #[repr(C)]
-#[derive(Copy)]
 pub struct ConsoleFont {
     pub gfx: *mut u8,
     pub asciiOffset: u16,
     pub numChars: u16,
 }
-impl Clone for ConsoleFont {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
 pub struct PrintConsole {
     pub font: ConsoleFont,
     pub frameBuffer: *mut u16,
@@ -2726,24 +3184,22 @@ pub struct PrintConsole {
     pub PrintChar: ConsolePrint,
     pub consoleInitialised: bool,
 }
-impl Clone for PrintConsole {
-    fn clone(&self) -> Self { *self }
-}
-pub const debugDevice_3DMOO: debugDevice = debugDevice::debugDevice_SVC;
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum debugDevice {
-    debugDevice_NULL = 0,
-    debugDevice_SVC = 1,
-    debugDevice_CONSOLE = 2,
-}
+pub const debugDevice_NULL: debugDevice = 0;
+pub const debugDevice_SVC: debugDevice = 1;
+pub const debugDevice_CONSOLE: debugDevice = 2;
+pub const debugDevice_3DMOO: debugDevice = 1;
+pub type debugDevice = libc::c_uint;
 extern "C" {
     pub fn consoleSetFont(console: *mut PrintConsole, font: *mut ConsoleFont);
 }
 extern "C" {
-    pub fn consoleSetWindow(console: *mut PrintConsole, x: libc::c_int,
-                            y: libc::c_int, width: libc::c_int,
-                            height: libc::c_int);
+    pub fn consoleSetWindow(
+        console: *mut PrintConsole,
+        x: libc::c_int,
+        y: libc::c_int,
+        width: libc::c_int,
+        height: libc::c_int,
+    );
 }
 extern "C" {
     pub fn consoleGetDefault() -> *mut PrintConsole;
@@ -2752,8 +3208,7 @@ extern "C" {
     pub fn consoleSelect(console: *mut PrintConsole) -> *mut PrintConsole;
 }
 extern "C" {
-    pub fn consoleInit(screen: gfxScreen_t, console: *mut PrintConsole)
-     -> *mut PrintConsole;
+    pub fn consoleInit(screen: gfxScreen_t, console: *mut PrintConsole) -> *mut PrintConsole;
 }
 extern "C" {
     pub fn consoleDebugInit(device: debugDevice);
@@ -2761,18 +3216,10 @@ extern "C" {
 extern "C" {
     pub fn consoleClear();
 }
-pub const RUNFLAG_APTWORKAROUND: _bindgen_ty_5 =
-    _bindgen_ty_5::RUNFLAG_APTWORKAROUND;
-pub const RUNFLAG_APTREINIT: _bindgen_ty_5 = _bindgen_ty_5::RUNFLAG_APTREINIT;
-pub const RUNFLAG_APTCHAINLOAD: _bindgen_ty_5 =
-    _bindgen_ty_5::RUNFLAG_APTCHAINLOAD;
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum _bindgen_ty_5 {
-    RUNFLAG_APTWORKAROUND = 1,
-    RUNFLAG_APTREINIT = 2,
-    RUNFLAG_APTCHAINLOAD = 4,
-}
+pub const RUNFLAG_APTWORKAROUND: _bindgen_ty_7 = 1;
+pub const RUNFLAG_APTREINIT: _bindgen_ty_7 = 2;
+pub const RUNFLAG_APTCHAINLOAD: _bindgen_ty_7 = 4;
+pub type _bindgen_ty_7 = libc::c_uint;
 extern "C" {
     pub fn envGetHandle(name: *const libc::c_char) -> Handle;
 }
@@ -2803,22 +3250,17 @@ pub type _ssize_t = libc::c_int;
 pub type __ssize_t = _ssize_t;
 pub type wint_t = libc::c_int;
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct _mbstate_t {
     pub __count: libc::c_int,
     pub __value: _mbstate_t__bindgen_ty_1,
 }
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub union _mbstate_t__bindgen_ty_1 {
     pub __wch: wint_t,
     pub __wchb: [libc::c_uchar; 4usize],
-}
-impl Clone for _mbstate_t__bindgen_ty_1 {
-    fn clone(&self) -> Self { *self }
-}
-impl Clone for _mbstate_t {
-    fn clone(&self) -> Self { *self }
+    _bindgen_union_align: u32,
 }
 pub type _flock_t = _LOCK_RECURSIVE_T;
 pub type _iconv_t = *mut libc::c_void;
@@ -2835,54 +3277,48 @@ pub type __sigset_t = libc::c_ulong;
 pub type suseconds_t = __suseconds_t;
 pub type time_t = libc::c_long;
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct timeval {
     pub tv_sec: time_t,
     pub tv_usec: suseconds_t,
 }
-impl Clone for timeval {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct timespec {
     pub tv_sec: time_t,
     pub tv_nsec: libc::c_long,
 }
-impl Clone for timespec {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct itimerspec {
     pub it_interval: timespec,
     pub it_value: timespec,
 }
-impl Clone for itimerspec {
-    fn clone(&self) -> Self { *self }
-}
 pub type sigset_t = __sigset_t;
 pub type fd_mask = libc::c_ulong;
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct _types_fd_set {
     pub fds_bits: [fd_mask; 2usize],
 }
-impl Clone for _types_fd_set {
-    fn clone(&self) -> Self { *self }
+extern "C" {
+    pub fn select(
+        __n: libc::c_int,
+        __readfds: *mut _types_fd_set,
+        __writefds: *mut _types_fd_set,
+        __exceptfds: *mut _types_fd_set,
+        __timeout: *mut timeval,
+    ) -> libc::c_int;
 }
 extern "C" {
-    pub fn select(__n: libc::c_int, __readfds: *mut _types_fd_set,
-                  __writefds: *mut _types_fd_set,
-                  __exceptfds: *mut _types_fd_set, __timeout: *mut timeval)
-     -> libc::c_int;
-}
-extern "C" {
-    pub fn pselect(__n: libc::c_int, __readfds: *mut _types_fd_set,
-                   __writefds: *mut _types_fd_set,
-                   __exceptfds: *mut _types_fd_set,
-                   __timeout: *const timespec, __set: *const sigset_t)
-     -> libc::c_int;
+    pub fn pselect(
+        __n: libc::c_int,
+        __readfds: *mut _types_fd_set,
+        __writefds: *mut _types_fd_set,
+        __exceptfds: *mut _types_fd_set,
+        __timeout: *const timespec,
+        __set: *const sigset_t,
+    ) -> libc::c_int;
 }
 pub type in_addr_t = __uint32_t;
 pub type in_port_t = __uint16_t;
@@ -2936,15 +3372,13 @@ extern "C" {
     pub fn utf16_to_utf8(out: *mut u8, in_: *const u16, len: usize) -> isize;
 }
 extern "C" {
-    pub fn utf16_to_utf32(out: *mut u32, in_: *const u16, len: usize)
-     -> isize;
+    pub fn utf16_to_utf32(out: *mut u32, in_: *const u16, len: usize) -> isize;
 }
 extern "C" {
     pub fn utf32_to_utf8(out: *mut u8, in_: *const u32, len: usize) -> isize;
 }
 extern "C" {
-    pub fn utf32_to_utf16(out: *mut u16, in_: *const u32, len: usize)
-     -> isize;
+    pub fn utf32_to_utf16(out: *mut u16, in_: *const u32, len: usize) -> isize;
 }
 extern "C" {
     pub fn linearAlloc(size: usize) -> *mut libc::c_void;
@@ -2953,8 +3387,7 @@ extern "C" {
     pub fn linearMemAlign(size: usize, alignment: usize) -> *mut libc::c_void;
 }
 extern "C" {
-    pub fn linearRealloc(mem: *mut libc::c_void, size: usize)
-     -> *mut libc::c_void;
+    pub fn linearRealloc(mem: *mut libc::c_void, size: usize) -> *mut libc::c_void;
 }
 extern "C" {
     pub fn linearGetSize(mem: *mut libc::c_void) -> usize;
@@ -2984,8 +3417,7 @@ extern "C" {
     pub fn vramMemAlign(size: usize, alignment: usize) -> *mut libc::c_void;
 }
 extern "C" {
-    pub fn vramRealloc(mem: *mut libc::c_void, size: usize)
-     -> *mut libc::c_void;
+    pub fn vramRealloc(mem: *mut libc::c_void, size: usize) -> *mut libc::c_void;
 }
 extern "C" {
     pub fn vramGetSize(mem: *mut libc::c_void) -> usize;
@@ -3008,137 +3440,89 @@ extern "C" {
 extern "C" {
     pub fn ACU_GetWifiStatus(out: *mut u32) -> Result;
 }
-pub const FS_OPEN_READ: _bindgen_ty_6 = _bindgen_ty_6::FS_OPEN_READ;
-pub const FS_OPEN_WRITE: _bindgen_ty_6 = _bindgen_ty_6::FS_OPEN_WRITE;
-pub const FS_OPEN_CREATE: _bindgen_ty_6 = _bindgen_ty_6::FS_OPEN_CREATE;
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum _bindgen_ty_6 {
-    FS_OPEN_READ = 1,
-    FS_OPEN_WRITE = 2,
-    FS_OPEN_CREATE = 4,
-}
-pub const FS_WRITE_FLUSH: _bindgen_ty_7 = _bindgen_ty_7::FS_WRITE_FLUSH;
-pub const FS_WRITE_UPDATE_TIME: _bindgen_ty_7 =
-    _bindgen_ty_7::FS_WRITE_UPDATE_TIME;
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum _bindgen_ty_7 { FS_WRITE_FLUSH = 1, FS_WRITE_UPDATE_TIME = 256, }
-pub const FS_ATTRIBUTE_DIRECTORY: _bindgen_ty_8 =
-    _bindgen_ty_8::FS_ATTRIBUTE_DIRECTORY;
-pub const FS_ATTRIBUTE_HIDDEN: _bindgen_ty_8 =
-    _bindgen_ty_8::FS_ATTRIBUTE_HIDDEN;
-pub const FS_ATTRIBUTE_ARCHIVE: _bindgen_ty_8 =
-    _bindgen_ty_8::FS_ATTRIBUTE_ARCHIVE;
-pub const FS_ATTRIBUTE_READ_ONLY: _bindgen_ty_8 =
-    _bindgen_ty_8::FS_ATTRIBUTE_READ_ONLY;
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum _bindgen_ty_8 {
-    FS_ATTRIBUTE_DIRECTORY = 1,
-    FS_ATTRIBUTE_HIDDEN = 256,
-    FS_ATTRIBUTE_ARCHIVE = 65536,
-    FS_ATTRIBUTE_READ_ONLY = 16777216,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum FS_MediaType {
-    MEDIATYPE_NAND = 0,
-    MEDIATYPE_SD = 1,
-    MEDIATYPE_GAME_CARD = 2,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum FS_SystemMediaType {
-    SYSTEM_MEDIATYPE_CTR_NAND = 0,
-    SYSTEM_MEDIATYPE_TWL_NAND = 1,
-    SYSTEM_MEDIATYPE_SD = 2,
-    SYSTEM_MEDIATYPE_TWL_PHOTO = 3,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum FS_ArchiveID {
-    ARCHIVE_ROMFS = 3,
-    ARCHIVE_SAVEDATA = 4,
-    ARCHIVE_EXTDATA = 6,
-    ARCHIVE_SHARED_EXTDATA = 7,
-    ARCHIVE_SYSTEM_SAVEDATA = 8,
-    ARCHIVE_SDMC = 9,
-    ARCHIVE_SDMC_WRITE_ONLY = 10,
-    ARCHIVE_BOSS_EXTDATA = 305419896,
-    ARCHIVE_CARD_SPIFS = 305419897,
-    ARCHIVE_EXTDATA_AND_BOSS_EXTDATA = 305419899,
-    ARCHIVE_SYSTEM_SAVEDATA2 = 305419900,
-    ARCHIVE_NAND_RW = 305419901,
-    ARCHIVE_NAND_RO = 305419902,
-    ARCHIVE_NAND_RO_WRITE_ACCESS = 305419903,
-    ARCHIVE_SAVEDATA_AND_CONTENT = 591751050,
-    ARCHIVE_SAVEDATA_AND_CONTENT2 = 591751054,
-    ARCHIVE_NAND_CTR_FS = 1450741931,
-    ARCHIVE_TWL_PHOTO = 1450741932,
-    ARCHIVE_TWL_SOUND = 1450741933,
-    ARCHIVE_NAND_TWL_FS = 1450741934,
-    ARCHIVE_NAND_W_FS = 1450741935,
-    ARCHIVE_GAMECARD_SAVEDATA = 1450741937,
-    ARCHIVE_USER_SAVEDATA = 1450741938,
-    ARCHIVE_DEMO_SAVEDATA = 1450741940,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum FS_PathType {
-    PATH_INVALID = 0,
-    PATH_EMPTY = 1,
-    PATH_BINARY = 2,
-    PATH_ASCII = 3,
-    PATH_UTF16 = 4,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum FS_SecureValueSlot { SECUREVALUE_SLOT_SD = 4096, }
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum FS_CardSpiBaudRate {
-    BAUDRATE_512KHZ = 0,
-    BAUDRATE_1MHZ = 1,
-    BAUDRATE_2MHZ = 2,
-    BAUDRATE_4MHZ = 3,
-    BAUDRATE_8MHZ = 4,
-    BAUDRATE_16MHZ = 5,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum FS_CardSpiBusMode { BUSMODE_1BIT = 0, BUSMODE_4BIT = 1, }
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum FS_SpecialContentType {
-    SPECIALCONTENT_UPDATE = 1,
-    SPECIALCONTENT_MANUAL = 2,
-    SPECIALCONTENT_DLP_CHILD = 3,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum FS_CardType { CARD_CTR = 0, CARD_TWL = 1, }
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum FS_Action { FS_ACTION_UNKNOWN = 0, }
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum FS_ArchiveAction {
-    ARCHIVE_ACTION_COMMIT_SAVE_DATA = 0,
-    ARCHIVE_ACTION_GET_TIMESTAMP = 1,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum FS_SecureSaveAction {
-    SECURESAVE_ACTION_DELETE = 0,
-    SECURESAVE_ACTION_FORMAT = 1,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum FS_FileAction { FILE_ACTION_UNKNOWN = 0, }
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum FS_DirectoryAction { DIRECTORY_ACTION_UNKNOWN = 0, }
+pub const FS_OPEN_READ: _bindgen_ty_8 = 1;
+pub const FS_OPEN_WRITE: _bindgen_ty_8 = 2;
+pub const FS_OPEN_CREATE: _bindgen_ty_8 = 4;
+pub type _bindgen_ty_8 = libc::c_uint;
+pub const FS_WRITE_FLUSH: _bindgen_ty_9 = 1;
+pub const FS_WRITE_UPDATE_TIME: _bindgen_ty_9 = 256;
+pub type _bindgen_ty_9 = libc::c_uint;
+pub const FS_ATTRIBUTE_DIRECTORY: _bindgen_ty_10 = 1;
+pub const FS_ATTRIBUTE_HIDDEN: _bindgen_ty_10 = 256;
+pub const FS_ATTRIBUTE_ARCHIVE: _bindgen_ty_10 = 65536;
+pub const FS_ATTRIBUTE_READ_ONLY: _bindgen_ty_10 = 16777216;
+pub type _bindgen_ty_10 = libc::c_uint;
+pub const MEDIATYPE_NAND: FS_MediaType = 0;
+pub const MEDIATYPE_SD: FS_MediaType = 1;
+pub const MEDIATYPE_GAME_CARD: FS_MediaType = 2;
+pub type FS_MediaType = libc::c_uint;
+pub const SYSTEM_MEDIATYPE_CTR_NAND: FS_SystemMediaType = 0;
+pub const SYSTEM_MEDIATYPE_TWL_NAND: FS_SystemMediaType = 1;
+pub const SYSTEM_MEDIATYPE_SD: FS_SystemMediaType = 2;
+pub const SYSTEM_MEDIATYPE_TWL_PHOTO: FS_SystemMediaType = 3;
+pub type FS_SystemMediaType = libc::c_uint;
+pub const ARCHIVE_ROMFS: FS_ArchiveID = 3;
+pub const ARCHIVE_SAVEDATA: FS_ArchiveID = 4;
+pub const ARCHIVE_EXTDATA: FS_ArchiveID = 6;
+pub const ARCHIVE_SHARED_EXTDATA: FS_ArchiveID = 7;
+pub const ARCHIVE_SYSTEM_SAVEDATA: FS_ArchiveID = 8;
+pub const ARCHIVE_SDMC: FS_ArchiveID = 9;
+pub const ARCHIVE_SDMC_WRITE_ONLY: FS_ArchiveID = 10;
+pub const ARCHIVE_BOSS_EXTDATA: FS_ArchiveID = 305419896;
+pub const ARCHIVE_CARD_SPIFS: FS_ArchiveID = 305419897;
+pub const ARCHIVE_EXTDATA_AND_BOSS_EXTDATA: FS_ArchiveID = 305419899;
+pub const ARCHIVE_SYSTEM_SAVEDATA2: FS_ArchiveID = 305419900;
+pub const ARCHIVE_NAND_RW: FS_ArchiveID = 305419901;
+pub const ARCHIVE_NAND_RO: FS_ArchiveID = 305419902;
+pub const ARCHIVE_NAND_RO_WRITE_ACCESS: FS_ArchiveID = 305419903;
+pub const ARCHIVE_SAVEDATA_AND_CONTENT: FS_ArchiveID = 591751050;
+pub const ARCHIVE_SAVEDATA_AND_CONTENT2: FS_ArchiveID = 591751054;
+pub const ARCHIVE_NAND_CTR_FS: FS_ArchiveID = 1450741931;
+pub const ARCHIVE_TWL_PHOTO: FS_ArchiveID = 1450741932;
+pub const ARCHIVE_TWL_SOUND: FS_ArchiveID = 1450741933;
+pub const ARCHIVE_NAND_TWL_FS: FS_ArchiveID = 1450741934;
+pub const ARCHIVE_NAND_W_FS: FS_ArchiveID = 1450741935;
+pub const ARCHIVE_GAMECARD_SAVEDATA: FS_ArchiveID = 1450741937;
+pub const ARCHIVE_USER_SAVEDATA: FS_ArchiveID = 1450741938;
+pub const ARCHIVE_DEMO_SAVEDATA: FS_ArchiveID = 1450741940;
+pub type FS_ArchiveID = libc::c_uint;
+pub const PATH_INVALID: FS_PathType = 0;
+pub const PATH_EMPTY: FS_PathType = 1;
+pub const PATH_BINARY: FS_PathType = 2;
+pub const PATH_ASCII: FS_PathType = 3;
+pub const PATH_UTF16: FS_PathType = 4;
+pub type FS_PathType = libc::c_uint;
+pub const SECUREVALUE_SLOT_SD: FS_SecureValueSlot = 4096;
+pub type FS_SecureValueSlot = libc::c_uint;
+pub const BAUDRATE_512KHZ: FS_CardSpiBaudRate = 0;
+pub const BAUDRATE_1MHZ: FS_CardSpiBaudRate = 1;
+pub const BAUDRATE_2MHZ: FS_CardSpiBaudRate = 2;
+pub const BAUDRATE_4MHZ: FS_CardSpiBaudRate = 3;
+pub const BAUDRATE_8MHZ: FS_CardSpiBaudRate = 4;
+pub const BAUDRATE_16MHZ: FS_CardSpiBaudRate = 5;
+pub type FS_CardSpiBaudRate = libc::c_uint;
+pub const BUSMODE_1BIT: FS_CardSpiBusMode = 0;
+pub const BUSMODE_4BIT: FS_CardSpiBusMode = 1;
+pub type FS_CardSpiBusMode = libc::c_uint;
+pub const SPECIALCONTENT_UPDATE: FS_SpecialContentType = 1;
+pub const SPECIALCONTENT_MANUAL: FS_SpecialContentType = 2;
+pub const SPECIALCONTENT_DLP_CHILD: FS_SpecialContentType = 3;
+pub type FS_SpecialContentType = libc::c_uint;
+pub const CARD_CTR: FS_CardType = 0;
+pub const CARD_TWL: FS_CardType = 1;
+pub type FS_CardType = libc::c_uint;
+pub const FS_ACTION_UNKNOWN: FS_Action = 0;
+pub type FS_Action = libc::c_uint;
+pub const ARCHIVE_ACTION_COMMIT_SAVE_DATA: FS_ArchiveAction = 0;
+pub const ARCHIVE_ACTION_GET_TIMESTAMP: FS_ArchiveAction = 1;
+pub type FS_ArchiveAction = libc::c_uint;
+pub const SECURESAVE_ACTION_DELETE: FS_SecureSaveAction = 0;
+pub const SECURESAVE_ACTION_FORMAT: FS_SecureSaveAction = 1;
+pub type FS_SecureSaveAction = libc::c_uint;
+pub const FILE_ACTION_UNKNOWN: FS_FileAction = 0;
+pub type FS_FileAction = libc::c_uint;
+pub const DIRECTORY_ACTION_UNKNOWN: FS_DirectoryAction = 0;
+pub type FS_DirectoryAction = libc::c_uint;
 #[repr(C)]
 pub struct FS_DirectoryEntry {
     pub name: [u16; 262usize],
@@ -3150,77 +3534,65 @@ pub struct FS_DirectoryEntry {
     pub fileSize: u64,
 }
 #[repr(C)]
-#[derive(Copy)]
 pub struct FS_ArchiveResource {
     pub sectorSize: u32,
     pub clusterSize: u32,
     pub totalClusters: u32,
     pub freeClusters: u32,
 }
-impl Clone for FS_ArchiveResource {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
 pub struct FS_ProgramInfo {
     pub programId: u64,
     pub _bitfield_1: u8,
     pub padding: [u8; 7usize],
-}
-impl Clone for FS_ProgramInfo {
-    fn clone(&self) -> Self { *self }
 }
 impl FS_ProgramInfo {
     #[inline]
     pub fn mediaType(&self) -> FS_MediaType {
         let mut unit_field_val: u8 = unsafe { ::core::mem::uninitialized() };
         unsafe {
-            ::core::ptr::copy_nonoverlapping(&self._bitfield_1 as *const _ as
-                                                 *const u8,
-                                             &mut unit_field_val as *mut u8 as
-                                                 *mut u8,
-                                             ::core::mem::size_of::<u8>())
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_1 as *const _ as *const u8,
+                &mut unit_field_val as *mut u8 as *mut u8,
+                ::core::mem::size_of::<u8>(),
+            )
         };
-        let mask = 255u64 as u8;
+        let mask = 0xff as u8;
         let val = (unit_field_val & mask) >> 0usize;
         unsafe { ::core::mem::transmute(val as u32) }
     }
     #[inline]
     pub fn set_mediaType(&mut self, val: FS_MediaType) {
-        let mask = 255u64 as u8;
+        let mask = 0xff as u8;
         let val = val as u32 as u8;
         let mut unit_field_val: u8 = unsafe { ::core::mem::uninitialized() };
         unsafe {
-            ::core::ptr::copy_nonoverlapping(&self._bitfield_1 as *const _ as
-                                                 *const u8,
-                                             &mut unit_field_val as *mut u8 as
-                                                 *mut u8,
-                                             ::core::mem::size_of::<u8>())
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_1 as *const _ as *const u8,
+                &mut unit_field_val as *mut u8 as *mut u8,
+                ::core::mem::size_of::<u8>(),
+            )
         };
         unit_field_val &= !mask;
         unit_field_val |= (val << 0usize) & mask;
         unsafe {
-            ::core::ptr::copy_nonoverlapping(&unit_field_val as *const _ as
-                                                 *const u8,
-                                             &mut self._bitfield_1 as *mut _
-                                                 as *mut u8,
-                                             ::core::mem::size_of::<u8>());
+            ::core::ptr::copy_nonoverlapping(
+                &unit_field_val as *const _ as *const u8,
+                &mut self._bitfield_1 as *mut _ as *mut u8,
+                ::core::mem::size_of::<u8>(),
+            );
         }
     }
     #[inline]
     pub const fn new_bitfield_1(mediaType: FS_MediaType) -> u8 {
-        ({ 0 } | ((mediaType as u32 as u8) << 0usize) & (255u64 as u8))
+        (0 | ((mediaType as u32 as u8) << 0usize) & (0xff as u8))
     }
 }
 #[repr(C)]
-#[derive(Copy)]
 pub struct FS_ProductInfo {
     pub productCode: [libc::c_char; 16usize],
     pub companyCode: [libc::c_char; 2usize],
     pub remasterVersion: u16,
-}
-impl Clone for FS_ProductInfo {
-    fn clone(&self) -> Self { *self }
 }
 #[repr(C)]
 pub struct FS_IntegrityVerificationSeed {
@@ -3228,7 +3600,6 @@ pub struct FS_IntegrityVerificationSeed {
     pub movableSed: [u8; 288usize],
 }
 #[repr(C, packed)]
-#[derive(Copy)]
 pub struct FS_ExtSaveDataInfo {
     pub _bitfield_1: u8,
     pub unknown: u8,
@@ -3236,122 +3607,108 @@ pub struct FS_ExtSaveDataInfo {
     pub saveId: u64,
     pub reserved2: u32,
 }
-impl Clone for FS_ExtSaveDataInfo {
-    fn clone(&self) -> Self { *self }
-}
 impl FS_ExtSaveDataInfo {
     #[inline]
     pub fn mediaType(&self) -> FS_MediaType {
         let mut unit_field_val: u8 = unsafe { ::core::mem::uninitialized() };
         unsafe {
-            ::core::ptr::copy_nonoverlapping(&self._bitfield_1 as *const _ as
-                                                 *const u8,
-                                             &mut unit_field_val as *mut u8 as
-                                                 *mut u8,
-                                             ::core::mem::size_of::<u8>())
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_1 as *const _ as *const u8,
+                &mut unit_field_val as *mut u8 as *mut u8,
+                ::core::mem::size_of::<u8>(),
+            )
         };
-        let mask = 255u64 as u8;
+        let mask = 0xff as u8;
         let val = (unit_field_val & mask) >> 0usize;
         unsafe { ::core::mem::transmute(val as u32) }
     }
     #[inline]
     pub fn set_mediaType(&mut self, val: FS_MediaType) {
-        let mask = 255u64 as u8;
+        let mask = 0xff as u8;
         let val = val as u32 as u8;
         let mut unit_field_val: u8 = unsafe { ::core::mem::uninitialized() };
         unsafe {
-            ::core::ptr::copy_nonoverlapping(&self._bitfield_1 as *const _ as
-                                                 *const u8,
-                                             &mut unit_field_val as *mut u8 as
-                                                 *mut u8,
-                                             ::core::mem::size_of::<u8>())
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_1 as *const _ as *const u8,
+                &mut unit_field_val as *mut u8 as *mut u8,
+                ::core::mem::size_of::<u8>(),
+            )
         };
         unit_field_val &= !mask;
         unit_field_val |= (val << 0usize) & mask;
         unsafe {
-            ::core::ptr::copy_nonoverlapping(&unit_field_val as *const _ as
-                                                 *const u8,
-                                             &mut self._bitfield_1 as *mut _
-                                                 as *mut u8,
-                                             ::core::mem::size_of::<u8>());
+            ::core::ptr::copy_nonoverlapping(
+                &unit_field_val as *const _ as *const u8,
+                &mut self._bitfield_1 as *mut _ as *mut u8,
+                ::core::mem::size_of::<u8>(),
+            );
         }
     }
     #[inline]
     pub const fn new_bitfield_1(mediaType: FS_MediaType) -> u8 {
-        ({ 0 } | ((mediaType as u32 as u8) << 0usize) & (255u64 as u8))
+        (0 | ((mediaType as u32 as u8) << 0usize) & (0xff as u8))
     }
 }
 #[repr(C)]
-#[derive(Copy)]
 pub struct FS_SystemSaveDataInfo {
     pub _bitfield_1: u8,
     pub unknown: u8,
     pub reserved: u16,
     pub saveId: u32,
 }
-impl Clone for FS_SystemSaveDataInfo {
-    fn clone(&self) -> Self { *self }
-}
 impl FS_SystemSaveDataInfo {
     #[inline]
     pub fn mediaType(&self) -> FS_MediaType {
         let mut unit_field_val: u8 = unsafe { ::core::mem::uninitialized() };
         unsafe {
-            ::core::ptr::copy_nonoverlapping(&self._bitfield_1 as *const _ as
-                                                 *const u8,
-                                             &mut unit_field_val as *mut u8 as
-                                                 *mut u8,
-                                             ::core::mem::size_of::<u8>())
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_1 as *const _ as *const u8,
+                &mut unit_field_val as *mut u8 as *mut u8,
+                ::core::mem::size_of::<u8>(),
+            )
         };
-        let mask = 255u64 as u8;
+        let mask = 0xff as u8;
         let val = (unit_field_val & mask) >> 0usize;
         unsafe { ::core::mem::transmute(val as u32) }
     }
     #[inline]
     pub fn set_mediaType(&mut self, val: FS_MediaType) {
-        let mask = 255u64 as u8;
+        let mask = 0xff as u8;
         let val = val as u32 as u8;
         let mut unit_field_val: u8 = unsafe { ::core::mem::uninitialized() };
         unsafe {
-            ::core::ptr::copy_nonoverlapping(&self._bitfield_1 as *const _ as
-                                                 *const u8,
-                                             &mut unit_field_val as *mut u8 as
-                                                 *mut u8,
-                                             ::core::mem::size_of::<u8>())
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_1 as *const _ as *const u8,
+                &mut unit_field_val as *mut u8 as *mut u8,
+                ::core::mem::size_of::<u8>(),
+            )
         };
         unit_field_val &= !mask;
         unit_field_val |= (val << 0usize) & mask;
         unsafe {
-            ::core::ptr::copy_nonoverlapping(&unit_field_val as *const _ as
-                                                 *const u8,
-                                             &mut self._bitfield_1 as *mut _
-                                                 as *mut u8,
-                                             ::core::mem::size_of::<u8>());
+            ::core::ptr::copy_nonoverlapping(
+                &unit_field_val as *const _ as *const u8,
+                &mut self._bitfield_1 as *mut _ as *mut u8,
+                ::core::mem::size_of::<u8>(),
+            );
         }
     }
     #[inline]
     pub const fn new_bitfield_1(mediaType: FS_MediaType) -> u8 {
-        ({ 0 } | ((mediaType as u32 as u8) << 0usize) & (255u64 as u8))
+        (0 | ((mediaType as u32 as u8) << 0usize) & (0xff as u8))
     }
 }
 #[repr(C)]
-#[derive(Copy)]
 pub struct FS_DeviceMoveContext {
     pub ivs: [u8; 16usize],
     pub encryptParameter: [u8; 16usize],
 }
-impl Clone for FS_DeviceMoveContext {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct FS_Path {
     pub type_: FS_PathType,
     pub size: u32,
     pub data: *const libc::c_void,
-}
-impl Clone for FS_Path {
-    fn clone(&self) -> Self { *self }
 }
 pub type FS_Archive = u64;
 extern "C" {
@@ -3373,93 +3730,108 @@ extern "C" {
     pub fn fsUnexemptFromSession(archive: FS_Archive);
 }
 extern "C" {
-    pub fn fsMakePath(type_: FS_PathType, path: *const libc::c_void)
-     -> FS_Path;
+    pub fn fsMakePath(type_: FS_PathType, path: *const libc::c_void) -> FS_Path;
 }
 extern "C" {
     pub fn fsGetSessionHandle() -> *mut Handle;
 }
 extern "C" {
-    pub fn FSUSER_Control(action: FS_Action, input: *mut libc::c_void,
-                          inputSize: u32, output: *mut libc::c_void,
-                          outputSize: u32) -> Result;
+    pub fn FSUSER_Control(
+        action: FS_Action,
+        input: *mut libc::c_void,
+        inputSize: u32,
+        output: *mut libc::c_void,
+        outputSize: u32,
+    ) -> Result;
 }
 extern "C" {
     pub fn FSUSER_Initialize(session: Handle) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_OpenFile(out: *mut Handle, archive: FS_Archive,
-                           path: FS_Path, openFlags: u32, attributes: u32)
-     -> Result;
+    pub fn FSUSER_OpenFile(
+        out: *mut Handle,
+        archive: FS_Archive,
+        path: FS_Path,
+        openFlags: u32,
+        attributes: u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_OpenFileDirectly(out: *mut Handle, archiveId: FS_ArchiveID,
-                                   archivePath: FS_Path, filePath: FS_Path,
-                                   openFlags: u32, attributes: u32) -> Result;
+    pub fn FSUSER_OpenFileDirectly(
+        out: *mut Handle,
+        archiveId: FS_ArchiveID,
+        archivePath: FS_Path,
+        filePath: FS_Path,
+        openFlags: u32,
+        attributes: u32,
+    ) -> Result;
 }
 extern "C" {
     pub fn FSUSER_DeleteFile(archive: FS_Archive, path: FS_Path) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_RenameFile(srcArchive: FS_Archive, srcPath: FS_Path,
-                             dstArchive: FS_Archive, dstPath: FS_Path)
-     -> Result;
+    pub fn FSUSER_RenameFile(
+        srcArchive: FS_Archive,
+        srcPath: FS_Path,
+        dstArchive: FS_Archive,
+        dstPath: FS_Path,
+    ) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_DeleteDirectory(archive: FS_Archive, path: FS_Path)
-     -> Result;
+    pub fn FSUSER_DeleteDirectory(archive: FS_Archive, path: FS_Path) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_DeleteDirectoryRecursively(archive: FS_Archive,
-                                             path: FS_Path) -> Result;
+    pub fn FSUSER_DeleteDirectoryRecursively(archive: FS_Archive, path: FS_Path) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_CreateFile(archive: FS_Archive, path: FS_Path,
-                             attributes: u32, fileSize: u64) -> Result;
+    pub fn FSUSER_CreateFile(
+        archive: FS_Archive,
+        path: FS_Path,
+        attributes: u32,
+        fileSize: u64,
+    ) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_CreateDirectory(archive: FS_Archive, path: FS_Path,
-                                  attributes: u32) -> Result;
+    pub fn FSUSER_CreateDirectory(archive: FS_Archive, path: FS_Path, attributes: u32) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_RenameDirectory(srcArchive: FS_Archive, srcPath: FS_Path,
-                                  dstArchive: FS_Archive, dstPath: FS_Path)
-     -> Result;
+    pub fn FSUSER_RenameDirectory(
+        srcArchive: FS_Archive,
+        srcPath: FS_Path,
+        dstArchive: FS_Archive,
+        dstPath: FS_Path,
+    ) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_OpenDirectory(out: *mut Handle, archive: FS_Archive,
-                                path: FS_Path) -> Result;
+    pub fn FSUSER_OpenDirectory(out: *mut Handle, archive: FS_Archive, path: FS_Path) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_OpenArchive(archive: *mut FS_Archive, id: FS_ArchiveID,
-                              path: FS_Path) -> Result;
+    pub fn FSUSER_OpenArchive(archive: *mut FS_Archive, id: FS_ArchiveID, path: FS_Path) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_ControlArchive(archive: FS_Archive,
-                                 action: FS_ArchiveAction,
-                                 input: *mut libc::c_void, inputSize: u32,
-                                 output: *mut libc::c_void, outputSize: u32)
-     -> Result;
+    pub fn FSUSER_ControlArchive(
+        archive: FS_Archive,
+        action: FS_ArchiveAction,
+        input: *mut libc::c_void,
+        inputSize: u32,
+        output: *mut libc::c_void,
+        outputSize: u32,
+    ) -> Result;
 }
 extern "C" {
     pub fn FSUSER_CloseArchive(archive: FS_Archive) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_GetFreeBytes(freeBytes: *mut u64, archive: FS_Archive)
-     -> Result;
+    pub fn FSUSER_GetFreeBytes(freeBytes: *mut u64, archive: FS_Archive) -> Result;
 }
 extern "C" {
     pub fn FSUSER_GetCardType(type_: *mut FS_CardType) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_GetSdmcArchiveResource(archiveResource:
-                                             *mut FS_ArchiveResource)
-     -> Result;
+    pub fn FSUSER_GetSdmcArchiveResource(archiveResource: *mut FS_ArchiveResource) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_GetNandArchiveResource(archiveResource:
-                                             *mut FS_ArchiveResource)
-     -> Result;
+    pub fn FSUSER_GetNandArchiveResource(archiveResource: *mut FS_ArchiveResource) -> Result;
 }
 extern "C" {
     pub fn FSUSER_GetSdmcFatfsError(error: *mut u32) -> Result;
@@ -3510,48 +3882,53 @@ extern "C" {
     pub fn FSUSER_CardNorDirectCommand(commandId: u8) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_CardNorDirectCommandWithAddress(commandId: u8, address: u32)
-     -> Result;
+    pub fn FSUSER_CardNorDirectCommandWithAddress(commandId: u8, address: u32) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_CardNorDirectRead(commandId: u8, size: u32, output: *mut u8)
-     -> Result;
+    pub fn FSUSER_CardNorDirectRead(commandId: u8, size: u32, output: *mut u8) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_CardNorDirectReadWithAddress(commandId: u8, address: u32,
-                                               size: u32, output: *mut u8)
-     -> Result;
+    pub fn FSUSER_CardNorDirectReadWithAddress(
+        commandId: u8,
+        address: u32,
+        size: u32,
+        output: *mut u8,
+    ) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_CardNorDirectWrite(commandId: u8, size: u32, input: *mut u8)
-     -> Result;
+    pub fn FSUSER_CardNorDirectWrite(commandId: u8, size: u32, input: *mut u8) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_CardNorDirectWriteWithAddress(commandId: u8, address: u32,
-                                                size: u32, input: *mut u8)
-     -> Result;
+    pub fn FSUSER_CardNorDirectWriteWithAddress(
+        commandId: u8,
+        address: u32,
+        size: u32,
+        input: *mut u8,
+    ) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_CardNorDirectRead_4xIO(commandId: u8, address: u32,
-                                         size: u32, output: *mut u8)
-     -> Result;
+    pub fn FSUSER_CardNorDirectRead_4xIO(
+        commandId: u8,
+        address: u32,
+        size: u32,
+        output: *mut u8,
+    ) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_CardNorDirectCpuWriteWithoutVerify(address: u32, size: u32,
-                                                     input: *mut u8)
-     -> Result;
+    pub fn FSUSER_CardNorDirectCpuWriteWithoutVerify(
+        address: u32,
+        size: u32,
+        input: *mut u8,
+    ) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_CardNorDirectSectorEraseWithoutVerify(address: u32)
-     -> Result;
+    pub fn FSUSER_CardNorDirectSectorEraseWithoutVerify(address: u32) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_GetProductInfo(info: *mut FS_ProductInfo, processId: u32)
-     -> Result;
+    pub fn FSUSER_GetProductInfo(info: *mut FS_ProductInfo, processId: u32) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_GetProgramLaunchInfo(info: *mut FS_ProgramInfo,
-                                       processId: u32) -> Result;
+    pub fn FSUSER_GetProgramLaunchInfo(info: *mut FS_ProgramInfo, processId: u32) -> Result;
 }
 extern "C" {
     pub fn FSUSER_SetCardSpiBaudRate(baudRate: FS_CardSpiBaudRate) -> Result;
@@ -3563,30 +3940,43 @@ extern "C" {
     pub fn FSUSER_SendInitializeInfoTo9() -> Result;
 }
 extern "C" {
-    pub fn FSUSER_GetSpecialContentIndex(index: *mut u16,
-                                         mediaType: FS_MediaType,
-                                         programId: u64,
-                                         type_: FS_SpecialContentType)
-     -> Result;
+    pub fn FSUSER_GetSpecialContentIndex(
+        index: *mut u16,
+        mediaType: FS_MediaType,
+        programId: u64,
+        type_: FS_SpecialContentType,
+    ) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_GetLegacyRomHeader(mediaType: FS_MediaType, programId: u64,
-                                     header: *mut u8) -> Result;
+    pub fn FSUSER_GetLegacyRomHeader(
+        mediaType: FS_MediaType,
+        programId: u64,
+        header: *mut u8,
+    ) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_GetLegacyBannerData(mediaType: FS_MediaType, programId: u64,
-                                      banner: *mut u8) -> Result;
+    pub fn FSUSER_GetLegacyBannerData(
+        mediaType: FS_MediaType,
+        programId: u64,
+        banner: *mut u8,
+    ) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_CheckAuthorityToAccessExtSaveData(access: *mut bool,
-                                                    mediaType: FS_MediaType,
-                                                    saveId: u64,
-                                                    processId: u32) -> Result;
+    pub fn FSUSER_CheckAuthorityToAccessExtSaveData(
+        access: *mut bool,
+        mediaType: FS_MediaType,
+        saveId: u64,
+        processId: u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_QueryTotalQuotaSize(quotaSize: *mut u64, directories: u32,
-                                      files: u32, fileSizeCount: u32,
-                                      fileSizes: *mut u64) -> Result;
+    pub fn FSUSER_QueryTotalQuotaSize(
+        quotaSize: *mut u64,
+        directories: u32,
+        files: u32,
+        fileSizeCount: u32,
+        fileSizes: *mut u64,
+    ) -> Result;
 }
 extern "C" {
     pub fn FSUSER_AbnegateAccessRight(accessRight: u32) -> Result;
@@ -3604,124 +3994,164 @@ extern "C" {
     pub fn FSUSER_CreateSeed() -> Result;
 }
 extern "C" {
-    pub fn FSUSER_GetFormatInfo(totalSize: *mut u32, directories: *mut u32,
-                                files: *mut u32, duplicateData: *mut bool,
-                                archiveId: FS_ArchiveID, path: FS_Path)
-     -> Result;
+    pub fn FSUSER_GetFormatInfo(
+        totalSize: *mut u32,
+        directories: *mut u32,
+        files: *mut u32,
+        duplicateData: *mut bool,
+        archiveId: FS_ArchiveID,
+        path: FS_Path,
+    ) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_GetLegacyRomHeader2(headerSize: u32,
-                                      mediaType: FS_MediaType, programId: u64,
-                                      header: *mut u8) -> Result;
+    pub fn FSUSER_GetLegacyRomHeader2(
+        headerSize: u32,
+        mediaType: FS_MediaType,
+        programId: u64,
+        header: *mut u8,
+    ) -> Result;
 }
 extern "C" {
     pub fn FSUSER_GetSdmcCtrRootPath(out: *mut u8, length: u32) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_GetArchiveResource(archiveResource: *mut FS_ArchiveResource,
-                                     mediaType: FS_SystemMediaType) -> Result;
+    pub fn FSUSER_GetArchiveResource(
+        archiveResource: *mut FS_ArchiveResource,
+        mediaType: FS_SystemMediaType,
+    ) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_ExportIntegrityVerificationSeed(seed:
-                                                      *mut FS_IntegrityVerificationSeed)
-     -> Result;
+    pub fn FSUSER_ExportIntegrityVerificationSeed(
+        seed: *mut FS_IntegrityVerificationSeed,
+    ) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_ImportIntegrityVerificationSeed(seed:
-                                                      *mut FS_IntegrityVerificationSeed)
-     -> Result;
+    pub fn FSUSER_ImportIntegrityVerificationSeed(
+        seed: *mut FS_IntegrityVerificationSeed,
+    ) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_FormatSaveData(archiveId: FS_ArchiveID, path: FS_Path,
-                                 blocks: u32, directories: u32, files: u32,
-                                 directoryBuckets: u32, fileBuckets: u32,
-                                 duplicateData: bool) -> Result;
+    pub fn FSUSER_FormatSaveData(
+        archiveId: FS_ArchiveID,
+        path: FS_Path,
+        blocks: u32,
+        directories: u32,
+        files: u32,
+        directoryBuckets: u32,
+        fileBuckets: u32,
+        duplicateData: bool,
+    ) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_GetLegacySubBannerData(bannerSize: u32,
-                                         mediaType: FS_MediaType,
-                                         programId: u64, banner: *mut u8)
-     -> Result;
+    pub fn FSUSER_GetLegacySubBannerData(
+        bannerSize: u32,
+        mediaType: FS_MediaType,
+        programId: u64,
+        banner: *mut u8,
+    ) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_UpdateSha256Context(data: *const libc::c_void,
-                                      inputSize: u32, hash: *mut u8)
-     -> Result;
+    pub fn FSUSER_UpdateSha256Context(
+        data: *const libc::c_void,
+        inputSize: u32,
+        hash: *mut u8,
+    ) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_ReadSpecialFile(bytesRead: *mut u32, fileOffset: u64,
-                                  size: u32, data: *mut u8) -> Result;
+    pub fn FSUSER_ReadSpecialFile(
+        bytesRead: *mut u32,
+        fileOffset: u64,
+        size: u32,
+        data: *mut u8,
+    ) -> Result;
 }
 extern "C" {
     pub fn FSUSER_GetSpecialFileSize(fileSize: *mut u64) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_CreateExtSaveData(info: FS_ExtSaveDataInfo,
-                                    directories: u32, files: u32,
-                                    sizeLimit: u64, smdhSize: u32,
-                                    smdh: *mut u8) -> Result;
+    pub fn FSUSER_CreateExtSaveData(
+        info: FS_ExtSaveDataInfo,
+        directories: u32,
+        files: u32,
+        sizeLimit: u64,
+        smdhSize: u32,
+        smdh: *mut u8,
+    ) -> Result;
 }
 extern "C" {
     pub fn FSUSER_DeleteExtSaveData(info: FS_ExtSaveDataInfo) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_ReadExtSaveDataIcon(bytesRead: *mut u32,
-                                      info: FS_ExtSaveDataInfo, smdhSize: u32,
-                                      smdh: *mut u8) -> Result;
+    pub fn FSUSER_ReadExtSaveDataIcon(
+        bytesRead: *mut u32,
+        info: FS_ExtSaveDataInfo,
+        smdhSize: u32,
+        smdh: *mut u8,
+    ) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_GetExtDataBlockSize(totalBlocks: *mut u64,
-                                      freeBlocks: *mut u64,
-                                      blockSize: *mut u32,
-                                      info: FS_ExtSaveDataInfo) -> Result;
+    pub fn FSUSER_GetExtDataBlockSize(
+        totalBlocks: *mut u64,
+        freeBlocks: *mut u64,
+        blockSize: *mut u32,
+        info: FS_ExtSaveDataInfo,
+    ) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_EnumerateExtSaveData(idsWritten: *mut u32, idsSize: u32,
-                                       mediaType: FS_MediaType, idSize: u32,
-                                       shared: bool, ids: *mut u8) -> Result;
+    pub fn FSUSER_EnumerateExtSaveData(
+        idsWritten: *mut u32,
+        idsSize: u32,
+        mediaType: FS_MediaType,
+        idSize: u32,
+        shared: bool,
+        ids: *mut u8,
+    ) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_CreateSystemSaveData(info: FS_SystemSaveDataInfo,
-                                       totalSize: u32, blockSize: u32,
-                                       directories: u32, files: u32,
-                                       directoryBuckets: u32,
-                                       fileBuckets: u32, duplicateData: bool)
-     -> Result;
+    pub fn FSUSER_CreateSystemSaveData(
+        info: FS_SystemSaveDataInfo,
+        totalSize: u32,
+        blockSize: u32,
+        directories: u32,
+        files: u32,
+        directoryBuckets: u32,
+        fileBuckets: u32,
+        duplicateData: bool,
+    ) -> Result;
 }
 extern "C" {
     pub fn FSUSER_DeleteSystemSaveData(info: FS_SystemSaveDataInfo) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_StartDeviceMoveAsSource(context: *mut FS_DeviceMoveContext)
-     -> Result;
+    pub fn FSUSER_StartDeviceMoveAsSource(context: *mut FS_DeviceMoveContext) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_StartDeviceMoveAsDestination(context: FS_DeviceMoveContext,
-                                               clear: bool) -> Result;
+    pub fn FSUSER_StartDeviceMoveAsDestination(
+        context: FS_DeviceMoveContext,
+        clear: bool,
+    ) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_SetArchivePriority(archive: FS_Archive, priority: u32)
-     -> Result;
+    pub fn FSUSER_SetArchivePriority(archive: FS_Archive, priority: u32) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_GetArchivePriority(priority: *mut u32, archive: FS_Archive)
-     -> Result;
+    pub fn FSUSER_GetArchivePriority(priority: *mut u32, archive: FS_Archive) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_SetCtrCardLatencyParameter(latency: u64,
-                                             emulateEndurance: bool)
-     -> Result;
+    pub fn FSUSER_SetCtrCardLatencyParameter(latency: u64, emulateEndurance: bool) -> Result;
 }
 extern "C" {
     pub fn FSUSER_SwitchCleanupInvalidSaveData(enable: bool) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_EnumerateSystemSaveData(idsWritten: *mut u32, idsSize: u32,
-                                          ids: *mut u32) -> Result;
+    pub fn FSUSER_EnumerateSystemSaveData(
+        idsWritten: *mut u32,
+        idsSize: u32,
+        ids: *mut u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_InitializeWithSdkVersion(session: Handle, version: u32)
-     -> Result;
+    pub fn FSUSER_InitializeWithSdkVersion(session: Handle, version: u32) -> Result;
 }
 extern "C" {
     pub fn FSUSER_SetPriority(priority: u32) -> Result;
@@ -3730,43 +4160,70 @@ extern "C" {
     pub fn FSUSER_GetPriority(priority: *mut u32) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_SetSaveDataSecureValue(value: u64, slot: FS_SecureValueSlot,
-                                         titleUniqueId: u32,
-                                         titleVariation: u8) -> Result;
+    pub fn FSUSER_SetSaveDataSecureValue(
+        value: u64,
+        slot: FS_SecureValueSlot,
+        titleUniqueId: u32,
+        titleVariation: u8,
+    ) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_GetSaveDataSecureValue(exists: *mut bool, value: *mut u64,
-                                         slot: FS_SecureValueSlot,
-                                         titleUniqueId: u32,
-                                         titleVariation: u8) -> Result;
+    pub fn FSUSER_GetSaveDataSecureValue(
+        exists: *mut bool,
+        value: *mut u64,
+        slot: FS_SecureValueSlot,
+        titleUniqueId: u32,
+        titleVariation: u8,
+    ) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_ControlSecureSave(action: FS_SecureSaveAction,
-                                    input: *mut libc::c_void, inputSize: u32,
-                                    output: *mut libc::c_void,
-                                    outputSize: u32) -> Result;
+    pub fn FSUSER_ControlSecureSave(
+        action: FS_SecureSaveAction,
+        input: *mut libc::c_void,
+        inputSize: u32,
+        output: *mut libc::c_void,
+        outputSize: u32,
+    ) -> Result;
 }
 extern "C" {
     pub fn FSUSER_GetMediaType(mediaType: *mut FS_MediaType) -> Result;
 }
 extern "C" {
-    pub fn FSFILE_Control(handle: Handle, action: FS_FileAction,
-                          input: *mut libc::c_void, inputSize: u32,
-                          output: *mut libc::c_void, outputSize: u32)
-     -> Result;
+    pub fn FSFILE_Control(
+        handle: Handle,
+        action: FS_FileAction,
+        input: *mut libc::c_void,
+        inputSize: u32,
+        output: *mut libc::c_void,
+        outputSize: u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn FSFILE_OpenSubFile(handle: Handle, subFile: *mut Handle,
-                              offset: u64, size: u64) -> Result;
+    pub fn FSFILE_OpenSubFile(
+        handle: Handle,
+        subFile: *mut Handle,
+        offset: u64,
+        size: u64,
+    ) -> Result;
 }
 extern "C" {
-    pub fn FSFILE_Read(handle: Handle, bytesRead: *mut u32, offset: u64,
-                       buffer: *mut libc::c_void, size: u32) -> Result;
+    pub fn FSFILE_Read(
+        handle: Handle,
+        bytesRead: *mut u32,
+        offset: u64,
+        buffer: *mut libc::c_void,
+        size: u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn FSFILE_Write(handle: Handle, bytesWritten: *mut u32, offset: u64,
-                        buffer: *const libc::c_void, size: u32, flags: u32)
-     -> Result;
+    pub fn FSFILE_Write(
+        handle: Handle,
+        bytesWritten: *mut u32,
+        offset: u64,
+        buffer: *const libc::c_void,
+        size: u32,
+        flags: u32,
+    ) -> Result;
 }
 extern "C" {
     pub fn FSFILE_GetSize(handle: Handle, size: *mut u64) -> Result;
@@ -3775,8 +4232,7 @@ extern "C" {
     pub fn FSFILE_SetSize(handle: Handle, size: u64) -> Result;
 }
 extern "C" {
-    pub fn FSFILE_GetAttributes(handle: Handle, attributes: *mut u32)
-     -> Result;
+    pub fn FSFILE_GetAttributes(handle: Handle, attributes: *mut u32) -> Result;
 }
 extern "C" {
     pub fn FSFILE_SetAttributes(handle: Handle, attributes: u32) -> Result;
@@ -3794,18 +4250,25 @@ extern "C" {
     pub fn FSFILE_GetPriority(handle: Handle, priority: *mut u32) -> Result;
 }
 extern "C" {
-    pub fn FSFILE_OpenLinkFile(handle: Handle, linkFile: *mut Handle)
-     -> Result;
+    pub fn FSFILE_OpenLinkFile(handle: Handle, linkFile: *mut Handle) -> Result;
 }
 extern "C" {
-    pub fn FSDIR_Control(handle: Handle, action: FS_DirectoryAction,
-                         input: *mut libc::c_void, inputSize: u32,
-                         output: *mut libc::c_void, outputSize: u32)
-     -> Result;
+    pub fn FSDIR_Control(
+        handle: Handle,
+        action: FS_DirectoryAction,
+        input: *mut libc::c_void,
+        inputSize: u32,
+        output: *mut libc::c_void,
+        outputSize: u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn FSDIR_Read(handle: Handle, entriesRead: *mut u32, entryCount: u32,
-                      entries: *mut FS_DirectoryEntry) -> Result;
+    pub fn FSDIR_Read(
+        handle: Handle,
+        entriesRead: *mut u32,
+        entryCount: u32,
+        entries: *mut FS_DirectoryEntry,
+    ) -> Result;
 }
 extern "C" {
     pub fn FSDIR_Close(handle: Handle) -> Result;
@@ -3817,36 +4280,21 @@ extern "C" {
     pub fn FSDIR_GetPriority(handle: Handle, priority: *mut u32) -> Result;
 }
 #[repr(C)]
-#[derive(Copy)]
 pub struct AM_TitleEntry {
     pub titleID: u64,
     pub size: u64,
     pub version: u16,
     pub unk: [u8; 6usize],
 }
-impl Clone for AM_TitleEntry {
-    fn clone(&self) -> Self { *self }
-}
-pub const AM_STATUS_MASK_INSTALLING: _bindgen_ty_9 =
-    _bindgen_ty_9::AM_STATUS_MASK_INSTALLING;
-pub const AM_STATUS_MASK_AWAITING_FINALIZATION: _bindgen_ty_9 =
-    _bindgen_ty_9::AM_STATUS_MASK_AWAITING_FINALIZATION;
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum _bindgen_ty_9 {
-    AM_STATUS_MASK_INSTALLING = 1,
-    AM_STATUS_MASK_AWAITING_FINALIZATION = 2,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum AM_InstallStatus {
-    AM_STATUS_ABORTED = 2,
-    AM_STATUS_SAVED = 3,
-    AM_STATUS_INSTALL_IN_PROGRESS = 2050,
-    AM_STATUS_AWAITING_FINALIZATION = 2051,
-}
+pub const AM_STATUS_MASK_INSTALLING: _bindgen_ty_11 = 1;
+pub const AM_STATUS_MASK_AWAITING_FINALIZATION: _bindgen_ty_11 = 2;
+pub type _bindgen_ty_11 = libc::c_uint;
+pub const AM_STATUS_ABORTED: AM_InstallStatus = 2;
+pub const AM_STATUS_SAVED: AM_InstallStatus = 3;
+pub const AM_STATUS_INSTALL_IN_PROGRESS: AM_InstallStatus = 2050;
+pub const AM_STATUS_AWAITING_FINALIZATION: AM_InstallStatus = 2051;
+pub type AM_InstallStatus = libc::c_uint;
 #[repr(C)]
-#[derive(Copy)]
 pub struct AM_PendingTitleEntry {
     pub titleId: u64,
     pub version: u16,
@@ -3854,29 +4302,15 @@ pub struct AM_PendingTitleEntry {
     pub titleType: u32,
     pub unk: [u8; 8usize],
 }
-impl Clone for AM_PendingTitleEntry {
-    fn clone(&self) -> Self { *self }
-}
-pub const AM_DELETE_PENDING_NON_SYSTEM: _bindgen_ty_10 =
-    _bindgen_ty_10::AM_DELETE_PENDING_NON_SYSTEM;
-pub const AM_DELETE_PENDING_SYSTEM: _bindgen_ty_10 =
-    _bindgen_ty_10::AM_DELETE_PENDING_SYSTEM;
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum _bindgen_ty_10 {
-    AM_DELETE_PENDING_NON_SYSTEM = 1,
-    AM_DELETE_PENDING_SYSTEM = 2,
-}
+pub const AM_DELETE_PENDING_NON_SYSTEM: _bindgen_ty_12 = 1;
+pub const AM_DELETE_PENDING_SYSTEM: _bindgen_ty_12 = 2;
+pub type _bindgen_ty_12 = libc::c_uint;
 #[repr(C)]
-#[derive(Copy)]
 pub struct AM_TWLPartitionInfo {
     pub capacity: u64,
     pub freeSpace: u64,
     pub titlesCapacity: u64,
     pub titlesFreeSpace: u64,
-}
-impl Clone for AM_TWLPartitionInfo {
-    fn clone(&self) -> Self { *self }
 }
 extern "C" {
     pub fn amInit() -> Result;
@@ -3891,65 +4325,95 @@ extern "C" {
     pub fn amGetSessionHandle() -> *mut Handle;
 }
 extern "C" {
-    pub fn AM_GetTitleCount(mediatype: FS_MediaType, count: *mut u32)
-     -> Result;
+    pub fn AM_GetTitleCount(mediatype: FS_MediaType, count: *mut u32) -> Result;
 }
 extern "C" {
-    pub fn AM_GetTitleList(titlesRead: *mut u32, mediatype: FS_MediaType,
-                           titleCount: u32, titleIds: *mut u64) -> Result;
+    pub fn AM_GetTitleList(
+        titlesRead: *mut u32,
+        mediatype: FS_MediaType,
+        titleCount: u32,
+        titleIds: *mut u64,
+    ) -> Result;
 }
 extern "C" {
-    pub fn AM_GetTitleInfo(mediatype: FS_MediaType, titleCount: u32,
-                           titleIds: *mut u64, titleInfo: *mut AM_TitleEntry)
-     -> Result;
+    pub fn AM_GetTitleInfo(
+        mediatype: FS_MediaType,
+        titleCount: u32,
+        titleIds: *mut u64,
+        titleInfo: *mut AM_TitleEntry,
+    ) -> Result;
 }
 extern "C" {
     pub fn AM_GetTicketCount(count: *mut u32) -> Result;
 }
 extern "C" {
-    pub fn AM_GetTicketList(ticketsRead: *mut u32, ticketCount: u32,
-                            skip: u32, ticketIds: *mut u64) -> Result;
+    pub fn AM_GetTicketList(
+        ticketsRead: *mut u32,
+        ticketCount: u32,
+        skip: u32,
+        ticketIds: *mut u64,
+    ) -> Result;
 }
 extern "C" {
-    pub fn AM_GetPendingTitleCount(count: *mut u32, mediatype: FS_MediaType,
-                                   statusMask: u32) -> Result;
+    pub fn AM_GetPendingTitleCount(
+        count: *mut u32,
+        mediatype: FS_MediaType,
+        statusMask: u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn AM_GetPendingTitleList(titlesRead: *mut u32, titleCount: u32,
-                                  mediatype: FS_MediaType, statusMask: u32,
-                                  titleIds: *mut u64) -> Result;
+    pub fn AM_GetPendingTitleList(
+        titlesRead: *mut u32,
+        titleCount: u32,
+        mediatype: FS_MediaType,
+        statusMask: u32,
+        titleIds: *mut u64,
+    ) -> Result;
 }
 extern "C" {
-    pub fn AM_GetPendingTitleInfo(titleCount: u32, mediatype: FS_MediaType,
-                                  titleIds: *mut u64,
-                                  titleInfo: *mut AM_PendingTitleEntry)
-     -> Result;
+    pub fn AM_GetPendingTitleInfo(
+        titleCount: u32,
+        mediatype: FS_MediaType,
+        titleIds: *mut u64,
+        titleInfo: *mut AM_PendingTitleEntry,
+    ) -> Result;
 }
 extern "C" {
     pub fn AM_GetDeviceId(deviceID: *mut u32) -> Result;
 }
 extern "C" {
-    pub fn AM_ExportTwlBackup(titleID: u64, operation: u8,
-                              workbuf: *mut libc::c_void, workbuf_size: u32,
-                              filepath: *const libc::c_char) -> Result;
+    pub fn AM_ExportTwlBackup(
+        titleID: u64,
+        operation: u8,
+        workbuf: *mut libc::c_void,
+        workbuf_size: u32,
+        filepath: *const libc::c_char,
+    ) -> Result;
 }
 extern "C" {
-    pub fn AM_ImportTwlBackup(filehandle: Handle, operation: u8,
-                              buffer: *mut libc::c_void, size: u32) -> Result;
+    pub fn AM_ImportTwlBackup(
+        filehandle: Handle,
+        operation: u8,
+        buffer: *mut libc::c_void,
+        size: u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn AM_ReadTwlBackupInfo(filehandle: Handle,
-                                outinfo: *mut libc::c_void, outinfo_size: u32,
-                                workbuf: *mut libc::c_void, workbuf_size: u32,
-                                banner: *mut libc::c_void, banner_size: u32)
-     -> Result;
+    pub fn AM_ReadTwlBackupInfo(
+        filehandle: Handle,
+        outinfo: *mut libc::c_void,
+        outinfo_size: u32,
+        workbuf: *mut libc::c_void,
+        workbuf_size: u32,
+        banner: *mut libc::c_void,
+        banner_size: u32,
+    ) -> Result;
 }
 extern "C" {
     pub fn AM_GetTWLPartitionInfo(info: *mut AM_TWLPartitionInfo) -> Result;
 }
 extern "C" {
-    pub fn AM_StartCiaInstall(mediatype: FS_MediaType, ciaHandle: *mut Handle)
-     -> Result;
+    pub fn AM_StartCiaInstall(mediatype: FS_MediaType, ciaHandle: *mut Handle) -> Result;
 }
 extern "C" {
     pub fn AM_StartDlpChildCiaInstall(ciaHandle: *mut Handle) -> Result;
@@ -3964,9 +4428,12 @@ extern "C" {
     pub fn AM_FinishCiaInstallWithoutCommit(ciaHandle: Handle) -> Result;
 }
 extern "C" {
-    pub fn AM_CommitImportPrograms(mediaType: FS_MediaType, titleCount: u32,
-                                   temp: bool, titleIds: *const u64)
-     -> Result;
+    pub fn AM_CommitImportPrograms(
+        mediaType: FS_MediaType,
+        titleCount: u32,
+        temp: bool,
+        titleIds: *const u64,
+    ) -> Result;
 }
 extern "C" {
     pub fn AM_DeleteTitle(mediatype: FS_MediaType, titleID: u64) -> Result;
@@ -3978,12 +4445,10 @@ extern "C" {
     pub fn AM_DeleteTicket(ticketId: u64) -> Result;
 }
 extern "C" {
-    pub fn AM_DeletePendingTitle(mediatype: FS_MediaType, titleId: u64)
-     -> Result;
+    pub fn AM_DeletePendingTitle(mediatype: FS_MediaType, titleId: u64) -> Result;
 }
 extern "C" {
-    pub fn AM_DeletePendingTitles(mediatype: FS_MediaType, flags: u32)
-     -> Result;
+    pub fn AM_DeletePendingTitles(mediatype: FS_MediaType, flags: u32) -> Result;
 }
 extern "C" {
     pub fn AM_DeleteAllPendingTitles(mediatype: FS_MediaType) -> Result;
@@ -3995,49 +4460,53 @@ extern "C" {
     pub fn AM_InstallFirm(titleID: u64) -> Result;
 }
 extern "C" {
-    pub fn AM_GetTitleProductCode(mediatype: FS_MediaType, titleId: u64,
-                                  productCode: *mut libc::c_char) -> Result;
+    pub fn AM_GetTitleProductCode(
+        mediatype: FS_MediaType,
+        titleId: u64,
+        productCode: *mut libc::c_char,
+    ) -> Result;
 }
 extern "C" {
-    pub fn AM_GetTitleExtDataId(extDataId: *mut u64, mediatype: FS_MediaType,
-                                titleId: u64) -> Result;
+    pub fn AM_GetTitleExtDataId(
+        extDataId: *mut u64,
+        mediatype: FS_MediaType,
+        titleId: u64,
+    ) -> Result;
 }
 extern "C" {
-    pub fn AM_GetCiaFileInfo(mediatype: FS_MediaType,
-                             titleEntry: *mut AM_TitleEntry,
-                             fileHandle: Handle) -> Result;
+    pub fn AM_GetCiaFileInfo(
+        mediatype: FS_MediaType,
+        titleEntry: *mut AM_TitleEntry,
+        fileHandle: Handle,
+    ) -> Result;
 }
 extern "C" {
-    pub fn AM_GetCiaIcon(icon: *mut libc::c_void, fileHandle: Handle)
-     -> Result;
+    pub fn AM_GetCiaIcon(icon: *mut libc::c_void, fileHandle: Handle) -> Result;
 }
 extern "C" {
-    pub fn AM_GetCiaDependencies(dependencies: *mut u64, fileHandle: Handle)
-     -> Result;
+    pub fn AM_GetCiaDependencies(dependencies: *mut u64, fileHandle: Handle) -> Result;
 }
 extern "C" {
-    pub fn AM_GetCiaMetaOffset(metaOffset: *mut u64, fileHandle: Handle)
-     -> Result;
+    pub fn AM_GetCiaMetaOffset(metaOffset: *mut u64, fileHandle: Handle) -> Result;
 }
 extern "C" {
-    pub fn AM_GetCiaCoreVersion(coreVersion: *mut u32, fileHandle: Handle)
-     -> Result;
+    pub fn AM_GetCiaCoreVersion(coreVersion: *mut u32, fileHandle: Handle) -> Result;
 }
 extern "C" {
-    pub fn AM_GetCiaRequiredSpace(requiredSpace: *mut u64,
-                                  mediaType: FS_MediaType, fileHandle: Handle)
-     -> Result;
+    pub fn AM_GetCiaRequiredSpace(
+        requiredSpace: *mut u64,
+        mediaType: FS_MediaType,
+        fileHandle: Handle,
+    ) -> Result;
 }
 extern "C" {
-    pub fn AM_GetCiaMetaSection(meta: *mut libc::c_void, size: u32,
-                                fileHandle: Handle) -> Result;
+    pub fn AM_GetCiaMetaSection(meta: *mut libc::c_void, size: u32, fileHandle: Handle) -> Result;
 }
 extern "C" {
     pub fn AM_InitializeExternalTitleDatabase(overwrite: bool) -> Result;
 }
 extern "C" {
-    pub fn AM_QueryAvailableExternalTitleDatabase(available: *mut bool)
-     -> Result;
+    pub fn AM_QueryAvailableExternalTitleDatabase(available: *mut bool) -> Result;
 }
 extern "C" {
     pub fn AM_InstallTicketBegin(ticketHandle: *mut Handle) -> Result;
@@ -4049,15 +4518,13 @@ extern "C" {
     pub fn AM_InstallTicketFinish(ticketHandle: Handle) -> Result;
 }
 extern "C" {
-    pub fn AM_InstallTitleBegin(mediaType: FS_MediaType, titleId: u64,
-                                unk: bool) -> Result;
+    pub fn AM_InstallTitleBegin(mediaType: FS_MediaType, titleId: u64, unk: bool) -> Result;
 }
 extern "C" {
     pub fn AM_InstallTitleStop() -> Result;
 }
 extern "C" {
-    pub fn AM_InstallTitleResume(mediaType: FS_MediaType, titleId: u64)
-     -> Result;
+    pub fn AM_InstallTitleResume(mediaType: FS_MediaType, titleId: u64) -> Result;
 }
 extern "C" {
     pub fn AM_InstallTitleAbort() -> Result;
@@ -4066,8 +4533,12 @@ extern "C" {
     pub fn AM_InstallTitleFinish() -> Result;
 }
 extern "C" {
-    pub fn AM_CommitImportTitles(mediaType: FS_MediaType, titleCount: u32,
-                                 temp: bool, titleIds: *const u64) -> Result;
+    pub fn AM_CommitImportTitles(
+        mediaType: FS_MediaType,
+        titleCount: u32,
+        temp: bool,
+        titleIds: *const u64,
+    ) -> Result;
 }
 extern "C" {
     pub fn AM_InstallTmdBegin(tmdHandle: *mut Handle) -> Result;
@@ -4079,20 +4550,20 @@ extern "C" {
     pub fn AM_InstallTmdFinish(tmdHandle: Handle, unk: bool) -> Result;
 }
 extern "C" {
-    pub fn AM_CreateImportContentContexts(contentCount: u32,
-                                          contentIndices: *mut u16) -> Result;
+    pub fn AM_CreateImportContentContexts(contentCount: u32, contentIndices: *mut u16) -> Result;
 }
 extern "C" {
-    pub fn AM_InstallContentBegin(contentHandle: *mut Handle, index: u16)
-     -> Result;
+    pub fn AM_InstallContentBegin(contentHandle: *mut Handle, index: u16) -> Result;
 }
 extern "C" {
     pub fn AM_InstallContentStop(contentHandle: Handle) -> Result;
 }
 extern "C" {
-    pub fn AM_InstallContentResume(contentHandle: *mut Handle,
-                                   resumeOffset: *mut u64, index: u16)
-     -> Result;
+    pub fn AM_InstallContentResume(
+        contentHandle: *mut Handle,
+        resumeOffset: *mut u64,
+        index: u16,
+    ) -> Result;
 }
 extern "C" {
     pub fn AM_InstallContentCancel(contentHandle: Handle) -> Result;
@@ -4101,25 +4572,39 @@ extern "C" {
     pub fn AM_InstallContentFinish(contentHandle: Handle) -> Result;
 }
 extern "C" {
-    pub fn AM_ImportCertificates(cert1Size: u32, cert1: *mut libc::c_void,
-                                 cert2Size: u32, cert2: *mut libc::c_void,
-                                 cert3Size: u32, cert3: *mut libc::c_void,
-                                 cert4Size: u32, cert4: *mut libc::c_void)
-     -> Result;
+    pub fn AM_ImportCertificates(
+        cert1Size: u32,
+        cert1: *mut libc::c_void,
+        cert2Size: u32,
+        cert2: *mut libc::c_void,
+        cert3Size: u32,
+        cert3: *mut libc::c_void,
+        cert4Size: u32,
+        cert4: *mut libc::c_void,
+    ) -> Result;
 }
 extern "C" {
-    pub fn AM_ImportCertificate(certSize: u32, cert: *mut libc::c_void)
-     -> Result;
+    pub fn AM_ImportCertificate(certSize: u32, cert: *mut libc::c_void) -> Result;
 }
 extern "C" {
-    pub fn AM_CommitImportTitlesAndUpdateFirmwareAuto(mediaType: FS_MediaType,
-                                                      titleCount: u32,
-                                                      temp: bool,
-                                                      titleIds: *mut u64)
-     -> Result;
+    pub fn AM_CommitImportTitlesAndUpdateFirmwareAuto(
+        mediaType: FS_MediaType,
+        titleCount: u32,
+        temp: bool,
+        titleIds: *mut u64,
+    ) -> Result;
 }
 extern "C" {
     pub fn AM_DeleteAllDemoLaunchInfos() -> Result;
+}
+extern "C" {
+    pub fn AM_DeleteAllTemporaryTitles() -> Result;
+}
+extern "C" {
+    pub fn AM_DeleteAllExpiredTitles(mediatype: FS_MediaType) -> Result;
+}
+extern "C" {
+    pub fn AM_DeleteAllTwlTitles() -> Result;
 }
 extern "C" {
     pub fn ampxiInit(servhandle: Handle) -> Result;
@@ -4128,98 +4613,90 @@ extern "C" {
     pub fn ampxiExit();
 }
 extern "C" {
-    pub fn AMPXI_WriteTWLSavedata(titleid: u64, buffer: *mut u8, size: u32,
-                                  image_filepos: u32, section_type: u8,
-                                  operation: u8) -> Result;
+    pub fn AMPXI_WriteTWLSavedata(
+        titleid: u64,
+        buffer: *mut u8,
+        size: u32,
+        image_filepos: u32,
+        section_type: u8,
+        operation: u8,
+    ) -> Result;
 }
 extern "C" {
-    pub fn AMPXI_InstallTitlesFinish(mediaType: FS_MediaType, db: u8,
-                                     titlecount: u32, tidlist: *mut u64)
-     -> Result;
+    pub fn AMPXI_InstallTitlesFinish(
+        mediaType: FS_MediaType,
+        db: u8,
+        titlecount: u32,
+        tidlist: *mut u64,
+    ) -> Result;
 }
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum NS_APPID {
-    APPID_NONE = 0,
-    APPID_HOMEMENU = 257,
-    APPID_CAMERA = 272,
-    APPID_FRIENDS_LIST = 274,
-    APPID_GAME_NOTES = 275,
-    APPID_WEB = 276,
-    APPID_INSTRUCTION_MANUAL = 277,
-    APPID_NOTIFICATIONS = 278,
-    APPID_MIIVERSE = 279,
-    APPID_MIIVERSE_POSTING = 280,
-    APPID_AMIIBO_SETTINGS = 281,
-    APPID_APPLICATION = 768,
-    APPID_ESHOP = 769,
-    APPID_SOFTWARE_KEYBOARD = 1025,
-    APPID_APPLETED = 1026,
-    APPID_PNOTE_AP = 1028,
-    APPID_SNOTE_AP = 1029,
-    APPID_ERROR = 1030,
-    APPID_MINT = 1031,
-    APPID_EXTRAPAD = 1032,
-    APPID_MEMOLIB = 1033,
-}
-#[repr(i32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum APT_AppletPos {
-    APTPOS_NONE = -1,
-    APTPOS_APP = 0,
-    APTPOS_APPLIB = 1,
-    APTPOS_SYS = 2,
-    APTPOS_SYSLIB = 3,
-    APTPOS_RESIDENT = 4,
-}
+pub const APPID_NONE: NS_APPID = 0;
+pub const APPID_HOMEMENU: NS_APPID = 257;
+pub const APPID_CAMERA: NS_APPID = 272;
+pub const APPID_FRIENDS_LIST: NS_APPID = 274;
+pub const APPID_GAME_NOTES: NS_APPID = 275;
+pub const APPID_WEB: NS_APPID = 276;
+pub const APPID_INSTRUCTION_MANUAL: NS_APPID = 277;
+pub const APPID_NOTIFICATIONS: NS_APPID = 278;
+pub const APPID_MIIVERSE: NS_APPID = 279;
+pub const APPID_MIIVERSE_POSTING: NS_APPID = 280;
+pub const APPID_AMIIBO_SETTINGS: NS_APPID = 281;
+pub const APPID_APPLICATION: NS_APPID = 768;
+pub const APPID_ESHOP: NS_APPID = 769;
+pub const APPID_SOFTWARE_KEYBOARD: NS_APPID = 1025;
+pub const APPID_APPLETED: NS_APPID = 1026;
+pub const APPID_PNOTE_AP: NS_APPID = 1028;
+pub const APPID_SNOTE_AP: NS_APPID = 1029;
+pub const APPID_ERROR: NS_APPID = 1030;
+pub const APPID_MINT: NS_APPID = 1031;
+pub const APPID_EXTRAPAD: NS_APPID = 1032;
+pub const APPID_MEMOLIB: NS_APPID = 1033;
+pub type NS_APPID = libc::c_uint;
+pub const APTPOS_NONE: APT_AppletPos = -1;
+pub const APTPOS_APP: APT_AppletPos = 0;
+pub const APTPOS_APPLIB: APT_AppletPos = 1;
+pub const APTPOS_SYS: APT_AppletPos = 2;
+pub const APTPOS_SYSLIB: APT_AppletPos = 3;
+pub const APTPOS_RESIDENT: APT_AppletPos = 4;
+pub type APT_AppletPos = libc::c_int;
 pub type APT_AppletAttr = u8;
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum APT_QueryReply {
-    APTREPLY_REJECT = 0,
-    APTREPLY_ACCEPT = 1,
-    APTREPLY_LATER = 2,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum APT_Signal {
-    APTSIGNAL_NONE = 0,
-    APTSIGNAL_HOMEBUTTON = 1,
-    APTSIGNAL_HOMEBUTTON2 = 2,
-    APTSIGNAL_SLEEP_QUERY = 3,
-    APTSIGNAL_SLEEP_CANCEL = 4,
-    APTSIGNAL_SLEEP_ENTER = 5,
-    APTSIGNAL_SLEEP_WAKEUP = 6,
-    APTSIGNAL_SHUTDOWN = 7,
-    APTSIGNAL_POWERBUTTON = 8,
-    APTSIGNAL_POWERBUTTON2 = 9,
-    APTSIGNAL_TRY_SLEEP = 10,
-    APTSIGNAL_ORDERTOCLOSE = 11,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum APT_Command {
-    APTCMD_NONE = 0,
-    APTCMD_WAKEUP = 1,
-    APTCMD_REQUEST = 2,
-    APTCMD_RESPONSE = 3,
-    APTCMD_EXIT = 4,
-    APTCMD_MESSAGE = 5,
-    APTCMD_HOMEBUTTON_ONCE = 6,
-    APTCMD_HOMEBUTTON_TWICE = 7,
-    APTCMD_DSP_SLEEP = 8,
-    APTCMD_DSP_WAKEUP = 9,
-    APTCMD_WAKEUP_EXIT = 10,
-    APTCMD_WAKEUP_PAUSE = 11,
-    APTCMD_WAKEUP_CANCEL = 12,
-    APTCMD_WAKEUP_CANCELALL = 13,
-    APTCMD_WAKEUP_POWERBUTTON = 14,
-    APTCMD_WAKEUP_JUMPTOHOME = 15,
-    APTCMD_SYSAPPLET_REQUEST = 16,
-    APTCMD_WAKEUP_LAUNCHAPP = 17,
-}
+pub const APTREPLY_REJECT: APT_QueryReply = 0;
+pub const APTREPLY_ACCEPT: APT_QueryReply = 1;
+pub const APTREPLY_LATER: APT_QueryReply = 2;
+pub type APT_QueryReply = libc::c_uint;
+pub const APTSIGNAL_NONE: APT_Signal = 0;
+pub const APTSIGNAL_HOMEBUTTON: APT_Signal = 1;
+pub const APTSIGNAL_HOMEBUTTON2: APT_Signal = 2;
+pub const APTSIGNAL_SLEEP_QUERY: APT_Signal = 3;
+pub const APTSIGNAL_SLEEP_CANCEL: APT_Signal = 4;
+pub const APTSIGNAL_SLEEP_ENTER: APT_Signal = 5;
+pub const APTSIGNAL_SLEEP_WAKEUP: APT_Signal = 6;
+pub const APTSIGNAL_SHUTDOWN: APT_Signal = 7;
+pub const APTSIGNAL_POWERBUTTON: APT_Signal = 8;
+pub const APTSIGNAL_POWERBUTTON2: APT_Signal = 9;
+pub const APTSIGNAL_TRY_SLEEP: APT_Signal = 10;
+pub const APTSIGNAL_ORDERTOCLOSE: APT_Signal = 11;
+pub type APT_Signal = libc::c_uint;
+pub const APTCMD_NONE: APT_Command = 0;
+pub const APTCMD_WAKEUP: APT_Command = 1;
+pub const APTCMD_REQUEST: APT_Command = 2;
+pub const APTCMD_RESPONSE: APT_Command = 3;
+pub const APTCMD_EXIT: APT_Command = 4;
+pub const APTCMD_MESSAGE: APT_Command = 5;
+pub const APTCMD_HOMEBUTTON_ONCE: APT_Command = 6;
+pub const APTCMD_HOMEBUTTON_TWICE: APT_Command = 7;
+pub const APTCMD_DSP_SLEEP: APT_Command = 8;
+pub const APTCMD_DSP_WAKEUP: APT_Command = 9;
+pub const APTCMD_WAKEUP_EXIT: APT_Command = 10;
+pub const APTCMD_WAKEUP_PAUSE: APT_Command = 11;
+pub const APTCMD_WAKEUP_CANCEL: APT_Command = 12;
+pub const APTCMD_WAKEUP_CANCELALL: APT_Command = 13;
+pub const APTCMD_WAKEUP_POWERBUTTON: APT_Command = 14;
+pub const APTCMD_WAKEUP_JUMPTOHOME: APT_Command = 15;
+pub const APTCMD_SYSAPPLET_REQUEST: APT_Command = 16;
+pub const APTCMD_WAKEUP_LAUNCHAPP: APT_Command = 17;
+pub type APT_Command = libc::c_uint;
 #[repr(C)]
-#[derive(Copy)]
 pub struct aptCaptureBufInfo {
     pub size: u32,
     pub is3D: u32,
@@ -4227,47 +4704,37 @@ pub struct aptCaptureBufInfo {
     pub bottom: aptCaptureBufInfo__bindgen_ty_1,
 }
 #[repr(C)]
-#[derive(Copy)]
 pub struct aptCaptureBufInfo__bindgen_ty_1 {
     pub leftOffset: u32,
     pub rightOffset: u32,
     pub format: u32,
 }
-impl Clone for aptCaptureBufInfo__bindgen_ty_1 {
-    fn clone(&self) -> Self { *self }
-}
-impl Clone for aptCaptureBufInfo {
-    fn clone(&self) -> Self { *self }
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum APT_HookType {
-    APTHOOK_ONSUSPEND = 0,
-    APTHOOK_ONRESTORE = 1,
-    APTHOOK_ONSLEEP = 2,
-    APTHOOK_ONWAKEUP = 3,
-    APTHOOK_ONEXIT = 4,
-    APTHOOK_COUNT = 5,
-}
-pub type aptHookFn =
-    ::core::option::Option<unsafe extern "C" fn(hook: APT_HookType,
-                                                param: *mut libc::c_void)>;
+pub const APTHOOK_ONSUSPEND: APT_HookType = 0;
+pub const APTHOOK_ONRESTORE: APT_HookType = 1;
+pub const APTHOOK_ONSLEEP: APT_HookType = 2;
+pub const APTHOOK_ONWAKEUP: APT_HookType = 3;
+pub const APTHOOK_ONEXIT: APT_HookType = 4;
+pub const APTHOOK_COUNT: APT_HookType = 5;
+pub type APT_HookType = libc::c_uint;
+pub type aptHookFn = ::core::option::Option<
+    unsafe extern "C" fn(hook: APT_HookType, param: *mut libc::c_void),
+>;
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct tag_aptHookCookie {
     pub next: *mut tag_aptHookCookie,
     pub callback: aptHookFn,
     pub param: *mut libc::c_void,
 }
-impl Clone for tag_aptHookCookie {
-    fn clone(&self) -> Self { *self }
-}
 pub type aptHookCookie = tag_aptHookCookie;
-pub type aptMessageCb =
-    ::core::option::Option<unsafe extern "C" fn(user: *mut libc::c_void,
-                                                sender: NS_APPID,
-                                                msg: *mut libc::c_void,
-                                                msgsize: usize)>;
+pub type aptMessageCb = ::core::option::Option<
+    unsafe extern "C" fn(
+        user: *mut libc::c_void,
+        sender: NS_APPID,
+        msg: *mut libc::c_void,
+        msgsize: usize,
+    ),
+>;
 extern "C" {
     pub fn aptInit() -> Result;
 }
@@ -4287,19 +4754,21 @@ extern "C" {
     pub fn aptMainLoop() -> bool;
 }
 extern "C" {
-    pub fn aptHook(cookie: *mut aptHookCookie, callback: aptHookFn,
-                   param: *mut libc::c_void);
+    pub fn aptHook(cookie: *mut aptHookCookie, callback: aptHookFn, param: *mut libc::c_void);
 }
 extern "C" {
     pub fn aptUnhook(cookie: *mut aptHookCookie);
 }
 extern "C" {
-    pub fn aptSetMessageCallback(callback: aptMessageCb,
-                                 user: *mut libc::c_void);
+    pub fn aptSetMessageCallback(callback: aptMessageCb, user: *mut libc::c_void);
 }
 extern "C" {
-    pub fn aptLaunchLibraryApplet(appId: NS_APPID, buf: *mut libc::c_void,
-                                  bufsize: usize, handle: Handle) -> bool;
+    pub fn aptLaunchLibraryApplet(
+        appId: NS_APPID,
+        buf: *mut libc::c_void,
+        bufsize: usize,
+        handle: Handle,
+    ) -> bool;
 }
 extern "C" {
     pub fn aptSetChainloader(programID: u64, mediatype: u8);
@@ -4308,9 +4777,12 @@ extern "C" {
     pub fn APT_GetLockHandle(flags: u16, lockHandle: *mut Handle) -> Result;
 }
 extern "C" {
-    pub fn APT_Initialize(appId: NS_APPID, attr: APT_AppletAttr,
-                          signalEvent: *mut Handle, resumeEvent: *mut Handle)
-     -> Result;
+    pub fn APT_Initialize(
+        appId: NS_APPID,
+        attr: APT_AppletAttr,
+        signalEvent: *mut Handle,
+        resumeEvent: *mut Handle,
+    ) -> Result;
 }
 extern "C" {
     pub fn APT_Finalize(appId: NS_APPID) -> Result;
@@ -4322,21 +4794,26 @@ extern "C" {
     pub fn APT_Enable(attr: APT_AppletAttr) -> Result;
 }
 extern "C" {
-    pub fn APT_GetAppletManInfo(inpos: APT_AppletPos,
-                                outpos: *mut APT_AppletPos,
-                                req_appid: *mut NS_APPID,
-                                menu_appid: *mut NS_APPID,
-                                active_appid: *mut NS_APPID) -> Result;
+    pub fn APT_GetAppletManInfo(
+        inpos: APT_AppletPos,
+        outpos: *mut APT_AppletPos,
+        req_appid: *mut NS_APPID,
+        menu_appid: *mut NS_APPID,
+        active_appid: *mut NS_APPID,
+    ) -> Result;
 }
 extern "C" {
-    pub fn APT_GetAppletInfo(appID: NS_APPID, pProgramID: *mut u64,
-                             pMediaType: *mut u8, pRegistered: *mut bool,
-                             pLoadState: *mut bool,
-                             pAttributes: *mut APT_AppletAttr) -> Result;
+    pub fn APT_GetAppletInfo(
+        appID: NS_APPID,
+        pProgramID: *mut u64,
+        pMediaType: *mut u8,
+        pRegistered: *mut bool,
+        pLoadState: *mut bool,
+        pAttributes: *mut APT_AppletAttr,
+    ) -> Result;
 }
 extern "C" {
-    pub fn APT_GetAppletProgramInfo(id: u32, flags: u32,
-                                    titleversion: *mut u16) -> Result;
+    pub fn APT_GetAppletProgramInfo(id: u32, flags: u32, titleversion: *mut u16) -> Result;
 }
 extern "C" {
     pub fn APT_GetProgramID(pProgramID: *mut u64) -> Result;
@@ -4345,72 +4822,89 @@ extern "C" {
     pub fn APT_PrepareToJumpToHomeMenu() -> Result;
 }
 extern "C" {
-    pub fn APT_JumpToHomeMenu(param: *const libc::c_void, paramSize: usize,
-                              handle: Handle) -> Result;
+    pub fn APT_JumpToHomeMenu(
+        param: *const libc::c_void,
+        paramSize: usize,
+        handle: Handle,
+    ) -> Result;
 }
 extern "C" {
     pub fn APT_PrepareToJumpToApplication(exiting: bool) -> Result;
 }
 extern "C" {
-    pub fn APT_JumpToApplication(param: *const libc::c_void, paramSize: usize,
-                                 handle: Handle) -> Result;
+    pub fn APT_JumpToApplication(
+        param: *const libc::c_void,
+        paramSize: usize,
+        handle: Handle,
+    ) -> Result;
 }
 extern "C" {
     pub fn APT_IsRegistered(appID: NS_APPID, out: *mut bool) -> Result;
 }
 extern "C" {
-    pub fn APT_InquireNotification(appID: u32, signalType: *mut APT_Signal)
-     -> Result;
+    pub fn APT_InquireNotification(appID: u32, signalType: *mut APT_Signal) -> Result;
 }
 extern "C" {
     pub fn APT_NotifyToWait(appID: NS_APPID) -> Result;
 }
 extern "C" {
-    pub fn APT_AppletUtility(id: libc::c_int, out: *mut libc::c_void,
-                             outSize: usize, in_: *const libc::c_void,
-                             inSize: usize) -> Result;
+    pub fn APT_AppletUtility(
+        id: libc::c_int,
+        out: *mut libc::c_void,
+        outSize: usize,
+        in_: *const libc::c_void,
+        inSize: usize,
+    ) -> Result;
 }
 extern "C" {
     pub fn APT_SleepIfShellClosed() -> Result;
 }
 extern "C" {
-    pub fn APT_TryLockTransition(transition: u32, succeeded: *mut bool)
-     -> Result;
+    pub fn APT_TryLockTransition(transition: u32, succeeded: *mut bool) -> Result;
 }
 extern "C" {
     pub fn APT_UnlockTransition(transition: u32) -> Result;
 }
 extern "C" {
-    pub fn APT_GlanceParameter(appID: NS_APPID, buffer: *mut libc::c_void,
-                               bufferSize: usize, sender: *mut NS_APPID,
-                               command: *mut APT_Command,
-                               actualSize: *mut usize, parameter: *mut Handle)
-     -> Result;
+    pub fn APT_GlanceParameter(
+        appID: NS_APPID,
+        buffer: *mut libc::c_void,
+        bufferSize: usize,
+        sender: *mut NS_APPID,
+        command: *mut APT_Command,
+        actualSize: *mut usize,
+        parameter: *mut Handle,
+    ) -> Result;
 }
 extern "C" {
-    pub fn APT_ReceiveParameter(appID: NS_APPID, buffer: *mut libc::c_void,
-                                bufferSize: usize, sender: *mut NS_APPID,
-                                command: *mut APT_Command,
-                                actualSize: *mut usize,
-                                parameter: *mut Handle) -> Result;
+    pub fn APT_ReceiveParameter(
+        appID: NS_APPID,
+        buffer: *mut libc::c_void,
+        bufferSize: usize,
+        sender: *mut NS_APPID,
+        command: *mut APT_Command,
+        actualSize: *mut usize,
+        parameter: *mut Handle,
+    ) -> Result;
 }
 extern "C" {
-    pub fn APT_SendParameter(source: NS_APPID, dest: NS_APPID,
-                             command: APT_Command,
-                             buffer: *const libc::c_void, bufferSize: u32,
-                             parameter: Handle) -> Result;
+    pub fn APT_SendParameter(
+        source: NS_APPID,
+        dest: NS_APPID,
+        command: APT_Command,
+        buffer: *const libc::c_void,
+        bufferSize: u32,
+        parameter: Handle,
+    ) -> Result;
 }
 extern "C" {
-    pub fn APT_CancelParameter(source: NS_APPID, dest: NS_APPID,
-                               success: *mut bool) -> Result;
+    pub fn APT_CancelParameter(source: NS_APPID, dest: NS_APPID, success: *mut bool) -> Result;
 }
 extern "C" {
-    pub fn APT_SendCaptureBufferInfo(captureBuf: *const aptCaptureBufInfo)
-     -> Result;
+    pub fn APT_SendCaptureBufferInfo(captureBuf: *const aptCaptureBufInfo) -> Result;
 }
 extern "C" {
-    pub fn APT_ReplySleepQuery(appID: NS_APPID, reply: APT_QueryReply)
-     -> Result;
+    pub fn APT_ReplySleepQuery(appID: NS_APPID, reply: APT_QueryReply) -> Result;
 }
 extern "C" {
     pub fn APT_ReplySleepNotificationComplete(appID: NS_APPID) -> Result;
@@ -4419,8 +4913,11 @@ extern "C" {
     pub fn APT_PrepareToCloseApplication(cancelPreload: bool) -> Result;
 }
 extern "C" {
-    pub fn APT_CloseApplication(param: *const libc::c_void, paramSize: usize,
-                                handle: Handle) -> Result;
+    pub fn APT_CloseApplication(
+        param: *const libc::c_void,
+        paramSize: usize,
+        handle: Handle,
+    ) -> Result;
 }
 extern "C" {
     pub fn APT_SetAppCpuTimeLimit(percent: u32) -> Result;
@@ -4432,35 +4929,48 @@ extern "C" {
     pub fn APT_CheckNew3DS(out: *mut bool) -> Result;
 }
 extern "C" {
-    pub fn APT_PrepareToDoApplicationJump(flags: u8, programID: u64,
-                                          mediatype: u8) -> Result;
+    pub fn APT_PrepareToDoApplicationJump(flags: u8, programID: u64, mediatype: u8) -> Result;
 }
 extern "C" {
-    pub fn APT_DoApplicationJump(param: *const libc::c_void, paramSize: usize,
-                                 hmac: *const libc::c_void) -> Result;
+    pub fn APT_DoApplicationJump(
+        param: *const libc::c_void,
+        paramSize: usize,
+        hmac: *const libc::c_void,
+    ) -> Result;
 }
 extern "C" {
     pub fn APT_PrepareToStartLibraryApplet(appID: NS_APPID) -> Result;
 }
 extern "C" {
-    pub fn APT_StartLibraryApplet(appID: NS_APPID, param: *const libc::c_void,
-                                  paramSize: usize, handle: Handle) -> Result;
+    pub fn APT_StartLibraryApplet(
+        appID: NS_APPID,
+        param: *const libc::c_void,
+        paramSize: usize,
+        handle: Handle,
+    ) -> Result;
 }
 extern "C" {
     pub fn APT_PrepareToStartSystemApplet(appID: NS_APPID) -> Result;
 }
 extern "C" {
-    pub fn APT_StartSystemApplet(appID: NS_APPID, param: *const libc::c_void,
-                                 paramSize: usize, handle: Handle) -> Result;
+    pub fn APT_StartSystemApplet(
+        appID: NS_APPID,
+        param: *const libc::c_void,
+        paramSize: usize,
+        handle: Handle,
+    ) -> Result;
 }
 extern "C" {
-    pub fn APT_GetSharedFont(fontHandle: *mut Handle, mapAddr: *mut u32)
-     -> Result;
+    pub fn APT_GetSharedFont(fontHandle: *mut Handle, mapAddr: *mut u32) -> Result;
 }
 extern "C" {
-    pub fn APT_ReceiveDeliverArg(param: *const libc::c_void, paramSize: usize,
-                                 hmac: *const libc::c_void, sender: *mut u64,
-                                 received: *mut bool) -> Result;
+    pub fn APT_ReceiveDeliverArg(
+        param: *const libc::c_void,
+        paramSize: usize,
+        hmac: *const libc::c_void,
+        sender: *mut u64,
+        received: *mut bool,
+    ) -> Result;
 }
 #[repr(C)]
 pub struct bossContext {
@@ -4483,22 +4993,13 @@ pub struct bossContext {
     pub property_x3b: u32,
     pub property_x3e: [u8; 512usize],
 }
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum bossTaskStatus {
-    BOSSTASKSTATUS_STARTED = 2,
-    BOSSTASKSTATUS_ERROR = 7,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum bossNsDataHeaderInfoTypes {
-    bossNsDataHeaderInfoType_ContentSize = 3,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum bossNsDataHeaderInfoTypeSizes {
-    bossNsDataHeaderInfoTypeSize_ContentSize = 4,
-}
+pub const BOSSTASKSTATUS_STARTED: bossTaskStatus = 2;
+pub const BOSSTASKSTATUS_ERROR: bossTaskStatus = 7;
+pub type bossTaskStatus = libc::c_uint;
+pub const bossNsDataHeaderInfoType_ContentSize: bossNsDataHeaderInfoTypes = 3;
+pub type bossNsDataHeaderInfoTypes = libc::c_uint;
+pub const bossNsDataHeaderInfoTypeSize_ContentSize: bossNsDataHeaderInfoTypeSizes = 4;
+pub type bossNsDataHeaderInfoTypeSizes = libc::c_uint;
 extern "C" {
     pub fn bossInit(programID: u64, force_user: bool) -> Result;
 }
@@ -4512,33 +5013,37 @@ extern "C" {
     pub fn bossGetSessionHandle() -> Handle;
 }
 extern "C" {
-    pub fn bossSetStorageInfo(extdataID: u64, boss_size: u32, mediaType: u8)
-     -> Result;
+    pub fn bossSetStorageInfo(extdataID: u64, boss_size: u32, mediaType: u8) -> Result;
 }
 extern "C" {
     pub fn bossUnregisterStorage() -> Result;
 }
 extern "C" {
-    pub fn bossRegisterTask(taskID: *const libc::c_char, unk0: u8, unk1: u8)
-     -> Result;
+    pub fn bossRegisterTask(taskID: *const libc::c_char, unk0: u8, unk1: u8) -> Result;
 }
 extern "C" {
-    pub fn bossSendProperty(PropertyID: u16, buf: *const libc::c_void,
-                            size: u32) -> Result;
+    pub fn bossSendProperty(PropertyID: u16, buf: *const libc::c_void, size: u32) -> Result;
 }
 extern "C" {
     pub fn bossDeleteNsData(NsDataId: u32) -> Result;
 }
 extern "C" {
-    pub fn bossGetNsDataHeaderInfo(NsDataId: u32, type_: u8,
-                                   buffer: *mut libc::c_void, size: u32)
-     -> Result;
+    pub fn bossGetNsDataHeaderInfo(
+        NsDataId: u32,
+        type_: u8,
+        buffer: *mut libc::c_void,
+        size: u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn bossReadNsData(NsDataId: u32, offset: u64,
-                          buffer: *mut libc::c_void, size: u32,
-                          transfer_total: *mut u32, unk_out: *mut u32)
-     -> Result;
+    pub fn bossReadNsData(
+        NsDataId: u32,
+        offset: u64,
+        buffer: *mut libc::c_void,
+        size: u32,
+        transfer_total: *mut u32,
+        unk_out: *mut u32,
+    ) -> Result;
 }
 extern "C" {
     pub fn bossStartTaskImmediate(taskID: *const libc::c_char) -> Result;
@@ -4550,52 +5055,47 @@ extern "C" {
     pub fn bossDeleteTask(taskID: *const libc::c_char, unk: u32) -> Result;
 }
 extern "C" {
-    pub fn bossGetTaskState(taskID: *const libc::c_char, inval: s8,
-                            status: *mut u8, out1: *mut u32, out2: *mut u8)
-     -> Result;
+    pub fn bossGetTaskState(
+        taskID: *const libc::c_char,
+        inval: s8,
+        status: *mut u8,
+        out1: *mut u32,
+        out2: *mut u8,
+    ) -> Result;
 }
 extern "C" {
-    pub fn bossGetTaskProperty0(taskID: *const libc::c_char, out: *mut u8)
-     -> Result;
+    pub fn bossGetTaskProperty0(taskID: *const libc::c_char, out: *mut u8) -> Result;
 }
 extern "C" {
-    pub fn bossSetupContextDefault(ctx: *mut bossContext,
-                                   seconds_interval: u32,
-                                   url: *const libc::c_char);
+    pub fn bossSetupContextDefault(
+        ctx: *mut bossContext,
+        seconds_interval: u32,
+        url: *const libc::c_char,
+    );
 }
 extern "C" {
     pub fn bossSendContextConfig(ctx: *mut bossContext) -> Result;
 }
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum Y2RU_InputFormat {
-    INPUT_YUV422_INDIV_8 = 0,
-    INPUT_YUV420_INDIV_8 = 1,
-    INPUT_YUV422_INDIV_16 = 2,
-    INPUT_YUV420_INDIV_16 = 3,
-    INPUT_YUV422_BATCH = 4,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum Y2RU_OutputFormat {
-    OUTPUT_RGB_32 = 0,
-    OUTPUT_RGB_24 = 1,
-    OUTPUT_RGB_16_555 = 2,
-    OUTPUT_RGB_16_565 = 3,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum Y2RU_Rotation {
-    ROTATION_NONE = 0,
-    ROTATION_CLOCKWISE_90 = 1,
-    ROTATION_CLOCKWISE_180 = 2,
-    ROTATION_CLOCKWISE_270 = 3,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum Y2RU_BlockAlignment { BLOCK_LINE = 0, BLOCK_8_BY_8 = 1, }
+pub const INPUT_YUV422_INDIV_8: Y2RU_InputFormat = 0;
+pub const INPUT_YUV420_INDIV_8: Y2RU_InputFormat = 1;
+pub const INPUT_YUV422_INDIV_16: Y2RU_InputFormat = 2;
+pub const INPUT_YUV420_INDIV_16: Y2RU_InputFormat = 3;
+pub const INPUT_YUV422_BATCH: Y2RU_InputFormat = 4;
+pub type Y2RU_InputFormat = libc::c_uint;
+pub const OUTPUT_RGB_32: Y2RU_OutputFormat = 0;
+pub const OUTPUT_RGB_24: Y2RU_OutputFormat = 1;
+pub const OUTPUT_RGB_16_555: Y2RU_OutputFormat = 2;
+pub const OUTPUT_RGB_16_565: Y2RU_OutputFormat = 3;
+pub type Y2RU_OutputFormat = libc::c_uint;
+pub const ROTATION_NONE: Y2RU_Rotation = 0;
+pub const ROTATION_CLOCKWISE_90: Y2RU_Rotation = 1;
+pub const ROTATION_CLOCKWISE_180: Y2RU_Rotation = 2;
+pub const ROTATION_CLOCKWISE_270: Y2RU_Rotation = 3;
+pub type Y2RU_Rotation = libc::c_uint;
+pub const BLOCK_LINE: Y2RU_BlockAlignment = 0;
+pub const BLOCK_8_BY_8: Y2RU_BlockAlignment = 1;
+pub type Y2RU_BlockAlignment = libc::c_uint;
 #[repr(C)]
-#[derive(Copy)]
 pub struct Y2RU_ColorCoefficients {
     pub rgb_Y: u16,
     pub r_V: u16,
@@ -4606,19 +5106,12 @@ pub struct Y2RU_ColorCoefficients {
     pub g_offset: u16,
     pub b_offset: u16,
 }
-impl Clone for Y2RU_ColorCoefficients {
-    fn clone(&self) -> Self { *self }
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum Y2RU_StandardCoefficient {
-    COEFFICIENT_ITU_R_BT_601 = 0,
-    COEFFICIENT_ITU_R_BT_709 = 1,
-    COEFFICIENT_ITU_R_BT_601_SCALING = 2,
-    COEFFICIENT_ITU_R_BT_709_SCALING = 3,
-}
+pub const COEFFICIENT_ITU_R_BT_601: Y2RU_StandardCoefficient = 0;
+pub const COEFFICIENT_ITU_R_BT_709: Y2RU_StandardCoefficient = 1;
+pub const COEFFICIENT_ITU_R_BT_601_SCALING: Y2RU_StandardCoefficient = 2;
+pub const COEFFICIENT_ITU_R_BT_709_SCALING: Y2RU_StandardCoefficient = 3;
+pub type Y2RU_StandardCoefficient = libc::c_uint;
 #[repr(C)]
-#[derive(Copy)]
 pub struct Y2RU_ConversionParams {
     pub _bitfield_1: [u8; 4usize],
     pub input_line_width: s16,
@@ -4628,221 +5121,205 @@ pub struct Y2RU_ConversionParams {
     pub alpha: u16,
     pub __bindgen_align: [u32; 0usize],
 }
-impl Clone for Y2RU_ConversionParams {
-    fn clone(&self) -> Self { *self }
-}
 impl Y2RU_ConversionParams {
     #[inline]
     pub fn input_format(&self) -> Y2RU_InputFormat {
         let mut unit_field_val: u32 = unsafe { ::core::mem::uninitialized() };
         unsafe {
-            ::core::ptr::copy_nonoverlapping(&self._bitfield_1 as *const _ as
-                                                 *const u8,
-                                             &mut unit_field_val as *mut u32
-                                                 as *mut u8,
-                                             ::core::mem::size_of::<u32>())
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_1 as *const _ as *const u8,
+                &mut unit_field_val as *mut u32 as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            )
         };
-        let mask = 255u64 as u32;
+        let mask = 0xff as u32;
         let val = (unit_field_val & mask) >> 0usize;
         unsafe { ::core::mem::transmute(val as u32) }
     }
     #[inline]
     pub fn set_input_format(&mut self, val: Y2RU_InputFormat) {
-        let mask = 255u64 as u32;
+        let mask = 0xff as u32;
         let val = val as u32 as u32;
         let mut unit_field_val: u32 = unsafe { ::core::mem::uninitialized() };
         unsafe {
-            ::core::ptr::copy_nonoverlapping(&self._bitfield_1 as *const _ as
-                                                 *const u8,
-                                             &mut unit_field_val as *mut u32
-                                                 as *mut u8,
-                                             ::core::mem::size_of::<u32>())
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_1 as *const _ as *const u8,
+                &mut unit_field_val as *mut u32 as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            )
         };
         unit_field_val &= !mask;
         unit_field_val |= (val << 0usize) & mask;
         unsafe {
-            ::core::ptr::copy_nonoverlapping(&unit_field_val as *const _ as
-                                                 *const u8,
-                                             &mut self._bitfield_1 as *mut _
-                                                 as *mut u8,
-                                             ::core::mem::size_of::<u32>());
+            ::core::ptr::copy_nonoverlapping(
+                &unit_field_val as *const _ as *const u8,
+                &mut self._bitfield_1 as *mut _ as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            );
         }
     }
     #[inline]
     pub fn output_format(&self) -> Y2RU_OutputFormat {
         let mut unit_field_val: u32 = unsafe { ::core::mem::uninitialized() };
         unsafe {
-            ::core::ptr::copy_nonoverlapping(&self._bitfield_1 as *const _ as
-                                                 *const u8,
-                                             &mut unit_field_val as *mut u32
-                                                 as *mut u8,
-                                             ::core::mem::size_of::<u32>())
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_1 as *const _ as *const u8,
+                &mut unit_field_val as *mut u32 as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            )
         };
-        let mask = 65280u64 as u32;
+        let mask = 0xff00 as u32;
         let val = (unit_field_val & mask) >> 8usize;
         unsafe { ::core::mem::transmute(val as u32) }
     }
     #[inline]
     pub fn set_output_format(&mut self, val: Y2RU_OutputFormat) {
-        let mask = 65280u64 as u32;
+        let mask = 0xff00 as u32;
         let val = val as u32 as u32;
         let mut unit_field_val: u32 = unsafe { ::core::mem::uninitialized() };
         unsafe {
-            ::core::ptr::copy_nonoverlapping(&self._bitfield_1 as *const _ as
-                                                 *const u8,
-                                             &mut unit_field_val as *mut u32
-                                                 as *mut u8,
-                                             ::core::mem::size_of::<u32>())
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_1 as *const _ as *const u8,
+                &mut unit_field_val as *mut u32 as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            )
         };
         unit_field_val &= !mask;
         unit_field_val |= (val << 8usize) & mask;
         unsafe {
-            ::core::ptr::copy_nonoverlapping(&unit_field_val as *const _ as
-                                                 *const u8,
-                                             &mut self._bitfield_1 as *mut _
-                                                 as *mut u8,
-                                             ::core::mem::size_of::<u32>());
+            ::core::ptr::copy_nonoverlapping(
+                &unit_field_val as *const _ as *const u8,
+                &mut self._bitfield_1 as *mut _ as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            );
         }
     }
     #[inline]
     pub fn rotation(&self) -> Y2RU_Rotation {
         let mut unit_field_val: u32 = unsafe { ::core::mem::uninitialized() };
         unsafe {
-            ::core::ptr::copy_nonoverlapping(&self._bitfield_1 as *const _ as
-                                                 *const u8,
-                                             &mut unit_field_val as *mut u32
-                                                 as *mut u8,
-                                             ::core::mem::size_of::<u32>())
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_1 as *const _ as *const u8,
+                &mut unit_field_val as *mut u32 as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            )
         };
-        let mask = 16711680u64 as u32;
+        let mask = 0xff0000 as u32;
         let val = (unit_field_val & mask) >> 16usize;
         unsafe { ::core::mem::transmute(val as u32) }
     }
     #[inline]
     pub fn set_rotation(&mut self, val: Y2RU_Rotation) {
-        let mask = 16711680u64 as u32;
+        let mask = 0xff0000 as u32;
         let val = val as u32 as u32;
         let mut unit_field_val: u32 = unsafe { ::core::mem::uninitialized() };
         unsafe {
-            ::core::ptr::copy_nonoverlapping(&self._bitfield_1 as *const _ as
-                                                 *const u8,
-                                             &mut unit_field_val as *mut u32
-                                                 as *mut u8,
-                                             ::core::mem::size_of::<u32>())
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_1 as *const _ as *const u8,
+                &mut unit_field_val as *mut u32 as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            )
         };
         unit_field_val &= !mask;
         unit_field_val |= (val << 16usize) & mask;
         unsafe {
-            ::core::ptr::copy_nonoverlapping(&unit_field_val as *const _ as
-                                                 *const u8,
-                                             &mut self._bitfield_1 as *mut _
-                                                 as *mut u8,
-                                             ::core::mem::size_of::<u32>());
+            ::core::ptr::copy_nonoverlapping(
+                &unit_field_val as *const _ as *const u8,
+                &mut self._bitfield_1 as *mut _ as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            );
         }
     }
     #[inline]
     pub fn block_alignment(&self) -> Y2RU_BlockAlignment {
         let mut unit_field_val: u32 = unsafe { ::core::mem::uninitialized() };
         unsafe {
-            ::core::ptr::copy_nonoverlapping(&self._bitfield_1 as *const _ as
-                                                 *const u8,
-                                             &mut unit_field_val as *mut u32
-                                                 as *mut u8,
-                                             ::core::mem::size_of::<u32>())
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_1 as *const _ as *const u8,
+                &mut unit_field_val as *mut u32 as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            )
         };
-        let mask = 4278190080u64 as u32;
+        let mask = 0xff000000 as u32;
         let val = (unit_field_val & mask) >> 24usize;
         unsafe { ::core::mem::transmute(val as u32) }
     }
     #[inline]
     pub fn set_block_alignment(&mut self, val: Y2RU_BlockAlignment) {
-        let mask = 4278190080u64 as u32;
+        let mask = 0xff000000 as u32;
         let val = val as u32 as u32;
         let mut unit_field_val: u32 = unsafe { ::core::mem::uninitialized() };
         unsafe {
-            ::core::ptr::copy_nonoverlapping(&self._bitfield_1 as *const _ as
-                                                 *const u8,
-                                             &mut unit_field_val as *mut u32
-                                                 as *mut u8,
-                                             ::core::mem::size_of::<u32>())
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_1 as *const _ as *const u8,
+                &mut unit_field_val as *mut u32 as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            )
         };
         unit_field_val &= !mask;
         unit_field_val |= (val << 24usize) & mask;
         unsafe {
-            ::core::ptr::copy_nonoverlapping(&unit_field_val as *const _ as
-                                                 *const u8,
-                                             &mut self._bitfield_1 as *mut _
-                                                 as *mut u8,
-                                             ::core::mem::size_of::<u32>());
+            ::core::ptr::copy_nonoverlapping(
+                &unit_field_val as *const _ as *const u8,
+                &mut self._bitfield_1 as *mut _ as *mut u8,
+                ::core::mem::size_of::<u32>(),
+            );
         }
     }
     #[inline]
-    pub const fn new_bitfield_1(input_format: Y2RU_InputFormat,
-                                output_format: Y2RU_OutputFormat,
-                                rotation: Y2RU_Rotation,
-                                block_alignment: Y2RU_BlockAlignment) -> u32 {
-        ({
-             ({
-                  ({
-                       ({ 0 } |
-                            ((input_format as u32 as u32) << 0usize) &
-                                (255u64 as u32))
-                   } |
-                       ((output_format as u32 as u32) << 8usize) &
-                           (65280u64 as u32))
-              } |
-                  ((rotation as u32 as u32) << 16usize) &
-                      (16711680u64 as u32))
-         } |
-             ((block_alignment as u32 as u32) << 24usize) &
-                 (4278190080u64 as u32))
+    pub const fn new_bitfield_1(
+        input_format: Y2RU_InputFormat,
+        output_format: Y2RU_OutputFormat,
+        rotation: Y2RU_Rotation,
+        block_alignment: Y2RU_BlockAlignment,
+    ) -> u32 {
+        ((((0 | ((input_format as u32 as u32) << 0usize) & (0xff as u32))
+            | ((output_format as u32 as u32) << 8usize) & (0xff00 as u32))
+            | ((rotation as u32 as u32) << 16usize) & (0xff0000 as u32))
+            | ((block_alignment as u32 as u32) << 24usize) & (0xff000000 as u32))
     }
     #[inline]
     pub fn standard_coefficient(&self) -> Y2RU_StandardCoefficient {
         let mut unit_field_val: u8 = unsafe { ::core::mem::uninitialized() };
         unsafe {
-            ::core::ptr::copy_nonoverlapping(&self._bitfield_2 as *const _ as
-                                                 *const u8,
-                                             &mut unit_field_val as *mut u8 as
-                                                 *mut u8,
-                                             ::core::mem::size_of::<u8>())
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_2 as *const _ as *const u8,
+                &mut unit_field_val as *mut u8 as *mut u8,
+                ::core::mem::size_of::<u8>(),
+            )
         };
-        let mask = 255u64 as u8;
+        let mask = 0xff as u8;
         let val = (unit_field_val & mask) >> 0usize;
         unsafe { ::core::mem::transmute(val as u32) }
     }
     #[inline]
-    pub fn set_standard_coefficient(&mut self,
-                                    val: Y2RU_StandardCoefficient) {
-        let mask = 255u64 as u8;
+    pub fn set_standard_coefficient(&mut self, val: Y2RU_StandardCoefficient) {
+        let mask = 0xff as u8;
         let val = val as u32 as u8;
         let mut unit_field_val: u8 = unsafe { ::core::mem::uninitialized() };
         unsafe {
-            ::core::ptr::copy_nonoverlapping(&self._bitfield_2 as *const _ as
-                                                 *const u8,
-                                             &mut unit_field_val as *mut u8 as
-                                                 *mut u8,
-                                             ::core::mem::size_of::<u8>())
+            ::core::ptr::copy_nonoverlapping(
+                &self._bitfield_2 as *const _ as *const u8,
+                &mut unit_field_val as *mut u8 as *mut u8,
+                ::core::mem::size_of::<u8>(),
+            )
         };
         unit_field_val &= !mask;
         unit_field_val |= (val << 0usize) & mask;
         unsafe {
-            ::core::ptr::copy_nonoverlapping(&unit_field_val as *const _ as
-                                                 *const u8,
-                                             &mut self._bitfield_2 as *mut _
-                                                 as *mut u8,
-                                             ::core::mem::size_of::<u8>());
+            ::core::ptr::copy_nonoverlapping(
+                &unit_field_val as *const _ as *const u8,
+                &mut self._bitfield_2 as *mut _ as *mut u8,
+                ::core::mem::size_of::<u8>(),
+            );
         }
     }
     #[inline]
-    pub const fn new_bitfield_2(standard_coefficient:
-                                    Y2RU_StandardCoefficient) -> u8 {
-        ({ 0 } |
-             ((standard_coefficient as u32 as u8) << 0usize) & (255u64 as u8))
+    pub const fn new_bitfield_2(standard_coefficient: Y2RU_StandardCoefficient) -> u8 {
+        (0 | ((standard_coefficient as u32 as u8) << 0usize) & (0xff as u8))
     }
 }
 #[repr(C)]
-#[derive(Copy)]
 pub struct Y2RU_DitheringWeightParams {
     pub w0_xEven_yEven: u16,
     pub w0_xOdd_yEven: u16,
@@ -4860,9 +5337,6 @@ pub struct Y2RU_DitheringWeightParams {
     pub w3_xOdd_yEven: u16,
     pub w3_xEven_yOdd: u16,
     pub w3_xOdd_yOdd: u16,
-}
-impl Clone for Y2RU_DitheringWeightParams {
-    fn clone(&self) -> Self { *self }
 }
 extern "C" {
     pub fn y2rInit() -> Result;
@@ -4892,8 +5366,7 @@ extern "C" {
     pub fn Y2RU_SetBlockAlignment(alignment: Y2RU_BlockAlignment) -> Result;
 }
 extern "C" {
-    pub fn Y2RU_GetBlockAlignment(alignment: *mut Y2RU_BlockAlignment)
-     -> Result;
+    pub fn Y2RU_GetBlockAlignment(alignment: *mut Y2RU_BlockAlignment) -> Result;
 }
 extern "C" {
     pub fn Y2RU_SetSpacialDithering(enable: bool) -> Result;
@@ -4920,23 +5393,19 @@ extern "C" {
     pub fn Y2RU_GetInputLines(num_lines: *mut u16) -> Result;
 }
 extern "C" {
-    pub fn Y2RU_SetCoefficients(coefficients: *const Y2RU_ColorCoefficients)
-     -> Result;
+    pub fn Y2RU_SetCoefficients(coefficients: *const Y2RU_ColorCoefficients) -> Result;
 }
 extern "C" {
-    pub fn Y2RU_GetCoefficients(coefficients: *mut Y2RU_ColorCoefficients)
-     -> Result;
+    pub fn Y2RU_GetCoefficients(coefficients: *mut Y2RU_ColorCoefficients) -> Result;
 }
 extern "C" {
-    pub fn Y2RU_SetStandardCoefficient(coefficient: Y2RU_StandardCoefficient)
-     -> Result;
+    pub fn Y2RU_SetStandardCoefficient(coefficient: Y2RU_StandardCoefficient) -> Result;
 }
 extern "C" {
-    pub fn Y2RU_GetStandardCoefficient(coefficients:
-                                           *mut Y2RU_ColorCoefficients,
-                                       standardCoeff:
-                                           Y2RU_StandardCoefficient)
-     -> Result;
+    pub fn Y2RU_GetStandardCoefficient(
+        coefficients: *mut Y2RU_ColorCoefficients,
+        standardCoeff: Y2RU_StandardCoefficient,
+    ) -> Result;
 }
 extern "C" {
     pub fn Y2RU_SetAlpha(alpha: u16) -> Result;
@@ -4948,32 +5417,50 @@ extern "C" {
     pub fn Y2RU_SetTransferEndInterrupt(should_interrupt: bool) -> Result;
 }
 extern "C" {
-    pub fn Y2RU_GetTransferEndInterrupt(should_interrupt: *mut bool)
-     -> Result;
+    pub fn Y2RU_GetTransferEndInterrupt(should_interrupt: *mut bool) -> Result;
 }
 extern "C" {
     pub fn Y2RU_GetTransferEndEvent(end_event: *mut Handle) -> Result;
 }
 extern "C" {
-    pub fn Y2RU_SetSendingY(src_buf: *const libc::c_void, image_size: u32,
-                            transfer_unit: s16, transfer_gap: s16) -> Result;
+    pub fn Y2RU_SetSendingY(
+        src_buf: *const libc::c_void,
+        image_size: u32,
+        transfer_unit: s16,
+        transfer_gap: s16,
+    ) -> Result;
 }
 extern "C" {
-    pub fn Y2RU_SetSendingU(src_buf: *const libc::c_void, image_size: u32,
-                            transfer_unit: s16, transfer_gap: s16) -> Result;
+    pub fn Y2RU_SetSendingU(
+        src_buf: *const libc::c_void,
+        image_size: u32,
+        transfer_unit: s16,
+        transfer_gap: s16,
+    ) -> Result;
 }
 extern "C" {
-    pub fn Y2RU_SetSendingV(src_buf: *const libc::c_void, image_size: u32,
-                            transfer_unit: s16, transfer_gap: s16) -> Result;
+    pub fn Y2RU_SetSendingV(
+        src_buf: *const libc::c_void,
+        image_size: u32,
+        transfer_unit: s16,
+        transfer_gap: s16,
+    ) -> Result;
 }
 extern "C" {
-    pub fn Y2RU_SetSendingYUYV(src_buf: *const libc::c_void, image_size: u32,
-                               transfer_unit: s16, transfer_gap: s16)
-     -> Result;
+    pub fn Y2RU_SetSendingYUYV(
+        src_buf: *const libc::c_void,
+        image_size: u32,
+        transfer_unit: s16,
+        transfer_gap: s16,
+    ) -> Result;
 }
 extern "C" {
-    pub fn Y2RU_SetReceiving(dst_buf: *mut libc::c_void, image_size: u32,
-                             transfer_unit: s16, transfer_gap: s16) -> Result;
+    pub fn Y2RU_SetReceiving(
+        dst_buf: *mut libc::c_void,
+        image_size: u32,
+        transfer_unit: s16,
+        transfer_gap: s16,
+    ) -> Result;
 }
 extern "C" {
     pub fn Y2RU_IsDoneSendingY(is_done: *mut bool) -> Result;
@@ -4991,18 +5478,13 @@ extern "C" {
     pub fn Y2RU_IsDoneReceiving(is_done: *mut bool) -> Result;
 }
 extern "C" {
-    pub fn Y2RU_SetDitheringWeightParams(params:
-                                             *const Y2RU_DitheringWeightParams)
-     -> Result;
+    pub fn Y2RU_SetDitheringWeightParams(params: *const Y2RU_DitheringWeightParams) -> Result;
 }
 extern "C" {
-    pub fn Y2RU_GetDitheringWeightParams(params:
-                                             *mut Y2RU_DitheringWeightParams)
-     -> Result;
+    pub fn Y2RU_GetDitheringWeightParams(params: *mut Y2RU_DitheringWeightParams) -> Result;
 }
 extern "C" {
-    pub fn Y2RU_SetConversionParams(params: *const Y2RU_ConversionParams)
-     -> Result;
+    pub fn Y2RU_SetConversionParams(params: *const Y2RU_ConversionParams) -> Result;
 }
 extern "C" {
     pub fn Y2RU_StartConversion() -> Result;
@@ -5022,170 +5504,111 @@ extern "C" {
 extern "C" {
     pub fn Y2RU_DriverFinalize() -> Result;
 }
-pub const PORT_NONE: _bindgen_ty_11 = _bindgen_ty_11::PORT_NONE;
-pub const PORT_CAM1: _bindgen_ty_11 = _bindgen_ty_11::PORT_CAM1;
-pub const PORT_CAM2: _bindgen_ty_11 = _bindgen_ty_11::PORT_CAM2;
-pub const PORT_BOTH: _bindgen_ty_11 = _bindgen_ty_11::PORT_BOTH;
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum _bindgen_ty_11 {
-    PORT_NONE = 0,
-    PORT_CAM1 = 1,
-    PORT_CAM2 = 2,
-    PORT_BOTH = 3,
-}
-pub const SELECT_NONE: _bindgen_ty_12 = _bindgen_ty_12::SELECT_NONE;
-pub const SELECT_OUT1: _bindgen_ty_12 = _bindgen_ty_12::SELECT_OUT1;
-pub const SELECT_IN1: _bindgen_ty_12 = _bindgen_ty_12::SELECT_IN1;
-pub const SELECT_OUT2: _bindgen_ty_12 = _bindgen_ty_12::SELECT_OUT2;
-pub const SELECT_IN1_OUT1: _bindgen_ty_12 = _bindgen_ty_12::SELECT_IN1_OUT1;
-pub const SELECT_OUT1_OUT2: _bindgen_ty_12 = _bindgen_ty_12::SELECT_OUT1_OUT2;
-pub const SELECT_IN1_OUT2: _bindgen_ty_12 = _bindgen_ty_12::SELECT_IN1_OUT2;
-pub const SELECT_ALL: _bindgen_ty_12 = _bindgen_ty_12::SELECT_ALL;
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum _bindgen_ty_12 {
-    SELECT_NONE = 0,
-    SELECT_OUT1 = 1,
-    SELECT_IN1 = 2,
-    SELECT_OUT2 = 4,
-    SELECT_IN1_OUT1 = 3,
-    SELECT_OUT1_OUT2 = 5,
-    SELECT_IN1_OUT2 = 6,
-    SELECT_ALL = 7,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum CAMU_Context {
-    CONTEXT_NONE = 0,
-    CONTEXT_A = 1,
-    CONTEXT_B = 2,
-    CONTEXT_BOTH = 3,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum CAMU_Flip {
-    FLIP_NONE = 0,
-    FLIP_HORIZONTAL = 1,
-    FLIP_VERTICAL = 2,
-    FLIP_REVERSE = 3,
-}
-pub const SIZE_CTR_BOTTOM_LCD: CAMU_Size = CAMU_Size::SIZE_QVGA;
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum CAMU_Size {
-    SIZE_VGA = 0,
-    SIZE_QVGA = 1,
-    SIZE_QQVGA = 2,
-    SIZE_CIF = 3,
-    SIZE_QCIF = 4,
-    SIZE_DS_LCD = 5,
-    SIZE_DS_LCDx4 = 6,
-    SIZE_CTR_TOP_LCD = 7,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum CAMU_FrameRate {
-    FRAME_RATE_15 = 0,
-    FRAME_RATE_15_TO_5 = 1,
-    FRAME_RATE_15_TO_2 = 2,
-    FRAME_RATE_10 = 3,
-    FRAME_RATE_8_5 = 4,
-    FRAME_RATE_5 = 5,
-    FRAME_RATE_20 = 6,
-    FRAME_RATE_20_TO_5 = 7,
-    FRAME_RATE_30 = 8,
-    FRAME_RATE_30_TO_5 = 9,
-    FRAME_RATE_15_TO_10 = 10,
-    FRAME_RATE_20_TO_10 = 11,
-    FRAME_RATE_30_TO_10 = 12,
-}
-pub const WHITE_BALANCE_NORMAL: CAMU_WhiteBalance =
-    CAMU_WhiteBalance::WHITE_BALANCE_AUTO;
-pub const WHITE_BALANCE_TUNGSTEN: CAMU_WhiteBalance =
-    CAMU_WhiteBalance::WHITE_BALANCE_3200K;
-pub const WHITE_BALANCE_WHITE_FLUORESCENT_LIGHT: CAMU_WhiteBalance =
-    CAMU_WhiteBalance::WHITE_BALANCE_4150K;
-pub const WHITE_BALANCE_DAYLIGHT: CAMU_WhiteBalance =
-    CAMU_WhiteBalance::WHITE_BALANCE_5200K;
-pub const WHITE_BALANCE_CLOUDY: CAMU_WhiteBalance =
-    CAMU_WhiteBalance::WHITE_BALANCE_6000K;
-pub const WHITE_BALANCE_HORIZON: CAMU_WhiteBalance =
-    CAMU_WhiteBalance::WHITE_BALANCE_6000K;
-pub const WHITE_BALANCE_SHADE: CAMU_WhiteBalance =
-    CAMU_WhiteBalance::WHITE_BALANCE_7000K;
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum CAMU_WhiteBalance {
-    WHITE_BALANCE_AUTO = 0,
-    WHITE_BALANCE_3200K = 1,
-    WHITE_BALANCE_4150K = 2,
-    WHITE_BALANCE_5200K = 3,
-    WHITE_BALANCE_6000K = 4,
-    WHITE_BALANCE_7000K = 5,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum CAMU_PhotoMode {
-    PHOTO_MODE_NORMAL = 0,
-    PHOTO_MODE_PORTRAIT = 1,
-    PHOTO_MODE_LANDSCAPE = 2,
-    PHOTO_MODE_NIGHTVIEW = 3,
-    PHOTO_MODE_LETTER = 4,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum CAMU_Effect {
-    EFFECT_NONE = 0,
-    EFFECT_MONO = 1,
-    EFFECT_SEPIA = 2,
-    EFFECT_NEGATIVE = 3,
-    EFFECT_NEGAFILM = 4,
-    EFFECT_SEPIA01 = 5,
-}
-pub const CONTRAST_LOW: CAMU_Contrast = CAMU_Contrast::CONTRAST_PATTERN_05;
-pub const CONTRAST_NORMAL: CAMU_Contrast = CAMU_Contrast::CONTRAST_PATTERN_06;
-pub const CONTRAST_HIGH: CAMU_Contrast = CAMU_Contrast::CONTRAST_PATTERN_07;
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum CAMU_Contrast {
-    CONTRAST_PATTERN_01 = 0,
-    CONTRAST_PATTERN_02 = 1,
-    CONTRAST_PATTERN_03 = 2,
-    CONTRAST_PATTERN_04 = 3,
-    CONTRAST_PATTERN_05 = 4,
-    CONTRAST_PATTERN_06 = 5,
-    CONTRAST_PATTERN_07 = 6,
-    CONTRAST_PATTERN_08 = 7,
-    CONTRAST_PATTERN_09 = 8,
-    CONTRAST_PATTERN_10 = 9,
-    CONTRAST_PATTERN_11 = 10,
-}
-pub const LENS_CORRECTION_DARK: CAMU_LensCorrection =
-    CAMU_LensCorrection::LENS_CORRECTION_OFF;
-pub const LENS_CORRECTION_NORMAL: CAMU_LensCorrection =
-    CAMU_LensCorrection::LENS_CORRECTION_ON_70;
-pub const LENS_CORRECTION_BRIGHT: CAMU_LensCorrection =
-    CAMU_LensCorrection::LENS_CORRECTION_ON_90;
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum CAMU_LensCorrection {
-    LENS_CORRECTION_OFF = 0,
-    LENS_CORRECTION_ON_70 = 1,
-    LENS_CORRECTION_ON_90 = 2,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum CAMU_OutputFormat { OUTPUT_YUV_422 = 0, OUTPUT_RGB_565 = 1, }
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum CAMU_ShutterSoundType {
-    SHUTTER_SOUND_TYPE_NORMAL = 0,
-    SHUTTER_SOUND_TYPE_MOVIE = 1,
-    SHUTTER_SOUND_TYPE_MOVIE_END = 2,
-}
+pub const PORT_NONE: _bindgen_ty_13 = 0;
+pub const PORT_CAM1: _bindgen_ty_13 = 1;
+pub const PORT_CAM2: _bindgen_ty_13 = 2;
+pub const PORT_BOTH: _bindgen_ty_13 = 3;
+pub type _bindgen_ty_13 = libc::c_uint;
+pub const SELECT_NONE: _bindgen_ty_14 = 0;
+pub const SELECT_OUT1: _bindgen_ty_14 = 1;
+pub const SELECT_IN1: _bindgen_ty_14 = 2;
+pub const SELECT_OUT2: _bindgen_ty_14 = 4;
+pub const SELECT_IN1_OUT1: _bindgen_ty_14 = 3;
+pub const SELECT_OUT1_OUT2: _bindgen_ty_14 = 5;
+pub const SELECT_IN1_OUT2: _bindgen_ty_14 = 6;
+pub const SELECT_ALL: _bindgen_ty_14 = 7;
+pub type _bindgen_ty_14 = libc::c_uint;
+pub const CONTEXT_NONE: CAMU_Context = 0;
+pub const CONTEXT_A: CAMU_Context = 1;
+pub const CONTEXT_B: CAMU_Context = 2;
+pub const CONTEXT_BOTH: CAMU_Context = 3;
+pub type CAMU_Context = libc::c_uint;
+pub const FLIP_NONE: CAMU_Flip = 0;
+pub const FLIP_HORIZONTAL: CAMU_Flip = 1;
+pub const FLIP_VERTICAL: CAMU_Flip = 2;
+pub const FLIP_REVERSE: CAMU_Flip = 3;
+pub type CAMU_Flip = libc::c_uint;
+pub const SIZE_VGA: CAMU_Size = 0;
+pub const SIZE_QVGA: CAMU_Size = 1;
+pub const SIZE_QQVGA: CAMU_Size = 2;
+pub const SIZE_CIF: CAMU_Size = 3;
+pub const SIZE_QCIF: CAMU_Size = 4;
+pub const SIZE_DS_LCD: CAMU_Size = 5;
+pub const SIZE_DS_LCDx4: CAMU_Size = 6;
+pub const SIZE_CTR_TOP_LCD: CAMU_Size = 7;
+pub const SIZE_CTR_BOTTOM_LCD: CAMU_Size = 1;
+pub type CAMU_Size = libc::c_uint;
+pub const FRAME_RATE_15: CAMU_FrameRate = 0;
+pub const FRAME_RATE_15_TO_5: CAMU_FrameRate = 1;
+pub const FRAME_RATE_15_TO_2: CAMU_FrameRate = 2;
+pub const FRAME_RATE_10: CAMU_FrameRate = 3;
+pub const FRAME_RATE_8_5: CAMU_FrameRate = 4;
+pub const FRAME_RATE_5: CAMU_FrameRate = 5;
+pub const FRAME_RATE_20: CAMU_FrameRate = 6;
+pub const FRAME_RATE_20_TO_5: CAMU_FrameRate = 7;
+pub const FRAME_RATE_30: CAMU_FrameRate = 8;
+pub const FRAME_RATE_30_TO_5: CAMU_FrameRate = 9;
+pub const FRAME_RATE_15_TO_10: CAMU_FrameRate = 10;
+pub const FRAME_RATE_20_TO_10: CAMU_FrameRate = 11;
+pub const FRAME_RATE_30_TO_10: CAMU_FrameRate = 12;
+pub type CAMU_FrameRate = libc::c_uint;
+pub const WHITE_BALANCE_AUTO: CAMU_WhiteBalance = 0;
+pub const WHITE_BALANCE_3200K: CAMU_WhiteBalance = 1;
+pub const WHITE_BALANCE_4150K: CAMU_WhiteBalance = 2;
+pub const WHITE_BALANCE_5200K: CAMU_WhiteBalance = 3;
+pub const WHITE_BALANCE_6000K: CAMU_WhiteBalance = 4;
+pub const WHITE_BALANCE_7000K: CAMU_WhiteBalance = 5;
+pub const WHITE_BALANCE_NORMAL: CAMU_WhiteBalance = 0;
+pub const WHITE_BALANCE_TUNGSTEN: CAMU_WhiteBalance = 1;
+pub const WHITE_BALANCE_WHITE_FLUORESCENT_LIGHT: CAMU_WhiteBalance = 2;
+pub const WHITE_BALANCE_DAYLIGHT: CAMU_WhiteBalance = 3;
+pub const WHITE_BALANCE_CLOUDY: CAMU_WhiteBalance = 4;
+pub const WHITE_BALANCE_HORIZON: CAMU_WhiteBalance = 4;
+pub const WHITE_BALANCE_SHADE: CAMU_WhiteBalance = 5;
+pub type CAMU_WhiteBalance = libc::c_uint;
+pub const PHOTO_MODE_NORMAL: CAMU_PhotoMode = 0;
+pub const PHOTO_MODE_PORTRAIT: CAMU_PhotoMode = 1;
+pub const PHOTO_MODE_LANDSCAPE: CAMU_PhotoMode = 2;
+pub const PHOTO_MODE_NIGHTVIEW: CAMU_PhotoMode = 3;
+pub const PHOTO_MODE_LETTER: CAMU_PhotoMode = 4;
+pub type CAMU_PhotoMode = libc::c_uint;
+pub const EFFECT_NONE: CAMU_Effect = 0;
+pub const EFFECT_MONO: CAMU_Effect = 1;
+pub const EFFECT_SEPIA: CAMU_Effect = 2;
+pub const EFFECT_NEGATIVE: CAMU_Effect = 3;
+pub const EFFECT_NEGAFILM: CAMU_Effect = 4;
+pub const EFFECT_SEPIA01: CAMU_Effect = 5;
+pub type CAMU_Effect = libc::c_uint;
+pub const CONTRAST_PATTERN_01: CAMU_Contrast = 0;
+pub const CONTRAST_PATTERN_02: CAMU_Contrast = 1;
+pub const CONTRAST_PATTERN_03: CAMU_Contrast = 2;
+pub const CONTRAST_PATTERN_04: CAMU_Contrast = 3;
+pub const CONTRAST_PATTERN_05: CAMU_Contrast = 4;
+pub const CONTRAST_PATTERN_06: CAMU_Contrast = 5;
+pub const CONTRAST_PATTERN_07: CAMU_Contrast = 6;
+pub const CONTRAST_PATTERN_08: CAMU_Contrast = 7;
+pub const CONTRAST_PATTERN_09: CAMU_Contrast = 8;
+pub const CONTRAST_PATTERN_10: CAMU_Contrast = 9;
+pub const CONTRAST_PATTERN_11: CAMU_Contrast = 10;
+pub const CONTRAST_LOW: CAMU_Contrast = 4;
+pub const CONTRAST_NORMAL: CAMU_Contrast = 5;
+pub const CONTRAST_HIGH: CAMU_Contrast = 6;
+pub type CAMU_Contrast = libc::c_uint;
+pub const LENS_CORRECTION_OFF: CAMU_LensCorrection = 0;
+pub const LENS_CORRECTION_ON_70: CAMU_LensCorrection = 1;
+pub const LENS_CORRECTION_ON_90: CAMU_LensCorrection = 2;
+pub const LENS_CORRECTION_DARK: CAMU_LensCorrection = 0;
+pub const LENS_CORRECTION_NORMAL: CAMU_LensCorrection = 1;
+pub const LENS_CORRECTION_BRIGHT: CAMU_LensCorrection = 2;
+pub type CAMU_LensCorrection = libc::c_uint;
+pub const OUTPUT_YUV_422: CAMU_OutputFormat = 0;
+pub const OUTPUT_RGB_565: CAMU_OutputFormat = 1;
+pub type CAMU_OutputFormat = libc::c_uint;
+pub const SHUTTER_SOUND_TYPE_NORMAL: CAMU_ShutterSoundType = 0;
+pub const SHUTTER_SOUND_TYPE_MOVIE: CAMU_ShutterSoundType = 1;
+pub const SHUTTER_SOUND_TYPE_MOVIE_END: CAMU_ShutterSoundType = 2;
+pub type CAMU_ShutterSoundType = libc::c_uint;
 #[repr(C)]
-#[derive(Copy)]
 pub struct CAMU_ImageQualityCalibrationData {
     pub aeBaseTarget: s16,
     pub kRL: s16,
@@ -5199,11 +5622,7 @@ pub struct CAMU_ImageQualityCalibrationData {
     pub awbX0Right: u16,
     pub awbX0Left: u16,
 }
-impl Clone for CAMU_ImageQualityCalibrationData {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
 pub struct CAMU_StereoCameraCalibrationData {
     pub isValidRotationXY: u8,
     pub padding: [u8; 3usize],
@@ -5221,11 +5640,7 @@ pub struct CAMU_StereoCameraCalibrationData {
     pub imageHeight: s16,
     pub reserved: [u8; 16usize],
 }
-impl Clone for CAMU_StereoCameraCalibrationData {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
 pub struct CAMU_PackageParameterCameraSelect {
     pub camera: u8,
     pub exposure: s8,
@@ -5248,11 +5663,7 @@ pub struct CAMU_PackageParameterCameraSelect {
     pub autoWhiteBalanceWindowWidth: s16,
     pub autoWhiteBalanceWindowHeight: s16,
 }
-impl Clone for CAMU_PackageParameterCameraSelect {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
 pub struct CAMU_PackageParameterContext {
     pub camera: u8,
     pub context: u8,
@@ -5260,11 +5671,7 @@ pub struct CAMU_PackageParameterContext {
     pub effect: u8,
     pub size: u8,
 }
-impl Clone for CAMU_PackageParameterContext {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
 pub struct CAMU_PackageParameterContextDetail {
     pub camera: u8,
     pub context: u8,
@@ -5276,9 +5683,6 @@ pub struct CAMU_PackageParameterContextDetail {
     pub cropY0: s16,
     pub cropX1: s16,
     pub cropY1: s16,
-}
-impl Clone for CAMU_PackageParameterContextDetail {
-    fn clone(&self) -> Self { *self }
 }
 extern "C" {
     pub fn camInit() -> Result;
@@ -5299,41 +5703,37 @@ extern "C" {
     pub fn CAMU_ClearBuffer(port: u32) -> Result;
 }
 extern "C" {
-    pub fn CAMU_GetVsyncInterruptEvent(event: *mut Handle, port: u32)
-     -> Result;
+    pub fn CAMU_GetVsyncInterruptEvent(event: *mut Handle, port: u32) -> Result;
 }
 extern "C" {
-    pub fn CAMU_GetBufferErrorInterruptEvent(event: *mut Handle, port: u32)
-     -> Result;
+    pub fn CAMU_GetBufferErrorInterruptEvent(event: *mut Handle, port: u32) -> Result;
 }
 extern "C" {
-    pub fn CAMU_SetReceiving(event: *mut Handle, dst: *mut libc::c_void,
-                             port: u32, imageSize: u32, transferUnit: s16)
-     -> Result;
+    pub fn CAMU_SetReceiving(
+        event: *mut Handle,
+        dst: *mut libc::c_void,
+        port: u32,
+        imageSize: u32,
+        transferUnit: s16,
+    ) -> Result;
 }
 extern "C" {
-    pub fn CAMU_IsFinishedReceiving(finishedReceiving: *mut bool, port: u32)
-     -> Result;
+    pub fn CAMU_IsFinishedReceiving(finishedReceiving: *mut bool, port: u32) -> Result;
 }
 extern "C" {
-    pub fn CAMU_SetTransferLines(port: u32, lines: s16, width: s16,
-                                 height: s16) -> Result;
+    pub fn CAMU_SetTransferLines(port: u32, lines: s16, width: s16, height: s16) -> Result;
 }
 extern "C" {
-    pub fn CAMU_GetMaxLines(maxLines: *mut s16, width: s16, height: s16)
-     -> Result;
+    pub fn CAMU_GetMaxLines(maxLines: *mut s16, width: s16, height: s16) -> Result;
 }
 extern "C" {
-    pub fn CAMU_SetTransferBytes(port: u32, bytes: u32, width: s16,
-                                 height: s16) -> Result;
+    pub fn CAMU_SetTransferBytes(port: u32, bytes: u32, width: s16, height: s16) -> Result;
 }
 extern "C" {
-    pub fn CAMU_GetTransferBytes(transferBytes: *mut u32, port: u32)
-     -> Result;
+    pub fn CAMU_GetTransferBytes(transferBytes: *mut u32, port: u32) -> Result;
 }
 extern "C" {
-    pub fn CAMU_GetMaxBytes(maxBytes: *mut u32, width: s16, height: s16)
-     -> Result;
+    pub fn CAMU_GetMaxBytes(maxBytes: *mut u32, width: s16, height: s16) -> Result;
 }
 extern "C" {
     pub fn CAMU_SetTrimming(port: u32, trimming: bool) -> Result;
@@ -5342,18 +5742,31 @@ extern "C" {
     pub fn CAMU_IsTrimming(trimming: *mut bool, port: u32) -> Result;
 }
 extern "C" {
-    pub fn CAMU_SetTrimmingParams(port: u32, xStart: s16, yStart: s16,
-                                  xEnd: s16, yEnd: s16) -> Result;
+    pub fn CAMU_SetTrimmingParams(
+        port: u32,
+        xStart: s16,
+        yStart: s16,
+        xEnd: s16,
+        yEnd: s16,
+    ) -> Result;
 }
 extern "C" {
-    pub fn CAMU_GetTrimmingParams(xStart: *mut s16, yStart: *mut s16,
-                                  xEnd: *mut s16, yEnd: *mut s16, port: u32)
-     -> Result;
+    pub fn CAMU_GetTrimmingParams(
+        xStart: *mut s16,
+        yStart: *mut s16,
+        xEnd: *mut s16,
+        yEnd: *mut s16,
+        port: u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn CAMU_SetTrimmingParamsCenter(port: u32, trimWidth: s16,
-                                        trimHeight: s16, camWidth: s16,
-                                        camHeight: s16) -> Result;
+    pub fn CAMU_SetTrimmingParamsCenter(
+        port: u32,
+        trimWidth: s16,
+        trimHeight: s16,
+        camWidth: s16,
+        camHeight: s16,
+    ) -> Result;
 }
 extern "C" {
     pub fn CAMU_Activate(select: u32) -> Result;
@@ -5365,13 +5778,13 @@ extern "C" {
     pub fn CAMU_SetExposure(select: u32, exposure: s8) -> Result;
 }
 extern "C" {
-    pub fn CAMU_SetWhiteBalance(select: u32, whiteBalance: CAMU_WhiteBalance)
-     -> Result;
+    pub fn CAMU_SetWhiteBalance(select: u32, whiteBalance: CAMU_WhiteBalance) -> Result;
 }
 extern "C" {
-    pub fn CAMU_SetWhiteBalanceWithoutBaseUp(select: u32,
-                                             whiteBalance: CAMU_WhiteBalance)
-     -> Result;
+    pub fn CAMU_SetWhiteBalanceWithoutBaseUp(
+        select: u32,
+        whiteBalance: CAMU_WhiteBalance,
+    ) -> Result;
 }
 extern "C" {
     pub fn CAMU_SetSharpness(select: u32, sharpness: s8) -> Result;
@@ -5380,61 +5793,71 @@ extern "C" {
     pub fn CAMU_SetAutoExposure(select: u32, autoExposure: bool) -> Result;
 }
 extern "C" {
-    pub fn CAMU_IsAutoExposure(autoExposure: *mut bool, select: u32)
-     -> Result;
+    pub fn CAMU_IsAutoExposure(autoExposure: *mut bool, select: u32) -> Result;
 }
 extern "C" {
-    pub fn CAMU_SetAutoWhiteBalance(select: u32, autoWhiteBalance: bool)
-     -> Result;
+    pub fn CAMU_SetAutoWhiteBalance(select: u32, autoWhiteBalance: bool) -> Result;
 }
 extern "C" {
-    pub fn CAMU_IsAutoWhiteBalance(autoWhiteBalance: *mut bool, select: u32)
-     -> Result;
+    pub fn CAMU_IsAutoWhiteBalance(autoWhiteBalance: *mut bool, select: u32) -> Result;
 }
 extern "C" {
-    pub fn CAMU_FlipImage(select: u32, flip: CAMU_Flip, context: CAMU_Context)
-     -> Result;
+    pub fn CAMU_FlipImage(select: u32, flip: CAMU_Flip, context: CAMU_Context) -> Result;
 }
 extern "C" {
-    pub fn CAMU_SetDetailSize(select: u32, width: s16, height: s16,
-                              cropX0: s16, cropY0: s16, cropX1: s16,
-                              cropY1: s16, context: CAMU_Context) -> Result;
+    pub fn CAMU_SetDetailSize(
+        select: u32,
+        width: s16,
+        height: s16,
+        cropX0: s16,
+        cropY0: s16,
+        cropX1: s16,
+        cropY1: s16,
+        context: CAMU_Context,
+    ) -> Result;
 }
 extern "C" {
-    pub fn CAMU_SetSize(select: u32, size: CAMU_Size, context: CAMU_Context)
-     -> Result;
+    pub fn CAMU_SetSize(select: u32, size: CAMU_Size, context: CAMU_Context) -> Result;
 }
 extern "C" {
-    pub fn CAMU_SetFrameRate(select: u32, frameRate: CAMU_FrameRate)
-     -> Result;
+    pub fn CAMU_SetFrameRate(select: u32, frameRate: CAMU_FrameRate) -> Result;
 }
 extern "C" {
-    pub fn CAMU_SetPhotoMode(select: u32, photoMode: CAMU_PhotoMode)
-     -> Result;
+    pub fn CAMU_SetPhotoMode(select: u32, photoMode: CAMU_PhotoMode) -> Result;
 }
 extern "C" {
-    pub fn CAMU_SetEffect(select: u32, effect: CAMU_Effect,
-                          context: CAMU_Context) -> Result;
+    pub fn CAMU_SetEffect(select: u32, effect: CAMU_Effect, context: CAMU_Context) -> Result;
 }
 extern "C" {
     pub fn CAMU_SetContrast(select: u32, contrast: CAMU_Contrast) -> Result;
 }
 extern "C" {
-    pub fn CAMU_SetLensCorrection(select: u32,
-                                  lensCorrection: CAMU_LensCorrection)
-     -> Result;
+    pub fn CAMU_SetLensCorrection(select: u32, lensCorrection: CAMU_LensCorrection) -> Result;
 }
 extern "C" {
-    pub fn CAMU_SetOutputFormat(select: u32, format: CAMU_OutputFormat,
-                                context: CAMU_Context) -> Result;
+    pub fn CAMU_SetOutputFormat(
+        select: u32,
+        format: CAMU_OutputFormat,
+        context: CAMU_Context,
+    ) -> Result;
 }
 extern "C" {
-    pub fn CAMU_SetAutoExposureWindow(select: u32, x: s16, y: s16, width: s16,
-                                      height: s16) -> Result;
+    pub fn CAMU_SetAutoExposureWindow(
+        select: u32,
+        x: s16,
+        y: s16,
+        width: s16,
+        height: s16,
+    ) -> Result;
 }
 extern "C" {
-    pub fn CAMU_SetAutoWhiteBalanceWindow(select: u32, x: s16, y: s16,
-                                          width: s16, height: s16) -> Result;
+    pub fn CAMU_SetAutoWhiteBalanceWindow(
+        select: u32,
+        x: s16,
+        y: s16,
+        width: s16,
+        height: s16,
+    ) -> Result;
 }
 extern "C" {
     pub fn CAMU_SetNoiseFilter(select: u32, noiseFilter: bool) -> Result;
@@ -5443,63 +5866,53 @@ extern "C" {
     pub fn CAMU_SynchronizeVsyncTiming(select1: u32, select2: u32) -> Result;
 }
 extern "C" {
-    pub fn CAMU_GetLatestVsyncTiming(timing: *mut s64, port: u32, past: u32)
-     -> Result;
+    pub fn CAMU_GetLatestVsyncTiming(timing: *mut s64, port: u32, past: u32) -> Result;
 }
 extern "C" {
-    pub fn CAMU_GetStereoCameraCalibrationData(data:
-                                                   *mut CAMU_StereoCameraCalibrationData)
-     -> Result;
+    pub fn CAMU_GetStereoCameraCalibrationData(
+        data: *mut CAMU_StereoCameraCalibrationData,
+    ) -> Result;
 }
 extern "C" {
-    pub fn CAMU_SetStereoCameraCalibrationData(data:
-                                                   CAMU_StereoCameraCalibrationData)
-     -> Result;
+    pub fn CAMU_SetStereoCameraCalibrationData(data: CAMU_StereoCameraCalibrationData) -> Result;
 }
 extern "C" {
     pub fn CAMU_WriteRegisterI2c(select: u32, addr: u16, data: u16) -> Result;
 }
 extern "C" {
-    pub fn CAMU_WriteMcuVariableI2c(select: u32, addr: u16, data: u16)
-     -> Result;
+    pub fn CAMU_WriteMcuVariableI2c(select: u32, addr: u16, data: u16) -> Result;
 }
 extern "C" {
-    pub fn CAMU_ReadRegisterI2cExclusive(data: *mut u16, select: u32,
-                                         addr: u16) -> Result;
+    pub fn CAMU_ReadRegisterI2cExclusive(data: *mut u16, select: u32, addr: u16) -> Result;
 }
 extern "C" {
-    pub fn CAMU_ReadMcuVariableI2cExclusive(data: *mut u16, select: u32,
-                                            addr: u16) -> Result;
+    pub fn CAMU_ReadMcuVariableI2cExclusive(data: *mut u16, select: u32, addr: u16) -> Result;
 }
 extern "C" {
-    pub fn CAMU_SetImageQualityCalibrationData(data:
-                                                   CAMU_ImageQualityCalibrationData)
-     -> Result;
+    pub fn CAMU_SetImageQualityCalibrationData(data: CAMU_ImageQualityCalibrationData) -> Result;
 }
 extern "C" {
-    pub fn CAMU_GetImageQualityCalibrationData(data:
-                                                   *mut CAMU_ImageQualityCalibrationData)
-     -> Result;
+    pub fn CAMU_GetImageQualityCalibrationData(
+        data: *mut CAMU_ImageQualityCalibrationData,
+    ) -> Result;
 }
 extern "C" {
-    pub fn CAMU_SetPackageParameterWithoutContext(param:
-                                                      CAMU_PackageParameterCameraSelect)
-     -> Result;
+    pub fn CAMU_SetPackageParameterWithoutContext(
+        param: CAMU_PackageParameterCameraSelect,
+    ) -> Result;
 }
 extern "C" {
-    pub fn CAMU_SetPackageParameterWithContext(param:
-                                                   CAMU_PackageParameterContext)
-     -> Result;
+    pub fn CAMU_SetPackageParameterWithContext(param: CAMU_PackageParameterContext) -> Result;
 }
 extern "C" {
-    pub fn CAMU_SetPackageParameterWithContextDetail(param:
-                                                         CAMU_PackageParameterContextDetail)
-     -> Result;
+    pub fn CAMU_SetPackageParameterWithContextDetail(
+        param: CAMU_PackageParameterContextDetail,
+    ) -> Result;
 }
 extern "C" {
-    pub fn CAMU_GetSuitableY2rStandardCoefficient(coefficient:
-                                                      *mut Y2RU_StandardCoefficient)
-     -> Result;
+    pub fn CAMU_GetSuitableY2rStandardCoefficient(
+        coefficient: *mut Y2RU_StandardCoefficient,
+    ) -> Result;
 }
 extern "C" {
     pub fn CAMU_PlayShutterSound(sound: CAMU_ShutterSoundType) -> Result;
@@ -5520,8 +5933,7 @@ extern "C" {
     pub fn CAMU_SetSleepCamera(select: u32) -> Result;
 }
 extern "C" {
-    pub fn CAMU_SetBrightnessSynchronization(brightnessSynchronization: bool)
-     -> Result;
+    pub fn CAMU_SetBrightnessSynchronization(brightnessSynchronization: bool) -> Result;
 }
 extern "C" {
     pub fn cfgnorInit(value: u8) -> Result;
@@ -5547,33 +5959,27 @@ extern "C" {
 extern "C" {
     pub fn CFGNOR_WriteData(offset: u32, buf: *mut u32, size: u32) -> Result;
 }
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum CFG_Region {
-    CFG_REGION_JPN = 0,
-    CFG_REGION_USA = 1,
-    CFG_REGION_EUR = 2,
-    CFG_REGION_AUS = 3,
-    CFG_REGION_CHN = 4,
-    CFG_REGION_KOR = 5,
-    CFG_REGION_TWN = 6,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum CFG_Language {
-    CFG_LANGUAGE_JP = 0,
-    CFG_LANGUAGE_EN = 1,
-    CFG_LANGUAGE_FR = 2,
-    CFG_LANGUAGE_DE = 3,
-    CFG_LANGUAGE_IT = 4,
-    CFG_LANGUAGE_ES = 5,
-    CFG_LANGUAGE_ZH = 6,
-    CFG_LANGUAGE_KO = 7,
-    CFG_LANGUAGE_NL = 8,
-    CFG_LANGUAGE_PT = 9,
-    CFG_LANGUAGE_RU = 10,
-    CFG_LANGUAGE_TW = 11,
-}
+pub const CFG_REGION_JPN: CFG_Region = 0;
+pub const CFG_REGION_USA: CFG_Region = 1;
+pub const CFG_REGION_EUR: CFG_Region = 2;
+pub const CFG_REGION_AUS: CFG_Region = 3;
+pub const CFG_REGION_CHN: CFG_Region = 4;
+pub const CFG_REGION_KOR: CFG_Region = 5;
+pub const CFG_REGION_TWN: CFG_Region = 6;
+pub type CFG_Region = libc::c_uint;
+pub const CFG_LANGUAGE_JP: CFG_Language = 0;
+pub const CFG_LANGUAGE_EN: CFG_Language = 1;
+pub const CFG_LANGUAGE_FR: CFG_Language = 2;
+pub const CFG_LANGUAGE_DE: CFG_Language = 3;
+pub const CFG_LANGUAGE_IT: CFG_Language = 4;
+pub const CFG_LANGUAGE_ES: CFG_Language = 5;
+pub const CFG_LANGUAGE_ZH: CFG_Language = 6;
+pub const CFG_LANGUAGE_KO: CFG_Language = 7;
+pub const CFG_LANGUAGE_NL: CFG_Language = 8;
+pub const CFG_LANGUAGE_PT: CFG_Language = 9;
+pub const CFG_LANGUAGE_RU: CFG_Language = 10;
+pub const CFG_LANGUAGE_TW: CFG_Language = 11;
+pub type CFG_Language = libc::c_uint;
 extern "C" {
     pub fn cfguInit() -> Result;
 }
@@ -5584,8 +5990,7 @@ extern "C" {
     pub fn CFGU_SecureInfoGetRegion(region: *mut u8) -> Result;
 }
 extern "C" {
-    pub fn CFGU_GenHashConsoleUnique(appIDSalt: u32, hash: *mut u64)
-     -> Result;
+    pub fn CFGU_GenHashConsoleUnique(appIDSalt: u32, hash: *mut u64) -> Result;
 }
 extern "C" {
     pub fn CFGU_GetRegionCanadaUSA(value: *mut u8) -> Result;
@@ -5603,122 +6008,88 @@ extern "C" {
     pub fn CFGU_GetCountryCodeID(string: u16, code: *mut u16) -> Result;
 }
 extern "C" {
-    pub fn CFGU_GetConfigInfoBlk2(size: u32, blkID: u32, outData: *mut u8)
-     -> Result;
+    pub fn CFGU_GetConfigInfoBlk2(size: u32, blkID: u32, outData: *mut u8) -> Result;
 }
 extern "C" {
-    pub fn CFG_GetConfigInfoBlk4(size: u32, blkID: u32, outData: *mut u8)
-     -> Result;
+    pub fn CFG_GetConfigInfoBlk4(size: u32, blkID: u32, outData: *mut u8) -> Result;
 }
 extern "C" {
-    pub fn CFG_GetConfigInfoBlk8(size: u32, blkID: u32, outData: *mut u8)
-     -> Result;
+    pub fn CFG_GetConfigInfoBlk8(size: u32, blkID: u32, outData: *mut u8) -> Result;
 }
 extern "C" {
-    pub fn CFG_SetConfigInfoBlk4(size: u32, blkID: u32, inData: *mut u8)
-     -> Result;
+    pub fn CFG_SetConfigInfoBlk4(size: u32, blkID: u32, inData: *mut u8) -> Result;
 }
 extern "C" {
-    pub fn CFG_SetConfigInfoBlk8(size: u32, blkID: u32, inData: *mut u8)
-     -> Result;
+    pub fn CFG_SetConfigInfoBlk8(size: u32, blkID: u32, inData: *mut u8) -> Result;
 }
 extern "C" {
-    pub fn CFG_UpdateConfigNANDSavegame() -> Result;
+    pub fn CFG_UpdateConfigSavegame() -> Result;
 }
 extern "C" {
     pub fn CFGU_GetSystemLanguage(language: *mut u8) -> Result;
 }
-pub const CSND_ENCODING_PCM8: _bindgen_ty_13 =
-    _bindgen_ty_13::CSND_ENCODING_PCM8;
-pub const CSND_ENCODING_PCM16: _bindgen_ty_13 =
-    _bindgen_ty_13::CSND_ENCODING_PCM16;
-pub const CSND_ENCODING_ADPCM: _bindgen_ty_13 =
-    _bindgen_ty_13::CSND_ENCODING_ADPCM;
-pub const CSND_ENCODING_PSG: _bindgen_ty_13 =
-    _bindgen_ty_13::CSND_ENCODING_PSG;
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum _bindgen_ty_13 {
-    CSND_ENCODING_PCM8 = 0,
-    CSND_ENCODING_PCM16 = 1,
-    CSND_ENCODING_ADPCM = 2,
-    CSND_ENCODING_PSG = 3,
+extern "C" {
+    pub fn CFGI_RestoreLocalFriendCodeSeed() -> Result;
 }
-pub const CSND_LOOPMODE_MANUAL: _bindgen_ty_14 =
-    _bindgen_ty_14::CSND_LOOPMODE_MANUAL;
-pub const CSND_LOOPMODE_NORMAL: _bindgen_ty_14 =
-    _bindgen_ty_14::CSND_LOOPMODE_NORMAL;
-pub const CSND_LOOPMODE_ONESHOT: _bindgen_ty_14 =
-    _bindgen_ty_14::CSND_LOOPMODE_ONESHOT;
-pub const CSND_LOOPMODE_NORELOAD: _bindgen_ty_14 =
-    _bindgen_ty_14::CSND_LOOPMODE_NORELOAD;
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum _bindgen_ty_14 {
-    CSND_LOOPMODE_MANUAL = 0,
-    CSND_LOOPMODE_NORMAL = 1,
-    CSND_LOOPMODE_ONESHOT = 2,
-    CSND_LOOPMODE_NORELOAD = 3,
+extern "C" {
+    pub fn CFGI_RestoreSecureInfo() -> Result;
 }
-pub const SOUND_LINEAR_INTERP: _bindgen_ty_15 =
-    _bindgen_ty_15::SOUND_LINEAR_INTERP;
-pub const SOUND_REPEAT: _bindgen_ty_15 = _bindgen_ty_15::SOUND_REPEAT;
-pub const SOUND_ONE_SHOT: _bindgen_ty_15 = _bindgen_ty_15::SOUND_ONE_SHOT;
-pub const SOUND_FORMAT_8BIT: _bindgen_ty_15 =
-    _bindgen_ty_15::SOUND_FORMAT_8BIT;
-pub const SOUND_FORMAT_16BIT: _bindgen_ty_15 =
-    _bindgen_ty_15::SOUND_FORMAT_16BIT;
-pub const SOUND_FORMAT_ADPCM: _bindgen_ty_15 =
-    _bindgen_ty_15::SOUND_FORMAT_ADPCM;
-pub const SOUND_FORMAT_PSG: _bindgen_ty_15 = _bindgen_ty_15::SOUND_FORMAT_PSG;
-pub const SOUND_ENABLE: _bindgen_ty_15 = _bindgen_ty_15::SOUND_ENABLE;
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum _bindgen_ty_15 {
-    SOUND_LINEAR_INTERP = 64,
-    SOUND_REPEAT = 1024,
-    SOUND_ONE_SHOT = 2048,
-    SOUND_FORMAT_8BIT = 0,
-    SOUND_FORMAT_16BIT = 4096,
-    SOUND_FORMAT_ADPCM = 8192,
-    SOUND_FORMAT_PSG = 12288,
-    SOUND_ENABLE = 16384,
+extern "C" {
+    pub fn CFGI_DeleteConfigSavefile() -> Result;
 }
-pub const CAPTURE_REPEAT: _bindgen_ty_16 = _bindgen_ty_16::CAPTURE_REPEAT;
-pub const CAPTURE_ONE_SHOT: _bindgen_ty_16 = _bindgen_ty_16::CAPTURE_ONE_SHOT;
-pub const CAPTURE_FORMAT_16BIT: _bindgen_ty_16 =
-    _bindgen_ty_16::CAPTURE_REPEAT;
-pub const CAPTURE_FORMAT_8BIT: _bindgen_ty_16 =
-    _bindgen_ty_16::CAPTURE_FORMAT_8BIT;
-pub const CAPTURE_ENABLE: _bindgen_ty_16 = _bindgen_ty_16::CAPTURE_ENABLE;
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum _bindgen_ty_16 {
-    CAPTURE_REPEAT = 0,
-    CAPTURE_ONE_SHOT = 1,
-    CAPTURE_FORMAT_8BIT = 2,
-    CAPTURE_ENABLE = 32768,
+extern "C" {
+    pub fn CFGI_FormatConfig() -> Result;
 }
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum CSND_DutyCycle {
-    DutyCycle_0 = 7,
-    DutyCycle_12 = 0,
-    DutyCycle_25 = 1,
-    DutyCycle_37 = 2,
-    DutyCycle_50 = 3,
-    DutyCycle_62 = 4,
-    DutyCycle_75 = 5,
-    DutyCycle_87 = 6,
+extern "C" {
+    pub fn CFGI_ClearParentalControls() -> Result;
+}
+extern "C" {
+    pub fn CFGI_VerifySigLocalFriendCodeSeed() -> Result;
+}
+extern "C" {
+    pub fn CFGI_VerifySigSecureInfo() -> Result;
+}
+pub const CSND_ENCODING_PCM8: _bindgen_ty_15 = 0;
+pub const CSND_ENCODING_PCM16: _bindgen_ty_15 = 1;
+pub const CSND_ENCODING_ADPCM: _bindgen_ty_15 = 2;
+pub const CSND_ENCODING_PSG: _bindgen_ty_15 = 3;
+pub type _bindgen_ty_15 = libc::c_uint;
+pub const CSND_LOOPMODE_MANUAL: _bindgen_ty_16 = 0;
+pub const CSND_LOOPMODE_NORMAL: _bindgen_ty_16 = 1;
+pub const CSND_LOOPMODE_ONESHOT: _bindgen_ty_16 = 2;
+pub const CSND_LOOPMODE_NORELOAD: _bindgen_ty_16 = 3;
+pub type _bindgen_ty_16 = libc::c_uint;
+pub const SOUND_LINEAR_INTERP: _bindgen_ty_17 = 64;
+pub const SOUND_REPEAT: _bindgen_ty_17 = 1024;
+pub const SOUND_ONE_SHOT: _bindgen_ty_17 = 2048;
+pub const SOUND_FORMAT_8BIT: _bindgen_ty_17 = 0;
+pub const SOUND_FORMAT_16BIT: _bindgen_ty_17 = 4096;
+pub const SOUND_FORMAT_ADPCM: _bindgen_ty_17 = 8192;
+pub const SOUND_FORMAT_PSG: _bindgen_ty_17 = 12288;
+pub const SOUND_ENABLE: _bindgen_ty_17 = 16384;
+pub type _bindgen_ty_17 = libc::c_uint;
+pub const CAPTURE_REPEAT: _bindgen_ty_18 = 0;
+pub const CAPTURE_ONE_SHOT: _bindgen_ty_18 = 1;
+pub const CAPTURE_FORMAT_16BIT: _bindgen_ty_18 = 0;
+pub const CAPTURE_FORMAT_8BIT: _bindgen_ty_18 = 2;
+pub const CAPTURE_ENABLE: _bindgen_ty_18 = 32768;
+pub type _bindgen_ty_18 = libc::c_uint;
+pub const DutyCycle_0: CSND_DutyCycle = 7;
+pub const DutyCycle_12: CSND_DutyCycle = 0;
+pub const DutyCycle_25: CSND_DutyCycle = 1;
+pub const DutyCycle_37: CSND_DutyCycle = 2;
+pub const DutyCycle_50: CSND_DutyCycle = 3;
+pub const DutyCycle_62: CSND_DutyCycle = 4;
+pub const DutyCycle_75: CSND_DutyCycle = 5;
+pub const DutyCycle_87: CSND_DutyCycle = 6;
+pub type CSND_DutyCycle = libc::c_uint;
+#[repr(C)]
+pub struct CSND_ChnInfo {
+    pub value: __BindgenUnionField<[u32; 3usize]>,
+    pub __bindgen_anon_1: __BindgenUnionField<CSND_ChnInfo__bindgen_ty_1>,
+    pub bindgen_union_field: [u32; 3usize],
 }
 #[repr(C)]
-#[derive(Copy)]
-pub union CSND_ChnInfo {
-    pub value: [u32; 3usize],
-    pub __bindgen_anon_1: CSND_ChnInfo__bindgen_ty_1,
-}
-#[repr(C)]
-#[derive(Copy)]
 pub struct CSND_ChnInfo__bindgen_ty_1 {
     pub active: u8,
     pub _pad1: u8,
@@ -5728,31 +6099,18 @@ pub struct CSND_ChnInfo__bindgen_ty_1 {
     pub _pad3: u8,
     pub unknownZero: u32,
 }
-impl Clone for CSND_ChnInfo__bindgen_ty_1 {
-    fn clone(&self) -> Self { *self }
-}
-impl Clone for CSND_ChnInfo {
-    fn clone(&self) -> Self { *self }
+#[repr(C)]
+pub struct CSND_CapInfo {
+    pub value: __BindgenUnionField<[u32; 2usize]>,
+    pub __bindgen_anon_1: __BindgenUnionField<CSND_CapInfo__bindgen_ty_1>,
+    pub bindgen_union_field: [u32; 2usize],
 }
 #[repr(C)]
-#[derive(Copy)]
-pub union CSND_CapInfo {
-    pub value: [u32; 2usize],
-    pub __bindgen_anon_1: CSND_CapInfo__bindgen_ty_1,
-}
-#[repr(C)]
-#[derive(Copy)]
 pub struct CSND_CapInfo__bindgen_ty_1 {
     pub active: u8,
     pub _pad1: u8,
     pub _pad2: u16,
     pub unknownZero: u32,
-}
-impl Clone for CSND_CapInfo__bindgen_ty_1 {
-    fn clone(&self) -> Self { *self }
-}
-impl Clone for CSND_CapInfo {
-    fn clone(&self) -> Self { *self }
 }
 extern "C" {
     pub static mut csndSharedMem: *mut vu32;
@@ -5776,8 +6134,7 @@ extern "C" {
     pub fn CSND_StoreDataCache(adr: *const libc::c_void, size: u32) -> Result;
 }
 extern "C" {
-    pub fn CSND_InvalidateDataCache(adr: *const libc::c_void, size: u32)
-     -> Result;
+    pub fn CSND_InvalidateDataCache(adr: *const libc::c_void, size: u32) -> Result;
 }
 extern "C" {
     pub fn CSND_Reset() -> Result;
@@ -5807,8 +6164,7 @@ extern "C" {
     pub fn CSND_SetEncoding(channel: u32, value: u32);
 }
 extern "C" {
-    pub fn CSND_SetBlock(channel: u32, block: libc::c_int, physaddr: u32,
-                         size: u32);
+    pub fn CSND_SetBlock(channel: u32, block: libc::c_int, physaddr: u32, size: u32);
 }
 extern "C" {
     pub fn CSND_SetLooping(channel: u32, value: u32);
@@ -5829,20 +6185,28 @@ extern "C" {
     pub fn CSND_SetVol(channel: u32, chnVolumes: u32, capVolumes: u32);
 }
 extern "C" {
-    pub fn CSND_SetAdpcmState(channel: u32, block: libc::c_int,
-                              sample: libc::c_int, index: libc::c_int);
+    pub fn CSND_SetAdpcmState(
+        channel: u32,
+        block: libc::c_int,
+        sample: libc::c_int,
+        index: libc::c_int,
+    );
 }
 extern "C" {
     pub fn CSND_SetAdpcmReload(channel: u32, reload: bool);
 }
 extern "C" {
-    pub fn CSND_SetChnRegs(flags: u32, physaddr0: u32, physaddr1: u32,
-                           totalbytesize: u32, chnVolumes: u32,
-                           capVolumes: u32);
+    pub fn CSND_SetChnRegs(
+        flags: u32,
+        physaddr0: u32,
+        physaddr1: u32,
+        totalbytesize: u32,
+        chnVolumes: u32,
+        capVolumes: u32,
+    );
 }
 extern "C" {
-    pub fn CSND_SetChnRegsPSG(flags: u32, chnVolumes: u32, capVolumes: u32,
-                              duty: CSND_DutyCycle);
+    pub fn CSND_SetChnRegsPSG(flags: u32, chnVolumes: u32, capVolumes: u32, duty: CSND_DutyCycle);
 }
 extern "C" {
     pub fn CSND_SetChnRegsNoise(flags: u32, chnVolumes: u32, capVolumes: u32);
@@ -5875,9 +6239,16 @@ extern "C" {
     pub fn CSND_UpdateInfo(waitDone: bool) -> Result;
 }
 extern "C" {
-    pub fn csndPlaySound(chn: libc::c_int, flags: u32, sampleRate: u32,
-                         vol: f32, pan: f32, data0: *mut libc::c_void,
-                         data1: *mut libc::c_void, size: u32) -> Result;
+    pub fn csndPlaySound(
+        chn: libc::c_int,
+        flags: u32,
+        sampleRate: u32,
+        vol: f32,
+        pan: f32,
+        data0: *mut libc::c_void,
+        data1: *mut libc::c_void,
+        size: u32,
+    ) -> Result;
 }
 extern "C" {
     pub fn csndGetDspFlags(outSemFlags: *mut u32, outIrqFlags: *mut u32);
@@ -5894,12 +6265,11 @@ extern "C" {
 extern "C" {
     pub fn csndIsPlaying(channel: u32, status: *mut u8) -> Result;
 }
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum DSP_InterruptType { DSP_INTERRUPT_PIPE = 2, }
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum DSP_PipeDirection { DSP_PIPE_INPUT = 0, DSP_PIPE_OUTPUT = 1, }
+pub const DSP_INTERRUPT_PIPE: DSP_InterruptType = 2;
+pub type DSP_InterruptType = libc::c_uint;
+pub const DSP_PIPE_INPUT: DSP_PipeDirection = 0;
+pub const DSP_PIPE_OUTPUT: DSP_PipeDirection = 1;
+pub type DSP_PipeDirection = libc::c_uint;
 extern "C" {
     pub fn dspInit() -> Result;
 }
@@ -5910,12 +6280,10 @@ extern "C" {
     pub fn DSP_GetHeadphoneStatus(is_inserted: *mut bool) -> Result;
 }
 extern "C" {
-    pub fn DSP_FlushDataCache(address: *const libc::c_void, size: u32)
-     -> Result;
+    pub fn DSP_FlushDataCache(address: *const libc::c_void, size: u32) -> Result;
 }
 extern "C" {
-    pub fn DSP_InvalidateDataCache(address: *const libc::c_void, size: u32)
-     -> Result;
+    pub fn DSP_InvalidateDataCache(address: *const libc::c_void, size: u32) -> Result;
 }
 extern "C" {
     pub fn DSP_GetSemaphoreHandle(semaphore: *mut Handle) -> Result;
@@ -5927,30 +6295,34 @@ extern "C" {
     pub fn DSP_SetSemaphoreMask(mask: u16) -> Result;
 }
 extern "C" {
-    pub fn DSP_LoadComponent(component: *const libc::c_void, size: u32,
-                             prog_mask: u16, data_mask: u16,
-                             is_loaded: *mut bool) -> Result;
+    pub fn DSP_LoadComponent(
+        component: *const libc::c_void,
+        size: u32,
+        prog_mask: u16,
+        data_mask: u16,
+        is_loaded: *mut bool,
+    ) -> Result;
 }
 extern "C" {
     pub fn DSP_UnloadComponent() -> Result;
 }
 extern "C" {
-    pub fn DSP_RegisterInterruptEvents(handle: Handle, interrupt: u32,
-                                       channel: u32) -> Result;
+    pub fn DSP_RegisterInterruptEvents(handle: Handle, interrupt: u32, channel: u32) -> Result;
 }
 extern "C" {
-    pub fn DSP_ReadPipeIfPossible(channel: u32, peer: u32,
-                                  buffer: *mut libc::c_void, length: u16,
-                                  length_read: *mut u16) -> Result;
+    pub fn DSP_ReadPipeIfPossible(
+        channel: u32,
+        peer: u32,
+        buffer: *mut libc::c_void,
+        length: u16,
+        length_read: *mut u16,
+    ) -> Result;
 }
 extern "C" {
-    pub fn DSP_WriteProcessPipe(channel: u32, buffer: *const libc::c_void,
-                                length: u32) -> Result;
+    pub fn DSP_WriteProcessPipe(channel: u32, buffer: *const libc::c_void, length: u32) -> Result;
 }
 extern "C" {
-    pub fn DSP_ConvertProcessAddressFromDspDram(dsp_address: u32,
-                                                arm_address: *mut u32)
-     -> Result;
+    pub fn DSP_ConvertProcessAddressFromDspDram(dsp_address: u32, arm_address: *mut u32) -> Result;
 }
 extern "C" {
     pub fn DSP_RecvData(regNo: u16, value: *mut u16) -> Result;
@@ -5964,24 +6336,21 @@ extern "C" {
 extern "C" {
     pub fn DSP_SendDataIsEmpty(regNo: u16, is_empty: *mut bool) -> Result;
 }
-pub const GSPLCD_SCREEN_TOP: _bindgen_ty_17 =
-    _bindgen_ty_17::GSPLCD_SCREEN_TOP;
-pub const GSPLCD_SCREEN_BOTTOM: _bindgen_ty_17 =
-    _bindgen_ty_17::GSPLCD_SCREEN_BOTTOM;
-pub const GSPLCD_SCREEN_BOTH: _bindgen_ty_17 =
-    _bindgen_ty_17::GSPLCD_SCREEN_BOTH;
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum _bindgen_ty_17 {
-    GSPLCD_SCREEN_TOP = 1,
-    GSPLCD_SCREEN_BOTTOM = 2,
-    GSPLCD_SCREEN_BOTH = 3,
-}
+pub const GSPLCD_SCREEN_TOP: _bindgen_ty_19 = 1;
+pub const GSPLCD_SCREEN_BOTTOM: _bindgen_ty_19 = 2;
+pub const GSPLCD_SCREEN_BOTH: _bindgen_ty_19 = 3;
+pub type _bindgen_ty_19 = libc::c_uint;
 extern "C" {
     pub fn gspLcdInit() -> Result;
 }
 extern "C" {
     pub fn gspLcdExit();
+}
+extern "C" {
+    pub fn GSPLCD_PowerOnAllBacklights() -> Result;
+}
+extern "C" {
+    pub fn GSPLCD_PowerOffAllBacklights() -> Result;
 }
 extern "C" {
     pub fn GSPLCD_PowerOnBacklight(screen: u32) -> Result;
@@ -5990,117 +6359,80 @@ extern "C" {
     pub fn GSPLCD_PowerOffBacklight(screen: u32) -> Result;
 }
 extern "C" {
+    pub fn GSPLCD_SetLedForceOff(disable: bool) -> Result;
+}
+extern "C" {
     pub fn GSPLCD_GetVendors(vendors: *mut u8) -> Result;
 }
 extern "C" {
     pub fn GSPLCD_GetBrightness(screen: u32, brightness: *mut u32) -> Result;
 }
-pub const KEY_A: _bindgen_ty_18 = _bindgen_ty_18::KEY_A;
-pub const KEY_B: _bindgen_ty_18 = _bindgen_ty_18::KEY_B;
-pub const KEY_SELECT: _bindgen_ty_18 = _bindgen_ty_18::KEY_SELECT;
-pub const KEY_START: _bindgen_ty_18 = _bindgen_ty_18::KEY_START;
-pub const KEY_DRIGHT: _bindgen_ty_18 = _bindgen_ty_18::KEY_DRIGHT;
-pub const KEY_DLEFT: _bindgen_ty_18 = _bindgen_ty_18::KEY_DLEFT;
-pub const KEY_DUP: _bindgen_ty_18 = _bindgen_ty_18::KEY_DUP;
-pub const KEY_DDOWN: _bindgen_ty_18 = _bindgen_ty_18::KEY_DDOWN;
-pub const KEY_R: _bindgen_ty_18 = _bindgen_ty_18::KEY_R;
-pub const KEY_L: _bindgen_ty_18 = _bindgen_ty_18::KEY_L;
-pub const KEY_X: _bindgen_ty_18 = _bindgen_ty_18::KEY_X;
-pub const KEY_Y: _bindgen_ty_18 = _bindgen_ty_18::KEY_Y;
-pub const KEY_ZL: _bindgen_ty_18 = _bindgen_ty_18::KEY_ZL;
-pub const KEY_ZR: _bindgen_ty_18 = _bindgen_ty_18::KEY_ZR;
-pub const KEY_TOUCH: _bindgen_ty_18 = _bindgen_ty_18::KEY_TOUCH;
-pub const KEY_CSTICK_RIGHT: _bindgen_ty_18 = _bindgen_ty_18::KEY_CSTICK_RIGHT;
-pub const KEY_CSTICK_LEFT: _bindgen_ty_18 = _bindgen_ty_18::KEY_CSTICK_LEFT;
-pub const KEY_CSTICK_UP: _bindgen_ty_18 = _bindgen_ty_18::KEY_CSTICK_UP;
-pub const KEY_CSTICK_DOWN: _bindgen_ty_18 = _bindgen_ty_18::KEY_CSTICK_DOWN;
-pub const KEY_CPAD_RIGHT: _bindgen_ty_18 = _bindgen_ty_18::KEY_CPAD_RIGHT;
-pub const KEY_CPAD_LEFT: _bindgen_ty_18 = _bindgen_ty_18::KEY_CPAD_LEFT;
-pub const KEY_CPAD_UP: _bindgen_ty_18 = _bindgen_ty_18::KEY_CPAD_UP;
-pub const KEY_CPAD_DOWN: _bindgen_ty_18 = _bindgen_ty_18::KEY_CPAD_DOWN;
-pub const KEY_UP: _bindgen_ty_18 = _bindgen_ty_18::KEY_UP;
-pub const KEY_DOWN: _bindgen_ty_18 = _bindgen_ty_18::KEY_DOWN;
-pub const KEY_LEFT: _bindgen_ty_18 = _bindgen_ty_18::KEY_LEFT;
-pub const KEY_RIGHT: _bindgen_ty_18 = _bindgen_ty_18::KEY_RIGHT;
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum _bindgen_ty_18 {
-    KEY_A = 1,
-    KEY_B = 2,
-    KEY_SELECT = 4,
-    KEY_START = 8,
-    KEY_DRIGHT = 16,
-    KEY_DLEFT = 32,
-    KEY_DUP = 64,
-    KEY_DDOWN = 128,
-    KEY_R = 256,
-    KEY_L = 512,
-    KEY_X = 1024,
-    KEY_Y = 2048,
-    KEY_ZL = 16384,
-    KEY_ZR = 32768,
-    KEY_TOUCH = 1048576,
-    KEY_CSTICK_RIGHT = 16777216,
-    KEY_CSTICK_LEFT = 33554432,
-    KEY_CSTICK_UP = 67108864,
-    KEY_CSTICK_DOWN = 134217728,
-    KEY_CPAD_RIGHT = 268435456,
-    KEY_CPAD_LEFT = 536870912,
-    KEY_CPAD_UP = 1073741824,
-    KEY_CPAD_DOWN = 2147483648,
-    KEY_UP = 1073741888,
-    KEY_DOWN = 2147483776,
-    KEY_LEFT = 536870944,
-    KEY_RIGHT = 268435472,
+extern "C" {
+    pub fn GSPLCD_SetBrightness(screen: u32, brightness: u32) -> Result;
 }
+extern "C" {
+    pub fn GSPLCD_SetBrightnessRaw(screen: u32, brightness: u32) -> Result;
+}
+pub const KEY_A: _bindgen_ty_20 = 1;
+pub const KEY_B: _bindgen_ty_20 = 2;
+pub const KEY_SELECT: _bindgen_ty_20 = 4;
+pub const KEY_START: _bindgen_ty_20 = 8;
+pub const KEY_DRIGHT: _bindgen_ty_20 = 16;
+pub const KEY_DLEFT: _bindgen_ty_20 = 32;
+pub const KEY_DUP: _bindgen_ty_20 = 64;
+pub const KEY_DDOWN: _bindgen_ty_20 = 128;
+pub const KEY_R: _bindgen_ty_20 = 256;
+pub const KEY_L: _bindgen_ty_20 = 512;
+pub const KEY_X: _bindgen_ty_20 = 1024;
+pub const KEY_Y: _bindgen_ty_20 = 2048;
+pub const KEY_ZL: _bindgen_ty_20 = 16384;
+pub const KEY_ZR: _bindgen_ty_20 = 32768;
+pub const KEY_TOUCH: _bindgen_ty_20 = 1048576;
+pub const KEY_CSTICK_RIGHT: _bindgen_ty_20 = 16777216;
+pub const KEY_CSTICK_LEFT: _bindgen_ty_20 = 33554432;
+pub const KEY_CSTICK_UP: _bindgen_ty_20 = 67108864;
+pub const KEY_CSTICK_DOWN: _bindgen_ty_20 = 134217728;
+pub const KEY_CPAD_RIGHT: _bindgen_ty_20 = 268435456;
+pub const KEY_CPAD_LEFT: _bindgen_ty_20 = 536870912;
+pub const KEY_CPAD_UP: _bindgen_ty_20 = 1073741824;
+pub const KEY_CPAD_DOWN: _bindgen_ty_20 = 2147483648;
+pub const KEY_UP: _bindgen_ty_20 = 1073741888;
+pub const KEY_DOWN: _bindgen_ty_20 = 2147483776;
+pub const KEY_LEFT: _bindgen_ty_20 = 536870944;
+pub const KEY_RIGHT: _bindgen_ty_20 = 268435472;
+pub type _bindgen_ty_20 = libc::c_uint;
 #[repr(C)]
-#[derive(Copy)]
 pub struct touchPosition {
     pub px: u16,
     pub py: u16,
 }
-impl Clone for touchPosition {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct circlePosition {
     pub dx: s16,
     pub dy: s16,
 }
-impl Clone for circlePosition {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct accelVector {
     pub x: s16,
     pub y: s16,
     pub z: s16,
 }
-impl Clone for accelVector {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct angularRate {
     pub x: s16,
     pub z: s16,
     pub y: s16,
 }
-impl Clone for angularRate {
-    fn clone(&self) -> Self { *self }
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum HID_Event {
-    HIDEVENT_PAD0 = 0,
-    HIDEVENT_PAD1 = 1,
-    HIDEVENT_Accel = 2,
-    HIDEVENT_Gyro = 3,
-    HIDEVENT_DebugPad = 4,
-    HIDEVENT_MAX = 5,
-}
+pub const HIDEVENT_PAD0: HID_Event = 0;
+pub const HIDEVENT_PAD1: HID_Event = 1;
+pub const HIDEVENT_Accel: HID_Event = 2;
+pub const HIDEVENT_Gyro: HID_Event = 3;
+pub const HIDEVENT_DebugPad: HID_Event = 4;
+pub const HIDEVENT_MAX: HID_Event = 5;
+pub type HID_Event = libc::c_uint;
 extern "C" {
     pub static mut hidMemHandle: Handle;
 }
@@ -6141,10 +6473,14 @@ extern "C" {
     pub fn hidWaitForEvent(id: HID_Event, nextEvent: bool);
 }
 extern "C" {
-    pub fn HIDUSER_GetHandles(outMemHandle: *mut Handle,
-                              eventpad0: *mut Handle, eventpad1: *mut Handle,
-                              eventaccel: *mut Handle, eventgyro: *mut Handle,
-                              eventdebugpad: *mut Handle) -> Result;
+    pub fn HIDUSER_GetHandles(
+        outMemHandle: *mut Handle,
+        eventpad0: *mut Handle,
+        eventpad1: *mut Handle,
+        eventaccel: *mut Handle,
+        eventgyro: *mut Handle,
+        eventdebugpad: *mut Handle,
+    ) -> Result;
 }
 extern "C" {
     pub fn HIDUSER_EnableAccelerometer() -> Result;
@@ -6189,8 +6525,7 @@ extern "C" {
     pub fn irrstWaitForEvent(nextEvent: bool);
 }
 extern "C" {
-    pub fn IRRST_GetHandles(outMemHandle: *mut Handle,
-                            outEventHandle: *mut Handle) -> Result;
+    pub fn IRRST_GetHandles(outMemHandle: *mut Handle, outEventHandle: *mut Handle) -> Result;
 }
 extern "C" {
     pub fn IRRST_Initialize(unk1: u32, unk2: u8) -> Result;
@@ -6199,44 +6534,29 @@ extern "C" {
     pub fn IRRST_Shutdown() -> Result;
 }
 #[repr(C)]
-#[derive(Copy)]
 pub struct sslcContext {
     pub servhandle: Handle,
     pub sslchandle: u32,
     pub sharedmem_handle: Handle,
 }
-impl Clone for sslcContext {
-    fn clone(&self) -> Self { *self }
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum SSLC_DefaultRootCert {
-    SSLC_DefaultRootCert_Nintendo_CA = 1,
-    SSLC_DefaultRootCert_Nintendo_CA_G2 = 2,
-    SSLC_DefaultRootCert_Nintendo_CA_G3 = 3,
-    SSLC_DefaultRootCert_Nintendo_Class2_CA = 4,
-    SSLC_DefaultRootCert_Nintendo_Class2_CA_G2 = 5,
-    SSLC_DefaultRootCert_Nintendo_Class2_CA_G3 = 6,
-    SSLC_DefaultRootCert_CyberTrust = 7,
-    SSLC_DefaultRootCert_AddTrust_External_CA = 8,
-    SSLC_DefaultRootCert_COMODO = 9,
-    SSLC_DefaultRootCert_USERTrust = 10,
-    SSLC_DefaultRootCert_DigiCert_EV = 11,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum SSLC_DefaultClientCert { SSLC_DefaultClientCert_ClCertA = 64, }
-pub const SSLCOPT_Default: _bindgen_ty_19 = _bindgen_ty_19::SSLCOPT_Default;
-pub const SSLCOPT_DisableVerify: _bindgen_ty_19 =
-    _bindgen_ty_19::SSLCOPT_DisableVerify;
-pub const SSLCOPT_TLSv10: _bindgen_ty_19 = _bindgen_ty_19::SSLCOPT_TLSv10;
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum _bindgen_ty_19 {
-    SSLCOPT_Default = 0,
-    SSLCOPT_DisableVerify = 512,
-    SSLCOPT_TLSv10 = 2048,
-}
+pub const SSLC_DefaultRootCert_Nintendo_CA: SSLC_DefaultRootCert = 1;
+pub const SSLC_DefaultRootCert_Nintendo_CA_G2: SSLC_DefaultRootCert = 2;
+pub const SSLC_DefaultRootCert_Nintendo_CA_G3: SSLC_DefaultRootCert = 3;
+pub const SSLC_DefaultRootCert_Nintendo_Class2_CA: SSLC_DefaultRootCert = 4;
+pub const SSLC_DefaultRootCert_Nintendo_Class2_CA_G2: SSLC_DefaultRootCert = 5;
+pub const SSLC_DefaultRootCert_Nintendo_Class2_CA_G3: SSLC_DefaultRootCert = 6;
+pub const SSLC_DefaultRootCert_CyberTrust: SSLC_DefaultRootCert = 7;
+pub const SSLC_DefaultRootCert_AddTrust_External_CA: SSLC_DefaultRootCert = 8;
+pub const SSLC_DefaultRootCert_COMODO: SSLC_DefaultRootCert = 9;
+pub const SSLC_DefaultRootCert_USERTrust: SSLC_DefaultRootCert = 10;
+pub const SSLC_DefaultRootCert_DigiCert_EV: SSLC_DefaultRootCert = 11;
+pub type SSLC_DefaultRootCert = libc::c_uint;
+pub const SSLC_DefaultClientCert_ClCertA: SSLC_DefaultClientCert = 64;
+pub type SSLC_DefaultClientCert = libc::c_uint;
+pub const SSLCOPT_Default: _bindgen_ty_21 = 0;
+pub const SSLCOPT_DisableVerify: _bindgen_ty_21 = 512;
+pub const SSLCOPT_TLSv10: _bindgen_ty_21 = 2048;
+pub type _bindgen_ty_21 = libc::c_uint;
 extern "C" {
     pub fn sslcInit(session_handle: Handle) -> Result;
 }
@@ -6244,27 +6564,31 @@ extern "C" {
     pub fn sslcExit();
 }
 extern "C" {
-    pub fn sslcCreateRootCertChain(RootCertChain_contexthandle: *mut u32)
-     -> Result;
+    pub fn sslcCreateRootCertChain(RootCertChain_contexthandle: *mut u32) -> Result;
 }
 extern "C" {
-    pub fn sslcDestroyRootCertChain(RootCertChain_contexthandle: u32)
-     -> Result;
+    pub fn sslcDestroyRootCertChain(RootCertChain_contexthandle: u32) -> Result;
 }
 extern "C" {
-    pub fn sslcAddTrustedRootCA(RootCertChain_contexthandle: u32,
-                                cert: *const u8, certsize: u32,
-                                cert_contexthandle: *mut u32) -> Result;
+    pub fn sslcAddTrustedRootCA(
+        RootCertChain_contexthandle: u32,
+        cert: *const u8,
+        certsize: u32,
+        cert_contexthandle: *mut u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn sslcRootCertChainAddDefaultCert(RootCertChain_contexthandle: u32,
-                                           certID: SSLC_DefaultRootCert,
-                                           cert_contexthandle: *mut u32)
-     -> Result;
+    pub fn sslcRootCertChainAddDefaultCert(
+        RootCertChain_contexthandle: u32,
+        certID: SSLC_DefaultRootCert,
+        cert_contexthandle: *mut u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn sslcRootCertChainRemoveCert(RootCertChain_contexthandle: u32,
-                                       cert_contexthandle: u32) -> Result;
+    pub fn sslcRootCertChainRemoveCert(
+        RootCertChain_contexthandle: u32,
+        cert_contexthandle: u32,
+    ) -> Result;
 }
 extern "C" {
     pub fn sslcCreate8CertChain(CertChain_contexthandle: *mut u32) -> Result;
@@ -6273,34 +6597,43 @@ extern "C" {
     pub fn sslcDestroy8CertChain(CertChain_contexthandle: u32) -> Result;
 }
 extern "C" {
-    pub fn sslc8CertChainAddCert(CertChain_contexthandle: u32,
-                                 cert: *const u8, certsize: u32,
-                                 cert_contexthandle: *mut u32) -> Result;
+    pub fn sslc8CertChainAddCert(
+        CertChain_contexthandle: u32,
+        cert: *const u8,
+        certsize: u32,
+        cert_contexthandle: *mut u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn sslc8CertChainAddDefaultCert(CertChain_contexthandle: u32,
-                                        certID: u8,
-                                        cert_contexthandle: *mut u32)
-     -> Result;
+    pub fn sslc8CertChainAddDefaultCert(
+        CertChain_contexthandle: u32,
+        certID: u8,
+        cert_contexthandle: *mut u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn sslc8CertChainRemoveCert(CertChain_contexthandle: u32,
-                                    cert_contexthandle: u32) -> Result;
+    pub fn sslc8CertChainRemoveCert(
+        CertChain_contexthandle: u32,
+        cert_contexthandle: u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn sslcOpenClientCertContext(cert: *const u8, certsize: u32,
-                                     key: *const u8, keysize: u32,
-                                     ClientCert_contexthandle: *mut u32)
-     -> Result;
+    pub fn sslcOpenClientCertContext(
+        cert: *const u8,
+        certsize: u32,
+        key: *const u8,
+        keysize: u32,
+        ClientCert_contexthandle: *mut u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn sslcOpenDefaultClientCertContext(certID: SSLC_DefaultClientCert,
-                                            ClientCert_contexthandle:
-                                                *mut u32) -> Result;
+    pub fn sslcOpenDefaultClientCertContext(
+        certID: SSLC_DefaultClientCert,
+        ClientCert_contexthandle: *mut u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn sslcCloseClientCertContext(ClientCert_contexthandle: u32)
-     -> Result;
+    pub fn sslcCloseClientCertContext(ClientCert_contexthandle: u32) -> Result;
 }
 extern "C" {
     pub fn sslcSeedRNG() -> Result;
@@ -6309,91 +6642,81 @@ extern "C" {
     pub fn sslcGenerateRandomData(buf: *mut u8, size: u32) -> Result;
 }
 extern "C" {
-    pub fn sslcCreateContext(context: *mut sslcContext, sockfd: libc::c_int,
-                             input_opt: u32, hostname: *const libc::c_char)
-     -> Result;
+    pub fn sslcCreateContext(
+        context: *mut sslcContext,
+        sockfd: libc::c_int,
+        input_opt: u32,
+        hostname: *const libc::c_char,
+    ) -> Result;
 }
 extern "C" {
     pub fn sslcDestroyContext(context: *mut sslcContext) -> Result;
 }
 extern "C" {
-    pub fn sslcStartConnection(context: *mut sslcContext,
-                               internal_retval: *mut libc::c_int,
-                               out: *mut u32) -> Result;
+    pub fn sslcStartConnection(
+        context: *mut sslcContext,
+        internal_retval: *mut libc::c_int,
+        out: *mut u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn sslcRead(context: *mut sslcContext, buf: *mut libc::c_void,
-                    len: usize, peek: bool) -> Result;
+    pub fn sslcRead(
+        context: *mut sslcContext,
+        buf: *mut libc::c_void,
+        len: usize,
+        peek: bool,
+    ) -> Result;
 }
 extern "C" {
-    pub fn sslcWrite(context: *mut sslcContext, buf: *const libc::c_void,
-                     len: usize) -> Result;
+    pub fn sslcWrite(context: *mut sslcContext, buf: *const libc::c_void, len: usize) -> Result;
 }
 extern "C" {
-    pub fn sslcContextSetRootCertChain(context: *mut sslcContext, handle: u32)
-     -> Result;
+    pub fn sslcContextSetRootCertChain(context: *mut sslcContext, handle: u32) -> Result;
 }
 extern "C" {
-    pub fn sslcContextSetClientCert(context: *mut sslcContext, handle: u32)
-     -> Result;
+    pub fn sslcContextSetClientCert(context: *mut sslcContext, handle: u32) -> Result;
 }
 extern "C" {
-    pub fn sslcContextSetHandle8(context: *mut sslcContext, handle: u32)
-     -> Result;
+    pub fn sslcContextSetHandle8(context: *mut sslcContext, handle: u32) -> Result;
 }
 extern "C" {
-    pub fn sslcContextClearOpt(context: *mut sslcContext, bitmask: u32)
-     -> Result;
+    pub fn sslcContextClearOpt(context: *mut sslcContext, bitmask: u32) -> Result;
 }
 extern "C" {
-    pub fn sslcContextGetProtocolCipher(context: *mut sslcContext,
-                                        outprotocols: *mut libc::c_char,
-                                        outprotocols_maxsize: u32,
-                                        outcipher: *mut libc::c_char,
-                                        outcipher_maxsize: u32) -> Result;
+    pub fn sslcContextGetProtocolCipher(
+        context: *mut sslcContext,
+        outprotocols: *mut libc::c_char,
+        outprotocols_maxsize: u32,
+        outcipher: *mut libc::c_char,
+        outcipher_maxsize: u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn sslcContextGetState(context: *mut sslcContext, out: *mut u32)
-     -> Result;
+    pub fn sslcContextGetState(context: *mut sslcContext, out: *mut u32) -> Result;
 }
 extern "C" {
-    pub fn sslcContextInitSharedmem(context: *mut sslcContext, buf: *mut u8,
-                                    size: u32) -> Result;
+    pub fn sslcContextInitSharedmem(context: *mut sslcContext, buf: *mut u8, size: u32) -> Result;
 }
 extern "C" {
-    pub fn sslcAddCert(context: *mut sslcContext, buf: *const u8, size: u32)
-     -> Result;
+    pub fn sslcAddCert(context: *mut sslcContext, buf: *const u8, size: u32) -> Result;
 }
 #[repr(C)]
-#[derive(Copy)]
 pub struct httpcContext {
     pub servhandle: Handle,
     pub httphandle: u32,
 }
-impl Clone for httpcContext {
-    fn clone(&self) -> Self { *self }
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum HTTPC_RequestMethod {
-    HTTPC_METHOD_GET = 1,
-    HTTPC_METHOD_POST = 2,
-    HTTPC_METHOD_HEAD = 3,
-    HTTPC_METHOD_PUT = 4,
-    HTTPC_METHOD_DELETE = 5,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum HTTPC_RequestStatus {
-    HTTPC_STATUS_REQUEST_IN_PROGRESS = 5,
-    HTTPC_STATUS_DOWNLOAD_READY = 7,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum HTTPC_KeepAlive {
-    HTTPC_KEEPALIVE_DISABLED = 0,
-    HTTPC_KEEPALIVE_ENABLED = 1,
-}
+pub const HTTPC_METHOD_GET: HTTPC_RequestMethod = 1;
+pub const HTTPC_METHOD_POST: HTTPC_RequestMethod = 2;
+pub const HTTPC_METHOD_HEAD: HTTPC_RequestMethod = 3;
+pub const HTTPC_METHOD_PUT: HTTPC_RequestMethod = 4;
+pub const HTTPC_METHOD_DELETE: HTTPC_RequestMethod = 5;
+pub type HTTPC_RequestMethod = libc::c_uint;
+pub const HTTPC_STATUS_REQUEST_IN_PROGRESS: HTTPC_RequestStatus = 5;
+pub const HTTPC_STATUS_DOWNLOAD_READY: HTTPC_RequestStatus = 7;
+pub type HTTPC_RequestStatus = libc::c_uint;
+pub const HTTPC_KEEPALIVE_DISABLED: HTTPC_KeepAlive = 0;
+pub const HTTPC_KEEPALIVE_ENABLED: HTTPC_KeepAlive = 1;
+pub type HTTPC_KeepAlive = libc::c_uint;
 extern "C" {
     pub fn httpcInit(sharedmem_size: u32) -> Result;
 }
@@ -6401,10 +6724,12 @@ extern "C" {
     pub fn httpcExit();
 }
 extern "C" {
-    pub fn httpcOpenContext(context: *mut httpcContext,
-                            method: HTTPC_RequestMethod,
-                            url: *const libc::c_char, use_defaultproxy: u32)
-     -> Result;
+    pub fn httpcOpenContext(
+        context: *mut httpcContext,
+        method: HTTPC_RequestMethod,
+        url: *const libc::c_char,
+        use_defaultproxy: u32,
+    ) -> Result;
 }
 extern "C" {
     pub fn httpcCloseContext(context: *mut httpcContext) -> Result;
@@ -6413,142 +6738,175 @@ extern "C" {
     pub fn httpcCancelConnection(context: *mut httpcContext) -> Result;
 }
 extern "C" {
-    pub fn httpcAddRequestHeaderField(context: *mut httpcContext,
-                                      name: *const libc::c_char,
-                                      value: *const libc::c_char) -> Result;
+    pub fn httpcAddRequestHeaderField(
+        context: *mut httpcContext,
+        name: *const libc::c_char,
+        value: *const libc::c_char,
+    ) -> Result;
 }
 extern "C" {
-    pub fn httpcAddPostDataAscii(context: *mut httpcContext,
-                                 name: *const libc::c_char,
-                                 value: *const libc::c_char) -> Result;
+    pub fn httpcAddPostDataAscii(
+        context: *mut httpcContext,
+        name: *const libc::c_char,
+        value: *const libc::c_char,
+    ) -> Result;
 }
 extern "C" {
-    pub fn httpcAddPostDataBinary(context: *mut httpcContext,
-                                  name: *const libc::c_char, value: *const u8,
-                                  len: u32) -> Result;
+    pub fn httpcAddPostDataBinary(
+        context: *mut httpcContext,
+        name: *const libc::c_char,
+        value: *const u8,
+        len: u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn httpcAddPostDataRaw(context: *mut httpcContext, data: *const u32,
-                               len: u32) -> Result;
+    pub fn httpcAddPostDataRaw(context: *mut httpcContext, data: *const u32, len: u32) -> Result;
 }
 extern "C" {
     pub fn httpcBeginRequest(context: *mut httpcContext) -> Result;
 }
 extern "C" {
-    pub fn httpcReceiveData(context: *mut httpcContext, buffer: *mut u8,
-                            size: u32) -> Result;
+    pub fn httpcReceiveData(context: *mut httpcContext, buffer: *mut u8, size: u32) -> Result;
 }
 extern "C" {
-    pub fn httpcReceiveDataTimeout(context: *mut httpcContext,
-                                   buffer: *mut u8, size: u32, timeout: u64)
-     -> Result;
+    pub fn httpcReceiveDataTimeout(
+        context: *mut httpcContext,
+        buffer: *mut u8,
+        size: u32,
+        timeout: u64,
+    ) -> Result;
 }
 extern "C" {
-    pub fn httpcGetRequestState(context: *mut httpcContext,
-                                out: *mut HTTPC_RequestStatus) -> Result;
+    pub fn httpcGetRequestState(
+        context: *mut httpcContext,
+        out: *mut HTTPC_RequestStatus,
+    ) -> Result;
 }
 extern "C" {
-    pub fn httpcGetDownloadSizeState(context: *mut httpcContext,
-                                     downloadedsize: *mut u32,
-                                     contentsize: *mut u32) -> Result;
+    pub fn httpcGetDownloadSizeState(
+        context: *mut httpcContext,
+        downloadedsize: *mut u32,
+        contentsize: *mut u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn httpcGetResponseStatusCode(context: *mut httpcContext,
-                                      out: *mut u32) -> Result;
+    pub fn httpcGetResponseStatusCode(context: *mut httpcContext, out: *mut u32) -> Result;
 }
 extern "C" {
-    pub fn httpcGetResponseStatusCodeTimeout(context: *mut httpcContext,
-                                             out: *mut u32, timeout: u64)
-     -> Result;
+    pub fn httpcGetResponseStatusCodeTimeout(
+        context: *mut httpcContext,
+        out: *mut u32,
+        timeout: u64,
+    ) -> Result;
 }
 extern "C" {
-    pub fn httpcGetResponseHeader(context: *mut httpcContext,
-                                  name: *const libc::c_char,
-                                  value: *mut libc::c_char,
-                                  valuebuf_maxsize: u32) -> Result;
+    pub fn httpcGetResponseHeader(
+        context: *mut httpcContext,
+        name: *const libc::c_char,
+        value: *mut libc::c_char,
+        valuebuf_maxsize: u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn httpcAddTrustedRootCA(context: *mut httpcContext, cert: *const u8,
-                                 certsize: u32) -> Result;
+    pub fn httpcAddTrustedRootCA(
+        context: *mut httpcContext,
+        cert: *const u8,
+        certsize: u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn httpcAddDefaultCert(context: *mut httpcContext,
-                               certID: SSLC_DefaultRootCert) -> Result;
+    pub fn httpcAddDefaultCert(context: *mut httpcContext, certID: SSLC_DefaultRootCert) -> Result;
 }
 extern "C" {
-    pub fn httpcSelectRootCertChain(context: *mut httpcContext,
-                                    RootCertChain_contexthandle: u32)
-     -> Result;
+    pub fn httpcSelectRootCertChain(
+        context: *mut httpcContext,
+        RootCertChain_contexthandle: u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn httpcSetClientCert(context: *mut httpcContext, cert: *const u8,
-                              certsize: u32, privk: *const u8,
-                              privk_size: u32) -> Result;
+    pub fn httpcSetClientCert(
+        context: *mut httpcContext,
+        cert: *const u8,
+        certsize: u32,
+        privk: *const u8,
+        privk_size: u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn httpcSetClientCertDefault(context: *mut httpcContext,
-                                     certID: SSLC_DefaultClientCert)
-     -> Result;
+    pub fn httpcSetClientCertDefault(
+        context: *mut httpcContext,
+        certID: SSLC_DefaultClientCert,
+    ) -> Result;
 }
 extern "C" {
-    pub fn httpcSetClientCertContext(context: *mut httpcContext,
-                                     ClientCert_contexthandle: u32) -> Result;
+    pub fn httpcSetClientCertContext(
+        context: *mut httpcContext,
+        ClientCert_contexthandle: u32,
+    ) -> Result;
 }
 extern "C" {
     pub fn httpcSetSSLOpt(context: *mut httpcContext, options: u32) -> Result;
 }
 extern "C" {
-    pub fn httpcSetSSLClearOpt(context: *mut httpcContext, options: u32)
-     -> Result;
+    pub fn httpcSetSSLClearOpt(context: *mut httpcContext, options: u32) -> Result;
 }
 extern "C" {
-    pub fn httpcCreateRootCertChain(RootCertChain_contexthandle: *mut u32)
-     -> Result;
+    pub fn httpcCreateRootCertChain(RootCertChain_contexthandle: *mut u32) -> Result;
 }
 extern "C" {
-    pub fn httpcDestroyRootCertChain(RootCertChain_contexthandle: u32)
-     -> Result;
+    pub fn httpcDestroyRootCertChain(RootCertChain_contexthandle: u32) -> Result;
 }
 extern "C" {
-    pub fn httpcRootCertChainAddCert(RootCertChain_contexthandle: u32,
-                                     cert: *const u8, certsize: u32,
-                                     cert_contexthandle: *mut u32) -> Result;
+    pub fn httpcRootCertChainAddCert(
+        RootCertChain_contexthandle: u32,
+        cert: *const u8,
+        certsize: u32,
+        cert_contexthandle: *mut u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn httpcRootCertChainAddDefaultCert(RootCertChain_contexthandle: u32,
-                                            certID: SSLC_DefaultRootCert,
-                                            cert_contexthandle: *mut u32)
-     -> Result;
+    pub fn httpcRootCertChainAddDefaultCert(
+        RootCertChain_contexthandle: u32,
+        certID: SSLC_DefaultRootCert,
+        cert_contexthandle: *mut u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn httpcRootCertChainRemoveCert(RootCertChain_contexthandle: u32,
-                                        cert_contexthandle: u32) -> Result;
+    pub fn httpcRootCertChainRemoveCert(
+        RootCertChain_contexthandle: u32,
+        cert_contexthandle: u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn httpcOpenClientCertContext(cert: *const u8, certsize: u32,
-                                      privk: *const u8, privk_size: u32,
-                                      ClientCert_contexthandle: *mut u32)
-     -> Result;
+    pub fn httpcOpenClientCertContext(
+        cert: *const u8,
+        certsize: u32,
+        privk: *const u8,
+        privk_size: u32,
+        ClientCert_contexthandle: *mut u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn httpcOpenDefaultClientCertContext(certID: SSLC_DefaultClientCert,
-                                             ClientCert_contexthandle:
-                                                 *mut u32) -> Result;
+    pub fn httpcOpenDefaultClientCertContext(
+        certID: SSLC_DefaultClientCert,
+        ClientCert_contexthandle: *mut u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn httpcCloseClientCertContext(ClientCert_contexthandle: u32)
-     -> Result;
+    pub fn httpcCloseClientCertContext(ClientCert_contexthandle: u32) -> Result;
 }
 extern "C" {
-    pub fn httpcDownloadData(context: *mut httpcContext, buffer: *mut u8,
-                             size: u32, downloadedsize: *mut u32) -> Result;
+    pub fn httpcDownloadData(
+        context: *mut httpcContext,
+        buffer: *mut u8,
+        size: u32,
+        downloadedsize: *mut u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn httpcSetKeepAlive(context: *mut httpcContext,
-                             option: HTTPC_KeepAlive) -> Result;
+    pub fn httpcSetKeepAlive(context: *mut httpcContext, option: HTTPC_KeepAlive) -> Result;
 }
 #[repr(C)]
-#[derive(Copy)]
 pub struct udsNodeInfo {
     pub uds_friendcodeseed: u64,
     pub __bindgen_anon_1: udsNodeInfo__bindgen_ty_1,
@@ -6557,30 +6915,19 @@ pub struct udsNodeInfo {
     pub word_x24: u32,
 }
 #[repr(C)]
-#[derive(Copy)]
-pub union udsNodeInfo__bindgen_ty_1 {
-    pub usercfg: [u8; 24usize],
-    pub __bindgen_anon_1: udsNodeInfo__bindgen_ty_1__bindgen_ty_1,
+pub struct udsNodeInfo__bindgen_ty_1 {
+    pub usercfg: __BindgenUnionField<[u8; 24usize]>,
+    pub __bindgen_anon_1: __BindgenUnionField<udsNodeInfo__bindgen_ty_1__bindgen_ty_1>,
+    pub bindgen_union_field: [u16; 12usize],
 }
 #[repr(C)]
-#[derive(Copy)]
 pub struct udsNodeInfo__bindgen_ty_1__bindgen_ty_1 {
     pub username: [u16; 10usize],
     pub unk_x1c: u16,
     pub flag: u8,
     pub pad_x1f: u8,
 }
-impl Clone for udsNodeInfo__bindgen_ty_1__bindgen_ty_1 {
-    fn clone(&self) -> Self { *self }
-}
-impl Clone for udsNodeInfo__bindgen_ty_1 {
-    fn clone(&self) -> Self { *self }
-}
-impl Clone for udsNodeInfo {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
 pub struct udsConnectionStatus {
     pub status: u32,
     pub unk_x4: u32,
@@ -6590,9 +6937,6 @@ pub struct udsConnectionStatus {
     pub total_nodes: u8,
     pub max_nodes: u8,
     pub node_bitmask: u16,
-}
-impl Clone for udsConnectionStatus {
-    fn clone(&self) -> Self { *self }
 }
 #[repr(C)]
 pub struct udsNetworkStruct {
@@ -6617,14 +6961,10 @@ pub struct udsNetworkStruct {
     pub appdata: [u8; 200usize],
 }
 #[repr(C)]
-#[derive(Copy)]
 pub struct udsBindContext {
     pub BindNodeID: u32,
     pub event: Handle,
     pub spectator: bool,
-}
-impl Clone for udsBindContext {
-    fn clone(&self) -> Self { *self }
 }
 #[repr(C)]
 pub struct nwmScanInputStruct {
@@ -6636,17 +6976,12 @@ pub struct nwmScanInputStruct {
     pub unk_xe: [u8; 38usize],
 }
 #[repr(C)]
-#[derive(Copy)]
 pub struct nwmBeaconDataReplyHeader {
     pub maxsize: u32,
     pub size: u32,
     pub total_entries: u32,
 }
-impl Clone for nwmBeaconDataReplyHeader {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
 pub struct nwmBeaconDataReplyEntry {
     pub size: u32,
     pub unk_x4: u8,
@@ -6658,133 +6993,141 @@ pub struct nwmBeaconDataReplyEntry {
     pub unk_x14: u32,
     pub val_x1c: u32,
 }
-impl Clone for nwmBeaconDataReplyEntry {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
 pub struct udsNetworkScanInfo {
     pub datareply_entry: nwmBeaconDataReplyEntry,
     pub network: udsNetworkStruct,
     pub nodes: [udsNodeInfo; 16usize],
 }
-pub const UDSNETATTR_DisableConnectSpectators: _bindgen_ty_20 =
-    _bindgen_ty_20::UDSNETATTR_DisableConnectSpectators;
-pub const UDSNETATTR_DisableConnectClients: _bindgen_ty_20 =
-    _bindgen_ty_20::UDSNETATTR_DisableConnectClients;
-pub const UDSNETATTR_x4: _bindgen_ty_20 = _bindgen_ty_20::UDSNETATTR_x4;
-pub const UDSNETATTR_Default: _bindgen_ty_20 =
-    _bindgen_ty_20::UDSNETATTR_Default;
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum _bindgen_ty_20 {
-    UDSNETATTR_DisableConnectSpectators = 1,
-    UDSNETATTR_DisableConnectClients = 2,
-    UDSNETATTR_x4 = 4,
-    UDSNETATTR_Default = 32768,
-}
-pub const UDS_SENDFLAG_Default: _bindgen_ty_21 =
-    _bindgen_ty_21::UDS_SENDFLAG_Default;
-pub const UDS_SENDFLAG_Broadcast: _bindgen_ty_21 =
-    _bindgen_ty_21::UDS_SENDFLAG_Broadcast;
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum _bindgen_ty_21 {
-    UDS_SENDFLAG_Default = 1,
-    UDS_SENDFLAG_Broadcast = 2,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum udsConnectionType {
-    UDSCONTYPE_Client = 1,
-    UDSCONTYPE_Spectator = 2,
-}
+pub const UDSNETATTR_DisableConnectSpectators: _bindgen_ty_22 = 1;
+pub const UDSNETATTR_DisableConnectClients: _bindgen_ty_22 = 2;
+pub const UDSNETATTR_x4: _bindgen_ty_22 = 4;
+pub const UDSNETATTR_Default: _bindgen_ty_22 = 32768;
+pub type _bindgen_ty_22 = libc::c_uint;
+pub const UDS_SENDFLAG_Default: _bindgen_ty_23 = 1;
+pub const UDS_SENDFLAG_Broadcast: _bindgen_ty_23 = 2;
+pub type _bindgen_ty_23 = libc::c_uint;
+pub const UDSCONTYPE_Client: udsConnectionType = 1;
+pub const UDSCONTYPE_Spectator: udsConnectionType = 2;
+pub type udsConnectionType = libc::c_uint;
 extern "C" {
-    pub fn udsInit(sharedmem_size: usize, username: *const libc::c_char)
-     -> Result;
+    pub fn udsInit(sharedmem_size: usize, username: *const libc::c_char) -> Result;
 }
 extern "C" {
     pub fn udsExit();
 }
 extern "C" {
-    pub fn udsGenerateNodeInfo(nodeinfo: *mut udsNodeInfo,
-                               username: *const libc::c_char) -> Result;
+    pub fn udsGenerateNodeInfo(nodeinfo: *mut udsNodeInfo, username: *const libc::c_char)
+        -> Result;
 }
 extern "C" {
-    pub fn udsGetNodeInfoUsername(nodeinfo: *const udsNodeInfo,
-                                  username: *mut libc::c_char) -> Result;
+    pub fn udsGetNodeInfoUsername(
+        nodeinfo: *const udsNodeInfo,
+        username: *mut libc::c_char,
+    ) -> Result;
 }
 extern "C" {
     pub fn udsCheckNodeInfoInitialized(nodeinfo: *const udsNodeInfo) -> bool;
 }
 extern "C" {
-    pub fn udsGenerateDefaultNetworkStruct(network: *mut udsNetworkStruct,
-                                           wlancommID: u32, id8: u8,
-                                           max_nodes: u8);
+    pub fn udsGenerateDefaultNetworkStruct(
+        network: *mut udsNetworkStruct,
+        wlancommID: u32,
+        id8: u8,
+        max_nodes: u8,
+    );
 }
 extern "C" {
-    pub fn udsScanBeacons(outbuf: *mut libc::c_void, maxsize: usize,
-                          networks: *mut *mut udsNetworkScanInfo,
-                          total_networks: *mut usize, wlancommID: u32,
-                          id8: u8, host_macaddress: *const u8,
-                          connected: bool) -> Result;
+    pub fn udsScanBeacons(
+        outbuf: *mut libc::c_void,
+        maxsize: usize,
+        networks: *mut *mut udsNetworkScanInfo,
+        total_networks: *mut usize,
+        wlancommID: u32,
+        id8: u8,
+        host_macaddress: *const u8,
+        connected: bool,
+    ) -> Result;
 }
 extern "C" {
-    pub fn udsSetApplicationData(buf: *const libc::c_void, size: usize)
-     -> Result;
+    pub fn udsSetApplicationData(buf: *const libc::c_void, size: usize) -> Result;
 }
 extern "C" {
-    pub fn udsGetApplicationData(buf: *mut libc::c_void, size: usize,
-                                 actual_size: *mut usize) -> Result;
+    pub fn udsGetApplicationData(
+        buf: *mut libc::c_void,
+        size: usize,
+        actual_size: *mut usize,
+    ) -> Result;
 }
 extern "C" {
-    pub fn udsGetNetworkStructApplicationData(network:
-                                                  *const udsNetworkStruct,
-                                              buf: *mut libc::c_void,
-                                              size: usize,
-                                              actual_size: *mut usize)
-     -> Result;
+    pub fn udsGetNetworkStructApplicationData(
+        network: *const udsNetworkStruct,
+        buf: *mut libc::c_void,
+        size: usize,
+        actual_size: *mut usize,
+    ) -> Result;
 }
 extern "C" {
-    pub fn udsBind(bindcontext: *mut udsBindContext, NetworkNodeID: u16,
-                   spectator: bool, data_channel: u8, recv_buffer_size: u32)
-     -> Result;
+    pub fn udsBind(
+        bindcontext: *mut udsBindContext,
+        NetworkNodeID: u16,
+        spectator: bool,
+        data_channel: u8,
+        recv_buffer_size: u32,
+    ) -> Result;
 }
 extern "C" {
     pub fn udsUnbind(bindcontext: *mut udsBindContext) -> Result;
 }
 extern "C" {
-    pub fn udsWaitDataAvailable(bindcontext: *const udsBindContext,
-                                nextEvent: bool, wait: bool) -> bool;
+    pub fn udsWaitDataAvailable(
+        bindcontext: *const udsBindContext,
+        nextEvent: bool,
+        wait: bool,
+    ) -> bool;
 }
 extern "C" {
-    pub fn udsPullPacket(bindcontext: *const udsBindContext,
-                         buf: *mut libc::c_void, size: usize,
-                         actual_size: *mut usize, src_NetworkNodeID: *mut u16)
-     -> Result;
+    pub fn udsPullPacket(
+        bindcontext: *const udsBindContext,
+        buf: *mut libc::c_void,
+        size: usize,
+        actual_size: *mut usize,
+        src_NetworkNodeID: *mut u16,
+    ) -> Result;
 }
 extern "C" {
-    pub fn udsSendTo(dst_NetworkNodeID: u16, data_channel: u8, flags: u8,
-                     buf: *const libc::c_void, size: usize) -> Result;
+    pub fn udsSendTo(
+        dst_NetworkNodeID: u16,
+        data_channel: u8,
+        flags: u8,
+        buf: *const libc::c_void,
+        size: usize,
+    ) -> Result;
 }
 extern "C" {
     pub fn udsGetChannel(channel: *mut u8) -> Result;
 }
 extern "C" {
-    pub fn udsCreateNetwork(network: *const udsNetworkStruct,
-                            passphrase: *const libc::c_void,
-                            passphrase_size: usize,
-                            context: *mut udsBindContext, data_channel: u8,
-                            recv_buffer_size: u32) -> Result;
+    pub fn udsCreateNetwork(
+        network: *const udsNetworkStruct,
+        passphrase: *const libc::c_void,
+        passphrase_size: usize,
+        context: *mut udsBindContext,
+        data_channel: u8,
+        recv_buffer_size: u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn udsConnectNetwork(network: *const udsNetworkStruct,
-                             passphrase: *const libc::c_void,
-                             passphrase_size: usize,
-                             context: *mut udsBindContext,
-                             recv_NetworkNodeID: u16,
-                             connection_type: udsConnectionType,
-                             data_channel: u8, recv_buffer_size: u32)
-     -> Result;
+    pub fn udsConnectNetwork(
+        network: *const udsNetworkStruct,
+        passphrase: *const libc::c_void,
+        passphrase_size: usize,
+        context: *mut udsBindContext,
+        recv_NetworkNodeID: u16,
+        connection_type: udsConnectionType,
+        data_channel: u8,
+        recv_buffer_size: u32,
+    ) -> Result;
 }
 extern "C" {
     pub fn udsDestroyNetwork() -> Result;
@@ -6802,8 +7145,7 @@ extern "C" {
     pub fn udsUpdateNetworkAttribute(bitmask: u16, flag: bool) -> Result;
 }
 extern "C" {
-    pub fn udsSetNewConnectionsBlocked(block: bool, clients: bool, flag: bool)
-     -> Result;
+    pub fn udsSetNewConnectionsBlocked(block: bool, clients: bool, flag: bool) -> Result;
 }
 extern "C" {
     pub fn udsAllowSpectators() -> Result;
@@ -6815,18 +7157,14 @@ extern "C" {
     pub fn udsWaitConnectionStatusEvent(nextEvent: bool, wait: bool) -> bool;
 }
 extern "C" {
-    pub fn udsGetNodeInformation(NetworkNodeID: u16, output: *mut udsNodeInfo)
-     -> Result;
+    pub fn udsGetNodeInformation(NetworkNodeID: u16, output: *mut udsNodeInfo) -> Result;
 }
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum NDM_ExclusiveState {
-    EXCLUSIVE_STATE_NONE = 0,
-    EXCLUSIVE_STATE_INFRASTRUCTURE = 1,
-    EXCLUSIVE_STATE_LOCAL_COMMUNICATIONS = 2,
-    EXCLUSIVE_STATE_STREETPASS = 3,
-    EXCLUSIVE_STATE_STREETPASS_DATA = 4,
-}
+pub const EXCLUSIVE_STATE_NONE: NDM_ExclusiveState = 0;
+pub const EXCLUSIVE_STATE_INFRASTRUCTURE: NDM_ExclusiveState = 1;
+pub const EXCLUSIVE_STATE_LOCAL_COMMUNICATIONS: NDM_ExclusiveState = 2;
+pub const EXCLUSIVE_STATE_STREETPASS: NDM_ExclusiveState = 3;
+pub const EXCLUSIVE_STATE_STREETPASS_DATA: NDM_ExclusiveState = 4;
+pub type NDM_ExclusiveState = libc::c_uint;
 extern "C" {
     pub fn ndmuInit() -> Result;
 }
@@ -6839,32 +7177,25 @@ extern "C" {
 extern "C" {
     pub fn ndmuLeaveExclusiveState() -> Result;
 }
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum NIM_InstallationMode {
-    IM_DEFAULT = 0,
-    IM_UNKNOWN1 = 1,
-    IM_UNKNOWN2 = 2,
-    IM_REINSTALL = 3,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum NIM_DownloadState {
-    DS_NOT_INITIALIZED = 0,
-    DS_INITIALIZED = 1,
-    DS_DOWNLOAD_TMD = 2,
-    DS_PREPARE_SAVE_DATA = 3,
-    DS_DOWNLOAD_CONTENTS = 4,
-    DS_WAIT_COMMIT = 5,
-    DS_COMMITTING = 6,
-    DS_FINISHED = 7,
-    DS_VERSION_ERROR = 8,
-    DS_CREATE_CONTEXT = 9,
-    DS_CANNOT_RECOVER = 10,
-    DS_INVALID = 11,
-}
+pub const IM_DEFAULT: NIM_InstallationMode = 0;
+pub const IM_UNKNOWN1: NIM_InstallationMode = 1;
+pub const IM_UNKNOWN2: NIM_InstallationMode = 2;
+pub const IM_REINSTALL: NIM_InstallationMode = 3;
+pub type NIM_InstallationMode = libc::c_uint;
+pub const DS_NOT_INITIALIZED: NIM_DownloadState = 0;
+pub const DS_INITIALIZED: NIM_DownloadState = 1;
+pub const DS_DOWNLOAD_TMD: NIM_DownloadState = 2;
+pub const DS_PREPARE_SAVE_DATA: NIM_DownloadState = 3;
+pub const DS_DOWNLOAD_CONTENTS: NIM_DownloadState = 4;
+pub const DS_WAIT_COMMIT: NIM_DownloadState = 5;
+pub const DS_COMMITTING: NIM_DownloadState = 6;
+pub const DS_FINISHED: NIM_DownloadState = 7;
+pub const DS_VERSION_ERROR: NIM_DownloadState = 8;
+pub const DS_CREATE_CONTEXT: NIM_DownloadState = 9;
+pub const DS_CANNOT_RECOVER: NIM_DownloadState = 10;
+pub const DS_INVALID: NIM_DownloadState = 11;
+pub type NIM_DownloadState = libc::c_uint;
 #[repr(C)]
-#[derive(Copy)]
 pub struct NIM_TitleConfig {
     pub titleId: u64,
     pub version: u32,
@@ -6874,26 +7205,22 @@ pub struct NIM_TitleConfig {
     pub padding: [u8; 2usize],
     pub unknown_1: u32,
 }
-impl Clone for NIM_TitleConfig {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
 pub struct NIM_TitleProgress {
     pub state: u32,
     pub lastResult: Result,
     pub downloadedSize: u64,
     pub totalSize: u64,
 }
-impl Clone for NIM_TitleProgress {
-    fn clone(&self) -> Self { *self }
-}
 extern "C" {
     pub fn nimsInit(buffer: *mut libc::c_void, buffer_len: usize) -> Result;
 }
 extern "C" {
-    pub fn nimsInitWithTIN(buffer: *mut libc::c_void, buffer_len: usize,
-                           TIN: *const libc::c_char) -> Result;
+    pub fn nimsInitWithTIN(
+        buffer: *mut libc::c_void,
+        buffer_len: usize,
+        TIN: *const libc::c_char,
+    ) -> Result;
 }
 extern "C" {
     pub fn nimsExit();
@@ -6902,32 +7229,35 @@ extern "C" {
     pub fn nimsGetSessionHandle() -> *mut Handle;
 }
 extern "C" {
-    pub fn NIMS_SetAttribute(attr: *const libc::c_char,
-                             val: *const libc::c_char) -> Result;
+    pub fn NIMS_SetAttribute(attr: *const libc::c_char, val: *const libc::c_char) -> Result;
 }
 extern "C" {
     pub fn NIMS_WantUpdate(want_update: *mut bool) -> Result;
 }
 extern "C" {
-    pub fn NIMS_MakeTitleConfig(cfg: *mut NIM_TitleConfig, titleId: u64,
-                                version: u32, ratingAge: u8,
-                                mediaType: FS_MediaType);
+    pub fn NIMS_MakeTitleConfig(
+        cfg: *mut NIM_TitleConfig,
+        titleId: u64,
+        version: u32,
+        ratingAge: u8,
+        mediaType: FS_MediaType,
+    );
 }
 extern "C" {
-    pub fn NIMS_RegisterTask(cfg: *const NIM_TitleConfig,
-                             name: *const libc::c_char,
-                             maker: *const libc::c_char) -> Result;
+    pub fn NIMS_RegisterTask(
+        cfg: *const NIM_TitleConfig,
+        name: *const libc::c_char,
+        maker: *const libc::c_char,
+    ) -> Result;
 }
 extern "C" {
-    pub fn NIMS_IsTaskRegistered(titleId: u64, registered: *mut bool)
-     -> Result;
+    pub fn NIMS_IsTaskRegistered(titleId: u64, registered: *mut bool) -> Result;
 }
 extern "C" {
     pub fn NIMS_UnregisterTask(titleId: u64) -> Result;
 }
 extern "C" {
-    pub fn NIMS_StartDownload(cfg: *const NIM_TitleConfig,
-                              mode: NIM_InstallationMode) -> Result;
+    pub fn NIMS_StartDownload(cfg: *const NIM_TitleConfig, mode: NIM_InstallationMode) -> Result;
 }
 extern "C" {
     pub fn NIMS_StartDownloadSimple(cfg: *const NIM_TitleConfig) -> Result;
@@ -6960,8 +7290,13 @@ extern "C" {
     pub fn iruSendData(buf: *mut u8, size: u32, wait: bool) -> Result;
 }
 extern "C" {
-    pub fn iruRecvData(buf: *mut u8, size: u32, flag: u8,
-                       transfercount: *mut u32, wait: bool) -> Result;
+    pub fn iruRecvData(
+        buf: *mut u8,
+        size: u32,
+        flag: u8,
+        transfercount: *mut u32,
+        wait: bool,
+    ) -> Result;
 }
 extern "C" {
     pub fn IRU_Initialize() -> Result;
@@ -7003,8 +7338,7 @@ extern "C" {
     pub fn NS_LaunchFIRM(titleid: u64) -> Result;
 }
 extern "C" {
-    pub fn NS_LaunchTitle(titleid: u64, launch_flags: u32, procid: *mut u32)
-     -> Result;
+    pub fn NS_LaunchTitle(titleid: u64, launch_flags: u32, procid: *mut u32) -> Result;
 }
 extern "C" {
     pub fn NS_LaunchApplicationFIRM(titleid: u64, flags: u32) -> Result;
@@ -7022,12 +7356,10 @@ extern "C" {
     pub fn pmExit();
 }
 extern "C" {
-    pub fn PM_LaunchTitle(mediatype: u8, titleid: u64, launch_flags: u32)
-     -> Result;
+    pub fn PM_LaunchTitle(mediatype: u8, titleid: u64, launch_flags: u32) -> Result;
 }
 extern "C" {
-    pub fn PM_GetTitleExheaderFlags(mediatype: u8, titleid: u64, out: *mut u8)
-     -> Result;
+    pub fn PM_GetTitleExheaderFlags(mediatype: u8, titleid: u64, out: *mut u8) -> Result;
 }
 extern "C" {
     pub fn PM_SetFIRMLaunchParams(size: u32, in_: *mut u8) -> Result;
@@ -7036,33 +7368,26 @@ extern "C" {
     pub fn PM_GetFIRMLaunchParams(size: u32, out: *mut u8) -> Result;
 }
 extern "C" {
-    pub fn PM_LaunchFIRMSetParams(firm_titleid_low: u32, size: u32,
-                                  in_: *mut u8) -> Result;
+    pub fn PM_LaunchFIRMSetParams(firm_titleid_low: u32, size: u32, in_: *mut u8) -> Result;
 }
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum PS_AESAlgorithm {
-    PS_ALGORITHM_CBC_ENC = 0,
-    PS_ALGORITHM_CBC_DEC = 1,
-    PS_ALGORITHM_CTR_ENC = 2,
-    PS_ALGORITHM_CTR_DEC = 3,
-    PS_ALGORITHM_CCM_ENC = 4,
-    PS_ALGORITHM_CCM_DEC = 5,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum PS_AESKeyType {
-    PS_KEYSLOT_0D = 0,
-    PS_KEYSLOT_2D = 1,
-    PS_KEYSLOT_31 = 2,
-    PS_KEYSLOT_38 = 3,
-    PS_KEYSLOT_32 = 4,
-    PS_KEYSLOT_39_DLP = 5,
-    PS_KEYSLOT_2E = 6,
-    PS_KEYSLOT_INVALID = 7,
-    PS_KEYSLOT_36 = 8,
-    PS_KEYSLOT_39_NFC = 9,
-}
+pub const PS_ALGORITHM_CBC_ENC: PS_AESAlgorithm = 0;
+pub const PS_ALGORITHM_CBC_DEC: PS_AESAlgorithm = 1;
+pub const PS_ALGORITHM_CTR_ENC: PS_AESAlgorithm = 2;
+pub const PS_ALGORITHM_CTR_DEC: PS_AESAlgorithm = 3;
+pub const PS_ALGORITHM_CCM_ENC: PS_AESAlgorithm = 4;
+pub const PS_ALGORITHM_CCM_DEC: PS_AESAlgorithm = 5;
+pub type PS_AESAlgorithm = libc::c_uint;
+pub const PS_KEYSLOT_0D: PS_AESKeyType = 0;
+pub const PS_KEYSLOT_2D: PS_AESKeyType = 1;
+pub const PS_KEYSLOT_31: PS_AESKeyType = 2;
+pub const PS_KEYSLOT_38: PS_AESKeyType = 3;
+pub const PS_KEYSLOT_32: PS_AESKeyType = 4;
+pub const PS_KEYSLOT_39_DLP: PS_AESKeyType = 5;
+pub const PS_KEYSLOT_2E: PS_AESKeyType = 6;
+pub const PS_KEYSLOT_INVALID: PS_AESKeyType = 7;
+pub const PS_KEYSLOT_36: PS_AESKeyType = 8;
+pub const PS_KEYSLOT_39_NFC: PS_AESKeyType = 9;
+pub type PS_AESKeyType = libc::c_uint;
 #[repr(C)]
 pub struct psRSAContext {
     pub modulo: [u8; 256usize],
@@ -7083,27 +7408,34 @@ extern "C" {
     pub fn psGetSessionHandle() -> Handle;
 }
 extern "C" {
-    pub fn PS_SignRsaSha256(hash: *mut u8, ctx: *mut psRSAContext,
-                            signature: *mut u8) -> Result;
+    pub fn PS_SignRsaSha256(hash: *mut u8, ctx: *mut psRSAContext, signature: *mut u8) -> Result;
 }
 extern "C" {
-    pub fn PS_VerifyRsaSha256(hash: *mut u8, ctx: *mut psRSAContext,
-                              signature: *mut u8) -> Result;
+    pub fn PS_VerifyRsaSha256(hash: *mut u8, ctx: *mut psRSAContext, signature: *mut u8) -> Result;
 }
 extern "C" {
-    pub fn PS_EncryptDecryptAes(size: u32, in_: *mut u8, out: *mut u8,
-                                aes_algo: PS_AESAlgorithm,
-                                key_type: PS_AESKeyType, iv: *mut u8)
-     -> Result;
+    pub fn PS_EncryptDecryptAes(
+        size: u32,
+        in_: *mut u8,
+        out: *mut u8,
+        aes_algo: PS_AESAlgorithm,
+        key_type: PS_AESKeyType,
+        iv: *mut u8,
+    ) -> Result;
 }
 extern "C" {
-    pub fn PS_EncryptSignDecryptVerifyAesCcm(in_: *mut u8, in_size: u32,
-                                             out: *mut u8, out_size: u32,
-                                             data_len: u32, mac_data_len: u32,
-                                             mac_len: u32,
-                                             aes_algo: PS_AESAlgorithm,
-                                             key_type: PS_AESKeyType,
-                                             nonce: *mut u8) -> Result;
+    pub fn PS_EncryptSignDecryptVerifyAesCcm(
+        in_: *mut u8,
+        in_size: u32,
+        out: *mut u8,
+        out_size: u32,
+        data_len: u32,
+        mac_data_len: u32,
+        mac_len: u32,
+        aes_algo: PS_AESAlgorithm,
+        key_type: PS_AESKeyType,
+        nonce: *mut u8,
+    ) -> Result;
 }
 extern "C" {
     pub fn PS_GetLocalFriendCodeSeed(seed: *mut u64) -> Result;
@@ -7112,8 +7444,7 @@ extern "C" {
     pub fn PS_GetDeviceId(device_id: *mut u32) -> Result;
 }
 extern "C" {
-    pub fn PS_GenerateRandomBytes(out: *mut libc::c_void, len: usize)
-     -> Result;
+    pub fn PS_GenerateRandomBytes(out: *mut libc::c_void, len: usize) -> Result;
 }
 extern "C" {
     pub fn ptmuInit() -> Result;
@@ -7157,31 +7488,21 @@ extern "C" {
 extern "C" {
     pub fn PTMSYSM_RebootAsync(timeout: u64) -> Result;
 }
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum PXIDEV_WaitType {
-    WAIT_NONE = 0,
-    WAIT_SLEEP = 1,
-    WAIT_IREQ_RETURN = 2,
-    WAIT_IREQ_CONTINUE = 3,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum PXIDEV_DeassertType {
-    DEASSERT_NONE = 0,
-    DEASSERT_BEFORE_WAIT = 1,
-    DEASSERT_AFTER_WAIT = 2,
-}
+pub const WAIT_NONE: PXIDEV_WaitType = 0;
+pub const WAIT_SLEEP: PXIDEV_WaitType = 1;
+pub const WAIT_IREQ_RETURN: PXIDEV_WaitType = 2;
+pub const WAIT_IREQ_CONTINUE: PXIDEV_WaitType = 3;
+pub type PXIDEV_WaitType = libc::c_uint;
+pub const DEASSERT_NONE: PXIDEV_DeassertType = 0;
+pub const DEASSERT_BEFORE_WAIT: PXIDEV_DeassertType = 1;
+pub const DEASSERT_AFTER_WAIT: PXIDEV_DeassertType = 2;
+pub type PXIDEV_DeassertType = libc::c_uint;
 #[repr(C)]
-#[derive(Copy)]
 pub struct PXIDEV_SPIBuffer {
     pub ptr: *mut libc::c_void,
     pub size: u32,
     pub transferOption: u8,
     pub waitOperation: u64,
-}
-impl Clone for PXIDEV_SPIBuffer {
-    fn clone(&self) -> Self { *self }
 }
 extern "C" {
     pub fn pxiDevInit() -> Result;
@@ -7190,48 +7511,161 @@ extern "C" {
     pub fn pxiDevExit();
 }
 extern "C" {
-    pub fn PXIDEV_SPIMultiWriteRead(header: *mut PXIDEV_SPIBuffer,
-                                    writeBuffer1: *mut PXIDEV_SPIBuffer,
-                                    readBuffer1: *mut PXIDEV_SPIBuffer,
-                                    writeBuffer2: *mut PXIDEV_SPIBuffer,
-                                    readBuffer2: *mut PXIDEV_SPIBuffer,
-                                    footer: *mut PXIDEV_SPIBuffer) -> Result;
+    pub fn PXIDEV_SPIMultiWriteRead(
+        header: *mut PXIDEV_SPIBuffer,
+        writeBuffer1: *mut PXIDEV_SPIBuffer,
+        readBuffer1: *mut PXIDEV_SPIBuffer,
+        writeBuffer2: *mut PXIDEV_SPIBuffer,
+        readBuffer2: *mut PXIDEV_SPIBuffer,
+        footer: *mut PXIDEV_SPIBuffer,
+    ) -> Result;
 }
 extern "C" {
-    pub fn PXIDEV_SPIWriteRead(bytesRead: *mut u32, initialWaitOperation: u64,
-                               writeBuffer: *mut PXIDEV_SPIBuffer,
-                               readBuffer: *mut PXIDEV_SPIBuffer) -> Result;
+    pub fn PXIDEV_SPIWriteRead(
+        bytesRead: *mut u32,
+        initialWaitOperation: u64,
+        writeBuffer: *mut PXIDEV_SPIBuffer,
+        readBuffer: *mut PXIDEV_SPIBuffer,
+    ) -> Result;
 }
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct timezone {
     pub tz_minuteswest: libc::c_int,
     pub tz_dsttime: libc::c_int,
 }
-impl Clone for timezone {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct bintime {
     pub sec: time_t,
     pub frac: u64,
 }
-impl Clone for bintime {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct itimerval {
     pub it_interval: timeval,
     pub it_value: timeval,
 }
-impl Clone for itimerval {
-    fn clone(&self) -> Self { *self }
-}
 pub type __ULong = libc::c_ulong;
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Debug, Copy, Clone)]
+pub struct __locale_t {
+    _unused: [u8; 0],
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct _Bigint {
+    pub _next: *mut _Bigint,
+    pub _k: libc::c_int,
+    pub _maxwds: libc::c_int,
+    pub _sign: libc::c_int,
+    pub _wds: libc::c_int,
+    pub _x: [__ULong; 1usize],
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct __tm {
+    pub __tm_sec: libc::c_int,
+    pub __tm_min: libc::c_int,
+    pub __tm_hour: libc::c_int,
+    pub __tm_mday: libc::c_int,
+    pub __tm_mon: libc::c_int,
+    pub __tm_year: libc::c_int,
+    pub __tm_wday: libc::c_int,
+    pub __tm_yday: libc::c_int,
+    pub __tm_isdst: libc::c_int,
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct _on_exit_args {
+    pub _fnargs: [*mut libc::c_void; 32usize],
+    pub _dso_handle: [*mut libc::c_void; 32usize],
+    pub _fntypes: __ULong,
+    pub _is_cxa: __ULong,
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct _atexit {
+    pub _next: *mut _atexit,
+    pub _ind: libc::c_int,
+    pub _fns: [::core::option::Option<unsafe extern "C" fn()>; 32usize],
+    pub _on_exit_args: _on_exit_args,
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct __sbuf {
+    pub _base: *mut libc::c_uchar,
+    pub _size: libc::c_int,
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct __sFILE {
+    pub _p: *mut libc::c_uchar,
+    pub _r: libc::c_int,
+    pub _w: libc::c_int,
+    pub _flags: libc::c_short,
+    pub _file: libc::c_short,
+    pub _bf: __sbuf,
+    pub _lbfsize: libc::c_int,
+    pub _cookie: *mut libc::c_void,
+    pub _read: ::core::option::Option<
+        unsafe extern "C" fn(
+            arg1: *mut _reent,
+            arg2: *mut libc::c_void,
+            arg3: *mut libc::c_char,
+            arg4: libc::c_int,
+        ) -> libc::c_int,
+    >,
+    pub _write: ::core::option::Option<
+        unsafe extern "C" fn(
+            arg1: *mut _reent,
+            arg2: *mut libc::c_void,
+            arg3: *const libc::c_char,
+            arg4: libc::c_int,
+        ) -> libc::c_int,
+    >,
+    pub _seek: ::core::option::Option<
+        unsafe extern "C" fn(
+            arg1: *mut _reent,
+            arg2: *mut libc::c_void,
+            arg3: _fpos_t,
+            arg4: libc::c_int,
+        ) -> _fpos_t,
+    >,
+    pub _close: ::core::option::Option<
+        unsafe extern "C" fn(arg1: *mut _reent, arg2: *mut libc::c_void)
+            -> libc::c_int,
+    >,
+    pub _ub: __sbuf,
+    pub _up: *mut libc::c_uchar,
+    pub _ur: libc::c_int,
+    pub _ubuf: [libc::c_uchar; 3usize],
+    pub _nbuf: [libc::c_uchar; 1usize],
+    pub _lb: __sbuf,
+    pub _blksize: libc::c_int,
+    pub _offset: _off_t,
+    pub _data: *mut _reent,
+    pub _lock: _flock_t,
+    pub _mbstate: _mbstate_t,
+    pub _flags2: libc::c_int,
+}
+pub type __FILE = __sFILE;
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct _glue {
+    pub _next: *mut _glue,
+    pub _niobs: libc::c_int,
+    pub _iobs: *mut __FILE,
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct _rand48 {
+    pub _seed: [libc::c_ushort; 3usize],
+    pub _mult: [libc::c_ushort; 3usize],
+    pub _add: libc::c_ushort,
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
 pub struct _reent {
     pub _errno: libc::c_int,
     pub _stdin: *mut __FILE,
@@ -7242,8 +7676,7 @@ pub struct _reent {
     pub _unspecified_locale_info: libc::c_int,
     pub _locale: *mut __locale_t,
     pub __sdidinit: libc::c_int,
-    pub __cleanup: ::core::option::Option<unsafe extern "C" fn(arg1:
-                                                                   *mut _reent)>,
+    pub __cleanup: ::core::option::Option<unsafe extern "C" fn(arg1: *mut _reent)>,
     pub _result: *mut _Bigint,
     pub _result_k: libc::c_int,
     pub _p5s: *mut _Bigint,
@@ -7253,20 +7686,20 @@ pub struct _reent {
     pub _new: _reent__bindgen_ty_1,
     pub _atexit: *mut _atexit,
     pub _atexit0: _atexit,
-    pub _sig_func: *mut ::core::option::Option<unsafe extern "C" fn(arg1:
-                                                                        libc::c_int)>,
+    pub _sig_func: *mut ::core::option::Option<unsafe extern "C" fn(arg1: libc::c_int)>,
     pub __sglue: _glue,
     pub __sf: [__FILE; 3usize],
     pub deviceData: *mut libc::c_void,
 }
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub union _reent__bindgen_ty_1 {
     pub _reent: _reent__bindgen_ty_1__bindgen_ty_1,
     pub _unused: _reent__bindgen_ty_1__bindgen_ty_2,
+    _bindgen_union_align: [u64; 30usize],
 }
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct _reent__bindgen_ty_1__bindgen_ty_1 {
     pub _unused_rand: libc::c_uint,
     pub _strtok_last: *mut libc::c_char,
@@ -7288,166 +7721,17 @@ pub struct _reent__bindgen_ty_1__bindgen_ty_1 {
     pub _wcsrtombs_state: _mbstate_t,
     pub _h_errno: libc::c_int,
 }
-impl Clone for _reent__bindgen_ty_1__bindgen_ty_1 {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct _reent__bindgen_ty_1__bindgen_ty_2 {
     pub _nextf: [*mut libc::c_uchar; 30usize],
     pub _nmalloc: [libc::c_uint; 30usize],
-}
-impl Clone for _reent__bindgen_ty_1__bindgen_ty_2 {
-    fn clone(&self) -> Self { *self }
-}
-impl Clone for _reent__bindgen_ty_1 {
-    fn clone(&self) -> Self { *self }
-}
-impl Clone for _reent {
-    fn clone(&self) -> Self { *self }
-}
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct __locale_t {
-    _unused: [u8; 0],
-}
-#[repr(C)]
-#[derive(Copy)]
-pub struct _Bigint {
-    pub _next: *mut _Bigint,
-    pub _k: libc::c_int,
-    pub _maxwds: libc::c_int,
-    pub _sign: libc::c_int,
-    pub _wds: libc::c_int,
-    pub _x: [__ULong; 1usize],
-}
-impl Clone for _Bigint {
-    fn clone(&self) -> Self { *self }
-}
-#[repr(C)]
-#[derive(Copy)]
-pub struct __tm {
-    pub __tm_sec: libc::c_int,
-    pub __tm_min: libc::c_int,
-    pub __tm_hour: libc::c_int,
-    pub __tm_mday: libc::c_int,
-    pub __tm_mon: libc::c_int,
-    pub __tm_year: libc::c_int,
-    pub __tm_wday: libc::c_int,
-    pub __tm_yday: libc::c_int,
-    pub __tm_isdst: libc::c_int,
-}
-impl Clone for __tm {
-    fn clone(&self) -> Self { *self }
-}
-#[repr(C)]
-#[derive(Copy)]
-pub struct _on_exit_args {
-    pub _fnargs: [*mut libc::c_void; 32usize],
-    pub _dso_handle: [*mut libc::c_void; 32usize],
-    pub _fntypes: __ULong,
-    pub _is_cxa: __ULong,
-}
-impl Clone for _on_exit_args {
-    fn clone(&self) -> Self { *self }
-}
-#[repr(C)]
-#[derive(Copy)]
-pub struct _atexit {
-    pub _next: *mut _atexit,
-    pub _ind: libc::c_int,
-    pub _fns: [::core::option::Option<unsafe extern "C" fn()>; 32usize],
-    pub _on_exit_args: _on_exit_args,
-}
-impl Clone for _atexit {
-    fn clone(&self) -> Self { *self }
-}
-#[repr(C)]
-#[derive(Copy)]
-pub struct __sbuf {
-    pub _base: *mut libc::c_uchar,
-    pub _size: libc::c_int,
-}
-impl Clone for __sbuf {
-    fn clone(&self) -> Self { *self }
-}
-#[repr(C)]
-#[derive(Copy)]
-pub struct __sFILE {
-    pub _p: *mut libc::c_uchar,
-    pub _r: libc::c_int,
-    pub _w: libc::c_int,
-    pub _flags: libc::c_short,
-    pub _file: libc::c_short,
-    pub _bf: __sbuf,
-    pub _lbfsize: libc::c_int,
-    pub _cookie: *mut libc::c_void,
-    pub _read: ::core::option::Option<unsafe extern "C" fn(arg1: *mut _reent,
-                                                           arg2:
-                                                               *mut libc::c_void,
-                                                           arg3:
-                                                               *mut libc::c_char,
-                                                           arg4: libc::c_int)
-                                          -> libc::c_int>,
-    pub _write: ::core::option::Option<unsafe extern "C" fn(arg1: *mut _reent,
-                                                            arg2:
-                                                                *mut libc::c_void,
-                                                            arg3:
-                                                                *const libc::c_char,
-                                                            arg4: libc::c_int)
-                                           -> libc::c_int>,
-    pub _seek: ::core::option::Option<unsafe extern "C" fn(arg1: *mut _reent,
-                                                           arg2:
-                                                               *mut libc::c_void,
-                                                           arg3: _fpos_t,
-                                                           arg4: libc::c_int)
-                                          -> _fpos_t>,
-    pub _close: ::core::option::Option<unsafe extern "C" fn(arg1: *mut _reent,
-                                                            arg2:
-                                                                *mut libc::c_void)
-                                           -> libc::c_int>,
-    pub _ub: __sbuf,
-    pub _up: *mut libc::c_uchar,
-    pub _ur: libc::c_int,
-    pub _ubuf: [libc::c_uchar; 3usize],
-    pub _nbuf: [libc::c_uchar; 1usize],
-    pub _lb: __sbuf,
-    pub _blksize: libc::c_int,
-    pub _offset: _off_t,
-    pub _data: *mut _reent,
-    pub _lock: _flock_t,
-    pub _mbstate: _mbstate_t,
-    pub _flags2: libc::c_int,
-}
-impl Clone for __sFILE {
-    fn clone(&self) -> Self { *self }
-}
-pub type __FILE = __sFILE;
-#[repr(C)]
-#[derive(Copy)]
-pub struct _glue {
-    pub _next: *mut _glue,
-    pub _niobs: libc::c_int,
-    pub _iobs: *mut __FILE,
-}
-impl Clone for _glue {
-    fn clone(&self) -> Self { *self }
-}
-#[repr(C)]
-#[derive(Copy)]
-pub struct _rand48 {
-    pub _seed: [libc::c_ushort; 3usize],
-    pub _mult: [libc::c_ushort; 3usize],
-    pub _add: libc::c_ushort,
-}
-impl Clone for _rand48 {
-    fn clone(&self) -> Self { *self }
 }
 extern "C" {
     pub static mut _impure_ptr: *mut _reent;
 }
 extern "C" {
-    pub static _global_impure_ptr: *const _reent;
+    pub static mut _global_impure_ptr: *const _reent;
 }
 extern "C" {
     pub fn _reclaim_reent(arg1: *mut _reent);
@@ -7457,7 +7741,7 @@ extern "C" {
 }
 pub type locale_t = *mut __locale_t;
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct tm {
     pub tm_sec: libc::c_int,
     pub tm_min: libc::c_int,
@@ -7468,9 +7752,6 @@ pub struct tm {
     pub tm_wday: libc::c_int,
     pub tm_yday: libc::c_int,
     pub tm_isdst: libc::c_int,
-}
-impl Clone for tm {
-    fn clone(&self) -> Self { *self }
 }
 extern "C" {
     pub fn clock() -> clock_t;
@@ -7497,21 +7778,27 @@ extern "C" {
     pub fn localtime(_timer: *const time_t) -> *mut tm;
 }
 extern "C" {
-    pub fn strftime(_s: *mut libc::c_char, _maxsize: usize,
-                    _fmt: *const libc::c_char, _t: *const tm) -> usize;
+    pub fn strftime(
+        _s: *mut libc::c_char,
+        _maxsize: usize,
+        _fmt: *const libc::c_char,
+        _t: *const tm,
+    ) -> usize;
 }
 extern "C" {
-    pub fn strftime_l(_s: *mut libc::c_char, _maxsize: usize,
-                      _fmt: *const libc::c_char, _t: *const tm, _l: locale_t)
-     -> usize;
+    pub fn strftime_l(
+        _s: *mut libc::c_char,
+        _maxsize: usize,
+        _fmt: *const libc::c_char,
+        _t: *const tm,
+        _l: locale_t,
+    ) -> usize;
 }
 extern "C" {
-    pub fn asctime_r(arg1: *const tm, arg2: *mut libc::c_char)
-     -> *mut libc::c_char;
+    pub fn asctime_r(arg1: *const tm, arg2: *mut libc::c_char) -> *mut libc::c_char;
 }
 extern "C" {
-    pub fn ctime_r(arg1: *const time_t, arg2: *mut libc::c_char)
-     -> *mut libc::c_char;
+    pub fn ctime_r(arg1: *const time_t, arg2: *mut libc::c_char) -> *mut libc::c_char;
 }
 extern "C" {
     pub fn gmtime_r(arg1: *const time_t, arg2: *mut tm) -> *mut tm;
@@ -7526,7 +7813,7 @@ extern "C" {
     pub fn _tzset_r(arg1: *mut _reent);
 }
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct __tzrule_struct {
     pub ch: libc::c_char,
     pub m: libc::c_int,
@@ -7536,19 +7823,13 @@ pub struct __tzrule_struct {
     pub change: time_t,
     pub offset: libc::c_long,
 }
-impl Clone for __tzrule_struct {
-    fn clone(&self) -> Self { *self }
-}
 pub type __tzrule_type = __tzrule_struct;
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct __tzinfo_struct {
     pub __tznorth: libc::c_int,
     pub __tzyear: libc::c_int,
     pub __tzrule: [__tzrule_type; 2usize],
-}
-impl Clone for __tzinfo_struct {
-    fn clone(&self) -> Self { *self }
 }
 pub type __tzinfo_type = __tzinfo_struct;
 extern "C" {
@@ -7564,8 +7845,7 @@ extern "C" {
     pub static mut _tzname: [*mut libc::c_char; 2usize];
 }
 extern "C" {
-    pub fn utimes(__path: *const libc::c_char, __tvp: *const timeval)
-     -> libc::c_int;
+    pub fn utimes(__path: *const libc::c_char, __tvp: *const timeval) -> libc::c_int;
 }
 extern "C" {
     pub fn adjtime(arg1: *const timeval, arg2: *mut timeval) -> libc::c_int;
@@ -7574,184 +7854,182 @@ extern "C" {
     pub fn futimes(arg1: libc::c_int, arg2: *const timeval) -> libc::c_int;
 }
 extern "C" {
-    pub fn lutimes(arg1: *const libc::c_char, arg2: *const timeval)
-     -> libc::c_int;
+    pub fn lutimes(arg1: *const libc::c_char, arg2: *const timeval) -> libc::c_int;
 }
 extern "C" {
-    pub fn settimeofday(arg1: *const timeval, arg2: *const timezone)
-     -> libc::c_int;
+    pub fn settimeofday(arg1: *const timeval, arg2: *const timezone) -> libc::c_int;
 }
 extern "C" {
-    pub fn getitimer(__which: libc::c_int, __value: *mut itimerval)
-     -> libc::c_int;
+    pub fn getitimer(__which: libc::c_int, __value: *mut itimerval) -> libc::c_int;
 }
 extern "C" {
-    pub fn setitimer(__which: libc::c_int, __value: *const itimerval,
-                     __ovalue: *mut itimerval) -> libc::c_int;
+    pub fn setitimer(
+        __which: libc::c_int,
+        __value: *const itimerval,
+        __ovalue: *mut itimerval,
+    ) -> libc::c_int;
 }
 extern "C" {
-    pub fn gettimeofday(__p: *mut timeval, __tz: *mut libc::c_void)
-     -> libc::c_int;
+    pub fn gettimeofday(__p: *mut timeval, __tz: *mut libc::c_void) -> libc::c_int;
 }
 pub type socklen_t = u32;
 pub type sa_family_t = u16;
 #[repr(C)]
-#[derive(Copy)]
 pub struct sockaddr {
     pub sa_family: sa_family_t,
     pub sa_data: __IncompleteArrayField<libc::c_char>,
 }
-impl Clone for sockaddr {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct sockaddr_storage {
     pub ss_family: sa_family_t,
     pub __ss_padding: [libc::c_char; 26usize],
 }
-impl Clone for sockaddr_storage {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct linger {
     pub l_onoff: libc::c_int,
     pub l_linger: libc::c_int,
 }
-impl Clone for linger {
-    fn clone(&self) -> Self { *self }
+extern "C" {
+    pub fn accept(sockfd: libc::c_int, addr: *mut sockaddr, addrlen: *mut socklen_t)
+        -> libc::c_int;
 }
 extern "C" {
-    pub fn accept(sockfd: libc::c_int, addr: *mut sockaddr,
-                  addrlen: *mut socklen_t) -> libc::c_int;
-}
-extern "C" {
-    pub fn bind(sockfd: libc::c_int, addr: *const sockaddr,
-                addrlen: socklen_t) -> libc::c_int;
+    pub fn bind(sockfd: libc::c_int, addr: *const sockaddr, addrlen: socklen_t) -> libc::c_int;
 }
 extern "C" {
     pub fn closesocket(sockfd: libc::c_int) -> libc::c_int;
 }
 extern "C" {
-    pub fn connect(sockfd: libc::c_int, addr: *const sockaddr,
-                   addrlen: socklen_t) -> libc::c_int;
+    pub fn connect(sockfd: libc::c_int, addr: *const sockaddr, addrlen: socklen_t) -> libc::c_int;
 }
 extern "C" {
-    pub fn getpeername(sockfd: libc::c_int, addr: *mut sockaddr,
-                       addrlen: *mut socklen_t) -> libc::c_int;
+    pub fn getpeername(
+        sockfd: libc::c_int,
+        addr: *mut sockaddr,
+        addrlen: *mut socklen_t,
+    ) -> libc::c_int;
 }
 extern "C" {
-    pub fn getsockname(sockfd: libc::c_int, addr: *mut sockaddr,
-                       addrlen: *mut socklen_t) -> libc::c_int;
+    pub fn getsockname(
+        sockfd: libc::c_int,
+        addr: *mut sockaddr,
+        addrlen: *mut socklen_t,
+    ) -> libc::c_int;
 }
 extern "C" {
-    pub fn getsockopt(sockfd: libc::c_int, level: libc::c_int,
-                      optname: libc::c_int, optval: *mut libc::c_void,
-                      optlen: *mut socklen_t) -> libc::c_int;
+    pub fn getsockopt(
+        sockfd: libc::c_int,
+        level: libc::c_int,
+        optname: libc::c_int,
+        optval: *mut libc::c_void,
+        optlen: *mut socklen_t,
+    ) -> libc::c_int;
 }
 extern "C" {
     pub fn listen(sockfd: libc::c_int, backlog: libc::c_int) -> libc::c_int;
 }
 extern "C" {
-    pub fn recv(sockfd: libc::c_int, buf: *mut libc::c_void, len: usize,
-                flags: libc::c_int) -> isize;
+    pub fn recv(
+        sockfd: libc::c_int,
+        buf: *mut libc::c_void,
+        len: usize,
+        flags: libc::c_int,
+    ) -> isize;
 }
 extern "C" {
-    pub fn recvfrom(sockfd: libc::c_int, buf: *mut libc::c_void, len: usize,
-                    flags: libc::c_int, src_addr: *mut sockaddr,
-                    addrlen: *mut socklen_t) -> isize;
+    pub fn recvfrom(
+        sockfd: libc::c_int,
+        buf: *mut libc::c_void,
+        len: usize,
+        flags: libc::c_int,
+        src_addr: *mut sockaddr,
+        addrlen: *mut socklen_t,
+    ) -> isize;
 }
 extern "C" {
-    pub fn send(sockfd: libc::c_int, buf: *const libc::c_void, len: usize,
-                flags: libc::c_int) -> isize;
+    pub fn send(
+        sockfd: libc::c_int,
+        buf: *const libc::c_void,
+        len: usize,
+        flags: libc::c_int,
+    ) -> isize;
 }
 extern "C" {
-    pub fn sendto(sockfd: libc::c_int, buf: *const libc::c_void, len: usize,
-                  flags: libc::c_int, dest_addr: *const sockaddr,
-                  addrlen: socklen_t) -> isize;
+    pub fn sendto(
+        sockfd: libc::c_int,
+        buf: *const libc::c_void,
+        len: usize,
+        flags: libc::c_int,
+        dest_addr: *const sockaddr,
+        addrlen: socklen_t,
+    ) -> isize;
 }
 extern "C" {
-    pub fn setsockopt(sockfd: libc::c_int, level: libc::c_int,
-                      optname: libc::c_int, optval: *const libc::c_void,
-                      optlen: socklen_t) -> libc::c_int;
+    pub fn setsockopt(
+        sockfd: libc::c_int,
+        level: libc::c_int,
+        optname: libc::c_int,
+        optval: *const libc::c_void,
+        optlen: socklen_t,
+    ) -> libc::c_int;
 }
 extern "C" {
     pub fn shutdown(sockfd: libc::c_int, how: libc::c_int) -> libc::c_int;
 }
 extern "C" {
-    pub fn socket(domain: libc::c_int, type_: libc::c_int,
-                  protocol: libc::c_int) -> libc::c_int;
+    pub fn socket(domain: libc::c_int, type_: libc::c_int, protocol: libc::c_int) -> libc::c_int;
 }
 extern "C" {
     pub fn sockatmark(sockfd: libc::c_int) -> libc::c_int;
 }
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct in_addr {
     pub s_addr: in_addr_t,
 }
-impl Clone for in_addr {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct sockaddr_in {
     pub sin_family: sa_family_t,
     pub sin_port: in_port_t,
     pub sin_addr: in_addr,
     pub sin_zero: [libc::c_uchar; 8usize],
 }
-impl Clone for sockaddr_in {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct ip_mreq {
     pub imr_multiaddr: in_addr,
     pub imr_interface: in_addr,
 }
-impl Clone for ip_mreq {
-    fn clone(&self) -> Self { *self }
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum NetworkOpt {
-    NETOPT_MAC_ADDRESS = 4100,
-    NETOPT_ARP_TABLE = 12290,
-    NETOPT_IP_INFO = 16387,
-    NETOPT_IP_MTU = 16388,
-    NETOPT_ROUTING_TABLE = 16390,
-    NETOPT_UDP_NUMBER = 32770,
-    NETOPT_UDP_TABLE = 32771,
-    NETOPT_TCP_NUMBER = 36866,
-    NETOPT_TCP_TABLE = 36867,
-    NETOPT_DNS_TABLE = 45059,
-    NETOPT_DHCP_LEASE_TIME = 49153,
-}
+pub const NETOPT_MAC_ADDRESS: NetworkOpt = 4100;
+pub const NETOPT_ARP_TABLE: NetworkOpt = 12290;
+pub const NETOPT_IP_INFO: NetworkOpt = 16387;
+pub const NETOPT_IP_MTU: NetworkOpt = 16388;
+pub const NETOPT_ROUTING_TABLE: NetworkOpt = 16390;
+pub const NETOPT_UDP_NUMBER: NetworkOpt = 32770;
+pub const NETOPT_UDP_TABLE: NetworkOpt = 32771;
+pub const NETOPT_TCP_NUMBER: NetworkOpt = 36866;
+pub const NETOPT_TCP_TABLE: NetworkOpt = 36867;
+pub const NETOPT_DNS_TABLE: NetworkOpt = 45059;
+pub const NETOPT_DHCP_LEASE_TIME: NetworkOpt = 49153;
+pub type NetworkOpt = libc::c_uint;
 #[repr(C)]
-#[derive(Copy)]
 pub struct SOCU_ARPTableEntry {
     pub unk0: u32,
     pub ip: in_addr,
     pub mac: [u8; 6usize],
     pub padding: [u8; 2usize],
 }
-impl Clone for SOCU_ARPTableEntry {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct SOCU_IPInfo {
     pub ip: in_addr,
     pub netmask: in_addr,
     pub broadcast: in_addr,
 }
-impl Clone for SOCU_IPInfo {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
 pub struct SOCU_RoutingTableEntry {
     pub dest_ip: in_addr,
     pub netmask: in_addr,
@@ -7759,37 +8037,23 @@ pub struct SOCU_RoutingTableEntry {
     pub flags: u32,
     pub time: u64,
 }
-impl Clone for SOCU_RoutingTableEntry {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct SOCU_UDPTableEntry {
     pub local: sockaddr_storage,
     pub remote: sockaddr_storage,
 }
-impl Clone for SOCU_UDPTableEntry {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
 pub struct SOCU_TCPTableEntry {
     pub state: u32,
     pub local: sockaddr_storage,
     pub remote: sockaddr_storage,
 }
-impl Clone for SOCU_TCPTableEntry {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
 pub struct SOCU_DNSTableEntry {
     pub family: u32,
     pub ip: in_addr,
     pub padding: [u8; 12usize],
-}
-impl Clone for SOCU_DNSTableEntry {
-    fn clone(&self) -> Self { *self }
 }
 extern "C" {
     pub fn socInit(context_addr: *mut u32, context_size: u32) -> Result;
@@ -7801,8 +8065,7 @@ extern "C" {
     pub fn gethostid() -> libc::c_long;
 }
 extern "C" {
-    pub fn gethostname(name: *mut libc::c_char, namelen: usize)
-     -> libc::c_int;
+    pub fn gethostname(name: *mut libc::c_char, namelen: usize) -> libc::c_int;
 }
 extern "C" {
     pub fn SOCU_ShutdownSockets() -> libc::c_int;
@@ -7811,33 +8074,33 @@ extern "C" {
     pub fn SOCU_CloseSockets() -> libc::c_int;
 }
 extern "C" {
-    pub fn SOCU_GetNetworkOpt(level: libc::c_int, optname: NetworkOpt,
-                              optval: *mut libc::c_void,
-                              optlen: *mut socklen_t) -> libc::c_int;
+    pub fn SOCU_GetNetworkOpt(
+        level: libc::c_int,
+        optname: NetworkOpt,
+        optval: *mut libc::c_void,
+        optlen: *mut socklen_t,
+    ) -> libc::c_int;
 }
 extern "C" {
-    pub fn SOCU_GetIPInfo(ip: *mut in_addr, netmask: *mut in_addr,
-                          broadcast: *mut in_addr) -> libc::c_int;
+    pub fn SOCU_GetIPInfo(
+        ip: *mut in_addr,
+        netmask: *mut in_addr,
+        broadcast: *mut in_addr,
+    ) -> libc::c_int;
 }
 extern "C" {
     pub fn SOCU_AddGlobalSocket(sockfd: libc::c_int) -> libc::c_int;
 }
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum MICU_Encoding {
-    MICU_ENCODING_PCM8 = 0,
-    MICU_ENCODING_PCM16 = 1,
-    MICU_ENCODING_PCM8_SIGNED = 2,
-    MICU_ENCODING_PCM16_SIGNED = 3,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum MICU_SampleRate {
-    MICU_SAMPLE_RATE_32730 = 0,
-    MICU_SAMPLE_RATE_16360 = 1,
-    MICU_SAMPLE_RATE_10910 = 2,
-    MICU_SAMPLE_RATE_8180 = 3,
-}
+pub const MICU_ENCODING_PCM8: MICU_Encoding = 0;
+pub const MICU_ENCODING_PCM16: MICU_Encoding = 1;
+pub const MICU_ENCODING_PCM8_SIGNED: MICU_Encoding = 2;
+pub const MICU_ENCODING_PCM16_SIGNED: MICU_Encoding = 3;
+pub type MICU_Encoding = libc::c_uint;
+pub const MICU_SAMPLE_RATE_32730: MICU_SampleRate = 0;
+pub const MICU_SAMPLE_RATE_16360: MICU_SampleRate = 1;
+pub const MICU_SAMPLE_RATE_10910: MICU_SampleRate = 2;
+pub const MICU_SAMPLE_RATE_8180: MICU_SampleRate = 3;
+pub type MICU_SampleRate = libc::c_uint;
 extern "C" {
     pub fn micInit(buffer: *mut u8, bufferSize: u32) -> Result;
 }
@@ -7857,9 +8120,13 @@ extern "C" {
     pub fn MICU_UnmapSharedMem() -> Result;
 }
 extern "C" {
-    pub fn MICU_StartSampling(encoding: MICU_Encoding,
-                              sampleRate: MICU_SampleRate, offset: u32,
-                              size: u32, loop_: bool) -> Result;
+    pub fn MICU_StartSampling(
+        encoding: MICU_Encoding,
+        sampleRate: MICU_SampleRate,
+        offset: u32,
+        size: u32,
+        loop_: bool,
+    ) -> Result;
 }
 extern "C" {
     pub fn MICU_AdjustSampling(sampleRate: MICU_SampleRate) -> Result;
@@ -7894,25 +8161,16 @@ extern "C" {
 extern "C" {
     pub fn MICU_SetAllowShellClosed(allowShellClosed: bool) -> Result;
 }
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum MVDSTD_Mode {
-    MVDMODE_COLORFORMATCONV = 0,
-    MVDMODE_VIDEOPROCESSING = 1,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum MVDSTD_InputFormat {
-    MVD_INPUT_YUYV422 = 65537,
-    MVD_INPUT_H264 = 131073,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum MVDSTD_OutputFormat {
-    MVD_OUTPUT_YUYV422 = 65537,
-    MVD_OUTPUT_BGR565 = 262146,
-    MVD_OUTPUT_RGB565 = 262148,
-}
+pub const MVDMODE_COLORFORMATCONV: MVDSTD_Mode = 0;
+pub const MVDMODE_VIDEOPROCESSING: MVDSTD_Mode = 1;
+pub type MVDSTD_Mode = libc::c_uint;
+pub const MVD_INPUT_YUYV422: MVDSTD_InputFormat = 65537;
+pub const MVD_INPUT_H264: MVDSTD_InputFormat = 131073;
+pub type MVDSTD_InputFormat = libc::c_uint;
+pub const MVD_OUTPUT_YUYV422: MVDSTD_OutputFormat = 65537;
+pub const MVD_OUTPUT_BGR565: MVDSTD_OutputFormat = 262146;
+pub const MVD_OUTPUT_RGB565: MVDSTD_OutputFormat = 262148;
+pub type MVDSTD_OutputFormat = libc::c_uint;
 #[repr(C)]
 pub struct MVDSTD_Config {
     pub input_type: MVDSTD_InputFormat,
@@ -7946,35 +8204,23 @@ pub struct MVDSTD_Config {
     pub unk_x118: u32,
 }
 #[repr(C)]
-#[derive(Copy)]
 pub struct MVDSTD_ProcessNALUnitOut {
     pub end_vaddr: u32,
     pub end_physaddr: u32,
     pub remaining_size: u32,
 }
-impl Clone for MVDSTD_ProcessNALUnitOut {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct MVDSTD_OutputBuffersEntry {
     pub outdata0: *mut libc::c_void,
     pub outdata1: *mut libc::c_void,
 }
-impl Clone for MVDSTD_OutputBuffersEntry {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
 pub struct MVDSTD_OutputBuffersEntryList {
     pub total_entries: u32,
     pub entries: [MVDSTD_OutputBuffersEntry; 17usize],
 }
-impl Clone for MVDSTD_OutputBuffersEntryList {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
 pub struct MVDSTD_InitStruct {
     pub cmd5_inval0: s8,
     pub cmd5_inval1: s8,
@@ -7982,80 +8228,75 @@ pub struct MVDSTD_InitStruct {
     pub cmd5_inval3: u32,
     pub cmd1b_inval: u8,
 }
-impl Clone for MVDSTD_InitStruct {
-    fn clone(&self) -> Self { *self }
-}
 extern "C" {
-    pub fn mvdstdInit(mode: MVDSTD_Mode, input_type: MVDSTD_InputFormat,
-                      output_type: MVDSTD_OutputFormat, size: u32,
-                      initstruct: *mut MVDSTD_InitStruct) -> Result;
+    pub fn mvdstdInit(
+        mode: MVDSTD_Mode,
+        input_type: MVDSTD_InputFormat,
+        output_type: MVDSTD_OutputFormat,
+        size: u32,
+        initstruct: *mut MVDSTD_InitStruct,
+    ) -> Result;
 }
 extern "C" {
     pub fn mvdstdExit();
 }
 extern "C" {
-    pub fn mvdstdGenerateDefaultConfig(config: *mut MVDSTD_Config,
-                                       input_width: u32, input_height: u32,
-                                       output_width: u32, output_height: u32,
-                                       vaddr_colorconv_indata: *mut u32,
-                                       vaddr_outdata0: *mut u32,
-                                       vaddr_outdata1: *mut u32);
+    pub fn mvdstdGenerateDefaultConfig(
+        config: *mut MVDSTD_Config,
+        input_width: u32,
+        input_height: u32,
+        output_width: u32,
+        output_height: u32,
+        vaddr_colorconv_indata: *mut u32,
+        vaddr_outdata0: *mut u32,
+        vaddr_outdata1: *mut u32,
+    );
 }
 extern "C" {
     pub fn mvdstdConvertImage(config: *mut MVDSTD_Config) -> Result;
 }
 extern "C" {
-    pub fn mvdstdProcessVideoFrame(inbuf_vaddr: *mut libc::c_void,
-                                   size: usize, flag: u32,
-                                   out: *mut MVDSTD_ProcessNALUnitOut)
-     -> Result;
+    pub fn mvdstdProcessVideoFrame(
+        inbuf_vaddr: *mut libc::c_void,
+        size: usize,
+        flag: u32,
+        out: *mut MVDSTD_ProcessNALUnitOut,
+    ) -> Result;
 }
 extern "C" {
-    pub fn mvdstdRenderVideoFrame(config: *mut MVDSTD_Config, wait: bool)
-     -> Result;
+    pub fn mvdstdRenderVideoFrame(config: *mut MVDSTD_Config, wait: bool) -> Result;
 }
 extern "C" {
     pub fn MVDSTD_SetConfig(config: *mut MVDSTD_Config) -> Result;
 }
 extern "C" {
-    pub fn mvdstdSetupOutputBuffers(entrylist:
-                                        *mut MVDSTD_OutputBuffersEntryList,
-                                    bufsize: u32) -> Result;
+    pub fn mvdstdSetupOutputBuffers(
+        entrylist: *mut MVDSTD_OutputBuffersEntryList,
+        bufsize: u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn mvdstdOverrideOutputBuffers(cur_outdata0: *mut libc::c_void,
-                                       cur_outdata1: *mut libc::c_void,
-                                       new_outdata0: *mut libc::c_void,
-                                       new_outdata1: *mut libc::c_void)
-     -> Result;
+    pub fn mvdstdOverrideOutputBuffers(
+        cur_outdata0: *mut libc::c_void,
+        cur_outdata1: *mut libc::c_void,
+        new_outdata0: *mut libc::c_void,
+        new_outdata1: *mut libc::c_void,
+    ) -> Result;
 }
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum NFC_OpType {
-    NFC_OpType_1 = 1,
-    NFC_OpType_NFCTag = 2,
-    NFC_OpType_RawNFC = 3,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum NFC_TagState {
-    NFC_TagState_Uninitialized = 0,
-    NFC_TagState_ScanningStopped = 1,
-    NFC_TagState_Scanning = 2,
-    NFC_TagState_InRange = 3,
-    NFC_TagState_OutOfRange = 4,
-    NFC_TagState_DataReady = 5,
-}
-pub const NFC_amiiboFlag_Setup: _bindgen_ty_22 =
-    _bindgen_ty_22::NFC_amiiboFlag_Setup;
-pub const NFC_amiiboFlag_AppDataSetup: _bindgen_ty_22 =
-    _bindgen_ty_22::NFC_amiiboFlag_AppDataSetup;
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum _bindgen_ty_22 {
-    NFC_amiiboFlag_Setup = 16,
-    NFC_amiiboFlag_AppDataSetup = 32,
-}
+pub const NFC_OpType_1: NFC_OpType = 1;
+pub const NFC_OpType_NFCTag: NFC_OpType = 2;
+pub const NFC_OpType_RawNFC: NFC_OpType = 3;
+pub type NFC_OpType = libc::c_uint;
+pub const NFC_TagState_Uninitialized: NFC_TagState = 0;
+pub const NFC_TagState_ScanningStopped: NFC_TagState = 1;
+pub const NFC_TagState_Scanning: NFC_TagState = 2;
+pub const NFC_TagState_InRange: NFC_TagState = 3;
+pub const NFC_TagState_OutOfRange: NFC_TagState = 4;
+pub const NFC_TagState_DataReady: NFC_TagState = 5;
+pub type NFC_TagState = libc::c_uint;
+pub const NFC_amiiboFlag_Setup: _bindgen_ty_24 = 16;
+pub const NFC_amiiboFlag_AppDataSetup: _bindgen_ty_24 = 32;
+pub type _bindgen_ty_24 = libc::c_uint;
 #[repr(C)]
 pub struct NFC_TagInfo {
     pub id_offset_size: u16,
@@ -8094,14 +8335,10 @@ pub struct NFC_AppDataInitStruct {
     pub data_xc: [u8; 48usize],
 }
 #[repr(C)]
-#[derive(Copy)]
 pub struct NFC_AppDataWriteStruct {
     pub id: [u8; 10usize],
     pub id_size: u8,
     pub unused_xb: [u8; 21usize],
-}
-impl Clone for NFC_AppDataWriteStruct {
-    fn clone(&self) -> Self { *self }
 }
 extern "C" {
     pub fn nfcInit(type_: NFC_OpType) -> Result;
@@ -8137,16 +8374,21 @@ extern "C" {
     pub fn nfcOpenAppData(amiibo_appid: u32) -> Result;
 }
 extern "C" {
-    pub fn nfcInitializeWriteAppData(amiibo_appid: u32,
-                                     buf: *const libc::c_void, size: usize)
-     -> Result;
+    pub fn nfcInitializeWriteAppData(
+        amiibo_appid: u32,
+        buf: *const libc::c_void,
+        size: usize,
+    ) -> Result;
 }
 extern "C" {
     pub fn nfcReadAppData(buf: *mut libc::c_void, size: usize) -> Result;
 }
 extern "C" {
-    pub fn nfcWriteAppData(buf: *const libc::c_void, size: usize,
-                           taginfo: *mut NFC_TagInfo) -> Result;
+    pub fn nfcWriteAppData(
+        buf: *const libc::c_void,
+        size: usize,
+        taginfo: *mut NFC_TagInfo,
+    ) -> Result;
 }
 extern "C" {
     pub fn nfcGetAmiiboSettings(out: *mut NFC_AmiiboSettings) -> Result;
@@ -8158,10 +8400,14 @@ extern "C" {
     pub fn nfcStartOtherTagScanning(unk0: u16, unk1: u32) -> Result;
 }
 extern "C" {
-    pub fn nfcSendTagCommand(inbuf: *const libc::c_void, insize: usize,
-                             outbuf: *mut libc::c_void, outsize: usize,
-                             actual_transfer_size: *mut usize,
-                             microseconds: u64) -> Result;
+    pub fn nfcSendTagCommand(
+        inbuf: *const libc::c_void,
+        insize: usize,
+        outbuf: *mut libc::c_void,
+        outsize: usize,
+        actual_transfer_size: *mut usize,
+        microseconds: u64,
+    ) -> Result;
 }
 extern "C" {
     pub fn nfcCmd21() -> Result;
@@ -8170,7 +8416,6 @@ extern "C" {
     pub fn nfcCmd22() -> Result;
 }
 #[repr(C)]
-#[derive(Copy)]
 pub struct NotificationHeader {
     pub dataSet: bool,
     pub unread: bool,
@@ -8185,9 +8430,6 @@ pub struct NotificationHeader {
     pub time: u64,
     pub title: [u16; 32usize],
 }
-impl Clone for NotificationHeader {
-    fn clone(&self) -> Self { *self }
-}
 extern "C" {
     pub fn newsInit() -> Result;
 }
@@ -8195,61 +8437,58 @@ extern "C" {
     pub fn newsExit();
 }
 extern "C" {
-    pub fn NEWS_AddNotification(title: *const u16, titleLength: u32,
-                                message: *const u16, messageLength: u32,
-                                imageData: *const libc::c_void,
-                                imageSize: u32, jpeg: bool) -> Result;
+    pub fn NEWS_AddNotification(
+        title: *const u16,
+        titleLength: u32,
+        message: *const u16,
+        messageLength: u32,
+        imageData: *const libc::c_void,
+        imageSize: u32,
+        jpeg: bool,
+    ) -> Result;
 }
 extern "C" {
     pub fn NEWS_GetTotalNotifications(num: *mut u32) -> Result;
 }
 extern "C" {
-    pub fn NEWS_SetNotificationHeader(news_id: u32,
-                                      header: *const NotificationHeader)
-     -> Result;
+    pub fn NEWS_SetNotificationHeader(news_id: u32, header: *const NotificationHeader) -> Result;
 }
 extern "C" {
-    pub fn NEWS_GetNotificationHeader(news_id: u32,
-                                      header: *mut NotificationHeader)
-     -> Result;
+    pub fn NEWS_GetNotificationHeader(news_id: u32, header: *mut NotificationHeader) -> Result;
 }
 extern "C" {
-    pub fn NEWS_SetNotificationMessage(news_id: u32, message: *const u16,
-                                       size: u32) -> Result;
+    pub fn NEWS_SetNotificationMessage(news_id: u32, message: *const u16, size: u32) -> Result;
 }
 extern "C" {
-    pub fn NEWS_GetNotificationMessage(news_id: u32, message: *mut u16,
-                                       size: *mut u32) -> Result;
+    pub fn NEWS_GetNotificationMessage(news_id: u32, message: *mut u16, size: *mut u32) -> Result;
 }
 extern "C" {
-    pub fn NEWS_SetNotificationImage(news_id: u32,
-                                     buffer: *const libc::c_void, size: u32)
-     -> Result;
+    pub fn NEWS_SetNotificationImage(
+        news_id: u32,
+        buffer: *const libc::c_void,
+        size: u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn NEWS_GetNotificationImage(news_id: u32, buffer: *mut libc::c_void,
-                                     size: *mut u32) -> Result;
+    pub fn NEWS_GetNotificationImage(
+        news_id: u32,
+        buffer: *mut libc::c_void,
+        size: *mut u32,
+    ) -> Result;
 }
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct QTM_HeadTrackingInfoCoord {
     pub x: f32,
     pub y: f32,
 }
-impl Clone for QTM_HeadTrackingInfoCoord {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
 pub struct QTM_HeadTrackingInfo {
     pub flags: [u8; 5usize],
     pub padding: [u8; 3usize],
     pub floatdata_x08: f32,
     pub coords0: [QTM_HeadTrackingInfoCoord; 4usize],
     pub unk_x2c: [u32; 5usize],
-}
-impl Clone for QTM_HeadTrackingInfo {
-    fn clone(&self) -> Self { *self }
 }
 extern "C" {
     pub fn qtmInit() -> Result;
@@ -8264,14 +8503,16 @@ extern "C" {
     pub fn qtmCheckHeadFullyDetected(info: *mut QTM_HeadTrackingInfo) -> bool;
 }
 extern "C" {
-    pub fn qtmConvertCoordToScreen(coord: *mut QTM_HeadTrackingInfoCoord,
-                                   screen_width: *mut f32,
-                                   screen_height: *mut f32, x: *mut u32,
-                                   y: *mut u32) -> Result;
+    pub fn qtmConvertCoordToScreen(
+        coord: *mut QTM_HeadTrackingInfoCoord,
+        screen_width: *mut f32,
+        screen_height: *mut f32,
+        x: *mut u32,
+        y: *mut u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn QTM_GetHeadTrackingInfo(val: u64, out: *mut QTM_HeadTrackingInfo)
-     -> Result;
+    pub fn QTM_GetHeadTrackingInfo(val: u64, out: *mut QTM_HeadTrackingInfo) -> Result;
 }
 extern "C" {
     pub fn srvPmInit() -> Result;
@@ -8280,19 +8521,68 @@ extern "C" {
     pub fn srvPmExit();
 }
 extern "C" {
-    pub fn SRVPM_PublishToProcess(notificationId: u32, process: Handle)
-     -> Result;
+    pub fn srvPmGetSessionHandle() -> *mut Handle;
+}
+extern "C" {
+    pub fn SRVPM_PublishToProcess(notificationId: u32, process: Handle) -> Result;
 }
 extern "C" {
     pub fn SRVPM_PublishToAll(notificationId: u32) -> Result;
 }
 extern "C" {
-    pub fn SRVPM_RegisterProcess(procid: u32, count: u32,
-                                 serviceaccesscontrol: *mut libc::c_void)
-     -> Result;
+    pub fn SRVPM_RegisterProcess(
+        pid: u32,
+        count: u32,
+        serviceAccessControlList: *mut [libc::c_char; 8usize],
+    ) -> Result;
 }
 extern "C" {
-    pub fn SRVPM_UnregisterProcess(procid: u32) -> Result;
+    pub fn SRVPM_UnregisterProcess(pid: u32) -> Result;
+}
+extern "C" {
+    pub fn loaderInit() -> Result;
+}
+extern "C" {
+    pub fn loaderExit();
+}
+extern "C" {
+    pub fn LOADER_LoadProcess(process: *mut Handle, programHandle: u64) -> Result;
+}
+extern "C" {
+    pub fn LOADER_RegisterProgram(
+        programHandle: *mut u64,
+        titleId: u64,
+        mediaType: FS_MediaType,
+        updateTitleId: u64,
+        updateMediaType: FS_MediaType,
+    ) -> Result;
+}
+extern "C" {
+    pub fn LOADER_UnregisterProgram(programHandle: u64) -> Result;
+}
+extern "C" {
+    pub fn LOADER_GetProgramInfo(exheaderInfo: *mut ExHeader_Info, programHandle: u64) -> Result;
+}
+extern "C" {
+    pub fn mcuHwcInit() -> Result;
+}
+extern "C" {
+    pub fn mcuHwcExit();
+}
+extern "C" {
+    pub fn mcuHwcReadRegister(reg: u8, data: *mut libc::c_void, size: u32) -> Result;
+}
+extern "C" {
+    pub fn mcuHwcWriteRegister(reg: u8, data: *const libc::c_void, size: u32) -> Result;
+}
+extern "C" {
+    pub fn mcuHwcGetBatteryVoltage(voltage: *mut u8) -> Result;
+}
+extern "C" {
+    pub fn mcuHwcGetBatteryLevel(level: *mut u8) -> Result;
+}
+extern "C" {
+    pub fn mcuHwcGetSoundSliderLevel(level: *mut u8) -> Result;
 }
 extern "C" {
     pub fn hbInit() -> Result;
@@ -8304,50 +8594,45 @@ extern "C" {
     pub fn HB_FlushInvalidateCache() -> Result;
 }
 extern "C" {
-    pub fn HB_GetBootloaderAddresses(load3dsx: *mut *mut libc::c_void,
-                                     setArgv: *mut *mut libc::c_void)
-     -> Result;
+    pub fn HB_GetBootloaderAddresses(
+        load3dsx: *mut *mut libc::c_void,
+        setArgv: *mut *mut libc::c_void,
+    ) -> Result;
 }
 extern "C" {
-    pub fn HB_ReprotectMemory(addr: *mut u32, pages: u32, mode: u32,
-                              reprotectedPages: *mut u32) -> Result;
+    pub fn HB_ReprotectMemory(
+        addr: *mut u32,
+        pages: u32,
+        mode: u32,
+        reprotectedPages: *mut u32,
+    ) -> Result;
 }
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GX_TRANSFER_FORMAT {
-    GX_TRANSFER_FMT_RGBA8 = 0,
-    GX_TRANSFER_FMT_RGB8 = 1,
-    GX_TRANSFER_FMT_RGB565 = 2,
-    GX_TRANSFER_FMT_RGB5A1 = 3,
-    GX_TRANSFER_FMT_RGBA4 = 4,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GX_TRANSFER_SCALE {
-    GX_TRANSFER_SCALE_NO = 0,
-    GX_TRANSFER_SCALE_X = 1,
-    GX_TRANSFER_SCALE_XY = 2,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GX_FILL_CONTROL {
-    GX_FILL_TRIGGER = 1,
-    GX_FILL_FINISHED = 2,
-    GX_FILL_16BIT_DEPTH = 0,
-    GX_FILL_24BIT_DEPTH = 256,
-    GX_FILL_32BIT_DEPTH = 512,
-}
+pub const GX_TRANSFER_FMT_RGBA8: GX_TRANSFER_FORMAT = 0;
+pub const GX_TRANSFER_FMT_RGB8: GX_TRANSFER_FORMAT = 1;
+pub const GX_TRANSFER_FMT_RGB565: GX_TRANSFER_FORMAT = 2;
+pub const GX_TRANSFER_FMT_RGB5A1: GX_TRANSFER_FORMAT = 3;
+pub const GX_TRANSFER_FMT_RGBA4: GX_TRANSFER_FORMAT = 4;
+pub type GX_TRANSFER_FORMAT = libc::c_uint;
+pub const GX_TRANSFER_SCALE_NO: GX_TRANSFER_SCALE = 0;
+pub const GX_TRANSFER_SCALE_X: GX_TRANSFER_SCALE = 1;
+pub const GX_TRANSFER_SCALE_XY: GX_TRANSFER_SCALE = 2;
+pub type GX_TRANSFER_SCALE = libc::c_uint;
+pub const GX_FILL_TRIGGER: GX_FILL_CONTROL = 1;
+pub const GX_FILL_FINISHED: GX_FILL_CONTROL = 2;
+pub const GX_FILL_16BIT_DEPTH: GX_FILL_CONTROL = 0;
+pub const GX_FILL_24BIT_DEPTH: GX_FILL_CONTROL = 256;
+pub const GX_FILL_32BIT_DEPTH: GX_FILL_CONTROL = 512;
+pub type GX_FILL_CONTROL = libc::c_uint;
 extern "C" {
     pub static mut gxCmdBuf: *mut u32;
 }
 #[repr(C)]
-#[derive(Copy)]
-pub union gxCmdEntry_s {
-    pub data: [u32; 8usize],
-    pub __bindgen_anon_1: gxCmdEntry_s__bindgen_ty_1,
+pub struct gxCmdEntry_s {
+    pub data: __BindgenUnionField<[u32; 8usize]>,
+    pub __bindgen_anon_1: __BindgenUnionField<gxCmdEntry_s__bindgen_ty_1>,
+    pub bindgen_union_field: [u32; 8usize],
 }
 #[repr(C)]
-#[derive(Copy)]
 pub struct gxCmdEntry_s__bindgen_ty_1 {
     pub type_: u8,
     pub unk1: u8,
@@ -8355,34 +8640,22 @@ pub struct gxCmdEntry_s__bindgen_ty_1 {
     pub unk3: u8,
     pub args: [u32; 7usize],
 }
-impl Clone for gxCmdEntry_s__bindgen_ty_1 {
-    fn clone(&self) -> Self { *self }
-}
-impl Clone for gxCmdEntry_s {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
 pub struct tag_gxCmdQueue_s {
     pub entries: *mut gxCmdEntry_s,
     pub maxEntries: u16,
     pub numEntries: u16,
     pub curEntry: u16,
     pub lastEntry: u16,
-    pub callback: ::core::option::Option<unsafe extern "C" fn(arg1:
-                                                                  *mut tag_gxCmdQueue_s)>,
+    pub callback: ::core::option::Option<unsafe extern "C" fn(arg1: *mut tag_gxCmdQueue_s)>,
     pub user: *mut libc::c_void,
-}
-impl Clone for tag_gxCmdQueue_s {
-    fn clone(&self) -> Self { *self }
 }
 pub type gxCmdQueue_s = tag_gxCmdQueue_s;
 extern "C" {
     pub fn gxCmdQueueClear(queue: *mut gxCmdQueue_s);
 }
 extern "C" {
-    pub fn gxCmdQueueAdd(queue: *mut gxCmdQueue_s,
-                         entry: *const gxCmdEntry_s);
+    pub fn gxCmdQueueAdd(queue: *mut gxCmdQueue_s, entry: *const gxCmdEntry_s);
 }
 extern "C" {
     pub fn gxCmdQueueRun(queue: *mut gxCmdQueue_s);
@@ -8400,405 +8673,327 @@ extern "C" {
     pub fn GX_RequestDma(src: *mut u32, dst: *mut u32, length: u32) -> Result;
 }
 extern "C" {
-    pub fn GX_ProcessCommandList(buf0a: *mut u32, buf0s: u32, flags: u8)
-     -> Result;
+    pub fn GX_ProcessCommandList(buf0a: *mut u32, buf0s: u32, flags: u8) -> Result;
 }
 extern "C" {
-    pub fn GX_MemoryFill(buf0a: *mut u32, buf0v: u32, buf0e: *mut u32,
-                         control0: u16, buf1a: *mut u32, buf1v: u32,
-                         buf1e: *mut u32, control1: u16) -> Result;
+    pub fn GX_MemoryFill(
+        buf0a: *mut u32,
+        buf0v: u32,
+        buf0e: *mut u32,
+        control0: u16,
+        buf1a: *mut u32,
+        buf1v: u32,
+        buf1e: *mut u32,
+        control1: u16,
+    ) -> Result;
 }
 extern "C" {
-    pub fn GX_DisplayTransfer(inadr: *mut u32, indim: u32, outadr: *mut u32,
-                              outdim: u32, flags: u32) -> Result;
+    pub fn GX_DisplayTransfer(
+        inadr: *mut u32,
+        indim: u32,
+        outadr: *mut u32,
+        outdim: u32,
+        flags: u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn GX_TextureCopy(inadr: *mut u32, indim: u32, outadr: *mut u32,
-                          outdim: u32, size: u32, flags: u32) -> Result;
+    pub fn GX_TextureCopy(
+        inadr: *mut u32,
+        indim: u32,
+        outadr: *mut u32,
+        outdim: u32,
+        size: u32,
+        flags: u32,
+    ) -> Result;
 }
 extern "C" {
-    pub fn GX_FlushCacheRegions(buf0a: *mut u32, buf0s: u32, buf1a: *mut u32,
-                                buf1s: u32, buf2a: *mut u32, buf2s: u32)
-     -> Result;
+    pub fn GX_FlushCacheRegions(
+        buf0a: *mut u32,
+        buf0s: u32,
+        buf1a: *mut u32,
+        buf1s: u32,
+        buf2a: *mut u32,
+        buf2s: u32,
+    ) -> Result;
 }
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GPU_TEXTURE_FILTER_PARAM { GPU_NEAREST = 0, GPU_LINEAR = 1, }
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GPU_TEXTURE_WRAP_PARAM {
-    GPU_CLAMP_TO_EDGE = 0,
-    GPU_CLAMP_TO_BORDER = 1,
-    GPU_REPEAT = 2,
-    GPU_MIRRORED_REPEAT = 3,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GPU_TEXTURE_MODE_PARAM {
-    GPU_TEX_2D = 0,
-    GPU_TEX_CUBE_MAP = 1,
-    GPU_TEX_SHADOW_2D = 2,
-    GPU_TEX_PROJECTION = 3,
-    GPU_TEX_SHADOW_CUBE = 4,
-    GPU_TEX_DISABLED = 5,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GPU_TEXUNIT { GPU_TEXUNIT0 = 1, GPU_TEXUNIT1 = 2, GPU_TEXUNIT2 = 4, }
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GPU_TEXCOLOR {
-    GPU_RGBA8 = 0,
-    GPU_RGB8 = 1,
-    GPU_RGBA5551 = 2,
-    GPU_RGB565 = 3,
-    GPU_RGBA4 = 4,
-    GPU_LA8 = 5,
-    GPU_HILO8 = 6,
-    GPU_L8 = 7,
-    GPU_A8 = 8,
-    GPU_LA4 = 9,
-    GPU_L4 = 10,
-    GPU_A4 = 11,
-    GPU_ETC1 = 12,
-    GPU_ETC1A4 = 13,
-}
-pub const GPU_POSITIVE_X: GPU_TEXFACE = GPU_TEXFACE::GPU_TEXFACE_2D;
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GPU_TEXFACE {
-    GPU_TEXFACE_2D = 0,
-    GPU_NEGATIVE_X = 1,
-    GPU_POSITIVE_Y = 2,
-    GPU_NEGATIVE_Y = 3,
-    GPU_POSITIVE_Z = 4,
-    GPU_NEGATIVE_Z = 5,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GPU_PROCTEX_CLAMP {
-    GPU_PT_CLAMP_TO_ZERO = 0,
-    GPU_PT_CLAMP_TO_EDGE = 1,
-    GPU_PT_REPEAT = 2,
-    GPU_PT_MIRRORED_REPEAT = 3,
-    GPU_PT_PULSE = 4,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GPU_PROCTEX_MAPFUNC {
-    GPU_PT_U = 0,
-    GPU_PT_U2 = 1,
-    GPU_PT_V = 2,
-    GPU_PT_V2 = 3,
-    GPU_PT_ADD = 4,
-    GPU_PT_ADD2 = 5,
-    GPU_PT_SQRT2 = 6,
-    GPU_PT_MIN = 7,
-    GPU_PT_MAX = 8,
-    GPU_PT_RMAX = 9,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GPU_PROCTEX_SHIFT {
-    GPU_PT_NONE = 0,
-    GPU_PT_ODD = 1,
-    GPU_PT_EVEN = 2,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GPU_PROCTEX_FILTER {
-    GPU_PT_NEAREST = 0,
-    GPU_PT_LINEAR = 1,
-    GPU_PT_NEAREST_MIP_NEAREST = 2,
-    GPU_PT_LINEAR_MIP_NEAREST = 3,
-    GPU_PT_NEAREST_MIP_LINEAR = 4,
-    GPU_PT_LINEAR_MIP_LINEAR = 5,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GPU_PROCTEX_LUTID {
-    GPU_LUT_NOISE = 0,
-    GPU_LUT_RGBMAP = 2,
-    GPU_LUT_ALPHAMAP = 3,
-    GPU_LUT_COLOR = 4,
-    GPU_LUT_COLORDIF = 5,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GPU_COLORBUF {
-    GPU_RB_RGBA8 = 0,
-    GPU_RB_RGB8 = 1,
-    GPU_RB_RGBA5551 = 2,
-    GPU_RB_RGB565 = 3,
-    GPU_RB_RGBA4 = 4,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GPU_DEPTHBUF {
-    GPU_RB_DEPTH16 = 0,
-    GPU_RB_DEPTH24 = 2,
-    GPU_RB_DEPTH24_STENCIL8 = 3,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GPU_TESTFUNC {
-    GPU_NEVER = 0,
-    GPU_ALWAYS = 1,
-    GPU_EQUAL = 2,
-    GPU_NOTEQUAL = 3,
-    GPU_LESS = 4,
-    GPU_LEQUAL = 5,
-    GPU_GREATER = 6,
-    GPU_GEQUAL = 7,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GPU_EARLYDEPTHFUNC {
-    GPU_EARLYDEPTH_GEQUAL = 0,
-    GPU_EARLYDEPTH_GREATER = 1,
-    GPU_EARLYDEPTH_LEQUAL = 2,
-    GPU_EARLYDEPTH_LESS = 3,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GPU_SCISSORMODE {
-    GPU_SCISSOR_DISABLE = 0,
-    GPU_SCISSOR_INVERT = 1,
-    GPU_SCISSOR_NORMAL = 3,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GPU_STENCILOP {
-    GPU_STENCIL_KEEP = 0,
-    GPU_STENCIL_ZERO = 1,
-    GPU_STENCIL_REPLACE = 2,
-    GPU_STENCIL_INCR = 3,
-    GPU_STENCIL_DECR = 4,
-    GPU_STENCIL_INVERT = 5,
-    GPU_STENCIL_INCR_WRAP = 6,
-    GPU_STENCIL_DECR_WRAP = 7,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GPU_WRITEMASK {
-    GPU_WRITE_RED = 1,
-    GPU_WRITE_GREEN = 2,
-    GPU_WRITE_BLUE = 4,
-    GPU_WRITE_ALPHA = 8,
-    GPU_WRITE_DEPTH = 16,
-    GPU_WRITE_COLOR = 15,
-    GPU_WRITE_ALL = 31,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GPU_BLENDEQUATION {
-    GPU_BLEND_ADD = 0,
-    GPU_BLEND_SUBTRACT = 1,
-    GPU_BLEND_REVERSE_SUBTRACT = 2,
-    GPU_BLEND_MIN = 3,
-    GPU_BLEND_MAX = 4,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GPU_BLENDFACTOR {
-    GPU_ZERO = 0,
-    GPU_ONE = 1,
-    GPU_SRC_COLOR = 2,
-    GPU_ONE_MINUS_SRC_COLOR = 3,
-    GPU_DST_COLOR = 4,
-    GPU_ONE_MINUS_DST_COLOR = 5,
-    GPU_SRC_ALPHA = 6,
-    GPU_ONE_MINUS_SRC_ALPHA = 7,
-    GPU_DST_ALPHA = 8,
-    GPU_ONE_MINUS_DST_ALPHA = 9,
-    GPU_CONSTANT_COLOR = 10,
-    GPU_ONE_MINUS_CONSTANT_COLOR = 11,
-    GPU_CONSTANT_ALPHA = 12,
-    GPU_ONE_MINUS_CONSTANT_ALPHA = 13,
-    GPU_SRC_ALPHA_SATURATE = 14,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GPU_LOGICOP {
-    GPU_LOGICOP_CLEAR = 0,
-    GPU_LOGICOP_AND = 1,
-    GPU_LOGICOP_AND_REVERSE = 2,
-    GPU_LOGICOP_COPY = 3,
-    GPU_LOGICOP_SET = 4,
-    GPU_LOGICOP_COPY_INVERTED = 5,
-    GPU_LOGICOP_NOOP = 6,
-    GPU_LOGICOP_INVERT = 7,
-    GPU_LOGICOP_NAND = 8,
-    GPU_LOGICOP_OR = 9,
-    GPU_LOGICOP_NOR = 10,
-    GPU_LOGICOP_XOR = 11,
-    GPU_LOGICOP_EQUIV = 12,
-    GPU_LOGICOP_AND_INVERTED = 13,
-    GPU_LOGICOP_OR_REVERSE = 14,
-    GPU_LOGICOP_OR_INVERTED = 15,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GPU_FRAGOPMODE {
-    GPU_FRAGOPMODE_GL = 0,
-    GPU_FRAGOPMODE_GAS_ACC = 1,
-    GPU_FRAGOPMODE_SHADOW = 3,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GPU_FORMATS {
-    GPU_BYTE = 0,
-    GPU_UNSIGNED_BYTE = 1,
-    GPU_SHORT = 2,
-    GPU_FLOAT = 3,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GPU_CULLMODE {
-    GPU_CULL_NONE = 0,
-    GPU_CULL_FRONT_CCW = 1,
-    GPU_CULL_BACK_CCW = 2,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GPU_TEVSRC {
-    GPU_PRIMARY_COLOR = 0,
-    GPU_FRAGMENT_PRIMARY_COLOR = 1,
-    GPU_FRAGMENT_SECONDARY_COLOR = 2,
-    GPU_TEXTURE0 = 3,
-    GPU_TEXTURE1 = 4,
-    GPU_TEXTURE2 = 5,
-    GPU_TEXTURE3 = 6,
-    GPU_PREVIOUS_BUFFER = 13,
-    GPU_CONSTANT = 14,
-    GPU_PREVIOUS = 15,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GPU_TEVOP_RGB {
-    GPU_TEVOP_RGB_SRC_COLOR = 0,
-    GPU_TEVOP_RGB_ONE_MINUS_SRC_COLOR = 1,
-    GPU_TEVOP_RGB_SRC_ALPHA = 2,
-    GPU_TEVOP_RGB_ONE_MINUS_SRC_ALPHA = 3,
-    GPU_TEVOP_RGB_SRC_R = 4,
-    GPU_TEVOP_RGB_ONE_MINUS_SRC_R = 5,
-    GPU_TEVOP_RGB_0x06 = 6,
-    GPU_TEVOP_RGB_0x07 = 7,
-    GPU_TEVOP_RGB_SRC_G = 8,
-    GPU_TEVOP_RGB_ONE_MINUS_SRC_G = 9,
-    GPU_TEVOP_RGB_0x0A = 10,
-    GPU_TEVOP_RGB_0x0B = 11,
-    GPU_TEVOP_RGB_SRC_B = 12,
-    GPU_TEVOP_RGB_ONE_MINUS_SRC_B = 13,
-    GPU_TEVOP_RGB_0x0E = 14,
-    GPU_TEVOP_RGB_0x0F = 15,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GPU_TEVOP_A {
-    GPU_TEVOP_A_SRC_ALPHA = 0,
-    GPU_TEVOP_A_ONE_MINUS_SRC_ALPHA = 1,
-    GPU_TEVOP_A_SRC_R = 2,
-    GPU_TEVOP_A_ONE_MINUS_SRC_R = 3,
-    GPU_TEVOP_A_SRC_G = 4,
-    GPU_TEVOP_A_ONE_MINUS_SRC_G = 5,
-    GPU_TEVOP_A_SRC_B = 6,
-    GPU_TEVOP_A_ONE_MINUS_SRC_B = 7,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GPU_COMBINEFUNC {
-    GPU_REPLACE = 0,
-    GPU_MODULATE = 1,
-    GPU_ADD = 2,
-    GPU_ADD_SIGNED = 3,
-    GPU_INTERPOLATE = 4,
-    GPU_SUBTRACT = 5,
-    GPU_DOT3_RGB = 6,
-    GPU_MULTIPLY_ADD = 8,
-    GPU_ADD_MULTIPLY = 9,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GPU_TEVSCALE {
-    GPU_TEVSCALE_1 = 0,
-    GPU_TEVSCALE_2 = 1,
-    GPU_TEVSCALE_4 = 2,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GPU_FRESNELSEL {
-    GPU_NO_FRESNEL = 0,
-    GPU_PRI_ALPHA_FRESNEL = 1,
-    GPU_SEC_ALPHA_FRESNEL = 2,
-    GPU_PRI_SEC_ALPHA_FRESNEL = 3,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GPU_BUMPMODE {
-    GPU_BUMP_NOT_USED = 0,
-    GPU_BUMP_AS_BUMP = 1,
-    GPU_BUMP_AS_TANG = 2,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GPU_LIGHTLUTID {
-    GPU_LUT_D0 = 0,
-    GPU_LUT_D1 = 1,
-    GPU_LUT_SP = 2,
-    GPU_LUT_FR = 3,
-    GPU_LUT_RB = 4,
-    GPU_LUT_RG = 5,
-    GPU_LUT_RR = 6,
-    GPU_LUT_DA = 7,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GPU_LIGHTLUTINPUT {
-    GPU_LUTINPUT_NH = 0,
-    GPU_LUTINPUT_VH = 1,
-    GPU_LUTINPUT_NV = 2,
-    GPU_LUTINPUT_LN = 3,
-    GPU_LUTINPUT_SP = 4,
-    GPU_LUTINPUT_CP = 5,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GPU_LIGHTLUTSCALER {
-    GPU_LUTSCALER_1x = 0,
-    GPU_LUTSCALER_2x = 1,
-    GPU_LUTSCALER_4x = 2,
-    GPU_LUTSCALER_8x = 3,
-    GPU_LUTSCALER_0_25x = 6,
-    GPU_LUTSCALER_0_5x = 7,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GPU_LIGHTLUTSELECT {
-    GPU_LUTSELECT_COMMON = 0,
-    GPU_LUTSELECT_SP = 1,
-    GPU_LUTSELECT_DA = 2,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GPU_FOGMODE { GPU_NO_FOG = 0, GPU_FOG = 5, GPU_GAS = 7, }
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GPU_GASMODE { GPU_PLAIN_DENSITY = 0, GPU_DEPTH_DENSITY = 1, }
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GPU_GASLUTINPUT { GPU_GAS_DENSITY = 0, GPU_GAS_LIGHT_FACTOR = 1, }
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GPU_Primitive_t {
-    GPU_TRIANGLES = 0,
-    GPU_TRIANGLE_STRIP = 256,
-    GPU_TRIANGLE_FAN = 512,
-    GPU_GEOMETRY_PRIM = 768,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GPU_SHADER_TYPE { GPU_VERTEX_SHADER = 0, GPU_GEOMETRY_SHADER = 1, }
+pub const GPU_NEAREST: GPU_TEXTURE_FILTER_PARAM = 0;
+pub const GPU_LINEAR: GPU_TEXTURE_FILTER_PARAM = 1;
+pub type GPU_TEXTURE_FILTER_PARAM = libc::c_uint;
+pub const GPU_CLAMP_TO_EDGE: GPU_TEXTURE_WRAP_PARAM = 0;
+pub const GPU_CLAMP_TO_BORDER: GPU_TEXTURE_WRAP_PARAM = 1;
+pub const GPU_REPEAT: GPU_TEXTURE_WRAP_PARAM = 2;
+pub const GPU_MIRRORED_REPEAT: GPU_TEXTURE_WRAP_PARAM = 3;
+pub type GPU_TEXTURE_WRAP_PARAM = libc::c_uint;
+pub const GPU_TEX_2D: GPU_TEXTURE_MODE_PARAM = 0;
+pub const GPU_TEX_CUBE_MAP: GPU_TEXTURE_MODE_PARAM = 1;
+pub const GPU_TEX_SHADOW_2D: GPU_TEXTURE_MODE_PARAM = 2;
+pub const GPU_TEX_PROJECTION: GPU_TEXTURE_MODE_PARAM = 3;
+pub const GPU_TEX_SHADOW_CUBE: GPU_TEXTURE_MODE_PARAM = 4;
+pub const GPU_TEX_DISABLED: GPU_TEXTURE_MODE_PARAM = 5;
+pub type GPU_TEXTURE_MODE_PARAM = libc::c_uint;
+pub const GPU_TEXUNIT0: GPU_TEXUNIT = 1;
+pub const GPU_TEXUNIT1: GPU_TEXUNIT = 2;
+pub const GPU_TEXUNIT2: GPU_TEXUNIT = 4;
+pub type GPU_TEXUNIT = libc::c_uint;
+pub const GPU_RGBA8: GPU_TEXCOLOR = 0;
+pub const GPU_RGB8: GPU_TEXCOLOR = 1;
+pub const GPU_RGBA5551: GPU_TEXCOLOR = 2;
+pub const GPU_RGB565: GPU_TEXCOLOR = 3;
+pub const GPU_RGBA4: GPU_TEXCOLOR = 4;
+pub const GPU_LA8: GPU_TEXCOLOR = 5;
+pub const GPU_HILO8: GPU_TEXCOLOR = 6;
+pub const GPU_L8: GPU_TEXCOLOR = 7;
+pub const GPU_A8: GPU_TEXCOLOR = 8;
+pub const GPU_LA4: GPU_TEXCOLOR = 9;
+pub const GPU_L4: GPU_TEXCOLOR = 10;
+pub const GPU_A4: GPU_TEXCOLOR = 11;
+pub const GPU_ETC1: GPU_TEXCOLOR = 12;
+pub const GPU_ETC1A4: GPU_TEXCOLOR = 13;
+pub type GPU_TEXCOLOR = libc::c_uint;
+pub const GPU_TEXFACE_2D: GPU_TEXFACE = 0;
+pub const GPU_POSITIVE_X: GPU_TEXFACE = 0;
+pub const GPU_NEGATIVE_X: GPU_TEXFACE = 1;
+pub const GPU_POSITIVE_Y: GPU_TEXFACE = 2;
+pub const GPU_NEGATIVE_Y: GPU_TEXFACE = 3;
+pub const GPU_POSITIVE_Z: GPU_TEXFACE = 4;
+pub const GPU_NEGATIVE_Z: GPU_TEXFACE = 5;
+pub type GPU_TEXFACE = libc::c_uint;
+pub const GPU_PT_CLAMP_TO_ZERO: GPU_PROCTEX_CLAMP = 0;
+pub const GPU_PT_CLAMP_TO_EDGE: GPU_PROCTEX_CLAMP = 1;
+pub const GPU_PT_REPEAT: GPU_PROCTEX_CLAMP = 2;
+pub const GPU_PT_MIRRORED_REPEAT: GPU_PROCTEX_CLAMP = 3;
+pub const GPU_PT_PULSE: GPU_PROCTEX_CLAMP = 4;
+pub type GPU_PROCTEX_CLAMP = libc::c_uint;
+pub const GPU_PT_U: GPU_PROCTEX_MAPFUNC = 0;
+pub const GPU_PT_U2: GPU_PROCTEX_MAPFUNC = 1;
+pub const GPU_PT_V: GPU_PROCTEX_MAPFUNC = 2;
+pub const GPU_PT_V2: GPU_PROCTEX_MAPFUNC = 3;
+pub const GPU_PT_ADD: GPU_PROCTEX_MAPFUNC = 4;
+pub const GPU_PT_ADD2: GPU_PROCTEX_MAPFUNC = 5;
+pub const GPU_PT_SQRT2: GPU_PROCTEX_MAPFUNC = 6;
+pub const GPU_PT_MIN: GPU_PROCTEX_MAPFUNC = 7;
+pub const GPU_PT_MAX: GPU_PROCTEX_MAPFUNC = 8;
+pub const GPU_PT_RMAX: GPU_PROCTEX_MAPFUNC = 9;
+pub type GPU_PROCTEX_MAPFUNC = libc::c_uint;
+pub const GPU_PT_NONE: GPU_PROCTEX_SHIFT = 0;
+pub const GPU_PT_ODD: GPU_PROCTEX_SHIFT = 1;
+pub const GPU_PT_EVEN: GPU_PROCTEX_SHIFT = 2;
+pub type GPU_PROCTEX_SHIFT = libc::c_uint;
+pub const GPU_PT_NEAREST: GPU_PROCTEX_FILTER = 0;
+pub const GPU_PT_LINEAR: GPU_PROCTEX_FILTER = 1;
+pub const GPU_PT_NEAREST_MIP_NEAREST: GPU_PROCTEX_FILTER = 2;
+pub const GPU_PT_LINEAR_MIP_NEAREST: GPU_PROCTEX_FILTER = 3;
+pub const GPU_PT_NEAREST_MIP_LINEAR: GPU_PROCTEX_FILTER = 4;
+pub const GPU_PT_LINEAR_MIP_LINEAR: GPU_PROCTEX_FILTER = 5;
+pub type GPU_PROCTEX_FILTER = libc::c_uint;
+pub const GPU_LUT_NOISE: GPU_PROCTEX_LUTID = 0;
+pub const GPU_LUT_RGBMAP: GPU_PROCTEX_LUTID = 2;
+pub const GPU_LUT_ALPHAMAP: GPU_PROCTEX_LUTID = 3;
+pub const GPU_LUT_COLOR: GPU_PROCTEX_LUTID = 4;
+pub const GPU_LUT_COLORDIF: GPU_PROCTEX_LUTID = 5;
+pub type GPU_PROCTEX_LUTID = libc::c_uint;
+pub const GPU_RB_RGBA8: GPU_COLORBUF = 0;
+pub const GPU_RB_RGB8: GPU_COLORBUF = 1;
+pub const GPU_RB_RGBA5551: GPU_COLORBUF = 2;
+pub const GPU_RB_RGB565: GPU_COLORBUF = 3;
+pub const GPU_RB_RGBA4: GPU_COLORBUF = 4;
+pub type GPU_COLORBUF = libc::c_uint;
+pub const GPU_RB_DEPTH16: GPU_DEPTHBUF = 0;
+pub const GPU_RB_DEPTH24: GPU_DEPTHBUF = 2;
+pub const GPU_RB_DEPTH24_STENCIL8: GPU_DEPTHBUF = 3;
+pub type GPU_DEPTHBUF = libc::c_uint;
+pub const GPU_NEVER: GPU_TESTFUNC = 0;
+pub const GPU_ALWAYS: GPU_TESTFUNC = 1;
+pub const GPU_EQUAL: GPU_TESTFUNC = 2;
+pub const GPU_NOTEQUAL: GPU_TESTFUNC = 3;
+pub const GPU_LESS: GPU_TESTFUNC = 4;
+pub const GPU_LEQUAL: GPU_TESTFUNC = 5;
+pub const GPU_GREATER: GPU_TESTFUNC = 6;
+pub const GPU_GEQUAL: GPU_TESTFUNC = 7;
+pub type GPU_TESTFUNC = libc::c_uint;
+pub const GPU_EARLYDEPTH_GEQUAL: GPU_EARLYDEPTHFUNC = 0;
+pub const GPU_EARLYDEPTH_GREATER: GPU_EARLYDEPTHFUNC = 1;
+pub const GPU_EARLYDEPTH_LEQUAL: GPU_EARLYDEPTHFUNC = 2;
+pub const GPU_EARLYDEPTH_LESS: GPU_EARLYDEPTHFUNC = 3;
+pub type GPU_EARLYDEPTHFUNC = libc::c_uint;
+pub const GPU_SCISSOR_DISABLE: GPU_SCISSORMODE = 0;
+pub const GPU_SCISSOR_INVERT: GPU_SCISSORMODE = 1;
+pub const GPU_SCISSOR_NORMAL: GPU_SCISSORMODE = 3;
+pub type GPU_SCISSORMODE = libc::c_uint;
+pub const GPU_STENCIL_KEEP: GPU_STENCILOP = 0;
+pub const GPU_STENCIL_ZERO: GPU_STENCILOP = 1;
+pub const GPU_STENCIL_REPLACE: GPU_STENCILOP = 2;
+pub const GPU_STENCIL_INCR: GPU_STENCILOP = 3;
+pub const GPU_STENCIL_DECR: GPU_STENCILOP = 4;
+pub const GPU_STENCIL_INVERT: GPU_STENCILOP = 5;
+pub const GPU_STENCIL_INCR_WRAP: GPU_STENCILOP = 6;
+pub const GPU_STENCIL_DECR_WRAP: GPU_STENCILOP = 7;
+pub type GPU_STENCILOP = libc::c_uint;
+pub const GPU_WRITE_RED: GPU_WRITEMASK = 1;
+pub const GPU_WRITE_GREEN: GPU_WRITEMASK = 2;
+pub const GPU_WRITE_BLUE: GPU_WRITEMASK = 4;
+pub const GPU_WRITE_ALPHA: GPU_WRITEMASK = 8;
+pub const GPU_WRITE_DEPTH: GPU_WRITEMASK = 16;
+pub const GPU_WRITE_COLOR: GPU_WRITEMASK = 15;
+pub const GPU_WRITE_ALL: GPU_WRITEMASK = 31;
+pub type GPU_WRITEMASK = libc::c_uint;
+pub const GPU_BLEND_ADD: GPU_BLENDEQUATION = 0;
+pub const GPU_BLEND_SUBTRACT: GPU_BLENDEQUATION = 1;
+pub const GPU_BLEND_REVERSE_SUBTRACT: GPU_BLENDEQUATION = 2;
+pub const GPU_BLEND_MIN: GPU_BLENDEQUATION = 3;
+pub const GPU_BLEND_MAX: GPU_BLENDEQUATION = 4;
+pub type GPU_BLENDEQUATION = libc::c_uint;
+pub const GPU_ZERO: GPU_BLENDFACTOR = 0;
+pub const GPU_ONE: GPU_BLENDFACTOR = 1;
+pub const GPU_SRC_COLOR: GPU_BLENDFACTOR = 2;
+pub const GPU_ONE_MINUS_SRC_COLOR: GPU_BLENDFACTOR = 3;
+pub const GPU_DST_COLOR: GPU_BLENDFACTOR = 4;
+pub const GPU_ONE_MINUS_DST_COLOR: GPU_BLENDFACTOR = 5;
+pub const GPU_SRC_ALPHA: GPU_BLENDFACTOR = 6;
+pub const GPU_ONE_MINUS_SRC_ALPHA: GPU_BLENDFACTOR = 7;
+pub const GPU_DST_ALPHA: GPU_BLENDFACTOR = 8;
+pub const GPU_ONE_MINUS_DST_ALPHA: GPU_BLENDFACTOR = 9;
+pub const GPU_CONSTANT_COLOR: GPU_BLENDFACTOR = 10;
+pub const GPU_ONE_MINUS_CONSTANT_COLOR: GPU_BLENDFACTOR = 11;
+pub const GPU_CONSTANT_ALPHA: GPU_BLENDFACTOR = 12;
+pub const GPU_ONE_MINUS_CONSTANT_ALPHA: GPU_BLENDFACTOR = 13;
+pub const GPU_SRC_ALPHA_SATURATE: GPU_BLENDFACTOR = 14;
+pub type GPU_BLENDFACTOR = libc::c_uint;
+pub const GPU_LOGICOP_CLEAR: GPU_LOGICOP = 0;
+pub const GPU_LOGICOP_AND: GPU_LOGICOP = 1;
+pub const GPU_LOGICOP_AND_REVERSE: GPU_LOGICOP = 2;
+pub const GPU_LOGICOP_COPY: GPU_LOGICOP = 3;
+pub const GPU_LOGICOP_SET: GPU_LOGICOP = 4;
+pub const GPU_LOGICOP_COPY_INVERTED: GPU_LOGICOP = 5;
+pub const GPU_LOGICOP_NOOP: GPU_LOGICOP = 6;
+pub const GPU_LOGICOP_INVERT: GPU_LOGICOP = 7;
+pub const GPU_LOGICOP_NAND: GPU_LOGICOP = 8;
+pub const GPU_LOGICOP_OR: GPU_LOGICOP = 9;
+pub const GPU_LOGICOP_NOR: GPU_LOGICOP = 10;
+pub const GPU_LOGICOP_XOR: GPU_LOGICOP = 11;
+pub const GPU_LOGICOP_EQUIV: GPU_LOGICOP = 12;
+pub const GPU_LOGICOP_AND_INVERTED: GPU_LOGICOP = 13;
+pub const GPU_LOGICOP_OR_REVERSE: GPU_LOGICOP = 14;
+pub const GPU_LOGICOP_OR_INVERTED: GPU_LOGICOP = 15;
+pub type GPU_LOGICOP = libc::c_uint;
+pub const GPU_FRAGOPMODE_GL: GPU_FRAGOPMODE = 0;
+pub const GPU_FRAGOPMODE_GAS_ACC: GPU_FRAGOPMODE = 1;
+pub const GPU_FRAGOPMODE_SHADOW: GPU_FRAGOPMODE = 3;
+pub type GPU_FRAGOPMODE = libc::c_uint;
+pub const GPU_BYTE: GPU_FORMATS = 0;
+pub const GPU_UNSIGNED_BYTE: GPU_FORMATS = 1;
+pub const GPU_SHORT: GPU_FORMATS = 2;
+pub const GPU_FLOAT: GPU_FORMATS = 3;
+pub type GPU_FORMATS = libc::c_uint;
+pub const GPU_CULL_NONE: GPU_CULLMODE = 0;
+pub const GPU_CULL_FRONT_CCW: GPU_CULLMODE = 1;
+pub const GPU_CULL_BACK_CCW: GPU_CULLMODE = 2;
+pub type GPU_CULLMODE = libc::c_uint;
+pub const GPU_PRIMARY_COLOR: GPU_TEVSRC = 0;
+pub const GPU_FRAGMENT_PRIMARY_COLOR: GPU_TEVSRC = 1;
+pub const GPU_FRAGMENT_SECONDARY_COLOR: GPU_TEVSRC = 2;
+pub const GPU_TEXTURE0: GPU_TEVSRC = 3;
+pub const GPU_TEXTURE1: GPU_TEVSRC = 4;
+pub const GPU_TEXTURE2: GPU_TEVSRC = 5;
+pub const GPU_TEXTURE3: GPU_TEVSRC = 6;
+pub const GPU_PREVIOUS_BUFFER: GPU_TEVSRC = 13;
+pub const GPU_CONSTANT: GPU_TEVSRC = 14;
+pub const GPU_PREVIOUS: GPU_TEVSRC = 15;
+pub type GPU_TEVSRC = libc::c_uint;
+pub const GPU_TEVOP_RGB_SRC_COLOR: GPU_TEVOP_RGB = 0;
+pub const GPU_TEVOP_RGB_ONE_MINUS_SRC_COLOR: GPU_TEVOP_RGB = 1;
+pub const GPU_TEVOP_RGB_SRC_ALPHA: GPU_TEVOP_RGB = 2;
+pub const GPU_TEVOP_RGB_ONE_MINUS_SRC_ALPHA: GPU_TEVOP_RGB = 3;
+pub const GPU_TEVOP_RGB_SRC_R: GPU_TEVOP_RGB = 4;
+pub const GPU_TEVOP_RGB_ONE_MINUS_SRC_R: GPU_TEVOP_RGB = 5;
+pub const GPU_TEVOP_RGB_0x06: GPU_TEVOP_RGB = 6;
+pub const GPU_TEVOP_RGB_0x07: GPU_TEVOP_RGB = 7;
+pub const GPU_TEVOP_RGB_SRC_G: GPU_TEVOP_RGB = 8;
+pub const GPU_TEVOP_RGB_ONE_MINUS_SRC_G: GPU_TEVOP_RGB = 9;
+pub const GPU_TEVOP_RGB_0x0A: GPU_TEVOP_RGB = 10;
+pub const GPU_TEVOP_RGB_0x0B: GPU_TEVOP_RGB = 11;
+pub const GPU_TEVOP_RGB_SRC_B: GPU_TEVOP_RGB = 12;
+pub const GPU_TEVOP_RGB_ONE_MINUS_SRC_B: GPU_TEVOP_RGB = 13;
+pub const GPU_TEVOP_RGB_0x0E: GPU_TEVOP_RGB = 14;
+pub const GPU_TEVOP_RGB_0x0F: GPU_TEVOP_RGB = 15;
+pub type GPU_TEVOP_RGB = libc::c_uint;
+pub const GPU_TEVOP_A_SRC_ALPHA: GPU_TEVOP_A = 0;
+pub const GPU_TEVOP_A_ONE_MINUS_SRC_ALPHA: GPU_TEVOP_A = 1;
+pub const GPU_TEVOP_A_SRC_R: GPU_TEVOP_A = 2;
+pub const GPU_TEVOP_A_ONE_MINUS_SRC_R: GPU_TEVOP_A = 3;
+pub const GPU_TEVOP_A_SRC_G: GPU_TEVOP_A = 4;
+pub const GPU_TEVOP_A_ONE_MINUS_SRC_G: GPU_TEVOP_A = 5;
+pub const GPU_TEVOP_A_SRC_B: GPU_TEVOP_A = 6;
+pub const GPU_TEVOP_A_ONE_MINUS_SRC_B: GPU_TEVOP_A = 7;
+pub type GPU_TEVOP_A = libc::c_uint;
+pub const GPU_REPLACE: GPU_COMBINEFUNC = 0;
+pub const GPU_MODULATE: GPU_COMBINEFUNC = 1;
+pub const GPU_ADD: GPU_COMBINEFUNC = 2;
+pub const GPU_ADD_SIGNED: GPU_COMBINEFUNC = 3;
+pub const GPU_INTERPOLATE: GPU_COMBINEFUNC = 4;
+pub const GPU_SUBTRACT: GPU_COMBINEFUNC = 5;
+pub const GPU_DOT3_RGB: GPU_COMBINEFUNC = 6;
+pub const GPU_MULTIPLY_ADD: GPU_COMBINEFUNC = 8;
+pub const GPU_ADD_MULTIPLY: GPU_COMBINEFUNC = 9;
+pub type GPU_COMBINEFUNC = libc::c_uint;
+pub const GPU_TEVSCALE_1: GPU_TEVSCALE = 0;
+pub const GPU_TEVSCALE_2: GPU_TEVSCALE = 1;
+pub const GPU_TEVSCALE_4: GPU_TEVSCALE = 2;
+pub type GPU_TEVSCALE = libc::c_uint;
+pub const GPU_NO_FRESNEL: GPU_FRESNELSEL = 0;
+pub const GPU_PRI_ALPHA_FRESNEL: GPU_FRESNELSEL = 1;
+pub const GPU_SEC_ALPHA_FRESNEL: GPU_FRESNELSEL = 2;
+pub const GPU_PRI_SEC_ALPHA_FRESNEL: GPU_FRESNELSEL = 3;
+pub type GPU_FRESNELSEL = libc::c_uint;
+pub const GPU_BUMP_NOT_USED: GPU_BUMPMODE = 0;
+pub const GPU_BUMP_AS_BUMP: GPU_BUMPMODE = 1;
+pub const GPU_BUMP_AS_TANG: GPU_BUMPMODE = 2;
+pub type GPU_BUMPMODE = libc::c_uint;
+pub const GPU_LUT_D0: GPU_LIGHTLUTID = 0;
+pub const GPU_LUT_D1: GPU_LIGHTLUTID = 1;
+pub const GPU_LUT_SP: GPU_LIGHTLUTID = 2;
+pub const GPU_LUT_FR: GPU_LIGHTLUTID = 3;
+pub const GPU_LUT_RB: GPU_LIGHTLUTID = 4;
+pub const GPU_LUT_RG: GPU_LIGHTLUTID = 5;
+pub const GPU_LUT_RR: GPU_LIGHTLUTID = 6;
+pub const GPU_LUT_DA: GPU_LIGHTLUTID = 7;
+pub type GPU_LIGHTLUTID = libc::c_uint;
+pub const GPU_LUTINPUT_NH: GPU_LIGHTLUTINPUT = 0;
+pub const GPU_LUTINPUT_VH: GPU_LIGHTLUTINPUT = 1;
+pub const GPU_LUTINPUT_NV: GPU_LIGHTLUTINPUT = 2;
+pub const GPU_LUTINPUT_LN: GPU_LIGHTLUTINPUT = 3;
+pub const GPU_LUTINPUT_SP: GPU_LIGHTLUTINPUT = 4;
+pub const GPU_LUTINPUT_CP: GPU_LIGHTLUTINPUT = 5;
+pub type GPU_LIGHTLUTINPUT = libc::c_uint;
+pub const GPU_LUTSCALER_1x: GPU_LIGHTLUTSCALER = 0;
+pub const GPU_LUTSCALER_2x: GPU_LIGHTLUTSCALER = 1;
+pub const GPU_LUTSCALER_4x: GPU_LIGHTLUTSCALER = 2;
+pub const GPU_LUTSCALER_8x: GPU_LIGHTLUTSCALER = 3;
+pub const GPU_LUTSCALER_0_25x: GPU_LIGHTLUTSCALER = 6;
+pub const GPU_LUTSCALER_0_5x: GPU_LIGHTLUTSCALER = 7;
+pub type GPU_LIGHTLUTSCALER = libc::c_uint;
+pub const GPU_LUTSELECT_COMMON: GPU_LIGHTLUTSELECT = 0;
+pub const GPU_LUTSELECT_SP: GPU_LIGHTLUTSELECT = 1;
+pub const GPU_LUTSELECT_DA: GPU_LIGHTLUTSELECT = 2;
+pub type GPU_LIGHTLUTSELECT = libc::c_uint;
+pub const GPU_NO_FOG: GPU_FOGMODE = 0;
+pub const GPU_FOG: GPU_FOGMODE = 5;
+pub const GPU_GAS: GPU_FOGMODE = 7;
+pub type GPU_FOGMODE = libc::c_uint;
+pub const GPU_PLAIN_DENSITY: GPU_GASMODE = 0;
+pub const GPU_DEPTH_DENSITY: GPU_GASMODE = 1;
+pub type GPU_GASMODE = libc::c_uint;
+pub const GPU_GAS_DENSITY: GPU_GASLUTINPUT = 0;
+pub const GPU_GAS_LIGHT_FACTOR: GPU_GASLUTINPUT = 1;
+pub type GPU_GASLUTINPUT = libc::c_uint;
+pub const GPU_TRIANGLES: GPU_Primitive_t = 0;
+pub const GPU_TRIANGLE_STRIP: GPU_Primitive_t = 256;
+pub const GPU_TRIANGLE_FAN: GPU_Primitive_t = 512;
+pub const GPU_GEOMETRY_PRIM: GPU_Primitive_t = 768;
+pub type GPU_Primitive_t = libc::c_uint;
+pub const GPU_VERTEX_SHADER: GPU_SHADER_TYPE = 0;
+pub const GPU_GEOMETRY_SHADER: GPU_SHADER_TYPE = 1;
+pub type GPU_SHADER_TYPE = libc::c_uint;
 extern "C" {
     pub static mut gpuCmdBuf: *mut u32;
 }
@@ -8812,19 +9007,10 @@ extern "C" {
     pub fn GPUCMD_AddRawCommands(cmd: *const u32, size: u32);
 }
 extern "C" {
-    pub fn GPUCMD_Run();
-}
-extern "C" {
-    pub fn GPUCMD_FlushAndRun();
-}
-extern "C" {
     pub fn GPUCMD_Add(header: u32, param: *const u32, paramlength: u32);
 }
 extern "C" {
     pub fn GPUCMD_Split(addr: *mut *mut u32, size: *mut u32);
-}
-extern "C" {
-    pub fn GPUCMD_Finalize();
 }
 extern "C" {
     pub fn f32tof16(f: f32) -> u32;
@@ -8838,80 +9024,54 @@ extern "C" {
 extern "C" {
     pub fn f32tof31(f: f32) -> u32;
 }
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum DVLE_type { VERTEX_SHDR = 0, GEOMETRY_SHDR = 1, }
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum DVLE_constantType {
-    DVLE_CONST_BOOL = 0,
-    DVLE_CONST_u8 = 1,
-    DVLE_CONST_FLOAT24 = 2,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum DVLE_outputAttribute_t {
-    RESULT_POSITION = 0,
-    RESULT_NORMALQUAT = 1,
-    RESULT_COLOR = 2,
-    RESULT_TEXCOORD0 = 3,
-    RESULT_TEXCOORD0W = 4,
-    RESULT_TEXCOORD1 = 5,
-    RESULT_TEXCOORD2 = 6,
-    RESULT_VIEW = 8,
-    RESULT_DUMMY = 9,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum DVLE_geoShaderMode {
-    GSH_POINT = 0,
-    GSH_VARIABLE_PRIM = 1,
-    GSH_FIXED_PRIM = 2,
-}
+pub const VERTEX_SHDR: DVLE_type = 0;
+pub const GEOMETRY_SHDR: DVLE_type = 1;
+pub type DVLE_type = libc::c_uint;
+pub const DVLE_CONST_BOOL: DVLE_constantType = 0;
+pub const DVLE_CONST_u8: DVLE_constantType = 1;
+pub const DVLE_CONST_FLOAT24: DVLE_constantType = 2;
+pub type DVLE_constantType = libc::c_uint;
+pub const RESULT_POSITION: DVLE_outputAttribute_t = 0;
+pub const RESULT_NORMALQUAT: DVLE_outputAttribute_t = 1;
+pub const RESULT_COLOR: DVLE_outputAttribute_t = 2;
+pub const RESULT_TEXCOORD0: DVLE_outputAttribute_t = 3;
+pub const RESULT_TEXCOORD0W: DVLE_outputAttribute_t = 4;
+pub const RESULT_TEXCOORD1: DVLE_outputAttribute_t = 5;
+pub const RESULT_TEXCOORD2: DVLE_outputAttribute_t = 6;
+pub const RESULT_VIEW: DVLE_outputAttribute_t = 8;
+pub const RESULT_DUMMY: DVLE_outputAttribute_t = 9;
+pub type DVLE_outputAttribute_t = libc::c_uint;
+pub const GSH_POINT: DVLE_geoShaderMode = 0;
+pub const GSH_VARIABLE_PRIM: DVLE_geoShaderMode = 1;
+pub const GSH_FIXED_PRIM: DVLE_geoShaderMode = 2;
+pub type DVLE_geoShaderMode = libc::c_uint;
 #[repr(C)]
-#[derive(Copy)]
 pub struct DVLP_s {
     pub codeSize: u32,
     pub codeData: *mut u32,
     pub opdescSize: u32,
     pub opcdescData: *mut u32,
 }
-impl Clone for DVLP_s {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
 pub struct DVLE_constEntry_s {
     pub type_: u16,
     pub id: u16,
     pub data: [u32; 4usize],
 }
-impl Clone for DVLE_constEntry_s {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
 pub struct DVLE_outEntry_s {
     pub type_: u16,
     pub regID: u16,
     pub mask: u8,
     pub unk: [u8; 3usize],
 }
-impl Clone for DVLE_outEntry_s {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
 pub struct DVLE_uniformEntry_s {
     pub symbolOffset: u32,
     pub startReg: u16,
     pub endReg: u16,
 }
-impl Clone for DVLE_uniformEntry_s {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
 pub struct DVLE_s {
     pub type_: DVLE_type,
     pub mergeOutmaps: bool,
@@ -8934,18 +9094,11 @@ pub struct DVLE_s {
     pub outmapMode: u32,
     pub outmapClock: u32,
 }
-impl Clone for DVLE_s {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
 pub struct DVLB_s {
     pub numDVLE: u32,
     pub DVLP: DVLP_s,
     pub DVLE: *mut DVLE_s,
-}
-impl Clone for DVLB_s {
-    fn clone(&self) -> Self { *self }
 }
 extern "C" {
     pub fn DVLB_ParseFile(shbinData: *mut u32, shbinSize: u32) -> *mut DVLB_s;
@@ -8954,23 +9107,17 @@ extern "C" {
     pub fn DVLB_Free(dvlb: *mut DVLB_s);
 }
 extern "C" {
-    pub fn DVLE_GetUniformRegister(dvle: *mut DVLE_s,
-                                   name: *const libc::c_char) -> s8;
+    pub fn DVLE_GetUniformRegister(dvle: *mut DVLE_s, name: *const libc::c_char) -> s8;
 }
 extern "C" {
     pub fn DVLE_GenerateOutmap(dvle: *mut DVLE_s);
 }
 #[repr(C)]
-#[derive(Copy)]
 pub struct float24Uniform_s {
     pub id: u32,
     pub data: [u32; 3usize],
 }
-impl Clone for float24Uniform_s {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
 pub struct shaderInstance_s {
     pub dvle: *mut DVLE_s,
     pub boolUniforms: u16,
@@ -8980,38 +9127,35 @@ pub struct shaderInstance_s {
     pub intUniformMask: u8,
     pub numFloat24Uniforms: u8,
 }
-impl Clone for shaderInstance_s {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
 pub struct shaderProgram_s {
     pub vertexShader: *mut shaderInstance_s,
     pub geometryShader: *mut shaderInstance_s,
     pub geoShaderInputPermutation: [u32; 2usize],
     pub geoShaderInputStride: u8,
 }
-impl Clone for shaderProgram_s {
-    fn clone(&self) -> Self { *self }
-}
 extern "C" {
-    pub fn shaderInstanceInit(si: *mut shaderInstance_s, dvle: *mut DVLE_s)
-     -> Result;
+    pub fn shaderInstanceInit(si: *mut shaderInstance_s, dvle: *mut DVLE_s) -> Result;
 }
 extern "C" {
     pub fn shaderInstanceFree(si: *mut shaderInstance_s) -> Result;
 }
 extern "C" {
-    pub fn shaderInstanceSetBool(si: *mut shaderInstance_s, id: libc::c_int,
-                                 value: bool) -> Result;
+    pub fn shaderInstanceSetBool(si: *mut shaderInstance_s, id: libc::c_int, value: bool)
+        -> Result;
 }
 extern "C" {
-    pub fn shaderInstanceGetBool(si: *mut shaderInstance_s, id: libc::c_int,
-                                 value: *mut bool) -> Result;
+    pub fn shaderInstanceGetBool(
+        si: *mut shaderInstance_s,
+        id: libc::c_int,
+        value: *mut bool,
+    ) -> Result;
 }
 extern "C" {
-    pub fn shaderInstanceGetUniformLocation(si: *mut shaderInstance_s,
-                                            name: *const libc::c_char) -> s8;
+    pub fn shaderInstanceGetUniformLocation(
+        si: *mut shaderInstance_s,
+        name: *const libc::c_char,
+    ) -> s8;
 }
 extern "C" {
     pub fn shaderProgramInit(sp: *mut shaderProgram_s) -> Result;
@@ -9020,53 +9164,51 @@ extern "C" {
     pub fn shaderProgramFree(sp: *mut shaderProgram_s) -> Result;
 }
 extern "C" {
-    pub fn shaderProgramSetVsh(sp: *mut shaderProgram_s, dvle: *mut DVLE_s)
-     -> Result;
+    pub fn shaderProgramSetVsh(sp: *mut shaderProgram_s, dvle: *mut DVLE_s) -> Result;
 }
 extern "C" {
-    pub fn shaderProgramSetGsh(sp: *mut shaderProgram_s, dvle: *mut DVLE_s,
-                               stride: u8) -> Result;
+    pub fn shaderProgramSetGsh(sp: *mut shaderProgram_s, dvle: *mut DVLE_s, stride: u8) -> Result;
 }
 extern "C" {
-    pub fn shaderProgramSetGshInputPermutation(sp: *mut shaderProgram_s,
-                                               permutation: u64) -> Result;
+    pub fn shaderProgramSetGshInputPermutation(
+        sp: *mut shaderProgram_s,
+        permutation: u64,
+    ) -> Result;
 }
 extern "C" {
-    pub fn shaderProgramConfigure(sp: *mut shaderProgram_s, sendVshCode: bool,
-                                  sendGshCode: bool) -> Result;
+    pub fn shaderProgramConfigure(
+        sp: *mut shaderProgram_s,
+        sendVshCode: bool,
+        sendGshCode: bool,
+    ) -> Result;
 }
 extern "C" {
     pub fn shaderProgramUse(sp: *mut shaderProgram_s) -> Result;
 }
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum ndspOutputMode {
-    NDSP_OUTPUT_MONO = 0,
-    NDSP_OUTPUT_STEREO = 1,
-    NDSP_OUTPUT_SURROUND = 2,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum ndspClippingMode { NDSP_CLIP_NORMAL = 0, NDSP_CLIP_SOFT = 1, }
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum ndspSpeakerPos {
-    NDSP_SPKPOS_SQUARE = 0,
-    NDSP_SPKPOS_WIDE = 1,
-    NDSP_SPKPOS_NUM = 2,
-}
+pub const NDSP_OUTPUT_MONO: ndspOutputMode = 0;
+pub const NDSP_OUTPUT_STEREO: ndspOutputMode = 1;
+pub const NDSP_OUTPUT_SURROUND: ndspOutputMode = 2;
+pub type ndspOutputMode = libc::c_uint;
+pub const NDSP_CLIP_NORMAL: ndspClippingMode = 0;
+pub const NDSP_CLIP_SOFT: ndspClippingMode = 1;
+pub type ndspClippingMode = libc::c_uint;
+pub const NDSP_SPKPOS_SQUARE: ndspSpeakerPos = 0;
+pub const NDSP_SPKPOS_WIDE: ndspSpeakerPos = 1;
+pub const NDSP_SPKPOS_NUM: ndspSpeakerPos = 2;
+pub type ndspSpeakerPos = libc::c_uint;
 #[repr(C)]
-#[derive(Copy)]
 pub struct ndspAdpcmData {
     pub index: u16,
     pub history0: s16,
     pub history1: s16,
 }
-impl Clone for ndspAdpcmData {
-    fn clone(&self) -> Self { *self }
-}
+pub type ndspWaveBuf = tag_ndspWaveBuf;
+pub const NDSP_WBUF_FREE: _bindgen_ty_25 = 0;
+pub const NDSP_WBUF_QUEUED: _bindgen_ty_25 = 1;
+pub const NDSP_WBUF_PLAYING: _bindgen_ty_25 = 2;
+pub const NDSP_WBUF_DONE: _bindgen_ty_25 = 3;
+pub type _bindgen_ty_25 = libc::c_uint;
 #[repr(C)]
-#[derive(Copy)]
 pub struct tag_ndspWaveBuf {
     pub __bindgen_anon_1: tag_ndspWaveBuf__bindgen_ty_1,
     pub nsamples: u32,
@@ -9078,43 +9220,24 @@ pub struct tag_ndspWaveBuf {
     pub next: *mut ndspWaveBuf,
 }
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub union tag_ndspWaveBuf__bindgen_ty_1 {
     pub data_pcm8: *mut s8,
     pub data_pcm16: *mut s16,
     pub data_adpcm: *mut u8,
     pub data_vaddr: *const libc::c_void,
+    _bindgen_union_align: u32,
 }
-impl Clone for tag_ndspWaveBuf__bindgen_ty_1 {
-    fn clone(&self) -> Self { *self }
-}
-impl Clone for tag_ndspWaveBuf {
-    fn clone(&self) -> Self { *self }
-}
-pub type ndspWaveBuf = tag_ndspWaveBuf;
-pub const NDSP_WBUF_FREE: _bindgen_ty_23 = _bindgen_ty_23::NDSP_WBUF_FREE;
-pub const NDSP_WBUF_QUEUED: _bindgen_ty_23 = _bindgen_ty_23::NDSP_WBUF_QUEUED;
-pub const NDSP_WBUF_PLAYING: _bindgen_ty_23 =
-    _bindgen_ty_23::NDSP_WBUF_PLAYING;
-pub const NDSP_WBUF_DONE: _bindgen_ty_23 = _bindgen_ty_23::NDSP_WBUF_DONE;
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum _bindgen_ty_23 {
-    NDSP_WBUF_FREE = 0,
-    NDSP_WBUF_QUEUED = 1,
-    NDSP_WBUF_PLAYING = 2,
-    NDSP_WBUF_DONE = 3,
-}
-pub type ndspCallback =
-    ::core::option::Option<unsafe extern "C" fn(data: *mut libc::c_void)>;
-pub type ndspAuxCallback =
-    ::core::option::Option<unsafe extern "C" fn(data: *mut libc::c_void,
-                                                nsamples: libc::c_int,
-                                                samples:
-                                                    *mut *mut libc::c_void)>;
+pub type ndspCallback = ::core::option::Option<unsafe extern "C" fn(data: *mut libc::c_void)>;
+pub type ndspAuxCallback = ::core::option::Option<
+    unsafe extern "C" fn(
+        data: *mut libc::c_void,
+        nsamples: libc::c_int,
+        samples: *mut *mut libc::c_void,
+    ),
+>;
 extern "C" {
-    pub fn ndspUseComponent(binary: *const libc::c_void, size: u32,
-                            progMask: u16, dataMask: u16);
+    pub fn ndspUseComponent(binary: *const libc::c_void, size: u32, progMask: u16, dataMask: u16);
 }
 extern "C" {
     pub fn ndspInit() -> Result;
@@ -9165,60 +9288,27 @@ extern "C" {
     pub fn ndspAuxSetVolume(id: libc::c_int, volume: f32);
 }
 extern "C" {
-    pub fn ndspAuxSetCallback(id: libc::c_int, callback: ndspAuxCallback,
-                              data: *mut libc::c_void);
+    pub fn ndspAuxSetCallback(id: libc::c_int, callback: ndspAuxCallback, data: *mut libc::c_void);
 }
-pub const NDSP_ENCODING_PCM8: _bindgen_ty_24 =
-    _bindgen_ty_24::NDSP_ENCODING_PCM8;
-pub const NDSP_ENCODING_PCM16: _bindgen_ty_24 =
-    _bindgen_ty_24::NDSP_ENCODING_PCM16;
-pub const NDSP_ENCODING_ADPCM: _bindgen_ty_24 =
-    _bindgen_ty_24::NDSP_ENCODING_ADPCM;
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum _bindgen_ty_24 {
-    NDSP_ENCODING_PCM8 = 0,
-    NDSP_ENCODING_PCM16 = 1,
-    NDSP_ENCODING_ADPCM = 2,
-}
-pub const NDSP_FORMAT_MONO_PCM8: _bindgen_ty_25 =
-    _bindgen_ty_25::NDSP_FORMAT_MONO_PCM8;
-pub const NDSP_FORMAT_MONO_PCM16: _bindgen_ty_25 =
-    _bindgen_ty_25::NDSP_FORMAT_MONO_PCM16;
-pub const NDSP_FORMAT_MONO_ADPCM: _bindgen_ty_25 =
-    _bindgen_ty_25::NDSP_FORMAT_MONO_ADPCM;
-pub const NDSP_FORMAT_STEREO_PCM8: _bindgen_ty_25 =
-    _bindgen_ty_25::NDSP_FORMAT_STEREO_PCM8;
-pub const NDSP_FORMAT_STEREO_PCM16: _bindgen_ty_25 =
-    _bindgen_ty_25::NDSP_FORMAT_STEREO_PCM16;
-pub const NDSP_FORMAT_PCM8: _bindgen_ty_25 =
-    _bindgen_ty_25::NDSP_FORMAT_MONO_PCM8;
-pub const NDSP_FORMAT_PCM16: _bindgen_ty_25 =
-    _bindgen_ty_25::NDSP_FORMAT_MONO_PCM16;
-pub const NDSP_FORMAT_ADPCM: _bindgen_ty_25 =
-    _bindgen_ty_25::NDSP_FORMAT_MONO_ADPCM;
-pub const NDSP_FRONT_BYPASS: _bindgen_ty_25 =
-    _bindgen_ty_25::NDSP_FRONT_BYPASS;
-pub const NDSP_3D_SURROUND_PREPROCESSED: _bindgen_ty_25 =
-    _bindgen_ty_25::NDSP_3D_SURROUND_PREPROCESSED;
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum _bindgen_ty_25 {
-    NDSP_FORMAT_MONO_PCM8 = 1,
-    NDSP_FORMAT_MONO_PCM16 = 5,
-    NDSP_FORMAT_MONO_ADPCM = 9,
-    NDSP_FORMAT_STEREO_PCM8 = 2,
-    NDSP_FORMAT_STEREO_PCM16 = 6,
-    NDSP_FRONT_BYPASS = 16,
-    NDSP_3D_SURROUND_PREPROCESSED = 64,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum ndspInterpType {
-    NDSP_INTERP_POLYPHASE = 0,
-    NDSP_INTERP_LINEAR = 1,
-    NDSP_INTERP_NONE = 2,
-}
+pub const NDSP_ENCODING_PCM8: _bindgen_ty_26 = 0;
+pub const NDSP_ENCODING_PCM16: _bindgen_ty_26 = 1;
+pub const NDSP_ENCODING_ADPCM: _bindgen_ty_26 = 2;
+pub type _bindgen_ty_26 = libc::c_uint;
+pub const NDSP_FORMAT_MONO_PCM8: _bindgen_ty_27 = 1;
+pub const NDSP_FORMAT_MONO_PCM16: _bindgen_ty_27 = 5;
+pub const NDSP_FORMAT_MONO_ADPCM: _bindgen_ty_27 = 9;
+pub const NDSP_FORMAT_STEREO_PCM8: _bindgen_ty_27 = 2;
+pub const NDSP_FORMAT_STEREO_PCM16: _bindgen_ty_27 = 6;
+pub const NDSP_FORMAT_PCM8: _bindgen_ty_27 = 1;
+pub const NDSP_FORMAT_PCM16: _bindgen_ty_27 = 5;
+pub const NDSP_FORMAT_ADPCM: _bindgen_ty_27 = 9;
+pub const NDSP_FRONT_BYPASS: _bindgen_ty_27 = 16;
+pub const NDSP_3D_SURROUND_PREPROCESSED: _bindgen_ty_27 = 64;
+pub type _bindgen_ty_27 = libc::c_uint;
+pub const NDSP_INTERP_POLYPHASE: ndspInterpType = 0;
+pub const NDSP_INTERP_LINEAR: ndspInterpType = 1;
+pub const NDSP_INTERP_NONE: ndspInterpType = 2;
+pub type ndspInterpType = libc::c_uint;
 extern "C" {
     pub fn ndspChnReset(id: libc::c_int);
 }
@@ -9265,156 +9355,107 @@ extern "C" {
     pub fn ndspChnIirMonoSetEnable(id: libc::c_int, enable: bool);
 }
 extern "C" {
-    pub fn ndspChnIirMonoSetParamsCustomFilter(id: libc::c_int, a0: f32,
-                                               a1: f32, b0: f32) -> bool;
+    pub fn ndspChnIirMonoSetParamsCustomFilter(id: libc::c_int, a0: f32, a1: f32, b0: f32) -> bool;
 }
 extern "C" {
-    pub fn ndspChnIirMonoSetParamsLowPassFilter(id: libc::c_int, f0: f32)
-     -> bool;
+    pub fn ndspChnIirMonoSetParamsLowPassFilter(id: libc::c_int, f0: f32) -> bool;
 }
 extern "C" {
-    pub fn ndspChnIirMonoSetParamsHighPassFilter(id: libc::c_int, f0: f32)
-     -> bool;
+    pub fn ndspChnIirMonoSetParamsHighPassFilter(id: libc::c_int, f0: f32) -> bool;
 }
 extern "C" {
     pub fn ndspChnIirBiquadSetEnable(id: libc::c_int, enable: bool);
 }
 extern "C" {
-    pub fn ndspChnIirBiquadSetParamsCustomFilter(id: libc::c_int, a0: f32,
-                                                 a1: f32, a2: f32, b0: f32,
-                                                 b1: f32, b2: f32) -> bool;
+    pub fn ndspChnIirBiquadSetParamsCustomFilter(
+        id: libc::c_int,
+        a0: f32,
+        a1: f32,
+        a2: f32,
+        b0: f32,
+        b1: f32,
+        b2: f32,
+    ) -> bool;
 }
 extern "C" {
-    pub fn ndspChnIirBiquadSetParamsLowPassFilter(id: libc::c_int, f0: f32,
-                                                  Q: f32) -> bool;
+    pub fn ndspChnIirBiquadSetParamsLowPassFilter(id: libc::c_int, f0: f32, Q: f32) -> bool;
 }
 extern "C" {
-    pub fn ndspChnIirBiquadSetParamsHighPassFilter(id: libc::c_int, f0: f32,
-                                                   Q: f32) -> bool;
+    pub fn ndspChnIirBiquadSetParamsHighPassFilter(id: libc::c_int, f0: f32, Q: f32) -> bool;
 }
 extern "C" {
-    pub fn ndspChnIirBiquadSetParamsBandPassFilter(id: libc::c_int, f0: f32,
-                                                   Q: f32) -> bool;
+    pub fn ndspChnIirBiquadSetParamsBandPassFilter(id: libc::c_int, f0: f32, Q: f32) -> bool;
 }
 extern "C" {
-    pub fn ndspChnIirBiquadSetParamsNotchFilter(id: libc::c_int, f0: f32,
-                                                Q: f32) -> bool;
+    pub fn ndspChnIirBiquadSetParamsNotchFilter(id: libc::c_int, f0: f32, Q: f32) -> bool;
 }
 extern "C" {
-    pub fn ndspChnIirBiquadSetParamsPeakingEqualizer(id: libc::c_int, f0: f32,
-                                                     Q: f32, gain: f32)
-     -> bool;
+    pub fn ndspChnIirBiquadSetParamsPeakingEqualizer(
+        id: libc::c_int,
+        f0: f32,
+        Q: f32,
+        gain: f32,
+    ) -> bool;
 }
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum SwkbdType {
-    SWKBD_TYPE_NORMAL = 0,
-    SWKBD_TYPE_QWERTY = 1,
-    SWKBD_TYPE_NUMPAD = 2,
-    SWKBD_TYPE_WESTERN = 3,
-}
-pub const SWKBD_NOTBLANK_NOTEMPTY: SwkbdValidInput =
-    SwkbdValidInput::SWKBD_NOTEMPTY_NOTBLANK;
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum SwkbdValidInput {
-    SWKBD_ANYTHING = 0,
-    SWKBD_NOTEMPTY = 1,
-    SWKBD_NOTEMPTY_NOTBLANK = 2,
-    SWKBD_NOTBLANK = 3,
-    SWKBD_FIXEDLEN = 4,
-}
-pub const SWKBD_BUTTON_CONFIRM: SwkbdButton = SwkbdButton::SWKBD_BUTTON_RIGHT;
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum SwkbdButton {
-    SWKBD_BUTTON_LEFT = 0,
-    SWKBD_BUTTON_MIDDLE = 1,
-    SWKBD_BUTTON_RIGHT = 2,
-    SWKBD_BUTTON_NONE = 3,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum SwkbdPasswordMode {
-    SWKBD_PASSWORD_NONE = 0,
-    SWKBD_PASSWORD_HIDE = 1,
-    SWKBD_PASSWORD_HIDE_DELAY = 2,
-}
-pub const SWKBD_FILTER_DIGITS: _bindgen_ty_26 =
-    _bindgen_ty_26::SWKBD_FILTER_DIGITS;
-pub const SWKBD_FILTER_AT: _bindgen_ty_26 = _bindgen_ty_26::SWKBD_FILTER_AT;
-pub const SWKBD_FILTER_PERCENT: _bindgen_ty_26 =
-    _bindgen_ty_26::SWKBD_FILTER_PERCENT;
-pub const SWKBD_FILTER_BACKSLASH: _bindgen_ty_26 =
-    _bindgen_ty_26::SWKBD_FILTER_BACKSLASH;
-pub const SWKBD_FILTER_PROFANITY: _bindgen_ty_26 =
-    _bindgen_ty_26::SWKBD_FILTER_PROFANITY;
-pub const SWKBD_FILTER_CALLBACK: _bindgen_ty_26 =
-    _bindgen_ty_26::SWKBD_FILTER_CALLBACK;
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum _bindgen_ty_26 {
-    SWKBD_FILTER_DIGITS = 1,
-    SWKBD_FILTER_AT = 2,
-    SWKBD_FILTER_PERCENT = 4,
-    SWKBD_FILTER_BACKSLASH = 8,
-    SWKBD_FILTER_PROFANITY = 16,
-    SWKBD_FILTER_CALLBACK = 32,
-}
-pub const SWKBD_PARENTAL: _bindgen_ty_27 = _bindgen_ty_27::SWKBD_PARENTAL;
-pub const SWKBD_DARKEN_TOP_SCREEN: _bindgen_ty_27 =
-    _bindgen_ty_27::SWKBD_DARKEN_TOP_SCREEN;
-pub const SWKBD_PREDICTIVE_INPUT: _bindgen_ty_27 =
-    _bindgen_ty_27::SWKBD_PREDICTIVE_INPUT;
-pub const SWKBD_MULTILINE: _bindgen_ty_27 = _bindgen_ty_27::SWKBD_MULTILINE;
-pub const SWKBD_FIXED_WIDTH: _bindgen_ty_27 =
-    _bindgen_ty_27::SWKBD_FIXED_WIDTH;
-pub const SWKBD_ALLOW_HOME: _bindgen_ty_27 = _bindgen_ty_27::SWKBD_ALLOW_HOME;
-pub const SWKBD_ALLOW_RESET: _bindgen_ty_27 =
-    _bindgen_ty_27::SWKBD_ALLOW_RESET;
-pub const SWKBD_ALLOW_POWER: _bindgen_ty_27 =
-    _bindgen_ty_27::SWKBD_ALLOW_POWER;
-pub const SWKBD_DEFAULT_QWERTY: _bindgen_ty_27 =
-    _bindgen_ty_27::SWKBD_DEFAULT_QWERTY;
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum _bindgen_ty_27 {
-    SWKBD_PARENTAL = 1,
-    SWKBD_DARKEN_TOP_SCREEN = 2,
-    SWKBD_PREDICTIVE_INPUT = 4,
-    SWKBD_MULTILINE = 8,
-    SWKBD_FIXED_WIDTH = 16,
-    SWKBD_ALLOW_HOME = 32,
-    SWKBD_ALLOW_RESET = 64,
-    SWKBD_ALLOW_POWER = 128,
-    SWKBD_DEFAULT_QWERTY = 512,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum SwkbdCallbackResult {
-    SWKBD_CALLBACK_OK = 0,
-    SWKBD_CALLBACK_CLOSE = 1,
-    SWKBD_CALLBACK_CONTINUE = 2,
-}
-#[repr(i32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum SwkbdResult {
-    SWKBD_NONE = -1,
-    SWKBD_INVALID_INPUT = -2,
-    SWKBD_OUTOFMEM = -3,
-    SWKBD_D0_CLICK = 0,
-    SWKBD_D1_CLICK0 = 1,
-    SWKBD_D1_CLICK1 = 2,
-    SWKBD_D2_CLICK0 = 3,
-    SWKBD_D2_CLICK1 = 4,
-    SWKBD_D2_CLICK2 = 5,
-    SWKBD_HOMEPRESSED = 10,
-    SWKBD_RESETPRESSED = 11,
-    SWKBD_POWERPRESSED = 12,
-    SWKBD_PARENTAL_OK = 20,
-    SWKBD_PARENTAL_FAIL = 21,
-    SWKBD_BANNED_INPUT = 30,
-}
+pub const SWKBD_TYPE_NORMAL: SwkbdType = 0;
+pub const SWKBD_TYPE_QWERTY: SwkbdType = 1;
+pub const SWKBD_TYPE_NUMPAD: SwkbdType = 2;
+pub const SWKBD_TYPE_WESTERN: SwkbdType = 3;
+pub type SwkbdType = libc::c_uint;
+pub const SWKBD_ANYTHING: SwkbdValidInput = 0;
+pub const SWKBD_NOTEMPTY: SwkbdValidInput = 1;
+pub const SWKBD_NOTEMPTY_NOTBLANK: SwkbdValidInput = 2;
+pub const SWKBD_NOTBLANK_NOTEMPTY: SwkbdValidInput = 2;
+pub const SWKBD_NOTBLANK: SwkbdValidInput = 3;
+pub const SWKBD_FIXEDLEN: SwkbdValidInput = 4;
+pub type SwkbdValidInput = libc::c_uint;
+pub const SWKBD_BUTTON_LEFT: SwkbdButton = 0;
+pub const SWKBD_BUTTON_MIDDLE: SwkbdButton = 1;
+pub const SWKBD_BUTTON_RIGHT: SwkbdButton = 2;
+pub const SWKBD_BUTTON_CONFIRM: SwkbdButton = 2;
+pub const SWKBD_BUTTON_NONE: SwkbdButton = 3;
+pub type SwkbdButton = libc::c_uint;
+pub const SWKBD_PASSWORD_NONE: SwkbdPasswordMode = 0;
+pub const SWKBD_PASSWORD_HIDE: SwkbdPasswordMode = 1;
+pub const SWKBD_PASSWORD_HIDE_DELAY: SwkbdPasswordMode = 2;
+pub type SwkbdPasswordMode = libc::c_uint;
+pub const SWKBD_FILTER_DIGITS: _bindgen_ty_28 = 1;
+pub const SWKBD_FILTER_AT: _bindgen_ty_28 = 2;
+pub const SWKBD_FILTER_PERCENT: _bindgen_ty_28 = 4;
+pub const SWKBD_FILTER_BACKSLASH: _bindgen_ty_28 = 8;
+pub const SWKBD_FILTER_PROFANITY: _bindgen_ty_28 = 16;
+pub const SWKBD_FILTER_CALLBACK: _bindgen_ty_28 = 32;
+pub type _bindgen_ty_28 = libc::c_uint;
+pub const SWKBD_PARENTAL: _bindgen_ty_29 = 1;
+pub const SWKBD_DARKEN_TOP_SCREEN: _bindgen_ty_29 = 2;
+pub const SWKBD_PREDICTIVE_INPUT: _bindgen_ty_29 = 4;
+pub const SWKBD_MULTILINE: _bindgen_ty_29 = 8;
+pub const SWKBD_FIXED_WIDTH: _bindgen_ty_29 = 16;
+pub const SWKBD_ALLOW_HOME: _bindgen_ty_29 = 32;
+pub const SWKBD_ALLOW_RESET: _bindgen_ty_29 = 64;
+pub const SWKBD_ALLOW_POWER: _bindgen_ty_29 = 128;
+pub const SWKBD_DEFAULT_QWERTY: _bindgen_ty_29 = 512;
+pub type _bindgen_ty_29 = libc::c_uint;
+pub const SWKBD_CALLBACK_OK: SwkbdCallbackResult = 0;
+pub const SWKBD_CALLBACK_CLOSE: SwkbdCallbackResult = 1;
+pub const SWKBD_CALLBACK_CONTINUE: SwkbdCallbackResult = 2;
+pub type SwkbdCallbackResult = libc::c_uint;
+pub const SWKBD_NONE: SwkbdResult = -1;
+pub const SWKBD_INVALID_INPUT: SwkbdResult = -2;
+pub const SWKBD_OUTOFMEM: SwkbdResult = -3;
+pub const SWKBD_D0_CLICK: SwkbdResult = 0;
+pub const SWKBD_D1_CLICK0: SwkbdResult = 1;
+pub const SWKBD_D1_CLICK1: SwkbdResult = 2;
+pub const SWKBD_D2_CLICK0: SwkbdResult = 3;
+pub const SWKBD_D2_CLICK1: SwkbdResult = 4;
+pub const SWKBD_D2_CLICK2: SwkbdResult = 5;
+pub const SWKBD_HOMEPRESSED: SwkbdResult = 10;
+pub const SWKBD_RESETPRESSED: SwkbdResult = 11;
+pub const SWKBD_POWERPRESSED: SwkbdResult = 12;
+pub const SWKBD_PARENTAL_OK: SwkbdResult = 20;
+pub const SWKBD_PARENTAL_FAIL: SwkbdResult = 21;
+pub const SWKBD_BANNED_INPUT: SwkbdResult = 30;
+pub type SwkbdResult = libc::c_int;
 #[repr(C)]
 pub struct SwkbdDictWord {
     pub reading: [u16; 41usize],
@@ -9422,27 +9463,24 @@ pub struct SwkbdDictWord {
     pub language: u8,
     pub all_languages: bool,
 }
-pub type SwkbdCallbackFn =
-    ::core::option::Option<unsafe extern "C" fn(user: *mut libc::c_void,
-                                                ppMessage:
-                                                    *mut *const libc::c_char,
-                                                text: *const libc::c_char,
-                                                textlen: usize)
-                               -> SwkbdCallbackResult>;
+pub type SwkbdCallbackFn = ::core::option::Option<
+    unsafe extern "C" fn(
+        user: *mut libc::c_void,
+        ppMessage: *mut *const libc::c_char,
+        text: *const libc::c_char,
+        textlen: usize,
+    ) -> SwkbdCallbackResult,
+>;
 #[repr(C)]
-#[derive(Copy)]
 pub struct SwkbdStatusData {
     pub data: [u32; 17usize],
-}
-impl Clone for SwkbdStatusData {
-    fn clone(&self) -> Self { *self }
 }
 #[repr(C)]
 pub struct SwkbdLearningData {
     pub data: [u32; 10523usize],
 }
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct SwkbdExtra {
     pub initial_text: *const libc::c_char,
     pub dict: *const SwkbdDictWord,
@@ -9450,9 +9488,6 @@ pub struct SwkbdExtra {
     pub learning_data: *mut SwkbdLearningData,
     pub callback: SwkbdCallbackFn,
     pub callback_user: *mut libc::c_void,
-}
-impl Clone for SwkbdExtra {
-    fn clone(&self) -> Self { *self }
 }
 #[repr(C)]
 pub struct SwkbdState {
@@ -9497,97 +9532,106 @@ pub struct SwkbdState {
     pub __bindgen_anon_1: SwkbdState__bindgen_ty_1,
 }
 #[repr(C)]
-pub union SwkbdState__bindgen_ty_1 {
-    pub reserved: [u8; 171usize],
-    pub extra: SwkbdExtra,
+pub struct SwkbdState__bindgen_ty_1 {
+    pub reserved: __BindgenUnionField<[u8; 171usize]>,
+    pub extra: __BindgenUnionField<SwkbdExtra>,
+    pub bindgen_union_field: [u32; 43usize],
 }
 extern "C" {
-    pub fn swkbdInit(swkbd: *mut SwkbdState, type_: SwkbdType,
-                     numButtons: libc::c_int, maxTextLength: libc::c_int);
+    pub fn swkbdInit(
+        swkbd: *mut SwkbdState,
+        type_: SwkbdType,
+        numButtons: libc::c_int,
+        maxTextLength: libc::c_int,
+    );
 }
 extern "C" {
     pub fn swkbdSetFeatures(swkbd: *mut SwkbdState, features: u32);
 }
 extern "C" {
-    pub fn swkbdSetHintText(swkbd: *mut SwkbdState,
-                            text: *const libc::c_char);
+    pub fn swkbdSetHintText(swkbd: *mut SwkbdState, text: *const libc::c_char);
 }
 extern "C" {
-    pub fn swkbdSetButton(swkbd: *mut SwkbdState, button: SwkbdButton,
-                          text: *const libc::c_char, submit: bool);
+    pub fn swkbdSetButton(
+        swkbd: *mut SwkbdState,
+        button: SwkbdButton,
+        text: *const libc::c_char,
+        submit: bool,
+    );
 }
 extern "C" {
-    pub fn swkbdSetInitialText(swkbd: *mut SwkbdState,
-                               text: *const libc::c_char);
+    pub fn swkbdSetInitialText(swkbd: *mut SwkbdState, text: *const libc::c_char);
 }
 extern "C" {
-    pub fn swkbdSetDictWord(word: *mut SwkbdDictWord,
-                            reading: *const libc::c_char,
-                            text: *const libc::c_char);
+    pub fn swkbdSetDictWord(
+        word: *mut SwkbdDictWord,
+        reading: *const libc::c_char,
+        text: *const libc::c_char,
+    );
 }
 extern "C" {
-    pub fn swkbdSetDictionary(swkbd: *mut SwkbdState,
-                              dict: *const SwkbdDictWord,
-                              wordCount: libc::c_int);
+    pub fn swkbdSetDictionary(
+        swkbd: *mut SwkbdState,
+        dict: *const SwkbdDictWord,
+        wordCount: libc::c_int,
+    );
 }
 extern "C" {
-    pub fn swkbdSetStatusData(swkbd: *mut SwkbdState,
-                              data: *mut SwkbdStatusData, in_: bool,
-                              out: bool);
+    pub fn swkbdSetStatusData(
+        swkbd: *mut SwkbdState,
+        data: *mut SwkbdStatusData,
+        in_: bool,
+        out: bool,
+    );
 }
 extern "C" {
-    pub fn swkbdSetLearningData(swkbd: *mut SwkbdState,
-                                data: *mut SwkbdLearningData, in_: bool,
-                                out: bool);
+    pub fn swkbdSetLearningData(
+        swkbd: *mut SwkbdState,
+        data: *mut SwkbdLearningData,
+        in_: bool,
+        out: bool,
+    );
 }
 extern "C" {
-    pub fn swkbdSetFilterCallback(swkbd: *mut SwkbdState,
-                                  callback: SwkbdCallbackFn,
-                                  user: *mut libc::c_void);
+    pub fn swkbdSetFilterCallback(
+        swkbd: *mut SwkbdState,
+        callback: SwkbdCallbackFn,
+        user: *mut libc::c_void,
+    );
 }
 extern "C" {
-    pub fn swkbdInputText(swkbd: *mut SwkbdState, buf: *mut libc::c_char,
-                          bufsize: usize) -> SwkbdButton;
+    pub fn swkbdInputText(
+        swkbd: *mut SwkbdState,
+        buf: *mut libc::c_char,
+        bufsize: usize,
+    ) -> SwkbdButton;
 }
-pub const ERROR_LANGUAGE_FLAG: _bindgen_ty_28 =
-    _bindgen_ty_28::ERROR_LANGUAGE_FLAG;
-pub const ERROR_WORD_WRAP_FLAG: _bindgen_ty_28 =
-    _bindgen_ty_28::ERROR_WORD_WRAP_FLAG;
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum _bindgen_ty_28 {
-    ERROR_LANGUAGE_FLAG = 256,
-    ERROR_WORD_WRAP_FLAG = 512,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum errorType {
-    ERROR_CODE = 0,
-    ERROR_TEXT = 1,
-    ERROR_EULA = 2,
-    ERROR_TYPE_EULA_FIRST_BOOT = 3,
-    ERROR_TYPE_EULA_DRAW_ONLY = 4,
-    ERROR_TYPE_AGREE = 5,
-    ERROR_CODE_LANGUAGE = 256,
-    ERROR_TEXT_LANGUAGE = 257,
-    ERROR_EULA_LANGUAGE = 258,
-    ERROR_TEXT_WORD_WRAP = 513,
-    ERROR_TEXT_LANGUAGE_WORD_WRAP = 769,
-}
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum errorScreenFlag { ERROR_NORMAL = 0, ERROR_STEREO = 1, }
-#[repr(i32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum errorReturnCode {
-    ERROR_UNKNOWN = -1,
-    ERROR_NONE = 0,
-    ERROR_SUCCESS = 1,
-    ERROR_NOT_SUPPORTED = 2,
-    ERROR_HOME_BUTTON = 10,
-    ERROR_SOFTWARE_RESET = 11,
-    ERROR_POWER_BUTTON = 12,
-}
+pub const ERROR_LANGUAGE_FLAG: _bindgen_ty_30 = 256;
+pub const ERROR_WORD_WRAP_FLAG: _bindgen_ty_30 = 512;
+pub type _bindgen_ty_30 = libc::c_uint;
+pub const ERROR_CODE: errorType = 0;
+pub const ERROR_TEXT: errorType = 1;
+pub const ERROR_EULA: errorType = 2;
+pub const ERROR_TYPE_EULA_FIRST_BOOT: errorType = 3;
+pub const ERROR_TYPE_EULA_DRAW_ONLY: errorType = 4;
+pub const ERROR_TYPE_AGREE: errorType = 5;
+pub const ERROR_CODE_LANGUAGE: errorType = 256;
+pub const ERROR_TEXT_LANGUAGE: errorType = 257;
+pub const ERROR_EULA_LANGUAGE: errorType = 258;
+pub const ERROR_TEXT_WORD_WRAP: errorType = 513;
+pub const ERROR_TEXT_LANGUAGE_WORD_WRAP: errorType = 769;
+pub type errorType = libc::c_uint;
+pub const ERROR_NORMAL: errorScreenFlag = 0;
+pub const ERROR_STEREO: errorScreenFlag = 1;
+pub type errorScreenFlag = libc::c_uint;
+pub const ERROR_UNKNOWN: errorReturnCode = -1;
+pub const ERROR_NONE: errorReturnCode = 0;
+pub const ERROR_SUCCESS: errorReturnCode = 1;
+pub const ERROR_NOT_SUPPORTED: errorReturnCode = 2;
+pub const ERROR_HOME_BUTTON: errorReturnCode = 10;
+pub const ERROR_SOFTWARE_RESET: errorReturnCode = 11;
+pub const ERROR_POWER_BUTTON: errorReturnCode = 12;
+pub type errorReturnCode = libc::c_int;
 #[repr(C)]
 pub struct errorConf {
     pub type_: errorType,
@@ -9602,8 +9646,7 @@ pub struct errorConf {
     pub eulaVersion: u16,
 }
 extern "C" {
-    pub fn errorInit(err: *mut errorConf, type_: errorType,
-                     lang: CFG_Language);
+    pub fn errorInit(err: *mut errorConf, type_: errorType, lang: CFG_Language);
 }
 extern "C" {
     pub fn errorCode(err: *mut errorConf, error: libc::c_int);
@@ -9613,6 +9656,41 @@ extern "C" {
 }
 extern "C" {
     pub fn errorDisp(err: *mut errorConf);
+}
+#[repr(C)]
+pub struct MiiSelectorConf {
+    pub enable_cancel_button: libc::c_char,
+    pub enable_selecting_guests: libc::c_char,
+    pub show_on_top_screen: libc::c_char,
+    pub _unk0x3: [libc::c_char; 5usize],
+    pub title: [u16; 64usize],
+    pub _unk0x88: [libc::c_char; 4usize],
+    pub show_guest_page: libc::c_char,
+    pub _unk0x8D: [libc::c_char; 3usize],
+    pub initial_index: u32,
+    pub mii_guest_whitelist: [libc::c_char; 6usize],
+    pub mii_whitelist: [libc::c_char; 100usize],
+    pub _unk0xFE: u16,
+    pub magic: u32,
+}
+#[repr(C)]
+pub struct MiiSelectorReturn {
+    pub no_mii_selected: u32,
+    pub guest_mii_was_selected: u32,
+    pub guest_mii_index: u32,
+    pub mii: [libc::c_char; 92usize],
+    pub _pad0x68: u16,
+    pub checksum: u16,
+    pub guest_mii_name: [u16; 12usize],
+}
+extern "C" {
+    pub fn miiSelectorLaunch(
+        conf: *const MiiSelectorConf,
+        returnbuf: *mut MiiSelectorReturn,
+    ) -> Result;
+}
+extern "C" {
+    pub fn miiSelectorChecksumIsValid(returnbuf: *const MiiSelectorReturn) -> bool;
 }
 #[repr(C)]
 pub struct sdmc_dir_t {
@@ -9632,11 +9710,9 @@ extern "C" {
     pub fn sdmcExit() -> Result;
 }
 extern "C" {
-    pub fn sdmc_getmtime(name: *const libc::c_char, mtime: *mut u64)
-     -> Result;
+    pub fn sdmc_getmtime(name: *const libc::c_char, mtime: *mut u64) -> Result;
 }
 #[repr(C)]
-#[derive(Copy)]
 pub struct romfs_header {
     pub headerSize: u32,
     pub dirHashTableOff: u32,
@@ -9649,11 +9725,7 @@ pub struct romfs_header {
     pub fileTableSize: u32,
     pub fileDataOff: u32,
 }
-impl Clone for romfs_header {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
 pub struct romfs_dir {
     pub parent: u32,
     pub sibling: u32,
@@ -9663,11 +9735,7 @@ pub struct romfs_dir {
     pub nameLen: u32,
     pub name: __IncompleteArrayField<u16>,
 }
-impl Clone for romfs_dir {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
 pub struct romfs_file {
     pub parent: u32,
     pub sibling: u32,
@@ -9676,9 +9744,6 @@ pub struct romfs_file {
     pub nextHash: u32,
     pub nameLen: u32,
     pub name: __IncompleteArrayField<u16>,
-}
-impl Clone for romfs_file {
-    fn clone(&self) -> Self { *self }
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -9689,8 +9754,7 @@ extern "C" {
     pub fn romfsMount(mount: *mut *mut romfs_mount) -> Result;
 }
 extern "C" {
-    pub fn romfsMountFromFile(file: Handle, offset: u32,
-                              mount: *mut *mut romfs_mount) -> Result;
+    pub fn romfsMountFromFile(file: Handle, offset: u32, mount: *mut *mut romfs_mount) -> Result;
 }
 extern "C" {
     pub fn romfsBind(mount: *mut romfs_mount) -> Result;
@@ -9699,17 +9763,12 @@ extern "C" {
     pub fn romfsUnmount(mount: *mut romfs_mount) -> Result;
 }
 #[repr(C)]
-#[derive(Copy)]
 pub struct charWidthInfo_s {
     pub left: s8,
     pub glyphWidth: u8,
     pub charWidth: u8,
 }
-impl Clone for charWidthInfo_s {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
 pub struct TGLP_s {
     pub cellWidth: u8,
     pub cellHeight: u8,
@@ -9724,33 +9783,20 @@ pub struct TGLP_s {
     pub sheetHeight: u16,
     pub sheetData: *mut u8,
 }
-impl Clone for TGLP_s {
-    fn clone(&self) -> Self { *self }
-}
+pub type CWDH_s = tag_CWDH_s;
 #[repr(C)]
-#[derive(Copy)]
 pub struct tag_CWDH_s {
     pub startIndex: u16,
     pub endIndex: u16,
     pub next: *mut CWDH_s,
     pub widths: __IncompleteArrayField<charWidthInfo_s>,
 }
-impl Clone for tag_CWDH_s {
-    fn clone(&self) -> Self { *self }
-}
-pub type CWDH_s = tag_CWDH_s;
-pub const CMAP_TYPE_DIRECT: _bindgen_ty_29 = _bindgen_ty_29::CMAP_TYPE_DIRECT;
-pub const CMAP_TYPE_TABLE: _bindgen_ty_29 = _bindgen_ty_29::CMAP_TYPE_TABLE;
-pub const CMAP_TYPE_SCAN: _bindgen_ty_29 = _bindgen_ty_29::CMAP_TYPE_SCAN;
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum _bindgen_ty_29 {
-    CMAP_TYPE_DIRECT = 0,
-    CMAP_TYPE_TABLE = 1,
-    CMAP_TYPE_SCAN = 2,
-}
+pub const CMAP_TYPE_DIRECT: _bindgen_ty_31 = 0;
+pub const CMAP_TYPE_TABLE: _bindgen_ty_31 = 1;
+pub const CMAP_TYPE_SCAN: _bindgen_ty_31 = 2;
+pub type _bindgen_ty_31 = libc::c_uint;
+pub type CMAP_s = tag_CMAP_s;
 #[repr(C)]
-#[derive(Copy)]
 pub struct tag_CMAP_s {
     pub codeBegin: u16,
     pub codeEnd: u16,
@@ -9760,39 +9806,23 @@ pub struct tag_CMAP_s {
     pub __bindgen_anon_1: tag_CMAP_s__bindgen_ty_1,
 }
 #[repr(C)]
-#[derive(Copy)]
-pub union tag_CMAP_s__bindgen_ty_1 {
-    pub indexOffset: u16,
-    pub indexTable: __IncompleteArrayField<u16>,
-    pub __bindgen_anon_1: tag_CMAP_s__bindgen_ty_1__bindgen_ty_1,
+pub struct tag_CMAP_s__bindgen_ty_1 {
+    pub indexOffset: __BindgenUnionField<u16>,
+    pub indexTable: __BindgenUnionField<[u16; 0usize]>,
+    pub __bindgen_anon_1: __BindgenUnionField<tag_CMAP_s__bindgen_ty_1__bindgen_ty_1>,
+    pub bindgen_union_field: u16,
 }
 #[repr(C)]
-#[derive(Copy)]
 pub struct tag_CMAP_s__bindgen_ty_1__bindgen_ty_1 {
     pub nScanEntries: u16,
     pub scanEntries: __IncompleteArrayField<tag_CMAP_s__bindgen_ty_1__bindgen_ty_1__bindgen_ty_1>,
 }
 #[repr(C)]
-#[derive(Copy)]
 pub struct tag_CMAP_s__bindgen_ty_1__bindgen_ty_1__bindgen_ty_1 {
     pub code: u16,
     pub glyphIndex: u16,
 }
-impl Clone for tag_CMAP_s__bindgen_ty_1__bindgen_ty_1__bindgen_ty_1 {
-    fn clone(&self) -> Self { *self }
-}
-impl Clone for tag_CMAP_s__bindgen_ty_1__bindgen_ty_1 {
-    fn clone(&self) -> Self { *self }
-}
-impl Clone for tag_CMAP_s__bindgen_ty_1 {
-    fn clone(&self) -> Self { *self }
-}
-impl Clone for tag_CMAP_s {
-    fn clone(&self) -> Self { *self }
-}
-pub type CMAP_s = tag_CMAP_s;
 #[repr(C)]
-#[derive(Copy)]
 pub struct FINF_s {
     pub signature: u32,
     pub sectionSize: u32,
@@ -9809,11 +9839,7 @@ pub struct FINF_s {
     pub ascent: u8,
     pub padding: u8,
 }
-impl Clone for FINF_s {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
 pub struct CFNT_s {
     pub signature: u32,
     pub endianness: u16,
@@ -9823,11 +9849,8 @@ pub struct CFNT_s {
     pub nBlocks: u32,
     pub finf: FINF_s,
 }
-impl Clone for CFNT_s {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct fontGlyphPos_s {
     pub sheetIndex: libc::c_int,
     pub xOffset: f32,
@@ -9837,43 +9860,25 @@ pub struct fontGlyphPos_s {
     pub vtxcoord: fontGlyphPos_s__bindgen_ty_2,
 }
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct fontGlyphPos_s__bindgen_ty_1 {
     pub left: f32,
     pub top: f32,
     pub right: f32,
     pub bottom: f32,
 }
-impl Clone for fontGlyphPos_s__bindgen_ty_1 {
-    fn clone(&self) -> Self { *self }
-}
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct fontGlyphPos_s__bindgen_ty_2 {
     pub left: f32,
     pub top: f32,
     pub right: f32,
     pub bottom: f32,
 }
-impl Clone for fontGlyphPos_s__bindgen_ty_2 {
-    fn clone(&self) -> Self { *self }
-}
-impl Clone for fontGlyphPos_s {
-    fn clone(&self) -> Self { *self }
-}
-pub const GLYPH_POS_CALC_VTXCOORD: _bindgen_ty_30 =
-    _bindgen_ty_30::GLYPH_POS_CALC_VTXCOORD;
-pub const GLYPH_POS_AT_BASELINE: _bindgen_ty_30 =
-    _bindgen_ty_30::GLYPH_POS_AT_BASELINE;
-pub const GLYPH_POS_Y_POINTS_UP: _bindgen_ty_30 =
-    _bindgen_ty_30::GLYPH_POS_Y_POINTS_UP;
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum _bindgen_ty_30 {
-    GLYPH_POS_CALC_VTXCOORD = 1,
-    GLYPH_POS_AT_BASELINE = 2,
-    GLYPH_POS_Y_POINTS_UP = 4,
-}
+pub const GLYPH_POS_CALC_VTXCOORD: _bindgen_ty_32 = 1;
+pub const GLYPH_POS_AT_BASELINE: _bindgen_ty_32 = 2;
+pub const GLYPH_POS_Y_POINTS_UP: _bindgen_ty_32 = 4;
+pub type _bindgen_ty_32 = libc::c_uint;
 extern "C" {
     pub fn fontEnsureMapped() -> Result;
 }
@@ -9881,10 +9886,14 @@ extern "C" {
     pub fn fontGlyphIndexFromCodePoint(codePoint: u32) -> libc::c_int;
 }
 extern "C" {
-    pub fn fontGetCharWidthInfo(glyphIndex: libc::c_int)
-     -> *mut charWidthInfo_s;
+    pub fn fontGetCharWidthInfo(glyphIndex: libc::c_int) -> *mut charWidthInfo_s;
 }
 extern "C" {
-    pub fn fontCalcGlyphPos(out: *mut fontGlyphPos_s, glyphIndex: libc::c_int,
-                            flags: u32, scaleX: f32, scaleY: f32);
+    pub fn fontCalcGlyphPos(
+        out: *mut fontGlyphPos_s,
+        glyphIndex: libc::c_int,
+        flags: u32,
+        scaleX: f32,
+        scaleY: f32,
+    );
 }
