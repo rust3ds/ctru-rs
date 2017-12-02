@@ -13,6 +13,8 @@
 use io::{self, ErrorKind};
 use libc;
 
+pub use self::rand::hashmap_random_keys;
+
 pub mod condvar;
 pub mod ext;
 pub mod fast_thread_local;

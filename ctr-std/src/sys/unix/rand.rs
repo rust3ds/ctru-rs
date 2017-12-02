@@ -8,47 +8,36 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use io::{self, Error, ErrorKind};
 use mem;
-use rand::Rng;
+use slice;
 
-use libctru::{sslcInit, sslcExit, sslcGenerateRandomData};
+pub fn hashmap_random_keys() -> (u64, u64) {
+    let mut v = (0, 0);
+    unsafe {
+        let view = slice::from_raw_parts_mut(&mut v as *mut _ as *mut u8,
+                                             mem::size_of_val(&v));
+        imp::fill_bytes(view);
+    }
+    return v
+}
 
-pub struct OsRng(());
+mod imp {
+    use libctru;
 
-impl OsRng {
-    pub fn new() -> io::Result<OsRng> {
-        unsafe { 
-            let r = sslcInit(0); 
-            if r < 0 {
-                Err(Error::new(ErrorKind::Other, "Unable to initialize the RNG"))
-            } else {
-                Ok(OsRng(()))
-            }
+    pub fn fill_bytes(v: &mut [u8]) {
+        unsafe {
+            // Initializing and de-initializing the sslC subsystem every time
+            // we initialize a hashmap is pretty dumb, but I can't think of a
+            // better method at the moment.
+            //
+            // lazy_static won't work because
+            // destructors (for closing the subsystem on exit) won't run.
+            //
+            // Perhaps overriding __appInit() and __appExit() will work,
+            // but that's an experiment for another time.
+            libctru::sslcInit(0);
+            libctru::sslcGenerateRandomData(v.as_ptr() as _, v.len() as u32);
+            libctru::sslcExit();
         }
-    }
-}
-
-impl Rng for OsRng {
-    fn next_u32(&mut self) -> u32 {
-        let mut v = [0; 4];
-        self.fill_bytes(&mut v);
-        unsafe { mem::transmute(v) }
-    }
-
-    fn next_u64(&mut self) -> u64 {
-        let mut v = [0; 8];
-        self.fill_bytes(&mut v);
-        unsafe { mem::transmute(v) }
-    }
-
-    fn fill_bytes(&mut self, v: &mut [u8]) {
-        unsafe { sslcGenerateRandomData(v.as_ptr() as _, v.len() as u32); }
-    }
-}
-
-impl Drop for OsRng {
-    fn drop(&mut self) {
-        unsafe { sslcExit() }
     }
 }

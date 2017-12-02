@@ -11,6 +11,7 @@
 //! Panic support in the standard library
 
 #![stable(feature = "std_panic", since = "1.9.0")]
+#![allow(auto_impl)]
 
 use any::Any;
 use cell::UnsafeCell;
