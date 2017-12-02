@@ -7,3 +7,8 @@ license = "https://en.wikipedia.org/wiki/Zlib_License"
 [dependencies.libc]
 version = "0.2"
 default-features = false
+
+[features]
+# This is a dummy feature that only exists to work around a Xargo issue.
+# User code should not enable it.
+stdbuild = []

@@ -15,6 +15,7 @@ default-features = false
 
 [dependencies.ctru-sys]
 path = "../ctru-sys"
+features = ["stdbuild"]
 
 [features]
 citra = []
