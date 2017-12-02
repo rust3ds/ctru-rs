@@ -1,5 +1,4 @@
-[dependencies.collections]
-[dependencies.rand]
+[dependencies.alloc]
 [dependencies.panic_abort]
 [dependencies.panic_unwind]
 

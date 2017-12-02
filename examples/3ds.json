@@ -5,6 +5,7 @@
   "ar": "arm-none-eabi-ar",
   "target-endian": "little",
   "target-pointer-width": "32",
+  "target-c-int-width": "32",
   "target-family": "unix",
   "arch": "arm",
   "os": "linux",
