@@ -112,7 +112,9 @@ impl Condvar {
 
             let now = Instant::now();
 
-            let nanos = dur.as_secs() * 1_000_000_000 + dur.subsec_nanos() as u64;
+            let nanos = dur.as_secs()
+                           .saturating_mul(1_000_000_000)
+                           .saturating_add(dur.subsec_nanos() as u64);
 
             mutex.unlock();
 

@@ -8,6 +8,8 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
+// Borrowed from /sys/redox/thread_local.rs
+
 #![allow(dead_code)] // not used on all platforms
 
 use collections::BTreeMap;
@@ -63,4 +65,9 @@ pub unsafe fn set(key: Key, value: *mut u8) {
 #[inline]
 pub unsafe fn destroy(key: Key) {
     keys().remove(&key);
+}
+
+#[inline]
+pub fn requires_synchronized_create() -> bool {
+    false
 }

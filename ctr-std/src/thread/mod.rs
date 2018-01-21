@@ -25,11 +25,15 @@
 //!
 //! Fatal logic errors in Rust cause *thread panic*, during which
 //! a thread will unwind the stack, running destructors and freeing
-//! owned resources. Thread panic is unrecoverable from within
-//! the panicking thread (i.e. there is no 'try/catch' in Rust), but
-//! the panic may optionally be detected from a different thread. If
-//! the main thread panics, the application will exit with a non-zero
-//! exit code.
+//! owned resources. While not meant as a 'try/catch' mechanism, panics
+//! in Rust can nonetheless be caught (unless compiling with `panic=abort`) with
+//! [`catch_unwind`](../../std/panic/fn.catch_unwind.html) and recovered
+//! from, or alternatively be resumed with
+//! [`resume_unwind`](../../std/panic/fn.resume_unwind.html). If the panic
+//! is not caught the thread will exit, but the panic may optionally be
+//! detected from a different thread with [`join`]. If the main thread panics
+//! without the panic being caught, the application will exit with a
+//! non-zero exit code.
 //!
 //! When the main thread of a Rust program terminates, the entire program shuts
 //! down, even if other threads are still running. However, this module provides
@@ -112,6 +116,29 @@
 //! will want to make use of some form of **interior mutability** through the
 //! [`Cell`] or [`RefCell`] types.
 //!
+//! ## Naming threads
+//!
+//! Threads are able to have associated names for identification purposes. By default, spawned
+//! threads are unnamed. To specify a name for a thread, build the thread with [`Builder`] and pass
+//! the desired thread name to [`Builder::name`]. To retrieve the thread name from within the
+//! thread, use [`Thread::name`]. A couple examples of where the name of a thread gets used:
+//!
+//! * If a panic occurs in a named thread, the thread name will be printed in the panic message.
+//! * The thread name is provided to the OS where applicable (e.g. `pthread_setname_np` in
+//!   unix-like platforms).
+//!
+//! ## Stack size
+//!
+//! The default stack size for spawned threads is 2 MiB, though this particular stack size is
+//! subject to change in the future. There are two ways to manually specify the stack size for
+//! spawned threads:
+//!
+//! * Build the thread with [`Builder`] and pass the desired stack size to [`Builder::stack_size`].
+//! * Set the `RUST_MIN_STACK` environment variable to an integer representing the desired stack
+//!   size (in bytes). Note that setting [`Builder::stack_size`] will override this.
+//!
+//! Note that the stack size of the main thread is *not* determined by Rust.
+//!
 //! [channels]: ../../std/sync/mpsc/index.html
 //! [`Arc`]: ../../std/sync/struct.Arc.html
 //! [`spawn`]: ../../std/thread/fn.spawn.html
@@ -123,11 +150,14 @@
 //! [`Err`]: ../../std/result/enum.Result.html#variant.Err
 //! [`panic!`]: ../../std/macro.panic.html
 //! [`Builder`]: ../../std/thread/struct.Builder.html
+//! [`Builder::stack_size`]: ../../std/thread/struct.Builder.html#method.stack_size
+//! [`Builder::name`]: ../../std/thread/struct.Builder.html#method.name
 //! [`thread::current`]: ../../std/thread/fn.current.html
 //! [`thread::Result`]: ../../std/thread/type.Result.html
 //! [`Thread`]: ../../std/thread/struct.Thread.html
 //! [`park`]: ../../std/thread/fn.park.html
 //! [`unpark`]: ../../std/thread/struct.Thread.html#method.unpark
+//! [`Thread::name`]: ../../std/thread/struct.Thread.html#method.name
 //! [`thread::park_timeout`]: ../../std/thread/fn.park_timeout.html
 //! [`Cell`]: ../cell/struct.Cell.html
 //! [`RefCell`]: ../cell/struct.RefCell.html
@@ -145,10 +175,12 @@ use panic;
 use panicking;
 use str;
 use sync::{Mutex, Condvar, Arc};
+use sync::atomic::AtomicUsize;
+use sync::atomic::Ordering::SeqCst;
 use sys::thread as imp;
 use sys_common::mutex;
 use sys_common::thread_info;
-use sys_common::util;
+use sys_common::thread;
 use sys_common::{AsInner, IntoInner};
 use time::Duration;
 
@@ -187,16 +219,8 @@ pub use self::local::{LocalKey, LocalKeyState, AccessError};
 ///
 /// The two configurations available are:
 ///
-/// - [`name`]: allows to give a name to the thread which is currently
-///   only used in `panic` messages.
-/// - [`stack_size`]: specifies the desired stack size. Note that this can
-///   be overridden by the OS.
-///
-/// If the [`stack_size`] field is not specified, the stack size
-/// will be the `RUST_MIN_STACK` environment variable. If it is
-/// not specified either, a sensible default will be set.
-///
-/// If the [`name`] field is not specified, the thread will not be named.
+/// - [`name`]: specifies an [associated name for the thread][naming-threads]
+/// - [`stack_size`]: specifies the [desired stack size for the thread][stack-size]
 ///
 /// The [`spawn`] method will take ownership of the builder and create an
 /// [`io::Result`] to the thread handle with the given configuration.
@@ -228,6 +252,8 @@ pub use self::local::{LocalKey, LocalKeyState, AccessError};
 /// [`spawn`]: ../../std/thread/struct.Builder.html#method.spawn
 /// [`io::Result`]: ../../std/io/type.Result.html
 /// [`unwrap`]: ../../std/result/enum.Result.html#method.unwrap
+/// [naming-threads]: ./index.html#naming-threads
+/// [stack-size]: ./index.html#stack-size
 #[stable(feature = "rust1", since = "1.0.0")]
 #[derive(Debug)]
 pub struct Builder {
@@ -267,6 +293,11 @@ impl Builder {
     /// Names the thread-to-be. Currently the name is used for identification
     /// only in panic messages.
     ///
+    /// The name must not contain null bytes (`\0`).
+    ///
+    /// For more information about named threads, see
+    /// [this module-level documentation][naming-threads].
+    ///
     /// # Examples
     ///
     /// ```
@@ -281,6 +312,8 @@ impl Builder {
     ///
     /// handler.join().unwrap();
     /// ```
+    ///
+    /// [naming-threads]: ./index.html#naming-threads
     #[stable(feature = "rust1", since = "1.0.0")]
     pub fn name(mut self, name: String) -> Builder {
         self.name = Some(name);
@@ -292,6 +325,9 @@ impl Builder {
     /// The actual stack size may be greater than this value if
     /// the platform specifies minimal stack size.
     ///
+    /// For more information about the stack size for threads, see
+    /// [this module-level documentation][stack-size].
+    ///
     /// # Examples
     ///
     /// ```
@@ -299,6 +335,8 @@ impl Builder {
     ///
     /// let builder = thread::Builder::new().stack_size(32 * 1024);
     /// ```
+    ///
+    /// [stack-size]: ./index.html#stack-size
     #[stable(feature = "rust1", since = "1.0.0")]
     pub fn stack_size(mut self, size: usize) -> Builder {
         self.stack_size = Some(size);
@@ -325,6 +363,10 @@ impl Builder {
     /// [`io::Result`]: ../../std/io/type.Result.html
     /// [`JoinHandle`]: ../../std/thread/struct.JoinHandle.html
     ///
+    /// # Panics
+    ///
+    /// Panics if a thread name was set and it contained null bytes.
+    ///
     /// # Examples
     ///
     /// ```
@@ -344,7 +386,7 @@ impl Builder {
     {
         let Builder { name, stack_size } = self;
 
-        let stack_size = stack_size.unwrap_or(util::min_stack());
+        let stack_size = stack_size.unwrap_or_else(thread::min_stack);
 
         let my_thread = Thread::new(name);
         let their_thread = my_thread.clone();
@@ -413,7 +455,7 @@ impl Builder {
 ///   *by value* from the thread where it is spawned to the new thread. Its
 ///   return value will need to be passed from the new thread to the thread
 ///   where it is `join`ed.
-///   As a reminder, the [`Send`] marker trait, expresses that it is safe to be
+///   As a reminder, the [`Send`] marker trait expresses that it is safe to be
 ///   passed from thread to thread. [`Sync`] expresses that it is safe to have a
 ///   reference be passed from thread to thread.
 ///
@@ -449,15 +491,17 @@ impl Builder {
 /// let (tx, rx) = channel();
 ///
 /// let sender = thread::spawn(move || {
-///     let _ = tx.send("Hello, thread".to_owned());
+///     tx.send("Hello, thread".to_owned())
+///         .expect("Unable to send on channel");
 /// });
 ///
 /// let receiver = thread::spawn(move || {
-///     println!("{}", rx.recv().unwrap());
+///     let value = rx.recv().expect("Unable to receive from channel");
+///     println!("{}", value);
 /// });
 ///
-/// let _ = sender.join();
-/// let _ = receiver.join();
+/// sender.join().expect("The sender thread has panicked");
+/// receiver.join().expect("The receiver thread has panicked");
 /// ```
 ///
 /// A thread can also return a value through its [`JoinHandle`], you can use
@@ -530,8 +574,8 @@ pub fn current() -> Thread {
 /// implementing low-level shared resources or synchronization primitives.
 ///
 /// However programmers will usually prefer to use, [`channel`]s, [`Condvar`]s,
-/// [`Mutex`]es or [`join`] for their synchronisation routines, as they avoid
-/// thinking about thread schedulling.
+/// [`Mutex`]es or [`join`] for their synchronization routines, as they avoid
+/// thinking about thread scheduling.
 ///
 /// Note that [`channel`]s for example are implemented using this primitive.
 /// Indeed when you call `send` or `recv`, which are blocking, they will yield
@@ -656,6 +700,11 @@ pub fn sleep(dur: Duration) {
     imp::Thread::sleep(dur)
 }
 
+// constants for park/unpark
+const EMPTY: usize = 0;
+const PARKED: usize = 1;
+const NOTIFIED: usize = 2;
+
 /// Blocks unless or until the current thread's token is made available.
 ///
 /// A call to `park` does not guarantee that the thread will remain parked
@@ -733,11 +782,27 @@ pub fn sleep(dur: Duration) {
 #[stable(feature = "rust1", since = "1.0.0")]
 pub fn park() {
     let thread = current();
-    let mut guard = thread.inner.lock.lock().unwrap();
-    while !*guard {
-        guard = thread.inner.cvar.wait(guard).unwrap();
+
+    // If we were previously notified then we consume this notification and
+    // return quickly.
+    if thread.inner.state.compare_exchange(NOTIFIED, EMPTY, SeqCst, SeqCst).is_ok() {
+        return
     }
-    *guard = false;
+
+    // Otherwise we need to coordinate going to sleep
+    let mut m = thread.inner.lock.lock().unwrap();
+    match thread.inner.state.compare_exchange(EMPTY, PARKED, SeqCst, SeqCst) {
+        Ok(_) => {}
+        Err(NOTIFIED) => return, // notified after we locked
+        Err(_) => panic!("inconsistent park state"),
+    }
+    loop {
+        m = thread.inner.cvar.wait(m).unwrap();
+        match thread.inner.state.compare_exchange(NOTIFIED, EMPTY, SeqCst, SeqCst) {
+            Ok(_) => return, // got a notification
+            Err(_) => {} // spurious wakeup, go back to sleep
+        }
+    }
 }
 
 /// Use [`park_timeout`].
@@ -777,7 +842,7 @@ pub fn park_timeout_ms(ms: u32) {
 /// Platforms which do not support nanosecond precision for sleeping will have
 /// `dur` rounded up to the nearest granularity of time they can sleep for.
 ///
-/// # Example
+/// # Examples
 ///
 /// Waiting for the complete expiration of the timeout:
 ///
@@ -804,12 +869,30 @@ pub fn park_timeout_ms(ms: u32) {
 #[stable(feature = "park_timeout", since = "1.4.0")]
 pub fn park_timeout(dur: Duration) {
     let thread = current();
-    let mut guard = thread.inner.lock.lock().unwrap();
-    if !*guard {
-        let (g, _) = thread.inner.cvar.wait_timeout(guard, dur).unwrap();
-        guard = g;
+
+    // Like `park` above we have a fast path for an already-notified thread, and
+    // afterwards we start coordinating for a sleep.
+    // return quickly.
+    if thread.inner.state.compare_exchange(NOTIFIED, EMPTY, SeqCst, SeqCst).is_ok() {
+        return
     }
-    *guard = false;
+    let m = thread.inner.lock.lock().unwrap();
+    match thread.inner.state.compare_exchange(EMPTY, PARKED, SeqCst, SeqCst) {
+        Ok(_) => {}
+        Err(NOTIFIED) => return, // notified after we locked
+        Err(_) => panic!("inconsistent park_timeout state"),
+    }
+
+    // Wait with a timeout, and if we spuriously wake up or otherwise wake up
+    // from a notification we just want to unconditionally set the state back to
+    // empty, either consuming a notification or un-flagging ourselves as
+    // parked.
+    let (_m, _result) = thread.inner.cvar.wait_timeout(m, dur).unwrap();
+    match thread.inner.state.swap(EMPTY, SeqCst) {
+        NOTIFIED => {} // got a notification, hurray!
+        PARKED => {} // no notification, alas
+        n => panic!("inconsistent park_timeout state: {}", n),
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -820,7 +903,8 @@ pub fn park_timeout(dur: Duration) {
 ///
 /// A `ThreadId` is an opaque object that has a unique value for each thread
 /// that creates one. `ThreadId`s are not guaranteed to correspond to a thread's
-/// system-designated identifier.
+/// system-designated identifier. A `ThreadId` can be retrieved from the [`id`]
+/// method on a [`Thread`].
 ///
 /// # Examples
 ///
@@ -834,6 +918,9 @@ pub fn park_timeout(dur: Duration) {
 /// let other_thread_id = other_thread.join().unwrap();
 /// assert!(thread::current().id() != other_thread_id);
 /// ```
+///
+/// [`id`]: ../../std/thread/struct.Thread.html#method.id
+/// [`Thread`]: ../../std/thread/struct.Thread.html
 #[stable(feature = "thread_id", since = "1.19.0")]
 #[derive(Eq, PartialEq, Clone, Copy, Hash, Debug)]
 pub struct ThreadId(u64);
@@ -872,7 +959,10 @@ impl ThreadId {
 struct Inner {
     name: Option<CString>,      // Guaranteed to be UTF-8
     id: ThreadId,
-    lock: Mutex<bool>,          // true when there is a buffered unpark
+
+    // state for thread park/unpark
+    state: AtomicUsize,
+    lock: Mutex<()>,
     cvar: Condvar,
 }
 
@@ -896,6 +986,9 @@ struct Inner {
 /// docs of [`Builder`] and [`spawn`] for more details.
 ///
 /// [`Builder`]: ../../std/thread/struct.Builder.html
+/// [`JoinHandle::thread`]: ../../std/thread/struct.JoinHandle.html#method.thread
+/// [`JoinHandle`]: ../../std/thread/struct.JoinHandle.html
+/// [`thread::current`]: ../../std/thread/fn.current.html
 /// [`spawn`]: ../../std/thread/fn.spawn.html
 
 pub struct Thread {
@@ -904,6 +997,7 @@ pub struct Thread {
 
 impl Thread {
     // Used only internally to construct a thread object without spawning
+    // Panics if the name contains nuls.
     pub(crate) fn new(name: Option<String>) -> Thread {
         let cname = name.map(|n| {
             CString::new(n).expect("thread name may not contain interior null bytes")
@@ -912,7 +1006,8 @@ impl Thread {
             inner: Arc::new(Inner {
                 name: cname,
                 id: ThreadId::new(),
-                lock: Mutex::new(false),
+                state: AtomicUsize::new(EMPTY),
+                lock: Mutex::new(()),
                 cvar: Condvar::new(),
             })
         }
@@ -952,10 +1047,22 @@ impl Thread {
     /// [park]: fn.park.html
     #[stable(feature = "rust1", since = "1.0.0")]
     pub fn unpark(&self) {
-        let mut guard = self.inner.lock.lock().unwrap();
-        if !*guard {
-            *guard = true;
-            self.inner.cvar.notify_one();
+        loop {
+            match self.inner.state.compare_exchange(EMPTY, NOTIFIED, SeqCst, SeqCst) {
+                Ok(_) => return, // no one was waiting
+                Err(NOTIFIED) => return, // already unparked
+                Err(PARKED) => {} // gotta go wake someone up
+                _ => panic!("inconsistent state in unpark"),
+            }
+
+            // Coordinate wakeup through the mutex and a condvar notification
+            let _lock = self.inner.lock.lock().unwrap();
+            match self.inner.state.compare_exchange(PARKED, NOTIFIED, SeqCst, SeqCst) {
+                Ok(_) => return self.inner.cvar.notify_one(),
+                Err(NOTIFIED) => return, // a different thread unparked
+                Err(EMPTY) => {} // parked thread went away, try again
+                _ => panic!("inconsistent state in unpark"),
+            }
         }
     }
 
@@ -979,6 +1086,9 @@ impl Thread {
     }
 
     /// Gets the thread's name.
+    ///
+    /// For more information about named threads, see
+    /// [this module-level documentation][naming-threads].
     ///
     /// # Examples
     ///
@@ -1010,6 +1120,8 @@ impl Thread {
     ///
     /// handler.join().unwrap();
     /// ```
+    ///
+    /// [naming-threads]: ./index.html#naming-threads
     #[stable(feature = "rust1", since = "1.0.0")]
     pub fn name(&self) -> Option<&str> {
         self.cname().map(|s| unsafe { str::from_utf8_unchecked(s.to_bytes()) } )
@@ -1143,7 +1255,7 @@ impl<T> JoinInner<T> {
 ///     });
 /// });
 ///
-/// let _ = original_thread.join();
+/// original_thread.join().expect("The thread being joined has panicked");
 /// println!("Original thread is joined.");
 ///
 /// // We make sure that the new thread has time to run, before the main
@@ -1187,6 +1299,11 @@ impl<T> JoinHandle<T> {
     ///
     /// [`Err`]: ../../std/result/enum.Result.html#variant.Err
     /// [`panic`]: ../../std/macro.panic.html
+    ///
+    /// # Panics
+    ///
+    /// This function may panic on some platforms if a thread attempts to join
+    /// itself or otherwise may create a deadlock with joining threads.
     ///
     /// # Examples
     ///

@@ -10,7 +10,7 @@
 
 //! Platform-independent platform abstraction
 //!
-//! This is the platform-independent portion of the standard libraries
+//! This is the platform-independent portion of the standard library's
 //! platform abstraction layer, whereas `std::sys` is the
 //! platform-specific portion.
 //!
@@ -23,11 +23,16 @@
 //! `std::sys` from the standard library.
 
 #![allow(missing_docs)]
+#![allow(missing_debug_implementations)]
+
+use sync::Once;
+use sys;
 
 pub mod at_exit_imp;
+#[cfg(feature = "backtrace")]
+pub mod backtrace;
 pub mod condvar;
 pub mod io;
-pub mod memchr;
 pub mod mutex;
 pub mod poison;
 pub mod remutex;
@@ -36,6 +41,25 @@ pub mod thread;
 pub mod thread_info;
 pub mod thread_local;
 pub mod util;
+pub mod wtf8;
+pub mod bytestring;
+pub mod process;
+
+cfg_if! {
+    if #[cfg(any(target_os = "cloudabi", target_os = "l4re", target_os = "redox"))] {
+        pub use sys::net;
+    } else if #[cfg(all(target_arch = "wasm32", not(target_os = "emscripten")))] {
+        pub use sys::net;
+    } else {
+        pub mod net;
+    }
+}
+
+#[cfg(feature = "backtrace")]
+#[cfg(any(all(unix, not(target_os = "emscripten")),
+          all(windows, target_env = "gnu"),
+          target_os = "redox"))]
+pub mod gnu;
 
 // common error constructors
 
@@ -79,6 +103,16 @@ pub fn at_exit<F: FnOnce() + Send + 'static>(f: F) -> Result<(), ()> {
 
 macro_rules! rtabort {
     ($($t:tt)*) => (::sys_common::util::abort(format_args!($($t)*)))
+}
+
+/// One-time runtime cleanup.
+pub fn cleanup() {
+    static CLEANUP: Once = Once::new();
+    CLEANUP.call_once(|| unsafe {
+        sys::args::cleanup();
+        sys::stack_overflow::cleanup();
+        at_exit_imp::cleanup();
+    });
 }
 
 // Computes (value*numer)/denom without overflow, as long as both

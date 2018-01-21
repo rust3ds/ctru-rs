@@ -1,4 +1,4 @@
-// Copyright 2014 The Rust Project Developers. See the COPYRIGHT
+// Copyright 2017 The Rust Project Developers. See the COPYRIGHT
 // file at the top-level directory of this distribution and at
 // http://rust-lang.org/COPYRIGHT.
 //
@@ -8,46 +8,53 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-#![allow(missing_docs, bad_style)]
+//! System bindings for the Nintendo 3DS
 
 use io::{self, ErrorKind};
 use libc;
 
-pub use self::rand::hashmap_random_keys;
+#[cfg(any(dox, target_os = "linux", target_os = "horizon"))] pub use os::linux as platform;
 
+pub use self::rand::hashmap_random_keys;
+pub use libc::strlen;
+
+pub mod args;
+#[cfg(feature = "backtrace")]
+pub mod backtrace;
+pub mod cmath;
 pub mod condvar;
+pub mod env;
 pub mod ext;
 pub mod fast_thread_local;
 pub mod fd;
 pub mod fs;
-pub mod stdio;
 pub mod memchr;
 pub mod mutex;
+pub mod net;
 pub mod os;
 pub mod os_str;
 pub mod path;
-pub mod rwlock;
-pub mod thread;
+pub mod pipe;
+pub mod process;
 pub mod rand;
+pub mod rwlock;
+pub mod stack_overflow;
+pub mod thread;
 pub mod thread_local;
 pub mod time;
+pub mod stdio;
 
 #[cfg(not(test))]
 pub fn init() {
-    // By default, some platforms will send a *signal* when an EPIPE error
-    // would otherwise be delivered. This runtime doesn't install a SIGPIPE
-    // handler, causing it to kill the program, which isn't exactly what we
-    // want!
-    //
-    // Hence, we set SIGPIPE to ignore when the program starts up in order
-    // to prevent this problem.
-    unsafe {
-        reset_sigpipe();
-    }
+}
 
-	// I don't think we have signal handling on the 3DS, so let's leave this
-	// blank for now
-    unsafe fn reset_sigpipe() {}
+pub fn unsupported<T>() -> io::Result<T> {
+    Err(unsupported_err())
+}
+
+pub fn unsupported_err() -> io::Error {
+    io::Error::new(io::ErrorKind::Other,
+                   "operation not supported on 3DS yet")
 }
 
 pub fn decode_error_kind(errno: i32) -> ErrorKind {
@@ -75,6 +82,11 @@ pub fn decode_error_kind(errno: i32) -> ErrorKind {
         _ => ErrorKind::Other,
     }
 }
+
+// This enum is used as the storage for a bunch of types which can't actually
+// exist.
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Hash)]
+pub enum Void {}
 
 #[doc(hidden)]
 pub trait IsMinusOne {
@@ -111,6 +123,13 @@ pub fn cvt_r<T, F>(mut f: F) -> io::Result<T>
     }
 }
 
+// On Unix-like platforms, libc::abort will unregister signal handlers
+// including the SIGABRT handler, preventing the abort from being blocked, and
+// fclose streams, with the side effect of flushing them so libc bufferred
+// output will be printed.  Additionally the shell will generally print a more
+// understandable error message like "Abort trap" rather than "Illegal
+// instruction" that intrinsics::abort would cause, as intrinsics::abort is
+// implemented as an illegal instruction.
 pub unsafe fn abort_internal() -> ! {
     ::libc::abort()
 }

@@ -17,6 +17,8 @@
 //! * Executing a panic up to doing the actual implementation
 //! * Shims around "try"
 
+#![allow(unused_imports)]
+
 use io::prelude::*;
 
 use any::Any;
@@ -26,6 +28,7 @@ use intrinsics;
 use mem;
 use ptr;
 use raw;
+use sys::stdio::Stderr;
 use sys_common::rwlock::RWLock;
 use sys_common::thread_info;
 use sys_common::util;
@@ -37,6 +40,16 @@ thread_local! {
     }
 }
 
+// Binary interface to the panic runtime that the standard library depends on.
+//
+// The standard library is tagged with `#![needs_panic_runtime]` (introduced in
+// RFC 1513) to indicate that it requires some other crate tagged with
+// `#![panic_runtime]` to exist somewhere. Each panic runtime is intended to
+// implement these symbols (with the same signatures) so we can get matched up
+// to them.
+//
+// One day this may look a little less ad-hoc with the compiler helping out to
+// hook up these functions, but it is not this day!
 #[allow(improper_ctypes)]
 extern {
     fn __rust_maybe_catch_panic(f: fn(*mut u8),
@@ -160,7 +173,7 @@ pub fn take_hook() -> Box<Fn(&PanicInfo) + 'static + Sync + Send> {
 /// use std::panic;
 ///
 /// panic::set_hook(Box::new(|panic_info| {
-///     println!("panic occured: {:?}", panic_info.payload().downcast_ref::<&str>().unwrap());
+///     println!("panic occurred: {:?}", panic_info.payload().downcast_ref::<&str>().unwrap());
 /// }));
 ///
 /// panic!("Normal panic");
@@ -185,7 +198,7 @@ impl<'a> PanicInfo<'a> {
     /// use std::panic;
     ///
     /// panic::set_hook(Box::new(|panic_info| {
-    ///     println!("panic occured: {:?}", panic_info.payload().downcast_ref::<&str>().unwrap());
+    ///     println!("panic occurred: {:?}", panic_info.payload().downcast_ref::<&str>().unwrap());
     /// }));
     ///
     /// panic!("Normal panic");
@@ -210,9 +223,10 @@ impl<'a> PanicInfo<'a> {
     ///
     /// panic::set_hook(Box::new(|panic_info| {
     ///     if let Some(location) = panic_info.location() {
-    ///         println!("panic occured in file '{}' at line {}", location.file(), location.line());
+    ///         println!("panic occurred in file '{}' at line {}", location.file(),
+    ///             location.line());
     ///     } else {
-    ///         println!("panic occured but can't get location information...");
+    ///         println!("panic occurred but can't get location information...");
     ///     }
     /// }));
     ///
@@ -238,9 +252,9 @@ impl<'a> PanicInfo<'a> {
 ///
 /// panic::set_hook(Box::new(|panic_info| {
 ///     if let Some(location) = panic_info.location() {
-///         println!("panic occured in file '{}' at line {}", location.file(), location.line());
+///         println!("panic occurred in file '{}' at line {}", location.file(), location.line());
 ///     } else {
-///         println!("panic occured but can't get location information...");
+///         println!("panic occurred but can't get location information...");
 ///     }
 /// }));
 ///
@@ -264,9 +278,9 @@ impl<'a> Location<'a> {
     ///
     /// panic::set_hook(Box::new(|panic_info| {
     ///     if let Some(location) = panic_info.location() {
-    ///         println!("panic occured in file '{}'", location.file());
+    ///         println!("panic occurred in file '{}'", location.file());
     ///     } else {
-    ///         println!("panic occured but can't get location information...");
+    ///         println!("panic occurred but can't get location information...");
     ///     }
     /// }));
     ///
@@ -286,9 +300,9 @@ impl<'a> Location<'a> {
     ///
     /// panic::set_hook(Box::new(|panic_info| {
     ///     if let Some(location) = panic_info.location() {
-    ///         println!("panic occured at line {}", location.line());
+    ///         println!("panic occurred at line {}", location.line());
     ///     } else {
-    ///         println!("panic occured but can't get location information...");
+    ///         println!("panic occurred but can't get location information...");
     ///     }
     /// }));
     ///
@@ -304,20 +318,19 @@ impl<'a> Location<'a> {
     /// # Examples
     ///
     /// ```should_panic
-    /// #![feature(panic_col)]
     /// use std::panic;
     ///
     /// panic::set_hook(Box::new(|panic_info| {
     ///     if let Some(location) = panic_info.location() {
-    ///         println!("panic occured at column {}", location.column());
+    ///         println!("panic occurred at column {}", location.column());
     ///     } else {
-    ///         println!("panic occured but can't get location information...");
+    ///         println!("panic occurred but can't get location information...");
     ///     }
     /// }));
     ///
     /// panic!("Normal panic");
     /// ```
-    #[unstable(feature = "panic_col", reason = "recently added", issue = "42939")]
+    #[stable(feature = "panic_col", since = "1.25")]
     pub fn column(&self) -> u32 {
         self.col
     }
@@ -352,19 +365,13 @@ fn default_hook(info: &PanicInfo) {
             None => "Box<Any>",
         }
     };
-
-    // 3DS-specific code begins here
-    use libctru::{consoleDebugInit, debugDevice};
-    use sys::stdio::Stderr;
-
     let mut err = Stderr::new().ok();
     let thread = thread_info::current_thread();
-    let name = thread.as_ref()
-            .and_then(|t| t.name())
-            .unwrap_or("<unnamed>");
-
+    let name = thread.as_ref().and_then(|t| t.name()).unwrap_or("<unnamed>");
+    
+    // 3DS-specific code here
     unsafe {
-        consoleDebugInit(debugDevice::debugDevice_CONSOLE);
+        ::libctru::consoleInit(::libctru::GFX_TOP, ptr::null_mut());
     }
 
     let write = |err: &mut ::io::Write| {
@@ -429,30 +436,32 @@ fn default_hook(info: &PanicInfo) {
         }
     };
 
-
-    // 3DS-specific code begins here
-    use libctru::{errorInit, errorText, errorDisp, errorConf};
-    use libc;
-
     let thread = thread_info::current_thread();
-    let name = thread.as_ref()
-        .and_then(|t| t.name())
-        .unwrap_or("<unnamed>");
+    let name = thread.as_ref().and_then(|t| t.name()).unwrap_or("<unnamed>");
 
+
+    // 3DS-specific code here to display panics via the Error applet
     unsafe {
-        // Setup error payload
+        use libc;
+        
+        // Prepare error message for display
         let error_text = format!("thread '{}' panicked at '{}', {}:{}:{}",
                                  name, msg, file, line, col);
-
-        let mut error_conf: errorConf = mem::uninitialized();
-        errorInit(&mut error_conf,
+        let mut error_conf: ::libctru::errorConf = mem::uninitialized();
+        ::libctru::errorInit(&mut error_conf,
                   ::libctru::ERROR_TEXT_WORD_WRAP,
                   ::libctru::CFG_LANGUAGE_EN);
-        errorText(&mut error_conf, error_text.as_ptr() as *const libc::c_char);
+        ::libctru::errorText(&mut error_conf, error_text.as_ptr() as *const libc::c_char);
 
-        // Display error
-        errorDisp(&mut error_conf);
+        // Display the error
+        ::libctru::errorDisp(&mut error_conf);
     }
+    
+    // TODO: Should the error applet be provided as a custom panic hook in `ctru-rs`
+    // instead of being selected via feature flag? And should it not be the default hook?
+    
+    // TODO: If we ever implement backtrace functionality, determine the best way to
+    // incorporate it with the error applet
 }
 
 #[cfg(not(test))]
@@ -508,7 +517,7 @@ pub unsafe fn try<R, F: FnOnce() -> R>(f: F) -> Result<R, Box<Any + Send>> {
     let mut any_data = 0;
     let mut any_vtable = 0;
     let mut data = Data {
-        f: f,
+        f,
     };
 
     let r = __rust_maybe_catch_panic(do_call::<F, R>,
@@ -543,6 +552,7 @@ pub fn panicking() -> bool {
 }
 
 /// Entry point of panic from the libcore crate.
+#[cfg(not(test))]
 #[lang = "panic_fmt"]
 #[unwind]
 pub extern fn rust_begin_panic(msg: fmt::Arguments,

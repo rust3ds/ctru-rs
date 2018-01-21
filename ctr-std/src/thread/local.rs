@@ -31,6 +31,10 @@ use mem;
 /// within a thread, and values that implement [`Drop`] get destructed when a
 /// thread exits. Some caveats apply, which are explained below.
 ///
+/// A `LocalKey`'s initializer cannot recursively depend on itself, and using
+/// a `LocalKey` in this way will cause the initializer to infinitely recurse
+/// on the first call to `with`.
+///
 /// # Examples
 ///
 /// ```
@@ -91,13 +95,13 @@ pub struct LocalKey<T: 'static> {
     //
     // Note that the thunk is itself unsafe because the returned lifetime of the
     // slot where data lives, `'static`, is not actually valid. The lifetime
-    // here is actually `'thread`!
+    // here is actually slightly shorter than the currently running thread!
     //
     // Although this is an extra layer of indirection, it should in theory be
     // trivially devirtualizable by LLVM because the value of `inner` never
     // changes and the constant should be readonly within a crate. This mainly
     // only runs into problems when TLS statics are exported across crates.
-    inner: fn() -> Option<&'static UnsafeCell<Option<T>>>,
+    inner: unsafe fn() -> Option<&'static UnsafeCell<Option<T>>>,
 
     // initialization routine to invoke to create a value
     init: fn() -> T,
@@ -157,12 +161,14 @@ macro_rules! thread_local {
            issue = "0")]
 #[macro_export]
 #[allow_internal_unstable]
+#[allow_internal_unsafe]
 macro_rules! __thread_local_inner {
-    ($(#[$attr:meta])* $vis:vis $name:ident, $t:ty, $init:expr) => {
-        $(#[$attr])* $vis static $name: $crate::thread::LocalKey<$t> = {
+    (@key $(#[$attr:meta])* $vis:vis $name:ident, $t:ty, $init:expr) => {
+        {
+            #[inline]
             fn __init() -> $t { $init }
 
-            fn __getit() -> $crate::option::Option<
+            unsafe fn __getit() -> $crate::option::Option<
                 &'static $crate::cell::UnsafeCell<
                     $crate::option::Option<$t>>>
             {
@@ -178,8 +184,14 @@ macro_rules! __thread_local_inner {
                 __KEY.get()
             }
 
-            $crate::thread::LocalKey::new(__getit, __init)
-        };
+            unsafe {
+                $crate::thread::LocalKey::new(__getit, __init)
+            }
+        }
+    };
+    ($(#[$attr:meta])* $vis:vis $name:ident, $t:ty, $init:expr) => {
+        $(#[$attr])* $vis const $name: $crate::thread::LocalKey<$t> =
+            __thread_local_inner!(@key $(#[$attr])* $vis $name, $t, $init);
     }
 }
 
@@ -252,11 +264,11 @@ impl<T: 'static> LocalKey<T> {
     #[unstable(feature = "thread_local_internals",
                reason = "recently added to create a key",
                issue = "0")]
-    pub const fn new(inner: fn() -> Option<&'static UnsafeCell<Option<T>>>,
-                     init: fn() -> T) -> LocalKey<T> {
+    pub const unsafe fn new(inner: unsafe fn() -> Option<&'static UnsafeCell<Option<T>>>,
+                            init: fn() -> T) -> LocalKey<T> {
         LocalKey {
-            inner: inner,
-            init: init,
+            inner,
+            init,
         }
     }
 
@@ -308,7 +320,10 @@ impl<T: 'static> LocalKey<T> {
     ///
     /// Once the initialization expression succeeds, the key transitions to the
     /// `Valid` state which will guarantee that future calls to [`with`] will
-    /// succeed within the thread.
+    /// succeed within the thread. Some keys might skip the `Uninitialized`
+    /// state altogether and start in the `Valid` state as an optimization
+    /// (e.g. keys initialized with a constant expression), but no guarantees
+    /// are made.
     ///
     /// When a thread exits, each key will be destroyed in turn, and as keys are
     /// destroyed they will enter the `Destroyed` state just before the
@@ -391,8 +406,6 @@ pub mod fast {
         }
     }
 
-    unsafe impl<T> ::marker::Sync for Key<T> { }
-
     impl<T> Key<T> {
         pub const fn new() -> Key<T> {
             Key {
@@ -402,14 +415,12 @@ pub mod fast {
             }
         }
 
-        pub fn get(&'static self) -> Option<&'static UnsafeCell<Option<T>>> {
-            unsafe {
-                if mem::needs_drop::<T>() && self.dtor_running.get() {
-                    return None
-                }
-                self.register_dtor();
+        pub unsafe fn get(&self) -> Option<&'static UnsafeCell<Option<T>>> {
+            if mem::needs_drop::<T>() && self.dtor_running.get() {
+                return None
             }
-            Some(&self.inner)
+            self.register_dtor();
+            Some(&*(&self.inner as *const _))
         }
 
         unsafe fn register_dtor(&self) {
@@ -478,26 +489,24 @@ pub mod os {
             }
         }
 
-        pub fn get(&'static self) -> Option<&'static UnsafeCell<Option<T>>> {
-            unsafe {
-                let ptr = self.os.get() as *mut Value<T>;
-                if !ptr.is_null() {
-                    if ptr as usize == 1 {
-                        return None
-                    }
-                    return Some(&(*ptr).value);
+        pub unsafe fn get(&'static self) -> Option<&'static UnsafeCell<Option<T>>> {
+            let ptr = self.os.get() as *mut Value<T>;
+            if !ptr.is_null() {
+                if ptr as usize == 1 {
+                    return None
                 }
-
-                // If the lookup returned null, we haven't initialized our own
-                // local copy, so do that now.
-                let ptr: Box<Value<T>> = box Value {
-                    key: self,
-                    value: UnsafeCell::new(None),
-                };
-                let ptr = Box::into_raw(ptr);
-                self.os.set(ptr as *mut u8);
-                Some(&(*ptr).value)
+                return Some(&(*ptr).value);
             }
+
+            // If the lookup returned null, we haven't initialized our own
+            // local copy, so do that now.
+            let ptr: Box<Value<T>> = box Value {
+                key: self,
+                value: UnsafeCell::new(None),
+            };
+            let ptr = Box::into_raw(ptr);
+            self.os.set(ptr as *mut u8);
+            Some(&(*ptr).value)
         }
     }
 

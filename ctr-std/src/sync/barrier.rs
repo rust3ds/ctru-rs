@@ -50,12 +50,11 @@ struct BarrierState {
     generation_id: usize,
 }
 
-/// A result returned from wait.
+/// A `BarrierWaitResult` is returned by [`wait`] when all threads in the [`Barrier`]
+/// have rendezvoused.
 ///
-/// Currently this opaque structure only has one method, [`.is_leader()`]. Only
-/// one thread will receive a result that will return `true` from this function.
-///
-/// [`.is_leader()`]: #method.is_leader
+/// [`wait`]: struct.Barrier.html#method.wait
+/// [`Barrier`]: struct.Barrier.html
 ///
 /// # Examples
 ///
@@ -153,7 +152,7 @@ impl Barrier {
             BarrierWaitResult(false)
         } else {
             lock.count = 0;
-            lock.generation_id += 1;
+            lock.generation_id = lock.generation_id.wrapping_add(1);
             self.cvar.notify_all();
             BarrierWaitResult(true)
         }

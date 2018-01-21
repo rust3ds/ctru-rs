@@ -11,7 +11,50 @@
 //! OS-specific functionality.
 
 #![stable(feature = "os", since = "1.0.0")]
-#![allow(missing_docs, bad_style)]
+#![allow(missing_docs, bad_style, missing_debug_implementations)]
 
-#[stable(feature = "rust1", since = "1.0.0")]
-pub use sys::ext as unix;
+cfg_if! {
+    if #[cfg(dox)] {
+
+        // When documenting libstd we want to show unix/windows/linux modules as
+        // these are the "main modules" that are used across platforms. This
+        // should help show platform-specific functionality in a hopefully
+        // cross-platform way in the documentation
+
+        #[stable(feature = "rust1", since = "1.0.0")]
+        pub use sys::unix_ext as unix;
+
+        #[stable(feature = "rust1", since = "1.0.0")]
+        pub use sys::windows_ext as windows;
+
+        #[doc(cfg(target_os = "linux"))]
+        pub mod linux;
+
+    } else {
+
+        // If we're not documenting libstd then we just expose everything as we
+        // otherwise would.
+
+        #[cfg(target_os = "android")]    pub mod android;
+        #[cfg(target_os = "bitrig")]     pub mod bitrig;
+        #[cfg(target_os = "dragonfly")]  pub mod dragonfly;
+        #[cfg(target_os = "freebsd")]    pub mod freebsd;
+        #[cfg(target_os = "haiku")]      pub mod haiku;
+        #[cfg(target_os = "ios")]        pub mod ios;
+        #[cfg(target_os = "macos")]      pub mod macos;
+        #[cfg(target_os = "netbsd")]     pub mod netbsd;
+        #[cfg(target_os = "openbsd")]    pub mod openbsd;
+        #[cfg(target_os = "solaris")]    pub mod solaris;
+        #[cfg(target_os = "emscripten")] pub mod emscripten;
+        #[cfg(target_os = "fuchsia")]    pub mod fuchsia;
+
+        #[cfg(any(target_os = "redox", unix))]
+        #[stable(feature = "rust1", since = "1.0.0")]
+        pub use sys::ext as unix;
+
+        #[cfg(any(target_os = "linux", target_os = "l4re", target_os = "horizon"))]
+        pub mod linux;
+    }
+}
+
+pub mod raw;

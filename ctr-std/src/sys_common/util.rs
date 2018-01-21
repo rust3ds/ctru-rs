@@ -10,29 +10,8 @@
 
 use fmt;
 use io::prelude::*;
-use sync::atomic::{self, Ordering};
 use sys::stdio::Stderr;
-
-pub fn min_stack() -> usize {
-    static MIN: atomic::AtomicUsize = atomic::AtomicUsize::new(0);
-    match MIN.load(Ordering::SeqCst) {
-        0 => {}
-        n => return n - 1,
-    }
-
-	// NOTE: We don't have env variable support on the 3DS so let's just use the
-	// default minimum
-
-    // let amt = env::var("RUST_MIN_STACK").ok().and_then(|s| s.parse().ok());
-    // let amt = amt.unwrap_or(2 * 1024 * 1024);
-
-	let amt = 2 * 1024 * 1024;
-
-    // 0 is our sentinel value, so ensure that we'll never see 0 after
-    // initialization has run
-    MIN.store(amt + 1, Ordering::SeqCst);
-    amt
-}
+use thread;
 
 pub fn dumb_print(args: fmt::Arguments) {
     let _ = Stderr::new().map(|mut stderr| stderr.write_fmt(args));
@@ -46,4 +25,10 @@ pub fn dumb_print(args: fmt::Arguments) {
 pub fn abort(args: fmt::Arguments) -> ! {
     dumb_print(format_args!("fatal runtime error: {}\n", args));
     unsafe { ::sys::abort_internal(); }
+}
+
+#[allow(dead_code)] // stack overflow detection not enabled on all platforms
+pub unsafe fn report_overflow() {
+    dumb_print(format_args!("\nthread '{}' has overflowed its stack\n",
+                            thread::current().name().unwrap_or("<unknown>")));
 }

@@ -17,17 +17,21 @@ use convert::From;
 /// A specialized [`Result`](../result/enum.Result.html) type for I/O
 /// operations.
 ///
-/// This type is broadly used across `std::io` for any operation which may
+/// This type is broadly used across [`std::io`] for any operation which may
 /// produce an error.
 ///
-/// This typedef is generally used to avoid writing out `io::Error` directly and
-/// is otherwise a direct mapping to `Result`.
+/// This typedef is generally used to avoid writing out [`io::Error`] directly and
+/// is otherwise a direct mapping to [`Result`].
 ///
-/// While usual Rust style is to import types directly, aliases of `Result`
-/// often are not, to make it easier to distinguish between them. `Result` is
-/// generally assumed to be `std::result::Result`, and so users of this alias
+/// While usual Rust style is to import types directly, aliases of [`Result`]
+/// often are not, to make it easier to distinguish between them. [`Result`] is
+/// generally assumed to be [`std::result::Result`][`Result`], and so users of this alias
 /// will generally use `io::Result` instead of shadowing the prelude's import
-/// of `std::result::Result`.
+/// of [`std::result::Result`][`Result`].
+///
+/// [`std::io`]: ../io/index.html
+/// [`io::Error`]: ../io/struct.Error.html
+/// [`Result`]: ../result/enum.Result.html
 ///
 /// # Examples
 ///
@@ -39,7 +43,7 @@ use convert::From;
 /// fn get_string() -> io::Result<String> {
 ///     let mut buffer = String::new();
 ///
-///     try!(io::stdin().read_line(&mut buffer));
+///     io::stdin().read_line(&mut buffer)?;
 ///
 ///     Ok(buffer)
 /// }
@@ -47,18 +51,27 @@ use convert::From;
 #[stable(feature = "rust1", since = "1.0.0")]
 pub type Result<T> = result::Result<T, Error>;
 
-/// The error type for I/O operations of the `Read`, `Write`, `Seek`, and
+/// The error type for I/O operations of the [`Read`], [`Write`], [`Seek`], and
 /// associated traits.
 ///
 /// Errors mostly originate from the underlying OS, but custom instances of
 /// `Error` can be created with crafted error messages and a particular value of
 /// [`ErrorKind`].
 ///
+/// [`Read`]: ../io/trait.Read.html
+/// [`Write`]: ../io/trait.Write.html
+/// [`Seek`]: ../io/trait.Seek.html
 /// [`ErrorKind`]: enum.ErrorKind.html
-#[derive(Debug)]
 #[stable(feature = "rust1", since = "1.0.0")]
 pub struct Error {
     repr: Repr,
+}
+
+#[stable(feature = "rust1", since = "1.0.0")]
+impl fmt::Debug for Error {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        fmt::Debug::fmt(&self.repr, f)
+    }
 }
 
 enum Repr {
@@ -140,13 +153,13 @@ pub enum ErrorKind {
     #[stable(feature = "rust1", since = "1.0.0")]
     TimedOut,
     /// An error returned when an operation could not be completed because a
-    /// call to [`write()`] returned [`Ok(0)`].
+    /// call to [`write`] returned [`Ok(0)`].
     ///
     /// This typically means that an operation could only succeed if it wrote a
     /// particular number of bytes but only a smaller number of bytes could be
     /// written.
     ///
-    /// [`write()`]: ../../std/io/trait.Write.html#tymethod.write
+    /// [`write`]: ../../std/io/trait.Write.html#tymethod.write
     /// [`Ok(0)`]: ../../std/io/type.Result.html
     #[stable(feature = "rust1", since = "1.0.0")]
     WriteZero,
@@ -208,6 +221,7 @@ impl ErrorKind {
 /// the heap (for normal construction via Error::new) is too costly.
 #[stable(feature = "io_error_from_errorkind", since = "1.14.0")]
 impl From<ErrorKind> for Error {
+    #[inline]
     fn from(kind: ErrorKind) -> Error {
         Error {
             repr: Repr::Simple(kind)
@@ -244,8 +258,8 @@ impl Error {
     fn _new(kind: ErrorKind, error: Box<error::Error+Send+Sync>) -> Error {
         Error {
             repr: Repr::Custom(Box::new(Custom {
-                kind: kind,
-                error: error,
+                kind,
+                error,
             }))
         }
     }
@@ -388,12 +402,12 @@ impl Error {
     /// impl MyError {
     ///     fn new() -> MyError {
     ///         MyError {
-    ///             v: "oh no!".to_owned()
+    ///             v: "oh no!".to_string()
     ///         }
     ///     }
     ///
     ///     fn change_message(&mut self, new_message: &str) {
-    ///         self.v = new_message.to_owned();
+    ///         self.v = new_message.to_string();
     ///     }
     /// }
     ///
@@ -503,10 +517,12 @@ impl Error {
 impl fmt::Debug for Repr {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            Repr::Os(ref code) =>
-                fmt.debug_struct("Os").field("code", code)
-                   .field("message", &sys::os::error_string(*code)).finish(),
-            Repr::Custom(ref c) => fmt.debug_tuple("Custom").field(c).finish(),
+            Repr::Os(code) =>
+                fmt.debug_struct("Os")
+                    .field("code", &code)
+                    .field("kind", &sys::decode_error_kind(code))
+                    .field("message", &sys::os::error_string(code)).finish(),
+            Repr::Custom(ref c) => fmt::Debug::fmt(&c, fmt),
             Repr::Simple(kind) => fmt.debug_tuple("Kind").field(&kind).finish(),
         }
     }
@@ -551,17 +567,36 @@ fn _assert_error_is_sync_send() {
 
 #[cfg(test)]
 mod test {
-    use super::{Error, ErrorKind};
+    use super::{Error, ErrorKind, Repr, Custom};
     use error;
     use fmt;
     use sys::os::error_string;
+    use sys::decode_error_kind;
 
     #[test]
     fn test_debug_error() {
         let code = 6;
         let msg = error_string(code);
-        let err = Error { repr: super::Repr::Os(code) };
-        let expected = format!("Error {{ repr: Os {{ code: {:?}, message: {:?} }} }}", code, msg);
+        let kind = decode_error_kind(code);
+        let err = Error {
+            repr: Repr::Custom(box Custom {
+                kind: ErrorKind::InvalidInput,
+                error: box Error {
+                    repr: super::Repr::Os(code)
+                },
+            })
+        };
+        let expected = format!(
+            "Custom {{ \
+                kind: InvalidInput, \
+                error: Os {{ \
+                    code: {:?}, \
+                    kind: {:?}, \
+                    message: {:?} \
+                }} \
+            }}",
+            code, kind, msg
+        );
         assert_eq!(format!("{:?}", err), expected);
     }
 
