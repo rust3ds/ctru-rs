@@ -1,31 +1,46 @@
 use std::default::Default;
-use std::ptr;
+use std::mem;
+
+use libctru::{PrintConsole, consoleInit, consoleSelect, consoleClear, consoleSetWindow};
 
 use gfx::Screen;
 
 pub struct Console {
-    context: ::libctru::PrintConsole,
+    context: Box<PrintConsole>,
 }
 
 impl Console {
+    /// Initialize a console on the chosen screen, overwriting whatever was on the screen
+    /// previously (including other consoles). The new console is automatically selected for
+    /// printing.
     pub fn init(screen: Screen) -> Self {
         unsafe {
-            let context = ptr::read(::libctru::consoleInit(screen.into(), ptr::null_mut()));
+            let mut context = Box::new(mem::uninitialized::<PrintConsole>());
+            consoleInit(screen.into(), context.as_mut());
             Console { context, }
         }
     }
 
-    pub fn select(&mut self) {
-        unsafe { ::libctru::consoleSelect(&mut self.context); }
+    /// Select this console as the current target for stdout
+    pub fn select(&self) {
+        unsafe { consoleSelect(self.context.as_ref() as *const _ as *mut _); }
     }
 
-    pub fn set_window(&mut self, x: i32, y: i32, width: i32, height: i32) {
-        unsafe { ::libctru::consoleSetWindow(&mut self.context, x, y, width, height) }
+    /// Clears all text from the console
+    pub fn clear(&self) {
+        unsafe { consoleClear() }
+    }
+
+    /// Resizes the active console to fit in a smaller portion of the screen.
+    ///
+    /// The first two arguments are the desired coordinates of the top-left corner
+    /// of the console, and the second pair is the new width and height
+    ///
+    /// This function is unsafe because it does not validate that the input will produce
+    /// a console that actually fits on the screen
+    pub unsafe fn set_window(&mut self, x: i32, y: i32, width: i32, height: i32) {
+        consoleSetWindow(self.context.as_mut(), x, y, width, height);
     } 
-
-    pub fn clear(&mut self) {
-        unsafe { ::libctru::consoleClear() }
-    }
 }
 
 impl Default for Console {
