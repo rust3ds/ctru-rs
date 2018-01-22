@@ -80,6 +80,24 @@ impl Thread {
             debug_assert_eq!(ret, 0);
         }
     }
+
+    #[allow(dead_code)]    
+    pub fn id(&self) -> ThreadHandle {
+        self.handle
+    }
+
+    #[allow(dead_code)]
+    pub fn into_id(self) -> ThreadHandle {
+        let handle = self.handle;
+        mem::forget(self);
+        handle
+    }
+}
+
+impl Drop for Thread {
+    fn drop(&mut self) {
+        unsafe { ::libctru::threadDetach(self.handle) }
+    }
 }
 
 pub mod guard {
