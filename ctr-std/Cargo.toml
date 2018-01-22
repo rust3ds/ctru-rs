@@ -9,12 +9,9 @@ git = "https://github.com/rust-lang-nursery/compiler-builtins"
 [dependencies.alloc_system]
 git = "https://github.com/rust3ds/alloc_system3ds"
 
-[dependencies.libc]
-version = "0.2"
-default-features = false
-
 [dependencies.ctru-sys]
 path = "../ctru-sys"
+default-features = false
 features = ["stdbuild"]
 
 [features]

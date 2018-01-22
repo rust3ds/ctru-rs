@@ -7,6 +7,8 @@
 
 #![no_std]
 
+#![cfg_attr(feature = "stdbuild", feature(libc))]
+
 extern crate libc;
 
 include!("bindings.rs");
