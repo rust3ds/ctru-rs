@@ -1,7 +1,7 @@
 language: rust
 
 rust:
-   - nightly-2017-12-01
+   - nightly-2018-01-21
    - nightly
 
 matrix:
@@ -21,7 +21,7 @@ install:
    - ./devkitARMupdate.pl "$DEVKITPRO"
 
    # Install Xargo
-   - cargo install xargo --vers 0.3.8
+   - cargo install xargo
 
    # Install Rust source
    - rustup component add rust-src
@@ -29,4 +29,5 @@ install:
    - popd
 
 script:
-   - (cd examples && xargo build)
+   - cd examples
+   - RUST_TARGET_PATH=$(pwd) xargo build --release
