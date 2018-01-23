@@ -336,7 +336,6 @@ impl<'a> Location<'a> {
     }
 }
 
-#[cfg(feature = "citra")]
 fn default_hook(info: &PanicInfo) {
     #[cfg(feature = "backtrace")]
     use sys_common::backtrace;
@@ -365,18 +364,38 @@ fn default_hook(info: &PanicInfo) {
             None => "Box<Any>",
         }
     };
-    let mut err = Stderr::new().ok();
+
     let thread = thread_info::current_thread();
     let name = thread.as_ref().and_then(|t| t.name()).unwrap_or("<unnamed>");
-    
-    // 3DS-specific code here
+
+    // 3DS-specific code begins here to display panics via the Error applet
+    use libctru::{errorInit, errorText, errorDisp, errorConf, ERROR_TEXT_WORD_WRAP,
+                  CFG_LANGUAGE_EN, consoleDebugInit, debugDevice_SVC};
+
+    let error_text = format!("thread '{}' panicked at '{}', {}:{}:{}",
+                             name, msg, file, line, col);
     unsafe {
-        ::libctru::consoleInit(::libctru::GFX_TOP, ptr::null_mut());
+        // Prepare error message for display
+        let mut error_conf: errorConf = mem::uninitialized();
+        errorInit(&mut error_conf,
+                  ERROR_TEXT_WORD_WRAP,
+                  CFG_LANGUAGE_EN);
+        errorText(&mut error_conf, error_text.as_ptr() as *const ::libc::c_char);
+
+        // Display the error
+        errorDisp(&mut error_conf);
     }
 
+    // Let's also write to stderr using the debug console. The output will be
+    // visible in Citra if a custom logging filter such as `Debug.Emulated:Debug`
+    // is enabled in the logging section of `~/.config/citra-emu/sdl2-config.ini`
+    unsafe {
+        consoleDebugInit(debugDevice_SVC);
+    }
+
+    let mut err = Stderr::new().ok();
     let write = |err: &mut ::io::Write| {
-        let _ = writeln!(err, "thread '{}' panicked at '{}', {}:{}:{}",
-                         name, msg, file, line, col);
+        let _ = writeln!(err, "{}", error_text);
 
         #[cfg(feature = "backtrace")]
         {
@@ -404,62 +423,6 @@ fn default_hook(info: &PanicInfo) {
         (None, Some(ref mut err)) => { write(err) }
         _ => {}
     }
-}
-
-#[cfg(not(feature = "citra"))]
-fn default_hook(info: &PanicInfo) {
-    #[cfg(feature = "backtrace")]
-    use sys_common::backtrace;
-
-    // If this is a double panic, make sure that we print a backtrace
-    // for this panic. Otherwise only print it if logging is enabled.
-    #[cfg(feature = "backtrace")]
-    let log_backtrace = {
-        let panics = update_panic_count(0);
-
-        if panics >= 2 {
-            Some(backtrace::PrintFormat::Full)
-        } else {
-            backtrace::log_enabled()
-        }
-    };
-
-    let file = info.location.file;
-    let line = info.location.line;
-    let col = info.location.col;
-
-    let msg = match info.payload.downcast_ref::<&'static str>() {
-        Some(s) => *s,
-        None => match info.payload.downcast_ref::<String>() {
-            Some(s) => &s[..],
-            None => "Box<Any>",
-        }
-    };
-
-    let thread = thread_info::current_thread();
-    let name = thread.as_ref().and_then(|t| t.name()).unwrap_or("<unnamed>");
-
-
-    // 3DS-specific code here to display panics via the Error applet
-    unsafe {
-        use libc;
-        
-        // Prepare error message for display
-        let error_text = format!("thread '{}' panicked at '{}', {}:{}:{}",
-                                 name, msg, file, line, col);
-        let mut error_conf: ::libctru::errorConf = mem::uninitialized();
-        ::libctru::errorInit(&mut error_conf,
-                  ::libctru::ERROR_TEXT_WORD_WRAP,
-                  ::libctru::CFG_LANGUAGE_EN);
-        ::libctru::errorText(&mut error_conf, error_text.as_ptr() as *const libc::c_char);
-
-        // Display the error
-        ::libctru::errorDisp(&mut error_conf);
-    }
-    
-    // TODO: Should the error applet be provided as a custom panic hook in `ctru-rs`
-    // instead of being selected via feature flag? And should it not be the default hook?
-    
     // TODO: If we ever implement backtrace functionality, determine the best way to
     // incorporate it with the error applet
 }
