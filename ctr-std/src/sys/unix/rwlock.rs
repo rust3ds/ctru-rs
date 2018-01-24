@@ -8,10 +8,16 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
+use cell::UnsafeCell;
 use super::mutex::Mutex;
+use super::condvar::Condvar;
 
+// A simple read-preferring RWLock implementation that I found on wikipedia <.<
 pub struct RWLock {
-    mutex: Mutex
+    mutex: Mutex,
+    cvar: Condvar,
+    reader_count: UnsafeCell<u8>, // Is 255 potential readers enough? I would hope so, but idk
+    writer_active: UnsafeCell<bool>,
 }
 
 unsafe impl Send for RWLock {}
@@ -20,42 +26,86 @@ unsafe impl Sync for RWLock {}
 impl RWLock {
     pub const fn new() -> RWLock {
         RWLock {
-            mutex: Mutex::new()
+            mutex: Mutex::new(),
+            cvar: Condvar::new(),
+            reader_count: UnsafeCell::new(0),
+            writer_active: UnsafeCell::new(false),
         }
     }
 
     #[inline]
     pub unsafe fn read(&self) {
         self.mutex.lock();
+        while *self.writer_active.get() {
+            self.cvar.wait(&self.mutex);
+        }
+        *self.reader_count.get() += 1;
+        self.mutex.unlock();
     }
 
     #[inline]
     pub unsafe fn try_read(&self) -> bool {
-        self.mutex.try_lock()
+        if !self.mutex.try_lock() {
+            return false
+        }
+
+        while *self.writer_active.get() {
+            self.cvar.wait(&self.mutex);
+        }
+        *self.reader_count.get() += 1;
+        self.mutex.unlock();
+
+        true
     }
 
     #[inline]
     pub unsafe fn write(&self) {
         self.mutex.lock();
+        while *self.writer_active.get() || *self.reader_count.get() > 0 {
+            self.cvar.wait(&self.mutex);
+        }
+        *self.writer_active.get() = true;
+        self.mutex.unlock();
     }
 
     #[inline]
     pub unsafe fn try_write(&self) -> bool {
-        self.mutex.try_lock()
+        if !self.mutex.try_lock() {
+            return false;
+        }
+
+        while *self.writer_active.get() || *self.reader_count.get() > 0 {
+            self.cvar.wait(&self.mutex);
+        }
+        *self.writer_active.get() = true;
+        self.mutex.unlock();
+
+        true
     }
 
     #[inline]
     pub unsafe fn read_unlock(&self) {
+        self.mutex.lock();
+        *self.reader_count.get() -= 1;
+        if *self.reader_count.get() == 0 {
+            self.cvar.notify_one()
+        }
         self.mutex.unlock();
     }
 
     #[inline]
     pub unsafe fn write_unlock(&self) {
+        self.mutex.lock();
+        *self.writer_active.get() = false;
+        self.cvar.notify_one();
         self.mutex.unlock();
     }
 
     #[inline]
     pub unsafe fn destroy(&self) {
         self.mutex.destroy();
+        self.cvar.destroy();
+        *self.reader_count.get() = 0;
+        *self.writer_active.get() = false;
     }
 }
