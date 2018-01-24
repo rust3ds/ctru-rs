@@ -46,8 +46,8 @@ impl Mutex {
     #[inline]
     pub unsafe fn try_lock(&self) -> bool {
         match ::libctru::LightLock_TryLock(self.inner.get()) {
-            0 => true,
-            _ => false,
+            0 => false,
+            _ => true,
         }
     }
 
@@ -77,8 +77,8 @@ impl ReentrantMutex {
     #[inline]
     pub unsafe fn try_lock(&self) -> bool {
         match ::libctru::RecursiveLock_TryLock(self.inner.get()) {
-            0 => true,
-            _ => false,
+            0 => false,
+            _ => true,
         }
     }
 
