@@ -97,7 +97,7 @@ impl RWLock {
     pub unsafe fn write_unlock(&self) {
         self.mutex.lock();
         *self.writer_active.get() = false;
-        self.cvar.notify_one();
+        self.cvar.notify_all();
         self.mutex.unlock();
     }
 
