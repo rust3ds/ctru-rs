@@ -16,7 +16,7 @@ use super::condvar::Condvar;
 pub struct RWLock {
     mutex: Mutex,
     cvar: Condvar,
-    reader_count: UnsafeCell<u8>, // Is 255 potential readers enough? I would hope so, but idk
+    reader_count: UnsafeCell<u32>, 
     writer_active: UnsafeCell<bool>,
 }
 
@@ -36,10 +36,14 @@ impl RWLock {
     #[inline]
     pub unsafe fn read(&self) {
         self.mutex.lock();
+
         while *self.writer_active.get() {
             self.cvar.wait(&self.mutex);
         }
+
+        assert!(*self.reader_count.get() != u32::max_value());
         *self.reader_count.get() += 1;
+
         self.mutex.unlock();
     }
 
@@ -52,19 +56,24 @@ impl RWLock {
         while *self.writer_active.get() {
             self.cvar.wait(&self.mutex);
         }
-        *self.reader_count.get() += 1;
-        self.mutex.unlock();
 
+        assert!(*self.reader_count.get() != u32::max_value());
+        *self.reader_count.get() += 1;
+
+        self.mutex.unlock();
         true
     }
 
     #[inline]
     pub unsafe fn write(&self) {
         self.mutex.lock();
+
         while *self.writer_active.get() || *self.reader_count.get() > 0 {
             self.cvar.wait(&self.mutex);
         }
+
         *self.writer_active.get() = true;
+
         self.mutex.unlock();
     }
 
@@ -77,27 +86,34 @@ impl RWLock {
         while *self.writer_active.get() || *self.reader_count.get() > 0 {
             self.cvar.wait(&self.mutex);
         }
-        *self.writer_active.get() = true;
-        self.mutex.unlock();
 
+        *self.writer_active.get() = true;
+
+        self.mutex.unlock();
         true
     }
 
     #[inline]
     pub unsafe fn read_unlock(&self) {
         self.mutex.lock();
+
         *self.reader_count.get() -= 1;
+
         if *self.reader_count.get() == 0 {
             self.cvar.notify_one()
         }
+
         self.mutex.unlock();
     }
 
     #[inline]
     pub unsafe fn write_unlock(&self) {
         self.mutex.lock();
+
         *self.writer_active.get() = false;
+
         self.cvar.notify_all();
+
         self.mutex.unlock();
     }
 
