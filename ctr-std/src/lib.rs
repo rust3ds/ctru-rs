@@ -296,7 +296,6 @@
 #![feature(ptr_internals)]
 #![feature(rand)]
 #![feature(raw)]
-#![feature(repr_align)]
 #![feature(rustc_attrs)]
 #![feature(sip_hash_13)]
 #![feature(slice_bytes)]
