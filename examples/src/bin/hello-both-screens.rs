@@ -9,7 +9,7 @@ fn main() {
     // Initialize services
     let apt = Apt::init().unwrap();
     let hid = Hid::init().unwrap();
-    let mut gfx = Gfx::default();
+    let gfx = Gfx::default();
 
     // Start a console on the top screen
     let top_screen = Console::init(Screen::Top);
@@ -33,6 +33,7 @@ fn main() {
     while apt.main_loop() {
         gfx.flush_buffers();
         gfx.swap_buffers();
+        gfx.wait_for_vblank();
 
         hid.scan_input();
         if hid.keys_down().contains(KeyPad::KEY_START) {

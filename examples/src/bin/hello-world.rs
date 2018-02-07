@@ -10,15 +10,15 @@ fn main() {
     // Service handles are internally reference-counted. When all instances of a
     // service handle go out of scope, the service will be closed.
 
-    // The APT service handles application management functions, such as
-    // syncing our main loop with the graphics hardware.
+    // The APT service handles application management functions, such as enabling sleep
+    // mode and jumping to the home menu or to other applications
     let apt = Apt::init().unwrap();
 
     // The HID service handles button and touch screen inputs.
     let hid = Hid::init().unwrap();
 
     // The GFX service manages the framebuffers for the top and bottom screens.
-    let mut gfx = Gfx::default();
+    let gfx = Gfx::default();
 
     // Initialize a ctrulib console and direct standard output to it.
     // Consoles can be initialized on both the top and bottom screens.
@@ -41,8 +41,12 @@ fn main() {
         gfx.flush_buffers();
         gfx.swap_buffers();
 
+        // Wait for the next frame to begin
+        gfx.wait_for_vblank();
+
         // Scan for user input.
         hid.scan_input();
+
         // Check if the user has pressed the given button on this frame.
         // If so, break out of the loop.
         if hid.keys_down().contains(KeyPad::KEY_START) {

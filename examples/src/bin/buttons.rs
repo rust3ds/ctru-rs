@@ -9,7 +9,7 @@ fn main() {
     // Setup services
     let apt = Apt::init().unwrap();
     let hid = Hid::init().unwrap();
-    let mut gfx = Gfx::default();
+    let gfx = Gfx::default();
     let console = Console::default();
 
     println!("Hi there! Try pressing a button");
@@ -71,5 +71,6 @@ fn main() {
         // Flush and swap framebuffers
         gfx.flush_buffers();
         gfx.swap_buffers();
+        gfx.wait_for_vblank();
     }
 }
