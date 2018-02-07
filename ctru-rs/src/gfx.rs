@@ -60,14 +60,13 @@ impl From<Side> for ::libctru::gfx3dSide_t {
 }
 
 impl Gfx {
-    pub fn set_3d_enabled(&mut self, enabled: bool) {
+    pub fn set_3d_enabled(&self, enabled: bool) {
         unsafe {
             ::libctru::gfxSet3D(enabled)
         }
     }
 
-    pub fn get_framebuffer(&mut self, screen: Screen, side: Side) -> (&'static mut [u8], u16, u16) {
-        use std::convert::Into;
+    pub fn get_framebuffer(&self, screen: Screen, side: Side) -> (&'static mut [u8], u16, u16) {
         unsafe {
             use std::slice::from_raw_parts_mut;
 
@@ -84,32 +83,36 @@ impl Gfx {
         }
     }
 
-    pub fn flush_buffers(&mut self) {
+    pub fn flush_buffers(&self) {
         unsafe { ::libctru::gfxFlushBuffers() };
     }
 
-    pub fn swap_buffers(&mut self) {
+    pub fn swap_buffers(&self) {
         unsafe { ::libctru::gfxSwapBuffers() };
     }
 
-    pub fn swap_buffers_gpu(&mut self) {
+    pub fn swap_buffers_gpu(&self) {
         unsafe { ::libctru::gfxSwapBuffersGpu() };
     }
 
     pub fn get_framebuffer_format(&self, screen: Screen) -> FramebufferFormat {
-        use std::convert::Into;
         unsafe { ::libctru::gfxGetScreenFormat(screen.into()).into() }
     }
 
-    pub fn set_framebuffer_format(&mut self, screen: Screen,
+    pub fn set_framebuffer_format(&self, screen: Screen,
                                              fmt: FramebufferFormat) {
-        use std::convert::Into;
         unsafe { ::libctru::gfxSetScreenFormat(screen.into(), fmt.into()) }
     }
 
-    pub fn set_double_buffering(&mut self, screen: Screen, enabled: bool) {
+    pub fn set_double_buffering(&self, screen: Screen, enabled: bool) {
         unsafe {
             ::libctru::gfxSetDoubleBuffering(screen.into(), enabled)
+        }
+    }
+
+    pub fn wait_for_vblank(&self) {
+        unsafe {
+            ::libctru::gspWaitForEvent(::libctru::GSPGPU_EVENT_VBlank0, true)
         }
     }
 }
