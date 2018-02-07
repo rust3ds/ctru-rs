@@ -3,14 +3,14 @@ extern crate ctru;
 use ctru::gfx::Gfx;
 use ctru::console::Console;
 use ctru::services::apt::Apt;
-use ctru::services::hid::{self, Hid, KeyPad};
+use ctru::services::hid::{Hid, KeyPad};
 
 fn main() {
     // Setup services
     let apt = Apt::init().unwrap();
     let hid = Hid::init().unwrap();
     let mut gfx = Gfx::default();
-    let mut console = Console::default();
+    let console = Console::default();
 
     println!("Hi there! Try pressing a button");
     println!("\x1b[29;16HPress Start to exit");
@@ -47,19 +47,19 @@ fn main() {
             // You can also use the .bits() method to do direct comparisons on
             // the underlying bits
 
-            if keys.contains(hid::KEY_A) {
+            if keys.contains(KeyPad::KEY_A) {
                 println!("You held A!");
             }
-            if keys.bits() & hid::KEY_B.bits() != 0 {
+            if keys.bits() & KeyPad::KEY_B.bits() != 0 {
                 println!("You held B!");
             }
-            if keys.contains(hid::KEY_X | hid::KEY_Y) {
+            if keys.contains(KeyPad::KEY_X | KeyPad::KEY_Y) {
                 println!("You held X and Y!");
             }
-            if keys.intersects(hid::KEY_L | hid::KEY_R | hid::KEY_ZL | hid::KEY_ZR) {
+            if keys.intersects(KeyPad::KEY_L | KeyPad::KEY_R | KeyPad::KEY_ZL | KeyPad::KEY_ZR) {
                 println!("You held a shoulder button!");
             }
-            if keys.intersects(hid::KEY_START) {
+            if keys.intersects(KeyPad::KEY_START) {
                 println!("See ya!");
                 break
             }

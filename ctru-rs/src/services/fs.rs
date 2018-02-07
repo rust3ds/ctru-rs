@@ -455,7 +455,7 @@ impl File {
                 self.offset,
                 buf.as_ptr() as _,
                 buf.len() as u32,
-                FS_WRITE_UPDATE_TIME.bits()
+                FsWrite::FS_WRITE_UPDATE_TIME.bits()
             );
             self.offset += n_written as u64;
             if r < 0 {
@@ -470,7 +470,7 @@ impl File {
 impl Metadata {
     /// Returns whether this metadata is for a directory.
     pub fn is_dir(&self) -> bool {
-        self.attributes == self.attributes | FS_ATTRIBUTE_DIRECTORY.bits()
+        self.attributes == self.attributes | FsAttribute::FS_ATTRIBUTE_DIRECTORY.bits()
     }
 
     /// Returns whether this metadata is for a regular file.
@@ -613,12 +613,13 @@ impl OpenOptions {
 
     fn get_open_flags(&self) -> FsOpen {
         match (self.read, self.write || self.append, self.create) {
-            (true,  false, false) => FS_OPEN_READ,
-            (false, true,  false) => FS_OPEN_WRITE,
-            (false, true,  true)  => FS_OPEN_WRITE | FS_OPEN_CREATE,
-            (true,  false, true)  => FS_OPEN_READ | FS_OPEN_CREATE,
-            (true,  true,  false) => FS_OPEN_READ | FS_OPEN_WRITE,
-            (true,  true,  true)  => FS_OPEN_READ | FS_OPEN_WRITE | FS_OPEN_CREATE,
+            (true,  false, false) => FsOpen::FS_OPEN_READ,
+            (false, true,  false) => FsOpen::FS_OPEN_WRITE,
+            (false, true,  true)  => FsOpen::FS_OPEN_WRITE | FsOpen::FS_OPEN_CREATE,
+            (true,  false, true)  => FsOpen::FS_OPEN_READ | FsOpen::FS_OPEN_CREATE,
+            (true,  true,  false) => FsOpen::FS_OPEN_READ | FsOpen::FS_OPEN_WRITE,
+            (true,  true,  true)  => FsOpen::FS_OPEN_READ | FsOpen::FS_OPEN_WRITE |
+                                     FsOpen::FS_OPEN_CREATE,
             _ => FsOpen::empty(), //failure case
         }
     }
@@ -688,7 +689,7 @@ pub fn create_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
         let path = to_utf16(path.as_ref());
         let fs_path = ::libctru::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
         let r = ::libctru::FSUSER_CreateDirectory(arch.handle, fs_path,
-                                                  FS_ATTRIBUTE_DIRECTORY.bits());
+                                                  FsAttribute::FS_ATTRIBUTE_DIRECTORY.bits());
         if r < 0 {
             Err(IoError::new(IoErrorKind::Other, ::Error::from(r)))
         } else {
@@ -725,7 +726,7 @@ pub fn metadata<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<Metadata> {
     let maybe_dir = read_dir(&arch, path.as_ref());
     match (maybe_file, maybe_dir) {
         (Ok(file), _) => file.metadata(),
-        (_, Ok(_dir)) => Ok(Metadata { attributes: FS_ATTRIBUTE_DIRECTORY.bits(), size: 0 }),
+        (_, Ok(_dir)) => Ok(Metadata { attributes: FsAttribute::FS_ATTRIBUTE_DIRECTORY.bits(), size: 0 }),
         (Err(e), _)   => Err(e),
     }
 }

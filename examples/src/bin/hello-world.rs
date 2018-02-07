@@ -3,7 +3,7 @@ extern crate ctru;
 use ctru::gfx::Gfx;
 use ctru::console::Console;
 use ctru::services::apt::Apt;
-use ctru::services::hid::{self, Hid};
+use ctru::services::hid::{Hid, KeyPad};
 
 fn main() {
     // Initialize ctrulib service handles.
@@ -45,7 +45,7 @@ fn main() {
         hid.scan_input();
         // Check if the user has pressed the given button on this frame.
         // If so, break out of the loop.
-        if hid.keys_down().contains(hid::KEY_START) {
+        if hid.keys_down().contains(KeyPad::KEY_START) {
             break;
         }
     }

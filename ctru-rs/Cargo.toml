@@ -4,7 +4,7 @@ description = "A safe wrapper around smealum's ctrulib."
 license = "https://en.wikipedia.org/wiki/Zlib_License"
 name = "ctru-rs"
 links = "ctru"
-version = "0.6.0"
+version = "0.7.0"
 
 [lib]
 crate-type = ["rlib"]
@@ -15,7 +15,7 @@ path = "../ctru-sys"
 version = "0.4"
 
 [dependencies.bitflags]
-version = "0.9.0"
+version = "1.0.0"
 
 [dependencies.widestring]
 version = "0.2.2"

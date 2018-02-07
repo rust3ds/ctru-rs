@@ -3,7 +3,7 @@ extern crate ctru;
 use ctru::gfx::{Gfx, Screen};
 use ctru::console::Console;
 use ctru::services::apt::Apt;
-use ctru::services::hid::{self, Hid};
+use ctru::services::hid::{Hid, KeyPad};
 
 fn main() {
     // Initialize services
@@ -12,11 +12,11 @@ fn main() {
     let mut gfx = Gfx::default();
 
     // Start a console on the top screen
-    let mut top_screen = Console::init(Screen::Top);
+    let top_screen = Console::init(Screen::Top);
 
     // Start a console on the bottom screen.
     // The most recently initialized console will be active by default
-    let mut bottom_screen = Console::init(Screen::Bottom);
+    let bottom_screen = Console::init(Screen::Bottom);
 
     // Let's print on the top screen first
     top_screen.select();
@@ -35,7 +35,7 @@ fn main() {
         gfx.swap_buffers();
 
         hid.scan_input();
-        if hid.keys_down().contains(hid::KEY_START) {
+        if hid.keys_down().contains(KeyPad::KEY_START) {
             break;
         }
     }

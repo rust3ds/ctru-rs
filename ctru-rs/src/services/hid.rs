@@ -34,10 +34,10 @@ bitflags! {
         const KEY_CPAD_UP       = 1u32 << 30;
         const KEY_CPAD_DOWN     = 1u32 << 31;
         // convenience catch-all for the dpad and cpad
-        const KEY_UP    = KEY_DUP.bits    | KEY_CPAD_UP.bits;
-        const KEY_DOWN  = KEY_DDOWN.bits  | KEY_CPAD_DOWN.bits;
-        const KEY_LEFT  = KEY_DLEFT.bits  | KEY_CPAD_LEFT.bits;
-        const KEY_RIGHT = KEY_DRIGHT.bits | KEY_CPAD_RIGHT.bits;
+        const KEY_UP    = KeyPad::KEY_DUP.bits    | KeyPad::KEY_CPAD_UP.bits;
+        const KEY_DOWN  = KeyPad::KEY_DDOWN.bits  | KeyPad::KEY_CPAD_DOWN.bits;
+        const KEY_LEFT  = KeyPad::KEY_DLEFT.bits  | KeyPad::KEY_CPAD_LEFT.bits;
+        const KEY_RIGHT = KeyPad::KEY_DRIGHT.bits | KeyPad::KEY_CPAD_RIGHT.bits;
     }
 }
 
