@@ -154,7 +154,7 @@ pub fn lookup_host(host: &str) -> io::Result<LookupHost> {
             Ok(_) => {
                 Ok(LookupHost { original: res, cur: res })
             },
-            #[cfg(unix)]
+            #[cfg(target_env = "gnu")]
             Err(e) => {
                 // If we're running glibc prior to version 2.26, the lookup
                 // failure could be caused by caching a stale /etc/resolv.conf.
@@ -168,7 +168,7 @@ pub fn lookup_host(host: &str) -> io::Result<LookupHost> {
                 Err(e)
             },
             // the cfg is needed here to avoid an "unreachable pattern" warning
-            #[cfg(not(unix))]
+            #[cfg(not(target_env = "gnu"))]
             Err(e) => Err(e),
         }
     }

@@ -361,6 +361,7 @@ impl IntoInner<c_int> for Socket {
 // res_init unconditionally, we call it only when we detect we're linking
 // against glibc version < 2.26. (That is, when we both know its needed and
 // believe it's thread-safe).
+#[cfg(target_env = "gnu")]
 pub fn res_init_if_glibc_before_2_26() -> io::Result<()> {
     // If the version fails to parse, we treat it the same as "not glibc".
     if let Some(Ok(version_str)) = glibc_version_cstr().map(CStr::to_str) {
