@@ -110,33 +110,9 @@ impl FileDesc {
         }
     }
 
-    #[cfg(not(any(target_env = "newlib",
-                  target_os = "solaris",
-                  target_os = "emscripten",
-                  target_os = "fuchsia",
-                  target_os = "l4re",
-                  target_os = "haiku")))]
+    // We don't have fork/exec on the 3DS, so this shouldn't need to do anything
     pub fn set_cloexec(&self) -> io::Result<()> {
-        unsafe {
-            cvt(libc::ioctl(self.fd, libc::FIOCLEX))?;
-            Ok(())
-        }
-    }
-    #[cfg(any(target_env = "newlib",
-              target_os = "solaris",
-              target_os = "emscripten",
-              target_os = "fuchsia",
-              target_os = "l4re",
-              target_os = "haiku"))]
-    pub fn set_cloexec(&self) -> io::Result<()> {
-        unsafe {
-            let previous = cvt(libc::fcntl(self.fd, libc::F_GETFD))?;
-            let new = previous | libc::FD_CLOEXEC;
-            if new != previous {
-                cvt(libc::fcntl(self.fd, libc::F_SETFD, new))?;
-            }
-            Ok(())
-        }
+        Ok(())
     }
 
     pub fn set_nonblocking(&self, nonblocking: bool) -> io::Result<()> {
