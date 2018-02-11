@@ -8,7 +8,7 @@
   "target-c-int-width": "32",
   "target-family": "unix",
   "arch": "arm",
-  "os": "linux",
+  "os": "horizon",
   "env": "newlib",
   "cpu": "mpcore",
   "features": "+vfp2",
