@@ -3,7 +3,6 @@ authors = ["Ronald Kinard <furyhunter600@gmail.com>"]
 description = "A safe wrapper around smealum's ctrulib."
 license = "https://en.wikipedia.org/wiki/Zlib_License"
 name = "ctru-rs"
-links = "ctru"
 version = "0.7.0"
 
 [lib]
