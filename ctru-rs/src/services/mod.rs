@@ -2,6 +2,7 @@ pub mod apt;
 pub mod fs;
 pub mod hid;
 pub mod gspgpu;
+pub mod soc;
 pub mod sslc;
 
 pub use self::hid::Hid;
