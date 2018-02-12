@@ -30,6 +30,7 @@ impl Soc {
 
             let r = socInit(soc_mem, num_bytes as u32);
             if r < 0 {
+                free(soc_mem as *mut _);
                 Err(r.into())
             } else {
                 Ok(Soc { soc_mem, })
