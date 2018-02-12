@@ -34,11 +34,9 @@ This library aims to mimick the Rust standard library's public interface as clos
 * `iter`
 * `marker`
 * `mem`
-* `net`       Anything not involving IPv6 should work after initializing the `Soc` service in `ctru-rs`
 * `num`
 * `ops`
 * `option`
-* `os`        The modules in here should work, but they aren't well-tested
 * `panic`
 * `path`
 * `prelude`
@@ -49,8 +47,8 @@ This library aims to mimick the Rust standard library's public interface as clos
 * `str`
 * `string`
 * `sync`
-* `thread`    Threads are able to be spawned, but without the ability to pin to a specific core or set thread priority
 * `time`
+* `thread`    Threads are able to be spawned, but without the ability to pin to a specific core or set thread priority
 * `u8`
 * `u16`
 * `u32`
@@ -65,6 +63,10 @@ This library aims to mimick the Rust standard library's public interface as clos
 * `raw`
 * `u128`
 
-# Non-functional or partially functional modules
+# Partially working modules
 * `env`       argc/argv can be implemented but have not been yet
-* `process`   Unable to be implemented
+* `net`       Anything not involving IPv6 should work after initializing the `Soc` service in `ctru-rs`
+* `os`        The modules in here should work, but they aren't well-tested
+
+# Non-functional modules
+* `process`   Unable to be implemented due to platform incompatibilities
