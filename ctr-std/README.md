@@ -4,9 +4,8 @@ A work-in-progress port of the Rust Standard Library for the Nintendo 3DS, based
 
 This library aims to mimick the Rust standard library's public interface as closely as possible, exposing functionality that is common between the 3DS and other platforms. System-specific functionality such as control input, save file management, GPU features, and so forth are implemented in `ctru-rs`.
 
-## Implemented modules
+## Working modules
 
-# Stable modules
 * `any`
 * `ascii`
 * `borrow`
@@ -55,8 +54,6 @@ This library aims to mimick the Rust standard library's public interface as clos
 * `u64`
 * `usize`
 * `vec`
-
-# Nightly modules
 * `heap`
 * `i128`
 * `intrinsics`
@@ -64,9 +61,9 @@ This library aims to mimick the Rust standard library's public interface as clos
 * `u128`
 
 # Partially working modules
-* `env`       argc/argv can be implemented but have not been yet
 * `net`       Anything not involving IPv6 should work after initializing the `Soc` service in `ctru-rs`
 * `os`        The modules in here should work, but they aren't well-tested
 
-# Non-functional modules
+# Non-working modules
+* `env`       argc/argv can be implemented but have not been yet
 * `process`   Unable to be implemented due to platform incompatibilities
