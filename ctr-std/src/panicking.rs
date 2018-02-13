@@ -395,7 +395,7 @@ fn default_hook(info: &PanicInfo) {
 
     let mut err = Stderr::new().ok();
     let write = |err: &mut ::io::Write| {
-        let _ = writeln!(err, "{}", error_text);
+        let _ = write!(err, "{}", error_text);
 
         #[cfg(feature = "backtrace")]
         {
