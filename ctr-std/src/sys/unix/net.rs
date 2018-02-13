@@ -143,7 +143,7 @@ impl Socket {
 
         let mut pollfd = libc::pollfd {
             fd: self.0.raw(),
-            events: libc::POLLOUT,
+            events: 0x10, //libc::POLLOUT; value in the `libc` crate is currently incorrect
             revents: 0,
         };
 
@@ -181,7 +181,9 @@ impl Socket {
                 _ => {
                     // linux returns POLLOUT|POLLERR|POLLHUP for refused connections (!), so look
                     // for POLLHUP rather than read readiness
-                    if pollfd.revents & libc::POLLHUP != 0 {
+                    //
+                    // libc::POLLHUP should be 0x4. the `libc` crate incorrectly lists it as 0x10
+                    if pollfd.revents & 0x4 != 0 {
                         let e = self.take_error()?
                             .unwrap_or_else(|| {
                                 io::Error::new(io::ErrorKind::Other, "no error set after POLLHUP")
