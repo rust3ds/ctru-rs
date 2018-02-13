@@ -317,10 +317,8 @@ impl Socket {
         Ok(raw != 0)
     }
 
-    // TODO: Fix libc::FIONBIO and remove explicit cast
     pub fn set_nonblocking(&self, nonblocking: bool) -> io::Result<()> {
-        let mut nonblocking = nonblocking as libc::c_int;
-        cvt(unsafe { libc::ioctl(*self.as_inner(), libc::FIONBIO as u32, &mut nonblocking) }).map(|_| ())
+        self.0.set_nonblocking(nonblocking)
     }
 
     pub fn take_error(&self) -> io::Result<Option<io::Error>> {
