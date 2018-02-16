@@ -576,7 +576,7 @@ impl<'a> AsRef<OsStr> for Component<'a> {
     }
 }
 
-#[stable(feature = "path_component_asref", since = "1.24.0")]
+#[stable(feature = "path_component_asref", since = "1.25.0")]
 impl<'a> AsRef<Path> for Component<'a> {
     fn as_ref(&self) -> &Path {
         self.as_os_str().as_ref()
@@ -1869,7 +1869,11 @@ impl Path {
     ///
     /// let path = Path::new("/test/haha/foo.txt");
     ///
+    /// assert_eq!(path.strip_prefix("/"), Ok(Path::new("test/haha/foo.txt")));
     /// assert_eq!(path.strip_prefix("/test"), Ok(Path::new("haha/foo.txt")));
+    /// assert_eq!(path.strip_prefix("/test/"), Ok(Path::new("haha/foo.txt")));
+    /// assert_eq!(path.strip_prefix("/test/haha/foo.txt"), Ok(Path::new("")));
+    /// assert_eq!(path.strip_prefix("/test/haha/foo.txt/"), Ok(Path::new("")));
     /// assert_eq!(path.strip_prefix("test").is_ok(), false);
     /// assert_eq!(path.strip_prefix("/haha").is_ok(), false);
     /// ```
@@ -1900,6 +1904,9 @@ impl Path {
     /// let path = Path::new("/etc/passwd");
     ///
     /// assert!(path.starts_with("/etc"));
+    /// assert!(path.starts_with("/etc/"));
+    /// assert!(path.starts_with("/etc/passwd"));
+    /// assert!(path.starts_with("/etc/passwd/"));
     ///
     /// assert!(!path.starts_with("/e"));
     /// ```
