@@ -1,7 +1,7 @@
 language: rust
 
 rust:
-   - nightly-2018-02-11
+   - nightly-2018-02-15
    - nightly
 
 matrix:

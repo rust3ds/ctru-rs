@@ -1015,7 +1015,7 @@ impl f32 {
     #[stable(feature = "float_bits_conv", since = "1.20.0")]
     #[inline]
     pub fn to_bits(self) -> u32 {
-        unsafe { ::mem::transmute(self) }
+        num::Float::to_bits(self)
     }
 
     /// Raw transmutation from `u32`.
@@ -1023,7 +1023,7 @@ impl f32 {
     /// This is currently identical to `transmute::<u32, f32>(v)` on all platforms.
     /// It turns out this is incredibly portable, for two reasons:
     ///
-    /// * Floats and Ints have the same endianess on all supported platforms.
+    /// * Floats and Ints have the same endianness on all supported platforms.
     /// * IEEE-754 very precisely specifies the bit layout of floats.
     ///
     /// However there is one caveat: prior to the 2008 version of IEEE-754, how
@@ -1059,8 +1059,7 @@ impl f32 {
     #[stable(feature = "float_bits_conv", since = "1.20.0")]
     #[inline]
     pub fn from_bits(v: u32) -> Self {
-        // It turns out the safety issues with sNaN were overblown! Hooray!
-        unsafe { ::mem::transmute(v) }
+        num::Float::from_bits(v)
     }
 }
 
@@ -1532,6 +1531,7 @@ mod tests {
         assert!(nan.to_degrees().is_nan());
         assert_eq!(inf.to_degrees(), inf);
         assert_eq!(neg_inf.to_degrees(), neg_inf);
+        assert_eq!(1_f32.to_degrees(), 57.2957795130823208767981548141051703);
     }
 
     #[test]
