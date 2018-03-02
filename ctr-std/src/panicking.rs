@@ -56,7 +56,7 @@ extern {
                                 data: *mut u8,
                                 data_ptr: *mut usize,
                                 vtable_ptr: *mut usize) -> u32;
-    #[unwind]
+    #[unwind(allowed)]
     fn __rust_start_panic(data: usize, vtable: usize) -> u32;
 }
 
@@ -517,7 +517,7 @@ pub fn panicking() -> bool {
 /// Entry point of panic from the libcore crate.
 #[cfg(not(test))]
 #[lang = "panic_fmt"]
-#[unwind]
+#[unwind(allowed)]
 pub extern fn rust_begin_panic(msg: fmt::Arguments,
                                file: &'static str,
                                line: u32,
