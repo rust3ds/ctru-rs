@@ -201,6 +201,9 @@ impl<'a> Prefix<'a> {
             os_str_as_u8_slice(s).len()
         }
         match *self {
+            #[cfg(target_os = "horizon")]
+            Verbatim(x) => 1 + os_str_len(x),
+            #[cfg(target_os = "windows")]
             Verbatim(x) => 4 + os_str_len(x),
             VerbatimUNC(x, y) => {
                 8 + os_str_len(x) +
@@ -325,7 +328,8 @@ unsafe fn u8_slice_as_os_str(s: &[u8]) -> &OsStr {
 
 // Detect scheme on Redox
 fn has_redox_scheme(s: &[u8]) -> bool {
-    cfg!(target_os = "redox") && s.split(|b| *b == b'/').next().unwrap_or(b"").contains(&b':')
+    (cfg!(target_os = "redox") || cfg!(target_os = "horizon"))
+    && s.split(|b| *b == b'/').next().unwrap_or(b"").contains(&b':')
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1736,7 +1740,7 @@ impl Path {
     #[stable(feature = "rust1", since = "1.0.0")]
     #[allow(deprecated)]
     pub fn is_absolute(&self) -> bool {
-        if cfg!(target_os = "redox") {
+        if cfg!(target_os = "redox") || cfg!(target_os = "horizon") {
             // FIXME: Allow Redox prefixes
             self.has_root() || has_redox_scheme(self.as_u8_slice())
         } else {
