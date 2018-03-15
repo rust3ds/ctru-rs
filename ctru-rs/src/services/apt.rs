@@ -17,6 +17,17 @@ impl Apt {
             ::libctru::aptMainLoop()
         }
     }
+
+    pub fn set_app_cpu_time_limit(&self, percent: u32) -> ::Result<()> {
+        unsafe {
+           let r = ::libctru::APT_SetAppCpuTimeLimit(percent);
+           if r < 0 {
+               Err(r.into())
+           } else {
+               Ok(())
+           }
+        }
+    }
 }
 
 impl Drop for Apt {
