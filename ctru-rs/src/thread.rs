@@ -34,11 +34,9 @@
 
 use std::any::Any;
 use std::cell::UnsafeCell;
-use std::ffi::{CStr, CString};
 use std::fmt;
 use std::io;
 use std::panic;
-use std::str;
 use std::sync::{Arc, Condvar, Mutex};
 use std::sync::atomic::AtomicUsize;
 use std::sync::atomic::Ordering::SeqCst;
@@ -55,8 +53,6 @@ use libctru::{svcGetProcessorID, svcGetThreadId, svcGetThreadPriority};
 /// a new thread.
 #[derive(Debug)]
 pub struct Builder {
-    // A name for the thread-to-be, for identification in panic messages
-    name: Option<String>,
     // The size of the stack for the spawned thread in bytes
     stack_size: Option<usize>,
     // The spawned thread's priority value
@@ -75,7 +71,6 @@ impl Builder {
     /// use ctru::thread;
     ///
     /// let builder = thread::Builder::new()
-    ///                               .name("foo".into())
     ///                               .stack_size(10);
     ///
     /// let handler = builder.spawn(|| {
@@ -86,40 +81,10 @@ impl Builder {
     /// ```
     pub fn new() -> Builder {
         Builder {
-            name: None,
             stack_size: None,
             priority: None,
             affinity: None,
         }
-    }
-
-    /// Names the thread-to-be. Currently the name is used for identification
-    /// only in panic messages.
-    ///
-    /// The name must not contain null bytes (`\0`).
-    ///
-    /// For more information about named threads, see
-    /// [this module-level documentation][naming-threads].
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use ctru::thread;
-    ///
-    /// let builder = thread::Builder::new()
-    ///     .name("foo".into());
-    ///
-    /// let handler = builder.spawn(|| {
-    ///     assert_eq!(thread::current().name(), Some("foo"))
-    /// }).unwrap();
-    ///
-    /// handler.join().unwrap();
-    /// ```
-    ///
-    /// [naming-threads]: ./index.html#naming-threads
-    pub fn name(mut self, name: String) -> Builder {
-        self.name = Some(name);
-        self
     }
 
     /// Sets the size of the stack (in bytes) for the new thread.
@@ -196,10 +161,6 @@ impl Builder {
     /// [`io::Result`]: ../../std/io/type.Result.html
     /// [`JoinHandle`]: ../../std/thread/struct.JoinHandle.html
     ///
-    /// # Panics
-    ///
-    /// Panics if a thread name was set and it contained null bytes.
-    ///
     /// # Examples
     ///
     /// ```
@@ -220,7 +181,6 @@ impl Builder {
         T: Send + 'static,
     {
         let Builder {
-            name,
             stack_size,
             priority,
             affinity,
@@ -240,16 +200,13 @@ impl Builder {
         // the application's Exheader)
         let affinity = affinity.unwrap_or(-2);
 
-        let my_thread = Thread::new(name);
+        let my_thread = Thread::new();
         let their_thread = my_thread.clone();
 
         let my_packet: Arc<UnsafeCell<Option<Result<T>>>> = Arc::new(UnsafeCell::new(None));
         let their_packet = my_packet.clone();
 
         let main = move || {
-            if let Some(name) = their_thread.cname() {
-                imp::Thread::set_name(name);
-            }
             unsafe {
                 thread_info::set(their_thread);
                 let try_result = panic::catch_unwind(panic::AssertUnwindSafe(f));
@@ -603,8 +560,6 @@ pub struct ThreadId(u32);
 
 /// The internal representation of a `Thread` handle
 struct Inner {
-    name: Option<CString>, // Guaranteed to be UTF-8
-
     // state for thread park/unpark
     state: AtomicUsize,
     lock: Mutex<()>,
@@ -642,13 +597,9 @@ pub struct Thread {
 impl Thread {
     // Used only internally to construct a thread object without spawning
     // Panics if the name contains nuls.
-    pub(crate) fn new(name: Option<String>) -> Thread {
-        let cname = name
-                        .map(|n| CString::new(n)
-                        .expect("thread name may not contain interior null bytes"));
+    pub(crate) fn new() -> Thread {
         Thread {
             inner: Arc::new(Inner {
-                name: cname,
                 state: AtomicUsize::new(EMPTY),
                 lock: Mutex::new(()),
                 cvar: Condvar::new(),
@@ -736,48 +687,6 @@ impl Thread {
         }
     }
 
-    /// Gets the thread's name.
-    ///
-    /// For more information about named threads, see
-    /// [this module-level documentation][naming-threads].
-    ///
-    /// # Examples
-    ///
-    /// Threads by default have no name specified:
-    ///
-    /// ```
-    /// use ctru::thread;
-    ///
-    /// let builder = thread::Builder::new();
-    ///
-    /// let handler = builder.spawn(|| {
-    ///     assert!(thread::current().name().is_none());
-    /// }).unwrap();
-    ///
-    /// handler.join().unwrap();
-    /// ```
-    ///
-    /// Thread with a specified name:
-    ///
-    /// ```
-    /// use ctru::thread;
-    ///
-    /// let builder = thread::Builder::new()
-    ///     .name("foo".into());
-    ///
-    /// let handler = builder.spawn(|| {
-    ///     assert_eq!(thread::current().name(), Some("foo"))
-    /// }).unwrap();
-    ///
-    /// handler.join().unwrap();
-    /// ```
-    ///
-    /// [naming-threads]: ./index.html#naming-threads
-    pub fn name(&self) -> Option<&str> {
-        self.cname()
-            .map(|s| unsafe { str::from_utf8_unchecked(s.to_bytes()) })
-    }
-
     /// Get the current thread's priority level. Lower values correspond to higher
     /// priority levels. The main thread's priority is typically 0x30, but not always.
     pub fn priority(&self) -> i32 {
@@ -794,15 +703,11 @@ impl Thread {
             svcGetProcessorID()
         }
     }
-
-    fn cname(&self) -> Option<&CStr> {
-        self.inner.name.as_ref().map(|s| &**s)
-    }
 }
 
 impl fmt::Debug for Thread {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        fmt::Debug::fmt(&self.name(), f)
+        fmt::Debug::fmt(&self.id(), f)
     }
 }
 
@@ -999,7 +904,6 @@ fn _assert_sync_and_send() {
 mod imp {
     use std::boxed::FnBox;
     use std::cmp;
-    use std::ffi::CStr;
     use std::io;
     use std::mem;
     use std::ptr;
@@ -1058,10 +962,6 @@ mod imp {
             unsafe { svcSleepThread(0) }
         }
 
-        pub fn set_name(_name: &CStr) {
-            // threads aren't named in libctru
-        }
-
         pub fn sleep(dur: Duration) {
             unsafe {
                 let nanos = dur.as_secs()
@@ -1108,18 +1008,18 @@ mod thread_info {
         thread: Thread,
     }
 
-    thread_local! { static THREAD_INFO: RefCell<Option<ThreadInfo>> = RefCell::new(None) }
+    thread_local! { static CTRU_THREAD_INFO: RefCell<Option<ThreadInfo>> = RefCell::new(None) }
 
     impl ThreadInfo {
         fn with<R, F>(f: F) -> Option<R>
         where
             F: FnOnce(&mut ThreadInfo) -> R,
         {
-            THREAD_INFO
+            CTRU_THREAD_INFO
                 .try_with(move |c| {
                     if c.borrow().is_none() {
                         *c.borrow_mut() = Some(ThreadInfo {
-                            thread: Thread::new(None),
+                            thread: Thread::new(),
                         })
                     }
                     f(c.borrow_mut().as_mut().unwrap())
@@ -1133,7 +1033,7 @@ mod thread_info {
     }
 
     pub fn set(thread: Thread) {
-        THREAD_INFO.with(|c| assert!(c.borrow().is_none()));
-        THREAD_INFO.with(move |c| *c.borrow_mut() = Some(ThreadInfo { thread }));
+        CTRU_THREAD_INFO.with(|c| assert!(c.borrow().is_none()));
+        CTRU_THREAD_INFO.with(move |c| *c.borrow_mut() = Some(ThreadInfo { thread }));
     }
 }
