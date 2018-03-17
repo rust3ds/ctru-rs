@@ -43,8 +43,6 @@ use std::sync::atomic::Ordering::SeqCst;
 use std::thread as std_thread;
 use std::time::Duration;
 
-use libctru::{svcGetProcessorID, svcGetThreadId, svcGetThreadPriority};
-
 ////////////////////////////////////////////////////////////////////////////////
 // Builder
 ////////////////////////////////////////////////////////////////////////////////
@@ -190,11 +188,7 @@ impl Builder {
 
         // If no priority value is specified, spawn with the same
         // priority as the parent thread
-        let priority = priority.unwrap_or_else(|| unsafe {
-            let mut default_priority = 0;
-            svcGetThreadPriority(&mut default_priority, 0xFFFF8000);
-            default_priority
-        });
+        let priority = priority.unwrap_or_else(|| imp::Thread::priority());
 
         // If no affinity is specified, spawn on the default core (determined by
         // the application's Exheader)
@@ -680,28 +674,18 @@ impl Thread {
     /// assert!(thread::current().id() != other_thread_id);
     /// ```
     pub fn id(&self) -> ThreadId {
-        unsafe {
-            let mut id = 0;
-            svcGetThreadId(&mut id, 0xFFFF8000);
-            ThreadId(id)
-        }
+        ThreadId(imp::Thread::id())
     }
 
     /// Get the current thread's priority level. Lower values correspond to higher
     /// priority levels. The main thread's priority is typically 0x30, but not always.
     pub fn priority(&self) -> i32 {
-        unsafe {
-            let mut priority = 0;
-            svcGetThreadPriority(&mut priority, 0xFFFF8000);
-            priority
-        }
+        imp::Thread::priority()
     }
 
     /// Returns the ID of the processor the current thread is running on.
     pub fn affinity(&self) -> i32 {
-        unsafe {
-            svcGetProcessorID()
-        }
+        imp::Thread::affinity()
     }
 }
 
@@ -911,8 +895,8 @@ mod imp {
 
     use libc;
 
-    use libctru::{Thread as ThreadHandle, svcSleepThread, threadCreate, threadDetach,
-                  threadFree, threadJoin};
+    use libctru::{Thread as ThreadHandle, svcSleepThread, svcGetThreadId, svcGetThreadPriority,
+                  svcGetProcessorID, threadCreate, threadDetach, threadFree, threadJoin};
 
     pub struct Thread {
         handle: ThreadHandle,
@@ -954,6 +938,28 @@ mod imp {
             }
         }
 
+        pub fn id() -> u32 {
+            unsafe {
+                let mut id = 0;
+                svcGetThreadId(&mut id, 0xFFFF8000);
+                id
+            }
+        }
+
+        pub fn priority() -> i32 {
+            unsafe {
+                let mut priority = 0;
+                svcGetThreadPriority(&mut priority, 0xFFFF8000);
+                priority
+            }
+        }
+
+        pub fn affinity() -> i32 {
+            unsafe {
+                svcGetProcessorID()
+            }
+        }
+
         unsafe fn _start_thread(main: *mut u8) {
             Box::from_raw(main as *mut Box<FnBox()>)()
         }
@@ -980,13 +986,14 @@ mod imp {
             }
         }
 
+
         #[allow(dead_code)]
-        pub fn id(&self) -> ThreadHandle {
+        pub fn handle(&self) -> ThreadHandle {
             self.handle
         }
 
         #[allow(dead_code)]
-        pub fn into_id(self) -> ThreadHandle {
+        pub fn into_handle(self) -> ThreadHandle {
             let handle = self.handle;
             mem::forget(self);
             handle
