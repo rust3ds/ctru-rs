@@ -8,7 +8,7 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use alloc::boxed::FnBox;
+use alloc_crate::boxed::FnBox;
 use libc;
 use cmp;
 use ffi::CStr;

@@ -329,6 +329,57 @@ impl f32 {
         unsafe { intrinsics::fmaf32(self, a, b) }
     }
 
+    /// Calculates Euclidean division, the matching method for `mod_euc`.
+    ///
+    /// This computes the integer `n` such that
+    /// `self = n * rhs + self.mod_euc(rhs)`.
+    /// In other words, the result is `self / rhs` rounded to the integer `n`
+    /// such that `self >= n * rhs`.
+    ///
+    /// ```
+    /// #![feature(euclidean_division)]
+    /// let a: f32 = 7.0;
+    /// let b = 4.0;
+    /// assert_eq!(a.div_euc(b), 1.0); // 7.0 > 4.0 * 1.0
+    /// assert_eq!((-a).div_euc(b), -2.0); // -7.0 >= 4.0 * -2.0
+    /// assert_eq!(a.div_euc(-b), -1.0); // 7.0 >= -4.0 * -1.0
+    /// assert_eq!((-a).div_euc(-b), 2.0); // -7.0 >= -4.0 * 2.0
+    /// ```
+    #[inline]
+    #[unstable(feature = "euclidean_division", issue = "49048")]
+    pub fn div_euc(self, rhs: f32) -> f32 {
+        let q = (self / rhs).trunc();
+        if self % rhs < 0.0 {
+            return if rhs > 0.0 { q - 1.0 } else { q + 1.0 }
+        }
+        q
+    }
+
+    /// Calculates the Euclidean modulo (self mod rhs), which is never negative.
+    ///
+    /// In particular, the result `n` satisfies `0 <= n < rhs.abs()`.
+    ///
+    /// ```
+    /// #![feature(euclidean_division)]
+    /// let a: f32 = 7.0;
+    /// let b = 4.0;
+    /// assert_eq!(a.mod_euc(b), 3.0);
+    /// assert_eq!((-a).mod_euc(b), 1.0);
+    /// assert_eq!(a.mod_euc(-b), 3.0);
+    /// assert_eq!((-a).mod_euc(-b), 1.0);
+    /// ```
+    #[inline]
+    #[unstable(feature = "euclidean_division", issue = "49048")]
+    pub fn mod_euc(self, rhs: f32) -> f32 {
+        let r = self % rhs;
+        if r < 0.0 {
+            r + rhs.abs()
+        } else {
+            r
+        }
+    }
+
+
     /// Takes the reciprocal (inverse) of a number, `1/x`.
     ///
     /// ```
@@ -780,7 +831,7 @@ impl f32 {
         unsafe { cmath::atanf(self) }
     }
 
-    /// Computes the four quadrant arctangent of `self` (`y`) and `other` (`x`).
+    /// Computes the four quadrant arctangent of `self` (`y`) and `other` (`x`) in radians.
     ///
     /// * `x = 0`, `y = 0`: `0`
     /// * `x >= 0`: `arctan(y/x)` -> `[-pi/2, pi/2]`
@@ -791,12 +842,13 @@ impl f32 {
     /// use std::f32;
     ///
     /// let pi = f32::consts::PI;
-    /// // All angles from horizontal right (+x)
-    /// // 45 deg counter-clockwise
+    /// // Positive angles measured counter-clockwise
+    /// // from positive x axis
+    /// // -pi/4 radians (45 deg clockwise)
     /// let x1 = 3.0f32;
     /// let y1 = -3.0f32;
     ///
-    /// // 135 deg clockwise
+    /// // 3pi/4 radians (135 deg counter-clockwise)
     /// let x2 = -3.0f32;
     /// let y2 = 3.0f32;
     ///

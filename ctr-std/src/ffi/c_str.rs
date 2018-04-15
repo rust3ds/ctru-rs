@@ -91,7 +91,7 @@ use sys;
 ///
 /// # Examples
 ///
-/// ```no_run
+/// ```ignore (extern-declaration)
 /// # fn main() {
 /// use std::ffi::CString;
 /// use std::os::raw::c_char;
@@ -150,7 +150,7 @@ pub struct CString {
 ///
 /// Inspecting a foreign C string:
 ///
-/// ```no_run
+/// ```ignore (extern-declaration)
 /// use std::ffi::CStr;
 /// use std::os::raw::c_char;
 ///
@@ -164,7 +164,7 @@ pub struct CString {
 ///
 /// Passing a Rust-originating C string:
 ///
-/// ```no_run
+/// ```ignore (extern-declaration)
 /// use std::ffi::{CString, CStr};
 /// use std::os::raw::c_char;
 ///
@@ -180,7 +180,7 @@ pub struct CString {
 ///
 /// Converting a foreign C string into a Rust [`String`]:
 ///
-/// ```no_run
+/// ```ignore (extern-declaration)
 /// use std::ffi::CStr;
 /// use std::os::raw::c_char;
 ///
@@ -307,7 +307,7 @@ impl CString {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```ignore (extern-declaration)
     /// use std::ffi::CString;
     /// use std::os::raw::c_char;
     ///
@@ -389,7 +389,7 @@ impl CString {
     /// Create a `CString`, pass ownership to an `extern` function (via raw pointer), then retake
     /// ownership with `from_raw`:
     ///
-    /// ```no_run
+    /// ```ignore (extern-declaration)
     /// use std::ffi::CString;
     /// use std::os::raw::c_char;
     ///
@@ -875,6 +875,8 @@ impl CStr {
     ///   `ptr`.
     /// * There is no guarantee that the memory pointed to by `ptr` contains a
     ///   valid nul terminator byte at the end of the string.
+    /// * It is not guaranteed that the memory pointed by `ptr` won't change
+    ///   before the `CStr` has been destroyed.
     ///
     /// > **Note**: This operation is intended to be a 0-cost cast but it is
     /// > currently implemented with an up-front calculation of the length of
@@ -882,7 +884,7 @@ impl CStr {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```ignore (extern-declaration)
     /// # fn main() {
     /// use std::ffi::CStr;
     /// use std::os::raw::c_char;
@@ -1026,9 +1028,9 @@ impl CStr {
     /// The returned slice will **not** contain the trailing nul terminator that this C
     /// string has.
     ///
-    /// > **Note**: This method is currently implemented as a 0-cost cast, but
-    /// > it is planned to alter its definition in the future to perform the
-    /// > length calculation whenever this method is called.
+    /// > **Note**: This method is currently implemented as a constant-time
+    /// > cast, but it is planned to alter its definition in the future to
+    /// > perform the length calculation whenever this method is called.
     ///
     /// # Examples
     ///
@@ -1077,9 +1079,9 @@ impl CStr {
     /// it will return an error with details of where UTF-8 validation failed.
     ///
     /// > **Note**: This method is currently implemented to check for validity
-    /// > after a 0-cost cast, but it is planned to alter its definition in the
-    /// > future to perform the length calculation in addition to the UTF-8
-    /// > check whenever this method is called.
+    /// > after a constant-time cast, but it is planned to alter its definition
+    /// > in the future to perform the length calculation in addition to the
+    /// > UTF-8 check whenever this method is called.
     ///
     /// [`&str`]: ../primitive.str.html
     ///
@@ -1110,9 +1112,9 @@ impl CStr {
     /// with the result.
     ///
     /// > **Note**: This method is currently implemented to check for validity
-    /// > after a 0-cost cast, but it is planned to alter its definition in the
-    /// > future to perform the length calculation in addition to the UTF-8
-    /// > check whenever this method is called.
+    /// > after a constant-time cast, but it is planned to alter its definition
+    /// > in the future to perform the length calculation in addition to the
+    /// > UTF-8 check whenever this method is called.
     ///
     /// [`Cow`]: ../borrow/enum.Cow.html
     /// [`Borrowed`]: ../borrow/enum.Cow.html#variant.Borrowed
