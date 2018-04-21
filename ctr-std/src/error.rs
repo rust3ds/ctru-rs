@@ -51,14 +51,13 @@
 // coherence challenge (e.g., specialization, neg impls, etc) we can
 // reconsider what crate these items belong in.
 
-use alloc::allocator;
 use any::TypeId;
 use borrow::Cow;
 use cell;
 use char;
-use convert;
 use core::array;
 use fmt::{self, Debug, Display};
+use heap::{AllocErr, LayoutErr, CannotReallocInPlace};
 use mem::transmute;
 use num;
 use str;
@@ -234,7 +233,7 @@ impl<'a> From<Cow<'a, str>> for Box<Error> {
     }
 }
 
-#[unstable(feature = "never_type", issue = "35121")]
+#[stable(feature = "never_type", since = "1.26.0")]
 impl Error for ! {
     fn description(&self) -> &str { *self }
 }
@@ -242,18 +241,27 @@ impl Error for ! {
 #[unstable(feature = "allocator_api",
            reason = "the precise API and guarantees it provides may be tweaked.",
            issue = "32838")]
-impl Error for allocator::AllocErr {
+impl Error for AllocErr {
     fn description(&self) -> &str {
-        allocator::AllocErr::description(self)
+        "memory allocation failed"
     }
 }
 
 #[unstable(feature = "allocator_api",
            reason = "the precise API and guarantees it provides may be tweaked.",
            issue = "32838")]
-impl Error for allocator::CannotReallocInPlace {
+impl Error for LayoutErr {
     fn description(&self) -> &str {
-        allocator::CannotReallocInPlace::description(self)
+        "invalid parameters to Layout::from_size_align"
+    }
+}
+
+#[unstable(feature = "allocator_api",
+           reason = "the precise API and guarantees it provides may be tweaked.",
+           issue = "32838")]
+impl Error for CannotReallocInPlace {
+    fn description(&self) -> &str {
+        CannotReallocInPlace::description(self)
     }
 }
 
@@ -276,14 +284,14 @@ impl Error for num::ParseIntError {
     }
 }
 
-#[unstable(feature = "try_from", issue = "33417")]
+#[stable(feature = "try_from", since = "1.26.0")]
 impl Error for num::TryFromIntError {
     fn description(&self) -> &str {
         self.__description()
     }
 }
 
-#[unstable(feature = "try_from", issue = "33417")]
+#[stable(feature = "try_from", since = "1.26.0")]
 impl Error for array::TryFromSliceError {
     fn description(&self) -> &str {
         self.__description()
@@ -357,7 +365,7 @@ impl Error for cell::BorrowMutError {
     }
 }
 
-#[unstable(feature = "try_from", issue = "33417")]
+#[stable(feature = "try_from", since = "1.26.0")]
 impl Error for char::CharTryFromError {
     fn description(&self) -> &str {
         "converted integer out of range for `char`"
@@ -368,14 +376,6 @@ impl Error for char::CharTryFromError {
 impl Error for char::ParseCharError {
     fn description(&self) -> &str {
         self.__description()
-    }
-}
-
-#[unstable(feature = "try_from", issue = "33417")]
-impl Error for convert::Infallible {
-    fn description(&self) -> &str {
-        match *self {
-        }
     }
 }
 

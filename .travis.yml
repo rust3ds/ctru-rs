@@ -1,7 +1,7 @@
 language: rust
 
 rust:
-   - nightly-2018-03-07
+   - nightly-2018-04-19
    - nightly
 
 matrix:
@@ -16,6 +16,8 @@ install:
    - export DEVKITPRO="$HOME/dkp"
    - export DEVKITARM="$DEVKITPRO/devkitARM"
    - export PATH="$PATH:$DEVKITARM/bin"
+   - export CC_3ds="$DEVKITARM/bin/arm-none-eabi-gcc"
+   - export TARGET_CFLAGS="-mfloat-abi=hard -march=armv6k"
    - wget https://raw.githubusercontent.com/devkitPro/installer/master/perl/devkitARMupdate.pl
    - chmod +x devkitARMupdate.pl
    - ./devkitARMupdate.pl "$DEVKITPRO"

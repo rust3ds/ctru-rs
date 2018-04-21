@@ -27,7 +27,6 @@
 
 use core::str::next_code_point;
 
-use ascii::*;
 use borrow::Cow;
 use char;
 use fmt;
@@ -254,6 +253,11 @@ impl Wtf8Buf {
         self.bytes.shrink_to_fit()
     }
 
+    #[inline]
+    pub fn shrink_to(&mut self, min_capacity: usize) {
+        self.bytes.shrink_to(min_capacity)
+    }
+
     /// Returns the number of bytes that this string buffer can hold without reallocating.
     #[inline]
     pub fn capacity(&self) -> usize {
@@ -428,20 +432,15 @@ impl fmt::Debug for Wtf8 {
 
         formatter.write_str("\"")?;
         let mut pos = 0;
-        loop {
-            match self.next_surrogate(pos) {
-                None => break,
-                Some((surrogate_pos, surrogate)) => {
-                    write_str_escaped(
-                        formatter,
-                        unsafe { str::from_utf8_unchecked(
-                            &self.bytes[pos .. surrogate_pos]
-                        )},
-                    )?;
-                    write!(formatter, "\\u{{{:x}}}", surrogate)?;
-                    pos = surrogate_pos + 3;
-                }
-            }
+        while let Some((surrogate_pos, surrogate)) = self.next_surrogate(pos) {
+            write_str_escaped(
+                formatter,
+                unsafe { str::from_utf8_unchecked(
+                    &self.bytes[pos .. surrogate_pos]
+                )},
+            )?;
+            write!(formatter, "\\u{{{:x}}}", surrogate)?;
+            pos = surrogate_pos + 3;
         }
         write_str_escaped(
             formatter,
@@ -876,24 +875,22 @@ impl Hash for Wtf8 {
     }
 }
 
-impl AsciiExt for Wtf8 {
-    type Owned = Wtf8Buf;
-
-    fn is_ascii(&self) -> bool {
+impl Wtf8 {
+    pub fn is_ascii(&self) -> bool {
         self.bytes.is_ascii()
     }
-    fn to_ascii_uppercase(&self) -> Wtf8Buf {
+    pub fn to_ascii_uppercase(&self) -> Wtf8Buf {
         Wtf8Buf { bytes: self.bytes.to_ascii_uppercase() }
     }
-    fn to_ascii_lowercase(&self) -> Wtf8Buf {
+    pub fn to_ascii_lowercase(&self) -> Wtf8Buf {
         Wtf8Buf { bytes: self.bytes.to_ascii_lowercase() }
     }
-    fn eq_ignore_ascii_case(&self, other: &Wtf8) -> bool {
+    pub fn eq_ignore_ascii_case(&self, other: &Wtf8) -> bool {
         self.bytes.eq_ignore_ascii_case(&other.bytes)
     }
 
-    fn make_ascii_uppercase(&mut self) { self.bytes.make_ascii_uppercase() }
-    fn make_ascii_lowercase(&mut self) { self.bytes.make_ascii_lowercase() }
+    pub fn make_ascii_uppercase(&mut self) { self.bytes.make_ascii_uppercase() }
+    pub fn make_ascii_lowercase(&mut self) { self.bytes.make_ascii_lowercase() }
 }
 
 #[cfg(test)]

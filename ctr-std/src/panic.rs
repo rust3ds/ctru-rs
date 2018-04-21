@@ -23,7 +23,10 @@ use sync::{Arc, Mutex, RwLock, atomic};
 use thread::Result;
 
 #[stable(feature = "panic_hooks", since = "1.10.0")]
-pub use panicking::{take_hook, set_hook, PanicInfo, Location};
+pub use panicking::{take_hook, set_hook};
+
+#[stable(feature = "panic_hooks", since = "1.10.0")]
+pub use core::panic::{PanicInfo, Location};
 
 /// A marker trait which represents "panic safe" types in Rust.
 ///
@@ -185,7 +188,7 @@ pub struct AssertUnwindSafe<T>(
 // * By default everything is unwind safe
 // * pointers T contains mutability of some form are not unwind safe
 // * Unique, an owning pointer, lifts an implementation
-// * Types like Mutex/RwLock which are explicilty poisoned are unwind safe
+// * Types like Mutex/RwLock which are explicitly poisoned are unwind safe
 // * Our custom AssertUnwindSafe wrapper is indeed unwind safe
 
 #[stable(feature = "catch_unwind", since = "1.9.0")]
@@ -198,7 +201,7 @@ impl<T: RefUnwindSafe + ?Sized> UnwindSafe for *const T {}
 impl<T: RefUnwindSafe + ?Sized> UnwindSafe for *mut T {}
 #[unstable(feature = "ptr_internals", issue = "0")]
 impl<T: UnwindSafe + ?Sized> UnwindSafe for Unique<T> {}
-#[stable(feature = "nonnull", since = "1.24.0")]
+#[stable(feature = "nonnull", since = "1.25.0")]
 impl<T: RefUnwindSafe + ?Sized> UnwindSafe for NonNull<T> {}
 #[stable(feature = "catch_unwind", since = "1.9.0")]
 impl<T: ?Sized> UnwindSafe for Mutex<T> {}

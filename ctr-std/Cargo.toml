@@ -3,9 +3,6 @@ name = "std"
 version = "0.0.0"
 license = "MIT/Apache 2.0"
 
-[dependencies.compiler_builtins]
-git = "https://github.com/rust-lang-nursery/compiler-builtins"
-
 [dependencies.alloc_system]
 git = "https://github.com/rust3ds/alloc_system3ds"
 
@@ -13,6 +10,3 @@ git = "https://github.com/rust3ds/alloc_system3ds"
 path = "../ctru-sys"
 default-features = false
 features = ["stdbuild"]
-
-[features]
-citra = []

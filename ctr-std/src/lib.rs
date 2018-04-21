@@ -259,6 +259,7 @@
 #![feature(core_float)]
 #![feature(core_intrinsics)]
 #![feature(dropck_eyepatch)]
+#![feature(exhaustive_patterns)]
 #![feature(exact_size_is_empty)]
 #![feature(fs_read_write)]
 #![feature(fixed_size_array)]
@@ -266,11 +267,9 @@
 #![feature(fn_traits)]
 #![feature(fnbox)]
 #![feature(fused)]
-#![feature(generic_param_attrs)]
 #![feature(hashmap_hasher)]
+#![feature(hashmap_internals)]
 #![feature(heap_api)]
-#![feature(i128)]
-#![feature(i128_type)]
 #![feature(inclusive_range)]
 #![feature(int_error_internals)]
 #![feature(integer_atomics)]
@@ -283,6 +282,8 @@
 #![feature(macro_vis_matcher)]
 #![feature(needs_panic_runtime)]
 #![feature(never_type)]
+#![feature(nonnull_cast)]
+#![feature(nonzero)]
 #![feature(num_bits_bytes)]
 #![feature(old_wrapping)]
 #![feature(on_unimplemented)]
@@ -297,21 +298,23 @@
 #![feature(rand)]
 #![feature(raw)]
 #![feature(rustc_attrs)]
+#![feature(shrink_to)]
 #![feature(sip_hash_13)]
 #![feature(slice_bytes)]
 #![feature(slice_concat_ext)]
 #![feature(slice_internals)]
 #![feature(slice_patterns)]
 #![feature(staged_api)]
+#![feature(stdsimd)]
 #![feature(stmt_expr_attributes)]
 #![feature(str_char)]
 #![feature(str_internals)]
 #![feature(str_utf16)]
-#![feature(termination_trait)]
 #![feature(test, rustc_private)]
 #![feature(thread_local)]
 #![feature(toowned_clone_into)]
 #![feature(try_from)]
+#![feature(try_reserve)]
 #![feature(unboxed_closures)]
 #![feature(unicode)]
 #![feature(untagged_unions)]
@@ -352,15 +355,14 @@ use prelude::v1::*;
 // We want to re-export a few macros from core but libcore has already been
 // imported by the compiler (via our #[no_std] attribute) In this case we just
 // add a new crate name so we can attach the re-exports to it.
-#[macro_reexport(assert, assert_eq, assert_ne, debug_assert, debug_assert_eq,
+#[macro_reexport(assert_eq, assert_ne, debug_assert, debug_assert_eq,
                  debug_assert_ne, unreachable, unimplemented, write, writeln, try)]
 extern crate core as __core;
 
 #[macro_use]
 #[macro_reexport(vec, format)]
-extern crate alloc;
+extern crate alloc as alloc_crate;
 extern crate alloc_system;
-extern crate std_unicode;
 #[doc(masked)]
 extern crate libc;
 
@@ -371,10 +373,6 @@ extern crate ctru_sys as libctru;
 #[doc(masked)]
 #[allow(unused_extern_crates)]
 extern crate unwind;
-
-// compiler-rt intrinsics
-#[doc(masked)]
-extern crate compiler_builtins;
 
 // During testing, this crate is not actually the "real" std library, but rather
 // it links to the real std library, which was compiled from this same source
@@ -447,23 +445,23 @@ pub use core::u32;
 #[stable(feature = "rust1", since = "1.0.0")]
 pub use core::u64;
 #[stable(feature = "rust1", since = "1.0.0")]
-pub use alloc::boxed;
+pub use alloc_crate::boxed;
 #[stable(feature = "rust1", since = "1.0.0")]
-pub use alloc::rc;
+pub use alloc_crate::rc;
 #[stable(feature = "rust1", since = "1.0.0")]
-pub use alloc::borrow;
+pub use alloc_crate::borrow;
 #[stable(feature = "rust1", since = "1.0.0")]
-pub use alloc::fmt;
+pub use alloc_crate::fmt;
 #[stable(feature = "rust1", since = "1.0.0")]
-pub use alloc::slice;
+pub use alloc_crate::slice;
 #[stable(feature = "rust1", since = "1.0.0")]
-pub use alloc::str;
+pub use alloc_crate::str;
 #[stable(feature = "rust1", since = "1.0.0")]
-pub use alloc::string;
+pub use alloc_crate::string;
 #[stable(feature = "rust1", since = "1.0.0")]
-pub use alloc::vec;
+pub use alloc_crate::vec;
 #[stable(feature = "rust1", since = "1.0.0")]
-pub use std_unicode::char;
+pub use core::char;
 #[unstable(feature = "i128", issue = "35118")]
 pub use core::u128;
 
@@ -487,7 +485,14 @@ pub mod path;
 pub mod process;
 pub mod sync;
 pub mod time;
-pub mod heap;
+pub mod alloc;
+
+#[unstable(feature = "allocator_api", issue = "32838")]
+#[rustc_deprecated(since = "1.27.0", reason = "module renamed to `alloc`")]
+/// Use the `alloc` module instead.
+pub mod heap {
+    pub use alloc::*;
+}
 
 // Platform-abstraction modules
 #[macro_use]
@@ -501,11 +506,6 @@ mod memchr;
 // The runtime entry point and a few unstable public functions used by the
 // compiler
 pub mod rt;
-// The trait to support returning arbitrary types in the main function
-mod termination;
-
-#[unstable(feature = "termination_trait", issue = "43301")]
-pub use self::termination::Termination;
 
 // Include a number of private modules that exist solely to provide
 // the rustdoc documentation for primitive types. Using `include!`
