@@ -11,6 +11,7 @@ extern crate widestring;
 
 extern crate ctru_sys as libctru;
 
+pub mod applet;
 pub mod console;
 pub mod error;
 pub mod srv;
