@@ -96,7 +96,8 @@ impl Swkbd {
 
     /// Gets input from this keyboard and appends it to the provided string.
     ///
-    /// The text received from the keyboard can be up to 2048 bytes in length.
+    /// The text received from the keyboard will be truncated if it is greater than 2048 bytes
+    /// in length.
     pub fn get_utf8(&mut self, buf: &mut String) -> Result<Button, Error> {
         // Unfortunately the libctru API doesn't really provide a way to get the exact length
         // of the string that it receieves from the software keyboard. Instead it expects you
@@ -104,40 +105,33 @@ impl Swkbd {
         // you have to set some upper limit on the potential size of the user's input.
         const MAX_BYTES: usize = 2048;
         let mut tmp = [0u8; MAX_BYTES];
-        let button = unsafe { self.get_bytes(&mut tmp)? };
+        let button = self.get_bytes(&mut tmp)?;
 
-        // Make sure we haven't overflowed our buffer. libctru might already check this,
-        // but we'll do it here too just in case
+        // libctru does, however, seem to ensure that the buffer will always contain a properly
+        // terminated UTF-8 sequence even if the input has to be truncated, so these operations
+        // should be safe.
         let len = unsafe { libc::strlen(tmp.as_ptr()) };
-        assert!(len <= MAX_BYTES);
+        let utf8 = unsafe { str::from_utf8_unchecked(&tmp[..len]) };
 
-        // Not sure if this is falliable or not in this stage of the process,
-        // but catch any decoding errors to be sure
-        let utf8 = match str::from_utf8(&tmp[..len]) {
-            Ok(parsed) => parsed,
-            Err(_) => return Err(Error::InvalidInput),
-        };
-
-        // Finally, copy the validated input into the user's `String`
+        // Copy the input into the user's `String`
         *buf += utf8;
         Ok(button)
     }
 
-    /// Fills the provided buffer with a NUL-terminated sequence of bytes from the software
-    /// keyboard
-    /// 
-    /// # Unsafety
+    /// Fills the provided buffer with a UTF-8 encoded, NUL-terminated sequence of bytes from
+    /// this software keyboard.
     ///
-    /// The received bytes are nominally UTF-8 formatted, but the provided buffer must be large
-    /// enough to receive both the text from the software keyboard along with a NUL-terminator.
-    /// Otherwise undefined behavior can result.
-    pub unsafe fn get_bytes(&mut self, buf: &mut [u8]) -> Result<Button, Error> {
-        match swkbdInputText(self.state.as_mut(), buf.as_mut_ptr(), buf.len()) {
-            libctru::SWKBD_BUTTON_NONE => Err(self.parse_swkbd_error()),
-            libctru::SWKBD_BUTTON_LEFT => Ok(Button::Left),
-            libctru::SWKBD_BUTTON_MIDDLE => Ok(Button::Middle),
-            libctru::SWKBD_BUTTON_RIGHT => Ok(Button::Right),
-            _ => unreachable!(),
+    /// If the buffer is too small to contain the entire sequence received from the keyboard,
+    /// the output will be truncated but should still be well-formed UTF-8
+    pub fn get_bytes(&mut self, buf: &mut [u8]) -> Result<Button, Error> {
+        unsafe {
+            match swkbdInputText(self.state.as_mut(), buf.as_mut_ptr(), buf.len()) {
+                libctru::SWKBD_BUTTON_NONE => Err(self.parse_swkbd_error()),
+                libctru::SWKBD_BUTTON_LEFT => Ok(Button::Left),
+                libctru::SWKBD_BUTTON_MIDDLE => Ok(Button::Middle),
+                libctru::SWKBD_BUTTON_RIGHT => Ok(Button::Right),
+                _ => unreachable!(),
+            }
         }
     }
 
