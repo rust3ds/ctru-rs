@@ -1,3 +1,4 @@
+use std::iter::once;
 use std::mem;
 use std::str;
 
@@ -160,7 +161,8 @@ impl Swkbd {
     /// when the textbox is empty)
     pub fn set_hint_text(&mut self, text: &str) {
         unsafe {
-            swkbdSetHintText(self.state.as_mut(), text.as_ptr());
+            let nul_terminated: String = text.chars().chain(once('\0')).collect();
+            swkbdSetHintText(self.state.as_mut(), nul_terminated.as_ptr());
         }
     }
 
@@ -172,7 +174,8 @@ impl Swkbd {
     /// discard it.
     pub fn configure_button(&mut self, button: Button, text: &str, submit: bool) {
         unsafe {
-            swkbdSetButton(self.state.as_mut(), button as u32, text.as_ptr(), submit);
+            let nul_terminated: String = text.chars().chain(once('\0')).collect();
+            swkbdSetButton(self.state.as_mut(), button as u32, nul_terminated.as_ptr(), submit);
         }
     }
 
