@@ -13,11 +13,9 @@ install:
    - pushd /tmp
 
    # Install DevkitARM
-   - export DEVKITPRO="$HOME/dkp"
+   - export DEVKITPRO="/opt/devkitpro"
    - export DEVKITARM="$DEVKITPRO/devkitARM"
    - export PATH="$PATH:$DEVKITARM/bin"
-   - export CC_3ds="$DEVKITARM/bin/arm-none-eabi-gcc"
-   - export TARGET_CFLAGS="-mfloat-abi=hard -march=armv6k"
    - wget https://raw.githubusercontent.com/devkitPro/installer/master/perl/devkitARMupdate.pl
    - chmod +x devkitARMupdate.pl
    - ./devkitARMupdate.pl "$DEVKITPRO"
@@ -32,4 +30,6 @@ install:
 
 script:
    - cd examples
+   - export CC_3ds="arm-none-eabi-gcc"
+   - export TARGET_CFLAGS="-mfloat-abi=hard -march=armv6k"
    - RUST_TARGET_PATH=$(pwd) xargo build --release
