@@ -1,7 +1,8 @@
 use std::mem;
 use std::str;
 
-use libctru::{self, SwkbdState, swkbdInit, swkbdSetFeatures, swkbdInputText};
+use libctru::{self, SwkbdState, swkbdInit, swkbdSetFeatures, swkbdSetHintText, swkbdInputText,
+              swkbdSetButton};
 
 use libc;
 
@@ -153,6 +154,26 @@ impl Swkbd {
     /// `Filters::DIGITS` flag is enabled
     pub fn set_max_digits(&mut self, digits: u16) {
         self.state.max_digits = digits;
+    }
+
+    /// Sets the hint text for this software keyboard (that is, the help text that is displayed 
+    /// when the textbox is empty)
+    pub fn set_hint_text(&mut self, text: &str) {
+        unsafe {
+            swkbdSetHintText(self.state.as_mut(), text.as_ptr());
+        }
+    }
+
+    /// Configures the look and behavior of a button for this keyboard.
+    ///
+    /// `button` is the `Button` to be configured
+    /// `text` configures the display text for the button
+    /// `submit` configures whether pressing the button will accept the keyboard's input or
+    /// discard it.
+    pub fn configure_button(&mut self, button: Button, text: &str, submit: bool) {
+        unsafe {
+            swkbdSetButton(self.state.as_mut(), button as u32, text.as_ptr(), submit);
+        }
     }
 
     /// Configures the maximum number of UTF-16 code units that can be entered into the software
