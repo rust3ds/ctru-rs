@@ -4,7 +4,7 @@ version = "0.0.0"
 license = "MIT/Apache 2.0"
 
 [dependencies.alloc_system]
-path = "../../alloc_system3ds"
+git = "https://github.com/rust3ds/alloc_system3ds"
 
 [dependencies.ctru-sys]
 path = "../ctru-sys"
