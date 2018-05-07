@@ -44,10 +44,10 @@
 //!
 //! Once you are familiar with the contents of the standard library you may
 //! begin to find the verbosity of the prose distracting. At this stage in your
-//! development you may want to press the **[-]** button near the top of the
+//! development you may want to press the `[-]` button near the top of the
 //! page to collapse it into a more skimmable view.
 //!
-//! While you are looking at that **[-]** button also notice the **[src]**
+//! While you are looking at that `[-]` button also notice the `[src]`
 //! button. Rust's API documentation comes with the source code and you are
 //! encouraged to read it. The standard library source is generally high
 //! quality and a peek behind the curtains is often enlightening.
@@ -221,15 +221,11 @@
 // Don't link to std. We are std.
 #![no_std]
 
-//#![deny(missing_docs)]
+#![deny(missing_docs)]
 #![deny(missing_debug_implementations)]
 
 // Tell the compiler to link to either panic_abort or panic_unwind
 #![needs_panic_runtime]
-
-// Turn warnings into errors, but only after stage0, where it can be useful for
-// code to emit warnings during language transitions
-//#![cfg_attr(not(stage0), deny(warnings))]
 
 // std may use features in a platform-specific way
 #![allow(unused_features)]
@@ -256,21 +252,20 @@
 #![feature(collections_range)]
 #![feature(compiler_builtins_lib)]
 #![feature(const_fn)]
-#![feature(core_float)]
+#![cfg_attr(stage0, feature(core_float))]
 #![feature(core_intrinsics)]
 #![feature(dropck_eyepatch)]
-#![feature(exhaustive_patterns)]
 #![feature(exact_size_is_empty)]
+#![feature(external_doc)]
 #![feature(fs_read_write)]
 #![feature(fixed_size_array)]
 #![feature(float_from_str_radix)]
+#![cfg_attr(stage0, feature(float_internals))]
 #![feature(fn_traits)]
 #![feature(fnbox)]
-#![feature(fused)]
-#![feature(hashmap_hasher)]
+#![cfg_attr(stage0, feature(generic_param_attrs))]
 #![feature(hashmap_internals)]
 #![feature(heap_api)]
-#![feature(inclusive_range)]
 #![feature(int_error_internals)]
 #![feature(integer_atomics)]
 #![feature(into_cow)]
@@ -278,11 +273,10 @@
 #![feature(libc)]
 #![feature(link_args)]
 #![feature(linkage)]
-#![feature(macro_reexport)]
 #![feature(macro_vis_matcher)]
 #![feature(needs_panic_runtime)]
 #![feature(never_type)]
-#![feature(nonnull_cast)]
+#![feature(exhaustive_patterns)]
 #![feature(nonzero)]
 #![feature(num_bits_bytes)]
 #![feature(old_wrapping)]
@@ -292,22 +286,20 @@
 #![feature(panic_internals)]
 #![feature(panic_unwind)]
 #![feature(peek)]
-#![feature(placement_in_syntax)]
 #![feature(placement_new_protocol)]
 #![feature(prelude_import)]
 #![feature(ptr_internals)]
 #![feature(rand)]
 #![feature(raw)]
 #![feature(rustc_attrs)]
+#![feature(std_internals)]
+#![feature(stdsimd)]
 #![feature(shrink_to)]
-#![feature(sip_hash_13)]
 #![feature(slice_bytes)]
 #![feature(slice_concat_ext)]
 #![feature(slice_internals)]
 #![feature(slice_patterns)]
 #![feature(staged_api)]
-#![feature(std_internals)]
-#![feature(stdsimd)]
 #![feature(stmt_expr_attributes)]
 #![feature(str_char)]
 #![feature(str_internals)]
@@ -318,15 +310,16 @@
 #![feature(try_from)]
 #![feature(try_reserve)]
 #![feature(unboxed_closures)]
-#![feature(unicode)]
 #![feature(untagged_unions)]
 #![feature(unwind_attributes)]
+#![feature(use_extern_macros)]
 #![feature(vec_push_all)]
 #![feature(doc_cfg)]
 #![feature(doc_masked)]
 #![feature(doc_spotlight)]
 #![cfg_attr(test, feature(update_panic_count))]
 #![cfg_attr(windows, feature(used))]
+#![feature(doc_alias)]
 
 #![default_lib_allocator]
 
@@ -337,10 +330,10 @@
 // with a rustc without jemalloc.
 // FIXME(#44236) shouldn't need MSVC logic
 #![cfg_attr(all(not(target_env = "msvc"),
-                any(stage0, feature = "force_alloc_system")),
+                any(all(stage0, not(test)), feature = "force_alloc_system")),
             feature(global_allocator))]
 #[cfg(all(not(target_env = "msvc"),
-          any(stage0, feature = "force_alloc_system")))]
+          any(all(stage0, not(test)), feature = "force_alloc_system")))]
 #[global_allocator]
 static ALLOC: alloc_system::System = alloc_system::System;
 
@@ -354,15 +347,14 @@ use prelude::v1::*;
 #[cfg(test)] extern crate test;
 #[cfg(test)] extern crate rand;
 
-// We want to re-export a few macros from core but libcore has already been
-// imported by the compiler (via our #[no_std] attribute) In this case we just
-// add a new crate name so we can attach the re-exports to it.
-#[macro_reexport(assert_eq, assert_ne, debug_assert, debug_assert_eq,
-                 debug_assert_ne, unreachable, unimplemented, write, writeln, try)]
-extern crate core as __core;
+// Re-export a few macros from core
+#[stable(feature = "rust1", since = "1.0.0")]
+pub use core::{assert_eq, assert_ne, debug_assert, debug_assert_eq, debug_assert_ne};
+#[stable(feature = "rust1", since = "1.0.0")]
+pub use core::{unreachable, unimplemented, write, writeln, try};
 
+#[allow(unused_imports)] // macros from `alloc` are not used on all platforms
 #[macro_use]
-#[macro_reexport(vec, format)]
 extern crate alloc as alloc_crate;
 extern crate alloc_system;
 #[doc(masked)]
@@ -376,10 +368,15 @@ extern crate ctru_sys as libctru;
 #[allow(unused_extern_crates)]
 extern crate unwind;
 
+// compiler-rt intrinsics
+#[doc(masked)]
+#[cfg(stage0)]
+extern crate compiler_builtins;
+
 // During testing, this crate is not actually the "real" std library, but rather
 // it links to the real std library, which was compiled from this same source
 // code. So any lang items std defines are conditionally excluded (or else they
-// wolud generate duplicate lang item errors), and any globals it defines are
+// would generate duplicate lang item errors), and any globals it defines are
 // _not_ the globals used by "real" std. So this import, defined only during
 // testing gives test-std access to real-std lang items and globals. See #2912
 #[cfg(test)] extern crate std as realstd;
@@ -434,7 +431,7 @@ pub use core::i16;
 pub use core::i32;
 #[stable(feature = "rust1", since = "1.0.0")]
 pub use core::i64;
-#[unstable(feature = "i128", issue = "35118")]
+#[stable(feature = "i128", since = "1.26.0")]
 pub use core::i128;
 #[stable(feature = "rust1", since = "1.0.0")]
 pub use core::usize;
@@ -455,6 +452,8 @@ pub use alloc_crate::borrow;
 #[stable(feature = "rust1", since = "1.0.0")]
 pub use alloc_crate::fmt;
 #[stable(feature = "rust1", since = "1.0.0")]
+pub use alloc_crate::format;
+#[stable(feature = "rust1", since = "1.0.0")]
 pub use alloc_crate::slice;
 #[stable(feature = "rust1", since = "1.0.0")]
 pub use alloc_crate::str;
@@ -464,8 +463,10 @@ pub use alloc_crate::string;
 pub use alloc_crate::vec;
 #[stable(feature = "rust1", since = "1.0.0")]
 pub use core::char;
-#[unstable(feature = "i128", issue = "35118")]
+#[stable(feature = "i128", since = "1.26.0")]
 pub use core::u128;
+#[stable(feature = "core_hint", since = "1.27.0")]
+pub use core::hint;
 
 pub mod f32;
 pub mod f64;
@@ -487,7 +488,6 @@ pub mod path;
 pub mod process;
 pub mod sync;
 pub mod time;
-pub mod alloc;
 
 #[unstable(feature = "allocator_api", issue = "32838")]
 #[rustc_deprecated(since = "1.27.0", reason = "module renamed to `alloc`")]
@@ -500,6 +500,8 @@ pub mod heap {
 #[macro_use]
 mod sys_common;
 mod sys;
+
+pub mod alloc;
 
 // Private support modules
 mod panicking;

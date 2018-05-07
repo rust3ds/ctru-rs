@@ -13,8 +13,6 @@
 use io::{self, ErrorKind};
 use libc;
 
-#[cfg(any(dox, target_os = "linux", target_os = "horizon"))] pub use os::linux as platform;
-
 pub use self::rand::hashmap_random_keys;
 pub use libc::strlen;
 
