@@ -16,16 +16,15 @@ install:
    - export DEVKITPRO="/opt/devkitpro"
    - export DEVKITARM="$DEVKITPRO/devkitARM"
    - export PATH="$PATH:$DEVKITARM/bin"
-   - wget https://raw.githubusercontent.com/devkitPro/installer/master/perl/devkitARMupdate.pl
-   - chmod +x devkitARMupdate.pl
-   - ./devkitARMupdate.pl "$DEVKITPRO"
+   - wget https://github.com/devkitPro/pacman/releases/download/v1.0.0/devkitpro-pacman.deb
+   - sudo dpkg -i devkitpro-pacman.deb
+   - sudo dkp-pacman -S --noconfirm devkitARM libctru
 
    # Install Xargo
    - cargo install xargo
 
    # Install Rust source
    - rustup component add rust-src
-
    - popd
 
 script:
