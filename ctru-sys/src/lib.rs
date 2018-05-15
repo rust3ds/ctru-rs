@@ -3,7 +3,6 @@
 #![allow(non_snake_case)]
 
 #![feature(const_fn)] 
-#![feature(untagged_unions)]
 
 #![no_std]
 
