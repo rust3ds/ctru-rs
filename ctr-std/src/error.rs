@@ -9,34 +9,6 @@
 // except according to those terms.
 
 //! Traits for working with Errors.
-//!
-//! # The `Error` trait
-//!
-//! `Error` is a trait representing the basic expectations for error values,
-//! i.e. values of type `E` in [`Result<T, E>`]. At a minimum, errors must provide
-//! a description, but they may optionally provide additional detail (via
-//! [`Display`]) and cause chain information:
-//!
-//! ```
-//! use std::fmt::Display;
-//!
-//! trait Error: Display {
-//!     fn description(&self) -> &str;
-//!
-//!     fn cause(&self) -> Option<&Error> { None }
-//! }
-//! ```
-//!
-//! The [`cause`] method is generally used when errors cross "abstraction
-//! boundaries", i.e.  when a one module must report an error that is "caused"
-//! by an error from a lower-level module. This setup makes it possible for the
-//! high-level module to provide its own errors that do not commit to any
-//! particular implementation, but also reveal some of its implementation for
-//! debugging via [`cause`] chains.
-//!
-//! [`Result<T, E>`]: ../result/enum.Result.html
-//! [`Display`]: ../fmt/trait.Display.html
-//! [`cause`]: trait.Error.html#method.cause
 
 #![stable(feature = "rust1", since = "1.0.0")]
 
@@ -63,33 +35,48 @@ use num;
 use str;
 use string;
 
-/// Base functionality for all errors in Rust.
+/// `Error` is a trait representing the basic expectations for error values,
+/// i.e. values of type `E` in [`Result<T, E>`]. Errors must describe
+/// themselves through the [`Display`] and [`Debug`] traits, and may provide
+/// cause chain information:
+///
+/// The [`cause`] method is generally used when errors cross "abstraction
+/// boundaries", i.e.  when a one module must report an error that is "caused"
+/// by an error from a lower-level module. This setup makes it possible for the
+/// high-level module to provide its own errors that do not commit to any
+/// particular implementation, but also reveal some of its implementation for
+/// debugging via [`cause`] chains.
+///
+/// [`Result<T, E>`]: ../result/enum.Result.html
+/// [`Display`]: ../fmt/trait.Display.html
+/// [`cause`]: trait.Error.html#method.cause
 #[stable(feature = "rust1", since = "1.0.0")]
 pub trait Error: Debug + Display {
-    /// A short description of the error.
+    /// **This method is soft-deprecated.**
     ///
-    /// The description should only be used for a simple message.
-    /// It should not contain newlines or sentence-ending punctuation,
-    /// to facilitate embedding in larger user-facing strings.
-    /// For showing formatted error messages with more information see
-    /// [`Display`].
+    /// Although using it won’t cause compilation warning,
+    /// new code should use [`Display`] instead
+    /// and new `impl`s can omit it.
+    ///
+    /// To obtain error description as a string, use `to_string()`.
     ///
     /// [`Display`]: ../fmt/trait.Display.html
     ///
     /// # Examples
     ///
     /// ```
-    /// use std::error::Error;
-    ///
     /// match "xc".parse::<u32>() {
     ///     Err(e) => {
-    ///         println!("Error: {}", e.description());
+    ///         // Print `e` itself, not `e.description()`.
+    ///         println!("Error: {}", e);
     ///     }
     ///     _ => println!("No error"),
     /// }
     /// ```
     #[stable(feature = "rust1", since = "1.0.0")]
-    fn description(&self) -> &str;
+    fn description(&self) -> &str {
+        "description() is deprecated; use Display"
+    }
 
     /// The lower-level cause of this error, if any.
     ///
@@ -233,7 +220,7 @@ impl<'a> From<Cow<'a, str>> for Box<Error> {
     }
 }
 
-#[stable(feature = "never_type", since = "1.26.0")]
+#[unstable(feature = "never_type", issue = "35121")]
 impl Error for ! {
     fn description(&self) -> &str { *self }
 }
@@ -284,14 +271,14 @@ impl Error for num::ParseIntError {
     }
 }
 
-#[stable(feature = "try_from", since = "1.26.0")]
+#[unstable(feature = "try_from", issue = "33417")]
 impl Error for num::TryFromIntError {
     fn description(&self) -> &str {
         self.__description()
     }
 }
 
-#[stable(feature = "try_from", since = "1.26.0")]
+#[unstable(feature = "try_from", issue = "33417")]
 impl Error for array::TryFromSliceError {
     fn description(&self) -> &str {
         self.__description()
@@ -365,7 +352,7 @@ impl Error for cell::BorrowMutError {
     }
 }
 
-#[stable(feature = "try_from", since = "1.26.0")]
+#[unstable(feature = "try_from", issue = "33417")]
 impl Error for char::CharTryFromError {
     fn description(&self) -> &str {
         "converted integer out of range for `char`"

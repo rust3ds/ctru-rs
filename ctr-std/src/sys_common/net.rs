@@ -150,7 +150,7 @@ pub fn lookup_host(host: &str) -> io::Result<LookupHost> {
     hints.ai_socktype = c::SOCK_STREAM;
     let mut res = ptr::null_mut();
     unsafe {
-        match cvt_gai(c::getaddrinfo(c_host.as_ptr(), ptr::null(), &hints, &mut res)) {
+        match cvt_gai(c::getaddrinfo(c_host.as_ptr() as *const _, ptr::null(), &hints, &mut res)) {
             Ok(_) => {
                 Ok(LookupHost { original: res, cur: res })
             },

@@ -450,8 +450,8 @@ pub mod builtin {
     #[unstable(feature = "concat_idents_macro", issue = "29599")]
     #[macro_export]
     macro_rules! concat_idents {
-        ($($e:ident),*) => ({ /* compiler built-in */ });
-        ($($e:ident,)*) => ({ /* compiler built-in */ });
+        ($($e:ident),+) => ({ /* compiler built-in */ });
+        ($($e:ident,)+) => ({ /* compiler built-in */ });
     }
 
     /// Concatenates literals into a static string slice.
@@ -787,13 +787,13 @@ pub mod builtin {
     }
 }
 
-/// A macro for defining #[cfg] if-else statements.
+/// A macro for defining `#[cfg]` if-else statements.
 ///
 /// This is similar to the `if/elif` C preprocessor macro by allowing definition
 /// of a cascade of `#[cfg]` cases, emitting the implementation which matches
 /// first.
 ///
-/// This allows you to conveniently provide a long list #[cfg]'d blocks of code
+/// This allows you to conveniently provide a long list `#[cfg]`'d blocks of code
 /// without having to rewrite each clause multiple times.
 macro_rules! cfg_if {
     ($(

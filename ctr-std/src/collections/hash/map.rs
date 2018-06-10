@@ -11,7 +11,7 @@
 use self::Entry::*;
 use self::VacantEntryState::*;
 
-use alloc::{Global, Alloc, CollectionAllocErr};
+use alloc::{CollectionAllocErr, oom};
 use cell::Cell;
 use borrow::Borrow;
 use cmp::max;
@@ -33,6 +33,7 @@ const MIN_NONZERO_RAW_CAPACITY: usize = 32;     // must be a power of two
 struct DefaultResizePolicy;
 
 impl DefaultResizePolicy {
+    #[inline]
     fn new() -> DefaultResizePolicy {
         DefaultResizePolicy
     }
@@ -784,7 +785,7 @@ impl<K, V, S> HashMap<K, V, S>
     pub fn reserve(&mut self, additional: usize) {
         match self.try_reserve(additional) {
             Err(CollectionAllocErr::CapacityOverflow) => panic!("capacity overflow"),
-            Err(CollectionAllocErr::AllocErr) => Global.oom(),
+            Err(CollectionAllocErr::AllocErr) => oom(),
             Ok(()) => { /* yay */ }
          }
     }
@@ -1379,7 +1380,6 @@ impl<K, V, S> HashMap<K, V, S>
     /// # Examples
     ///
     /// ```
-    /// #![feature(hash_map_remove_entry)]
     /// use std::collections::HashMap;
     ///
     /// # fn main() {
@@ -1389,7 +1389,7 @@ impl<K, V, S> HashMap<K, V, S>
     /// assert_eq!(map.remove(&1), None);
     /// # }
     /// ```
-    #[unstable(feature = "hash_map_remove_entry", issue = "46344")]
+    #[stable(feature = "hash_map_remove_entry", since = "1.27.0")]
     pub fn remove_entry<Q: ?Sized>(&mut self, k: &Q) -> Option<(K, V)>
         where K: Borrow<Q>,
               Q: Hash + Eq
@@ -2127,8 +2127,8 @@ impl<'a, K, V> Entry<'a, K, V> {
     /// assert_eq!(map["poneyland"], 43);
     /// ```
     #[stable(feature = "entry_and_modify", since = "1.26.0")]
-    pub fn and_modify<F>(self, mut f: F) -> Self
-        where F: FnMut(&mut V)
+    pub fn and_modify<F>(self, f: F) -> Self
+        where F: FnOnce(&mut V)
     {
         match self {
             Occupied(mut entry) => {

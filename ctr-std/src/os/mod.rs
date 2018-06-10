@@ -52,8 +52,13 @@ cfg_if! {
         #[stable(feature = "rust1", since = "1.0.0")]
         pub use sys::ext as unix;
 
-        #[cfg(any(target_os = "linux", target_os = "l4re", target_os = "horizon"))]
+        #[cfg(windows)]
+        #[stable(feature = "rust1", since = "1.0.0")]
+        pub use sys::ext as windows;
+
+        #[cfg(any(target_os = "linux", target_os = "l4re"))]
         pub mod linux;
+
     }
 }
 

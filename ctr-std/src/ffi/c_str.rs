@@ -406,7 +406,7 @@ impl CString {
     /// ```
     #[stable(feature = "cstr_memory", since = "1.4.0")]
     pub unsafe fn from_raw(ptr: *mut c_char) -> CString {
-        let len = sys::strlen(ptr) + 1; // Including the NUL byte
+        let len = sys::strlen(ptr as *const _) + 1; // Including the NUL byte
         let slice = slice::from_raw_parts_mut(ptr, len as usize);
         CString { inner: Box::from_raw(slice as *mut [c_char] as *mut [u8]) }
     }
@@ -901,7 +901,7 @@ impl CStr {
     /// ```
     #[stable(feature = "rust1", since = "1.0.0")]
     pub unsafe fn from_ptr<'a>(ptr: *const c_char) -> &'a CStr {
-        let len = sys::strlen(ptr);
+        let len = sys::strlen(ptr as *const _);
         let ptr = ptr as *const u8;
         CStr::from_bytes_with_nul_unchecked(slice::from_raw_parts(ptr, len as usize + 1))
     }
@@ -988,6 +988,7 @@ impl CStr {
     /// behavior when `ptr` is used inside the `unsafe` block:
     ///
     /// ```no_run
+    /// # #![allow(unused_must_use)]
     /// use std::ffi::{CString};
     ///
     /// let ptr = CString::new("Hello").unwrap().as_ptr();
@@ -1003,6 +1004,7 @@ impl CStr {
     /// To fix the problem, bind the `CString` to a local variable:
     ///
     /// ```no_run
+    /// # #![allow(unused_must_use)]
     /// use std::ffi::{CString};
     ///
     /// let hello = CString::new("Hello").unwrap();
@@ -1118,6 +1120,7 @@ impl CStr {
     ///
     /// [`Cow`]: ../borrow/enum.Cow.html
     /// [`Borrowed`]: ../borrow/enum.Cow.html#variant.Borrowed
+    /// [`Owned`]: ../borrow/enum.Cow.html#variant.Owned
     /// [`str`]: ../primitive.str.html
     /// [`String`]: ../string/struct.String.html
     ///
