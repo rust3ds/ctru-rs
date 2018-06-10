@@ -201,6 +201,9 @@ impl<'a> Prefix<'a> {
             os_str_as_u8_slice(s).len()
         }
         match *self {
+	    #[cfg(target_os = "horizon")]
+            Verbatim(x) => 1 + os_str_len(x),
+            #[cfg(target_os = "windows")]
             Verbatim(x) => 4 + os_str_len(x),
             VerbatimUNC(x, y) => {
                 8 + os_str_len(x) +
