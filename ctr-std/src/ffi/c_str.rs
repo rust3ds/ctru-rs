@@ -404,9 +404,59 @@ impl CString {
     ///     let c_string = CString::from_raw(raw);
     /// }
     /// ```
+    #[cfg(not(target_os = "horizon"))] 
     #[stable(feature = "cstr_memory", since = "1.4.0")]
     pub unsafe fn from_raw(ptr: *mut c_char) -> CString {
-        let len = sys::strlen(ptr as *const _) + 1; // Including the NUL byte
+        let len = sys::strlen(ptr) + 1; // Including the NUL byte
+        let slice = slice::from_raw_parts_mut(ptr, len as usize);
+        CString { inner: Box::from_raw(slice as *mut [c_char] as *mut [u8]) }
+    }
+
+
+    /// Retakes ownership of a `CString` that was transferred to C via [`into_raw`].
+    ///
+    /// Additionally, the length of the string will be recalculated from the pointer.
+    ///
+    /// # Safety
+    ///
+    /// This should only ever be called with a pointer that was earlier
+    /// obtained by calling [`into_raw`] on a `CString`. Other usage (e.g. trying to take
+    /// ownership of a string that was allocated by foreign code) is likely to lead
+    /// to undefined behavior or allocator corruption.
+    ///
+    /// > **Note:** If you need to borrow a string that was allocated by
+    /// > foreign code, use [`CStr`]. If you need to take ownership of
+    /// > a string that was allocated by foreign code, you will need to
+    /// > make your own provisions for freeing it appropriately, likely
+    /// > with the foreign code's API to do that.
+    ///
+    /// [`into_raw`]: #method.into_raw
+    /// [`CStr`]: struct.CStr.html
+    ///
+    /// # Examples
+    ///
+    /// Create a `CString`, pass ownership to an `extern` function (via raw pointer), then retake
+    /// ownership with `from_raw`:
+    ///
+    /// ```ignore (extern-declaration)
+    /// use std::ffi::CString;
+    /// use std::os::raw::c_char;
+    ///
+    /// extern {
+    ///     fn some_extern_function(s: *mut c_char);
+    /// }
+    ///
+    /// let c_string = CString::new("Hello!").unwrap();
+    /// let raw = c_string.into_raw();
+    /// unsafe {
+    ///     some_extern_function(raw);
+    ///     let c_string = CString::from_raw(raw);
+    /// }
+    /// ```
+    #[cfg(target_os = "horizon")] 
+    #[stable(feature = "cstr_memory", since = "1.4.0")]
+    pub unsafe fn from_raw(ptr: *mut c_char) -> CString {
+        let len = sys::strlen(ptr as *const u8) + 1; // Including the NUL byte
         let slice = slice::from_raw_parts_mut(ptr, len as usize);
         CString { inner: Box::from_raw(slice as *mut [c_char] as *mut [u8]) }
     }
@@ -682,6 +732,14 @@ impl Borrow<CStr> for CString {
     fn borrow(&self) -> &CStr { self }
 }
 
+#[stable(feature = "cstring_from_cow_cstr", since = "1.28.0")]
+impl<'a> From<Cow<'a, CStr>> for CString {
+    #[inline]
+    fn from(s: Cow<'a, CStr>) -> Self {
+        s.into_owned()
+    }
+}
+
 #[stable(feature = "box_from_c_str", since = "1.17.0")]
 impl<'a> From<&'a CStr> for Box<CStr> {
     fn from(s: &'a CStr) -> Box<CStr> {
@@ -703,6 +761,30 @@ impl From<CString> for Box<CStr> {
     #[inline]
     fn from(s: CString) -> Box<CStr> {
         s.into_boxed_c_str()
+    }
+}
+
+#[stable(feature = "cow_from_cstr", since = "1.28.0")]
+impl<'a> From<CString> for Cow<'a, CStr> {
+    #[inline]
+    fn from(s: CString) -> Cow<'a, CStr> {
+        Cow::Owned(s)
+    }
+}
+
+#[stable(feature = "cow_from_cstr", since = "1.28.0")]
+impl<'a> From<&'a CStr> for Cow<'a, CStr> {
+    #[inline]
+    fn from(s: &'a CStr) -> Cow<'a, CStr> {
+        Cow::Borrowed(s)
+    }
+}
+
+#[stable(feature = "cow_from_cstr", since = "1.28.0")]
+impl<'a> From<&'a CString> for Cow<'a, CStr> {
+    #[inline]
+    fn from(s: &'a CString) -> Cow<'a, CStr> {
+        Cow::Borrowed(s.as_c_str())
     }
 }
 
@@ -899,13 +981,56 @@ impl CStr {
     /// }
     /// # }
     /// ```
+    #[cfg(not(target_os = "horizon"))] 
     #[stable(feature = "rust1", since = "1.0.0")]
     pub unsafe fn from_ptr<'a>(ptr: *const c_char) -> &'a CStr {
-        let len = sys::strlen(ptr as *const _);
+        let len = sys::strlen(ptr);
         let ptr = ptr as *const u8;
         CStr::from_bytes_with_nul_unchecked(slice::from_raw_parts(ptr, len as usize + 1))
     }
 
+    /// Wraps a raw C string with a safe C string wrapper.
+    ///
+    /// This function will wrap the provided `ptr` with a `CStr` wrapper, which
+    /// allows inspection and interoperation of non-owned C strings. This method
+    /// is unsafe for a number of reasons:
+    ///
+    /// * There is no guarantee to the validity of `ptr`.
+    /// * The returned lifetime is not guaranteed to be the actual lifetime of
+    ///   `ptr`.
+    /// * There is no guarantee that the memory pointed to by `ptr` contains a
+    ///   valid nul terminator byte at the end of the string.
+    /// * It is not guaranteed that the memory pointed by `ptr` won't change
+    ///   before the `CStr` has been destroyed.
+    ///
+    /// > **Note**: This operation is intended to be a 0-cost cast but it is
+    /// > currently implemented with an up-front calculation of the length of
+    /// > the string. This is not guaranteed to always be the case.
+    ///
+    /// # Examples
+    ///
+    /// ```ignore (extern-declaration)
+    /// # fn main() {
+    /// use std::ffi::CStr;
+    /// use std::os::raw::c_char;
+    ///
+    /// extern {
+    ///     fn my_string() -> *const c_char;
+    /// }
+    ///
+    /// unsafe {
+    ///     let slice = CStr::from_ptr(my_string());
+    ///     println!("string returned: {}", slice.to_str().unwrap());
+    /// }
+    /// # }
+    /// ```
+    #[cfg(target_os = "horizon")] 
+    #[stable(feature = "rust1", since = "1.0.0")]
+    pub unsafe fn from_ptr<'a>(ptr: *const c_char) -> &'a CStr {
+        let len = sys::strlen(ptr as *const u8);
+        let ptr = ptr as *const u8;
+        CStr::from_bytes_with_nul_unchecked(slice::from_raw_parts(ptr, len as usize + 1))
+    }
     /// Creates a C string wrapper from a byte slice.
     ///
     /// This function will cast the provided `bytes` to a `CStr`

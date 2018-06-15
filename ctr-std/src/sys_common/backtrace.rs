@@ -41,6 +41,8 @@ pub struct Frame {
     pub exact_position: *const u8,
     /// Address of the enclosing function.
     pub symbol_addr: *const u8,
+    /// Which inlined function is this frame referring to
+    pub inline_context: u32,
 }
 
 /// Max number of frames to print.
@@ -64,6 +66,7 @@ fn _print(w: &mut Write, format: PrintFormat) -> io::Result<()> {
     let mut frames = [Frame {
         exact_position: ptr::null(),
         symbol_addr: ptr::null(),
+        inline_context: 0,
     }; MAX_NB_FRAMES];
     let (nb_frames, context) = unwind_backtrace(&mut frames)?;
     let (skipped_before, skipped_after) =
@@ -133,13 +136,13 @@ pub fn __rust_begin_short_backtrace<F, T>(f: F) -> T
     f()
 }
 
-/// Controls how the backtrace should be formated.
+/// Controls how the backtrace should be formatted.
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum PrintFormat {
-    /// Show all the frames with absolute path for files.
-    Full = 2,
     /// Show only relevant data from the backtrace.
-    Short = 3,
+    Short = 2,
+    /// Show all the frames with absolute path for files.
+    Full = 3,
 }
 
 // For now logging is turned off by default, and this function checks to see
@@ -147,11 +150,10 @@ pub enum PrintFormat {
 pub fn log_enabled() -> Option<PrintFormat> {
     static ENABLED: atomic::AtomicIsize = atomic::AtomicIsize::new(0);
     match ENABLED.load(Ordering::SeqCst) {
-        0 => {},
+        0 => {}
         1 => return None,
-        2 => return Some(PrintFormat::Full),
-        3 => return Some(PrintFormat::Short),
-        _ => unreachable!(),
+        2 => return Some(PrintFormat::Short),
+        _ => return Some(PrintFormat::Full),
     }
 
     let val = match env::var_os("RUST_BACKTRACE") {

@@ -1,4 +1,4 @@
-// Copyright 2017 The Rust Project Developers. See the COPYRIGHT
+// Copyright 2014 The Rust Project Developers. See the COPYRIGHT
 // file at the top-level directory of this distribution and at
 // http://rust-lang.org/COPYRIGHT.
 //
@@ -8,15 +8,35 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-//! System bindings for the Nintendo 3DS
+#![allow(missing_docs, bad_style)]
 
 use io::{self, ErrorKind};
 use libc;
 
+#[cfg(any(dox, target_os = "linux"))] pub use os::linux as platform;
+
+#[cfg(all(not(dox), target_os = "android"))]   pub use os::android as platform;
+#[cfg(all(not(dox), target_os = "bitrig"))]    pub use os::bitrig as platform;
+#[cfg(all(not(dox), target_os = "dragonfly"))] pub use os::dragonfly as platform;
+#[cfg(all(not(dox), target_os = "freebsd"))]   pub use os::freebsd as platform;
+#[cfg(all(not(dox), target_os = "haiku"))]     pub use os::haiku as platform;
+#[cfg(all(not(dox), target_os = "ios"))]       pub use os::ios as platform;
+#[cfg(all(not(dox), target_os = "macos"))]     pub use os::macos as platform;
+#[cfg(all(not(dox), target_os = "netbsd"))]    pub use os::netbsd as platform;
+#[cfg(all(not(dox), target_os = "openbsd"))]   pub use os::openbsd as platform;
+#[cfg(all(not(dox), target_os = "solaris"))]   pub use os::solaris as platform;
+#[cfg(all(not(dox), target_os = "emscripten"))] pub use os::emscripten as platform;
+#[cfg(all(not(dox), target_os = "fuchsia"))]   pub use os::fuchsia as platform;
+#[cfg(all(not(dox), target_os = "l4re"))]      pub use os::linux as platform;
+
 pub use self::rand::hashmap_random_keys;
 pub use libc::strlen;
 
+#[macro_use]
+pub mod weak;
+
 pub mod args;
+pub mod android;
 #[cfg(feature = "backtrace")]
 pub mod backtrace;
 pub mod cmath;
@@ -28,7 +48,12 @@ pub mod fd;
 pub mod fs;
 pub mod memchr;
 pub mod mutex;
+#[cfg(not(target_os = "l4re"))]
 pub mod net;
+#[cfg(target_os = "l4re")]
+mod l4re;
+#[cfg(target_os = "l4re")]
+pub use self::l4re::net;
 pub mod os;
 pub mod os_str;
 pub mod path;
@@ -44,16 +69,29 @@ pub mod stdio;
 
 #[cfg(not(test))]
 pub fn init() {
+    // By default, some platforms will send a *signal* when an EPIPE error
+    // would otherwise be delivered. This runtime doesn't install a SIGPIPE
+    // handler, causing it to kill the program, which isn't exactly what we
+    // want!
+    //
+    // Hence, we set SIGPIPE to ignore when the program starts up in order
+    // to prevent this problem.
+    unsafe {
+        reset_sigpipe();
+    }
+
+    #[cfg(not(any(target_os = "emscripten", target_os = "fuchsia")))]
+    unsafe fn reset_sigpipe() {
+        assert!(signal(libc::SIGPIPE, libc::SIG_IGN) != libc::SIG_ERR);
+    }
+    #[cfg(any(target_os = "emscripten", target_os = "fuchsia"))]
+    unsafe fn reset_sigpipe() {}
 }
 
-pub fn unsupported<T>() -> io::Result<T> {
-    Err(unsupported_err())
-}
-
-pub fn unsupported_err() -> io::Error {
-    io::Error::new(io::ErrorKind::Other,
-                   "operation not supported on 3DS yet")
-}
+#[cfg(target_os = "android")]
+pub use sys::android::signal;
+#[cfg(not(target_os = "android"))]
+pub use libc::signal;
 
 pub fn decode_error_kind(errno: i32) -> ErrorKind {
     match errno as libc::c_int {
@@ -80,11 +118,6 @@ pub fn decode_error_kind(errno: i32) -> ErrorKind {
         _ => ErrorKind::Other,
     }
 }
-
-// This enum is used as the storage for a bunch of types which can't actually
-// exist.
-#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Hash)]
-pub enum Void {}
 
 #[doc(hidden)]
 pub trait IsMinusOne {

@@ -33,9 +33,24 @@
 #![allow(missing_debug_implementations)]
 
 cfg_if! {
-    if #[cfg(unix)] {
+    if #[cfg(target_os = "horizon")] {
+        mod horizon;
+        pub use self::horizon::*;
+    } else if #[cfg(unix)] {
         mod unix;
         pub use self::unix::*;
+    } else if #[cfg(windows)] {
+        mod windows;
+        pub use self::windows::*;
+    } else if #[cfg(target_os = "cloudabi")] {
+        mod cloudabi;
+        pub use self::cloudabi::*;
+    } else if #[cfg(target_os = "redox")] {
+        mod redox;
+        pub use self::redox::*;
+    } else if #[cfg(target_arch = "wasm32")] {
+        mod wasm;
+        pub use self::wasm::*;
     } else {
         compile_error!("libstd doesn't compile for this platform yet");
     }

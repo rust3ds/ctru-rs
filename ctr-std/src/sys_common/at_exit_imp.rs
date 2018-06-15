@@ -12,7 +12,7 @@
 //!
 //! Documentation can be found on the `rt::at_exit` function.
 
-use alloc_crate::boxed::FnBox;
+use boxed::FnBox;
 use ptr;
 use sys_common::mutex::Mutex;
 

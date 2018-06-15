@@ -8,11 +8,9 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-#![allow(dead_code)]
-
 use ffi::CStr;
 use io;
-use libc::{self, c_int, c_void, size_t, sockaddr, socklen_t, EAI_NONAME as EAI_SYSTEM, MSG_PEEK};
+use libc::{self, c_int, c_void, size_t, sockaddr, socklen_t, EAI_SYSTEM, MSG_PEEK};
 use mem;
 use net::{SocketAddr, Shutdown};
 use str;
@@ -25,7 +23,6 @@ use cmp;
 pub use sys::{cvt, cvt_r};
 pub extern crate libc as netc;
 
-#[allow(non_camel_case_types)]
 pub type wrlen_t = size_t;
 
 // See below for the usage of SOCK_CLOEXEC, but this constant is only defined on
@@ -54,12 +51,16 @@ pub fn cvt_gai(err: c_int) -> io::Result<()> {
     if err == 0 {
         return Ok(())
     }
+
+    // We may need to trigger a glibc workaround. See on_resolver_failure() for details.
+    on_resolver_failure();
+
     if err == EAI_SYSTEM {
         return Err(io::Error::last_os_error())
     }
 
     let detail = unsafe {
-        str::from_utf8(CStr::from_ptr(libc::gai_strerror(err) as *const _).to_bytes()).unwrap()
+        str::from_utf8(CStr::from_ptr(libc::gai_strerror(err)).to_bytes()).unwrap()
             .to_owned()
     };
     Err(io::Error::new(io::ErrorKind::Other,
@@ -143,7 +144,7 @@ impl Socket {
 
         let mut pollfd = libc::pollfd {
             fd: self.0.raw(),
-            events: 0x10, //libc::POLLOUT; value in the `libc` crate is currently incorrect
+            events: libc::POLLOUT,
             revents: 0,
         };
 
@@ -181,9 +182,7 @@ impl Socket {
                 _ => {
                     // linux returns POLLOUT|POLLERR|POLLHUP for refused connections (!), so look
                     // for POLLHUP rather than read readiness
-                    //
-                    // libc::POLLHUP should be 0x4. the `libc` crate incorrectly lists it as 0x10
-                    if pollfd.revents & 0x4 != 0 {
+                    if pollfd.revents & libc::POLLHUP != 0 {
                         let e = self.take_error()?
                             .unwrap_or_else(|| {
                                 io::Error::new(io::ErrorKind::Other, "no error set after POLLHUP")
@@ -199,6 +198,26 @@ impl Socket {
 
     pub fn accept(&self, storage: *mut sockaddr, len: *mut socklen_t)
                   -> io::Result<Socket> {
+        // Unfortunately the only known way right now to accept a socket and
+        // atomically set the CLOEXEC flag is to use the `accept4` syscall on
+        // Linux. This was added in 2.6.28, however, and because we support
+        // 2.6.18 we must detect this support dynamically.
+        if cfg!(target_os = "linux") {
+            weak! {
+                fn accept4(c_int, *mut sockaddr, *mut socklen_t, c_int) -> c_int
+            }
+            if let Some(accept) = accept4.get() {
+                let res = cvt_r(|| unsafe {
+                    accept(self.0.raw(), storage, len, SOCK_CLOEXEC)
+                });
+                match res {
+                    Ok(fd) => return Ok(Socket(FileDesc::new(fd))),
+                    Err(ref e) if e.raw_os_error() == Some(libc::ENOSYS) => {}
+                    Err(e) => return Err(e),
+                }
+            }
+        }
+
         let fd = cvt_r(|| unsafe {
             libc::accept(self.0.raw(), storage, len)
         })?;
@@ -320,7 +339,8 @@ impl Socket {
     }
 
     pub fn set_nonblocking(&self, nonblocking: bool) -> io::Result<()> {
-        self.0.set_nonblocking(nonblocking)
+        let mut nonblocking = nonblocking as libc::c_int;
+        cvt(unsafe { libc::ioctl(*self.as_inner(), libc::FIONBIO, &mut nonblocking) }).map(|_| ())
     }
 
     pub fn take_error(&self) -> io::Result<Option<io::Error>> {
@@ -362,36 +382,21 @@ impl IntoInner<c_int> for Socket {
 // against glibc version < 2.26. (That is, when we both know its needed and
 // believe it's thread-safe).
 #[cfg(target_env = "gnu")]
-pub fn res_init_if_glibc_before_2_26() -> io::Result<()> {
+fn on_resolver_failure() {
+    use sys;
+
     // If the version fails to parse, we treat it the same as "not glibc".
-    if let Some(Ok(version_str)) = glibc_version_cstr().map(CStr::to_str) {
-        if let Some(version) = parse_glibc_version(version_str) {
-            if version < (2, 26) {
-                let ret = unsafe { libc::res_init() };
-                if ret != 0 {
-                    return Err(io::Error::last_os_error());
-                }
-            }
+    if let Some(version) = sys::os::glibc_version() {
+        if version < (2, 26) {
+            unsafe { libc::res_init() };
         }
     }
-    Ok(())
 }
 
-fn glibc_version_cstr() -> Option<&'static CStr> {
-    None
-}
+#[cfg(not(target_env = "gnu"))]
+fn on_resolver_failure() {}
 
-// Returns Some((major, minor)) if the string is a valid "x.y" version,
-// ignoring any extra dot-separated parts. Otherwise return None.
-fn parse_glibc_version(version: &str) -> Option<(usize, usize)> {
-    let mut parsed_ints = version.split(".").map(str::parse::<usize>).fuse();
-    match (parsed_ints.next(), parsed_ints.next()) {
-        (Some(Ok(major)), Some(Ok(minor))) => Some((major, minor)),
-        _ => None
-    }
-}
-
-#[cfg(test)]
+#[cfg(all(test, taget_env = "gnu"))]
 mod test {
     use super::*;
 

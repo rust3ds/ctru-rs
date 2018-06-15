@@ -68,9 +68,31 @@ impl FileDesc {
     }
 
     pub fn read_at(&self, buf: &mut [u8], offset: u64) -> io::Result<usize> {
+        #[cfg(target_os = "android")]
+        use super::android::cvt_pread64;
+
+        #[cfg(target_os = "emscripten")]
         unsafe fn cvt_pread64(fd: c_int, buf: *mut c_void, count: usize, offset: i64)
             -> io::Result<isize>
         {
+            use convert::TryInto;
+            use libc::pread64;
+            // pread64 on emscripten actually takes a 32 bit offset
+            if let Ok(o) = offset.try_into() {
+                cvt(pread64(fd, buf, count, o))
+            } else {
+                Err(io::Error::new(io::ErrorKind::InvalidInput,
+                                   "cannot pread >2GB"))
+            }
+        }
+
+        #[cfg(not(any(target_os = "android", target_os = "emscripten")))]
+        unsafe fn cvt_pread64(fd: c_int, buf: *mut c_void, count: usize, offset: i64)
+            -> io::Result<isize>
+        {
+            #[cfg(target_os = "linux")]
+            use libc::pread64;
+            #[cfg(not(target_os = "linux"))]
             use libc::pread as pread64;
             cvt(pread64(fd, buf, count, offset))
         }
@@ -94,9 +116,31 @@ impl FileDesc {
     }
 
     pub fn write_at(&self, buf: &[u8], offset: u64) -> io::Result<usize> {
+        #[cfg(target_os = "android")]
+        use super::android::cvt_pwrite64;
+
+        #[cfg(target_os = "emscripten")]
         unsafe fn cvt_pwrite64(fd: c_int, buf: *const c_void, count: usize, offset: i64)
             -> io::Result<isize>
         {
+            use convert::TryInto;
+            use libc::pwrite64;
+            // pwrite64 on emscripten actually takes a 32 bit offset
+            if let Ok(o) = offset.try_into() {
+                cvt(pwrite64(fd, buf, count, o))
+            } else {
+                Err(io::Error::new(io::ErrorKind::InvalidInput,
+                                   "cannot pwrite >2GB"))
+            }
+        }
+
+        #[cfg(not(any(target_os = "android", target_os = "emscripten")))]
+        unsafe fn cvt_pwrite64(fd: c_int, buf: *const c_void, count: usize, offset: i64)
+            -> io::Result<isize>
+        {
+            #[cfg(target_os = "linux")]
+            use libc::pwrite64;
+            #[cfg(not(target_os = "linux"))]
             use libc::pwrite as pwrite64;
             cvt(pwrite64(fd, buf, count, offset))
         }
@@ -110,11 +154,52 @@ impl FileDesc {
         }
     }
 
-    // We don't have fork/exec on the 3DS, so this shouldn't need to do anything
-    pub fn set_cloexec(&self) -> io::Result<()> {
-        Ok(())
+    #[cfg(target_os = "linux")]
+    pub fn get_cloexec(&self) -> io::Result<bool> {
+        unsafe {
+            Ok((cvt(libc::fcntl(self.fd, libc::F_GETFD))? & libc::FD_CLOEXEC) != 0)
+        }
     }
 
+    #[cfg(not(any(target_env = "newlib",
+                  target_os = "solaris",
+                  target_os = "emscripten",
+                  target_os = "fuchsia",
+                  target_os = "l4re",
+                  target_os = "haiku")))]
+    pub fn set_cloexec(&self) -> io::Result<()> {
+        unsafe {
+            cvt(libc::ioctl(self.fd, libc::FIOCLEX))?;
+            Ok(())
+        }
+    }
+    #[cfg(any(target_env = "newlib",
+              target_os = "solaris",
+              target_os = "emscripten",
+              target_os = "fuchsia",
+              target_os = "l4re",
+              target_os = "haiku"))]
+    pub fn set_cloexec(&self) -> io::Result<()> {
+        unsafe {
+            let previous = cvt(libc::fcntl(self.fd, libc::F_GETFD))?;
+            let new = previous | libc::FD_CLOEXEC;
+            if new != previous {
+                cvt(libc::fcntl(self.fd, libc::F_SETFD, new))?;
+            }
+            Ok(())
+        }
+    }
+
+    #[cfg(target_os = "linux")]
+    pub fn set_nonblocking(&self, nonblocking: bool) -> io::Result<()> {
+        unsafe {
+            let v = nonblocking as c_int;
+            cvt(libc::ioctl(self.fd, libc::FIONBIO, &v))?;
+            Ok(())
+        }
+    }
+
+    #[cfg(not(target_os = "linux"))]
     pub fn set_nonblocking(&self, nonblocking: bool) -> io::Result<()> {
         unsafe {
             let previous = cvt(libc::fcntl(self.fd, libc::F_GETFL))?;

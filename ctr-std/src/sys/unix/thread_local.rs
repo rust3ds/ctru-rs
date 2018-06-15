@@ -1,4 +1,4 @@
-// Copyright 2016 The Rust Project Developers. See the COPYRIGHT
+// Copyright 2014-2015 The Rust Project Developers. See the COPYRIGHT
 // file at the top-level directory of this distribution and at
 // http://rust-lang.org/COPYRIGHT.
 //
@@ -8,63 +8,35 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-// Borrowed from /sys/redox/thread_local.rs
-
 #![allow(dead_code)] // not used on all platforms
 
-use collections::BTreeMap;
-use ptr;
-use sync::atomic::{AtomicUsize, ATOMIC_USIZE_INIT, Ordering};
+use mem;
+use libc;
 
-pub type Key = usize;
-
-type Dtor = unsafe extern fn(*mut u8);
-
-static NEXT_KEY: AtomicUsize = ATOMIC_USIZE_INIT;
-
-static mut KEYS: *mut BTreeMap<Key, Option<Dtor>> = ptr::null_mut();
-
-#[thread_local]
-static mut LOCALS: *mut BTreeMap<Key, *mut u8> = ptr::null_mut();
-
-unsafe fn keys() -> &'static mut BTreeMap<Key, Option<Dtor>> {
-    if KEYS == ptr::null_mut() {
-        KEYS = Box::into_raw(Box::new(BTreeMap::new()));
-    }
-    &mut *KEYS
-}
-
-unsafe fn locals() -> &'static mut BTreeMap<Key, *mut u8> {
-    if LOCALS == ptr::null_mut() {
-        LOCALS = Box::into_raw(Box::new(BTreeMap::new()));
-    }
-    &mut *LOCALS
-}
+pub type Key = libc::pthread_key_t;
 
 #[inline]
-pub unsafe fn create(dtor: Option<Dtor>) -> Key {
-    let key = NEXT_KEY.fetch_add(1, Ordering::SeqCst);
-    keys().insert(key, dtor);
+pub unsafe fn create(dtor: Option<unsafe extern fn(*mut u8)>) -> Key {
+    let mut key = 0;
+    assert_eq!(libc::pthread_key_create(&mut key, mem::transmute(dtor)), 0);
     key
 }
 
 #[inline]
-pub unsafe fn get(key: Key) -> *mut u8 {
-    if let Some(&entry) = locals().get(&key) {
-        entry
-    } else {
-        ptr::null_mut()
-    }
+pub unsafe fn set(key: Key, value: *mut u8) {
+    let r = libc::pthread_setspecific(key, value as *mut _);
+    debug_assert_eq!(r, 0);
 }
 
 #[inline]
-pub unsafe fn set(key: Key, value: *mut u8) {
-    locals().insert(key, value);
+pub unsafe fn get(key: Key) -> *mut u8 {
+    libc::pthread_getspecific(key) as *mut u8
 }
 
 #[inline]
 pub unsafe fn destroy(key: Key) {
-    keys().remove(&key);
+    let r = libc::pthread_key_delete(key);
+    debug_assert_eq!(r, 0);
 }
 
 #[inline]
