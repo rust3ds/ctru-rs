@@ -381,6 +381,39 @@ impl fmt::Debug for ChildStderr {
 ///
 /// let hello = output.stdout;
 /// ```
+///
+/// `Command` can be reused to spawn multiple processes. The builder methods
+/// change the command without needing to immediately spawn the process.
+///
+/// ```no_run
+/// use std::process::Command;
+///
+/// let mut echo_hello = Command::new("sh");
+/// echo_hello.arg("-c")
+///           .arg("echo hello");
+/// let hello_1 = echo_hello.output().expect("failed to execute process");
+/// let hello_2 = echo_hello.output().expect("failed to execute process");
+/// ```
+///
+/// Similarly, you can call builder methods after spawning a process and then
+/// spawn a new process with the modified settings.
+///
+/// ```no_run
+/// use std::process::Command;
+///
+/// let mut list_dir = Command::new("ls");
+///
+/// // Execute `ls` in the current directory of the program.
+/// list_dir.status().expect("process failed to execute");
+///
+/// println!("");
+///
+/// // Change `ls` to execute in the root directory.
+/// list_dir.current_dir("/");
+///
+/// // And then execute `ls` again but in the root directory.
+/// list_dir.status().expect("process failed to execute");
+/// ```
 #[stable(feature = "process", since = "1.0.0")]
 pub struct Command {
     inner: imp::Command,
@@ -813,13 +846,13 @@ impl fmt::Debug for Output {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
 
         let stdout_utf8 = str::from_utf8(&self.stdout);
-        let stdout_debug: &fmt::Debug = match stdout_utf8 {
+        let stdout_debug: &dyn fmt::Debug = match stdout_utf8 {
             Ok(ref str) => str,
             Err(_) => &self.stdout
         };
 
         let stderr_utf8 = str::from_utf8(&self.stderr);
-        let stderr_debug: &fmt::Debug = match stderr_utf8 {
+        let stderr_debug: &dyn fmt::Debug = match stderr_utf8 {
             Ok(ref str) => str,
             Err(_) => &self.stderr
         };

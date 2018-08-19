@@ -148,7 +148,9 @@ impl Socket {
 
         let mut pollfd = libc::pollfd {
             fd: self.0.raw(),
-            events: libc::POLLOUT,
+            // supposed to be `libc::POLLOUT`, but the value in the `libc` crate is currently
+            // incorrect for the 3DS
+            events: 0x10,
             revents: 0,
         };
 
@@ -184,9 +186,9 @@ impl Socket {
                 }
                 0 => {}
                 _ => {
-                    // linux returns POLLOUT|POLLERR|POLLHUP for refused connections (!), so look
-                    // for POLLHUP rather than read readiness
-                    if pollfd.revents & libc::POLLHUP != 0 {
+                    // `libc::POLLHUP` should be 0x4, but the constant is currently defined
+                    // incorrectly for 3DS. So we just specifiy it manually for now.
+                    if pollfd.revents & 0x4 != 0 {
                         let e = self.take_error()?
                             .unwrap_or_else(|| {
                                 io::Error::new(io::ErrorKind::Other, "no error set after POLLHUP")
@@ -343,8 +345,7 @@ impl Socket {
     }
 
     pub fn set_nonblocking(&self, nonblocking: bool) -> io::Result<()> {
-        let mut nonblocking = nonblocking as libc::c_int;
-        cvt(unsafe { libc::ioctl(*self.as_inner(), libc::FIONBIO as u32, &mut nonblocking) }).map(|_| ())
+        self.0.set_nonblocking(nonblocking)
     }
 
     pub fn take_error(&self) -> io::Result<Option<io::Error>> {

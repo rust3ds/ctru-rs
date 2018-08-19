@@ -232,15 +232,16 @@
 
 // std is implemented with unstable features, many of which are internal
 // compiler details that will never be stable
+#![cfg_attr(test, feature(test, update_panic_count))]
 #![feature(alloc)]
+#![feature(alloc_error_handler)]
 #![feature(allocator_api)]
-#![feature(alloc_system)]
 #![feature(allocator_internals)]
 #![feature(allow_internal_unsafe)]
 #![feature(allow_internal_unstable)]
 #![feature(align_offset)]
+#![feature(arbitrary_self_types)]
 #![feature(array_error_internals)]
-#![feature(ascii_ctype)]
 #![feature(asm)]
 #![feature(attr_literals)]
 #![feature(box_syntax)]
@@ -248,25 +249,22 @@
 #![feature(cfg_target_thread_local)]
 #![feature(cfg_target_vendor)]
 #![feature(char_error_internals)]
-#![feature(char_internals)]
-#![feature(collections_range)]
 #![feature(compiler_builtins_lib)]
 #![feature(const_fn)]
+#![feature(const_int_ops)]
+#![feature(const_ip)]
 #![feature(core_intrinsics)]
 #![feature(dropck_eyepatch)]
 #![feature(exact_size_is_empty)]
 #![feature(external_doc)]
-#![feature(fs_read_write)]
 #![feature(fixed_size_array)]
-#![feature(float_from_str_radix)]
 #![feature(fn_traits)]
 #![feature(fnbox)]
 #![feature(futures_api)]
+#![feature(generator_trait)]
 #![feature(hashmap_internals)]
-#![feature(heap_api)]
 #![feature(int_error_internals)]
 #![feature(integer_atomics)]
-#![feature(into_cow)]
 #![feature(lang_items)]
 #![feature(libc)]
 #![feature(link_args)]
@@ -274,35 +272,28 @@
 #![feature(macro_vis_matcher)]
 #![feature(needs_panic_runtime)]
 #![feature(never_type)]
+#![cfg_attr(not(stage0), feature(nll))]
 #![feature(exhaustive_patterns)]
-#![feature(num_bits_bytes)]
-#![feature(old_wrapping)]
 #![feature(on_unimplemented)]
-#![feature(oom)]
 #![feature(optin_builtin_traits)]
 #![feature(panic_internals)]
 #![feature(panic_unwind)]
-#![feature(peek)]
 #![feature(pin)]
-#![feature(placement_new_protocol)]
 #![feature(prelude_import)]
 #![feature(ptr_internals)]
-#![feature(rand)]
 #![feature(raw)]
 #![feature(rustc_attrs)]
+#![feature(rustc_const_unstable)]
 #![feature(std_internals)]
 #![feature(stdsimd)]
 #![feature(shrink_to)]
-#![feature(slice_bytes)]
 #![feature(slice_concat_ext)]
 #![feature(slice_internals)]
 #![feature(slice_patterns)]
 #![feature(staged_api)]
 #![feature(stmt_expr_attributes)]
-#![feature(str_char)]
 #![feature(str_internals)]
-#![feature(str_utf16)]
-#![feature(test, rustc_private)]
+#![feature(rustc_private)]
 #![feature(thread_local)]
 #![feature(toowned_clone_into)]
 #![feature(try_from)]
@@ -310,18 +301,16 @@
 #![feature(unboxed_closures)]
 #![feature(untagged_unions)]
 #![feature(unwind_attributes)]
-#![feature(use_extern_macros)]
-#![feature(vec_push_all)]
+#![cfg_attr(stage0, feature(use_extern_macros))]
 #![feature(doc_cfg)]
 #![feature(doc_masked)]
 #![feature(doc_spotlight)]
-#![cfg_attr(test, feature(update_panic_count))]
 #![cfg_attr(windows, feature(used))]
 #![feature(doc_alias)]
 #![feature(doc_keyword)]
-#![feature(float_internals)]
 #![feature(panic_info_message)]
-#![cfg_attr(not(stage0), feature(panic_implementation))]
+#![feature(panic_implementation)]
+#![feature(non_exhaustive)]
 
 #![default_lib_allocator]
 
@@ -331,9 +320,6 @@
 // `force_alloc_system` is *only* intended as a workaround for local rebuilds
 // with a rustc without jemalloc.
 // FIXME(#44236) shouldn't need MSVC logic
-#![cfg_attr(all(not(target_env = "msvc"),
-                any(all(stage0, not(test)), feature = "force_alloc_system")),
-            feature(global_allocator))]
 #[cfg(all(not(target_env = "msvc"),
           any(all(stage0, not(test)), feature = "force_alloc_system")))]
 #[global_allocator]
@@ -465,20 +451,6 @@ pub use core::u128;
 #[stable(feature = "core_hint", since = "1.27.0")]
 pub use core::hint;
 
-#[unstable(feature = "futures_api",
-           reason = "futures in libcore are unstable",
-           issue = "50547")]
-pub mod task {
-    //! Types and Traits for working with asynchronous tasks.
-    pub use core::task::*;
-    pub use alloc_crate::task::*;
-}
-
-#[unstable(feature = "futures_api",
-           reason = "futures in libcore are unstable",
-           issue = "50547")]
-pub use core::future;
-
 pub mod f32;
 pub mod f64;
 
@@ -500,12 +472,21 @@ pub mod process;
 pub mod sync;
 pub mod time;
 
-#[unstable(feature = "allocator_api", issue = "32838")]
-#[rustc_deprecated(since = "1.27.0", reason = "module renamed to `alloc`")]
-/// Use the `alloc` module instead.
-pub mod heap {
-    pub use alloc::*;
+#[unstable(feature = "futures_api",
+           reason = "futures in libcore are unstable",
+           issue = "50547")]
+pub mod task {
+    //! Types and Traits for working with asynchronous tasks.
+    #[doc(inline)]
+    pub use core::task::*;
+    #[doc(inline)]
+    pub use alloc_crate::task::*;
 }
+
+#[unstable(feature = "futures_api",
+           reason = "futures in libcore are unstable",
+           issue = "50547")]
+pub mod future;
 
 // Platform-abstraction modules
 #[macro_use]
@@ -526,3 +507,8 @@ pub mod rt;
 // the rustdoc documentation for primitive types. Using `include!`
 // because rustdoc only looks for these modules at the crate level.
 include!("primitive_docs.rs");
+
+// Include a number of private modules that exist solely to provide
+// the rustdoc documentation for the existing keywords. Using `include!`
+// because rustdoc only looks for these modules at the crate level.
+include!("keyword_docs.rs");
