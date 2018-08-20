@@ -61,7 +61,8 @@ pub struct BufReader<R> {
 }
 
 impl<R: Read> BufReader<R> {
-    /// Creates a new `BufReader` with a default buffer capacity.
+    /// Creates a new `BufReader` with a default buffer capacity. The default is currently 8 KB,
+    /// but may change in the future.
     ///
     /// # Examples
     ///
@@ -152,33 +153,6 @@ impl<R: Read> BufReader<R> {
     /// ```
     #[stable(feature = "rust1", since = "1.0.0")]
     pub fn get_mut(&mut self) -> &mut R { &mut self.inner }
-
-    /// Returns `true` if there are no bytes in the internal buffer.
-    ///
-    /// # Examples
-    //
-    /// ```no_run
-    /// # #![feature(bufreader_is_empty)]
-    /// use std::io::BufReader;
-    /// use std::io::BufRead;
-    /// use std::fs::File;
-    ///
-    /// fn main() -> std::io::Result<()> {
-    ///     let f1 = File::open("log.txt")?;
-    ///     let mut reader = BufReader::new(f1);
-    ///     assert!(reader.is_empty());
-    ///
-    ///     if reader.fill_buf()?.len() > 0 {
-    ///         assert!(!reader.is_empty());
-    ///     }
-    ///     Ok(())
-    /// }
-    /// ```
-    #[unstable(feature = "bufreader_is_empty", issue = "45323", reason = "recently added")]
-    #[rustc_deprecated(since = "1.26.0", reason = "use .buffer().is_empty() instead")]
-    pub fn is_empty(&self) -> bool {
-        self.buffer().is_empty()
-    }
 
     /// Returns a reference to the internally buffered data.
     ///
@@ -454,7 +428,8 @@ pub struct BufWriter<W: Write> {
 pub struct IntoInnerError<W>(W, Error);
 
 impl<W: Write> BufWriter<W> {
-    /// Creates a new `BufWriter` with a default buffer capacity.
+    /// Creates a new `BufWriter` with a default buffer capacity. The default is currently 8 KB,
+    /// but may change in the future.
     ///
     /// # Examples
     ///
@@ -738,7 +713,7 @@ impl<W> fmt::Display for IntoInnerError<W> {
 /// reducing the number of actual writes to the file.
 ///
 /// ```no_run
-/// use std::fs::File;
+/// use std::fs::{self, File};
 /// use std::io::prelude::*;
 /// use std::io::LineWriter;
 ///
@@ -752,17 +727,30 @@ impl<W> fmt::Display for IntoInnerError<W> {
 ///     let file = File::create("poem.txt")?;
 ///     let mut file = LineWriter::new(file);
 ///
-///     for &byte in road_not_taken.iter() {
-///        file.write(&[byte]).unwrap();
-///     }
+///     file.write_all(b"I shall be telling this with a sigh")?;
 ///
-///     // let's check we did the right thing.
-///     let mut file = File::open("poem.txt")?;
-///     let mut contents = String::new();
+///     // No bytes are written until a newline is encountered (or
+///     // the internal buffer is filled).
+///     assert_eq!(fs::read_to_string("poem.txt")?, "");
+///     file.write_all(b"\n")?;
+///     assert_eq!(
+///         fs::read_to_string("poem.txt")?,
+///         "I shall be telling this with a sigh\n",
+///     );
 ///
-///     file.read_to_string(&mut contents)?;
+///     // Write the rest of the poem.
+///     file.write_all(b"Somewhere ages and ages hence:
+/// Two roads diverged in a wood, and I -
+/// I took the one less traveled by,
+/// And that has made all the difference.")?;
 ///
-///     assert_eq!(contents.as_bytes(), &road_not_taken[..]);
+///     // The last line of the poem doesn't end in a newline, so
+///     // we have to flush or drop the `LineWriter` to finish
+///     // writing.
+///     file.flush()?;
+///
+///     // Confirm the whole poem was written.
+///     assert_eq!(fs::read("poem.txt")?, &road_not_taken[..]);
 ///     Ok(())
 /// }
 /// ```
@@ -862,7 +850,7 @@ impl<W: Write> LineWriter<W> {
     ///
     /// The internal buffer is written out before returning the writer.
     ///
-    // # Errors
+    /// # Errors
     ///
     /// An `Err` will be returned if an error occurs while flushing the buffer.
     ///
@@ -1248,25 +1236,6 @@ mod tests {
         assert_eq!(reader.read(&mut buf).unwrap(), 1);
         assert_eq!(reader.read(&mut buf).unwrap(), 0);
         assert_eq!(reader.read(&mut buf).unwrap(), 0);
-    }
-
-    #[test]
-    #[allow(deprecated)]
-    fn read_char_buffered() {
-        let buf = [195, 159];
-        let reader = BufReader::with_capacity(1, &buf[..]);
-        assert_eq!(reader.chars().next().unwrap().unwrap(), 'ß');
-    }
-
-    #[test]
-    #[allow(deprecated)]
-    fn test_chars() {
-        let buf = [195, 159, b'a'];
-        let reader = BufReader::with_capacity(1, &buf[..]);
-        let mut it = reader.chars();
-        assert_eq!(it.next().unwrap().unwrap(), 'ß');
-        assert_eq!(it.next().unwrap().unwrap(), 'a');
-        assert!(it.next().is_none());
     }
 
     #[test]

@@ -2,7 +2,6 @@
 #![crate_name = "ctru"]
 
 #![feature(fnbox)]
-#![feature(thread_local_state)]
 
 #[macro_use]
 extern crate bitflags;
