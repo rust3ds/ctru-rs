@@ -223,8 +223,7 @@ fn default_hook(info: &PanicInfo) {
     }
 
     let write = |err: &mut dyn (::io::Write)| {
-        let _ = writeln!(err, "thread '{}' panicked at '{}', {}",
-                         name, msg, location);
+        let _ = write!(err, "{}", error_text);
 
         #[cfg(feature = "backtrace")]
         {
