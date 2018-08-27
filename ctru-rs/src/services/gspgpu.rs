@@ -1,5 +1,8 @@
+//! GSPGPU service
+
 use std::convert::From;
 
+#[derive(Copy, Clone, Debug)]
 pub enum Event {
     Psc0,
     Psc1,
@@ -10,31 +13,46 @@ pub enum Event {
     DMA,
 }
 
-#[derive(Copy, Clone)]
+/// The different framebuffer formats supported by the 3DS
+#[derive(Copy, Clone, Debug)]
 pub enum FramebufferFormat {
+    /// RGBA8. 4 bytes per pixel
     Rgba8,
+    /// BGR8. 3 bytes per pixel
     Bgr8,
+    /// RGB565. 2 bytes per pixel
     Rgb565,
+    /// RGB5A1. 2 bytes per pixel
     Rgb5A1,
+    /// RGBA4. 2 bytes per pixel
     Rgba4,
 }
 
 impl FramebufferFormat {
+    /// Returns the number of bytes per pixel used by this FramebufferFormat
     pub fn pixel_depth_bytes(&self) -> usize {
         use self::FramebufferFormat::*;
         match *self {
-            Rgba8 => 4usize,
-            Bgr8 => 3usize,
-            Rgb565 => 2usize,
-            Rgb5A1 => 2usize,
-            Rgba4 => 2usize,
+            Rgba8 => 4,
+            Bgr8 => 3,
+            Rgb565 => 2,
+            Rgb5A1 => 2,
+            Rgba4 => 2,
         }
     }
 }
 
+/// Waits for a GSPGPU event to occur.
+///
+/// `discard_current` determines whether to discard the current event and wait for the next event
+pub fn wait_for_event(ev: Event, discard_current: bool) {
+    unsafe {
+        ::libctru::gspWaitForEvent(ev.into(), discard_current);
+    }
+}
+
 impl From<::libctru::GSPGPU_FramebufferFormats> for FramebufferFormat {
-    #[inline]
-    fn from(g: ::libctru::GSPGPU_FramebufferFormats) -> FramebufferFormat {
+    fn from(g: ::libctru::GSPGPU_FramebufferFormats) -> Self {
         use self::FramebufferFormat::*;
         match g {
             ::libctru::GSP_RGBA8_OES => Rgba8,
@@ -48,8 +66,7 @@ impl From<::libctru::GSPGPU_FramebufferFormats> for FramebufferFormat {
 }
 
 impl From<FramebufferFormat> for ::libctru::GSPGPU_FramebufferFormats {
-    #[inline]
-    fn from(g: FramebufferFormat) -> ::libctru::GSPGPU_FramebufferFormats {
+    fn from(g: FramebufferFormat) -> Self {
         use self::FramebufferFormat::*;
         match g {
             Rgba8 => ::libctru::GSP_RGBA8_OES,
@@ -61,34 +78,17 @@ impl From<FramebufferFormat> for ::libctru::GSPGPU_FramebufferFormats {
     }
 }
 
-fn to_raw_event(ev: Event) -> ::libctru::GSPGPU_Event {
-    use self::Event::*;
-
-    match ev {
-        Psc0 => ::libctru::GSPGPU_EVENT_PSC0,
-        Psc1 => ::libctru::GSPGPU_EVENT_PSC1,
-        VBlank0 => ::libctru::GSPGPU_EVENT_VBlank0,
-        VBlank1 => ::libctru::GSPGPU_EVENT_VBlank1,
-        PPF => ::libctru::GSPGPU_EVENT_PPF,
-        P3D => ::libctru::GSPGPU_EVENT_P3D,
-        DMA => ::libctru::GSPGPU_EVENT_DMA,
-    }
-}
-
-/// Sleep until GSP event fires.
-///
-/// # Examples
-///
-/// Wait for VBlank.
-///
-/// ```
-/// use ctru::services::apt;
-/// apt::main_loop(|| {
-///     wait_for_event(Event::VBlank0);
-/// });
-pub fn wait_for_event(ev: Event) -> () {
-    unsafe {
-        // TODO second argument?
-        ::libctru::gspWaitForEvent(to_raw_event(ev), false);
+impl From<Event> for ::libctru::GSPGPU_Event {
+    fn from(ev: Event) -> Self {
+        use self::Event::*;
+        match ev {
+            Psc0 => ::libctru::GSPGPU_EVENT_PSC0,
+            Psc1 => ::libctru::GSPGPU_EVENT_PSC1,
+            VBlank0 => ::libctru::GSPGPU_EVENT_VBlank0,
+            VBlank1 => ::libctru::GSPGPU_EVENT_VBlank1,
+            PPF => ::libctru::GSPGPU_EVENT_PPF,
+            P3D => ::libctru::GSPGPU_EVENT_P3D,
+            DMA => ::libctru::GSPGPU_EVENT_DMA,
+        }
     }
 }
