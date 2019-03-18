@@ -14,8 +14,8 @@ pub struct Swkbd {
 
 /// The kind of keyboard to be initialized.
 ///
-/// Normal is the full keyboard with several pages (QUERTY/accents/symbol/mobile)
-/// Querty is a QUERTY-only keyboard.
+/// Normal is the full keyboard with several pages (QWERTY/accents/symbol/mobile)
+/// Querty is a QWERTY-only keyboard.
 /// Numpad is a number pad.
 /// Western is a text keyboard without japanese symbols (only applies to JPN systems). For other
 /// systems it's the same as a Normal keyboard.
@@ -69,7 +69,7 @@ bitflags! {
         const ALLOW_HOME        = 1 << 5;
         const ALLOW_RESET       = 1 << 6;
         const ALLOW_POWER       = 1 << 7;
-        const DEFAULT_QUERTY    = 1 << 8;
+        const DEFAULT_QWERTY    = 1 << 8;
     }
 }
 
