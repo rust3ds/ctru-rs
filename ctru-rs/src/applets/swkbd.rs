@@ -15,14 +15,14 @@ pub struct Swkbd {
 /// The kind of keyboard to be initialized.
 ///
 /// Normal is the full keyboard with several pages (QWERTY/accents/symbol/mobile)
-/// Querty is a QWERTY-only keyboard.
+/// Qwerty is a QWERTY-only keyboard.
 /// Numpad is a number pad.
 /// Western is a text keyboard without japanese symbols (only applies to JPN systems). For other
 /// systems it's the same as a Normal keyboard.
 #[derive(Copy, Clone, Debug)]
 pub enum Kind {
     Normal,
-    Querty,
+    Qwerty,
     Numpad,
     Western,
 }
