@@ -15,6 +15,7 @@ use sys::fs::File;
 use sys::pipe::AnonPipe;
 use sys::{unsupported, Void};
 use sys_common::process::{CommandEnv, DefaultEnvKey};
+use sys;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Command

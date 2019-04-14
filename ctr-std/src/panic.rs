@@ -16,13 +16,13 @@ use any::Any;
 use cell::UnsafeCell;
 use fmt;
 use future::Future;
-use mem::PinMut;
+use pin::Pin;
 use ops::{Deref, DerefMut};
 use panicking;
 use ptr::{Unique, NonNull};
 use rc::Rc;
 use sync::{Arc, Mutex, RwLock, atomic};
-use task::{self, Poll};
+use task::{LocalWaker, Poll};
 use thread::Result;
 
 #[stable(feature = "panic_hooks", since = "1.10.0")]
@@ -264,6 +264,9 @@ impl RefUnwindSafe for atomic::AtomicI32 {}
 #[cfg(target_has_atomic = "64")]
 #[unstable(feature = "integer_atomics", issue = "32976")]
 impl RefUnwindSafe for atomic::AtomicI64 {}
+#[cfg(all(not(stage0), target_has_atomic = "128"))]
+#[unstable(feature = "integer_atomics", issue = "32976")]
+impl RefUnwindSafe for atomic::AtomicI128 {}
 
 #[cfg(target_has_atomic = "ptr")]
 #[stable(feature = "unwind_safe_atomic_refs", since = "1.14.0")]
@@ -280,6 +283,9 @@ impl RefUnwindSafe for atomic::AtomicU32 {}
 #[cfg(target_has_atomic = "64")]
 #[unstable(feature = "integer_atomics", issue = "32976")]
 impl RefUnwindSafe for atomic::AtomicU64 {}
+#[cfg(all(not(stage0), target_has_atomic = "128"))]
+#[unstable(feature = "integer_atomics", issue = "32976")]
+impl RefUnwindSafe for atomic::AtomicU128 {}
 
 #[cfg(target_has_atomic = "8")]
 #[stable(feature = "unwind_safe_atomic_refs", since = "1.14.0")]
@@ -327,9 +333,9 @@ impl<T: fmt::Debug> fmt::Debug for AssertUnwindSafe<T> {
 impl<'a, F: Future> Future for AssertUnwindSafe<F> {
     type Output = F::Output;
 
-    fn poll(self: PinMut<Self>, cx: &mut task::Context) -> Poll<Self::Output> {
-        let pinned_field = unsafe { PinMut::map_unchecked(self, |x| &mut x.0) };
-        pinned_field.poll(cx)
+    fn poll(self: Pin<&mut Self>, lw: &LocalWaker) -> Poll<Self::Output> {
+        let pinned_field = unsafe { Pin::map_unchecked_mut(self, |x| &mut x.0) };
+        F::poll(pinned_field, lw)
     }
 }
 

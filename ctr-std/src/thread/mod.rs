@@ -387,6 +387,12 @@ impl Builder {
     pub fn spawn<F, T>(self, f: F) -> io::Result<JoinHandle<T>> where
         F: FnOnce() -> T, F: Send + 'static, T: Send + 'static
     {
+        unsafe { self.spawn_unchecked(f) }
+    }
+    #[unstable(feature = "thread_spawn_unchecked", issue = "55132")]
+    pub unsafe fn spawn_unchecked<F, T>(self, f: F) -> io::Result<JoinHandle<T>> where
+        F: FnOnce() -> T, F: Send, T: Send
+    {
         let Builder { name, stack_size } = self;
 
         let stack_size = stack_size.unwrap_or_else(thread::min_stack);
@@ -402,22 +408,18 @@ impl Builder {
             if let Some(name) = their_thread.cname() {
                 imp::Thread::set_name(name);
             }
-            unsafe {
-                thread_info::set(imp::guard::current(), their_thread);
-                #[cfg(feature = "backtrace")]
-                let try_result = panic::catch_unwind(panic::AssertUnwindSafe(|| {
-                    ::sys_common::backtrace::__rust_begin_short_backtrace(f)
-                }));
-                #[cfg(not(feature = "backtrace"))]
-                let try_result = panic::catch_unwind(panic::AssertUnwindSafe(f));
-                *their_packet.get() = Some(try_result);
-            }
+            thread_info::set(imp::guard::current(), their_thread);
+            #[cfg(feature = "backtrace")]
+            let try_result = panic::catch_unwind(panic::AssertUnwindSafe(|| {
+                ::sys_common::backtrace::__rust_begin_short_backtrace(f)
+            }));
+            #[cfg(not(feature = "backtrace"))]
+            let try_result = panic::catch_unwind(panic::AssertUnwindSafe(f));
+            *their_packet.get() = Some(try_result);
         };
 
         Ok(JoinHandle(JoinInner {
-            native: unsafe {
-                Some(imp::Thread::new(stack_size, Box::new(main))?)
-            },
+            native: Some(imp::Thread::new(stack_size, Box::new(main))?),
             thread: my_thread,
             packet: Packet(my_packet),
         }))
@@ -800,7 +802,8 @@ pub fn park() {
     match thread.inner.state.compare_exchange(EMPTY, PARKED, SeqCst, SeqCst) {
         Ok(_) => {}
         Err(NOTIFIED) => {
-            thread.inner.state.store(EMPTY, SeqCst);
+            let old = thread.inner.state.swap(EMPTY, SeqCst);
+            assert_eq!(old, NOTIFIED, "park state changed unexpectedly");
             return;
         } // should consume this notification, so prohibit spurious wakeups in next park.
         Err(_) => panic!("inconsistent park state"),
@@ -889,7 +892,8 @@ pub fn park_timeout(dur: Duration) {
     match thread.inner.state.compare_exchange(EMPTY, PARKED, SeqCst, SeqCst) {
         Ok(_) => {}
         Err(NOTIFIED) => {
-            thread.inner.state.store(EMPTY, SeqCst);
+            let old = thread.inner.state.swap(EMPTY, SeqCst);
+            assert_eq!(old, NOTIFIED, "park state changed unexpectedly");
             return;
         } // should consume this notification, so prohibit spurious wakeups in next park.
         Err(_) => panic!("inconsistent park_timeout state"),
@@ -1058,23 +1062,22 @@ impl Thread {
     /// [park]: fn.park.html
     #[stable(feature = "rust1", since = "1.0.0")]
     pub fn unpark(&self) {
-        loop {
-            match self.inner.state.compare_exchange(EMPTY, NOTIFIED, SeqCst, SeqCst) {
-                Ok(_) => return, // no one was waiting
-                Err(NOTIFIED) => return, // already unparked
-                Err(PARKED) => {} // gotta go wake someone up
-                _ => panic!("inconsistent state in unpark"),
-            }
-
-            // Coordinate wakeup through the mutex and a condvar notification
-            let _lock = self.inner.lock.lock().unwrap();
-            match self.inner.state.compare_exchange(PARKED, NOTIFIED, SeqCst, SeqCst) {
-                Ok(_) => return self.inner.cvar.notify_one(),
-                Err(NOTIFIED) => return, // a different thread unparked
-                Err(EMPTY) => {} // parked thread went away, try again
-                _ => panic!("inconsistent state in unpark"),
-            }
+        // To ensure the unparked thread will observe any writes we made
+        // before this call, we must perform a release operation that `park`
+        // can synchronize with. To do that we must write `NOTIFIED` even if
+        // `state` is already `NOTIFIED`. That is why this must be a swap
+        // rather than a compare-and-swap that returns if it reads `NOTIFIED`
+        // on failure.
+        match self.inner.state.swap(NOTIFIED, SeqCst) {
+            EMPTY => return, // no one was waiting
+            NOTIFIED => return, // already unparked
+            PARKED => {} // gotta go wake someone up
+            _ => panic!("inconsistent state in unpark"),
         }
+        // Coordinate wakeup through the mutex and a condvar notification
+        drop(self.inner.lock.lock().unwrap());
+        self.inner.cvar.notify_one()
+
     }
 
     /// Gets the thread's unique identifier.

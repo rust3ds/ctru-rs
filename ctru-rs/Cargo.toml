@@ -14,7 +14,7 @@ path = "../ctru-sys"
 version = "0.4"
 
 [dependencies.libc]
-version = "0.2"
+version = "0.2.43"
 
 [dependencies.bitflags]
 version = "1.0.0"

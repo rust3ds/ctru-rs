@@ -220,6 +220,23 @@ macro_rules! eprintln {
     })
 }
 
+#[stable(feature = "debug", since = "1.69.0")]
+#[macro_export]
+macro_rules! dbg {
+    ($val:expr) => {
+        // Use of `match` here is intentional because it affects the lifetimes
+        // of temporaries - https://stackoverflow.com/a/48732525/1063961
+        match $val {
+            tmp => {
+                eprintln!("[{}:{}] {} = {:#?}",
+                    file!(), line!(), stringify!($val), &tmp);
+                tmp
+            }
+        }
+    }
+}
+
+
 #[macro_export]
 #[unstable(feature = "await_macro", issue = "50547")]
 #[allow_internal_unstable]
@@ -229,8 +246,8 @@ macro_rules! await {
         let mut pinned = $e;
         loop {
             if let $crate::task::Poll::Ready(x) =
-                $crate::future::poll_in_task_cx(unsafe {
-                    $crate::mem::PinMut::new_unchecked(&mut pinned)
+                $crate::future::poll_with_tls_waker(unsafe {
+                    $crate::pin::Pin::new_unchecked(&mut pinned)
                 })
             {
                 break x;
@@ -279,6 +296,8 @@ macro_rules! await {
 /// For more information about select, see the `std::sync::mpsc::Select` structure.
 #[macro_export]
 #[unstable(feature = "mpsc_select", issue = "27800")]
+#[rustc_deprecated(since = "1.32.0",
+                   reason = "channel selection will be removed in a future release")]
 macro_rules! select {
     (
         $($name:pat = $rx:ident.$meth:ident() => $code:expr),+
@@ -309,7 +328,7 @@ macro_rules! assert_approx_eq {
 /// These macros do not have any corresponding definition with a `macro_rules!`
 /// macro, but are documented here. Their implementations can be found hardcoded
 /// into libsyntax itself.
-#[cfg(dox)]
+#[cfg(rustdoc)]
 mod builtin {
 
     /// Unconditionally causes compilation to fail with the given error message when encountered.

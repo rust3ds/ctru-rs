@@ -33,7 +33,7 @@ use sys;
 /// type is a static guarantee that the underlying bytes contain no interior 0
 /// bytes ("nul characters") and that the final byte is 0 ("nul terminator").
 ///
-/// `CString` is to [`CStr`] as [`String`] is to [`&str`]: the former
+/// `CString` is to [`&CStr`] as [`String`] is to [`&str`]: the former
 /// in each pair are owned strings; the latter are borrowed
 /// references.
 ///
@@ -88,6 +88,7 @@ use sys;
 /// [slice.len]: ../primitive.slice.html#method.len
 /// [`Deref`]: ../ops/trait.Deref.html
 /// [`CStr`]: struct.CStr.html
+/// [`&CStr`]: struct.CStr.html
 ///
 /// # Examples
 ///
@@ -101,8 +102,8 @@ use sys;
 /// }
 ///
 /// // We are certain that our string doesn't have 0 bytes in the middle,
-/// // so we can .unwrap()
-/// let c_to_print = CString::new("Hello, world!").unwrap();
+/// // so we can .expect()
+/// let c_to_print = CString::new("Hello, world!").expect("CString::new failed");
 /// unsafe {
 ///     my_printer(c_to_print.as_ptr());
 /// }
@@ -137,7 +138,7 @@ pub struct CString {
 /// converted to a Rust [`&str`] by performing UTF-8 validation, or
 /// into an owned [`CString`].
 ///
-/// `CStr` is to [`CString`] as [`&str`] is to [`String`]: the former
+/// `&CStr` is to [`CString`] as [`&str`] is to [`String`]: the former
 /// in each pair are borrowed references; the latter are owned
 /// strings.
 ///
@@ -174,7 +175,7 @@ pub struct CString {
 ///     unsafe { work_with(data.as_ptr()) }
 /// }
 ///
-/// let s = CString::new("data data data data").unwrap();
+/// let s = CString::new("data data data data").expect("CString::new failed");
 /// work(&s);
 /// ```
 ///
@@ -313,7 +314,7 @@ impl CString {
     ///
     /// extern { fn puts(s: *const c_char); }
     ///
-    /// let to_print = CString::new("Hello!").unwrap();
+    /// let to_print = CString::new("Hello!").expect("CString::new failed");
     /// unsafe {
     ///     puts(to_print.as_ptr());
     /// }
@@ -397,7 +398,7 @@ impl CString {
     ///     fn some_extern_function(s: *mut c_char);
     /// }
     ///
-    /// let c_string = CString::new("Hello!").unwrap();
+    /// let c_string = CString::new("Hello!").expect("CString::new failed");
     /// let raw = c_string.into_raw();
     /// unsafe {
     ///     some_extern_function(raw);
@@ -446,7 +447,7 @@ impl CString {
     ///     fn some_extern_function(s: *mut c_char);
     /// }
     ///
-    /// let c_string = CString::new("Hello!").unwrap();
+    /// let c_string = CString::new("Hello!").expect("CString::new failed");
     /// let raw = c_string.into_raw();
     /// unsafe {
     ///     some_extern_function(raw);
@@ -509,12 +510,12 @@ impl CString {
     /// use std::ffi::CString;
     ///
     /// let valid_utf8 = vec![b'f', b'o', b'o'];
-    /// let cstring = CString::new(valid_utf8).unwrap();
-    /// assert_eq!(cstring.into_string().unwrap(), "foo");
+    /// let cstring = CString::new(valid_utf8).expect("CString::new failed");
+    /// assert_eq!(cstring.into_string().expect("into_string() call failed"), "foo");
     ///
     /// let invalid_utf8 = vec![b'f', 0xff, b'o', b'o'];
-    /// let cstring = CString::new(invalid_utf8).unwrap();
-    /// let err = cstring.into_string().err().unwrap();
+    /// let cstring = CString::new(invalid_utf8).expect("CString::new failed");
+    /// let err = cstring.into_string().err().expect("into_string().err() failed");
     /// assert_eq!(err.utf8_error().valid_up_to(), 1);
     /// ```
 
@@ -538,7 +539,7 @@ impl CString {
     /// ```
     /// use std::ffi::CString;
     ///
-    /// let c_string = CString::new("foo").unwrap();
+    /// let c_string = CString::new("foo").expect("CString::new failed");
     /// let bytes = c_string.into_bytes();
     /// assert_eq!(bytes, vec![b'f', b'o', b'o']);
     /// ```
@@ -650,7 +651,7 @@ impl CString {
         unsafe { Box::from_raw(Box::into_raw(self.into_inner()) as *mut CStr) }
     }
 
-    // Bypass "move out of struct which implements [`Drop`] trait" restriction.
+    /// Bypass "move out of struct which implements [`Drop`] trait" restriction.
     ///
     /// [`Drop`]: ../ops/trait.Drop.html
     fn into_inner(self) -> Box<[u8]> {
@@ -1130,7 +1131,8 @@ impl CStr {
     /// ```
     #[inline]
     #[stable(feature = "cstr_from_bytes", since = "1.10.0")]
-    pub unsafe fn from_bytes_with_nul_unchecked(bytes: &[u8]) -> &CStr {
+    #[rustc_const_unstable(feature = "const_cstr_unchecked")]
+    pub const unsafe fn from_bytes_with_nul_unchecked(bytes: &[u8]) -> &CStr {
         &*(bytes as *const [u8] as *const CStr)
     }
 
@@ -1180,7 +1182,7 @@ impl CStr {
     /// [`CString`]: struct.CString.html
     #[inline]
     #[stable(feature = "rust1", since = "1.0.0")]
-    pub fn as_ptr(&self) -> *const c_char {
+    pub const fn as_ptr(&self) -> *const c_char {
         self.inner.as_ptr()
     }
 
@@ -1470,6 +1472,15 @@ mod tests {
             assert!(CStr::from_ptr(ptr).to_str().is_err());
             assert_eq!(CStr::from_ptr(ptr).to_string_lossy(), Owned::<str>(format!("123\u{FFFD}")));
         }
+    }
+
+    #[test]
+    fn cstr_const_constructor() {
+        const CSTR: &'static CStr = unsafe {
+            CStr::from_bytes_with_nul_unchecked(b"Hello, world!\0")
+        };
+
+        assert_eq!(CSTR.to_str().unwrap(), "Hello, world!");
     }
 
     #[test]

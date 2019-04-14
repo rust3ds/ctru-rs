@@ -208,6 +208,11 @@ impl Instant {
     pub fn elapsed(&self) -> Duration {
         Instant::now() - *self
     }
+/*    #[unstable(feature = "time_checked_add", issue = "55940")]
+    pub fn checked_add(&self, duration: Duration) -> Option<SystemTime> {
+        self.0.checked_add_duration(&duration).map(|t| SystemTime(t))
+    }
+    */
 }
 
 #[stable(feature = "time2", since = "1.8.0")]
@@ -481,7 +486,8 @@ mod tests {
             let (a, b) = ($a, $b);
             if a != b {
                 let (a, b) = if a > b {(a, b)} else {(b, a)};
-                assert!(a - Duration::new(0, 100) <= b);
+                assert!(a - Duration::new(0, 1000) <= b,
+                        "{:?} is not almost equal to {:?}", a, b);
             }
         })
     }

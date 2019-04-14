@@ -343,7 +343,7 @@ pub fn panicking() -> bool {
 
 /// Entry point of panic from the libcore crate.
 #[cfg(not(test))]
-#[panic_implementation]
+#[panic_handler]
 #[unwind(allowed)]
 pub fn rust_begin_panic(info: &PanicInfo) -> ! {
     continue_panic_fmt(&info)
@@ -358,9 +358,15 @@ pub fn rust_begin_panic(info: &PanicInfo) -> ! {
 #[unstable(feature = "libstd_sys_internals",
            reason = "used by the panic! macro",
            issue = "0")]
-#[inline(never)] #[cold]
+#[cold]
+#[cfg_attr(not(feature="panic_immediate_abort"),inline(never))]
+#[cfg_attr(    feature="panic_immediate_abort" ,inline)]
 pub fn begin_panic_fmt(msg: &fmt::Arguments,
                        file_line_col: &(&'static str, u32, u32)) -> ! {
+    if cfg!(feature = "panic_immediate_abort") {
+        unsafe { intrinsics::abort() }
+    }
+
     let (file, line, col) = *file_line_col;
     let info = PanicInfo::internal_constructor(
         Some(msg),
@@ -421,8 +427,12 @@ fn continue_panic_fmt(info: &PanicInfo) -> ! {
 #[unstable(feature = "libstd_sys_internals",
            reason = "used by the panic! macro",
            issue = "0")]
-#[inline(never)] #[cold] // avoid code bloat at the call sites as much as possible
+#[cfg_attr(not(feature="panic_immediate_abort"),inline(never))]
+#[cold] // avoid code bloat at the call sites as much as possible
 pub fn begin_panic<M: Any + Send>(msg: M, file_line_col: &(&'static str, u32, u32)) -> ! {
+    if cfg!(feature = "panic_immediate_abort") {
+        unsafe { intrinsics::abort() }
+    }
     // Note that this should be the only allocation performed in this code path.
     // Currently this means that panic!() on OOM will invoke this code path,
     // but then again we're not really ready for panic on OOM anyway. If
@@ -539,9 +549,9 @@ pub fn update_count_then_panic(msg: Box<dyn Any + Send>) -> ! {
 }
 
 /// A private no-mangle function on which to slap yer breakpoints.
-#[no_mangle]
-#[allow(private_no_mangle_fns)] // yes we get it, but we like breakpoints
-pub fn rust_panic(mut msg: &mut dyn BoxMeUp) -> ! {
+#[inline(never)]
+#[cfg_attr(not(test), rustc_std_internal_symbol)]
+fn rust_panic(mut msg: &mut dyn BoxMeUp) -> ! {
     let code = unsafe {
         let obj = &mut msg as *mut &mut dyn BoxMeUp;
         __rust_start_panic(obj as usize)

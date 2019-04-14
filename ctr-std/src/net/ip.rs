@@ -357,15 +357,12 @@ impl Ipv4Addr {
     /// # Examples
     ///
     /// ```
-    /// #![feature(ip_constructors)]
     /// use std::net::Ipv4Addr;
     ///
     /// let addr = Ipv4Addr::LOCALHOST;
     /// assert_eq!(addr, Ipv4Addr::new(127, 0, 0, 1));
     /// ```
-    #[unstable(feature = "ip_constructors",
-               reason = "requires greater scrutiny before stabilization",
-               issue = "44582")]
+    #[stable(feature = "ip_constructors", since = "1.30.0")]
     pub const LOCALHOST: Self = Ipv4Addr::new(127, 0, 0, 1);
 
     /// An IPv4 address representing an unspecified address: 0.0.0.0
@@ -373,15 +370,12 @@ impl Ipv4Addr {
     /// # Examples
     ///
     /// ```
-    /// #![feature(ip_constructors)]
     /// use std::net::Ipv4Addr;
     ///
     /// let addr = Ipv4Addr::UNSPECIFIED;
     /// assert_eq!(addr, Ipv4Addr::new(0, 0, 0, 0));
     /// ```
-    #[unstable(feature = "ip_constructors",
-               reason = "requires greater scrutiny before stabilization",
-               issue = "44582")]
+    #[stable(feature = "ip_constructors", since = "1.30.0")]
     pub const UNSPECIFIED: Self = Ipv4Addr::new(0, 0, 0, 0);
 
     /// An IPv4 address representing the broadcast address: 255.255.255.255
@@ -389,15 +383,12 @@ impl Ipv4Addr {
     /// # Examples
     ///
     /// ```
-    /// #![feature(ip_constructors)]
     /// use std::net::Ipv4Addr;
     ///
     /// let addr = Ipv4Addr::BROADCAST;
     /// assert_eq!(addr, Ipv4Addr::new(255, 255, 255, 255));
     /// ```
-    #[unstable(feature = "ip_constructors",
-               reason = "requires greater scrutiny before stabilization",
-               issue = "44582")]
+    #[stable(feature = "ip_constructors", since = "1.30.0")]
     pub const BROADCAST: Self = Ipv4Addr::new(255, 255, 255, 255);
 
     /// Returns the four eight-bit integers that make up this address.
@@ -433,7 +424,7 @@ impl Ipv4Addr {
     /// assert_eq!(Ipv4Addr::new(45, 22, 13, 197).is_unspecified(), false);
     /// ```
     #[stable(feature = "ip_shared", since = "1.12.0")]
-    pub fn is_unspecified(&self) -> bool {
+    pub const fn is_unspecified(&self) -> bool {
         self.inner.s_addr == 0
     }
 
@@ -871,7 +862,6 @@ impl Ipv6Addr {
     /// let addr = Ipv6Addr::new(0, 0, 0, 0, 0, 0xffff, 0xc00a, 0x2ff);
     /// ```
     #[stable(feature = "rust1", since = "1.0.0")]
-    #[rustc_const_unstable(feature = "const_ip")]
     pub const fn new(a: u16, b: u16, c: u16, d: u16, e: u16, f: u16,
                      g: u16, h: u16) -> Ipv6Addr {
         Ipv6Addr {
@@ -896,15 +886,12 @@ impl Ipv6Addr {
     /// # Examples
     ///
     /// ```
-    /// #![feature(ip_constructors)]
     /// use std::net::Ipv6Addr;
     ///
     /// let addr = Ipv6Addr::LOCALHOST;
     /// assert_eq!(addr, Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 1));
     /// ```
-    #[unstable(feature = "ip_constructors",
-               reason = "requires greater scrutiny before stabilization",
-               issue = "44582")]
+    #[stable(feature = "ip_constructors", since = "1.30.0")]
     pub const LOCALHOST: Self = Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 1);
 
     /// An IPv6 address representing the unspecified address: `::`
@@ -912,15 +899,12 @@ impl Ipv6Addr {
     /// # Examples
     ///
     /// ```
-    /// #![feature(ip_constructors)]
     /// use std::net::Ipv6Addr;
     ///
     /// let addr = Ipv6Addr::UNSPECIFIED;
     /// assert_eq!(addr, Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 0));
     /// ```
-    #[unstable(feature = "ip_constructors",
-               reason = "requires greater scrutiny before stabilization",
-               issue = "44582")]
+    #[stable(feature = "ip_constructors", since = "1.30.0")]
     pub const UNSPECIFIED: Self = Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 0);
 
     /// Returns the eight 16-bit segments that make up this address.
@@ -1239,7 +1223,7 @@ impl Ipv6Addr {
     ///            [255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
     /// ```
     #[stable(feature = "ipv6_to_octets", since = "1.12.0")]
-    pub fn octets(&self) -> [u8; 16] {
+    pub const fn octets(&self) -> [u8; 16] {
         self.inner.s6_addr
     }
 }

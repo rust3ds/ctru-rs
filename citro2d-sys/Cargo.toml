@@ -1,0 +1,12 @@
+[package]
+name = "citro3d-sys"
+version = "0.1.0"
+authors = ["Charlotte D. <darkkirb@gmail.com>"]
+
+[dependencies.libc]
+version = "0.2.43"
+default-features = false
+optional = true
+
+[features]
+default = ["libc"]
