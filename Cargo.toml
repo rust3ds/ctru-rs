@@ -1,0 +1,20 @@
+[package]
+authors = ["Ronald Kinard <furyhunter600@gmail.com>", "Andrea Ciliberti <meziu210@icloud.com>"]
+description = "A safe wrapper around smealum's ctrulib."
+license = "MIT/Apache 2.0"
+name = "ctru-rs"
+version = "0.7.1"
+edition = "2018"
+
+[lib]
+crate-type = ["lib", "staticlib"]
+name = "ctru"
+
+[dependencies.libc]
+path = "../libc"
+
+[dependencies.bitflags]
+version = "1.0.0"
+
+[dependencies.widestring]
+version = "0.2.2"
