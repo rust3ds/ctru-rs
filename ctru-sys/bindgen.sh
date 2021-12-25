@@ -1,14 +1,5 @@
 #!/usr/bin/env bash
 
-clang_version=$1
-
-if [ -z "$clang_version" ]; then
-    echo "  usage: ./bindgen.sh <clang_version>"
-    echo "example: ./bindgen.sh 5.0.0"
-    echo "Check your current version with \`clang -v\`."
-    exit 1
-fi
-
 set -euxo pipefail
 
 bindgen "$DEVKITPRO/libctru/include/3ds.h" \
@@ -23,11 +14,11 @@ bindgen "$DEVKITPRO/libctru/include/3ds.h" \
     --blacklist-type "u(8|16|32|64)" \
     --blacklist-type "__builtin_va_list" \
     --blacklist-type "__va_list" \
+    --opaque-type "MiiData" \
     -- \
     --target=arm-none-eabi \
     --sysroot=$DEVKITARM/arm-none-eabi \
     -isystem$DEVKITARM/arm-none-eabi/include \
-    -isystem/usr/lib/clang/$clang_version/include \
     -I$DEVKITPRO/libctru/include \
     -mfloat-abi=hard \
     -march=armv6k \

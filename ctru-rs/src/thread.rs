@@ -37,9 +37,9 @@ use std::cell::UnsafeCell;
 use std::fmt;
 use std::io;
 use std::panic;
-use std::sync::{Arc, Condvar, Mutex};
 use std::sync::atomic::AtomicUsize;
 use std::sync::atomic::Ordering::SeqCst;
+use std::sync::{Arc, Condvar, Mutex};
 use std::thread as std_thread;
 use std::time::Duration;
 
@@ -200,12 +200,10 @@ impl Builder {
         let my_packet: Arc<UnsafeCell<Option<Result<T>>>> = Arc::new(UnsafeCell::new(None));
         let their_packet = my_packet.clone();
 
-        let main = move || {
-            unsafe {
-                thread_info::set(their_thread);
-                let try_result = panic::catch_unwind(panic::AssertUnwindSafe(f));
-                *their_packet.get() = Some(try_result);
-            }
+        let main = move || unsafe {
+            thread_info::set(their_thread);
+            let try_result = panic::catch_unwind(panic::AssertUnwindSafe(f));
+            *their_packet.get() = Some(try_result);
         };
 
         Ok(JoinHandle(JoinInner {
@@ -635,7 +633,8 @@ impl Thread {
     /// [park]: fn.park.html
     pub fn unpark(&self) {
         loop {
-            match self.inner
+            match self
+                .inner
                 .state
                 .compare_exchange(EMPTY, NOTIFIED, SeqCst, SeqCst)
             {
@@ -647,7 +646,8 @@ impl Thread {
 
             // Coordinate wakeup through the mutex and a condvar notification
             let _lock = self.inner.lock.lock().unwrap();
-            match self.inner
+            match self
+                .inner
                 .state
                 .compare_exchange(PARKED, NOTIFIED, SeqCst, SeqCst)
             {
@@ -886,8 +886,9 @@ fn _assert_sync_and_send() {
 }
 
 mod imp {
-    use std::boxed::FnBox;
+    use std::boxed::Box;
     use std::cmp;
+    use std::convert::TryInto;
     use std::io;
     use std::mem;
     use std::ptr;
@@ -895,8 +896,10 @@ mod imp {
 
     use libc;
 
-    use libctru::{Thread as ThreadHandle, svcSleepThread, svcGetThreadId, svcGetThreadPriority,
-                  svcGetProcessorID, threadCreate, threadDetach, threadFree, threadJoin};
+    use libctru::{
+        svcGetProcessorID, svcGetThreadId, svcGetThreadPriority, svcSleepThread, threadCreate,
+        threadDetach, threadFree, threadJoin, Thread as ThreadHandle,
+    };
 
     pub struct Thread {
         handle: ThreadHandle,
@@ -912,7 +915,7 @@ mod imp {
             stack: usize,
             priority: i32,
             affinity: i32,
-            p: Box<FnBox() + 'a>,
+            p: Box<dyn FnOnce() + 'a>,
         ) -> io::Result<Thread> {
             let p = Box::new(p);
             let stack_size = cmp::max(stack, DEFAULT_MIN_STACK_SIZE);
@@ -920,7 +923,7 @@ mod imp {
             let handle = threadCreate(
                 Some(thread_func),
                 &*p as *const _ as *mut _,
-                stack_size,
+                stack_size.try_into().unwrap(),
                 priority,
                 affinity,
                 false,
@@ -955,13 +958,11 @@ mod imp {
         }
 
         pub fn affinity() -> i32 {
-            unsafe {
-                svcGetProcessorID()
-            }
+            unsafe { svcGetProcessorID() }
         }
 
         unsafe fn _start_thread(main: *mut u8) {
-            Box::from_raw(main as *mut Box<FnBox()>)()
+            Box::from_raw(main as *mut Box<dyn FnOnce()>)()
         }
 
         pub fn yield_now() {
@@ -970,7 +971,8 @@ mod imp {
 
         pub fn sleep(dur: Duration) {
             unsafe {
-                let nanos = dur.as_secs()
+                let nanos = dur
+                    .as_secs()
                     .saturating_mul(1_000_000_000)
                     .saturating_add(dur.subsec_nanos() as u64);
                 svcSleepThread(nanos as i64)
@@ -985,7 +987,6 @@ mod imp {
                 debug_assert_eq!(ret, 0);
             }
         }
-
 
         #[allow(dead_code)]
         pub fn handle(&self) -> ThreadHandle {

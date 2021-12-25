@@ -3,7 +3,7 @@ pub struct Sdmc(());
 impl Sdmc {
     pub fn init() -> ::Result<Sdmc> {
         unsafe {
-            let r = ::libctru::sdmcInit();
+            let r = ::libctru::archiveMountSdmc();
             if r < 0 {
                 Err(r.into())
             } else {
@@ -15,6 +15,6 @@ impl Sdmc {
 
 impl Drop for Sdmc {
     fn drop(&mut self) {
-        unsafe { ::libctru::sdmcExit() };
+        unsafe { ::libctru::archiveUnmountAll() };
     }
 }

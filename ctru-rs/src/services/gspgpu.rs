@@ -51,8 +51,8 @@ pub fn wait_for_event(ev: Event, discard_current: bool) {
     }
 }
 
-impl From<::libctru::GSPGPU_FramebufferFormats> for FramebufferFormat {
-    fn from(g: ::libctru::GSPGPU_FramebufferFormats) -> Self {
+impl From<::libctru::GSPGPU_FramebufferFormat> for FramebufferFormat {
+    fn from(g: ::libctru::GSPGPU_FramebufferFormat) -> Self {
         use self::FramebufferFormat::*;
         match g {
             ::libctru::GSP_RGBA8_OES => Rgba8,
@@ -65,7 +65,7 @@ impl From<::libctru::GSPGPU_FramebufferFormats> for FramebufferFormat {
     }
 }
 
-impl From<FramebufferFormat> for ::libctru::GSPGPU_FramebufferFormats {
+impl From<FramebufferFormat> for ::libctru::GSPGPU_FramebufferFormat {
     fn from(g: FramebufferFormat) -> Self {
         use self::FramebufferFormat::*;
         match g {

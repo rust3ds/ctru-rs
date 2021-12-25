@@ -4,14 +4,5 @@ version = "0.4.0"
 authors = ["Ronald Kinard <furyhunter600@gmail.com>"]
 license = "https://en.wikipedia.org/wiki/Zlib_License"
 
-[dependencies.libc]
-version = "0.2"
-default-features = false
-optional = true
-
-[features]
-default = ["libc"]
-
-# This is a dummy feature that only exists to work around a Xargo issue.
-# User code should not enable it.
-stdbuild = []
+[dependencies]
+libc = { version = "0.2", default-features = false }

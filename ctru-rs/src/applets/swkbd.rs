@@ -1,9 +1,11 @@
+use std::convert::TryInto;
 use std::iter::once;
 use std::mem;
 use std::str;
 
-use libctru::{self, SwkbdState, swkbdInit, swkbdSetFeatures, swkbdSetHintText, swkbdInputText,
-              swkbdSetButton};
+use libctru::{
+    self, swkbdInit, swkbdInputText, swkbdSetButton, swkbdSetFeatures, swkbdSetHintText, SwkbdState,
+};
 
 use libc;
 
@@ -127,7 +129,11 @@ impl Swkbd {
     /// the output will be truncated but should still be well-formed UTF-8
     pub fn get_bytes(&mut self, buf: &mut [u8]) -> Result<Button, Error> {
         unsafe {
-            match swkbdInputText(self.state.as_mut(), buf.as_mut_ptr(), buf.len()) {
+            match swkbdInputText(
+                self.state.as_mut(),
+                buf.as_mut_ptr(),
+                buf.len().try_into().unwrap(),
+            ) {
                 libctru::SWKBD_BUTTON_NONE => Err(self.parse_swkbd_error()),
                 libctru::SWKBD_BUTTON_LEFT => Ok(Button::Left),
                 libctru::SWKBD_BUTTON_MIDDLE => Ok(Button::Middle),
@@ -139,14 +145,11 @@ impl Swkbd {
 
     /// Sets special features for this keyboard
     pub fn set_features(&mut self, features: Features) {
-        unsafe {
-            swkbdSetFeatures(self.state.as_mut(), features.bits)
-        }
+        unsafe { swkbdSetFeatures(self.state.as_mut(), features.bits) }
     }
 
     /// Configures input validation for this keyboard
-    pub fn set_validation(&mut self, validation: ValidInput,
-                          filters: Filters) {
+    pub fn set_validation(&mut self, validation: ValidInput, filters: Filters) {
         self.state.valid_input = validation as i32;
         self.state.filter_flags = filters.bits;
     }
@@ -157,7 +160,7 @@ impl Swkbd {
         self.state.max_digits = digits;
     }
 
-    /// Sets the hint text for this software keyboard (that is, the help text that is displayed 
+    /// Sets the hint text for this software keyboard (that is, the help text that is displayed
     /// when the textbox is empty)
     pub fn set_hint_text(&mut self, text: &str) {
         unsafe {
@@ -175,13 +178,18 @@ impl Swkbd {
     pub fn configure_button(&mut self, button: Button, text: &str, submit: bool) {
         unsafe {
             let nul_terminated: String = text.chars().chain(once('\0')).collect();
-            swkbdSetButton(self.state.as_mut(), button as u32, nul_terminated.as_ptr(), submit);
+            swkbdSetButton(
+                self.state.as_mut(),
+                button as u32,
+                nul_terminated.as_ptr(),
+                submit,
+            );
         }
     }
 
     /// Configures the maximum number of UTF-16 code units that can be entered into the software
     /// keyboard. By default the limit is 0xFDE8 code units.
-    /// 
+    ///
     /// Note that keyboard input is converted from UTF-16 to UTF-8 before being handed to Rust,
     /// so this code point limit does not necessarily equal the max number of UTF-8 code points
     /// receivable by the `get_utf8` and `get_bytes` functions.
