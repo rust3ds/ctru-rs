@@ -1,8 +1,7 @@
-use std::default::Default;
-use std::mem::MaybeUninit;
 use std::boxed::Box;
+use std::default::Default;
 
-use crate::raw::{PrintConsole, consoleInit, consoleSelect, consoleClear, consoleSetWindow};
+use crate::raw::{consoleClear, consoleInit, consoleSelect, consoleSetWindow, PrintConsole};
 
 use crate::gfx::Screen;
 
@@ -16,18 +15,18 @@ impl Console {
     /// printing.
     pub fn init(screen: Screen) -> Self {
         unsafe {
-            let mut context = MaybeUninit::<PrintConsole>::uninit();
+            let mut context = Box::new(PrintConsole::default());
+            consoleInit(screen.into(), context.as_mut());
 
-            consoleInit(screen.into(), context.as_mut_ptr());
-            
-            let context = Box::new(context.assume_init());
-            Console { context, }
+            Console { context }
         }
     }
 
     /// Select this console as the current target for stdout
     pub fn select(&self) {
-        unsafe { consoleSelect(self.context.as_ref() as *const _ as *mut _); }
+        unsafe {
+            consoleSelect(self.context.as_ref() as *const _ as *mut _);
+        }
     }
 
     /// Clears all text from the console
@@ -44,7 +43,7 @@ impl Console {
     /// a console that actually fits on the screen
     pub unsafe fn set_window(&mut self, x: i32, y: i32, width: i32, height: i32) {
         consoleSetWindow(self.context.as_mut(), x, y, width, height);
-    } 
+    }
 }
 
 impl Default for Console {
