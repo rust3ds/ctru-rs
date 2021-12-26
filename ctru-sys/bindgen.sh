@@ -15,6 +15,7 @@ bindgen "$DEVKITPRO/libctru/include/3ds.h" \
     --blacklist-type "__builtin_va_list" \
     --blacklist-type "__va_list" \
     --opaque-type "MiiData" \
+    --with-derive-default \
     -- \
     --target=arm-none-eabi \
     --sysroot=$DEVKITARM/arm-none-eabi \

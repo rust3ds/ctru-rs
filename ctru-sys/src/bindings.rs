@@ -1257,7 +1257,7 @@ pub type uint_fast64_t = ::libc::c_ulonglong;
 pub type size_t = ::libc::c_uint;
 pub type wchar_t = ::libc::c_uint;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct max_align_t {
     pub __clang_max_align_nonce1: ::libc::c_longlong,
     pub __clang_max_align_nonce2: f64,
@@ -1283,7 +1283,7 @@ pub type Result = s32;
 pub type ThreadFunc = ::core::option::Option<unsafe extern "C" fn(arg1: *mut ::libc::c_void)>;
 pub type voidfn = ::core::option::Option<unsafe extern "C" fn()>;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct CpuRegisters {
     pub r: [u32_; 13usize],
     pub sp: u32_,
@@ -1305,9 +1305,27 @@ pub union FpuRegisters__bindgen_ty_1 {
     pub s: [f32; 32usize],
 }
 #[repr(C, packed)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct FpuRegisters__bindgen_ty_1__bindgen_ty_1 {
     pub d: [f64; 16usize],
+}
+impl Default for FpuRegisters__bindgen_ty_1 {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl Default for FpuRegisters {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 pub const RL_SUCCESS: ::libc::c_uint = 0;
 pub const RL_INFO: ::libc::c_uint = 1;
@@ -1502,7 +1520,7 @@ pub const MEMREGION_SYSTEM: MemRegion = 2;
 pub const MEMREGION_BASE: MemRegion = 3;
 pub type MemRegion = ::libc::c_uint;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct MemInfo {
     pub base_addr: u32_,
     pub size: u32_,
@@ -1510,7 +1528,7 @@ pub struct MemInfo {
     pub state: u32_,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct PageInfo {
     pub flags: u32_,
 }
@@ -1555,7 +1573,7 @@ pub const DMARST_UNLOCK: ::libc::c_uint = 1;
 pub const DMARST_RESUME_DEVICE: ::libc::c_uint = 2;
 pub type _bindgen_ty_6 = ::libc::c_uint;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct DmaDeviceConfig {
     pub deviceId: s8,
     pub allowedAlignments: s8,
@@ -1565,7 +1583,7 @@ pub struct DmaDeviceConfig {
     pub transferStride: s16,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct DmaConfig {
     pub channelId: s8,
     pub endianSwapSize: s8,
@@ -1646,7 +1664,7 @@ pub const PERFCOUNTEREVT_SCU_EXTERNAL_WRITE: PerfCounterEvent = 4115;
 pub const PERFCOUNTEREVT_SCU_CYCLE_COUNT: PerfCounterEvent = 4127;
 pub type PerfCounterEvent = ::libc::c_uint;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct AttachProcessEvent {
     pub program_id: u64_,
     pub process_name: [::libc::c_char; 8usize],
@@ -1662,8 +1680,17 @@ pub type ExitProcessEventReason = ::libc::c_uint;
 pub struct ExitProcessEvent {
     pub reason: ExitProcessEventReason,
 }
+impl Default for ExitProcessEvent {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct AttachThreadEvent {
     pub creator_thread_id: u32_,
     pub thread_local_storage: u32_,
@@ -1678,6 +1705,15 @@ pub type ExitThreadEventReason = ::libc::c_uint;
 #[derive(Debug, Copy, Clone)]
 pub struct ExitThreadEvent {
     pub reason: ExitThreadEventReason,
+}
+impl Default for ExitThreadEvent {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 pub const USERBREAK_PANIC: UserBreakType = 0;
 pub const USERBREAK_ASSERT: UserBreakType = 1;
@@ -1696,7 +1732,7 @@ pub const EXCEVENT_DEBUGGER_BREAK: ExceptionEventType = 7;
 pub const EXCEVENT_UNDEFINED_SYSCALL: ExceptionEventType = 8;
 pub type ExceptionEventType = ::libc::c_uint;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct FaultExceptionEvent {
     pub fault_information: u32_,
 }
@@ -1710,6 +1746,15 @@ pub struct StopPointExceptionEvent {
     pub type_: StopPointType,
     pub fault_information: u32_,
 }
+impl Default for StopPointExceptionEvent {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct UserBreakExceptionEvent {
@@ -1717,8 +1762,17 @@ pub struct UserBreakExceptionEvent {
     pub croInfo: u32_,
     pub croInfoSize: u32_,
 }
+impl Default for UserBreakExceptionEvent {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct DebuggerBreakExceptionEvent {
     pub thread_ids: [s32; 4usize],
 }
@@ -1737,19 +1791,37 @@ pub union ExceptionEvent__bindgen_ty_1 {
     pub user_break: UserBreakExceptionEvent,
     pub debugger_break: DebuggerBreakExceptionEvent,
 }
+impl Default for ExceptionEvent__bindgen_ty_1 {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl Default for ExceptionEvent {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct ScheduleInOutEvent {
     pub clock_tick: u64_,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct SyscallInOutEvent {
     pub clock_tick: u64_,
     pub syscall: u32_,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct OutputStringEvent {
     pub string_addr: u32_,
     pub string_size: u32_,
@@ -1761,6 +1833,15 @@ pub struct MapEvent {
     pub mapped_size: u32_,
     pub memperm: MemPerm,
     pub memstate: MemState,
+}
+impl Default for MapEvent {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 pub const DBGEVENT_ATTACH_PROCESS: DebugEventType = 0;
 pub const DBGEVENT_ATTACH_THREAD: DebugEventType = 1;
@@ -1798,6 +1879,24 @@ pub union DebugEventInfo__bindgen_ty_1 {
     pub output_string: OutputStringEvent,
     pub map: MapEvent,
 }
+impl Default for DebugEventInfo__bindgen_ty_1 {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl Default for DebugEventInfo {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 pub const DBG_INHIBIT_USER_CPU_EXCEPTION_HANDLERS: DebugFlags = 1;
 pub const DBG_SIGNAL_FAULT_EXCEPTION_EVENTS: DebugFlags = 2;
 pub const DBG_SIGNAL_SCHEDULE_EVENTS: DebugFlags = 4;
@@ -1809,6 +1908,15 @@ pub type DebugFlags = ::libc::c_uint;
 pub struct ThreadContext {
     pub cpu_registers: CpuRegisters,
     pub fpu_registers: FpuRegisters,
+}
+impl Default for ThreadContext {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 pub const THREADCONTEXT_CONTROL_CPU_GPRS: ThreadContextControlFlags = 1;
 pub const THREADCONTEXT_CONTROL_CPU_SPRS: ThreadContextControlFlags = 2;
@@ -1824,7 +1932,7 @@ pub const DBGTHREAD_PARAMETER_CPU_IDEAL: DebugThreadParameter = 2;
 pub const DBGTHREAD_PARAMETER_CPU_CREATOR: DebugThreadParameter = 3;
 pub type DebugThreadParameter = ::libc::c_uint;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct CodeSetInfo {
     pub name: [u8_; 8usize],
     pub unk1: u16_,
@@ -1850,6 +1958,15 @@ pub struct StartupInfo {
     pub argc: ::libc::c_int,
     pub argv: *mut u16_,
     pub envp: *mut u16_,
+}
+impl Default for StartupInfo {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 extern "C" {
     pub fn svcControlMemory(
@@ -2373,7 +2490,7 @@ pub const SYSMODE_DEV3: SystemMode = 4;
 pub const SYSMODE_DEV4: SystemMode = 5;
 pub type SystemMode = ::libc::c_uint;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct ExHeader_SystemInfoFlags {
     pub reserved: [u8_; 5usize],
     pub _bitfield_align_1: [u8; 0],
@@ -2421,14 +2538,14 @@ impl ExHeader_SystemInfoFlags {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct ExHeader_CodeSectionInfo {
     pub address: u32_,
     pub num_pages: u32_,
     pub size: u32_,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct ExHeader_CodeSetInfo {
     pub name: [::libc::c_char; 8usize],
     pub flags: ExHeader_SystemInfoFlags,
@@ -2446,6 +2563,15 @@ pub struct ExHeader_SystemInfo {
     pub jump_id: u64_,
     pub reserved: [u8_; 48usize],
 }
+impl Default for ExHeader_SystemInfo {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct ExHeader_SystemControlInfo {
@@ -2453,8 +2579,17 @@ pub struct ExHeader_SystemControlInfo {
     pub dependencies: [u64_; 48usize],
     pub system_info: ExHeader_SystemInfo,
 }
+impl Default for ExHeader_SystemControlInfo {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct ExHeader_Arm11StorageInfo {
     pub extdata_id: u64_,
     pub system_savedata_ids: [u32_; 2usize],
@@ -2527,6 +2662,15 @@ pub struct ExHeader_Arm11CoreInfo {
     pub _bitfield_align_1: [u8; 0],
     pub _bitfield_1: __BindgenBitfieldUnit<[u8; 3usize]>,
     pub priority: u8_,
+}
+impl Default for ExHeader_Arm11CoreInfo {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 impl ExHeader_Arm11CoreInfo {
     #[inline]
@@ -2676,14 +2820,23 @@ pub struct ExHeader_Arm11SystemLocalCapabilities {
     pub reserved: [u8_; 15usize],
     pub reslimit_category: ResourceLimitCategory,
 }
+impl Default for ExHeader_Arm11SystemLocalCapabilities {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct ExHeader_Arm11KernelCapabilities {
     pub descriptors: [u32_; 28usize],
     pub reserved: [u8_; 16usize],
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct ExHeader_Arm9AccessControl {
     pub descriptors: [u8_; 15usize],
     pub descriptor_version: u8_,
@@ -2695,11 +2848,29 @@ pub struct ExHeader_AccessControlInfo {
     pub kernel_caps: ExHeader_Arm11KernelCapabilities,
     pub access_control: ExHeader_Arm9AccessControl,
 }
+impl Default for ExHeader_AccessControlInfo {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct ExHeader_Info {
     pub sci: ExHeader_SystemControlInfo,
     pub aci: ExHeader_AccessControlInfo,
+}
+impl Default for ExHeader_Info {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -2708,11 +2879,29 @@ pub struct ExHeader_AccessDescriptor {
     pub ncchModulus: [u8_; 256usize],
     pub acli: ExHeader_AccessControlInfo,
 }
+impl Default for ExHeader_AccessDescriptor {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct ExHeader {
     pub info: ExHeader_Info,
     pub access_descriptor: ExHeader_AccessDescriptor,
+}
+impl Default for ExHeader {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 extern "C" {
     pub fn srvInit() -> Result;
@@ -2808,11 +2997,29 @@ pub struct ERRF_ExceptionInfo {
     pub fpinst: u32_,
     pub fpinst2: u32_,
 }
+impl Default for ERRF_ExceptionInfo {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct ERRF_ExceptionData {
     pub excep: ERRF_ExceptionInfo,
     pub regs: CpuRegisters,
+}
+impl Default for ERRF_ExceptionData {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -2832,6 +3039,24 @@ pub struct ERRF_FatalErrInfo {
 pub union ERRF_FatalErrInfo__bindgen_ty_1 {
     pub exception_data: ERRF_ExceptionData,
     pub failure_mesg: [::libc::c_char; 96usize],
+}
+impl Default for ERRF_FatalErrInfo__bindgen_ty_1 {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl Default for ERRF_FatalErrInfo {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 extern "C" {
     pub fn errfInit() -> Result;
@@ -2855,7 +3080,7 @@ extern "C" {
     pub fn ERRF_ExceptionHandler(excep: *mut ERRF_ExceptionInfo, regs: *mut CpuRegisters);
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct osKernelConfig_s {
     pub kernel_ver: u32_,
     pub update_flag: u32_,
@@ -2878,7 +3103,7 @@ pub struct osKernelConfig_s {
     pub firm_ctrsdk_ver: u32_,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct osTimeRef_s {
     pub value_ms: u64_,
     pub value_tick: u64_,
@@ -2886,7 +3111,7 @@ pub struct osTimeRef_s {
     pub drift_ms: s64,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct osSharedConfig_s {
     pub timeref_cnt: vu32,
     pub running_hw: u8_,
@@ -2909,13 +3134,13 @@ pub struct osSharedConfig_s {
     pub headset_connected: vu8,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct TickCounter {
     pub elapsed: u64_,
     pub reference: u64_,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct OS_VersionBin {
     pub build: u8_,
     pub minor: u8_,
@@ -2961,7 +3186,7 @@ extern "C" {
 }
 pub type _LOCK_T = i32;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct __lock_t {
     pub lock: _LOCK_T,
     pub thread_tag: u32,
@@ -3002,13 +3227,13 @@ pub type LightLock = _LOCK_T;
 pub type RecursiveLock = _LOCK_RECURSIVE_T;
 pub type CondVar = s32;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct LightEvent {
     pub state: s32,
     pub lock: LightLock,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct LightSemaphore {
     pub current_count: s32,
     pub num_threads_acq: s16,
@@ -3149,6 +3374,15 @@ pub struct GSPGPU_FramebufferInfo {
     pub framebuf_dispselect: u32_,
     pub unk: u32_,
 }
+impl Default for GSPGPU_FramebufferInfo {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 pub const GSP_RGBA8_OES: GSPGPU_FramebufferFormat = 0;
 pub const GSP_BGR8_OES: GSPGPU_FramebufferFormat = 1;
 pub const GSP_RGB565_OES: GSPGPU_FramebufferFormat = 2;
@@ -3163,10 +3397,28 @@ pub struct GSPGPU_CaptureInfoEntry {
     pub format: u32_,
     pub framebuf_widthbytesize: u32_,
 }
+impl Default for GSPGPU_CaptureInfoEntry {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct GSPGPU_CaptureInfo {
     pub screencapture: [GSPGPU_CaptureInfoEntry; 2usize],
+}
+impl Default for GSPGPU_CaptureInfo {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 pub const GSPGPU_EVENT_PSC0: GSPGPU_Event = 0;
 pub const GSPGPU_EVENT_PSC1: GSPGPU_Event = 1;
@@ -3351,6 +3603,15 @@ pub struct ConsoleFont {
     pub asciiOffset: u16_,
     pub numChars: u16_,
 }
+impl Default for ConsoleFont {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct PrintConsole {
@@ -3372,6 +3633,15 @@ pub struct PrintConsole {
     pub flags: ::libc::c_int,
     pub PrintChar: ConsolePrint,
     pub consoleInitialised: bool,
+}
+impl Default for PrintConsole {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 pub const debugDevice_NULL: debugDevice = 0;
 pub const debugDevice_SVC: debugDevice = 1;
@@ -3450,6 +3720,24 @@ pub union _mbstate_t__bindgen_ty_1 {
     pub __wch: wint_t,
     pub __wchb: [::libc::c_uchar; 4usize],
 }
+impl Default for _mbstate_t__bindgen_ty_1 {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl Default for _mbstate_t {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 pub type _iconv_t = *mut ::libc::c_void;
 pub type __clock_t = ::libc::c_ulong;
 pub type __time_t = __int_least64_t;
@@ -3465,19 +3753,19 @@ pub type __sigset_t = ::libc::c_ulong;
 pub type suseconds_t = __suseconds_t;
 pub type time_t = __int_least64_t;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct timeval {
     pub tv_sec: time_t,
     pub tv_usec: suseconds_t,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct timespec {
     pub tv_sec: time_t,
     pub tv_nsec: ::libc::c_long,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct itimerspec {
     pub it_interval: timespec,
     pub it_value: timespec,
@@ -3486,7 +3774,7 @@ pub type sigset_t = __sigset_t;
 pub type __fd_mask = ::libc::c_ulong;
 pub type fd_mask = __fd_mask;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct fd_set {
     pub __fds_bits: [__fd_mask; 2usize],
 }
@@ -3542,7 +3830,7 @@ pub type timer_t = __timer_t;
 pub type useconds_t = __useconds_t;
 pub type sbintime_t = __int64_t;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct sched_param {
     pub sched_priority: ::libc::c_int,
 }
@@ -3559,23 +3847,32 @@ pub struct pthread_attr_t {
     pub schedparam: sched_param,
     pub detachstate: ::libc::c_int,
 }
+impl Default for pthread_attr_t {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 pub type pthread_mutex_t = __uint32_t;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct pthread_mutexattr_t {
     pub is_initialized: ::libc::c_int,
     pub recursive: ::libc::c_int,
 }
 pub type pthread_cond_t = __uint32_t;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct pthread_condattr_t {
     pub is_initialized: ::libc::c_int,
     pub clock: clock_t,
 }
 pub type pthread_key_t = __uint32_t;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct pthread_once_t {
     pub is_initialized: ::libc::c_int,
     pub init_executed: ::libc::c_int,
@@ -3600,6 +3897,15 @@ pub type decompressType = ::libc::c_uint;
 pub struct decompressIOVec {
     pub data: *mut ::libc::c_void,
     pub size: size_t,
+}
+impl Default for decompressIOVec {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 pub type decompressCallback = ::core::option::Option<
     unsafe extern "C" fn(
@@ -3766,6 +4072,15 @@ pub type acSecurityMode = ::libc::c_uint;
 pub struct acuConfig {
     pub reserved: [u8_; 512usize],
 }
+impl Default for acuConfig {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 extern "C" {
     pub fn acInit() -> Result;
 }
@@ -3918,8 +4233,17 @@ pub struct FS_DirectoryEntry {
     pub attributes: u32_,
     pub fileSize: u64_,
 }
+impl Default for FS_DirectoryEntry {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct FS_ArchiveResource {
     pub sectorSize: u32_,
     pub clusterSize: u32_,
@@ -3933,6 +4257,15 @@ pub struct FS_ProgramInfo {
     pub _bitfield_align_1: [u8; 0],
     pub _bitfield_1: __BindgenBitfieldUnit<[u8; 1usize]>,
     pub padding: [u8_; 7usize],
+}
+impl Default for FS_ProgramInfo {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 impl FS_ProgramInfo {
     #[inline]
@@ -3957,7 +4290,7 @@ impl FS_ProgramInfo {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct FS_ProductInfo {
     pub productCode: [::libc::c_char; 16usize],
     pub companyCode: [::libc::c_char; 2usize],
@@ -3969,6 +4302,15 @@ pub struct FS_IntegrityVerificationSeed {
     pub aesCbcMac: [u8_; 16usize],
     pub movableSed: [u8_; 288usize],
 }
+impl Default for FS_IntegrityVerificationSeed {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C, packed)]
 #[derive(Debug, Copy, Clone)]
 pub struct FS_ExtSaveDataInfo {
@@ -3978,6 +4320,15 @@ pub struct FS_ExtSaveDataInfo {
     pub reserved1: u16_,
     pub saveId: u64_,
     pub reserved2: u32_,
+}
+impl Default for FS_ExtSaveDataInfo {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 impl FS_ExtSaveDataInfo {
     #[inline]
@@ -4010,6 +4361,15 @@ pub struct FS_SystemSaveDataInfo {
     pub reserved: u16_,
     pub saveId: u32_,
 }
+impl Default for FS_SystemSaveDataInfo {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 impl FS_SystemSaveDataInfo {
     #[inline]
     pub fn mediaType(&self) -> FS_MediaType {
@@ -4033,7 +4393,7 @@ impl FS_SystemSaveDataInfo {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct FS_DeviceMoveContext {
     pub ivs: [u8_; 16usize],
     pub encryptParameter: [u8_; 16usize],
@@ -4044,6 +4404,15 @@ pub struct FS_Path {
     pub type_: FS_PathType,
     pub size: u32_,
     pub data: *const ::libc::c_void,
+}
+impl Default for FS_Path {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 pub type FS_Archive = u64_;
 extern "C" {
@@ -4623,7 +4992,7 @@ extern "C" {
     pub fn FSDIR_GetPriority(handle: Handle, priority: *mut u32_) -> Result;
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct AM_TitleEntry {
     pub titleID: u64_,
     pub size: u64_,
@@ -4639,7 +5008,7 @@ pub const AM_STATUS_INSTALL_IN_PROGRESS: AM_InstallStatus = 2050;
 pub const AM_STATUS_AWAITING_FINALIZATION: AM_InstallStatus = 2051;
 pub type AM_InstallStatus = ::libc::c_uint;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct AM_PendingTitleEntry {
     pub titleId: u64_,
     pub version: u16_,
@@ -4651,7 +5020,7 @@ pub const AM_DELETE_PENDING_NON_SYSTEM: ::libc::c_uint = 1;
 pub const AM_DELETE_PENDING_SYSTEM: ::libc::c_uint = 2;
 pub type _bindgen_ty_14 = ::libc::c_uint;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct AM_TWLPartitionInfo {
     pub capacity: u64_,
     pub freeSpace: u64_,
@@ -5047,7 +5416,7 @@ pub const APTCMD_SYSAPPLET_REQUEST: APT_Command = 16;
 pub const APTCMD_WAKEUP_LAUNCHAPP: APT_Command = 17;
 pub type APT_Command = ::libc::c_uint;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct aptCaptureBufInfo {
     pub size: u32_,
     pub is3D: u32_,
@@ -5055,7 +5424,7 @@ pub struct aptCaptureBufInfo {
     pub bottom: aptCaptureBufInfo__bindgen_ty_1,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct aptCaptureBufInfo__bindgen_ty_1 {
     pub leftOffset: u32_,
     pub rightOffset: u32_,
@@ -5076,6 +5445,15 @@ pub struct tag_aptHookCookie {
     pub next: *mut tag_aptHookCookie,
     pub callback: aptHookFn,
     pub param: *mut ::libc::c_void,
+}
+impl Default for tag_aptHookCookie {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 pub type aptHookCookie = tag_aptHookCookie;
 pub type aptMessageCb = ::core::option::Option<
@@ -5381,6 +5759,15 @@ pub struct bossContext {
     pub property_x3b: u32_,
     pub property_x3e: [u8_; 512usize],
 }
+impl Default for bossContext {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 pub const BOSSTASKSTATUS_STARTED: bossTaskStatus = 2;
 pub const BOSSTASKSTATUS_ERROR: bossTaskStatus = 7;
 pub type bossTaskStatus = ::libc::c_uint;
@@ -5484,7 +5871,7 @@ pub const BLOCK_LINE: Y2RU_BlockAlignment = 0;
 pub const BLOCK_8_BY_8: Y2RU_BlockAlignment = 1;
 pub type Y2RU_BlockAlignment = ::libc::c_uint;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct Y2RU_ColorCoefficients {
     pub rgb_Y: u16_,
     pub r_V: u16_,
@@ -5512,6 +5899,15 @@ pub struct Y2RU_ConversionParams {
     pub _bitfield_2: __BindgenBitfieldUnit<[u8; 1usize]>,
     pub unused: u8_,
     pub alpha: u16_,
+}
+impl Default for Y2RU_ConversionParams {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 impl Y2RU_ConversionParams {
     #[inline]
@@ -5608,7 +6004,7 @@ impl Y2RU_ConversionParams {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct Y2RU_DitheringWeightParams {
     pub w0_xEven_yEven: u16_,
     pub w0_xOdd_yEven: u16_,
@@ -5898,7 +6294,7 @@ pub const SHUTTER_SOUND_TYPE_MOVIE: CAMU_ShutterSoundType = 1;
 pub const SHUTTER_SOUND_TYPE_MOVIE_END: CAMU_ShutterSoundType = 2;
 pub type CAMU_ShutterSoundType = ::libc::c_uint;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct CAMU_ImageQualityCalibrationData {
     pub aeBaseTarget: s16,
     pub kRL: s16,
@@ -5913,7 +6309,7 @@ pub struct CAMU_ImageQualityCalibrationData {
     pub awbX0Left: u16_,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct CAMU_StereoCameraCalibrationData {
     pub isValidRotationXY: u8_,
     pub padding: [u8_; 3usize],
@@ -5932,7 +6328,7 @@ pub struct CAMU_StereoCameraCalibrationData {
     pub reserved: [u8_; 16usize],
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct CAMU_PackageParameterCameraSelect {
     pub camera: u8_,
     pub exposure: s8,
@@ -5956,7 +6352,7 @@ pub struct CAMU_PackageParameterCameraSelect {
     pub autoWhiteBalanceWindowHeight: s16,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct CAMU_PackageParameterContext {
     pub camera: u8_,
     pub context: u8_,
@@ -5965,7 +6361,7 @@ pub struct CAMU_PackageParameterContext {
     pub size: u8_,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct CAMU_PackageParameterContextDetail {
     pub camera: u8_,
     pub context: u8_,
@@ -6409,7 +6805,7 @@ pub union CSND_ChnInfo {
     pub __bindgen_anon_1: CSND_ChnInfo__bindgen_ty_1,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct CSND_ChnInfo__bindgen_ty_1 {
     pub active: u8_,
     pub _pad1: u8_,
@@ -6419,6 +6815,15 @@ pub struct CSND_ChnInfo__bindgen_ty_1 {
     pub _pad3: u8_,
     pub unknownZero: u32_,
 }
+impl Default for CSND_ChnInfo {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub union CSND_CapInfo {
@@ -6426,12 +6831,21 @@ pub union CSND_CapInfo {
     pub __bindgen_anon_1: CSND_CapInfo__bindgen_ty_1,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct CSND_CapInfo__bindgen_ty_1 {
     pub active: u8_,
     pub _pad1: u8_,
     pub _pad2: u16_,
     pub unknownZero: u32_,
+}
+impl Default for CSND_CapInfo {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 extern "C" {
     pub static mut csndSharedMem: *mut vu32;
@@ -6603,6 +7017,15 @@ pub type dspHookFn = ::core::option::Option<unsafe extern "C" fn(hook: DSP_HookT
 pub struct tag_dspHookCookie {
     pub next: *mut tag_dspHookCookie,
     pub callback: dspHookFn,
+}
+impl Default for tag_dspHookCookie {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 pub type dspHookCookie = tag_dspHookCookie;
 extern "C" {
@@ -7229,7 +7652,7 @@ pub struct MiiData {
     pub _bindgen_opaque_blob: [u8; 92usize],
 }
 #[repr(C, packed)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct MiiData__bindgen_ty_1 {
     pub _bitfield_align_1: [u8; 0],
     pub _bitfield_1: __BindgenBitfieldUnit<[u8; 1usize]>,
@@ -7307,7 +7730,7 @@ impl MiiData__bindgen_ty_1 {
     }
 }
 #[repr(C, packed)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct MiiData__bindgen_ty_2 {
     pub _bitfield_align_1: [u8; 0],
     pub _bitfield_1: __BindgenBitfieldUnit<[u8; 1usize]>,
@@ -7350,7 +7773,7 @@ impl MiiData__bindgen_ty_2 {
     }
 }
 #[repr(C, packed)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct MiiData__bindgen_ty_3 {
     pub _bitfield_align_1: [u8; 0],
     pub _bitfield_1: __BindgenBitfieldUnit<[u8; 1usize]>,
@@ -7397,7 +7820,7 @@ impl MiiData__bindgen_ty_3 {
 }
 #[repr(C)]
 #[repr(align(2))]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct MiiData__bindgen_ty_4 {
     pub _bitfield_align_1: [u8; 0],
     pub _bitfield_1: __BindgenBitfieldUnit<[u8; 2usize]>,
@@ -7491,7 +7914,7 @@ impl MiiData__bindgen_ty_4 {
     }
 }
 #[repr(C, packed)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct MiiData__bindgen_ty_5 {
     pub _bitfield_align_1: [u8; 0],
     pub _bitfield_1: __BindgenBitfieldUnit<[u8; 1usize]>,
@@ -7553,7 +7976,7 @@ impl MiiData__bindgen_ty_5 {
     }
 }
 #[repr(C, packed)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct MiiData__bindgen_ty_6 {
     pub _bitfield_align_1: [u8; 0],
     pub _bitfield_1: __BindgenBitfieldUnit<[u8; 1usize]>,
@@ -7596,7 +8019,7 @@ impl MiiData__bindgen_ty_6 {
     }
 }
 #[repr(C, packed)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct MiiData__bindgen_ty_7 {
     pub _bitfield_align_1: [u8; 0],
     pub _bitfield_1: __BindgenBitfieldUnit<[u8; 1usize]>,
@@ -7640,7 +8063,7 @@ impl MiiData__bindgen_ty_7 {
 }
 #[repr(C)]
 #[repr(align(4))]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct MiiData__bindgen_ty_8 {
     pub _bitfield_align_1: [u8; 0],
     pub _bitfield_1: __BindgenBitfieldUnit<[u8; 4usize]>,
@@ -7767,7 +8190,7 @@ impl MiiData__bindgen_ty_8 {
 }
 #[repr(C)]
 #[repr(align(4))]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct MiiData__bindgen_ty_9 {
     pub _bitfield_align_1: [u8; 0],
     pub _bitfield_1: __BindgenBitfieldUnit<[u8; 4usize]>,
@@ -7910,7 +8333,7 @@ impl MiiData__bindgen_ty_9 {
 }
 #[repr(C)]
 #[repr(align(2))]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct MiiData__bindgen_ty_10 {
     pub _bitfield_align_1: [u8; 0],
     pub _bitfield_1: __BindgenBitfieldUnit<[u8; 2usize]>,
@@ -7973,7 +8396,7 @@ impl MiiData__bindgen_ty_10 {
 }
 #[repr(C)]
 #[repr(align(2))]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct MiiData__bindgen_ty_11 {
     pub _bitfield_align_1: [u8; 0],
     pub _bitfield_1: __BindgenBitfieldUnit<[u8; 2usize]>,
@@ -8052,7 +8475,7 @@ impl MiiData__bindgen_ty_11 {
 }
 #[repr(C)]
 #[repr(align(2))]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct MiiData__bindgen_ty_12 {
     pub _bitfield_align_1: [u8; 0],
     pub _bitfield_1: __BindgenBitfieldUnit<[u8; 2usize]>,
@@ -8115,7 +8538,7 @@ impl MiiData__bindgen_ty_12 {
 }
 #[repr(C)]
 #[repr(align(2))]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct MiiData__bindgen_ty_13 {
     pub _bitfield_align_1: [u8; 0],
     pub _bitfield_1: __BindgenBitfieldUnit<[u8; 2usize]>,
@@ -8194,7 +8617,7 @@ impl MiiData__bindgen_ty_13 {
 }
 #[repr(C)]
 #[repr(align(2))]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct MiiData__bindgen_ty_14 {
     pub _bitfield_align_1: [u8; 0],
     pub _bitfield_1: __BindgenBitfieldUnit<[u8; 2usize]>,
@@ -8273,7 +8696,7 @@ impl MiiData__bindgen_ty_14 {
 }
 #[repr(C)]
 #[repr(align(2))]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct MiiData__bindgen_ty_15 {
     pub _bitfield_align_1: [u8; 0],
     pub _bitfield_1: __BindgenBitfieldUnit<[u8; 2usize]>,
@@ -8350,22 +8773,31 @@ impl MiiData__bindgen_ty_15 {
         __bindgen_bitfield_unit
     }
 }
+impl Default for MiiData {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C, packed)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct FriendKey {
     pub principalId: u32_,
     pub padding: u32_,
     pub localFriendCode: u64_,
 }
 #[repr(C, packed)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct TitleData {
     pub tid: u64_,
     pub version: u32_,
     pub unk: u32_,
 }
 #[repr(C, packed)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct FriendProfile {
     pub region: u8_,
     pub country: u8_,
@@ -8380,8 +8812,17 @@ pub struct GameDescription {
     pub data: TitleData,
     pub desc: [u16_; 128usize],
 }
+impl Default for GameDescription {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C, packed)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct NotificationEvent {
     pub type_: u8_,
     pub padding3: [u8_; 3usize],
@@ -8583,26 +9024,26 @@ pub const KEY_LEFT: ::libc::c_uint = 536870944;
 pub const KEY_RIGHT: ::libc::c_uint = 268435472;
 pub type _bindgen_ty_22 = ::libc::c_uint;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct touchPosition {
     pub px: u16_,
     pub py: u16_,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct circlePosition {
     pub dx: s16,
     pub dy: s16,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct accelVector {
     pub x: s16,
     pub y: s16,
     pub z: s16,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct angularRate {
     pub x: s16,
     pub z: s16,
@@ -8728,7 +9169,7 @@ extern "C" {
     pub fn IRRST_Shutdown() -> Result;
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct sslcContext {
     pub servhandle: Handle,
     pub sslchandle: u32_,
@@ -8897,7 +9338,7 @@ extern "C" {
     pub fn sslcAddCert(context: *mut sslcContext, buf: *const u8_, size: u32_) -> Result;
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct httpcContext {
     pub servhandle: Handle,
     pub httphandle: u32_,
@@ -9119,15 +9560,33 @@ pub union udsNodeInfo__bindgen_ty_1 {
     pub __bindgen_anon_1: udsNodeInfo__bindgen_ty_1__bindgen_ty_1,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct udsNodeInfo__bindgen_ty_1__bindgen_ty_1 {
     pub username: [u16_; 10usize],
     pub unk_x1c: u16_,
     pub flag: u8_,
     pub pad_x1f: u8_,
 }
+impl Default for udsNodeInfo__bindgen_ty_1 {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl Default for udsNodeInfo {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct udsConnectionStatus {
     pub status: u32_,
     pub unk_x4: u32_,
@@ -9161,8 +9620,17 @@ pub struct udsNetworkStruct {
     pub appdata_size: u8_,
     pub appdata: [u8_; 200usize],
 }
+impl Default for udsNetworkStruct {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct udsBindContext {
     pub BindNodeID: u32_,
     pub event: Handle,
@@ -9178,15 +9646,24 @@ pub struct nwmScanInputStruct {
     pub mac_address: [u8_; 6usize],
     pub unk_xe: [u8_; 38usize],
 }
+impl Default for nwmScanInputStruct {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct nwmBeaconDataReplyHeader {
     pub maxsize: u32_,
     pub size: u32_,
     pub total_entries: u32_,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct nwmBeaconDataReplyEntry {
     pub size: u32_,
     pub unk_x4: u8_,
@@ -9204,6 +9681,15 @@ pub struct udsNetworkScanInfo {
     pub datareply_entry: nwmBeaconDataReplyEntry,
     pub network: udsNetworkStruct,
     pub nodes: [udsNodeInfo; 16usize],
+}
+impl Default for udsNetworkScanInfo {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 pub const UDSNETATTR_DisableConnectSpectators: ::libc::c_uint = 1;
 pub const UDSNETATTR_DisableConnectClients: ::libc::c_uint = 2;
@@ -9480,7 +9966,7 @@ pub const DS_CANNOT_RECOVER: NIM_DownloadState = 10;
 pub const DS_INVALID: NIM_DownloadState = 11;
 pub type NIM_DownloadState = ::libc::c_uint;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct NIM_TitleConfig {
     pub titleId: u64_,
     pub version: u32_,
@@ -9491,7 +9977,7 @@ pub struct NIM_TitleConfig {
     pub unknown_1: u32_,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct NIM_TitleProgress {
     pub state: u32_,
     pub lastResult: Result,
@@ -9758,6 +10244,15 @@ pub struct psRSAContext {
     pub rsa_bitsize: u32_,
     pub unk: u32_,
 }
+impl Default for psRSAContext {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 extern "C" {
     pub fn psInit() -> Result;
 }
@@ -9838,13 +10333,13 @@ extern "C" {
     pub fn PTMU_GetAdapterState(out: *mut bool) -> Result;
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct PtmWakeEvents {
     pub pdn_wake_events: u32_,
     pub mcu_interupt_mask: u32_,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct PtmSleepConfig {
     pub exit_sleep_events: PtmWakeEvents,
     pub continue_sleep_events: PtmWakeEvents,
@@ -9922,6 +10417,15 @@ pub struct PXIDEV_SPIBuffer {
     pub transferOption: u8_,
     pub waitOperation: u64_,
 }
+impl Default for PXIDEV_SPIBuffer {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 extern "C" {
     pub fn pxiDevInit() -> Result;
 }
@@ -9969,19 +10473,19 @@ extern "C" {
     pub fn PXIPM_UnregisterProgram(programHandle: u64_) -> Result;
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct timezone {
     pub tz_minuteswest: ::libc::c_int,
     pub tz_dsttime: ::libc::c_int,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct bintime {
     pub sec: time_t,
     pub frac: u64,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct itimerval {
     pub it_interval: timeval,
     pub it_value: timeval,
@@ -10003,8 +10507,17 @@ pub struct _Bigint {
     pub _wds: ::libc::c_int,
     pub _x: [__ULong; 1usize],
 }
+impl Default for _Bigint {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct __tm {
     pub __tm_sec: ::libc::c_int,
     pub __tm_min: ::libc::c_int,
@@ -10024,6 +10537,15 @@ pub struct _on_exit_args {
     pub _fntypes: __ULong,
     pub _is_cxa: __ULong,
 }
+impl Default for _on_exit_args {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct _atexit {
@@ -10032,11 +10554,29 @@ pub struct _atexit {
     pub _fns: [::core::option::Option<unsafe extern "C" fn()>; 32usize],
     pub _on_exit_args: _on_exit_args,
 }
+impl Default for _atexit {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct __sbuf {
     pub _base: *mut ::libc::c_uchar,
     pub _size: ::libc::c_int,
+}
+impl Default for __sbuf {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -10089,6 +10629,15 @@ pub struct __sFILE {
     pub _mbstate: _mbstate_t,
     pub _flags2: ::libc::c_int,
 }
+impl Default for __sFILE {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 pub type __FILE = __sFILE;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -10097,8 +10646,17 @@ pub struct _glue {
     pub _niobs: ::libc::c_int,
     pub _iobs: *mut __FILE,
 }
+impl Default for _glue {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _rand48 {
     pub _seed: [::libc::c_ushort; 3usize],
     pub _mult: [::libc::c_ushort; 3usize],
@@ -10160,11 +10718,47 @@ pub struct _reent__bindgen_ty_1__bindgen_ty_1 {
     pub _wcsrtombs_state: _mbstate_t,
     pub _h_errno: ::libc::c_int,
 }
+impl Default for _reent__bindgen_ty_1__bindgen_ty_1 {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct _reent__bindgen_ty_1__bindgen_ty_2 {
     pub _nextf: [*mut ::libc::c_uchar; 30usize],
     pub _nmalloc: [::libc::c_uint; 30usize],
+}
+impl Default for _reent__bindgen_ty_1__bindgen_ty_2 {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl Default for _reent__bindgen_ty_1 {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl Default for _reent {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 extern "C" {
     pub static mut _impure_ptr: *mut _reent;
@@ -10180,7 +10774,7 @@ extern "C" {
 }
 pub type locale_t = *mut __locale_t;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct tm {
     pub tm_sec: ::libc::c_int,
     pub tm_min: ::libc::c_int,
@@ -10266,12 +10860,30 @@ pub union sigval {
     pub sival_int: ::libc::c_int,
     pub sival_ptr: *mut ::libc::c_void,
 }
+impl Default for sigval {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct sigevent {
     pub sigev_notify: ::libc::c_int,
     pub sigev_signo: ::libc::c_int,
     pub sigev_value: sigval,
+}
+impl Default for sigevent {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -10280,9 +10892,18 @@ pub struct siginfo_t {
     pub si_code: ::libc::c_int,
     pub si_value: sigval,
 }
+impl Default for siginfo_t {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 pub type _sig_func_ptr = ::core::option::Option<unsafe extern "C" fn(arg1: ::libc::c_int)>;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct sigaction {
     pub sa_handler: _sig_func_ptr,
     pub sa_mask: sigset_t,
@@ -10294,6 +10915,15 @@ pub struct sigaltstack {
     pub ss_sp: *mut ::libc::c_void,
     pub ss_flags: ::libc::c_int,
     pub ss_size: size_t,
+}
+impl Default for sigaltstack {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 pub type stack_t = sigaltstack;
 extern "C" {
@@ -10453,19 +11083,19 @@ extern "C" {
 pub type socklen_t = u32;
 pub type sa_family_t = u16;
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct sockaddr {
     pub sa_family: sa_family_t,
     pub sa_data: __IncompleteArrayField<::libc::c_char>,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct sockaddr_storage {
     pub ss_family: sa_family_t,
     pub __ss_padding: [::libc::c_char; 26usize],
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct linger {
     pub l_onoff: ::libc::c_int,
     pub l_linger: ::libc::c_int,
@@ -10575,12 +11205,12 @@ extern "C" {
     pub fn sockatmark(sockfd: ::libc::c_int) -> ::libc::c_int;
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct in_addr {
     pub s_addr: in_addr_t,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct sockaddr_in {
     pub sin_family: sa_family_t,
     pub sin_port: in_port_t,
@@ -10588,7 +11218,7 @@ pub struct sockaddr_in {
     pub sin_zero: [::libc::c_uchar; 8usize],
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct ip_mreq {
     pub imr_multiaddr: in_addr,
     pub imr_interface: in_addr,
@@ -10606,7 +11236,7 @@ pub const NETOPT_DNS_TABLE: NetworkOpt = 45059;
 pub const NETOPT_DHCP_LEASE_TIME: NetworkOpt = 49153;
 pub type NetworkOpt = ::libc::c_uint;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct SOCU_ARPTableEntry {
     pub unk0: u32_,
     pub ip: in_addr,
@@ -10614,14 +11244,14 @@ pub struct SOCU_ARPTableEntry {
     pub padding: [u8_; 2usize],
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct SOCU_IPInfo {
     pub ip: in_addr,
     pub netmask: in_addr,
     pub broadcast: in_addr,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct SOCU_RoutingTableEntry {
     pub dest_ip: in_addr,
     pub netmask: in_addr,
@@ -10630,20 +11260,20 @@ pub struct SOCU_RoutingTableEntry {
     pub time: u64_,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct SOCU_UDPTableEntry {
     pub local: sockaddr_storage,
     pub remote: sockaddr_storage,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct SOCU_TCPTableEntry {
     pub state: u32_,
     pub local: sockaddr_storage,
     pub remote: sockaddr_storage,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct SOCU_DNSTableEntry {
     pub family: u32_,
     pub ip: in_addr,
@@ -10798,8 +11428,17 @@ pub struct MVDSTD_Config {
     pub output_height_override: u32_,
     pub unk_x118: u32_,
 }
+impl Default for MVDSTD_Config {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct MVDSTD_ProcessNALUnitOut {
     pub end_vaddr: u32_,
     pub end_physaddr: u32_,
@@ -10811,14 +11450,32 @@ pub struct MVDSTD_OutputBuffersEntry {
     pub outdata0: *mut ::libc::c_void,
     pub outdata1: *mut ::libc::c_void,
 }
+impl Default for MVDSTD_OutputBuffersEntry {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct MVDSTD_OutputBuffersEntryList {
     pub total_entries: u32_,
     pub entries: [MVDSTD_OutputBuffersEntry; 17usize],
 }
+impl Default for MVDSTD_OutputBuffersEntryList {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct MVDSTD_InitStruct {
     pub cmd5_inval0: s8,
     pub cmd5_inval1: s8,
@@ -10903,6 +11560,15 @@ pub struct NFC_TagInfo {
     pub unk_x3: u8_,
     pub id: [u8_; 40usize],
 }
+impl Default for NFC_TagInfo {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct NFC_AmiiboSettings {
@@ -10914,6 +11580,15 @@ pub struct NFC_AmiiboSettings {
     pub setupdate_month: u8_,
     pub setupdate_day: u8_,
     pub unk_x7c: [u8_; 44usize],
+}
+impl Default for NFC_AmiiboSettings {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -10930,14 +11605,32 @@ pub struct NFC_AmiiboConfig {
     pub appdata_size: u16_,
     pub zeros: [u8_; 48usize],
 }
+impl Default for NFC_AmiiboConfig {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct NFC_AppDataInitStruct {
     pub data_x0: [u8_; 12usize],
     pub data_xc: [u8_; 48usize],
 }
+impl Default for NFC_AppDataInitStruct {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct NFC_AppDataWriteStruct {
     pub id: [u8_; 10usize],
     pub id_size: u8_,
@@ -11019,7 +11712,7 @@ extern "C" {
     pub fn nfcCmd22() -> Result;
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct NotificationHeader {
     pub dataSet: bool,
     pub unread: bool,
@@ -11085,13 +11778,13 @@ extern "C" {
     ) -> Result;
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct QTM_HeadTrackingInfoCoord {
     pub x: f32,
     pub y: f32,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct QTM_HeadTrackingInfo {
     pub flags: [u8_; 5usize],
     pub padding: [u8_; 3usize],
@@ -11236,13 +11929,22 @@ pub union gxCmdEntry_s {
     pub __bindgen_anon_1: gxCmdEntry_s__bindgen_ty_1,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct gxCmdEntry_s__bindgen_ty_1 {
     pub type_: u8_,
     pub unk1: u8_,
     pub unk2: u8_,
     pub unk3: u8_,
     pub args: [u32_; 7usize],
+}
+impl Default for gxCmdEntry_s {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -11254,6 +11956,15 @@ pub struct tag_gxCmdQueue_s {
     pub lastEntry: u16_,
     pub callback: ::core::option::Option<unsafe extern "C" fn(arg1: *mut tag_gxCmdQueue_s)>,
     pub user: *mut ::libc::c_void,
+}
+impl Default for tag_gxCmdQueue_s {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 pub type gxCmdQueue_s = tag_gxCmdQueue_s;
 extern "C" {
@@ -11663,15 +12374,24 @@ pub struct DVLP_s {
     pub opdescSize: u32_,
     pub opcdescData: *mut u32_,
 }
+impl Default for DVLP_s {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct DVLE_constEntry_s {
     pub type_: u16_,
     pub id: u16_,
     pub data: [u32_; 4usize],
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct DVLE_outEntry_s {
     pub type_: u16_,
     pub regID: u16_,
@@ -11679,7 +12399,7 @@ pub struct DVLE_outEntry_s {
     pub unk: [u8_; 3usize],
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct DVLE_uniformEntry_s {
     pub symbolOffset: u32_,
     pub startReg: u16_,
@@ -11709,12 +12429,30 @@ pub struct DVLE_s {
     pub outmapMode: u32_,
     pub outmapClock: u32_,
 }
+impl Default for DVLE_s {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct DVLB_s {
     pub numDVLE: u32_,
     pub DVLP: DVLP_s,
     pub DVLE: *mut DVLE_s,
+}
+impl Default for DVLB_s {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 extern "C" {
     pub fn DVLB_ParseFile(shbinData: *mut u32_, shbinSize: u32_) -> *mut DVLB_s;
@@ -11729,7 +12467,7 @@ extern "C" {
     pub fn DVLE_GenerateOutmap(dvle: *mut DVLE_s);
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct float24Uniform_s {
     pub id: u32_,
     pub data: [u32_; 3usize],
@@ -11745,6 +12483,15 @@ pub struct shaderInstance_s {
     pub intUniformMask: u8_,
     pub numFloat24Uniforms: u8_,
 }
+impl Default for shaderInstance_s {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct shaderProgram_s {
@@ -11752,6 +12499,15 @@ pub struct shaderProgram_s {
     pub geometryShader: *mut shaderInstance_s,
     pub geoShaderInputPermutation: [u32_; 2usize],
     pub geoShaderInputStride: u8_,
+}
+impl Default for shaderProgram_s {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 extern "C" {
     pub fn shaderInstanceInit(si: *mut shaderInstance_s, dvle: *mut DVLE_s) -> Result;
@@ -11819,7 +12575,7 @@ pub const NDSP_SPKPOS_WIDE: ndspSpeakerPos = 1;
 pub const NDSP_SPKPOS_NUM: ndspSpeakerPos = 2;
 pub type ndspSpeakerPos = ::libc::c_uint;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct ndspAdpcmData {
     pub index: u16_,
     pub history0: s16,
@@ -11850,6 +12606,24 @@ pub union tag_ndspWaveBuf__bindgen_ty_1 {
     pub data_pcm16: *mut s16,
     pub data_adpcm: *mut u8_,
     pub data_vaddr: *const ::libc::c_void,
+}
+impl Default for tag_ndspWaveBuf__bindgen_ty_1 {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl Default for tag_ndspWaveBuf {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 pub type ndspCallback = ::core::option::Option<unsafe extern "C" fn(data: *mut ::libc::c_void)>;
 pub type ndspAuxCallback = ::core::option::Option<
@@ -12101,6 +12875,15 @@ pub struct SwkbdDictWord {
     pub language: u8_,
     pub all_languages: bool,
 }
+impl Default for SwkbdDictWord {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 pub type SwkbdCallbackFn = ::core::option::Option<
     unsafe extern "C" fn(
         user: *mut ::libc::c_void,
@@ -12110,7 +12893,7 @@ pub type SwkbdCallbackFn = ::core::option::Option<
     ) -> SwkbdCallbackResult,
 >;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct SwkbdStatusData {
     pub data: [u32_; 17usize],
 }
@@ -12118,6 +12901,15 @@ pub struct SwkbdStatusData {
 #[derive(Debug, Copy, Clone)]
 pub struct SwkbdLearningData {
     pub data: [u32_; 10523usize],
+}
+impl Default for SwkbdLearningData {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -12128,6 +12920,15 @@ pub struct SwkbdExtra {
     pub learning_data: *mut SwkbdLearningData,
     pub callback: SwkbdCallbackFn,
     pub callback_user: *mut ::libc::c_void,
+}
+impl Default for SwkbdExtra {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -12177,6 +12978,24 @@ pub struct SwkbdState {
 pub union SwkbdState__bindgen_ty_1 {
     pub reserved: [u8_; 171usize],
     pub extra: SwkbdExtra,
+}
+impl Default for SwkbdState__bindgen_ty_1 {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl Default for SwkbdState {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 extern "C" {
     pub fn swkbdInit(
@@ -12287,6 +13106,15 @@ pub struct errorConf {
     pub returnCode: errorReturnCode,
     pub eulaVersion: u16_,
 }
+impl Default for errorConf {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 extern "C" {
     pub fn errorInit(err: *mut errorConf, type_: errorType, lang: CFG_Language);
 }
@@ -12316,6 +13144,15 @@ pub struct MiiSelectorConf {
     pub _unk0xFE: u16_,
     pub magic: u32_,
 }
+impl Default for MiiSelectorConf {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
 pub struct MiiSelectorReturn {
     pub no_mii_selected: u32_,
@@ -12325,6 +13162,15 @@ pub struct MiiSelectorReturn {
     pub _pad0x68: u16_,
     pub checksum: u16_,
     pub guest_mii_name: [u16_; 12usize],
+}
+impl Default for MiiSelectorReturn {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 pub const MIISELECTOR_CANCEL: ::libc::c_uint = 1;
 pub const MIISELECTOR_GUESTS: ::libc::c_uint = 2;
@@ -12381,6 +13227,15 @@ pub struct archive_dir_t {
     pub size: size_t,
     pub entry_data: [FS_DirectoryEntry; 32usize],
 }
+impl Default for archive_dir_t {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 extern "C" {
     pub fn archiveMountSdmc() -> Result;
 }
@@ -12404,7 +13259,7 @@ extern "C" {
     pub fn archive_getmtime(name: *const ::libc::c_char, mtime: *mut u64_) -> Result;
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct romfs_header {
     pub headerSize: u32_,
     pub dirHashTableOff: u32_,
@@ -12418,7 +13273,7 @@ pub struct romfs_header {
     pub fileDataOff: u32_,
 }
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct romfs_dir {
     pub parent: u32_,
     pub sibling: u32_,
@@ -12429,7 +13284,7 @@ pub struct romfs_dir {
     pub name: __IncompleteArrayField<u16_>,
 }
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct romfs_file {
     pub parent: u32_,
     pub sibling: u32_,
@@ -12459,7 +13314,7 @@ extern "C" {
     pub fn romfsUnmount(name: *const ::libc::c_char) -> Result;
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct charWidthInfo_s {
     pub left: s8,
     pub glyphWidth: u8_,
@@ -12481,6 +13336,15 @@ pub struct TGLP_s {
     pub sheetHeight: u16_,
     pub sheetData: *mut u8_,
 }
+impl Default for TGLP_s {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 pub type CWDH_s = tag_CWDH_s;
 #[repr(C)]
 #[derive(Debug)]
@@ -12489,6 +13353,15 @@ pub struct tag_CWDH_s {
     pub endIndex: u16_,
     pub next: *mut CWDH_s,
     pub widths: __IncompleteArrayField<charWidthInfo_s>,
+}
+impl Default for tag_CWDH_s {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 pub const CMAP_TYPE_DIRECT: ::libc::c_uint = 0;
 pub const CMAP_TYPE_TABLE: ::libc::c_uint = 1;
@@ -12512,16 +13385,34 @@ pub struct tag_CMAP_s__bindgen_ty_1 {
     pub bindgen_union_field: u16,
 }
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct tag_CMAP_s__bindgen_ty_1__bindgen_ty_1 {
     pub nScanEntries: u16_,
     pub scanEntries: __IncompleteArrayField<tag_CMAP_s__bindgen_ty_1__bindgen_ty_1__bindgen_ty_1>,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct tag_CMAP_s__bindgen_ty_1__bindgen_ty_1__bindgen_ty_1 {
     pub code: u16_,
     pub glyphIndex: u16_,
+}
+impl Default for tag_CMAP_s__bindgen_ty_1 {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl Default for tag_CMAP_s {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -12541,6 +13432,15 @@ pub struct FINF_s {
     pub ascent: u8_,
     pub padding: u8_,
 }
+impl Default for FINF_s {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct CFNT_s {
@@ -12552,8 +13452,17 @@ pub struct CFNT_s {
     pub nBlocks: u32_,
     pub finf: FINF_s,
 }
+impl Default for CFNT_s {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct fontGlyphPos_s {
     pub sheetIndex: ::libc::c_int,
     pub xOffset: f32,
@@ -12563,7 +13472,7 @@ pub struct fontGlyphPos_s {
     pub vtxcoord: fontGlyphPos_s__bindgen_ty_2,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct fontGlyphPos_s__bindgen_ty_1 {
     pub left: f32,
     pub top: f32,
@@ -12571,7 +13480,7 @@ pub struct fontGlyphPos_s__bindgen_ty_1 {
     pub bottom: f32,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct fontGlyphPos_s__bindgen_ty_2 {
     pub left: f32,
     pub top: f32,

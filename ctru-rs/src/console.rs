@@ -1,5 +1,4 @@
 use std::default::Default;
-use std::mem::MaybeUninit;
 
 use libctru::{consoleClear, consoleInit, consoleSelect, consoleSetWindow, PrintConsole};
 
@@ -15,12 +14,10 @@ impl Console {
     /// printing.
     pub fn init(screen: Screen) -> Self {
         unsafe {
-            let mut context = MaybeUninit::<PrintConsole>::uninit();
-            consoleInit(screen.into(), context.as_mut_ptr());
+            let mut context = Box::new(PrintConsole::default());
+            consoleInit(screen.into(), context.as_mut());
 
-            Console {
-                context: Box::new(context.assume_init()),
-            }
+            Console { context }
         }
     }
 
