@@ -1,6 +1,6 @@
 use std::convert::TryInto;
 use std::iter::once;
-use std::mem;
+use std::mem::MaybeUninit;
 use std::str;
 
 use libctru::{
@@ -60,8 +60,8 @@ pub enum ValidInput {
     FixedLen,
 }
 
-/// Keyboard feature flags
 bitflags! {
+    /// Keyboard feature flags
     pub struct Features: u32 {
         const PARENTAL_PIN      = 1 << 0;
         const DARKEN_TOP_SCREEN = 1 << 1;
@@ -75,8 +75,8 @@ bitflags! {
     }
 }
 
-/// Keyboard input filtering flags
 bitflags! {
+    /// Keyboard input filtering flags
     pub struct Filters: u32 {
         const DIGITS    = 1 << 0;
         const AT        = 1 << 1;
@@ -92,9 +92,11 @@ impl Swkbd {
     /// (from 1-3).
     pub fn init(keyboard_type: Kind, num_buttons: i32) -> Self {
         unsafe {
-            let mut state = Box::new(mem::uninitialized::<SwkbdState>());
-            swkbdInit(state.as_mut(), keyboard_type as u32, num_buttons, -1);
-            Swkbd { state }
+            let mut state = MaybeUninit::<SwkbdState>::uninit();
+            swkbdInit(state.as_mut_ptr(), keyboard_type as u32, num_buttons, -1);
+            Swkbd {
+                state: Box::new(state.assume_init()),
+            }
         }
     }
 

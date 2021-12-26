@@ -724,7 +724,7 @@ impl fmt::Debug for Thread {
 /// ```
 ///
 /// [`Result`]: ../../std/result/enum.Result.html
-pub type Result<T> = ::std::result::Result<T, Box<Any + Send + 'static>>;
+pub type Result<T> = ::std::result::Result<T, Box<dyn Any + Send + 'static>>;
 
 // This packet is used to communicate the return value between the child thread
 // and the parent thread. Memory is shared through the `Arc` within and there's

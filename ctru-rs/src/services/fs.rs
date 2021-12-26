@@ -3,19 +3,19 @@
 //! This module contains basic methods to manipulate the contents of the 3DS's filesystem.
 //! Only the SD card is currently supported.
 
-use std::io::{Read, Write, Seek, SeekFrom};
 use std::io::Error as IoError;
-use std::io::Result as IoResult;
 use std::io::ErrorKind as IoErrorKind;
+use std::io::Result as IoResult;
+use std::io::{Read, Seek, SeekFrom, Write};
 
 use std::ffi::OsString;
-use std::ptr;
-use std::slice;
 use std::mem;
 use std::path::{Path, PathBuf};
+use std::ptr;
+use std::slice;
 use std::sync::Arc;
 
-use widestring::{WideCString, WideCStr};
+use widestring::{WideCStr, WideCString};
 
 bitflags! {
     #[derive(Default)]
@@ -82,7 +82,7 @@ pub enum ArchiveID {
 /// Represents the filesystem service. No file IO can be performed
 /// until an instance of this struct is created.
 ///
-/// The service exits when all instances of this struct go out of scope. 
+/// The service exits when all instances of this struct go out of scope.
 pub struct Fs(());
 
 /// Handle to an open filesystem archive.
@@ -346,7 +346,7 @@ impl File {
     ///
     /// This function will return an error if `path` does not already exit.
     /// Other errors may also be returned accoridng to [`OpenOptions::open`]
-    /// 
+    ///
     /// [`OpenOptions::open`]: struct.OpenOptions.html#method.open
     ///
     /// # Examples
@@ -359,7 +359,10 @@ impl File {
     /// let mut f = File::open(&sdmc_archive, "/foo.txt").unwrap();
     /// ```
     pub fn open<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<File> {
-        OpenOptions::new().read(true).archive(arch).open(path.as_ref())
+        OpenOptions::new()
+            .read(true)
+            .archive(arch)
+            .open(path.as_ref())
     }
 
     /// Opens a file in write-only mode.
@@ -372,7 +375,7 @@ impl File {
     ///
     /// This function will return an error if `path` does not already exit.
     /// Other errors may also be returned accoridng to [`OpenOptions::create`]
-    /// 
+    ///
     /// [`OpenOptions::create`]: struct.OpenOptions.html#method.create
     ///
     /// # Examples
@@ -385,7 +388,11 @@ impl File {
     /// let mut f = File::create(&sdmc_archive, "/foo.txt").unwrap();
     /// ```
     pub fn create<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<File> {
-        OpenOptions::new().write(true).create(true).archive(arch).open(path.as_ref())
+        OpenOptions::new()
+            .write(true)
+            .create(true)
+            .archive(arch)
+            .open(path.as_ref())
     }
 
     /// Truncates or extends the underlying file, updating the size of this file to become size.
@@ -401,7 +408,10 @@ impl File {
         unsafe {
             let r = ::libctru::FSFILE_SetSize(self.handle, size);
             if r < 0 {
-                Err(IoError::new(IoErrorKind::PermissionDenied, ::Error::from(r)))
+                Err(IoError::new(
+                    IoErrorKind::PermissionDenied,
+                    ::Error::from(r),
+                ))
             } else {
                 Ok(())
             }
@@ -416,9 +426,15 @@ impl File {
             let mut size = 0;
             let r = ::libctru::FSFILE_GetSize(self.handle, &mut size);
             if r < 0 {
-                Err(IoError::new(IoErrorKind::PermissionDenied, ::Error::from(r)))
+                Err(IoError::new(
+                    IoErrorKind::PermissionDenied,
+                    ::Error::from(r),
+                ))
             } else {
-                Ok(Metadata { attributes: 0, size: size })
+                Ok(Metadata {
+                    attributes: 0,
+                    size: size,
+                })
             }
         }
     }
@@ -431,7 +447,7 @@ impl File {
                 &mut n_read,
                 self.offset,
                 buf.as_mut_ptr() as _,
-                buf.len() as u32
+                buf.len() as u32,
             );
             self.offset += n_read as u64;
             if r < 0 {
@@ -443,7 +459,7 @@ impl File {
     }
 
     fn read_to_end(&mut self, buf: &mut Vec<u8>) -> IoResult<usize> {
-		unsafe { read_to_end_uninitialized(self, buf) }
+        unsafe { read_to_end_uninitialized(self, buf) }
     }
 
     fn write(&mut self, buf: &[u8]) -> IoResult<usize> {
@@ -455,7 +471,7 @@ impl File {
                 self.offset,
                 buf.as_ptr() as _,
                 buf.len() as u32,
-                FsWrite::FS_WRITE_UPDATE_TIME.bits()
+                FsWrite::FS_WRITE_UPDATE_TIME.bits(),
             );
             self.offset += n_written as u64;
             if r < 0 {
@@ -588,13 +604,21 @@ impl OpenOptions {
             let mut file_handle = 0;
             let path = to_utf16(path);
             let fs_path = ::libctru::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
-            let r = ::libctru::FSUSER_OpenFile(&mut file_handle, self.arch_handle,
-                                               fs_path, flags.bits(), 0);
+            let r = ::libctru::FSUSER_OpenFile(
+                &mut file_handle,
+                self.arch_handle,
+                fs_path,
+                flags.bits(),
+                0,
+            );
             if r < 0 {
                 return Err(IoError::new(IoErrorKind::Other, ::Error::from(r)));
             }
 
-            let mut file = File { handle: file_handle, offset: 0 };
+            let mut file = File {
+                handle: file_handle,
+                offset: 0,
+            };
 
             if self.append {
                 let metadata = file.metadata()?;
@@ -613,13 +637,14 @@ impl OpenOptions {
 
     fn get_open_flags(&self) -> FsOpen {
         match (self.read, self.write || self.append, self.create) {
-            (true,  false, false) => FsOpen::FS_OPEN_READ,
-            (false, true,  false) => FsOpen::FS_OPEN_WRITE,
-            (false, true,  true)  => FsOpen::FS_OPEN_WRITE | FsOpen::FS_OPEN_CREATE,
-            (true,  false, true)  => FsOpen::FS_OPEN_READ | FsOpen::FS_OPEN_CREATE,
-            (true,  true,  false) => FsOpen::FS_OPEN_READ | FsOpen::FS_OPEN_WRITE,
-            (true,  true,  true)  => FsOpen::FS_OPEN_READ | FsOpen::FS_OPEN_WRITE |
-                                     FsOpen::FS_OPEN_CREATE,
+            (true, false, false) => FsOpen::FS_OPEN_READ,
+            (false, true, false) => FsOpen::FS_OPEN_WRITE,
+            (false, true, true) => FsOpen::FS_OPEN_WRITE | FsOpen::FS_OPEN_CREATE,
+            (true, false, true) => FsOpen::FS_OPEN_READ | FsOpen::FS_OPEN_CREATE,
+            (true, true, false) => FsOpen::FS_OPEN_READ | FsOpen::FS_OPEN_WRITE,
+            (true, true, true) => {
+                FsOpen::FS_OPEN_READ | FsOpen::FS_OPEN_WRITE | FsOpen::FS_OPEN_CREATE
+            }
             _ => FsOpen::empty(), //failure case
         }
     }
@@ -637,14 +662,18 @@ impl<'a> Iterator for ReadDir<'a> {
             };
             let mut entries_read = 0;
             let entry_count = 1;
-            let r = ::libctru::FSDIR_Read(self.handle.0, &mut entries_read,
-                                          entry_count, &mut ret.entry);
+            let r = ::libctru::FSDIR_Read(
+                self.handle.0,
+                &mut entries_read,
+                entry_count,
+                &mut ret.entry,
+            );
 
             if r < 0 {
-                return Some(Err(IoError::new(IoErrorKind::Other, ::Error::from(r))))
+                return Some(Err(IoError::new(IoErrorKind::Other, ::Error::from(r))));
             }
             if entries_read != entry_count {
-                return None
+                return None;
             }
             Some(Ok(ret))
         }
@@ -668,7 +697,7 @@ impl<'a> DirEntry<'a> {
     /// Returns the bare file name of this directory entry without any other leading path
     /// component.
     pub fn file_name(&self) -> OsString {
-        unsafe { 
+        unsafe {
             let filename = truncate_utf16_at_nul(&self.entry.name);
             let filename = WideCStr::from_ptr_str(filename.as_ptr());
             filename.to_os_string()
@@ -683,13 +712,16 @@ impl<'a> DirEntry<'a> {
 /// This function will return an error in the following situations,
 /// but is not limited to just these cases:
 ///
-/// * User lacks permissions to create directory at `path` 
+/// * User lacks permissions to create directory at `path`
 pub fn create_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
     unsafe {
         let path = to_utf16(path.as_ref());
         let fs_path = ::libctru::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
-        let r = ::libctru::FSUSER_CreateDirectory(arch.handle, fs_path,
-                                                  FsAttribute::FS_ATTRIBUTE_DIRECTORY.bits());
+        let r = ::libctru::FSUSER_CreateDirectory(
+            arch.handle,
+            fs_path,
+            FsAttribute::FS_ATTRIBUTE_DIRECTORY.bits(),
+        );
         if r < 0 {
             Err(IoError::new(IoErrorKind::Other, ::Error::from(r)))
         } else {
@@ -726,8 +758,11 @@ pub fn metadata<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<Metadata> {
     let maybe_dir = read_dir(&arch, path.as_ref());
     match (maybe_file, maybe_dir) {
         (Ok(file), _) => file.metadata(),
-        (_, Ok(_dir)) => Ok(Metadata { attributes: FsAttribute::FS_ATTRIBUTE_DIRECTORY.bits(), size: 0 }),
-        (Err(e), _)   => Err(e),
+        (_, Ok(_dir)) => Ok(Metadata {
+            attributes: FsAttribute::FS_ATTRIBUTE_DIRECTORY.bits(),
+            size: 0,
+        }),
+        (Err(e), _) => Err(e),
     }
 }
 
@@ -754,7 +789,7 @@ pub fn remove_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
 }
 
 /// Removes a directory at this path, after removing all its contents. Use carefully!
-/// 
+///
 /// # Errors
 ///
 /// see `file::remove_file` and `fs::remove_dir`
@@ -792,7 +827,11 @@ pub fn read_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<ReadDir> {
         if r < 0 {
             Err(IoError::new(IoErrorKind::Other, ::Error::from(r)))
         } else {
-            Ok(ReadDir { handle: Dir(handle), root: root, arch: arch})
+            Ok(ReadDir {
+                handle: Dir(handle),
+                root: root,
+                arch: arch,
+            })
         }
     }
 }
@@ -830,9 +869,10 @@ pub fn remove_file<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
 /// * from does not exist.
 /// * The user lacks permissions to view contents.
 pub fn rename<P, Q>(arch: &Archive, from: P, to: Q) -> IoResult<()>
-    where P: AsRef<Path>,
-          Q: AsRef<Path> {
-
+where
+    P: AsRef<Path>,
+    Q: AsRef<Path>,
+{
     unsafe {
         let from = to_utf16(from.as_ref());
         let to = to_utf16(to.as_ref());
@@ -842,11 +882,11 @@ pub fn rename<P, Q>(arch: &Archive, from: P, to: Q) -> IoResult<()>
 
         let r = ::libctru::FSUSER_RenameFile(arch.handle, fs_from, arch.handle, fs_to);
         if r == 0 {
-            return Ok(())
+            return Ok(());
         }
         let r = ::libctru::FSUSER_RenameDirectory(arch.handle, fs_from, arch.handle, fs_to);
         if r == 0 {
-            return Ok(())
+            return Ok(());
         }
         Err(IoError::new(IoErrorKind::Other, ::Error::from(r)))
     }
@@ -862,7 +902,7 @@ fn truncate_utf16_at_nul<'a>(v: &'a [u16]) -> &'a [u16] {
     match v.iter().position(|c| *c == 0) {
         // don't include the 0
         Some(i) => &v[..i],
-        None => v
+        None => v,
     }
 }
 
@@ -878,7 +918,7 @@ fn truncate_utf16_at_nul<'a>(v: &'a [u16]) -> &'a [u16] {
 // Implementations using this method have to adhere to two guarantees:
 //  *  The implementation of read never reads the buffer provided.
 //  *  The implementation of read correctly reports how many bytes were written.
-unsafe fn read_to_end_uninitialized(r: &mut Read, buf: &mut Vec<u8>) -> IoResult<usize> {
+unsafe fn read_to_end_uninitialized(r: &mut dyn Read, buf: &mut Vec<u8>) -> IoResult<usize> {
     let start_len = buf.len();
     buf.reserve(16);
 
@@ -893,14 +933,23 @@ unsafe fn read_to_end_uninitialized(r: &mut Read, buf: &mut Vec<u8>) -> IoResult
             buf.reserve(1);
         }
 
-        let buf_slice = slice::from_raw_parts_mut(buf.as_mut_ptr().offset(buf.len() as isize),
-                                                  buf.capacity() - buf.len());
+        let buf_slice = slice::from_raw_parts_mut(
+            buf.as_mut_ptr().offset(buf.len() as isize),
+            buf.capacity() - buf.len(),
+        );
 
         match r.read(buf_slice) {
-            Ok(0) => { return Ok(buf.len() - start_len); }
-            Ok(n) => { let len = buf.len() + n; buf.set_len(len); },
-            Err(ref e) if e.kind() == IoErrorKind::Interrupted => { }
-            Err(e) => { return Err(e); }
+            Ok(0) => {
+                return Ok(buf.len() - start_len);
+            }
+            Ok(n) => {
+                let len = buf.len() + n;
+                buf.set_len(len);
+            }
+            Err(ref e) if e.kind() == IoErrorKind::Interrupted => {}
+            Err(e) => {
+                return Err(e);
+            }
         }
     }
 }
@@ -930,17 +979,17 @@ impl Seek for File {
         match pos {
             SeekFrom::Start(off) => {
                 self.offset = off;
-            },
+            }
             SeekFrom::End(off) => {
                 let mut temp = self.metadata()?.len() as i64;
                 temp += off;
                 self.offset = temp as u64;
-            },
+            }
             SeekFrom::Current(off) => {
                 let mut temp = self.offset as i64;
                 temp += off;
                 self.offset = temp as u64;
-            },
+            }
         }
         Ok(self.offset)
     }

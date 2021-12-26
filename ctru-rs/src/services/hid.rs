@@ -4,10 +4,9 @@
 //! and circle pad information. It also provides information from the sound volume slider,
 //! the accelerometer, and the gyroscope.
 
-
-/// A set of flags corresponding to the button and directional pad
-/// inputs on the 3DS
 bitflags! {
+    /// A set of flags corresponding to the button and directional pad
+    /// inputs on the 3DS
     #[derive(Default)]
     pub struct KeyPad: u32 {
         const KEY_A             = 1u32 << 0;
@@ -115,7 +114,9 @@ impl TouchPosition {
 
     /// Returns the current touch position in pixels.
     pub fn get(&mut self) -> (u16, u16) {
-        unsafe { ::libctru::hidTouchRead(&mut self.0); }
+        unsafe {
+            ::libctru::hidTouchRead(&mut self.0);
+        }
         (self.0.px, self.0.py)
     }
 }
@@ -128,7 +129,9 @@ impl CirclePosition {
 
     /// Returns the current circle pad position in (x, y) form.
     pub fn get(&mut self) -> (i16, i16) {
-        unsafe { ::libctru::hidCircleRead(&mut self.0); }
+        unsafe {
+            ::libctru::hidCircleRead(&mut self.0);
+        }
         (self.0.dx, self.0.dy)
     }
 }
