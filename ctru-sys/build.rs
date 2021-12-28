@@ -27,5 +27,4 @@ fn main() {
     println!("cargo:rustc-link-lib=static=sysbase");
     println!("cargo:rustc-link-lib=static=c");
     println!("cargo:rustc-link-lib=static=pthread_3ds");
-    println!("cargo:rustc-link-lib=static=linker_fix_3ds");
 }

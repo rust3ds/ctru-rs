@@ -6,3 +6,4 @@ license = "https://en.wikipedia.org/wiki/Zlib_License"
 
 [dependencies]
 libc = { version = "0.2", default-features = false }
+linker-fix-3ds = { git = "https://github.com/AzureMarker/rust-linker-fix-3ds.git" }
