@@ -10,11 +10,8 @@ edition = "2018"
 crate-type = ["lib", "staticlib"]
 name = "ctru"
 
-[dependencies.libc]
-path = "../libc"
-
-[dependencies.bitflags]
-version = "1.0.0"
-
-[dependencies.widestring]
-version = "0.2.2"
+[dependencies]
+libc = { git = "https://github.com/Meziu/libc.git" }
+linker-fix-3ds = { git = "https://github.com/Meziu/rust-linker-fix-3ds.git" }
+bitflags = "1.0.0"
+widestring = "0.2.2"
