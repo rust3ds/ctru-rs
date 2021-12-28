@@ -1,24 +1,24 @@
 #![crate_type = "rlib"]
 #![crate_name = "ctru"]
-
 #![feature(rustc_private)]
 
 #[macro_use]
 extern crate bitflags;
-extern crate libc;
-extern crate widestring;
 extern crate core;
+extern crate libc;
+extern crate linker_fix_3ds;
+extern crate widestring;
 
 pub mod applets;
 pub mod console;
 pub mod error;
-pub mod srv;
 pub mod gfx;
-pub mod services;
-pub mod sdmc;
-pub mod thread;
 pub mod raw;
+pub mod sdmc;
+pub mod services;
+pub mod srv;
+pub mod thread;
 
-pub use srv::Srv;
 pub use gfx::Gfx;
 pub use sdmc::Sdmc;
+pub use srv::Srv;
