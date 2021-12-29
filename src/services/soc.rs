@@ -48,3 +48,8 @@ impl Drop for Soc {
         }
     }
 }
+/// IP Address of the Nintendo 3DS system
+pub fn host_address() -> std::net::Ipv4Addr {
+    let raw_id = unsafe { libc::gethostid() };
+    raw_id.to_ne_bytes().into()
+} 
