@@ -1,5 +1,5 @@
+use std::net::Ipv4Addr;
 use libctru::{socInit, socExit};
-
 use libc::{memalign, free};
 
 /// Soc service. Initializing this service will enable the use of network sockets and utilities
@@ -36,6 +36,12 @@ impl Soc {
                 Ok(Soc { soc_mem, })
             }
         }
+    }
+
+    /// IP Address of the Nintendo 3DS system.
+    pub fn host_address(&self) -> Ipv4Addr {
+        let raw_id = unsafe { libc::gethostid() };
+        Ipv4Addr::from(raw_id.to_ne_bytes())
     }
 }
 
