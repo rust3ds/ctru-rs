@@ -13,12 +13,11 @@ impl Console {
     /// previously (including other consoles). The new console is automatically selected for
     /// printing.
     pub fn init(screen: Screen) -> Self {
-        unsafe {
-            let mut context = Box::new(PrintConsole::default());
-            consoleInit(screen.into(), context.as_mut());
+        let mut context = Box::new(PrintConsole::default());
 
-            Console { context }
-        }
+        unsafe { consoleInit(screen.into(), context.as_mut()) };
+
+        Console { context }
     }
 
     /// Select this console as the current target for stdout
@@ -42,6 +41,26 @@ impl Console {
     /// a console that actually fits on the screen
     pub unsafe fn set_window(&mut self, x: i32, y: i32, width: i32, height: i32) {
         consoleSetWindow(self.context.as_mut(), x, y, width, height);
+    }
+}
+
+impl Drop for Console {
+    fn drop(&mut self) {
+        // Get the current console by replacing it with the default.
+        let default_console = unsafe { libctru::consoleGetDefault() };
+        let current_console = unsafe { libctru::consoleSelect(default_console) };
+
+        if std::ptr::eq(current_console, &*self.context) {
+            // Console dropped while selected. We just replaced it with the
+            // default so make sure it's initialized.
+            if unsafe { !(*default_console).consoleInitialised } {
+                unsafe { libctru::consoleInit(Screen::Top.into(), default_console) };
+            }
+        } else {
+            // Console dropped while a different console was selected. Put back
+            // the console that was selected.
+            unsafe { libctru::consoleSelect(current_console) };
+        }
     }
 }
 
