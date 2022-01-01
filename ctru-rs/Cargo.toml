@@ -9,15 +9,8 @@ version = "0.7.1"
 crate-type = ["rlib"]
 name = "ctru"
 
-[dependencies.ctru-sys]
-path = "../ctru-sys"
-version = "0.4"
-
-[dependencies.libc]
-version = "0.2"
-
-[dependencies.bitflags]
-version = "1.0.0"
-
-[dependencies.widestring]
-version = "0.2.2"
+[dependencies]
+ctru-sys = { path = "../ctru-sys", version = "0.4" }
+libc = "0.2"
+bitflags = "1.0.0"
+widestring = "0.2.2"
