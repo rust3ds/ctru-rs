@@ -7,4 +7,3 @@ links = "ctru"
 
 [dependencies]
 libc = { version = "0.2", default-features = false }
-linker-fix-3ds = { git = "https://github.com/Meziu/rust-linker-fix-3ds.git" }

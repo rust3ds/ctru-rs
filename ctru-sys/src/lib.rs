@@ -4,6 +4,5 @@
 #![no_std]
 
 extern crate libc;
-extern crate linker_fix_3ds;
 
 include!("bindings.rs");
