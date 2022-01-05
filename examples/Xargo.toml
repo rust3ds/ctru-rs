@@ -1,7 +1,0 @@
-[dependencies.alloc]
-[dependencies.panic_abort]
-[dependencies.panic_unwind]
-
-[dependencies.std]
-path = "../ctr-std"
-stage = 1
