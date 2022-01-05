@@ -1,13 +1,17 @@
 #![crate_type = "rlib"]
 #![crate_name = "ctru"]
-#![feature(rustc_private)]
 
 #[macro_use]
 extern crate bitflags;
-extern crate core;
-extern crate libc;
-extern crate linker_fix_3ds;
-extern crate widestring;
+
+/// Call this somewhere to force Rust to link some required crates
+/// (ex. pthread-3ds). The call doesn't need to execute, just exist.
+///
+/// See https://github.com/rust-lang/rust/issues/47384
+pub fn init() {
+    linker_fix_3ds::init();
+    pthread_3ds::init();
+}
 
 pub mod applets;
 pub mod console;

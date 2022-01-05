@@ -13,5 +13,6 @@ name = "ctru"
 [dependencies]
 libc = { git = "https://github.com/Meziu/libc.git" }
 linker-fix-3ds = { git = "https://github.com/Meziu/rust-linker-fix-3ds.git" }
+pthread-3ds = { git = "https://github.com/Meziu/pthread-3ds.git" }
 bitflags = "1.0.0"
 widestring = "0.2.2"
