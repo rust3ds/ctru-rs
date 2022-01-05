@@ -1,0 +1,6 @@
+[workspace]
+members = ["ctru-rs", "ctru-sys"]
+
+[patch.crates-io]
+# 3DS support hasn't merged into the upstream yet
+libc = { git = "https://github.com/Meziu/libc.git" }
