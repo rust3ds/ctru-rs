@@ -11,8 +11,8 @@ name = "ctru"
 
 [dependencies]
 ctru-sys = { path = "../ctru-sys", version = "0.4" }
-linker-fix-3ds = { git = "https://github.com/AzureMarker/rust-linker-fix-3ds.git" }
-pthread-3ds = { git = "https://github.com/AzureMarker/pthread-3ds.git" }
-libc = "0.2"
+linker-fix-3ds = { git = "https://github.com/Meziu/rust-linker-fix-3ds.git" }
+pthread-3ds = { git = "https://github.com/Meziu/pthread-3ds.git" }
+libc = { git = "https://github.com/Meziu/libc.git" }
 bitflags = "1.0.0"
 widestring = "0.2.2"

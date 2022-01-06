@@ -2,14 +2,11 @@
 
 A Rust wrapper library for smealum's [ctrulib](https://github.com/smealum/ctrulib).
 
-See the [3DS project template](https://github.com/rust3ds/rust3ds-template) for instructions on how to use this library.
-
 ## Structure
 
 This repository is organized as follows:
 * `ctru-rs`: Safe, idiomatic wrapper around `ctru-sys`.
 * `ctru-sys`: Low-level, unsafe bindings to ctrulib
-* `ctr-std`: A partial implementation of the Rust standard library for the 3DS.
 
 ## License
 
