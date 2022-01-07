@@ -21,6 +21,8 @@ pub fn init() {
     // Panic Hook setup
     let default_hook = std::panic::take_hook();
     let new_hook = Box::new( move |info: &PanicInfo| {
+        let _bt_console = console::Console::default();
+
         println!("\x1b[1;31m\n--------------------------------------------------");
         default_hook(info);
         println!("\nPress SELECT to exit the software");

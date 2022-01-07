@@ -44,26 +44,6 @@ impl Console {
     }
 }
 
-impl Drop for Console {
-    fn drop(&mut self) {
-        // Get the current console by replacing it with the default.
-        let default_console = unsafe { libctru::consoleGetDefault() };
-        let current_console = unsafe { libctru::consoleSelect(default_console) };
-
-        if std::ptr::eq(current_console, &*self.context) {
-            // Console dropped while selected. We just replaced it with the
-            // default so make sure it's initialized.
-            if unsafe { !(*default_console).consoleInitialised } {
-                unsafe { libctru::consoleInit(Screen::Top.into(), default_console) };
-            }
-        } else {
-            // Console dropped while a different console was selected. Put back
-            // the console that was selected.
-            unsafe { libctru::consoleSelect(current_console) };
-        }
-    }
-}
-
 impl Default for Console {
     fn default() -> Self {
         Console::init(Screen::Top)
