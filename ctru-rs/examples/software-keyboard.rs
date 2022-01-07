@@ -7,6 +7,7 @@ use ctru::services::hid::{Hid, KeyPad};
 use ctru::applets::swkbd::{Swkbd, Button};
 
 fn main() {
+    ctru::init();
     let apt = Apt::init().unwrap();
     let hid = Hid::init().unwrap();
     let gfx = Gfx::default();

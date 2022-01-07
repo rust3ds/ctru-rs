@@ -9,6 +9,7 @@ fn main() {
     // Initialize ctrulib service handles.
     // Service handles are internally reference-counted. When all instances of a
     // service handle go out of scope, the service will be closed.
+    ctru::init();
 
     // The APT service handles application management functions, such as enabling sleep
     // mode and jumping to the home menu or to other applications
