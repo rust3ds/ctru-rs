@@ -7,6 +7,7 @@ use ctru::services::hid::{Hid, KeyPad};
 
 fn main() {
     // Setup services
+    ctru::init();
     let apt = Apt::init().unwrap();
     let hid = Hid::init().unwrap();
     let gfx = Gfx::default();
