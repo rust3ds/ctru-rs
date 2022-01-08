@@ -1,12 +1,10 @@
+use ctru_sys::{
+    self, swkbdInit, swkbdInputText, swkbdSetButton, swkbdSetFeatures, swkbdSetHintText, SwkbdState,
+};
+use libc;
 use std::convert::TryInto;
 use std::iter::once;
 use std::str;
-
-use libctru::{
-    self, swkbdInit, swkbdInputText, swkbdSetButton, swkbdSetFeatures, swkbdSetHintText, SwkbdState,
-};
-
-use libc;
 
 /// An instance of the software keyboard.
 pub struct Swkbd {
@@ -133,10 +131,10 @@ impl Swkbd {
                 buf.as_mut_ptr(),
                 buf.len().try_into().unwrap(),
             ) {
-                libctru::SWKBD_BUTTON_NONE => Err(self.parse_swkbd_error()),
-                libctru::SWKBD_BUTTON_LEFT => Ok(Button::Left),
-                libctru::SWKBD_BUTTON_MIDDLE => Ok(Button::Middle),
-                libctru::SWKBD_BUTTON_RIGHT => Ok(Button::Right),
+                ctru_sys::SWKBD_BUTTON_NONE => Err(self.parse_swkbd_error()),
+                ctru_sys::SWKBD_BUTTON_LEFT => Ok(Button::Left),
+                ctru_sys::SWKBD_BUTTON_MIDDLE => Ok(Button::Middle),
+                ctru_sys::SWKBD_BUTTON_RIGHT => Ok(Button::Right),
                 _ => unreachable!(),
             }
         }
@@ -198,14 +196,14 @@ impl Swkbd {
 
     fn parse_swkbd_error(&self) -> Error {
         match self.state.result {
-            libctru::SWKBD_INVALID_INPUT => Error::InvalidInput,
-            libctru::SWKBD_OUTOFMEM => Error::OutOfMem,
-            libctru::SWKBD_HOMEPRESSED => Error::HomePressed,
-            libctru::SWKBD_RESETPRESSED => Error::ResetPressed,
-            libctru::SWKBD_POWERPRESSED => Error::PowerPressed,
-            libctru::SWKBD_PARENTAL_OK => Error::ParentalOk,
-            libctru::SWKBD_PARENTAL_FAIL => Error::ParentalFail,
-            libctru::SWKBD_BANNED_INPUT => Error::BannedInput,
+            ctru_sys::SWKBD_INVALID_INPUT => Error::InvalidInput,
+            ctru_sys::SWKBD_OUTOFMEM => Error::OutOfMem,
+            ctru_sys::SWKBD_HOMEPRESSED => Error::HomePressed,
+            ctru_sys::SWKBD_RESETPRESSED => Error::ResetPressed,
+            ctru_sys::SWKBD_POWERPRESSED => Error::PowerPressed,
+            ctru_sys::SWKBD_PARENTAL_OK => Error::ParentalOk,
+            ctru_sys::SWKBD_PARENTAL_FAIL => Error::ParentalFail,
+            ctru_sys::SWKBD_BANNED_INPUT => Error::BannedInput,
             _ => unreachable!(),
         }
     }

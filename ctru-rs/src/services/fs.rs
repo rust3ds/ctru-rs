@@ -272,7 +272,7 @@ pub struct ReadDir<'a> {
 /// filesystem. Each entry can be inspected via methods to learn about the full
 /// path or possibly other metadata.
 pub struct DirEntry<'a> {
-    entry: ::libctru::FS_DirectoryEntry,
+    entry: ctru_sys::FS_DirectoryEntry,
     root: Arc<PathBuf>,
     arch: &'a Archive,
 }
@@ -298,9 +298,9 @@ impl Fs {
     /// ctrulib services are reference counted, so this function may be called
     /// as many times as desired and the service will not exit until all
     /// instances of Fs drop out of scope.
-    pub fn init() -> ::Result<Fs> {
+    pub fn init() -> crate::Result<Fs> {
         unsafe {
-            let r = ::libctru::fsInit();
+            let r = ctru_sys::fsInit();
             if r < 0 {
                 Err(r.into())
             } else {
@@ -310,12 +310,12 @@ impl Fs {
     }
 
     /// Returns a handle to the SDMC (memory card) Archive.
-    pub fn sdmc(&self) -> ::Result<Archive> {
+    pub fn sdmc(&self) -> crate::Result<Archive> {
         unsafe {
             let mut handle = 0;
             let id = ArchiveID::Sdmc;
-            let path = ::libctru::fsMakePath(PathType::Empty.into(), ptr::null() as _);
-            let r = ::libctru::FSUSER_OpenArchive(&mut handle, id.into(), path);
+            let path = ctru_sys::fsMakePath(PathType::Empty.into(), ptr::null() as _);
+            let r = ctru_sys::FSUSER_OpenArchive(&mut handle, id.into(), path);
             if r < 0 {
                 Err(::Error::from(r))
             } else {
@@ -406,7 +406,7 @@ impl File {
     /// This function will return an error if the file is not opened for writing.
     pub fn set_len(&mut self, size: u64) -> IoResult<()> {
         unsafe {
-            let r = ::libctru::FSFILE_SetSize(self.handle, size);
+            let r = ctru_sys::FSFILE_SetSize(self.handle, size);
             if r < 0 {
                 Err(IoError::new(
                     IoErrorKind::PermissionDenied,
@@ -424,7 +424,7 @@ impl File {
         // This is likely to change in the future.
         unsafe {
             let mut size = 0;
-            let r = ::libctru::FSFILE_GetSize(self.handle, &mut size);
+            let r = ctru_sys::FSFILE_GetSize(self.handle, &mut size);
             if r < 0 {
                 Err(IoError::new(
                     IoErrorKind::PermissionDenied,
@@ -442,7 +442,7 @@ impl File {
     fn read(&mut self, buf: &mut [u8]) -> IoResult<usize> {
         unsafe {
             let mut n_read = 0;
-            let r = ::libctru::FSFILE_Read(
+            let r = ctru_sys::FSFILE_Read(
                 self.handle,
                 &mut n_read,
                 self.offset,
@@ -465,7 +465,7 @@ impl File {
     fn write(&mut self, buf: &[u8]) -> IoResult<usize> {
         unsafe {
             let mut n_written = 0;
-            let r = ::libctru::FSFILE_Write(
+            let r = ctru_sys::FSFILE_Write(
                 self.handle,
                 &mut n_written,
                 self.offset,
@@ -603,8 +603,8 @@ impl OpenOptions {
         unsafe {
             let mut file_handle = 0;
             let path = to_utf16(path);
-            let fs_path = ::libctru::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
-            let r = ::libctru::FSUSER_OpenFile(
+            let fs_path = ctru_sys::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
+            let r = ctru_sys::FSUSER_OpenFile(
                 &mut file_handle,
                 self.arch_handle,
                 fs_path,
@@ -662,7 +662,7 @@ impl<'a> Iterator for ReadDir<'a> {
             };
             let mut entries_read = 0;
             let entry_count = 1;
-            let r = ::libctru::FSDIR_Read(
+            let r = ctru_sys::FSDIR_Read(
                 self.handle.0,
                 &mut entries_read,
                 entry_count,
@@ -716,8 +716,8 @@ impl<'a> DirEntry<'a> {
 pub fn create_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
     unsafe {
         let path = to_utf16(path.as_ref());
-        let fs_path = ::libctru::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
-        let r = ::libctru::FSUSER_CreateDirectory(
+        let fs_path = ctru_sys::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
+        let r = ctru_sys::FSUSER_CreateDirectory(
             arch.handle,
             fs_path,
             FsAttribute::FS_ATTRIBUTE_DIRECTORY.bits(),
@@ -778,8 +778,8 @@ pub fn metadata<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<Metadata> {
 pub fn remove_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
     unsafe {
         let path = to_utf16(path.as_ref());
-        let fs_path = ::libctru::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
-        let r = ::libctru::FSUSER_DeleteDirectory(arch.handle, fs_path);
+        let fs_path = ctru_sys::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
+        let r = ctru_sys::FSUSER_DeleteDirectory(arch.handle, fs_path);
         if r < 0 {
             Err(IoError::new(IoErrorKind::Other, ::Error::from(r)))
         } else {
@@ -796,8 +796,8 @@ pub fn remove_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
 pub fn remove_dir_all<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
     unsafe {
         let path = to_utf16(path.as_ref());
-        let fs_path = ::libctru::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
-        let r = ::libctru::FSUSER_DeleteDirectoryRecursively(arch.handle, fs_path);
+        let fs_path = ctru_sys::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
+        let r = ctru_sys::FSUSER_DeleteDirectoryRecursively(arch.handle, fs_path);
         if r < 0 {
             Err(IoError::new(IoErrorKind::Other, ::Error::from(r)))
         } else {
@@ -822,8 +822,8 @@ pub fn read_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<ReadDir> {
         let mut handle = 0;
         let root = Arc::new(path.as_ref().to_path_buf());
         let path = to_utf16(path.as_ref());
-        let fs_path = ::libctru::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
-        let r = ::libctru::FSUSER_OpenDirectory(&mut handle, arch.handle, fs_path);
+        let fs_path = ctru_sys::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
+        let r = ctru_sys::FSUSER_OpenDirectory(&mut handle, arch.handle, fs_path);
         if r < 0 {
             Err(IoError::new(IoErrorKind::Other, ::Error::from(r)))
         } else {
@@ -848,8 +848,8 @@ pub fn read_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<ReadDir> {
 pub fn remove_file<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
     unsafe {
         let path = to_utf16(path.as_ref());
-        let fs_path = ::libctru::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
-        let r = ::libctru::FSUSER_DeleteFile(arch.handle, fs_path);
+        let fs_path = ctru_sys::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
+        let r = ctru_sys::FSUSER_DeleteFile(arch.handle, fs_path);
         if r < 0 {
             Err(IoError::new(IoErrorKind::Other, ::Error::from(r)))
         } else {
@@ -877,14 +877,14 @@ where
         let from = to_utf16(from.as_ref());
         let to = to_utf16(to.as_ref());
 
-        let fs_from = ::libctru::fsMakePath(PathType::UTF16.into(), from.as_ptr() as _);
-        let fs_to = ::libctru::fsMakePath(PathType::UTF16.into(), to.as_ptr() as _);
+        let fs_from = ctru_sys::fsMakePath(PathType::UTF16.into(), from.as_ptr() as _);
+        let fs_to = ctru_sys::fsMakePath(PathType::UTF16.into(), to.as_ptr() as _);
 
-        let r = ::libctru::FSUSER_RenameFile(arch.handle, fs_from, arch.handle, fs_to);
+        let r = ctru_sys::FSUSER_RenameFile(arch.handle, fs_from, arch.handle, fs_to);
         if r == 0 {
             return Ok(());
         }
-        let r = ::libctru::FSUSER_RenameDirectory(arch.handle, fs_from, arch.handle, fs_to);
+        let r = ctru_sys::FSUSER_RenameDirectory(arch.handle, fs_from, arch.handle, fs_to);
         if r == 0 {
             return Ok(());
         }
@@ -998,7 +998,7 @@ impl Seek for File {
 impl Drop for Fs {
     fn drop(&mut self) {
         unsafe {
-            ::libctru::fsExit();
+            ctru_sys::fsExit();
         }
     }
 }
@@ -1006,7 +1006,7 @@ impl Drop for Fs {
 impl Drop for Archive {
     fn drop(&mut self) {
         unsafe {
-            ::libctru::FSUSER_CloseArchive(self.handle);
+            ctru_sys::FSUSER_CloseArchive(self.handle);
         }
     }
 }
@@ -1014,7 +1014,7 @@ impl Drop for Archive {
 impl Drop for File {
     fn drop(&mut self) {
         unsafe {
-            ::libctru::FSFILE_Close(self.handle);
+            ctru_sys::FSFILE_Close(self.handle);
         }
     }
 }
@@ -1022,50 +1022,50 @@ impl Drop for File {
 impl Drop for Dir {
     fn drop(&mut self) {
         unsafe {
-            ::libctru::FSDIR_Close(self.0);
+            ctru_sys::FSDIR_Close(self.0);
         }
     }
 }
 
-impl From<PathType> for ::libctru::FS_PathType {
+impl From<PathType> for ctru_sys::FS_PathType {
     fn from(p: PathType) -> Self {
         use self::PathType::*;
         match p {
-            Invalid => ::libctru::PATH_INVALID,
-            Empty => ::libctru::PATH_EMPTY,
-            Binary => ::libctru::PATH_BINARY,
-            ASCII => ::libctru::PATH_ASCII,
-            UTF16 => ::libctru::PATH_UTF16,
+            Invalid => ctru_sys::PATH_INVALID,
+            Empty => ctru_sys::PATH_EMPTY,
+            Binary => ctru_sys::PATH_BINARY,
+            ASCII => ctru_sys::PATH_ASCII,
+            UTF16 => ctru_sys::PATH_UTF16,
         }
     }
 }
 
-impl From<ArchiveID> for ::libctru::FS_ArchiveID {
+impl From<ArchiveID> for ctru_sys::FS_ArchiveID {
     fn from(a: ArchiveID) -> Self {
         use self::ArchiveID::*;
         match a {
-            RomFS => ::libctru::ARCHIVE_ROMFS,
-            Savedata => ::libctru::ARCHIVE_SAVEDATA,
-            Extdata => ::libctru::ARCHIVE_EXTDATA,
-            SharedExtdata => ::libctru::ARCHIVE_SHARED_EXTDATA,
-            SystemSavedata => ::libctru::ARCHIVE_SYSTEM_SAVEDATA,
-            Sdmc => ::libctru::ARCHIVE_SDMC,
-            SdmcWriteOnly => ::libctru::ARCHIVE_SDMC_WRITE_ONLY,
-            BossExtdata => ::libctru::ARCHIVE_BOSS_EXTDATA,
-            CardSpiFS => ::libctru::ARCHIVE_CARD_SPIFS,
-            ExtDataAndBossExtdata => ::libctru::ARCHIVE_EXTDATA_AND_BOSS_EXTDATA,
-            SystemSaveData2 => ::libctru::ARCHIVE_SYSTEM_SAVEDATA2,
-            NandRW => ::libctru::ARCHIVE_NAND_RW,
-            NandRO => ::libctru::ARCHIVE_NAND_RO,
-            NandROWriteAccess => ::libctru::ARCHIVE_NAND_RO_WRITE_ACCESS,
-            SaveDataAndContent => ::libctru::ARCHIVE_SAVEDATA_AND_CONTENT,
-            SaveDataAndContent2 => ::libctru::ARCHIVE_SAVEDATA_AND_CONTENT2,
-            NandCtrFS => ::libctru::ARCHIVE_NAND_CTR_FS,
-            TwlPhoto => ::libctru::ARCHIVE_TWL_PHOTO,
-            NandTwlFS => ::libctru::ARCHIVE_NAND_TWL_FS,
-            GameCardSavedata => ::libctru::ARCHIVE_GAMECARD_SAVEDATA,
-            UserSavedata => ::libctru::ARCHIVE_USER_SAVEDATA,
-            DemoSavedata => ::libctru::ARCHIVE_DEMO_SAVEDATA,
+            RomFS => ctru_sys::ARCHIVE_ROMFS,
+            Savedata => ctru_sys::ARCHIVE_SAVEDATA,
+            Extdata => ctru_sys::ARCHIVE_EXTDATA,
+            SharedExtdata => ctru_sys::ARCHIVE_SHARED_EXTDATA,
+            SystemSavedata => ctru_sys::ARCHIVE_SYSTEM_SAVEDATA,
+            Sdmc => ctru_sys::ARCHIVE_SDMC,
+            SdmcWriteOnly => ctru_sys::ARCHIVE_SDMC_WRITE_ONLY,
+            BossExtdata => ctru_sys::ARCHIVE_BOSS_EXTDATA,
+            CardSpiFS => ctru_sys::ARCHIVE_CARD_SPIFS,
+            ExtDataAndBossExtdata => ctru_sys::ARCHIVE_EXTDATA_AND_BOSS_EXTDATA,
+            SystemSaveData2 => ctru_sys::ARCHIVE_SYSTEM_SAVEDATA2,
+            NandRW => ctru_sys::ARCHIVE_NAND_RW,
+            NandRO => ctru_sys::ARCHIVE_NAND_RO,
+            NandROWriteAccess => ctru_sys::ARCHIVE_NAND_RO_WRITE_ACCESS,
+            SaveDataAndContent => ctru_sys::ARCHIVE_SAVEDATA_AND_CONTENT,
+            SaveDataAndContent2 => ctru_sys::ARCHIVE_SAVEDATA_AND_CONTENT2,
+            NandCtrFS => ctru_sys::ARCHIVE_NAND_CTR_FS,
+            TwlPhoto => ctru_sys::ARCHIVE_TWL_PHOTO,
+            NandTwlFS => ctru_sys::ARCHIVE_NAND_TWL_FS,
+            GameCardSavedata => ctru_sys::ARCHIVE_GAMECARD_SAVEDATA,
+            UserSavedata => ctru_sys::ARCHIVE_USER_SAVEDATA,
+            DemoSavedata => ctru_sys::ARCHIVE_DEMO_SAVEDATA,
         }
     }
 }

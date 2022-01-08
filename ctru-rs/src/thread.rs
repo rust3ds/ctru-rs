@@ -896,7 +896,7 @@ mod imp {
 
     use libc;
 
-    use libctru::{
+    use ctru_sys::{
         svcGetProcessorID, svcGetThreadId, svcGetThreadPriority, svcSleepThread, threadCreate,
         threadDetach, threadFree, threadJoin, Thread as ThreadHandle,
     };
@@ -1009,8 +1009,8 @@ mod imp {
 }
 
 mod thread_info {
+    use crate::thread::Thread;
     use std::cell::RefCell;
-    use thread::Thread;
 
     struct ThreadInfo {
         thread: Thread,

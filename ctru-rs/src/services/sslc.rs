@@ -4,9 +4,9 @@ pub struct SslC(());
 
 impl SslC {
     /// Initialize sslc
-    pub fn init() -> ::Result<Self> {
+    pub fn init() -> crate::Result<Self> {
         unsafe {
-            let r = ::libctru::sslcInit(0);
+            let r = ctru_sys::sslcInit(0);
             if r < 0 {
                 Err(r.into())
             } else {
@@ -16,9 +16,9 @@ impl SslC {
     }
 
     /// Fill `buf` with `buf.len()` random bytes
-    pub fn generate_random_data(&self, buf: &mut [u8]) -> ::Result<()> {
+    pub fn generate_random_data(&self, buf: &mut [u8]) -> crate::Result<()> {
         unsafe {
-            let r = ::libctru::sslcGenerateRandomData(buf.as_ptr() as _, buf.len() as u32);
+            let r = ctru_sys::sslcGenerateRandomData(buf.as_ptr() as _, buf.len() as u32);
             if r < 0 {
                 Err(r.into())
             } else {
@@ -30,6 +30,6 @@ impl SslC {
 
 impl Drop for SslC {
     fn drop(&mut self) {
-        unsafe { ::libctru::sslcExit() };
+        unsafe { ctru_sys::sslcExit() };
     }
 }

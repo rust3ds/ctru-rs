@@ -3,10 +3,9 @@
 
 #[macro_use]
 extern crate bitflags;
+extern crate ctru_sys;
 extern crate libc;
 extern crate widestring;
-
-extern crate ctru_sys as libctru;
 
 /// Call this somewhere to force Rust to link some required crates
 /// This is also a setup for some crate integration only available at runtime
@@ -20,7 +19,7 @@ pub fn init() {
 
     // Panic Hook setup
     let default_hook = std::panic::take_hook();
-    let new_hook = Box::new( move |info: &PanicInfo| {
+    let new_hook = Box::new(move |info: &PanicInfo| {
         let _bt_console = console::Console::default();
 
         println!("\x1b[1;31m\n--------------------------------------------------");
@@ -47,8 +46,8 @@ pub mod services;
 pub mod srv;
 pub mod thread;
 
-pub use error::{Error, Result};
+pub use crate::error::{Error, Result};
 
-pub use gfx::Gfx;
-pub use sdmc::Sdmc;
-pub use srv::Srv;
+pub use crate::gfx::Gfx;
+pub use crate::sdmc::Sdmc;
+pub use crate::srv::Srv;

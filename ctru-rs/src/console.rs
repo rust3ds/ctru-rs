@@ -1,8 +1,8 @@
 use std::default::Default;
 
-use libctru::{consoleClear, consoleInit, consoleSelect, consoleSetWindow, PrintConsole};
+use ctru_sys::{consoleClear, consoleInit, consoleSelect, consoleSetWindow, PrintConsole};
 
-use gfx::Screen;
+use crate::gfx::Screen;
 
 pub struct Console {
     context: Box<PrintConsole>,

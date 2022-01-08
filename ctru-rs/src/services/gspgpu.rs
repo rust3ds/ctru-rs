@@ -47,48 +47,48 @@ impl FramebufferFormat {
 /// `discard_current` determines whether to discard the current event and wait for the next event
 pub fn wait_for_event(ev: Event, discard_current: bool) {
     unsafe {
-        ::libctru::gspWaitForEvent(ev.into(), discard_current);
+        ctru_sys::gspWaitForEvent(ev.into(), discard_current);
     }
 }
 
-impl From<::libctru::GSPGPU_FramebufferFormat> for FramebufferFormat {
-    fn from(g: ::libctru::GSPGPU_FramebufferFormat) -> Self {
+impl From<ctru_sys::GSPGPU_FramebufferFormat> for FramebufferFormat {
+    fn from(g: ctru_sys::GSPGPU_FramebufferFormat) -> Self {
         use self::FramebufferFormat::*;
         match g {
-            ::libctru::GSP_RGBA8_OES => Rgba8,
-            ::libctru::GSP_BGR8_OES => Bgr8,
-            ::libctru::GSP_RGB565_OES => Rgb565,
-            ::libctru::GSP_RGB5_A1_OES => Rgb5A1,
-            ::libctru::GSP_RGBA4_OES => Rgba4,
+            ctru_sys::GSP_RGBA8_OES => Rgba8,
+            ctru_sys::GSP_BGR8_OES => Bgr8,
+            ctru_sys::GSP_RGB565_OES => Rgb565,
+            ctru_sys::GSP_RGB5_A1_OES => Rgb5A1,
+            ctru_sys::GSP_RGBA4_OES => Rgba4,
             _ => unreachable!(),
         }
     }
 }
 
-impl From<FramebufferFormat> for ::libctru::GSPGPU_FramebufferFormat {
+impl From<FramebufferFormat> for ctru_sys::GSPGPU_FramebufferFormat {
     fn from(g: FramebufferFormat) -> Self {
         use self::FramebufferFormat::*;
         match g {
-            Rgba8 => ::libctru::GSP_RGBA8_OES,
-            Bgr8 => ::libctru::GSP_BGR8_OES,
-            Rgb565 => ::libctru::GSP_RGB565_OES,
-            Rgb5A1 => ::libctru::GSP_RGB5_A1_OES,
-            Rgba4 => ::libctru::GSP_RGBA4_OES,
+            Rgba8 => ctru_sys::GSP_RGBA8_OES,
+            Bgr8 => ctru_sys::GSP_BGR8_OES,
+            Rgb565 => ctru_sys::GSP_RGB565_OES,
+            Rgb5A1 => ctru_sys::GSP_RGB5_A1_OES,
+            Rgba4 => ctru_sys::GSP_RGBA4_OES,
         }
     }
 }
 
-impl From<Event> for ::libctru::GSPGPU_Event {
+impl From<Event> for ctru_sys::GSPGPU_Event {
     fn from(ev: Event) -> Self {
         use self::Event::*;
         match ev {
-            Psc0 => ::libctru::GSPGPU_EVENT_PSC0,
-            Psc1 => ::libctru::GSPGPU_EVENT_PSC1,
-            VBlank0 => ::libctru::GSPGPU_EVENT_VBlank0,
-            VBlank1 => ::libctru::GSPGPU_EVENT_VBlank1,
-            PPF => ::libctru::GSPGPU_EVENT_PPF,
-            P3D => ::libctru::GSPGPU_EVENT_P3D,
-            DMA => ::libctru::GSPGPU_EVENT_DMA,
+            Psc0 => ctru_sys::GSPGPU_EVENT_PSC0,
+            Psc1 => ctru_sys::GSPGPU_EVENT_PSC1,
+            VBlank0 => ctru_sys::GSPGPU_EVENT_VBlank0,
+            VBlank1 => ctru_sys::GSPGPU_EVENT_VBlank1,
+            PPF => ctru_sys::GSPGPU_EVENT_PPF,
+            P3D => ctru_sys::GSPGPU_EVENT_P3D,
+            DMA => ctru_sys::GSPGPU_EVENT_DMA,
         }
     }
 }

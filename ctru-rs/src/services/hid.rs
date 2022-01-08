@@ -47,10 +47,10 @@ bitflags! {
 pub struct Hid(());
 
 /// Represents user input to the touchscreen.
-pub struct TouchPosition(::libctru::touchPosition);
+pub struct TouchPosition(ctru_sys::touchPosition);
 
 /// Represents the current position of the 3DS circle pad.
-pub struct CirclePosition(::libctru::circlePosition);
+pub struct CirclePosition(ctru_sys::circlePosition);
 
 /// Initializes the HID service.
 ///
@@ -60,9 +60,9 @@ pub struct CirclePosition(::libctru::circlePosition);
 /// Since this service requires no special or elevated permissions, errors are
 /// rare in practice.
 impl Hid {
-    pub fn init() -> ::Result<Hid> {
+    pub fn init() -> crate::Result<Hid> {
         unsafe {
-            let r = ::libctru::hidInit();
+            let r = ctru_sys::hidInit();
             if r < 0 {
                 Err(r.into())
             } else {
@@ -75,14 +75,14 @@ impl Hid {
     /// frame. This function should be called on every frame when polling
     /// for user input.
     pub fn scan_input(&self) {
-        unsafe { ::libctru::hidScanInput() };
+        unsafe { ctru_sys::hidScanInput() };
     }
 
     /// Returns a bitflag struct representing which buttons have just been pressed
     /// on the current frame (and were not pressed on the previous frame).
     pub fn keys_down(&self) -> KeyPad {
         unsafe {
-            let keys = ::libctru::hidKeysDown();
+            let keys = ctru_sys::hidKeysDown();
             KeyPad::from_bits_truncate(keys)
         }
     }
@@ -91,7 +91,7 @@ impl Hid {
     /// during the current frame.
     pub fn keys_held(&self) -> KeyPad {
         unsafe {
-            let keys = ::libctru::hidKeysHeld();
+            let keys = ctru_sys::hidKeysHeld();
             KeyPad::from_bits_truncate(keys)
         }
     }
@@ -100,7 +100,7 @@ impl Hid {
     /// the current frame.
     pub fn keys_up(&self) -> KeyPad {
         unsafe {
-            let keys = ::libctru::hidKeysUp();
+            let keys = ctru_sys::hidKeysUp();
             KeyPad::from_bits_truncate(keys)
         }
     }
@@ -109,13 +109,13 @@ impl Hid {
 impl TouchPosition {
     /// Create a new TouchPosition instance.
     pub fn new() -> Self {
-        TouchPosition(::libctru::touchPosition { px: 0, py: 0 })
+        TouchPosition(ctru_sys::touchPosition { px: 0, py: 0 })
     }
 
     /// Returns the current touch position in pixels.
     pub fn get(&mut self) -> (u16, u16) {
         unsafe {
-            ::libctru::hidTouchRead(&mut self.0);
+            ctru_sys::hidTouchRead(&mut self.0);
         }
         (self.0.px, self.0.py)
     }
@@ -124,13 +124,13 @@ impl TouchPosition {
 impl CirclePosition {
     /// Create a new CirclePosition instance.
     pub fn new() -> Self {
-        CirclePosition(::libctru::circlePosition { dx: 0, dy: 0 })
+        CirclePosition(ctru_sys::circlePosition { dx: 0, dy: 0 })
     }
 
     /// Returns the current circle pad position in (x, y) form.
     pub fn get(&mut self) -> (i16, i16) {
         unsafe {
-            ::libctru::hidCircleRead(&mut self.0);
+            ctru_sys::hidCircleRead(&mut self.0);
         }
         (self.0.dx, self.0.dy)
     }
@@ -138,6 +138,6 @@ impl CirclePosition {
 
 impl Drop for Hid {
     fn drop(&mut self) {
-        unsafe { ::libctru::hidExit() };
+        unsafe { ctru_sys::hidExit() };
     }
 }

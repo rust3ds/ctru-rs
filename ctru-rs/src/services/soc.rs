@@ -1,6 +1,6 @@
+use ctru_sys::{socExit, socInit};
+use libc::{free, memalign};
 use std::net::Ipv4Addr;
-use libctru::{socInit, socExit};
-use libc::{memalign, free};
 
 /// Soc service. Initializing this service will enable the use of network sockets and utilities
 /// such as those found in `std::net`. The service will be closed when this struct is is dropped.
@@ -14,7 +14,7 @@ impl Soc {
     /// # Errors
     ///
     /// This function will return an error if the `Soc` service is already initialized
-    pub fn init() -> ::Result<Soc> {
+    pub fn init() -> crate::Result<Soc> {
         Soc::init_with_buffer_size(0x100000)
     }
 
@@ -24,7 +24,7 @@ impl Soc {
     /// # Errors
     ///
     /// This function will return an error if the `Soc` service is already initialized
-    pub fn init_with_buffer_size(num_bytes: usize) -> ::Result<Soc> {
+    pub fn init_with_buffer_size(num_bytes: usize) -> crate::Result<Soc> {
         unsafe {
             let soc_mem = memalign(0x1000, num_bytes) as *mut u32;
 
@@ -33,7 +33,7 @@ impl Soc {
                 free(soc_mem as *mut _);
                 Err(r.into())
             } else {
-                Ok(Soc { soc_mem, })
+                Ok(Soc { soc_mem })
             }
         }
     }

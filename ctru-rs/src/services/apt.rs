@@ -1,9 +1,9 @@
 pub struct Apt(());
 
 impl Apt {
-    pub fn init() -> ::Result<Apt> {
+    pub fn init() -> crate::Result<Apt> {
         unsafe {
-            let r = ::libctru::aptInit();
+            let r = ctru_sys::aptInit();
             if r < 0 {
                 Err(r.into())
             } else {
@@ -13,25 +13,23 @@ impl Apt {
     }
 
     pub fn main_loop(&self) -> bool {
-        unsafe {
-            ::libctru::aptMainLoop()
-        }
+        unsafe { ctru_sys::aptMainLoop() }
     }
 
-    pub fn set_app_cpu_time_limit(&self, percent: u32) -> ::Result<()> {
+    pub fn set_app_cpu_time_limit(&self, percent: u32) -> crate::Result<()> {
         unsafe {
-           let r = ::libctru::APT_SetAppCpuTimeLimit(percent);
-           if r < 0 {
-               Err(r.into())
-           } else {
-               Ok(())
-           }
+            let r = ctru_sys::APT_SetAppCpuTimeLimit(percent);
+            if r < 0 {
+                Err(r.into())
+            } else {
+                Ok(())
+            }
         }
     }
 }
 
 impl Drop for Apt {
     fn drop(&mut self) {
-        unsafe { ::libctru::aptExit() };
+        unsafe { ctru_sys::aptExit() };
     }
 }
