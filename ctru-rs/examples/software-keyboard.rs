@@ -1,10 +1,8 @@
-extern crate ctru;
-
-use ctru::gfx::Gfx;
+use ctru::applets::swkbd::{Button, Swkbd};
 use ctru::console::Console;
+use ctru::gfx::Gfx;
 use ctru::services::apt::Apt;
 use ctru::services::hid::{Hid, KeyPad};
-use ctru::applets::swkbd::{Swkbd, Button};
 
 fn main() {
     ctru::init();
@@ -34,10 +32,10 @@ fn main() {
             // Raise the software keyboard. You can perform different actions depending on which
             // software button the user pressed
             match keyboard.get_utf8(&mut text) {
-                Ok(Button::Right)   => println!("You entered: {}", text),
-                Ok(Button::Left)    => println!("Cancelled"),
-                Ok(Button::Middle)  => println!("How did you even press this?"),
-                Err(_)              => println!("Oh noes, an error happened!"),
+                Ok(Button::Right) => println!("You entered: {}", text),
+                Ok(Button::Left) => println!("Cancelled"),
+                Ok(Button::Middle) => println!("How did you even press this?"),
+                Err(_) => println!("Oh noes, an error happened!"),
             }
         }
 

@@ -1,7 +1,5 @@
-extern crate ctru;
-
-use ctru::gfx::Gfx;
 use ctru::console::Console;
+use ctru::gfx::Gfx;
 use ctru::services::apt::Apt;
 use ctru::services::hid::{Hid, KeyPad};
 
@@ -29,7 +27,6 @@ fn main() {
         // We only want to print when the keys we're holding now are different
         // from what they were on the previous frame
         if keys != old_keys {
-
             // Clear the screen
             console.clear();
 
@@ -62,7 +59,7 @@ fn main() {
             }
             if keys.intersects(KeyPad::KEY_START) {
                 println!("See ya!");
-                break
+                break;
             }
         }
 

@@ -1,3 +1,4 @@
+use bitflags::bitflags;
 use ctru_sys::{
     self, swkbdInit, swkbdInputText, swkbdSetButton, swkbdSetFeatures, swkbdSetHintText, SwkbdState,
 };

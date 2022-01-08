@@ -1,7 +1,5 @@
-extern crate ctru;
-
-use ctru::gfx::Gfx;
 use ctru::console::Console;
+use ctru::gfx::Gfx;
 use ctru::services::apt::Apt;
 use ctru::services::hid::{Hid, KeyPad};
 
@@ -36,7 +34,6 @@ fn main() {
 
     // Main application loop.
     while apt.main_loop() {
-
         // Flushes and swaps the framebuffers when double-buffering
         // is enabled
         gfx.flush_buffers();

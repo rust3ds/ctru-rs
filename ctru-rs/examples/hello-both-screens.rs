@@ -1,7 +1,5 @@
-extern crate ctru;
-
-use ctru::gfx::{Gfx, Screen};
 use ctru::console::Console;
+use ctru::gfx::{Gfx, Screen};
 use ctru::services::apt::Apt;
 use ctru::services::hid::{Hid, KeyPad};
 

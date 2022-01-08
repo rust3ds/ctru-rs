@@ -3,18 +3,17 @@
 //! This module contains basic methods to manipulate the contents of the 3DS's filesystem.
 //! Only the SD card is currently supported.
 
+use bitflags::bitflags;
+use std::ffi::OsString;
 use std::io::Error as IoError;
 use std::io::ErrorKind as IoErrorKind;
 use std::io::Result as IoResult;
 use std::io::{Read, Seek, SeekFrom, Write};
-
-use std::ffi::OsString;
 use std::mem;
 use std::path::{Path, PathBuf};
 use std::ptr;
 use std::slice;
 use std::sync::Arc;
-
 use widestring::{WideCStr, WideCString};
 
 bitflags! {

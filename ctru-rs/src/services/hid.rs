@@ -4,7 +4,7 @@
 //! and circle pad information. It also provides information from the sound volume slider,
 //! the accelerometer, and the gyroscope.
 
-bitflags! {
+bitflags::bitflags! {
     /// A set of flags corresponding to the button and directional pad
     /// inputs on the 3DS
     #[derive(Default)]

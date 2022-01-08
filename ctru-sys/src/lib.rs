@@ -3,6 +3,4 @@
 #![allow(non_snake_case)]
 #![no_std]
 
-extern crate libc;
-
 include!("bindings.rs");

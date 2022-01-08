@@ -1,12 +1,6 @@
 #![crate_type = "rlib"]
 #![crate_name = "ctru"]
 
-#[macro_use]
-extern crate bitflags;
-extern crate ctru_sys;
-extern crate libc;
-extern crate widestring;
-
 /// Call this somewhere to force Rust to link some required crates
 /// This is also a setup for some crate integration only available at runtime
 ///
