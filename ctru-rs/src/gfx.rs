@@ -49,6 +49,18 @@ impl Gfx {
         }
     }
 
+    /// Enable or disable the wide screen mode (top screen).
+    ///
+    /// This only works when 3D is disabled.
+    pub fn set_wide_mode(&self, enabled: bool) {
+        unsafe { libctru::gfxSetWide(enabled) };
+    }
+
+    /// Get the status of wide screen mode.
+    pub fn get_wide_mode(&self) -> bool {
+        unsafe { libctru::gfxIsWide() }
+    }
+
     /// Sets whether to use double buffering. Enabled by default.
     /// 
     /// Note that even when double buffering is disabled, one should still use the `swap_buffers`
