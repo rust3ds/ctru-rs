@@ -317,7 +317,7 @@ impl Fs {
             let path = ctru_sys::fsMakePath(PathType::Empty.into(), ptr::null() as _);
             let r = ctru_sys::FSUSER_OpenArchive(&mut handle, id.into(), path);
             if r < 0 {
-                Err(::Error::from(r))
+                Err(crate::Error::from(r))
             } else {
                 Ok(Archive {
                     handle: handle,
@@ -410,7 +410,7 @@ impl File {
             if r < 0 {
                 Err(IoError::new(
                     IoErrorKind::PermissionDenied,
-                    ::Error::from(r),
+                    crate::Error::from(r),
                 ))
             } else {
                 Ok(())
@@ -428,7 +428,7 @@ impl File {
             if r < 0 {
                 Err(IoError::new(
                     IoErrorKind::PermissionDenied,
-                    ::Error::from(r),
+                    crate::Error::from(r),
                 ))
             } else {
                 Ok(Metadata {
@@ -451,7 +451,7 @@ impl File {
             );
             self.offset += n_read as u64;
             if r < 0 {
-                Err(IoError::new(IoErrorKind::Other, ::Error::from(r)))
+                Err(IoError::new(IoErrorKind::Other, crate::Error::from(r)))
             } else {
                 Ok(n_read as usize)
             }
@@ -475,7 +475,7 @@ impl File {
             );
             self.offset += n_written as u64;
             if r < 0 {
-                Err(IoError::new(IoErrorKind::Other, ::Error::from(r)))
+                Err(IoError::new(IoErrorKind::Other, crate::Error::from(r)))
             } else {
                 Ok(n_written as usize)
             }
@@ -612,7 +612,7 @@ impl OpenOptions {
                 0,
             );
             if r < 0 {
-                return Err(IoError::new(IoErrorKind::Other, ::Error::from(r)));
+                return Err(IoError::new(IoErrorKind::Other, crate::Error::from(r)));
             }
 
             let mut file = File {
@@ -670,7 +670,7 @@ impl<'a> Iterator for ReadDir<'a> {
             );
 
             if r < 0 {
-                return Some(Err(IoError::new(IoErrorKind::Other, ::Error::from(r))));
+                return Some(Err(IoError::new(IoErrorKind::Other, crate::Error::from(r))));
             }
             if entries_read != entry_count {
                 return None;
@@ -723,7 +723,7 @@ pub fn create_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
             FsAttribute::FS_ATTRIBUTE_DIRECTORY.bits(),
         );
         if r < 0 {
-            Err(IoError::new(IoErrorKind::Other, ::Error::from(r)))
+            Err(IoError::new(IoErrorKind::Other, crate::Error::from(r)))
         } else {
             Ok(())
         }
@@ -781,7 +781,7 @@ pub fn remove_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
         let fs_path = ctru_sys::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
         let r = ctru_sys::FSUSER_DeleteDirectory(arch.handle, fs_path);
         if r < 0 {
-            Err(IoError::new(IoErrorKind::Other, ::Error::from(r)))
+            Err(IoError::new(IoErrorKind::Other, crate::Error::from(r)))
         } else {
             Ok(())
         }
@@ -799,7 +799,7 @@ pub fn remove_dir_all<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
         let fs_path = ctru_sys::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
         let r = ctru_sys::FSUSER_DeleteDirectoryRecursively(arch.handle, fs_path);
         if r < 0 {
-            Err(IoError::new(IoErrorKind::Other, ::Error::from(r)))
+            Err(IoError::new(IoErrorKind::Other, crate::Error::from(r)))
         } else {
             Ok(())
         }
@@ -825,7 +825,7 @@ pub fn read_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<ReadDir> {
         let fs_path = ctru_sys::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
         let r = ctru_sys::FSUSER_OpenDirectory(&mut handle, arch.handle, fs_path);
         if r < 0 {
-            Err(IoError::new(IoErrorKind::Other, ::Error::from(r)))
+            Err(IoError::new(IoErrorKind::Other, crate::Error::from(r)))
         } else {
             Ok(ReadDir {
                 handle: Dir(handle),
@@ -851,7 +851,7 @@ pub fn remove_file<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
         let fs_path = ctru_sys::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
         let r = ctru_sys::FSUSER_DeleteFile(arch.handle, fs_path);
         if r < 0 {
-            Err(IoError::new(IoErrorKind::Other, ::Error::from(r)))
+            Err(IoError::new(IoErrorKind::Other, crate::Error::from(r)))
         } else {
             Ok(())
         }
@@ -888,7 +888,7 @@ where
         if r == 0 {
             return Ok(());
         }
-        Err(IoError::new(IoErrorKind::Other, ::Error::from(r)))
+        Err(IoError::new(IoErrorKind::Other, crate::Error::from(r)))
     }
 }
 
