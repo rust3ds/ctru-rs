@@ -233,7 +233,7 @@ pub struct Metadata {
 ///             .open("foo.txt")
 ///             .unwrap();
 /// ```
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct OpenOptions {
     read: bool,
     write: bool,
@@ -318,10 +318,7 @@ impl Fs {
             if r < 0 {
                 Err(crate::Error::from(r))
             } else {
-                Ok(Archive {
-                    handle: handle,
-                    id: id,
-                })
+                Ok(Archive { handle, id })
             }
         }
     }
@@ -430,10 +427,7 @@ impl File {
                     crate::Error::from(r),
                 ))
             } else {
-                Ok(Metadata {
-                    attributes: 0,
-                    size: size,
-                })
+                Ok(Metadata { attributes: 0, size })
             }
         }
     }
@@ -496,6 +490,9 @@ impl Metadata {
     /// Returns the size, in bytes, this metadata is for.
     ///
     /// Directories return size = 0.
+    // We don't want an is_empty function because directories always have a
+    // zero size.
+    #[allow(clippy::len_without_is_empty)]
     pub fn len(&self) -> u64 {
         self.size
     }
@@ -506,14 +503,7 @@ impl OpenOptions {
     ///
     /// All options are initially set to `false`
     pub fn new() -> OpenOptions {
-        OpenOptions {
-            read: false,
-            write: false,
-            append: false,
-            truncate: false,
-            create: false,
-            arch_handle: 0,
-        }
+        Self::default()
     }
 
     /// Sets the option for read access.
@@ -753,8 +743,8 @@ pub fn create_dir_all<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
 
 /// Given a path, query the file system to get information about a file, directory, etc
 pub fn metadata<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<Metadata> {
-    let maybe_file = File::open(&arch, path.as_ref());
-    let maybe_dir = read_dir(&arch, path.as_ref());
+    let maybe_file = File::open(arch, path.as_ref());
+    let maybe_dir = read_dir(arch, path.as_ref());
     match (maybe_file, maybe_dir) {
         (Ok(file), _) => file.metadata(),
         (_, Ok(_dir)) => Ok(Metadata {
@@ -828,8 +818,8 @@ pub fn read_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<ReadDir> {
         } else {
             Ok(ReadDir {
                 handle: Dir(handle),
-                root: root,
-                arch: arch,
+                root,
+                arch,
             })
         }
     }
@@ -897,7 +887,7 @@ fn to_utf16(path: &Path) -> WideCString {
 }
 
 // Adapted from sys/windows/fs.rs in libstd
-fn truncate_utf16_at_nul<'a>(v: &'a [u16]) -> &'a [u16] {
+fn truncate_utf16_at_nul(v: &[u16]) -> &[u16] {
     match v.iter().position(|c| *c == 0) {
         // don't include the 0
         Some(i) => &v[..i],
@@ -933,7 +923,7 @@ unsafe fn read_to_end_uninitialized(r: &mut dyn Read, buf: &mut Vec<u8>) -> IoRe
         }
 
         let buf_slice = slice::from_raw_parts_mut(
-            buf.as_mut_ptr().offset(buf.len() as isize),
+            buf.as_mut_ptr().add(buf.len()),
             buf.capacity() - buf.len(),
         );
 

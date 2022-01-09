@@ -49,7 +49,7 @@ use std::time::Duration;
 
 /// Thread factory, which can be used in order to configure the properties of
 /// a new thread.
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Builder {
     // The size of the stack for the spawned thread in bytes
     stack_size: Option<usize>,
@@ -78,11 +78,7 @@ impl Builder {
     /// handler.join().unwrap();
     /// ```
     pub fn new() -> Builder {
-        Builder {
-            stack_size: None,
-            priority: None,
-            affinity: None,
-        }
+        Self::default()
     }
 
     /// Sets the size of the stack (in bytes) for the new thread.
@@ -102,6 +98,7 @@ impl Builder {
     /// ```
     ///
     /// [stack-size]: ./index.html#stack-size
+    #[must_use]
     pub fn stack_size(mut self, size: usize) -> Builder {
         self.stack_size = Some(size);
         self
@@ -112,6 +109,7 @@ impl Builder {
     /// Low values gives the thread higher priority. For userland apps, this has
     /// to be within the range of 0x18 to 0x3F inclusive. The main thread usually
     /// has a priority of 0x30, but not always.
+    #[must_use]
     pub fn priority(mut self, priority: i32) -> Builder {
         self.priority = Some(priority);
         self
@@ -134,6 +132,7 @@ impl Builder {
     ///
     /// Processes in the BASE memory region can always create threads on
     /// processors #2 and #3.
+    #[must_use]
     pub fn affinity(mut self, affinity: i32) -> Builder {
         self.affinity = Some(affinity);
         self
@@ -188,7 +187,7 @@ impl Builder {
 
         // If no priority value is specified, spawn with the same
         // priority as the parent thread
-        let priority = priority.unwrap_or_else(|| imp::Thread::priority());
+        let priority = priority.unwrap_or_else(imp::Thread::priority);
 
         // If no affinity is specified, spawn on the default core (determined by
         // the application's Exheader)
@@ -434,6 +433,8 @@ pub fn park() {
     }
     loop {
         m = thread.inner.cvar.wait(m).unwrap();
+
+        #[allow(clippy::single_match)]
         match thread
             .inner
             .state
@@ -891,7 +892,6 @@ mod imp {
     use std::convert::TryInto;
     use std::io;
     use std::mem;
-    use std::ptr;
     use std::time::Duration;
 
     use libc;
@@ -929,11 +929,11 @@ mod imp {
                 false,
             );
 
-            return if handle == ptr::null_mut() {
+            return if handle.is_null() {
                 Err(io::Error::from_raw_os_error(libc::EAGAIN))
             } else {
                 mem::forget(p); // ownership passed to the new thread
-                Ok(Thread { handle: handle })
+                Ok(Thread { handle })
             };
 
             extern "C" fn thread_func(start: *mut libc::c_void) {

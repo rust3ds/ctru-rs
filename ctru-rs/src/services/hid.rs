@@ -106,10 +106,16 @@ impl Hid {
     }
 }
 
+impl Default for TouchPosition {
+    fn default() -> Self {
+        TouchPosition(ctru_sys::touchPosition { px: 0, py: 0 })
+    }
+}
+
 impl TouchPosition {
     /// Create a new TouchPosition instance.
     pub fn new() -> Self {
-        TouchPosition(ctru_sys::touchPosition { px: 0, py: 0 })
+        Self::default()
     }
 
     /// Returns the current touch position in pixels.
@@ -121,10 +127,16 @@ impl TouchPosition {
     }
 }
 
+impl Default for CirclePosition {
+    fn default() -> Self {
+        CirclePosition(ctru_sys::circlePosition { dx: 0, dy: 0 })
+    }
+}
+
 impl CirclePosition {
     /// Create a new CirclePosition instance.
     pub fn new() -> Self {
-        CirclePosition(ctru_sys::circlePosition { dx: 0, dy: 0 })
+        Self::default()
     }
 
     /// Returns the current circle pad position in (x, y) form.

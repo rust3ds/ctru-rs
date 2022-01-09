@@ -37,6 +37,7 @@ impl Console {
     /// The first two arguments are the desired coordinates of the top-left corner
     /// of the console, and the second pair is the new width and height
     ///
+    /// # Safety
     /// This function is unsafe because it does not validate that the input will produce
     /// a console that actually fits on the screen
     pub unsafe fn set_window(&mut self, x: i32, y: i32, width: i32, height: i32) {
