@@ -427,7 +427,10 @@ impl File {
                     crate::Error::from(r),
                 ))
             } else {
-                Ok(Metadata { attributes: 0, size })
+                Ok(Metadata {
+                    attributes: 0,
+                    size,
+                })
             }
         }
     }
@@ -922,10 +925,8 @@ unsafe fn read_to_end_uninitialized(r: &mut dyn Read, buf: &mut Vec<u8>) -> IoRe
             buf.reserve(1);
         }
 
-        let buf_slice = slice::from_raw_parts_mut(
-            buf.as_mut_ptr().add(buf.len()),
-            buf.capacity() - buf.len(),
-        );
+        let buf_slice =
+            slice::from_raw_parts_mut(buf.as_mut_ptr().add(buf.len()), buf.capacity() - buf.len());
 
         match r.read(buf_slice) {
             Ok(0) => {

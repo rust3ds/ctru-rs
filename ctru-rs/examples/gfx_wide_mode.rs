@@ -1,10 +1,10 @@
 extern crate ctru;
 
 use ctru::console::Console;
-use ctru::Gfx;
 use ctru::gfx::Screen;
-use ctru::services::{Apt, Hid};
 use ctru::services::hid::KeyPad;
+use ctru::services::{Apt, Hid};
+use ctru::Gfx;
 
 fn main() {
     ctru::init();
@@ -19,7 +19,7 @@ fn main() {
         hid.scan_input();
 
         if hid.keys_down().contains(KeyPad::KEY_START) {
-            break
+            break;
         }
 
         if hid.keys_down().contains(KeyPad::KEY_A) {
