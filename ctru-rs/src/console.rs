@@ -54,6 +54,11 @@ impl Default for Console {
 impl Drop for Console {
     fn drop(&mut self) {
         unsafe {
+            // Safety: We are about to deallocate the PrintConsole data pointed
+            // to by libctru. Without this drop code libctru would have a
+            // dangling pointer that it writes to on every print. To prevent
+            // this we replace the console with the default if it was selected.
+
             // Get the current console by replacing it with the default.
             let default_console = ctru_sys::consoleGetDefault();
             let current_console = ctru_sys::consoleSelect(default_console);
