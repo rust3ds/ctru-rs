@@ -65,7 +65,10 @@ impl Drop for Console {
 
             if std::ptr::eq(current_console, &*self.context) {
                 // Console dropped while selected. We just replaced it with the
-                // default so there's nothing more to do.
+                // default so make sure it's initialized.
+                if !(*default_console).consoleInitialised {
+                    ctru_sys::consoleInit(Screen::Top.into(), default_console);
+                }
             } else {
                 // Console dropped while a different console was selected. Put back
                 // the console that was selected.
