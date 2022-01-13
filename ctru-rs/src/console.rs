@@ -2,7 +2,7 @@ use std::default::Default;
 
 use ctru_sys::{consoleClear, consoleInit, consoleSelect, consoleSetWindow, PrintConsole};
 
-use crate::gfx::Screen;
+use crate::gfx::{Gfx, Screen};
 
 pub struct Console {
     context: Box<PrintConsole>,
@@ -12,7 +12,7 @@ impl Console {
     /// Initialize a console on the chosen screen, overwriting whatever was on the screen
     /// previously (including other consoles). The new console is automatically selected for
     /// printing.
-    pub fn init(screen: Screen) -> Self {
+    pub fn init(_gfx: &Gfx, screen: Screen) -> Self {
         let mut context = Box::new(PrintConsole::default());
 
         unsafe { consoleInit(screen.into(), context.as_mut()) };
@@ -42,12 +42,6 @@ impl Console {
     /// a console that actually fits on the screen
     pub unsafe fn set_window(&mut self, x: i32, y: i32, width: i32, height: i32) {
         consoleSetWindow(self.context.as_mut(), x, y, width, height);
-    }
-}
-
-impl Default for Console {
-    fn default() -> Self {
-        Console::init(Screen::Top)
     }
 }
 
