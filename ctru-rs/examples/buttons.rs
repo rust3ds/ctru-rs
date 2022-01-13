@@ -9,7 +9,7 @@ fn main() {
     let apt = Apt::init().unwrap();
     let hid = Hid::init().unwrap();
     let gfx = Gfx::default();
-    let console = Console::default();
+    let console = Console::init(&gfx, ctru::gfx::Screen::Top);
 
     println!("Hi there! Try pressing a button");
     println!("\x1b[29;16HPress Start to exit");

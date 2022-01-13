@@ -9,7 +9,7 @@ fn main() {
     let apt = Apt::init().unwrap();
     let hid = Hid::init().unwrap();
     let gfx = Gfx::default();
-    let _console = Console::default();
+    let _console = Console::init(&gfx, ctru::gfx::Screen::Top);
 
     println!("Press A to enter some text or press Start to quit");
 
