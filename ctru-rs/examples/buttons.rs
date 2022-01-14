@@ -1,5 +1,5 @@
 use ctru::console::Console;
-use ctru::gfx::{Gfx, Screen};
+use ctru::gfx::Gfx;
 use ctru::services::apt::Apt;
 use ctru::services::hid::{Hid, KeyPad};
 
@@ -9,7 +9,7 @@ fn main() {
     let apt = Apt::init().unwrap();
     let hid = Hid::init().unwrap();
     let gfx = Gfx::default();
-    let console = Console::init(&gfx, Screen::Top);
+    let console = Console::init(&gfx, ctru::gfx::Screen::Top);
 
     println!("Hi there! Try pressing a button");
     println!("\x1b[29;16HPress Start to exit");
