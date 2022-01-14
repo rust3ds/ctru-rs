@@ -11,11 +11,11 @@ fn main() {
     let gfx = Gfx::default();
 
     // Start a console on the top screen
-    let top_screen = Console::init(&gfx, ctru::gfx::Screen::Top);
+    let top_screen = Console::init(&gfx, Screen::Top);
 
     // Start a console on the bottom screen.
     // The most recently initialized console will be active by default
-    let bottom_screen = Console::init(&gfx, ctru::gfx::Screen::Bottom);
+    let bottom_screen = Console::init(&gfx, Screen::Bottom);
 
     // Let's print on the top screen first
     top_screen.select();

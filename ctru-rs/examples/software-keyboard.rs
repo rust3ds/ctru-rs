@@ -1,6 +1,6 @@
 use ctru::applets::swkbd::{Button, Swkbd};
 use ctru::console::Console;
-use ctru::gfx::Gfx;
+use ctru::gfx::{Gfx, Screen};
 use ctru::services::apt::Apt;
 use ctru::services::hid::{Hid, KeyPad};
 
@@ -9,7 +9,7 @@ fn main() {
     let apt = Apt::init().unwrap();
     let hid = Hid::init().unwrap();
     let gfx = Gfx::default();
-    let _console = Console::init(&gfx, ctru::gfx::Screen::Top);
+    let _console = Console::init(&gfx, Screen::Top);
 
     println!("Press A to enter some text or press Start to quit");
 

@@ -1,23 +1,28 @@
 use std::default::Default;
+use std::marker::PhantomData;
 
 use ctru_sys::{consoleClear, consoleInit, consoleSelect, consoleSetWindow, PrintConsole};
 
 use crate::gfx::{Gfx, Screen};
 
-pub struct Console {
+pub struct Console<'gfx> {
     context: Box<PrintConsole>,
+    _gfx: PhantomData<&'gfx ()>,
 }
 
-impl Console {
+impl<'gfx> Console<'gfx> {
     /// Initialize a console on the chosen screen, overwriting whatever was on the screen
     /// previously (including other consoles). The new console is automatically selected for
     /// printing.
-    pub fn init(_gfx: &Gfx, screen: Screen) -> Self {
+    pub fn init(_gfx: &'gfx Gfx, screen: Screen) -> Self {
         let mut context = Box::new(PrintConsole::default());
 
         unsafe { consoleInit(screen.into(), context.as_mut()) };
 
-        Console { context }
+        Console {
+            context,
+            _gfx: PhantomData,
+        }
     }
 
     /// Select this console as the current target for stdout
@@ -45,7 +50,7 @@ impl Console {
     }
 }
 
-impl Drop for Console {
+impl Drop for Console<'_> {
     fn drop(&mut self) {
         static mut EMPTY_CONSOLE: PrintConsole = unsafe { const_zero::const_zero!(PrintConsole) };
 
