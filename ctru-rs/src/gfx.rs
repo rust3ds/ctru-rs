@@ -48,14 +48,14 @@ impl Gfx {
     }
 
     /// Enable or disable the 3D stereoscopic effect
-    pub fn set_3d_enabled(&self, enabled: bool) {
+    pub fn set_3d_enabled(&mut self, enabled: bool) {
         unsafe { ctru_sys::gfxSet3D(enabled) }
     }
 
     /// Enable or disable the wide screen mode (top screen).
     ///
     /// This only works when 3D is disabled.
-    pub fn set_wide_mode(&self, enabled: bool) {
+    pub fn set_wide_mode(&mut self, enabled: bool) {
         unsafe { ctru_sys::gfxSetWide(enabled) };
     }
 
@@ -68,7 +68,7 @@ impl Gfx {
     ///
     /// Note that even when double buffering is disabled, one should still use the `swap_buffers`
     /// method on each frame to keep the gsp configuration up to date
-    pub fn set_double_buffering(&self, screen: Screen, enabled: bool) {
+    pub fn set_double_buffering(&mut self, screen: Screen, enabled: bool) {
         unsafe { ctru_sys::gfxSetDoubleBuffering(screen.into(), enabled) }
     }
 
@@ -104,7 +104,7 @@ impl Gfx {
     }
 
     /// Change the framebuffer format for a screen
-    pub fn set_framebuffer_format(&self, screen: Screen, fmt: FramebufferFormat) {
+    pub fn set_framebuffer_format(&mut self, screen: Screen, fmt: FramebufferFormat) {
         unsafe { ctru_sys::gfxSetScreenFormat(screen.into(), fmt.into()) }
     }
 
@@ -114,14 +114,12 @@ impl Gfx {
     ///
     /// Note that the pointer returned by this function can change after each call to this function
     /// if double buffering is enabled
-    pub fn get_raw_framebuffer(&self, screen: Screen, side: Side) -> (*mut u8, u16, u16) {
-        unsafe {
-            let mut width: u16 = 0;
-            let mut height: u16 = 0;
-            let buf: *mut u8 =
-                ctru_sys::gfxGetFramebuffer(screen.into(), side.into(), &mut width, &mut height);
-            (buf, width, height)
-        }
+    pub unsafe fn get_raw_framebuffer(&self, screen: Screen, side: Side) -> (*mut u8, u16, u16) {
+        let mut width: u16 = 0;
+        let mut height: u16 = 0;
+        let buf: *mut u8 =
+            ctru_sys::gfxGetFramebuffer(screen.into(), side.into(), &mut width, &mut height);
+        (buf, width, height)
     }
 }
 
