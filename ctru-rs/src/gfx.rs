@@ -1,5 +1,6 @@
 //! LCD screens manipulation helper
 
+use std::cell::{BorrowError, BorrowMutError, Ref, RefCell, RefMut};
 use std::default::Default;
 use std::ops::Drop;
 
@@ -9,7 +10,10 @@ use crate::services::gspgpu::{self, FramebufferFormat};
 /// provides helper functions and utilities for software rendering.
 ///
 /// The service exits when this struct is dropped.
-pub struct Gfx(());
+pub struct Gfx {
+    top_screen: RefCell<Screen>,
+    bottom_screen: RefCell<Screen>,
+}
 
 /// Available screens on the 3DS
 #[derive(Copy, Clone, Debug)]
@@ -44,32 +48,30 @@ impl Gfx {
         unsafe {
             ctru_sys::gfxInit(top_fb_fmt.into(), bottom_fb_fmt.into(), use_vram_buffers);
         }
-        Gfx(())
+        Gfx {
+            top_screen: RefCell::new(Screen::Top),
+            bottom_screen: RefCell::new(Screen::Bottom),
+        }
     }
 
-    /// Enable or disable the 3D stereoscopic effect
-    pub fn set_3d_enabled(&mut self, enabled: bool) {
-        unsafe { ctru_sys::gfxSet3D(enabled) }
+    /// Try to get an immutable reference to the Top screen
+    pub fn get_top_screen(&self) -> Result<Ref<'_, Screen>, BorrowError> {
+        self.top_screen.try_borrow()
     }
 
-    /// Enable or disable the wide screen mode (top screen).
-    ///
-    /// This only works when 3D is disabled.
-    pub fn set_wide_mode(&mut self, enabled: bool) {
-        unsafe { ctru_sys::gfxSetWide(enabled) };
+    /// Try to get a mutable reference to the Top screen
+    pub fn get_top_screen_mut(&self) -> Result<RefMut<'_, Screen>, BorrowMutError> {
+        self.top_screen.try_borrow_mut()
     }
 
-    /// Get the status of wide screen mode.
-    pub fn get_wide_mode(&self) -> bool {
-        unsafe { ctru_sys::gfxIsWide() }
+    /// Try to get an immutable reference to the Bottom screen
+    pub fn get_bottom_screen(&self) -> Result<Ref<'_, Screen>, BorrowError> {
+        self.bottom_screen.try_borrow()
     }
 
-    /// Sets whether to use double buffering. Enabled by default.
-    ///
-    /// Note that even when double buffering is disabled, one should still use the `swap_buffers`
-    /// method on each frame to keep the gsp configuration up to date
-    pub fn set_double_buffering(&mut self, screen: Screen, enabled: bool) {
-        unsafe { ctru_sys::gfxSetDoubleBuffering(screen.into(), enabled) }
+    /// Try to get a mutable reference to the Bottom screen
+    pub fn get_bottom_screen_mut(&self) -> Result<RefMut<'_, Screen>, BorrowMutError> {
+        self.bottom_screen.try_borrow_mut()
     }
 
     /// Flushes the current framebuffers
@@ -97,13 +99,63 @@ impl Gfx {
     pub fn wait_for_vblank(&self) {
         gspgpu::wait_for_event(gspgpu::Event::VBlank0, true);
     }
+}
 
-    /// Gets the framebuffer format for a screen
+impl Screen {
+    /// Enable or disable the 3D stereoscopic effect
+    ///
+    /// #Errors
+    /// When called by the Bottom screen
+    pub fn set_3d_enabled(&mut self, enabled: bool) -> Result<(), String> {
+        match self {
+            Screen::Top => unsafe {
+                ctru_sys::gfxSet3D(enabled);
+                Ok(())
+            },
+            Screen::Bottom => Err("Tried to enable 3D on bottom screen".to_string()),
+        }
+    }
+
+    /// Enable or disable the wide screen mode (top screen).
+    /// This only works when 3D is disabled.
+    ///
+    /// #Errors
+    /// When called by the Bottom screen
+    pub fn set_wide_mode(&mut self, enabled: bool) -> Result<(), String> {
+        match self {
+            Screen::Top => unsafe {
+                ctru_sys::gfxSetWide(enabled);
+                Ok(())
+            },
+            Screen::Bottom => Err("Tried to change wide-mode on bottom screen".to_string()),
+        }
+    }
+
+    /// Get the status of wide screen mode.
+    ///
+    /// #Errors
+    /// When called by the Bottom screen
+    pub fn get_wide_mode(&self) -> Result<bool, String> {
+        match self {
+            Screen::Top => unsafe { Ok(ctru_sys::gfxIsWide()) },
+            Screen::Bottom => Err("Tried to check wide-mode status on bottom screen".to_string()),
+        }
+    }
+
+    /// Sets whether to use double buffering. Enabled by default.
+    ///
+    /// Note that even when double buffering is disabled, one should still use the `swap_buffers`
+    /// method on each frame to keep the gsp configuration up to date
+    pub fn set_double_buffering(&mut self, screen: Screen, enabled: bool) {
+        unsafe { ctru_sys::gfxSetDoubleBuffering(screen.into(), enabled) }
+    }
+
+    /// Gets the framebuffer format
     pub fn get_framebuffer_format(&self, screen: Screen) -> FramebufferFormat {
         unsafe { ctru_sys::gfxGetScreenFormat(screen.into()).into() }
     }
 
-    /// Change the framebuffer format for a screen
+    /// Change the framebuffer format
     pub fn set_framebuffer_format(&mut self, screen: Screen, fmt: FramebufferFormat) {
         unsafe { ctru_sys::gfxSetScreenFormat(screen.into(), fmt.into()) }
     }
@@ -114,12 +166,14 @@ impl Gfx {
     ///
     /// Note that the pointer returned by this function can change after each call to this function
     /// if double buffering is enabled
-    pub unsafe fn get_raw_framebuffer(&self, screen: Screen, side: Side) -> (*mut u8, u16, u16) {
+    pub fn get_raw_framebuffer(&self, screen: Screen, side: Side) -> (*mut u8, u16, u16) {
         let mut width: u16 = 0;
         let mut height: u16 = 0;
-        let buf: *mut u8 =
-            ctru_sys::gfxGetFramebuffer(screen.into(), side.into(), &mut width, &mut height);
-        (buf, width, height)
+        unsafe {
+            let buf: *mut u8 =
+                ctru_sys::gfxGetFramebuffer(screen.into(), side.into(), &mut width, &mut height);
+            (buf, width, height)
+        }
     }
 }
 
@@ -146,7 +200,10 @@ impl From<Side> for ctru_sys::gfx3dSide_t {
 impl Default for Gfx {
     fn default() -> Self {
         unsafe { ctru_sys::gfxInitDefault() };
-        Gfx(())
+        Gfx {
+            top_screen: RefCell::new(Screen::Top),
+            bottom_screen: RefCell::new(Screen::Bottom),
+        }
     }
 }
 
