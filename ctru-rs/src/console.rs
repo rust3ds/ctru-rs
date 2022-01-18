@@ -15,12 +15,10 @@ impl<'screen> Console<'screen> {
     /// Initialize a console on the chosen screen, overwriting whatever was on the screen
     /// previously (including other consoles). The new console is automatically selected for
     /// printing.
-    pub fn init(screen: Ref<'screen, Screen>) -> Self {
+    pub fn init(screen: Ref<'screen, impl Screen>) -> Self {
         let mut context = Box::new(PrintConsole::default());
 
-        let screen_kind = *screen;
-
-        unsafe { consoleInit(screen_kind.into(), context.as_mut()) };
+        unsafe { consoleInit(screen.into_raw(), context.as_mut()) };
 
         Console {
             context,
