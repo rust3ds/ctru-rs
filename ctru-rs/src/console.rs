@@ -18,7 +18,7 @@ impl<'screen> Console<'screen> {
     pub fn init(screen: Ref<'screen, impl Screen>) -> Self {
         let mut context = Box::new(PrintConsole::default());
 
-        unsafe { consoleInit(screen.into_raw(), context.as_mut()) };
+        unsafe { consoleInit(screen.as_raw(), context.as_mut()) };
 
         Console {
             context,

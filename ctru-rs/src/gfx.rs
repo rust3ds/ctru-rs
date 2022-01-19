@@ -1,36 +1,33 @@
 //! LCD screens manipulation helper
 
-use std::cell::{BorrowError, BorrowMutError, Ref, RefCell, RefMut};
+use std::cell::RefCell;
 use std::default::Default;
 use std::ops::Drop;
 
 use crate::services::gspgpu::{self, FramebufferFormat};
 
-/// A handle to libctru's gfx module. This module is a wrapper around the GSPGPU service that
-/// provides helper functions and utilities for software rendering.
-///
-/// The service exits when this struct is dropped.
-pub struct Gfx {
-    top_screen: RefCell<TopScreen>,
-    bottom_screen: RefCell<BottomScreen>,
-}
-
 /// Trait implemented by TopScreen and BottomScreen for common methods
 pub trait Screen {
     /// Returns the libctru value for the Screen kind
-    fn into_raw(&self) -> ctru_sys::gfxScreen_t;
+    fn as_raw(&self) -> ctru_sys::gfxScreen_t;
 
     /// Sets whether to use double buffering. Enabled by default.
     ///
     /// Note that even when double buffering is disabled, one should still use the `swap_buffers`
     /// method on each frame to keep the gsp configuration up to date
-    fn set_double_buffering(&mut self, enabled: bool);
+    fn set_double_buffering(&mut self, enabled: bool) {
+        unsafe { ctru_sys::gfxSetDoubleBuffering(self.as_raw(), enabled) }
+    }
 
     /// Gets the framebuffer format
-    fn get_framebuffer_format(&self) -> FramebufferFormat;
+    fn get_framebuffer_format(&self) -> FramebufferFormat {
+        unsafe { ctru_sys::gfxGetScreenFormat(self.as_raw()).into() }
+    }
 
     /// Change the framebuffer format
-    fn set_framebuffer_format(&mut self, fmt: FramebufferFormat);
+    fn set_framebuffer_format(&mut self, fmt: FramebufferFormat) {
+        unsafe { ctru_sys::gfxSetScreenFormat(self.as_raw(), fmt.into()) }
+    }
 
     /// Returns a tuple containing a pointer to the specifified framebuffer (as determined by the
     /// calling screen and `Side`), the width of the framebuffer in pixels, and the height of
@@ -38,11 +35,23 @@ pub trait Screen {
     ///
     /// Note that the pointer returned by this function can change after each call to this function
     /// if double buffering is enabled
-    fn get_raw_framebuffer(&self, side: Side) -> (*mut u8, u16, u16);
+    fn get_raw_framebuffer(&self, side: Side) -> (*mut u8, u16, u16) {
+        let mut width: u16 = 0;
+        let mut height: u16 = 0;
+        unsafe {
+            let buf: *mut u8 =
+                ctru_sys::gfxGetFramebuffer(self.as_raw(), side.into(), &mut width, &mut height);
+            (buf, width, height)
+        }
+    }
 }
 
-pub struct TopScreen;
-pub struct BottomScreen;
+pub struct TopScreen {
+    _private: (),
+}
+pub struct BottomScreen {
+    _private: (),
+}
 
 #[derive(Copy, Clone, Debug)]
 /// Side of top screen framebuffer
@@ -53,6 +62,15 @@ pub enum Side {
     Left,
     /// The right framebuffer
     Right,
+}
+
+/// A handle to libctru's gfx module. This module is a wrapper around the GSPGPU service that
+/// provides helper functions and utilities for software rendering.
+///
+/// The service exits when this struct is dropped.
+pub struct Gfx {
+    pub top_screen: RefCell<TopScreen>,
+    pub bottom_screen: RefCell<BottomScreen>,
 }
 
 impl Gfx {
@@ -69,29 +87,9 @@ impl Gfx {
             ctru_sys::gfxInit(top_fb_fmt.into(), bottom_fb_fmt.into(), use_vram_buffers);
         }
         Gfx {
-            top_screen: RefCell::new(TopScreen),
-            bottom_screen: RefCell::new(BottomScreen),
+            top_screen: RefCell::new(TopScreen { _private: () }),
+            bottom_screen: RefCell::new(BottomScreen { _private: () }),
         }
-    }
-
-    /// Try to get an immutable reference to the Top screen
-    pub fn get_top_screen(&self) -> Result<Ref<'_, TopScreen>, BorrowError> {
-        self.top_screen.try_borrow()
-    }
-
-    /// Try to get a mutable reference to the Top screen
-    pub fn get_top_screen_mut(&self) -> Result<RefMut<'_, TopScreen>, BorrowMutError> {
-        self.top_screen.try_borrow_mut()
-    }
-
-    /// Try to get an immutable reference to the Bottom screen
-    pub fn get_bottom_screen(&self) -> Result<Ref<'_, BottomScreen>, BorrowError> {
-        self.bottom_screen.try_borrow()
-    }
-
-    /// Try to get a mutable reference to the Bottom screen
-    pub fn get_bottom_screen_mut(&self) -> Result<RefMut<'_, BottomScreen>, BorrowMutError> {
-        self.bottom_screen.try_borrow_mut()
     }
 
     /// Flushes the current framebuffers
@@ -144,66 +142,14 @@ impl TopScreen {
 }
 
 impl Screen for TopScreen {
-    fn into_raw(&self) -> ctru_sys::gfxScreen_t {
+    fn as_raw(&self) -> ctru_sys::gfxScreen_t {
         ctru_sys::GFX_TOP
-    }
-
-    fn set_double_buffering(&mut self, enabled: bool) {
-        unsafe { ctru_sys::gfxSetDoubleBuffering(ctru_sys::GFX_TOP, enabled) }
-    }
-
-    fn get_framebuffer_format(&self) -> FramebufferFormat {
-        unsafe { ctru_sys::gfxGetScreenFormat(ctru_sys::GFX_TOP).into() }
-    }
-
-    fn set_framebuffer_format(&mut self, fmt: FramebufferFormat) {
-        unsafe { ctru_sys::gfxSetScreenFormat(ctru_sys::GFX_TOP, fmt.into()) }
-    }
-
-    fn get_raw_framebuffer(&self, side: Side) -> (*mut u8, u16, u16) {
-        let mut width: u16 = 0;
-        let mut height: u16 = 0;
-        unsafe {
-            let buf: *mut u8 = ctru_sys::gfxGetFramebuffer(
-                ctru_sys::GFX_TOP,
-                side.into(),
-                &mut width,
-                &mut height,
-            );
-            (buf, width, height)
-        }
     }
 }
 
 impl Screen for BottomScreen {
-    fn into_raw(&self) -> ctru_sys::gfxScreen_t {
+    fn as_raw(&self) -> ctru_sys::gfxScreen_t {
         ctru_sys::GFX_BOTTOM
-    }
-
-    fn set_double_buffering(&mut self, enabled: bool) {
-        unsafe { ctru_sys::gfxSetDoubleBuffering(ctru_sys::GFX_BOTTOM, enabled) }
-    }
-
-    fn get_framebuffer_format(&self) -> FramebufferFormat {
-        unsafe { ctru_sys::gfxGetScreenFormat(ctru_sys::GFX_BOTTOM).into() }
-    }
-
-    fn set_framebuffer_format(&mut self, fmt: FramebufferFormat) {
-        unsafe { ctru_sys::gfxSetScreenFormat(ctru_sys::GFX_BOTTOM, fmt.into()) }
-    }
-
-    fn get_raw_framebuffer(&self, side: Side) -> (*mut u8, u16, u16) {
-        let mut width: u16 = 0;
-        let mut height: u16 = 0;
-        unsafe {
-            let buf: *mut u8 = ctru_sys::gfxGetFramebuffer(
-                ctru_sys::GFX_BOTTOM,
-                side.into(),
-                &mut width,
-                &mut height,
-            );
-            (buf, width, height)
-        }
     }
 }
 
@@ -221,8 +167,8 @@ impl Default for Gfx {
     fn default() -> Self {
         unsafe { ctru_sys::gfxInitDefault() };
         Gfx {
-            top_screen: RefCell::new(TopScreen),
-            bottom_screen: RefCell::new(BottomScreen),
+            top_screen: RefCell::new(TopScreen { _private: () }),
+            bottom_screen: RefCell::new(BottomScreen { _private: () }),
         }
     }
 }
