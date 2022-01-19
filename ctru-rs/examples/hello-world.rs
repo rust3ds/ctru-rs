@@ -1,5 +1,5 @@
 use ctru::console::Console;
-use ctru::gfx::Gfx;
+use ctru::gfx::{Gfx, Screen};
 use ctru::services::apt::Apt;
 use ctru::services::hid::{Hid, KeyPad};
 
@@ -21,7 +21,7 @@ fn main() {
 
     // Initialize a ctrulib console and direct standard output to it.
     // Consoles can be initialized on both the top and bottom screens.
-    let _console = Console::init(&gfx, ctru::gfx::Screen::Top);
+    let _console = Console::init(&gfx, Screen::Top);
 
     // Now we can print to stdout!
     println!("Hello, world!");
