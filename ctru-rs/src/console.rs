@@ -1,6 +1,5 @@
 use std::cell::Ref;
 use std::default::Default;
-use std::marker::PhantomData;
 
 use ctru_sys::{consoleClear, consoleInit, consoleSelect, consoleSetWindow, PrintConsole};
 

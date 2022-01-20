@@ -71,7 +71,7 @@ pub enum Side {
 pub struct Gfx {
     pub top_screen: RefCell<TopScreen>,
     pub bottom_screen: RefCell<BottomScreen>,
-    _private: ()
+    _private: (),
 }
 
 impl Gfx {
@@ -90,6 +90,7 @@ impl Gfx {
         Gfx {
             top_screen: RefCell::new(TopScreen { _private: () }),
             bottom_screen: RefCell::new(BottomScreen { _private: () }),
+            _private: (),
         }
     }
 
@@ -170,6 +171,7 @@ impl Default for Gfx {
         Gfx {
             top_screen: RefCell::new(TopScreen { _private: () }),
             bottom_screen: RefCell::new(BottomScreen { _private: () }),
+            _private: (),
         }
     }
 }
