@@ -8,21 +8,21 @@ use crate::gfx::Screen;
 
 pub struct Console<'screen> {
     context: Box<PrintConsole>,
-    _screen: PhantomData<&'screen ()>,
+    _screen: Ref<'screen, dyn Screen>,
 }
 
 impl<'screen> Console<'screen> {
     /// Initialize a console on the chosen screen, overwriting whatever was on the screen
     /// previously (including other consoles). The new console is automatically selected for
     /// printing.
-    pub fn init(screen: Ref<'screen, impl Screen>) -> Self {
+    pub fn init(screen: Ref<'screen, dyn Screen>) -> Self {
         let mut context = Box::new(PrintConsole::default());
 
         unsafe { consoleInit(screen.as_raw(), context.as_mut()) };
 
         Console {
             context,
-            _screen: PhantomData,
+            _screen: screen,
         }
     }
 
