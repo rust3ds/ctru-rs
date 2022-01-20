@@ -71,6 +71,7 @@ pub enum Side {
 pub struct Gfx {
     pub top_screen: RefCell<TopScreen>,
     pub bottom_screen: RefCell<BottomScreen>,
+    _private: ()
 }
 
 impl Gfx {
