@@ -1,4 +1,4 @@
-use std::cell::Ref;
+use std::cell::RefMut;
 use std::default::Default;
 
 use ctru_sys::{consoleClear, consoleInit, consoleSelect, consoleSetWindow, PrintConsole};
@@ -7,21 +7,21 @@ use crate::gfx::Screen;
 
 pub struct Console<'screen> {
     context: Box<PrintConsole>,
-    screen: Ref<'screen, dyn Screen>,
+    screen: RefMut<'screen, dyn Screen>,
 }
 
 impl<'screen> Console<'screen> {
     /// Initialize a console on the chosen screen, overwriting whatever was on the screen
     /// previously (including other consoles). The new console is automatically selected for
     /// printing.
-    pub fn init(screen: Ref<'screen, dyn Screen>) -> Self {
+    pub fn init(screen: RefMut<'screen, dyn Screen>) -> Self {
         let mut context = Box::new(PrintConsole::default());
 
         unsafe { consoleInit(screen.as_raw(), context.as_mut()) };
 
         Console {
             context,
-            _screen: screen,
+            screen,
         }
     }
 
