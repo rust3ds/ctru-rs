@@ -7,7 +7,7 @@ use crate::gfx::Screen;
 
 pub struct Console<'screen> {
     context: Box<PrintConsole>,
-    _screen: Ref<'screen, dyn Screen>,
+    screen: Ref<'screen, dyn Screen>,
 }
 
 impl<'screen> Console<'screen> {
