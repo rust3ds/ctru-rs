@@ -26,7 +26,7 @@ fn main() {
 
             let wide_mode = gfx.top_screen.borrow().get_wide_mode();
             gfx.top_screen.borrow_mut().set_wide_mode(!wide_mode);
-            
+
             _console = Console::init(gfx.top_screen.borrow_mut());
             println!("Press A to enable/disable wide screen mode.");
         }

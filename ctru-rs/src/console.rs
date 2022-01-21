@@ -19,10 +19,7 @@ impl<'screen> Console<'screen> {
 
         unsafe { consoleInit(screen.as_raw(), context.as_mut()) };
 
-        Console {
-            context,
-            screen,
-        }
+        Console { context, screen }
     }
 
     /// Select this console as the current target for stdout

@@ -23,10 +23,7 @@ fn main() {
     let server = TcpListener::bind("0.0.0.0:80").unwrap();
     server.set_nonblocking(true).unwrap();
 
-    println!(
-        "Point your browser to http://{}/\n",
-        soc.host_address()
-    );
+    println!("Point your browser to http://{}/\n", soc.host_address());
 
     while apt.main_loop() {
         gfx.wait_for_vblank();
