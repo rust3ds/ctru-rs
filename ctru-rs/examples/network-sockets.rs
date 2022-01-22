@@ -1,4 +1,3 @@
-extern crate ctru;
 use ctru::console::Console;
 use ctru::gfx::Gfx;
 use ctru::services::apt::Apt;

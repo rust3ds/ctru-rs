@@ -46,12 +46,10 @@ pub trait Screen {
     }
 }
 
-pub struct TopScreen {
-    _private: (),
-}
-pub struct BottomScreen {
-    _private: (),
-}
+#[non_exhaustive]
+pub struct TopScreen;
+#[non_exhaustive]
+pub struct BottomScreen;
 
 #[derive(Copy, Clone, Debug)]
 /// Side of top screen framebuffer
@@ -68,10 +66,10 @@ pub enum Side {
 /// provides helper functions and utilities for software rendering.
 ///
 /// The service exits when this struct is dropped.
+#[non_exhaustive]
 pub struct Gfx {
     pub top_screen: RefCell<TopScreen>,
     pub bottom_screen: RefCell<BottomScreen>,
-    _private: (),
 }
 
 impl Gfx {
@@ -88,9 +86,8 @@ impl Gfx {
             ctru_sys::gfxInit(top_fb_fmt.into(), bottom_fb_fmt.into(), use_vram_buffers);
         }
         Gfx {
-            top_screen: RefCell::new(TopScreen { _private: () }),
-            bottom_screen: RefCell::new(BottomScreen { _private: () }),
-            _private: (),
+            top_screen: RefCell::new(TopScreen),
+            bottom_screen: RefCell::new(BottomScreen),
         }
     }
 
@@ -169,9 +166,8 @@ impl Default for Gfx {
     fn default() -> Self {
         unsafe { ctru_sys::gfxInitDefault() };
         Gfx {
-            top_screen: RefCell::new(TopScreen { _private: () }),
-            bottom_screen: RefCell::new(BottomScreen { _private: () }),
-            _private: (),
+            top_screen: RefCell::new(TopScreen),
+            bottom_screen: RefCell::new(BottomScreen),
         }
     }
 }

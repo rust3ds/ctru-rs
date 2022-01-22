@@ -1,10 +1,7 @@
-extern crate ctru;
 use ctru::console::Console;
 use ctru::gfx::Gfx;
 use ctru::services::apt::Apt;
 use ctru::services::hid::{Hid, KeyPad};
-
-extern crate ferris_says;
 
 use std::io::BufWriter;
 
