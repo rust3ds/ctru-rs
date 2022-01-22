@@ -1,28 +1,25 @@
+use std::cell::RefMut;
 use std::default::Default;
-use std::marker::PhantomData;
 
 use ctru_sys::{consoleClear, consoleInit, consoleSelect, consoleSetWindow, PrintConsole};
 
-use crate::gfx::{Gfx, Screen};
+use crate::gfx::Screen;
 
-pub struct Console<'gfx> {
+pub struct Console<'screen> {
     context: Box<PrintConsole>,
-    _gfx: PhantomData<&'gfx ()>,
+    screen: RefMut<'screen, dyn Screen>,
 }
 
-impl<'gfx> Console<'gfx> {
+impl<'screen> Console<'screen> {
     /// Initialize a console on the chosen screen, overwriting whatever was on the screen
     /// previously (including other consoles). The new console is automatically selected for
     /// printing.
-    pub fn init(_gfx: &'gfx Gfx, screen: Screen) -> Self {
+    pub fn init(screen: RefMut<'screen, dyn Screen>) -> Self {
         let mut context = Box::new(PrintConsole::default());
 
-        unsafe { consoleInit(screen.into(), context.as_mut()) };
+        unsafe { consoleInit(screen.as_raw(), context.as_mut()) };
 
-        Console {
-            context,
-            _gfx: PhantomData,
-        }
+        Console { context, screen }
     }
 
     /// Select this console as the current target for stdout
