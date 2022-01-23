@@ -1,5 +1,5 @@
 use ctru::console::Console;
-use ctru::gfx::{Gfx, Screen};
+use ctru::gfx::Gfx;
 use ctru::services::apt::Apt;
 use ctru::services::hid::{Hid, KeyPad};
 
@@ -11,11 +11,11 @@ fn main() {
     let gfx = Gfx::default();
 
     // Start a console on the top screen
-    let top_screen = Console::init(&gfx, Screen::Top);
+    let top_screen = Console::init(gfx.top_screen.borrow_mut());
 
     // Start a console on the bottom screen.
     // The most recently initialized console will be active by default
-    let bottom_screen = Console::init(&gfx, Screen::Bottom);
+    let bottom_screen = Console::init(gfx.bottom_screen.borrow_mut());
 
     // Let's print on the top screen first
     top_screen.select();

@@ -3,7 +3,6 @@
 
 use ctru::applets::swkbd::{Button, Swkbd};
 use ctru::console::Console;
-use ctru::gfx::Screen;
 use ctru::services::hid::KeyPad;
 use ctru::services::{Apt, Hid};
 use ctru::Gfx;
@@ -31,8 +30,8 @@ struct FileExplorer<'a> {
 
 impl<'a> FileExplorer<'a> {
     fn init(apt: &'a Apt, hid: &'a Hid, gfx: &'a Gfx) -> Self {
-        gfx.set_wide_mode(true);
-        let console = Console::init(gfx, Screen::Top);
+        gfx.top_screen.borrow_mut().set_wide_mode(true);
+        let console = Console::init(gfx.top_screen.borrow_mut());
 
         FileExplorer {
             apt,
