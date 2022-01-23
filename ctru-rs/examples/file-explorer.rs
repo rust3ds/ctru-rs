@@ -3,17 +3,19 @@
 
 use ctru::applets::swkbd::{Button, Swkbd};
 use ctru::console::Console;
+use ctru::romfs::RomFS;
 use ctru::services::hid::KeyPad;
 use ctru::services::{Apt, Hid};
 use ctru::Gfx;
 use std::fs::DirEntry;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 fn main() {
     ctru::init();
     let apt = Apt::init().unwrap();
     let hid = Hid::init().unwrap();
     let gfx = Gfx::default();
+    let _romfs = RomFS::new().unwrap();
 
     FileExplorer::init(&apt, &hid, &gfx).run();
 }
@@ -59,7 +61,9 @@ impl<'a> FileExplorer<'a> {
                 self.console.clear();
                 self.print_menu();
             } else if input.contains(KeyPad::KEY_A) {
-                self.get_next_path();
+                self.get_input_and_run(Self::set_next_path);
+            } else if input.contains(KeyPad::KEY_X) {
+                self.get_input_and_run(Self::set_exact_path);
             }
 
             self.gfx.flush_buffers();
@@ -107,40 +111,17 @@ impl<'a> FileExplorer<'a> {
             }
         }
 
-        println!("Start to exit, A to select an entry by number, B to go up a directory");
+        println!("Start to exit, A to select an entry by number, B to go up a directory, X to set the path.");
     }
 
-    fn get_next_path(&mut self) {
+    fn get_input_and_run(&mut self, action: impl FnOnce(&mut Self, String)) {
         let mut keyboard = Swkbd::default();
-        let mut next_path_index = String::new();
+        let mut new_path_str = String::new();
 
-        match keyboard.get_utf8(&mut next_path_index) {
+        match keyboard.get_utf8(&mut new_path_str) {
             Ok(Button::Right) => {
                 // Clicked "OK"
-                let next_path_index: usize = match next_path_index.parse() {
-                    Ok(index) => index,
-                    Err(e) => {
-                        println!("Number parsing error: {}", e);
-                        return;
-                    }
-                };
-
-                let next_entry = match self.entries.get(next_path_index) {
-                    Some(entry) => entry,
-                    None => {
-                        println!("Input number of bounds");
-                        return;
-                    }
-                };
-
-                if !next_entry.file_type().unwrap().is_dir() {
-                    println!("Not a directory: {}", next_path_index);
-                    return;
-                }
-
-                self.console.clear();
-                self.path = next_entry.path();
-                self.print_menu();
+                action(self, new_path_str);
             }
             Ok(Button::Left) => {
                 // Clicked "Cancel"
@@ -153,5 +134,44 @@ impl<'a> FileExplorer<'a> {
                 panic!("Error: {:?}", e)
             }
         }
+    }
+
+    fn set_next_path(&mut self, next_path_index: String) {
+        let next_path_index: usize = match next_path_index.parse() {
+            Ok(index) => index,
+            Err(e) => {
+                println!("Number parsing error: {}", e);
+                return;
+            }
+        };
+
+        let next_entry = match self.entries.get(next_path_index) {
+            Some(entry) => entry,
+            None => {
+                println!("Input number of bounds");
+                return;
+            }
+        };
+
+        if !next_entry.file_type().unwrap().is_dir() {
+            println!("Not a directory: {}", next_path_index);
+            return;
+        }
+
+        self.console.clear();
+        self.path = next_entry.path();
+        self.print_menu();
+    }
+
+    fn set_exact_path(&mut self, new_path_str: String) {
+        let new_path = Path::new(&new_path_str);
+        if !new_path.is_dir() {
+            println!("Not a directory: {}", new_path_str);
+            return;
+        }
+
+        self.console.clear();
+        self.path = new_path.to_path_buf();
+        self.print_menu();
     }
 }
