@@ -34,6 +34,7 @@ pub mod console;
 pub mod error;
 pub mod gfx;
 pub mod sdmc;
+pub mod romfs;
 pub mod services;
 pub mod srv;
 pub mod thread;
