@@ -1,3 +1,15 @@
+//! This module only gets compiled if the configured RomFS directory is found and the `romfs`
+//! feature is enabled.
+//!
+//! Configure the path in Cargo.toml (the default path is "romfs"). Paths are relative to the
+//! `CARGO_MANIFEST_DIR` environment variable, which is the directory containing the manifest of
+//! your package.
+//!
+//! ```toml
+//! [package.metadata.cargo-3ds]
+//! romfs_dir = "romfs"
+//! ```
+
 use std::ffi::CStr;
 
 #[non_exhaustive]

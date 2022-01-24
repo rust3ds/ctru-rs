@@ -3,7 +3,6 @@
 
 use ctru::applets::swkbd::{Button, Swkbd};
 use ctru::console::Console;
-use ctru::romfs::RomFS;
 use ctru::services::hid::KeyPad;
 use ctru::services::{Apt, Hid};
 use ctru::Gfx;
@@ -15,7 +14,9 @@ fn main() {
     let apt = Apt::init().unwrap();
     let hid = Hid::init().unwrap();
     let gfx = Gfx::default();
-    let _romfs = RomFS::new().unwrap();
+
+    #[cfg(all(feature = "romfs", romfs_exists))]
+    let _romfs = ctru::romfs::RomFS::new().unwrap();
 
     FileExplorer::init(&apt, &hid, &gfx).run();
 }
