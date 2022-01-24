@@ -86,7 +86,7 @@ fn main() {
         // Get the current time. ctru_sys bindings should be used rather than
         // plain libc ones, for reasons I don't understand yet...
         let unix_time: ctru_sys::time_t = unsafe { ctru_sys::time(std::ptr::null_mut()) };
-        let time = unsafe { ptr::read(ctru_sys::gmtime(&unix_time as *const _)) };
+        let time = unsafe { *ctru_sys::gmtime(&unix_time as *const _) };
 
         let hours = time.tm_hour;
         let minutes = time.tm_min;
