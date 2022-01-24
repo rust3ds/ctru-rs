@@ -1,7 +1,5 @@
-use std::ptr;
-
 use ctru::console::Console;
-use ctru::gfx::{Gfx, Screen};
+use ctru::gfx::Gfx;
 use ctru::services::apt::Apt;
 use ctru::services::hid::{Hid, KeyPad};
 
@@ -70,7 +68,7 @@ fn main() {
     let hid = Hid::init().expect("Couldn't obtain HID controller");
     let apt = Apt::init().expect("Couldn't obtain APT controller");
 
-    let _console = Console::init(&gfx, Screen::Top);
+    let _console = Console::init(gfx.top_screen.borrow_mut());
 
     print!("\x1b[30;16HPress Start to exit.");
 
