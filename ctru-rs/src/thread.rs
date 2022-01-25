@@ -10,8 +10,7 @@
 
 //! 3DS-specific threading API
 //!
-//! While it is possible to create threads on the 3DS using functions found in
-//! `std::thread`, the standard API does not expose the ability to set a thread's
+//! The standard API does not expose the ability to set a thread's
 //! priority level and to pin a thread to a specific CPU core. This module exists
 //! to address those and other shortcomings.
 //!
