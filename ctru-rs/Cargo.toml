@@ -11,6 +11,7 @@ crate-type = ["rlib"]
 name = "ctru"
 
 [dependencies]
+cfg-if = "1.0"
 ctru-sys = { path = "../ctru-sys", version = "0.4" }
 const-zero = "0.1.0"
 linker-fix-3ds = { git = "https://github.com/Meziu/rust-linker-fix-3ds.git" }
@@ -19,5 +20,12 @@ libc = "0.2"
 bitflags = "1.0.0"
 widestring = "0.2.2"
 
+[build-dependencies]
+toml = "0.5"
+
 [dev-dependencies]
 ferris-says = "0.2.1"
+
+[features]
+default = ["romfs"]
+romfs = []

@@ -33,13 +33,30 @@ pub mod applets;
 pub mod console;
 pub mod error;
 pub mod gfx;
-pub mod sdmc;
 pub mod services;
 pub mod srv;
 pub mod thread;
 
+cfg_if::cfg_if! {
+    if #[cfg(all(feature = "romfs", romfs_exists))] {
+        pub mod romfs;
+    } else {
+        pub mod romfs {
+            //! The RomFS folder has not been detected and/or the `romfs` feature has not been enabled.
+            //!
+            //! Configure the path in Cargo.toml (the default path is "romfs"). Paths are relative to the
+            //! `CARGO_MANIFEST_DIR` environment variable, which is the directory containing the manifest of
+            //! your package.
+            //!
+            //! ```toml
+            //! [package.metadata.cargo-3ds]
+            //! romfs_dir = "romfs"
+            //! ```
+        }
+    }
+}
+
 pub use crate::error::{Error, Result};
 
 pub use crate::gfx::Gfx;
-pub use crate::sdmc::Sdmc;
 pub use crate::srv::Srv;
