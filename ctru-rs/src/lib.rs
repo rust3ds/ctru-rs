@@ -33,7 +33,6 @@ pub mod applets;
 pub mod console;
 pub mod error;
 pub mod gfx;
-pub mod sdmc;
 pub mod services;
 pub mod srv;
 pub mod thread;
@@ -57,5 +56,4 @@ pub mod romfs {
 pub use crate::error::{Error, Result};
 
 pub use crate::gfx::Gfx;
-pub use crate::sdmc::Sdmc;
 pub use crate::srv::Srv;
