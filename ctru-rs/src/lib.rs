@@ -20,7 +20,7 @@ pub fn init() {
         default_hook(info);
 
         // Only for panics in the main thread
-        if main_thread == thread::current().id() {
+        if main_thread == thread::current().id() && console::console_exists() {
             println!("\nPress SELECT to exit the software");
             let hid = services::hid::Hid::init().unwrap();
 
