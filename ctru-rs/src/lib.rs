@@ -31,7 +31,7 @@ pub fn init() {
                 }
             }
         }
-        println!("\x1b[1;37m\n"); // Get back to white
+        println!("\x1b[0m"); // Get back to white
     });
     std::panic::set_hook(new_hook);
 }
