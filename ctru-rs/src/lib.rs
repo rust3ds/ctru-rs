@@ -16,15 +16,9 @@ pub fn init() {
     let new_hook = Box::new(move |info: &PanicInfo| {
         println!("\x1b[1;31m\n--------------------------------------------------");
         default_hook(info);
-        println!("\nPress SELECT to exit the software");
-        let hid = services::hid::Hid::init().unwrap();
+        println!("\nThe thread will exit in 5 seconds");
 
-        loop {
-            hid.scan_input();
-            if hid.keys_down().contains(services::hid::KeyPad::KEY_SELECT) {
-                break;
-            }
-        }
+        thread::sleep(std::time::Duration::from_secs(5));
     });
     std::panic::set_hook(new_hook);
 }
