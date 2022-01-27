@@ -11,20 +11,27 @@ pub fn init() {
 
     use std::panic::PanicInfo;
 
+    let main_thread = thread::current().id();
+
     // Panic Hook setup
     let default_hook = std::panic::take_hook();
     let new_hook = Box::new(move |info: &PanicInfo| {
-        println!("\x1b[1;31m\n--------------------------------------------------");
+        println!("\x1b[1;31m\n--------------------------------------------------"); // Red ANSI Color Code
         default_hook(info);
-        println!("\nPress SELECT to exit the software");
-        let hid = services::hid::Hid::init().unwrap();
 
-        loop {
-            hid.scan_input();
-            if hid.keys_down().contains(services::hid::KeyPad::KEY_SELECT) {
-                break;
+        // Only for panics in the main thread
+        if main_thread == thread::current().id() {
+            println!("\nPress SELECT to exit the software");
+            let hid = services::hid::Hid::init().unwrap();
+
+            loop {
+                hid.scan_input();
+                if hid.keys_down().contains(services::hid::KeyPad::KEY_SELECT) {
+                    break;
+                }
             }
         }
+        println!("\x1b[1;37m\n"); // Get back to white
     });
     std::panic::set_hook(new_hook);
 }
