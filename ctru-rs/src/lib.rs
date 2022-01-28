@@ -16,11 +16,10 @@ pub fn init() {
     // Panic Hook setup
     let default_hook = std::panic::take_hook();
     let new_hook = Box::new(move |info: &PanicInfo| {
-        println!("\x1b[1;31m\n--------------------------------------------------"); // Red ANSI Color Code
         default_hook(info);
 
         // Only for panics in the main thread
-        if main_thread == thread::current().id() && console::console_exists() {
+        if main_thread == thread::current().id() && console::Console::exists() {
             println!("\nPress SELECT to exit the software");
             let hid = services::hid::Hid::init().unwrap();
 
@@ -31,7 +30,6 @@ pub fn init() {
                 }
             }
         }
-        println!("\x1b[0m"); // Get back to white
     });
     std::panic::set_hook(new_hook);
 }

@@ -13,7 +13,6 @@ fn main() {
     let hid = Hid::init().unwrap();
     let gfx = Gfx::default();
     let _console = Console::init(gfx.top_screen.borrow_mut());
-    drop(_console);
 
     let prio = thread::current().priority();
     println!("Main thread prio: {}\n", prio);

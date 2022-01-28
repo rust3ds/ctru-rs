@@ -7,18 +7,6 @@ use crate::gfx::Screen;
 
 static mut EMPTY_CONSOLE: PrintConsole = unsafe { const_zero::const_zero!(PrintConsole) };
 
-pub fn console_exists() -> bool {
-    unsafe {
-        let current_console = ctru_sys::consoleSelect(&mut EMPTY_CONSOLE);
-
-        let res = (*current_console).consoleInitialised;
-
-        ctru_sys::consoleSelect(current_console);
-
-        res
-    }
-}
-
 pub struct Console<'screen> {
     context: Box<PrintConsole>,
     screen: RefMut<'screen, dyn Screen>,
@@ -34,6 +22,19 @@ impl<'screen> Console<'screen> {
         unsafe { consoleInit(screen.as_raw(), context.as_mut()) };
 
         Console { context, screen }
+    }
+
+    /// Returns true if a valid Console to print on is selected
+    pub fn exists() -> bool {
+        unsafe {
+            let current_console = ctru_sys::consoleSelect(&mut EMPTY_CONSOLE);
+
+            let res = (*current_console).consoleInitialised;
+
+            ctru_sys::consoleSelect(current_console);
+
+            res
+        }
     }
 
     /// Select this console as the current target for stdout
