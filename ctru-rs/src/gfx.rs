@@ -28,26 +28,11 @@ pub trait Screen {
     fn set_framebuffer_format(&mut self, fmt: FramebufferFormat) {
         unsafe { ctru_sys::gfxSetScreenFormat(self.as_raw(), fmt.into()) }
     }
-
-    /// Returns a tuple containing a pointer to the specifified framebuffer (as determined by the
-    /// calling screen and `Side`), the width of the framebuffer in pixels, and the height of
-    /// the framebuffer in pixels
-    ///
-    /// Note that the pointer returned by this function can change after each call to this function
-    /// if double buffering is enabled
-    fn get_raw_framebuffer(&self, side: Side) -> (*mut u8, u16, u16) {
-        let mut width: u16 = 0;
-        let mut height: u16 = 0;
-        unsafe {
-            let buf: *mut u8 =
-                ctru_sys::gfxGetFramebuffer(self.as_raw(), side.into(), &mut width, &mut height);
-            (buf, width, height)
-        }
-    }
 }
 
 #[non_exhaustive]
 pub struct TopScreen;
+
 #[non_exhaustive]
 pub struct BottomScreen;
 
@@ -137,6 +122,44 @@ impl TopScreen {
     /// Get the status of wide screen mode.
     pub fn get_wide_mode(&self) -> bool {
         unsafe { ctru_sys::gfxIsWide() }
+    }
+
+    /// Returns a tuple containing a pointer to the top screen's framebuffer
+    /// (as determined by the `side`), the width of the framebuffer in pixels,
+    /// and the height of the framebuffer in pixels.
+    ///
+    /// Note that the pointer returned by this function can change after each call to this function
+    /// if double buffering is enabled
+    pub fn get_raw_framebuffer(&mut self, side: Side) -> (*mut u8, u16, u16) {
+        let mut width: u16 = 0;
+        let mut height: u16 = 0;
+        unsafe {
+            let buf: *mut u8 =
+                ctru_sys::gfxGetFramebuffer(self.as_raw(), side.into(), &mut width, &mut height);
+            (buf, width, height)
+        }
+    }
+}
+
+impl BottomScreen {
+    /// Returns a tuple containing a pointer to the bottom screen's framebuffer,
+    /// the width of the framebuffer in pixels, and the height of the framebuffer in pixels.
+    ///
+    /// Note that the pointer returned by this function can change after each call to this function
+    /// if double buffering is enabled
+    pub fn get_raw_framebuffer(&mut self) -> (*mut u8, u16, u16) {
+        let mut width: u16 = 0;
+        let mut height: u16 = 0;
+        unsafe {
+            let buf: *mut u8 = ctru_sys::gfxGetFramebuffer(
+                self.as_raw(),
+                Side::Left.into(),
+                &mut width,
+                &mut height,
+            );
+            // TODO: does it make sense to use a struct for this instead of a tuple?
+            (buf, width, height)
+        }
     }
 }
 

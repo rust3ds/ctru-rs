@@ -15,6 +15,10 @@ use ctru::Gfx;
 ///     -channel RGB -combine -rotate 90 \
 ///     assets/ferris.rgb
 /// ```
+///
+/// This creates an image appropriate for the default frame buffer format of
+/// BGR888 and rotates the image 90° to account for the screen actually being
+/// in portrait mode.
 static IMAGE: &[u8] = include_bytes!("assets/ferris.rgb");
 
 fn main() {
@@ -32,10 +36,8 @@ fn main() {
     // In this way we can draw our image only once on screen.
     bottom_screen.set_double_buffering(false);
 
-    // The "Left" side framebuffer is the only valid one for bottom screen
-    // TODO: make `get_raw_framebuffer` only accept a side for top screen
-    // Also, we assume the image is the correct size already...
-    let (frame_buffer, _width, _height) = bottom_screen.get_raw_framebuffer(Side::Left);
+    // We assume the image is the correct size already, so we drop width + height.
+    let (frame_buffer, _width, _height) = bottom_screen.get_raw_framebuffer();
 
     // Copy the image into the frame buffer
     unsafe {
