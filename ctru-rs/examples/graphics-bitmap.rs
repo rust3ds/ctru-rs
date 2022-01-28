@@ -1,5 +1,5 @@
 use ctru::console::Console;
-use ctru::gfx::{Screen as _, Side};
+use ctru::gfx::Screen as _;
 use ctru::services::hid::KeyPad;
 use ctru::services::{Apt, Hid};
 use ctru::Gfx;
@@ -9,16 +9,12 @@ use ctru::Gfx;
 /// command from the `examples` directory:
 ///
 /// ```sh
-/// convert assets/ferris.png -channel B -separate \
-///     assets/ferris.png -channel G -separate \
-///     assets/ferris.png -channel R -separate \
-///     -channel RGB -combine -rotate 90 \
-///     assets/ferris.rgb
+/// magick assets/ferris.png -channel-fx "red<=>blue" -rotate 90 assets/ferris.rgb
 /// ```
 ///
 /// This creates an image appropriate for the default frame buffer format of
-/// BGR888 and rotates the image 90° to account for the screen actually being
-/// in portrait mode.
+/// [`Bgr8`](ctru::services::gspgpu::FramebufferFormat::Bgr8)
+/// and rotates the image 90° to account for the portrait mode screen.
 static IMAGE: &[u8] = include_bytes!("assets/ferris.rgb");
 
 fn main() {
