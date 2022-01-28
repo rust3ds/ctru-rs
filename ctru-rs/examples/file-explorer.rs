@@ -57,7 +57,7 @@ impl<'a> FileExplorer<'a> {
 
             if input.contains(KeyPad::KEY_START) {
                 break;
-            } else if input.contains(KeyPad::KEY_B) {
+            } else if input.contains(KeyPad::KEY_B) && self.path.components().count() > 1 {
                 self.path.pop();
                 self.console.clear();
                 self.print_menu();

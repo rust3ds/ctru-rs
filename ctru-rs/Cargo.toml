@@ -30,3 +30,6 @@ time = "0.3.7"
 [features]
 default = ["romfs"]
 romfs = []
+
+[package.metadata.cargo-3ds]
+romfs_dir = "examples/romfs"
