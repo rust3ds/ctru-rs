@@ -16,7 +16,7 @@ fn main() {
 
     let prio = thread::current().priority();
     println!("Main thread prio: {}\n", prio);
-    
+
     for ix in 0..3 {
         thread::Builder::new()
             .priority(prio - 1)

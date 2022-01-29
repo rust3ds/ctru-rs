@@ -5,6 +5,8 @@ use ctru_sys::{consoleClear, consoleInit, consoleSelect, consoleSetWindow, Print
 
 use crate::gfx::Screen;
 
+static mut EMPTY_CONSOLE: PrintConsole = unsafe { const_zero::const_zero!(PrintConsole) };
+
 pub struct Console<'screen> {
     context: Box<PrintConsole>,
     screen: RefMut<'screen, dyn Screen>,
@@ -20,6 +22,19 @@ impl<'screen> Console<'screen> {
         unsafe { consoleInit(screen.as_raw(), context.as_mut()) };
 
         Console { context, screen }
+    }
+
+    /// Returns true if a valid Console to print on is selected
+    pub fn exists() -> bool {
+        unsafe {
+            let current_console = ctru_sys::consoleSelect(&mut EMPTY_CONSOLE);
+
+            let res = (*current_console).consoleInitialised;
+
+            ctru_sys::consoleSelect(current_console);
+
+            res
+        }
     }
 
     /// Select this console as the current target for stdout
@@ -49,8 +64,6 @@ impl<'screen> Console<'screen> {
 
 impl Drop for Console<'_> {
     fn drop(&mut self) {
-        static mut EMPTY_CONSOLE: PrintConsole = unsafe { const_zero::const_zero!(PrintConsole) };
-
         unsafe {
             // Safety: We are about to deallocate the PrintConsole data pointed
             // to by libctru. Without this drop code libctru would have a
