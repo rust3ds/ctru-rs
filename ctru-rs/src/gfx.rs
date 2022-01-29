@@ -36,6 +36,19 @@ pub struct TopScreen;
 #[non_exhaustive]
 pub struct BottomScreen;
 
+#[derive(Debug)]
+/// Representation of a framebuffer for one [`Side`] of the top screen, or the
+/// entire bottom screen. The inner pointer is only valid for one frame if double
+/// buffering is enabled. Data written to `ptr` will be rendered to the screen.
+pub struct RawFrameBuffer {
+    /// Pointer to graphics data to be rendered.
+    pub ptr: *mut u8,
+    /// The width of the framebuffer in pixels.
+    pub width: u16,
+    /// The height of the framebuffer in pixels.
+    pub height: u16,
+}
+
 #[derive(Copy, Clone, Debug)]
 /// Side of top screen framebuffer
 ///
@@ -124,42 +137,32 @@ impl TopScreen {
         unsafe { ctru_sys::gfxIsWide() }
     }
 
-    /// Returns a tuple containing a pointer to the top screen's framebuffer
-    /// (as determined by the `side`), the width of the framebuffer in pixels,
-    /// and the height of the framebuffer in pixels.
+    /// Returns a [`RawFrameBuffer`] for the given [`Side`] of the top screen.
     ///
-    /// Note that the pointer returned by this function can change after each call to this function
-    /// if double buffering is enabled
-    pub fn get_raw_framebuffer(&mut self, side: Side) -> (*mut u8, u16, u16) {
-        let mut width: u16 = 0;
-        let mut height: u16 = 0;
-        unsafe {
-            let buf: *mut u8 =
-                ctru_sys::gfxGetFramebuffer(self.as_raw(), side.into(), &mut width, &mut height);
-            (buf, width, height)
-        }
+    /// Note that the pointer of the framebuffer returned by this function can
+    /// change after each call to this function if double buffering is enabled.
+    pub fn get_raw_framebuffer(&mut self, side: Side) -> RawFrameBuffer {
+        RawFrameBuffer::for_screen_side(self.as_raw(), side.into())
     }
 }
 
 impl BottomScreen {
-    /// Returns a tuple containing a pointer to the bottom screen's framebuffer,
-    /// the width of the framebuffer in pixels, and the height of the framebuffer in pixels.
+    /// Returns a [`RawFrameBuffer`] for the bottom screen.
     ///
-    /// Note that the pointer returned by this function can change after each call to this function
-    /// if double buffering is enabled
-    pub fn get_raw_framebuffer(&mut self) -> (*mut u8, u16, u16) {
-        let mut width: u16 = 0;
-        let mut height: u16 = 0;
+    /// Note that the pointer of the framebuffer returned by this function can
+    /// change after each call to this function if double buffering is enabled.
+    pub fn get_raw_framebuffer(&mut self) -> RawFrameBuffer {
+        RawFrameBuffer::for_screen_side(self.as_raw(), Side::Left.into())
+    }
+}
+
+impl RawFrameBuffer {
+    fn for_screen_side(screen: ctru_sys::gfxScreen_t, side: ctru_sys::gfx3dSide_t) -> Self {
+        let mut buf = RawFrameBuffer::default();
         unsafe {
-            let buf: *mut u8 = ctru_sys::gfxGetFramebuffer(
-                self.as_raw(),
-                Side::Left.into(),
-                &mut width,
-                &mut height,
-            );
-            // TODO: does it make sense to use a struct for this instead of a tuple?
-            (buf, width, height)
+            buf.ptr = ctru_sys::gfxGetFramebuffer(screen, side, &mut buf.width, &mut buf.height);
         }
+        buf
     }
 }
 
@@ -172,6 +175,16 @@ impl Screen for TopScreen {
 impl Screen for BottomScreen {
     fn as_raw(&self) -> ctru_sys::gfxScreen_t {
         ctru_sys::GFX_BOTTOM
+    }
+}
+
+impl Default for RawFrameBuffer {
+    fn default() -> Self {
+        Self {
+            ptr: std::ptr::null_mut(),
+            width: 0,
+            height: 0,
+        }
     }
 }
 
