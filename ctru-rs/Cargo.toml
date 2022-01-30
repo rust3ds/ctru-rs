@@ -24,7 +24,7 @@ widestring = "0.2.2"
 toml = "0.5"
 
 [dev-dependencies]
-citro3d-sys = { path = "../../citro3d-rs/citro3d-sys" }
+citro3d-sys = { git = "https://github.com/ian-h-chamberlain/citro3d-rs.git" }
 ferris-says = "0.2.1"
 time = "0.3.7"
 

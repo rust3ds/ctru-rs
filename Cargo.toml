@@ -1,2 +1,7 @@
 [workspace]
 members = ["ctru-rs", "ctru-sys"]
+
+[patch."https://github.com/Meziu/ctru-rs.git"]
+# Since citro3d-sys depends on git version of ctru-sys, we have to override it here
+# to avoid the issue described in https://doc.rust-lang.org/cargo/reference/resolver.html#links
+ctru-sys = { path = "./ctru-sys", version = "0.4" }
