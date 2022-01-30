@@ -11,18 +11,23 @@ pub fn init() {
 
     use std::panic::PanicInfo;
 
+    let main_thread = thread::current().id();
+
     // Panic Hook setup
     let default_hook = std::panic::take_hook();
     let new_hook = Box::new(move |info: &PanicInfo| {
-        println!("\x1b[1;31m\n--------------------------------------------------");
         default_hook(info);
-        println!("\nPress SELECT to exit the software");
-        let hid = services::hid::Hid::init().unwrap();
 
-        loop {
-            hid.scan_input();
-            if hid.keys_down().contains(services::hid::KeyPad::KEY_SELECT) {
-                break;
+        // Only for panics in the main thread
+        if main_thread == thread::current().id() && console::Console::exists() {
+            println!("\nPress SELECT to exit the software");
+            let hid = services::hid::Hid::init().unwrap();
+
+            loop {
+                hid.scan_input();
+                if hid.keys_down().contains(services::hid::KeyPad::KEY_SELECT) {
+                    break;
+                }
             }
         }
     });

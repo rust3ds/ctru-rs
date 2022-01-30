@@ -2,6 +2,7 @@
 
 use std::cell::RefCell;
 use std::default::Default;
+use std::marker::PhantomData;
 use std::ops::Drop;
 
 use crate::services::gspgpu::{self, FramebufferFormat};
@@ -28,28 +29,28 @@ pub trait Screen {
     fn set_framebuffer_format(&mut self, fmt: FramebufferFormat) {
         unsafe { ctru_sys::gfxSetScreenFormat(self.as_raw(), fmt.into()) }
     }
-
-    /// Returns a tuple containing a pointer to the specifified framebuffer (as determined by the
-    /// calling screen and `Side`), the width of the framebuffer in pixels, and the height of
-    /// the framebuffer in pixels
-    ///
-    /// Note that the pointer returned by this function can change after each call to this function
-    /// if double buffering is enabled
-    fn get_raw_framebuffer(&self, side: Side) -> (*mut u8, u16, u16) {
-        let mut width: u16 = 0;
-        let mut height: u16 = 0;
-        unsafe {
-            let buf: *mut u8 =
-                ctru_sys::gfxGetFramebuffer(self.as_raw(), side.into(), &mut width, &mut height);
-            (buf, width, height)
-        }
-    }
 }
 
 #[non_exhaustive]
 pub struct TopScreen;
+
 #[non_exhaustive]
 pub struct BottomScreen;
+
+/// Representation of a framebuffer for one [`Side`] of the top screen, or the
+/// entire bottom screen. The inner pointer is only valid for one frame if double
+/// buffering is enabled. Data written to `ptr` will be rendered to the screen.
+#[derive(Debug)]
+pub struct RawFrameBuffer<'screen> {
+    /// Pointer to graphics data to be rendered.
+    pub ptr: *mut u8,
+    /// The width of the framebuffer in pixels.
+    pub width: u16,
+    /// The height of the framebuffer in pixels.
+    pub height: u16,
+    /// Keep a mutable reference to the Screen for which this framebuffer is tied.
+    screen: PhantomData<&'screen mut dyn Screen>,
+}
 
 #[derive(Copy, Clone, Debug)]
 /// Side of top screen framebuffer
@@ -137,6 +138,40 @@ impl TopScreen {
     /// Get the status of wide screen mode.
     pub fn get_wide_mode(&self) -> bool {
         unsafe { ctru_sys::gfxIsWide() }
+    }
+
+    /// Returns a [`RawFrameBuffer`] for the given [`Side`] of the top screen.
+    ///
+    /// Note that the pointer of the framebuffer returned by this function can
+    /// change after each call to this function if double buffering is enabled.
+    pub fn get_raw_framebuffer(&mut self, side: Side) -> RawFrameBuffer {
+        RawFrameBuffer::for_screen_side(self, side)
+    }
+}
+
+impl BottomScreen {
+    /// Returns a [`RawFrameBuffer`] for the bottom screen.
+    ///
+    /// Note that the pointer of the framebuffer returned by this function can
+    /// change after each call to this function if double buffering is enabled.
+    pub fn get_raw_framebuffer(&mut self) -> RawFrameBuffer {
+        RawFrameBuffer::for_screen_side(self, Side::Left)
+    }
+}
+
+impl<'screen> RawFrameBuffer<'screen> {
+    fn for_screen_side(screen: &'screen mut dyn Screen, side: Side) -> Self {
+        let mut width = 0;
+        let mut height = 0;
+        let ptr = unsafe {
+            ctru_sys::gfxGetFramebuffer(screen.as_raw(), side.into(), &mut width, &mut height)
+        };
+        Self {
+            ptr,
+            width,
+            height,
+            screen: PhantomData,
+        }
     }
 }
 

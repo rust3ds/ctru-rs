@@ -7,4 +7,4 @@ links = "ctru"
 edition = "2021"
 
 [dependencies]
-libc = { version = "0.2", default-features = false }
+libc = { version = "0.2.116", default-features = false }
