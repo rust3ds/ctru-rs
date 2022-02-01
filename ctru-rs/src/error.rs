@@ -6,12 +6,13 @@ use ctru_sys::result::{R_DESCRIPTION, R_LEVEL, R_MODULE, R_SUMMARY};
 pub type Result<T> = ::std::result::Result<T, Error>;
 
 /// The error type returned by all libctru functions.
+#[non_exhaustive]
 pub enum Error {
-    Os(i32),
+    Os(ctru_sys::Result),
 }
 
-impl From<i32> for Error {
-    fn from(err: i32) -> Self {
+impl From<ctru_sys::Result> for Error {
+    fn from(err: ctru_sys::Result) -> Self {
         Error::Os(err)
     }
 }
@@ -19,15 +20,14 @@ impl From<i32> for Error {
 impl fmt::Debug for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            Error::Os(err) => {
-                write!(f, "libctru result code: {:08X}:", err)?;
-                f.debug_struct("")
-                    .field("description", &R_DESCRIPTION(err))
-                    .field("module", &R_MODULE(err))
-                    .field("summary", &R_SUMMARY(err))
-                    .field("level", &R_LEVEL(err))
-                    .finish()
-            }
+            Error::Os(err) => f
+                .debug_struct("Error")
+                .field("raw", &format_args!("{:#08X}", err))
+                .field("description", &R_DESCRIPTION(err))
+                .field("module", &R_MODULE(err))
+                .field("summary", &R_SUMMARY(err))
+                .field("level", &R_LEVEL(err))
+                .finish(),
         }
     }
 }
