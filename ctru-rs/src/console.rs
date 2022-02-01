@@ -9,7 +9,7 @@ static mut EMPTY_CONSOLE: PrintConsole = unsafe { const_zero::const_zero!(PrintC
 
 pub struct Console<'screen> {
     context: Box<PrintConsole>,
-    screen: RefMut<'screen, dyn Screen>,
+    _screen: RefMut<'screen, dyn Screen>,
 }
 
 impl<'screen> Console<'screen> {
@@ -21,7 +21,10 @@ impl<'screen> Console<'screen> {
 
         unsafe { consoleInit(screen.as_raw(), context.as_mut()) };
 
-        Console { context, screen }
+        Console {
+            context,
+            _screen: screen,
+        }
     }
 
     /// Returns true if a valid Console to print on is selected
