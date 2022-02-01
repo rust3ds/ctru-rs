@@ -1,5 +1,8 @@
 #![crate_type = "rlib"]
 #![crate_name = "ctru"]
+#![feature(test)]
+#![feature(custom_test_frameworks)]
+#![test_runner(test_runner::test_runner)]
 
 /// Call this somewhere to force Rust to link some required crates
 /// This is also a setup for some crate integration only available at runtime
@@ -60,6 +63,9 @@ cfg_if::cfg_if! {
         }
     }
 }
+
+#[cfg(test)]
+mod test_runner;
 
 pub use crate::error::{Error, Result};
 
