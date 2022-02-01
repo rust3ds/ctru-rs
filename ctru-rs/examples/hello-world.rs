@@ -12,22 +12,16 @@ fn main() {
     let apt = Apt::init().expect("Couldn't obtain APT controller");
     let _console = Console::init(gfx.top_screen.borrow_mut());
 
-    struct Timespec {
-        t: libc::timespec,
-    }
+    let out = b"Hello fellow Rustaceans, I'm on the Nintendo 3DS!";
+    let width = 24;
 
-    //let inst = std::time::Instant::now();
-    let mut t = Timespec { t: libc::timespec { tv_sec: 0, tv_nsec: 0 } };
-    let res = unsafe { libc::clock_gettime(libc::CLOCK_MONOTONIC, &mut t.t) };
-    println!("{{tv_sec: {}, tv_nsec: {} }} {} clock:{}", t.t.tv_sec, t.t.tv_nsec, res, libc::CLOCK_MONOTONIC);
-    ctru::thread::sleep(std::time::Duration::from_secs(2));
-    /*let ela = inst.elapsed();
+    let mut writer = BufWriter::new(Vec::new());
+    ferris_says::say(out, width, &mut writer).unwrap();
+
     println!(
-        "\x1b[0;0HElapsed: {:#?}",
-        ela
-    );*/
-
-
+        "\x1b[0;0H{}",
+        String::from_utf8_lossy(&writer.into_inner().unwrap())
+    );
 
     // Main loop
     while apt.main_loop() {
