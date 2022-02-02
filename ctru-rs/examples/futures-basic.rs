@@ -18,6 +18,10 @@ fn main() {
     let apt = Apt::init().expect("Couldn't obtain APT controller");
     let _console = Console::init(gfx.top_screen.borrow_mut());
 
+    // Give ourselves up to 30% of the system core's time
+    apt.set_app_cpu_time_limit(30)
+        .expect("Failed to enable system core");
+
     println!("Starting executor...");
 
     let (exit_sender, mut exit_receiver) = futures::channel::oneshot::channel();
