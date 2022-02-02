@@ -22,20 +22,23 @@ fn main() {
 
     let (exit_sender, mut exit_receiver) = futures::channel::oneshot::channel();
     let (mut timer_sender, mut timer_receiver) = futures::channel::mpsc::channel(0);
-    let executor_thread = ctru::thread::spawn(move || {
-        let mut executor = futures::executor::LocalPool::new();
+    let executor_thread = ctru::thread::Builder::new()
+        .affinity(1)
+        .spawn(move || {
+            let mut executor = futures::executor::LocalPool::new();
 
-        executor.run_until(async move {
-            loop {
-                futures::select! {
-                    _ = exit_receiver => break,
-                    _ = timer_receiver.next() => {
-                        println!("Tick");
+            executor.run_until(async move {
+                loop {
+                    futures::select! {
+                        _ = exit_receiver => break,
+                        _ = timer_receiver.next() => {
+                            println!("Tick");
+                        }
                     }
                 }
-            }
-        });
-    });
+            });
+        })
+        .expect("Failed to create executor thread");
 
     println!("Executor started!");
 
