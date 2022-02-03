@@ -2,6 +2,7 @@ pub mod apt;
 pub mod fs;
 pub mod gspgpu;
 pub mod hid;
+pub mod ps;
 pub mod soc;
 pub mod sslc;
 
