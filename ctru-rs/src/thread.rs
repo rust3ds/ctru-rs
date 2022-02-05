@@ -1040,7 +1040,10 @@ mod thread_info {
     }
 
     pub fn set(thread: Thread) {
-        CTRU_THREAD_INFO.with(|c| assert!(c.borrow().is_none()));
-        CTRU_THREAD_INFO.with(move |c| *c.borrow_mut() = Some(ThreadInfo { thread }));
+        CTRU_THREAD_INFO.with(move |c| {
+            let mut thread_info = c.borrow_mut();
+            assert!(thread_info.is_none());
+            *thread_info = Some(ThreadInfo { thread });
+        });
     }
 }
