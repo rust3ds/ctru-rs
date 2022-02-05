@@ -215,8 +215,12 @@ pub const CUR_PROCESS_HANDLE: u32 = 4294934529;
 pub const ARBITRATION_SIGNAL_ALL: i32 = -1;
 pub const CUR_THREAD_HANDLE: u32 = 4294934528;
 pub const SYSCLOCK_SOC: u32 = 16756991;
+pub const SYSCLOCK_SYS: u32 = 33513982;
+pub const SYSCLOCK_SDMMC: u32 = 67027964;
 pub const SYSCLOCK_ARM9: u32 = 134055928;
 pub const SYSCLOCK_ARM11: u32 = 268111856;
+pub const SYSCLOCK_ARM11_LGR1: u32 = 536223712;
+pub const SYSCLOCK_ARM11_LGR2: u32 = 804335568;
 pub const SYSCLOCK_ARM11_NEW: u32 = 804335568;
 pub const CPU_TICKS_PER_MSEC: f64 = 268111.856;
 pub const CPU_TICKS_PER_USEC: f64 = 268.111856;
@@ -277,6 +281,8 @@ pub const CONSOLE_BLINK_FAST: u32 = 32;
 pub const CONSOLE_COLOR_REVERSE: u32 = 64;
 pub const CONSOLE_CONCEAL: u32 = 128;
 pub const CONSOLE_CROSSED_OUT: u32 = 256;
+pub const CONSOLE_FG_CUSTOM: u32 = 512;
+pub const CONSOLE_BG_CUSTOM: u32 = 1024;
 pub const __GNUCLIKE_ASM: u32 = 3;
 pub const __GNUCLIKE___TYPEOF: u32 = 1;
 pub const __GNUCLIKE___OFFSETOF: u32 = 1;
@@ -1216,6 +1222,7 @@ pub const MIISELECTOR_GUESTMII_SLOTS: u32 = 6;
 pub const MIISELECTOR_USERMII_SLOTS: u32 = 100;
 pub const MIISELECTOR_GUESTMII_NAME_LEN: u32 = 12;
 pub const ARCHIVE_DIRITER_MAGIC: u32 = 1751347809;
+pub const LINK3DS_COMM_PORT: u32 = 17491;
 pub type __int8_t = ::libc::c_schar;
 pub type __uint8_t = ::libc::c_uchar;
 pub type __int16_t = ::libc::c_short;
@@ -3446,7 +3453,10 @@ extern "C" {
         fb_b: *const ::libc::c_void,
         stride: u32_,
         mode: u32_,
-    );
+    ) -> bool;
+}
+extern "C" {
+    pub fn gspIsPresentPending(screen: ::libc::c_uint) -> bool;
 }
 extern "C" {
     pub fn gspSetEventCallback(
@@ -3628,8 +3638,8 @@ pub struct PrintConsole {
     pub windowWidth: ::libc::c_int,
     pub windowHeight: ::libc::c_int,
     pub tabSize: ::libc::c_int,
-    pub fg: ::libc::c_int,
-    pub bg: ::libc::c_int,
+    pub fg: u16_,
+    pub bg: u16_,
     pub flags: ::libc::c_int,
     pub PrintChar: ConsolePrint,
     pub consoleInitialised: bool,
@@ -4040,11 +4050,25 @@ extern "C" {
 extern "C" {
     pub fn mappableFree(mem: *mut ::libc::c_void);
 }
+pub const VRAM_ALLOC_A: vramAllocPos = 1;
+pub const VRAM_ALLOC_B: vramAllocPos = 2;
+pub const VRAM_ALLOC_ANY: vramAllocPos = 3;
+pub type vramAllocPos = ::libc::c_uint;
 extern "C" {
     pub fn vramAlloc(size: size_t) -> *mut ::libc::c_void;
 }
 extern "C" {
+    pub fn vramAllocAt(size: size_t, pos: vramAllocPos) -> *mut ::libc::c_void;
+}
+extern "C" {
     pub fn vramMemAlign(size: size_t, alignment: size_t) -> *mut ::libc::c_void;
+}
+extern "C" {
+    pub fn vramMemAlignAt(
+        size: size_t,
+        alignment: size_t,
+        pos: vramAllocPos,
+    ) -> *mut ::libc::c_void;
 }
 extern "C" {
     pub fn vramRealloc(mem: *mut ::libc::c_void, size: size_t) -> *mut ::libc::c_void;
@@ -4414,6 +4438,13 @@ impl Default for FS_Path {
         }
     }
 }
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct FS_SdMmcSpeedInfo {
+    pub highSpeedModeEnabled: bool,
+    pub usesHighestClockRate: bool,
+    pub sdClkCtrl: u16_,
+}
 pub type FS_Archive = u64_;
 extern "C" {
     pub fn fsInit() -> Result;
@@ -4553,10 +4584,10 @@ extern "C" {
     pub fn FSUSER_GetNandCid(out: *mut u8_, length: u32_) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_GetSdmcSpeedInfo(speedInfo: *mut u32_) -> Result;
+    pub fn FSUSER_GetSdmcSpeedInfo(speedInfo: *mut FS_SdMmcSpeedInfo) -> Result;
 }
 extern "C" {
-    pub fn FSUSER_GetNandSpeedInfo(speedInfo: *mut u32_) -> Result;
+    pub fn FSUSER_GetNandSpeedInfo(speedInfo: *mut FS_SdMmcSpeedInfo) -> Result;
 }
 extern "C" {
     pub fn FSUSER_GetSdmcLog(out: *mut u8_, length: u32_) -> Result;
@@ -5027,6 +5058,19 @@ pub struct AM_TWLPartitionInfo {
     pub titlesCapacity: u64_,
     pub titlesFreeSpace: u64_,
 }
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct AM_ContentInfo {
+    pub index: u16_,
+    pub type_: u16_,
+    pub contentId: u32_,
+    pub size: u64_,
+    pub flags: u8_,
+    pub padding: [u8_; 7usize],
+}
+pub const AM_CONTENT_DOWNLOADED: AM_ContentInfoFlags = 1;
+pub const AM_CONTENT_OWNED: AM_ContentInfoFlags = 2;
+pub type AM_ContentInfoFlags = ::libc::c_uint;
 extern "C" {
     pub fn amInit() -> Result;
 }
@@ -5324,6 +5368,23 @@ extern "C" {
 }
 extern "C" {
     pub fn AM_DeleteAllTwlTitles() -> Result;
+}
+extern "C" {
+    pub fn AMAPP_GetDLCContentInfoCount(
+        count: *mut u32_,
+        mediatype: FS_MediaType,
+        titleID: u64_,
+    ) -> Result;
+}
+extern "C" {
+    pub fn AMAPP_ListDLCContentInfos(
+        contentInfoRead: *mut u32_,
+        mediatype: FS_MediaType,
+        titleID: u64_,
+        contentInfoCount: u32_,
+        offset: u32_,
+        contentInfos: *mut AM_ContentInfo,
+    ) -> Result;
 }
 extern "C" {
     pub fn ampxiInit(servhandle: Handle) -> Result;
@@ -7305,10 +7366,10 @@ extern "C" {
     pub fn FSPXI_GetNandCid(serviceHandle: Handle, out: *mut ::libc::c_void, size: u32_) -> Result;
 }
 extern "C" {
-    pub fn FSPXI_GetSdmcSpeedInfo(serviceHandle: Handle, out: *mut u32_) -> Result;
+    pub fn FSPXI_GetSdmcSpeedInfo(serviceHandle: Handle, out: *mut FS_SdMmcSpeedInfo) -> Result;
 }
 extern "C" {
-    pub fn FSPXI_GetNandSpeedInfo(serviceHandle: Handle, out: *mut u32_) -> Result;
+    pub fn FSPXI_GetNandSpeedInfo(serviceHandle: Handle, out: *mut FS_SdMmcSpeedInfo) -> Result;
 }
 extern "C" {
     pub fn FSPXI_GetSdmcLog(serviceHandle: Handle, out: *mut ::libc::c_void, size: u32_) -> Result;
@@ -10315,6 +10376,9 @@ extern "C" {
     pub fn ptmuExit();
 }
 extern "C" {
+    pub fn ptmuGetSessionHandle() -> *mut Handle;
+}
+extern "C" {
     pub fn PTMU_GetShellState(out: *mut u8_) -> Result;
 }
 extern "C" {
@@ -10362,6 +10426,9 @@ extern "C" {
     pub fn ptmSysmExit();
 }
 extern "C" {
+    pub fn ptmSysmGetSessionHandle() -> *mut Handle;
+}
+extern "C" {
     pub fn PTMSYSM_RequestSleep() -> Result;
 }
 extern "C" {
@@ -10378,6 +10445,9 @@ extern "C" {
 }
 extern "C" {
     pub fn PTMSYSM_Awaken() -> Result;
+}
+extern "C" {
+    pub fn PTMSYSM_SetUserTime(msY2k: s64) -> Result;
 }
 extern "C" {
     pub fn PTMSYSM_InvalidateSystemTime() -> Result;
@@ -10399,6 +10469,30 @@ extern "C" {
 }
 extern "C" {
     pub fn PTMSYSM_RebootAsync(timeout: u64_) -> Result;
+}
+extern "C" {
+    pub fn ptmGetsInit() -> Result;
+}
+extern "C" {
+    pub fn ptmGetsExit();
+}
+extern "C" {
+    pub fn ptmGetsGetSessionHandle() -> *mut Handle;
+}
+extern "C" {
+    pub fn PTMGETS_GetSystemTime(outMsY2k: *mut s64) -> Result;
+}
+extern "C" {
+    pub fn ptmSetsInit() -> Result;
+}
+extern "C" {
+    pub fn ptmSetsExit();
+}
+extern "C" {
+    pub fn ptmSetsGetSessionHandle() -> *mut Handle;
+}
+extern "C" {
+    pub fn PTMSETS_SetSystemTime(msY2k: s64) -> Result;
 }
 pub const WAIT_NONE: PXIDEV_WaitType = 0;
 pub const WAIT_SLEEP: PXIDEV_WaitType = 1;
@@ -13542,4 +13636,10 @@ extern "C" {
 }
 extern "C" {
     pub fn gdbHioDevSystem(command: *const ::libc::c_char) -> ::libc::c_int;
+}
+extern "C" {
+    pub static mut __3dslink_host: in_addr;
+}
+extern "C" {
+    pub fn link3dsConnectToHost(redirStdout: bool, redirStderr: bool) -> ::libc::c_int;
 }
