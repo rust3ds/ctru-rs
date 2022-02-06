@@ -28,16 +28,21 @@ fn main() {
 
     let runtime_thread = ctru::thread::Builder::new()
         .affinity(1)
+        .stack_size(0x200000)
         .spawn(move || {
             runtime.block_on(async move {
+                println!("Start of future");
                 let mut wake_time = tokio::time::Instant::now() + Duration::from_secs(1);
+                let mut iteration = 0;
                 loop {
+                    println!("Start of loop");
                     let sleep_future = tokio::time::sleep_until(wake_time);
 
                     tokio::select! {
                         _ = &mut exit_receiver => break,
                         _ = sleep_future => {
-                            println!("Tick");
+                            println!("Tick {}", iteration);
+                            iteration += 1;
                             wake_time += Duration::from_secs(1);
                         }
                     }
