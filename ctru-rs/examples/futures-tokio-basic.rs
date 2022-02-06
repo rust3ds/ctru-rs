@@ -38,12 +38,15 @@ fn main() {
                     let sleep_future = tokio::time::sleep_until(wake_time);
 
                     tokio::select! {
-                        _ = &mut exit_receiver => break,
+                        // Use the first available future instead of randomizing
+                        biased;
+
                         _ = sleep_future => {
                             println!("Tick {}", iteration);
                             iteration += 1;
                             wake_time += Duration::from_secs(1);
                         }
+                        _ = &mut exit_receiver => break,
                     }
                 }
             });
