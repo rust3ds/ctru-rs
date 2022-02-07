@@ -8,6 +8,30 @@
 #[non_exhaustive]
 pub struct Ps;
 
+#[repr(u32)]
+pub enum AESAlgorithm {
+    CbcEnc,
+    CbcDec,
+    CtrEnc,
+    CtrDec,
+    CcmEnc,
+    CcmDec,
+}
+
+#[repr(u32)]
+pub enum AESKeyType {
+    Keyslot0D,
+    Keyslot2D,
+    Keyslot31,
+    Keyslot38,
+    Keyslot32,
+    Keyslot39Dlp,
+    Keyslot2E,
+    KeyslotInvalid,
+    Keyslot36,
+    Keyslot39Nfc,
+}
+
 impl Ps {
     /// Initialize the PS module.
     pub fn init() -> crate::Result<Self> {
@@ -16,6 +40,38 @@ impl Ps {
             Err(r.into())
         } else {
             Ok(Self)
+        }
+    }
+
+    pub fn local_friend_code_seed(&self) -> crate::Result<u64> {
+        let mut seed: u64 = 0;
+
+        let r = unsafe { ctru_sys::PS_GetLocalFriendCodeSeed(&mut seed) };
+        if r < 0 {
+            Err(r.into())
+        } else {
+            Ok(seed)
+        }
+    }
+
+    pub fn device_id(&self) -> crate::Result<u32> {
+        let mut id: u32 = 0;
+
+        let r = unsafe { ctru_sys::PS_GetDeviceId(&mut id) };
+        if r < 0 {
+            Err(r.into())
+        } else {
+            Ok(id)
+        }
+    }
+
+    pub fn generate_random_bytes(&self, out: &mut [u8]) -> crate::Result<()> {
+        let r =
+            unsafe { ctru_sys::PS_GenerateRandomBytes(out as *mut _ as *mut _, out.len() as u32) };
+        if r < 0 {
+            Err(r.into())
+        } else {
+            Ok(())
         }
     }
 }

@@ -25,7 +25,9 @@ toml = "0.5"
 
 [dev-dependencies]
 ferris-says = "0.2.1"
+futures = "0.3"
 time = "0.3.7"
+tokio = { version = "1.16", features = ["rt", "time", "sync", "macros"] }
 
 [features]
 default = ["romfs"]

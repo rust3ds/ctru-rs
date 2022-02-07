@@ -26,5 +26,5 @@ bindgen "$DEVKITPRO/libctru/include/3ds.h" \
     -mtune=mpcore \
     -mfpu=vfp \
     -DARM11 \
-    -D_3DS \
+    -D__3DS__ \
 > src/bindings.rs
