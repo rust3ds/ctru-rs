@@ -83,3 +83,59 @@ impl Drop for Ps {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+
+    use super::*;
+
+    #[test]
+    fn construct_hash_map() {
+        let _ps = Ps::init().unwrap();
+
+        let mut input = vec![
+            (1_i32, String::from("123")),
+            (2, String::from("2")),
+            (6, String::from("six")),
+        ];
+
+        let map: HashMap<i32, String> = HashMap::from_iter(input.clone());
+
+        let mut actual: Vec<_> = map.into_iter().collect();
+        input.sort();
+        actual.sort();
+
+        assert_eq!(input, actual);
+    }
+
+    #[test]
+    fn construct_hash_map_no_rand() {
+        // Without initializing PS, we can't use `libc::getrandom` and constructing
+        // a HashMap panics at runtime.
+        //
+        // If any test case successfully creates a HashMap before this test,
+        // the thread-local RandomState in std will be initialized. We spawn
+        // a new thread to actually create the hash map, since even in multi-threaded
+        // test environment there's a chance this test wouldn't panic because
+        // some other test case ran before it.
+        //
+        // One downside of this approach is that the panic handler for the panicking
+        // thread prints to the console, which is not captured by the default test
+        // harness and prints even when the test passes.
+        crate::thread::Builder::new()
+            .stack_size(0x20_0000)
+            .spawn(|| {
+                let map: HashMap<i32, String> = HashMap::from_iter([
+                    (1_i32, String::from("123")),
+                    (2, String::from("2")),
+                    (6, String::from("six")),
+                ]);
+
+                dbg!(map);
+            })
+            .unwrap()
+            .join()
+            .expect_err("should have panicked");
+    }
+}
