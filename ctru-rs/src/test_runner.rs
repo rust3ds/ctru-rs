@@ -25,9 +25,6 @@ pub(crate) fn run(tests: &[&TestDescAndFn]) {
     top_screen.set_wide_mode(true);
     let _console = Console::init(top_screen);
 
-    // Start printing from the top left
-    print!("\x1b[1;1H");
-
     // TODO: it would be nice to have a way of specifying argv to make these
     // configurable at runtime, but I can't figure out how to do it easily,
     //  so for now, just hardcode everything.
