@@ -2,7 +2,6 @@ use ctru::console::Console;
 use ctru::gfx::Gfx;
 use ctru::services::apt::Apt;
 use ctru::services::hid::{Hid, KeyPad};
-use ctru::thread;
 
 use std::time::Duration;
 
@@ -14,11 +13,11 @@ fn main() {
     let gfx = Gfx::default();
     let _console = Console::init(gfx.top_screen.borrow_mut());
 
-    let prio = thread::current().priority();
+    let prio = ctru::thread::priority();
     println!("Main thread prio: {}\n", prio);
 
     for ix in 0..3 {
-        thread::Builder::new()
+        std::thread::Builder::new()
             .priority(prio - 1)
             .spawn(move || {
                 let sleep_duration: u64 = 1000 + ix * 250;
@@ -26,7 +25,7 @@ fn main() {
                 loop {
                     println!("Thread{ix} says {i}");
                     i += 1;
-                    thread::sleep(Duration::from_millis(sleep_duration));
+                    std::thread::sleep(Duration::from_millis(sleep_duration));
                 }
             })
             .unwrap();

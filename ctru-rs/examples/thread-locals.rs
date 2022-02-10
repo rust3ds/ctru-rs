@@ -28,7 +28,7 @@ fn main() {
         println!("Value on main thread after mutation: {}", local.borrow());
     });
 
-    ctru::thread::Builder::new()
+    std::thread::Builder::new()
         .affinity(1)
         .spawn(move || {
             MY_LOCAL.with(|local| {

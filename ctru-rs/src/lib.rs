@@ -14,7 +14,7 @@ pub fn init() {
 
     use std::panic::PanicInfo;
 
-    let main_thread = thread::current().id();
+    let main_thread = std::thread::current().id();
 
     // Panic Hook setup
     let default_hook = std::panic::take_hook();
@@ -22,7 +22,7 @@ pub fn init() {
         default_hook(info);
 
         // Only for panics in the main thread
-        if main_thread == thread::current().id() && console::Console::exists() {
+        if main_thread == std::thread::current().id() && console::Console::exists() {
             println!("\nPress SELECT to exit the software");
             let hid = services::hid::Hid::init().unwrap();
 

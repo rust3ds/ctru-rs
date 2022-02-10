@@ -26,7 +26,7 @@ fn main() {
 
     let (exit_sender, mut exit_receiver) = futures::channel::oneshot::channel();
     let (mut timer_sender, mut timer_receiver) = futures::channel::mpsc::channel(0);
-    let executor_thread = ctru::thread::Builder::new()
+    let executor_thread = std::thread::Builder::new()
         .affinity(1)
         .spawn(move || {
             let mut executor = futures::executor::LocalPool::new();

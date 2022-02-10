@@ -25,7 +25,7 @@ fn main() {
         .build()
         .expect("Couldn't build runtime");
 
-    let runtime_thread = ctru::thread::Builder::new()
+    let runtime_thread = std::thread::Builder::new()
         // Run on the system core
         .affinity(1)
         // Use a bigger stack size. Default is 0x1000 but we'd easily overflow that.
