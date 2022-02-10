@@ -115,9 +115,4 @@ mod link_fix {
     extern "C" fn sigemptyset(_arg1: *mut libc::sigset_t) -> ::libc::c_int {
         -1
     }
-
-    #[no_mangle]
-    extern "C" fn sysconf(_name: libc::c_int) -> libc::c_long {
-        -1
-    }
 }
