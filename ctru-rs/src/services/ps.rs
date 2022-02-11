@@ -123,7 +123,7 @@ mod tests {
         // One downside of this approach is that the panic handler for the panicking
         // thread prints to the console, which is not captured by the default test
         // harness and prints even when the test passes.
-        crate::thread::Builder::new()
+        std::thread::Builder::new()
             .stack_size(0x20_0000)
             .spawn(|| {
                 let map: HashMap<i32, String> = HashMap::from_iter([
