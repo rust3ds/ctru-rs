@@ -31,8 +31,6 @@ fn main() {
     let runtime_thread = std::thread::Builder::new()
         // Run on the system core
         .affinity(1)
-        // Use a bigger stack size. Default is 0x1000 but we'd easily overflow that.
-        .stack_size(0x200000)
         .spawn(move || {
             runtime.block_on(async move {
                 let mut wake_time = tokio::time::Instant::now() + Duration::from_secs(1);

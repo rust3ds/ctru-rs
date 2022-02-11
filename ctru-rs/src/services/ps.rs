@@ -124,7 +124,6 @@ mod tests {
         // thread prints to the console, which is not captured by the default test
         // harness and prints even when the test passes.
         std::thread::Builder::new()
-            .stack_size(0x20_0000)
             .spawn(|| {
                 let map: HashMap<i32, String> = HashMap::from_iter([
                     (1_i32, String::from("123")),
