@@ -5,11 +5,14 @@
 //! The example also implements clean shutdown by using a oneshot channel to end the future, thus
 //! ending the executor and the thread it runs on.
 
+#![feature(horizon_thread_ext)]
+
 use ctru::console::Console;
 use ctru::services::hid::KeyPad;
 use ctru::services::{Apt, Hid};
 use ctru::Gfx;
 use futures::StreamExt;
+use std::os::horizon::thread::ThreadBuilderExt;
 
 fn main() {
     ctru::init();

@@ -1,8 +1,11 @@
+#![feature(horizon_thread_ext)]
+
 use ctru::console::Console;
 use ctru::services::hid::KeyPad;
 use ctru::services::{Apt, Hid};
 use ctru::Gfx;
 use std::cell::RefCell;
+use std::os::horizon::thread::ThreadBuilderExt;
 
 std::thread_local! {
     static MY_LOCAL: RefCell<&'static str> = RefCell::new("initial value");
