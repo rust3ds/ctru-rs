@@ -11,9 +11,9 @@ fn main() {
     let _console = Console::init(gfx.top_screen.borrow_mut());
 
     cfg_if::cfg_if! {
-        // Run this code ff RomFS are wanted and available
+        // Run this code if RomFS are wanted and available
         // This never fails as `ctru-rs` examples inherit all of the `ctru` features,
-        // but it might in a normal user application wasn't setup correctly
+        // but it might if a normal user application wasn't setup correctly
         if #[cfg(all(feature = "romfs", romfs_exists))] {
             let _romfs = ctru::romfs::RomFS::new().unwrap();
 
