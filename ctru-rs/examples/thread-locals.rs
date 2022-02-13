@@ -32,7 +32,7 @@ fn main() {
     });
 
     std::thread::Builder::new()
-        .affinity(1)
+        .ideal_processor(1)
         .spawn(move || {
             MY_LOCAL.with(|local| {
                 println!("Initial value on second thread: {}", local.borrow());

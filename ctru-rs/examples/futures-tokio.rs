@@ -30,7 +30,7 @@ fn main() {
 
     let runtime_thread = std::thread::Builder::new()
         // Run on the system core
-        .affinity(1)
+        .ideal_processor(1)
         .spawn(move || {
             runtime.block_on(async move {
                 let mut wake_time = tokio::time::Instant::now() + Duration::from_secs(1);
