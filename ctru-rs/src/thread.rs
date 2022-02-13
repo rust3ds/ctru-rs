@@ -24,18 +24,6 @@
 
 use ctru_sys::svcGetProcessorID;
 
-/// Get the current thread's priority level. Lower values correspond to higher
-/// priority levels. The main thread's priority is typically 0x30, but not always.
-pub fn priority() -> i32 {
-    let thread_id = unsafe { libc::pthread_self() };
-    let mut policy = 0;
-    let mut sched_param = libc::sched_param { sched_priority: 0 };
-
-    unsafe { libc::pthread_getschedparam(thread_id, &mut policy, &mut sched_param) };
-
-    sched_param.sched_priority
-}
-
 /// Returns the ID of the processor the current thread is running on.
 pub fn affinity() -> i32 {
     unsafe { svcGetProcessorID() }

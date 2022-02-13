@@ -15,7 +15,7 @@ fn main() {
     let gfx = Gfx::default();
     let _console = Console::init(gfx.top_screen.borrow_mut());
 
-    let prio = ctru::thread::priority();
+    let prio = std::os::horizon::thread::current_priority();
     println!("Main thread prio: {}\n", prio);
 
     for ix in 0..3 {
