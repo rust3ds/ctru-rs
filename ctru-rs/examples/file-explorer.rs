@@ -6,8 +6,8 @@ use ctru::console::Console;
 use ctru::services::hid::KeyPad;
 use ctru::services::{Apt, Hid};
 use ctru::Gfx;
-use std::fs::{DirEntry, File};
-use std::io::{BufRead, BufReader};
+use std::fs::DirEntry;
+use std::os::horizon::fs::MetadataExt;
 use std::path::{Path, PathBuf};
 
 fn main() {
@@ -78,9 +78,10 @@ impl<'a> FileExplorer<'a> {
         match std::fs::metadata(&self.path) {
             Ok(metadata) => {
                 println!(
-                    "Viewing {} (size {} bytes)",
+                    "Viewing {} (size {} bytes, mode {:#o})",
                     self.path.display(),
-                    metadata.len()
+                    metadata.len(),
+                    metadata.st_mode(),
                 );
 
                 if metadata.is_file() {
@@ -126,25 +127,11 @@ impl<'a> FileExplorer<'a> {
     }
 
     fn print_file_contents(&mut self) {
-        match File::open(&self.path) {
-            Ok(f) => {
-                println!("File contents:\n{:->80}", "");
-                let reader = BufReader::new(f);
-                for (i, line) in reader.lines().enumerate() {
-                    match line {
-                        Ok(line) => {
-                            println!("{}", line);
-                            if (i + 1) % 20 == 0 {
-                                self.wait_for_page_down();
-                            }
-                        }
-                        Err(err) => {
-                            println!("Error reading file: {}", err);
-                            break;
-                        }
-                    }
-                }
-                println!("{:->80}", "");
+        match std::fs::read_to_string(&self.path) {
+            Ok(contents) => {
+                println!("File contents:\n{0:->80}", "");
+                println!("{contents}");
+                println!("{0:->80}", "");
             }
             Err(err) => {
                 println!("Error reading file: {}", err);
