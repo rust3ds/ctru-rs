@@ -43,7 +43,6 @@ pub mod error;
 pub mod gfx;
 pub mod services;
 pub mod srv;
-pub mod thread;
 
 cfg_if::cfg_if! {
     if #[cfg(all(feature = "romfs", romfs_exists))] {
