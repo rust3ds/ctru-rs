@@ -25,7 +25,7 @@ fn main() {
     print_affinity_mask("main thread");
 
     std::thread::Builder::new()
-        .ideal_processor(1)
+        .processor_id(1)
         .spawn(|| {
             print_processor("sys thread");
             print_thread_id("sys thread");
