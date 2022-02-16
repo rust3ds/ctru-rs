@@ -12,7 +12,7 @@ use ctru::services::hid::KeyPad;
 use ctru::services::{Apt, Hid};
 use ctru::Gfx;
 use futures::StreamExt;
-use std::os::horizon::thread::ThreadBuilderExt;
+use std::os::horizon::thread::BuilderExt;
 
 fn main() {
     ctru::init();

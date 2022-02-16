@@ -5,7 +5,7 @@ use ctru::services::hid::KeyPad;
 use ctru::services::ps::Ps;
 use ctru::services::{Apt, Hid};
 use ctru::Gfx;
-use std::os::horizon::thread::ThreadBuilderExt;
+use std::os::horizon::thread::BuilderExt;
 use std::time::Duration;
 
 fn main() {
