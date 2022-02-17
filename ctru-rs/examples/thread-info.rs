@@ -31,15 +31,12 @@ fn main() {
             print_thread_id("sys thread");
             print_priority("sys thread");
             print_affinity_mask("sys thread");
-            print_thread_list();
         })
         .unwrap()
         .join()
         .unwrap();
 
     println!("sys thread exited");
-    print_thread_list();
-
     println!("\nPress Start to exit");
 
     while apt.main_loop() {
@@ -104,30 +101,4 @@ fn print_thread_id(thread_name: &str) {
     }
 
     println!("{thread_name} ID: {thread_id:#x?}")
-}
-
-fn print_thread_list() {
-    let mut thread_ids = [0; 100];
-    let mut thread_ids_count = 0;
-    let result = unsafe {
-        ctru_sys::svcGetThreadList(
-            &mut thread_ids_count,
-            thread_ids.as_mut_ptr(),
-            thread_ids.len() as i32,
-            ctru_sys::CUR_PROCESS_HANDLE,
-        )
-    };
-
-    if ctru_sys::R_FAILED(result) {
-        println!("Error getting thread list:");
-        println!("result level = {}", ctru_sys::R_LEVEL(result));
-        println!("result summary = {}", ctru_sys::R_SUMMARY(result));
-        println!("result description = {}", ctru_sys::R_DESCRIPTION(result));
-        return;
-    }
-
-    println!("Thread list:");
-    for thread_id in thread_ids.into_iter().take(thread_ids_count as usize) {
-        println!("  {thread_id:#x}");
-    }
 }
