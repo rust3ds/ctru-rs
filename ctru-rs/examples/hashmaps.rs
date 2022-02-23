@@ -2,22 +2,18 @@ use ctru::console::Console;
 use ctru::gfx::Gfx;
 use ctru::services::apt::Apt;
 use ctru::services::hid::{Hid, KeyPad};
-use ctru::services::ps::Ps;
 
 fn main() {
     // Initialize services
+    //
+    // HashMaps generate hashes thanks to the 3DS' criptografically secure generator.
+    // This generator is only active when activating the `PS` service.
+    // This service is automatically initialized in `ctru::init`
     ctru::init();
     let apt = Apt::init().unwrap();
     let hid = Hid::init().unwrap();
     let gfx = Gfx::default();
     let _console = Console::init(gfx.top_screen.borrow_mut());
-
-    // HashMaps generate hashes thanks to the 3DS' criptografically secure generator.
-    // Sadly, this generator is only active when activating the `Ps` service.
-    // To do this, we have to make sure the `Ps` service handle is alive for the whole
-    // run time (or at least, when `HashMaps` are used).
-    // Not having a living `Ps` instance when using `HashMap`s results in a panic
-    let _ps = Ps::init().unwrap();
 
     let mut map = std::collections::HashMap::new();
     map.insert("A Key!", 102);
