@@ -1,6 +1,5 @@
 use ctru::console::Console;
 use ctru::services::hid::KeyPad;
-use ctru::services::ps::Ps;
 use ctru::services::{Apt, Hid};
 use ctru::Gfx;
 use std::time::Duration;
@@ -10,7 +9,6 @@ fn main() {
     let gfx = Gfx::default();
     let hid = Hid::init().expect("Couldn't obtain HID controller");
     let apt = Apt::init().expect("Couldn't obtain APT controller");
-    let _ps = Ps::init().expect("Couldn't initialize PS service");
     let _console = Console::init(gfx.top_screen.borrow_mut());
 
     // Give ourselves up to 30% of the system core's time
