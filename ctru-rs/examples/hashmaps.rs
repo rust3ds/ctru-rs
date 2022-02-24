@@ -6,7 +6,7 @@ use ctru::services::hid::{Hid, KeyPad};
 fn main() {
     // Initialize services
     //
-    // HashMaps generate hashes thanks to the 3DS' criptografically secure generator.
+    // HashMaps generate hashes thanks to the 3DS' cryptografically secure generator.
     // This generator is only active when activating the `PS` service.
     // This service is automatically initialized in `ctru::init`
     ctru::init();
