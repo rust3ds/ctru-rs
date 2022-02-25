@@ -7,6 +7,7 @@ use ctru::services::hid::KeyPad;
 use ctru::services::{Apt, Hid};
 use ctru::Gfx;
 use std::fs::DirEntry;
+use std::os::horizon::fs::MetadataExt;
 use std::path::{Path, PathBuf};
 
 fn main() {
@@ -74,8 +75,37 @@ impl<'a> FileExplorer<'a> {
     }
 
     fn print_menu(&mut self) {
-        println!("Viewing {}", self.path.display());
+        match std::fs::metadata(&self.path) {
+            Ok(metadata) => {
+                println!(
+                    "Viewing {} (size {} bytes, mode {:#o})",
+                    self.path.display(),
+                    metadata.len(),
+                    metadata.st_mode(),
+                );
 
+                if metadata.is_file() {
+                    self.print_file_contents();
+                    // let the user continue navigating from the parent dir
+                    // after dumping the file
+                    self.path.pop();
+                    self.print_menu();
+                    return;
+                } else if metadata.is_dir() {
+                    self.print_dir_entries();
+                } else {
+                    println!("unsupported file type: {:?}", metadata.file_type());
+                }
+            }
+            Err(e) => {
+                println!("Failed to read {}: {}", self.path.display(), e)
+            }
+        };
+
+        println!("Start to exit, A to select an entry by number, B to go up a directory, X to set the path.");
+    }
+
+    fn print_dir_entries(&mut self) {
         let dir_listing = std::fs::read_dir(&self.path).expect("Failed to open path");
         self.entries = Vec::new();
 
@@ -85,25 +115,8 @@ impl<'a> FileExplorer<'a> {
                     println!("{:2} - {}", i, entry.file_name().to_string_lossy());
                     self.entries.push(entry);
 
-                    // Paginate the output
                     if (i + 1) % 20 == 0 {
-                        println!("Press A to go to next page, or Start to exit");
-
-                        while self.apt.main_loop() {
-                            self.hid.scan_input();
-                            let input = self.hid.keys_down();
-
-                            if input.contains(KeyPad::KEY_A) {
-                                break;
-                            }
-
-                            if input.contains(KeyPad::KEY_START) {
-                                self.running = false;
-                                return;
-                            }
-
-                            self.gfx.wait_for_vblank();
-                        }
+                        self.wait_for_page_down();
                     }
                 }
                 Err(e) => {
@@ -111,8 +124,40 @@ impl<'a> FileExplorer<'a> {
                 }
             }
         }
+    }
 
-        println!("Start to exit, A to select an entry by number, B to go up a directory, X to set the path.");
+    fn print_file_contents(&mut self) {
+        match std::fs::read_to_string(&self.path) {
+            Ok(contents) => {
+                println!("File contents:\n{0:->80}", "");
+                println!("{contents}");
+                println!("{0:->80}", "");
+            }
+            Err(err) => {
+                println!("Error reading file: {}", err);
+            }
+        }
+    }
+
+    /// Paginate output
+    fn wait_for_page_down(&mut self) {
+        println!("Press A to go to next page, or Start to exit");
+
+        while self.apt.main_loop() {
+            self.hid.scan_input();
+            let input = self.hid.keys_down();
+
+            if input.contains(KeyPad::KEY_A) {
+                break;
+            }
+
+            if input.contains(KeyPad::KEY_START) {
+                self.running = false;
+                return;
+            }
+
+            self.gfx.wait_for_vblank();
+        }
     }
 
     fn get_input_and_run(&mut self, action: impl FnOnce(&mut Self, String)) {
@@ -153,11 +198,6 @@ impl<'a> FileExplorer<'a> {
                 return;
             }
         };
-
-        if !next_entry.file_type().unwrap().is_dir() {
-            println!("Not a directory: {}", next_path_index);
-            return;
-        }
 
         self.console.clear();
         self.path = next_entry.path();
