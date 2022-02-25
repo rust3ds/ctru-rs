@@ -4,6 +4,12 @@
 #![feature(custom_test_frameworks)]
 #![test_runner(test_runner::run)]
 
+extern "C" fn services_deinit() {
+    unsafe {
+        ctru_sys::psExit();
+    }
+}
+
 /// Call this somewhere to force Rust to link some required crates
 /// This is also a setup for some crate integration only available at runtime
 ///
@@ -11,6 +17,14 @@
 pub fn init() {
     linker_fix_3ds::init();
     pthread_3ds::init();
+
+    // Initialize the PS service for random data generation
+    unsafe {
+        ctru_sys::psInit();
+
+        // Setup the deconstruction at the program's end
+        libc::atexit(services_deinit);
+    }
 
     use std::panic::PanicInfo;
 
