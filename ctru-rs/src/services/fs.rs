@@ -13,8 +13,11 @@ use std::mem;
 use std::path::{Path, PathBuf};
 use std::ptr;
 use std::slice;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use widestring::{WideCStr, WideCString};
+
+use crate::error::Error;
 
 bitflags! {
     #[derive(Default)]
@@ -82,7 +85,10 @@ pub enum ArchiveID {
 /// until an instance of this struct is created.
 ///
 /// The service exits when all instances of this struct go out of scope.
+#[non_exhaustive]
 pub struct Fs(());
+
+static FS_ACTIVE: AtomicBool = AtomicBool::new(false);
 
 /// Handle to an open filesystem archive.
 ///
@@ -96,6 +102,7 @@ pub struct Fs(());
 /// let fs = Fs::init().unwrap();
 /// let sdmc_archive = fs.sdmc().unwrap();
 /// ```
+#[non_exhaustive]
 pub struct Archive {
     id: ArchiveID,
     handle: u64,
@@ -164,6 +171,7 @@ pub struct Archive {
 /// # Ok(())
 /// # }
 /// ```
+#[non_exhaustive]
 pub struct File {
     handle: u32,
     offset: u64,
@@ -175,6 +183,7 @@ pub struct File {
 /// represents known metadata about a file.
 ///
 /// [`metadata`]: fn.metadata.html
+#[non_exhaustive]
 pub struct Metadata {
     attributes: u32,
     size: u64,
@@ -257,6 +266,7 @@ pub struct OpenOptions {
 ///
 /// This Result will return Err if there's some sort of intermittent IO error
 /// during iteration.
+#[non_exhaustive]
 pub struct ReadDir<'a> {
     handle: Dir,
     root: Arc<PathBuf>,
@@ -297,14 +307,17 @@ impl Fs {
     /// ctrulib services are reference counted, so this function may be called
     /// as many times as desired and the service will not exit until all
     /// instances of Fs drop out of scope.
-    pub fn init() -> crate::Result<Fs> {
-        unsafe {
-            let r = ctru_sys::fsInit();
-            if r < 0 {
-                Err(r.into())
-            } else {
-                Ok(Fs(()))
+    pub fn init() -> crate::Result<Self> {
+        match FS_ACTIVE.compare_exchange(false, true, Ordering::Acquire, Ordering::Relaxed) {
+            Ok(_) => {
+                let r = unsafe { ctru_sys::fsInit() };
+                if r < 0 {
+                    Err(r.into())
+                } else {
+                    Ok(Self(()))
+                }
             }
+            Err(_) => Err(Error::ServiceAlreadyActive("Fs")),
         }
     }
 
@@ -990,6 +1003,8 @@ impl Drop for Fs {
         unsafe {
             ctru_sys::fsExit();
         }
+
+        FS_ACTIVE.store(false, Ordering::Release);
     }
 }
 
@@ -1059,3 +1074,16 @@ impl From<ArchiveID> for ctru_sys::FS_ArchiveID {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn fs_duplicate() {
+        let _fs = Fs::init().unwrap();
+
+        assert!(Fs::init().is_err());
+    }
+}
+

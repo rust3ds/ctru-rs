@@ -5,7 +5,7 @@ use ctru::services::hid::{Hid, KeyPad};
 
 fn main() {
     ctru::init();
-    let gfx = Gfx::default();
+    let gfx = Gfx::init_default().expect("Couldn't obtaint GFX controller");
     let hid = Hid::init().expect("Couldn't obtain HID controller");
     let apt = Apt::init().expect("Couldn't obtain APT controller");
     let _console = Console::init(gfx.top_screen.borrow_mut());
@@ -15,7 +15,7 @@ fn main() {
         // This never fails as `ctru-rs` examples inherit all of the `ctru` features,
         // but it might if a normal user application wasn't setup correctly
         if #[cfg(all(feature = "romfs", romfs_exists))] {
-            let _romfs = ctru::romfs::RomFS::new().unwrap();
+            let _romfs = ctru::romfs::RomFS::init().unwrap();
 
             let f = std::fs::read_to_string("romfs:/test-file.txt").unwrap();
             println!("Contents of test-file.txt: \n{f}\n");

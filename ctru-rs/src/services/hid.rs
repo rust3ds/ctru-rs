@@ -4,6 +4,10 @@
 //! and circle pad information. It also provides information from the sound volume slider,
 //! the accelerometer, and the gyroscope.
 
+use std::sync::atomic::{AtomicBool, Ordering};
+
+use crate::error::Error;
+
 bitflags::bitflags! {
     /// A set of flags corresponding to the button and directional pad
     /// inputs on the 3DS
@@ -44,12 +48,17 @@ bitflags::bitflags! {
 /// when all instances of this struct fall out of scope.
 ///
 /// This service requires no special permissions to use.
+#[non_exhaustive]
 pub struct Hid(());
 
+static HID_ACTIVE: AtomicBool = AtomicBool::new(false);
+
 /// Represents user input to the touchscreen.
+#[non_exhaustive]
 pub struct TouchPosition(ctru_sys::touchPosition);
 
 /// Represents the current position of the 3DS circle pad.
+#[non_exhaustive]
 pub struct CirclePosition(ctru_sys::circlePosition);
 
 /// Initializes the HID service.
@@ -60,14 +69,17 @@ pub struct CirclePosition(ctru_sys::circlePosition);
 /// Since this service requires no special or elevated permissions, errors are
 /// rare in practice.
 impl Hid {
-    pub fn init() -> crate::Result<Hid> {
-        unsafe {
-            let r = ctru_sys::hidInit();
-            if r < 0 {
-                Err(r.into())
-            } else {
-                Ok(Hid(()))
+    pub fn init() -> crate::Result<Self> {
+        match HID_ACTIVE.compare_exchange(false, true, Ordering::Acquire, Ordering::Relaxed) {
+            Ok(_) => {
+                let r = unsafe { ctru_sys::hidInit() };
+                if r < 0 {
+                    Err(r.into())
+                } else {
+                    Ok(Self(()))
+                }
             }
+            Err(_) => Err(Error::ServiceAlreadyActive("Hid")),
         }
     }
 
@@ -151,5 +163,18 @@ impl CirclePosition {
 impl Drop for Hid {
     fn drop(&mut self) {
         unsafe { ctru_sys::hidExit() };
+
+        HID_ACTIVE.store(false, Ordering::Release);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn hid_duplicate() {
+        // We don't need to build a `Hid` because the test runner has one already
+        assert!(Hid::init().is_err());
     }
 }

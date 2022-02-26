@@ -13,7 +13,7 @@ use futures::StreamExt;
 
 fn main() {
     ctru::init();
-    let gfx = Gfx::default();
+    let gfx = Gfx::init_default().expect("Couldn't obtaint GFX controller");
     let hid = Hid::init().expect("Couldn't obtain HID controller");
     let apt = Apt::init().expect("Couldn't obtain APT controller");
     let _console = Console::init(gfx.top_screen.borrow_mut());

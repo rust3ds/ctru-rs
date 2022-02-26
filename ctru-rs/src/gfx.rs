@@ -1,10 +1,11 @@
 //! LCD screens manipulation helper
 
 use std::cell::RefCell;
-use std::default::Default;
 use std::marker::PhantomData;
 use std::ops::Drop;
+use std::sync::atomic::{AtomicBool, Ordering};
 
+use crate::error::{Error, Result};
 use crate::services::gspgpu::{self, FramebufferFormat};
 
 /// Trait implemented by TopScreen and BottomScreen for common methods
@@ -73,23 +74,37 @@ pub struct Gfx {
     pub bottom_screen: RefCell<BottomScreen>,
 }
 
+static GFX_ACTIVE: AtomicBool = AtomicBool::new(false);
+
 impl Gfx {
     /// Initialize the Gfx module with the chosen framebuffer formats for the top and bottom
     /// screens
     ///
-    /// Use `Gfx::default()` instead of this function to initialize the module with default parameters
-    pub fn new(
+    /// Use `Gfx::init_default()` instead of this function to initialize the module with default parameters
+    pub fn init(
         top_fb_fmt: FramebufferFormat,
         bottom_fb_fmt: FramebufferFormat,
         use_vram_buffers: bool,
-    ) -> Self {
-        unsafe {
-            ctru_sys::gfxInit(top_fb_fmt.into(), bottom_fb_fmt.into(), use_vram_buffers);
+    ) -> Result<Self> {
+        match GFX_ACTIVE.compare_exchange(false, true, Ordering::Acquire, Ordering::Relaxed) {
+            Ok(_) => {
+                unsafe {
+                    ctru_sys::gfxInit(top_fb_fmt.into(), bottom_fb_fmt.into(), use_vram_buffers);
+                }
+
+                Ok(Gfx {
+                    top_screen: RefCell::new(TopScreen),
+                    bottom_screen: RefCell::new(BottomScreen),
+                })
+            }
+            Err(_) => Err(Error::ServiceAlreadyActive("Gfx")),
         }
-        Gfx {
-            top_screen: RefCell::new(TopScreen),
-            bottom_screen: RefCell::new(BottomScreen),
-        }
+    }
+
+    /// Creates a new Gfx instance with default init values
+    /// It's the same as calling: `Gfx::init(FramebufferFormat::Bgr8, FramebufferFormat::Bgr8, false)
+    pub fn init_default() -> Result<Self> {
+        Gfx::init(FramebufferFormat::Bgr8, FramebufferFormat::Bgr8, false)
     }
 
     /// Flushes the current framebuffers
@@ -197,18 +212,21 @@ impl From<Side> for ctru_sys::gfx3dSide_t {
     }
 }
 
-impl Default for Gfx {
-    fn default() -> Self {
-        unsafe { ctru_sys::gfxInitDefault() };
-        Gfx {
-            top_screen: RefCell::new(TopScreen),
-            bottom_screen: RefCell::new(BottomScreen),
-        }
-    }
-}
-
 impl Drop for Gfx {
     fn drop(&mut self) {
         unsafe { ctru_sys::gfxExit() };
+
+        GFX_ACTIVE.store(false, Ordering::Release);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn gfx_duplicate() {
+        // We don't need to build a `Gfx` because the test runner has one already
+        assert!(Gfx::init_default().is_err());
     }
 }

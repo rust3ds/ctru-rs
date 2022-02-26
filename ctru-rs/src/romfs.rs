@@ -11,19 +11,29 @@
 //! ```
 
 use std::ffi::CStr;
+use std::sync::atomic::{AtomicBool, Ordering};
+
+use crate::error::Error;
 
 #[non_exhaustive]
 pub struct RomFS;
 
-impl RomFS {
-    pub fn new() -> crate::Result<Self> {
-        let mount_name = CStr::from_bytes_with_nul(b"romfs\0").unwrap();
-        let result = unsafe { ctru_sys::romfsMountSelf(mount_name.as_ptr()) };
+static ROMFS_ACTIVE: AtomicBool = AtomicBool::new(false);
 
-        if result < 0 {
-            Err(result.into())
-        } else {
-            Ok(Self)
+impl RomFS {
+    pub fn init() -> crate::Result<Self> {
+        match ROMFS_ACTIVE.compare_exchange(false, true, Ordering::Acquire, Ordering::Relaxed) {
+            Ok(_) => {
+                let mount_name = CStr::from_bytes_with_nul(b"romfs\0").unwrap();
+                let result = unsafe { ctru_sys::romfsMountSelf(mount_name.as_ptr()) };
+
+                if result < 0 {
+                    Err(result.into())
+                } else {
+                    Ok(Self)
+                }
+            }
+            Err(_) => Err(Error::ServiceAlreadyActive("RomFS")),
         }
     }
 }
@@ -32,5 +42,19 @@ impl Drop for RomFS {
     fn drop(&mut self) {
         let mount_name = CStr::from_bytes_with_nul(b"romfs\0").unwrap();
         unsafe { ctru_sys::romfsUnmount(mount_name.as_ptr()) };
+
+        ROMFS_ACTIVE.store(false, Ordering::Release);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn romfs_duplicate() {
+        let _romfs = RomFS::init().unwrap();
+
+        assert!(RomFS::init().is_err());
     }
 }
