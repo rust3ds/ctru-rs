@@ -5,11 +5,14 @@
 //! The example also implements clean shutdown by using a oneshot channel to end the future, thus
 //! ending the executor and the thread it runs on.
 
+#![feature(horizon_thread_ext)]
+
 use ctru::console::Console;
 use ctru::services::hid::KeyPad;
 use ctru::services::{Apt, Hid};
 use ctru::Gfx;
 use futures::StreamExt;
+use std::os::horizon::thread::BuilderExt;
 
 fn main() {
     ctru::init();
@@ -26,8 +29,8 @@ fn main() {
 
     let (exit_sender, mut exit_receiver) = futures::channel::oneshot::channel();
     let (mut timer_sender, mut timer_receiver) = futures::channel::mpsc::channel(0);
-    let executor_thread = ctru::thread::Builder::new()
-        .affinity(1)
+    let executor_thread = std::thread::Builder::new()
+        .processor_id(1)
         .spawn(move || {
             let mut executor = futures::executor::LocalPool::new();
 

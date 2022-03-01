@@ -1,8 +1,11 @@
+#![feature(horizon_thread_ext)]
+
 use ctru::console::Console;
 use ctru::services::hid::KeyPad;
 use ctru::services::{Apt, Hid};
 use ctru::Gfx;
 use std::cell::RefCell;
+use std::os::horizon::thread::BuilderExt;
 
 std::thread_local! {
     static MY_LOCAL: RefCell<&'static str> = RefCell::new("initial value");
@@ -28,8 +31,8 @@ fn main() {
         println!("Value on main thread after mutation: {}", local.borrow());
     });
 
-    ctru::thread::Builder::new()
-        .affinity(1)
+    std::thread::Builder::new()
+        .processor_id(1)
         .spawn(move || {
             MY_LOCAL.with(|local| {
                 println!("Initial value on second thread: {}", local.borrow());
