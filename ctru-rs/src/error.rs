@@ -29,7 +29,10 @@ impl fmt::Debug for Error {
                 .field("summary", &R_SUMMARY(err))
                 .field("level", &R_LEVEL(err))
                 .finish(),
-            Error::ServiceAlreadyActive(service) => write!(f, "Service {service} already active"),
+            Error::ServiceAlreadyActive(service) => f
+                .debug_tuple("ServiceAlreadyActive")
+                .field(&String::from(service))
+                .finish(),
         }
     }
 }

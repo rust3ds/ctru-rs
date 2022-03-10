@@ -164,7 +164,7 @@ impl Drop for Hid {
     fn drop(&mut self) {
         unsafe { ctru_sys::hidExit() };
 
-        HID_ACTIVE.store(false, Ordering::Release);
+        HID_ACTIVE.store(false, Ordering::SeqCst);
     }
 }
 
@@ -175,6 +175,9 @@ mod tests {
     #[test]
     fn hid_duplicate() {
         // We don't need to build a `Hid` because the test runner has one already
-        assert!(Hid::init().is_err());
+        match Hid::init() {
+            Err(Error::ServiceAlreadyActive("Hid")) => return,
+            _ => panic!(),
+        }
     }
 }

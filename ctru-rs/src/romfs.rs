@@ -43,7 +43,7 @@ impl Drop for RomFS {
         let mount_name = CStr::from_bytes_with_nul(b"romfs\0").unwrap();
         unsafe { ctru_sys::romfsUnmount(mount_name.as_ptr()) };
 
-        ROMFS_ACTIVE.store(false, Ordering::Release);
+        ROMFS_ACTIVE.store(false, Ordering::SeqCst);
     }
 }
 
@@ -55,6 +55,9 @@ mod tests {
     fn romfs_duplicate() {
         let _romfs = RomFS::init().unwrap();
 
-        assert!(RomFS::init().is_err());
+        match RomFS::init() {
+            Err(Error::ServiceAlreadyActive("RomFS")) => return,
+            _ => panic!(),
+        }
     }
 }

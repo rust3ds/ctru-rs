@@ -8,7 +8,7 @@ fn main() {
     ctru::init();
     let apt = Apt::init().unwrap();
     let hid = Hid::init().unwrap();
-    let gfx = Gfx::default();
+    let gfx = Gfx::init().unwrap();
     let _console = Console::init(gfx.top_screen.borrow_mut());
 
     println!("Press A to enter some text or press Start to quit");

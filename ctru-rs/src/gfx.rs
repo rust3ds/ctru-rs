@@ -80,8 +80,8 @@ impl Gfx {
     /// Initialize the Gfx module with the chosen framebuffer formats for the top and bottom
     /// screens
     ///
-    /// Use `Gfx::init_default()` instead of this function to initialize the module with default parameters
-    pub fn init(
+    /// Use `Gfx::init()` instead of this function to initialize the module with default parameters
+    pub fn with_formats(
         top_fb_fmt: FramebufferFormat,
         bottom_fb_fmt: FramebufferFormat,
         use_vram_buffers: bool,
@@ -102,9 +102,9 @@ impl Gfx {
     }
 
     /// Creates a new Gfx instance with default init values
-    /// It's the same as calling: `Gfx::init(FramebufferFormat::Bgr8, FramebufferFormat::Bgr8, false)
-    pub fn init_default() -> Result<Self> {
-        Gfx::init(FramebufferFormat::Bgr8, FramebufferFormat::Bgr8, false)
+    /// It's the same as calling: `Gfx::with_formats(FramebufferFormat::Bgr8, FramebufferFormat::Bgr8, false)
+    pub fn init() -> Result<Self> {
+        Gfx::with_formats(FramebufferFormat::Bgr8, FramebufferFormat::Bgr8, false)
     }
 
     /// Flushes the current framebuffers
@@ -216,7 +216,7 @@ impl Drop for Gfx {
     fn drop(&mut self) {
         unsafe { ctru_sys::gfxExit() };
 
-        GFX_ACTIVE.store(false, Ordering::Release);
+        GFX_ACTIVE.store(false, Ordering::SeqCst);
     }
 }
 
@@ -227,6 +227,9 @@ mod tests {
     #[test]
     fn gfx_duplicate() {
         // We don't need to build a `Gfx` because the test runner has one already
-        assert!(Gfx::init_default().is_err());
+        match Gfx::init() {
+            Err(Error::ServiceAlreadyActive("Gfx")) => return,
+            _ => panic!(),
+        }
     }
 }

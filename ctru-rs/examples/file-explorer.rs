@@ -14,7 +14,7 @@ fn main() {
     ctru::init();
     let apt = Apt::init().unwrap();
     let hid = Hid::init().unwrap();
-    let gfx = Gfx::init_default().unwrap();
+    let gfx = Gfx::init().unwrap();
 
     #[cfg(all(feature = "romfs", romfs_exists))]
     let _romfs = ctru::romfs::RomFS::init().unwrap();

@@ -45,7 +45,7 @@ pub fn init() {
             // The problem here is that the `panic_hook` is run _before_ the app cleanup,
             // so an `Hid` stuct may still be alive and thus make the `panic_hook` panic.
             // If that were to happen, the system would have to reboot to properly close the app.
-            // 
+            //
             // Using `hidInit` is safe when another instance is open, and we can do safe operations afterwards.
             // The only (probably) unsafe part of this system is the `hidExit`, since in a multithreaded
             // environment some other threads may still be doing operations on the service

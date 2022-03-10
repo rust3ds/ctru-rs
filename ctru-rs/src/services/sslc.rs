@@ -40,7 +40,7 @@ impl Drop for SslC {
     fn drop(&mut self) {
         unsafe { ctru_sys::sslcExit() };
 
-        SSLC_ACTIVE.store(false, Ordering::Release);
+        SSLC_ACTIVE.store(false, Ordering::SeqCst);
     }
 }
 
@@ -52,7 +52,9 @@ mod tests {
     fn sslc_duplicate() {
         let _sslc = SslC::init().unwrap();
 
-        assert!(SslC::init().is_err());
+        match SslC::init() {
+            Err(Error::ServiceAlreadyActive("SslC")) => return,
+            _ => panic!(),
+        }
     }
 }
-

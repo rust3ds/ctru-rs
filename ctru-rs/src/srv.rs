@@ -27,7 +27,7 @@ impl Drop for Srv {
     fn drop(&mut self) {
         unsafe { ctru_sys::srvExit() };
 
-        SRV_ACTIVE.store(false, Ordering::Release);
+        SRV_ACTIVE.store(false, Ordering::SeqCst);
     }
 }
 
@@ -39,6 +39,9 @@ mod tests {
     fn srv_duplicate() {
         let _srv = Srv::init().unwrap();
 
-        assert!(Srv::init().is_err());
+        match Srv::init() {
+            Err(Error::ServiceAlreadyActive("Srv")) => return,
+            _ => panic!(),
+        }
     }
 }

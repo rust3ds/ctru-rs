@@ -40,7 +40,7 @@ impl Drop for Apt {
     fn drop(&mut self) {
         unsafe { ctru_sys::aptExit() };
 
-        APT_ACTIVE.store(false, Ordering::Release);
+        APT_ACTIVE.store(false, Ordering::SeqCst);
     }
 }
 
@@ -49,9 +49,11 @@ mod tests {
     use super::*;
 
     #[test]
-    fn gfx_duplicate() {
+    fn apt_duplicate() {
         // We don't need to build a `Apt` because the test runner has one already
-        assert!(Apt::init().is_err());
+        match Apt::init() {
+            Err(Error::ServiceAlreadyActive("Apt")) => return,
+            _ => panic!(),
+        }
     }
 }
-

@@ -61,7 +61,7 @@ impl Drop for Soc {
             free(self.soc_mem as *mut _);
         }
 
-        SOC_ACTIVE.store(false, Ordering::Release);
+        SOC_ACTIVE.store(false, Ordering::SeqCst);
     }
 }
 
@@ -73,6 +73,9 @@ mod tests {
     fn soc_duplicate() {
         let _soc = Soc::init().unwrap();
 
-        assert!(Soc::init().is_err());
+        match Soc::init() {
+            Err(Error::ServiceAlreadyActive("Soc")) => return,
+            _ => panic!(),
+        }
     }
 }

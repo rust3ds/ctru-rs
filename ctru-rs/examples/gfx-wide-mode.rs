@@ -7,7 +7,7 @@ fn main() {
     ctru::init();
     let apt = Apt::init().unwrap();
     let hid = Hid::init().unwrap();
-    let gfx = Gfx::init_default().unwrap();
+    let gfx = Gfx::init().unwrap();
     let mut console = Console::init(gfx.top_screen.borrow_mut());
 
     println!("Press A to enable/disable wide screen mode.");

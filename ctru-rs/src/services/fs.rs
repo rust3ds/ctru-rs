@@ -1004,7 +1004,7 @@ impl Drop for Fs {
             ctru_sys::fsExit();
         }
 
-        FS_ACTIVE.store(false, Ordering::Release);
+        FS_ACTIVE.store(false, Ordering::SeqCst);
     }
 }
 
@@ -1083,7 +1083,9 @@ mod tests {
     fn fs_duplicate() {
         let _fs = Fs::init().unwrap();
 
-        assert!(Fs::init().is_err());
+        match Fs::init() {
+            Err(Error::ServiceAlreadyActive("Fs")) => return,
+            _ => panic!(),
+        }
     }
 }
-
