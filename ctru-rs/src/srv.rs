@@ -9,7 +9,7 @@ static SRV_ACTIVE: AtomicBool = AtomicBool::new(false);
 
 impl Srv {
     pub fn init() -> crate::Result<Self> {
-        match SRV_ACTIVE.compare_exchange(false, true, Ordering::Acquire, Ordering::Relaxed) {
+        match SRV_ACTIVE.compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst) {
             Ok(_) => {
                 let r = unsafe { ctru_sys::srvInit() };
                 if r < 0 {

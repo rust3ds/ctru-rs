@@ -22,7 +22,7 @@ static ROMFS_ACTIVE: AtomicBool = AtomicBool::new(false);
 
 impl RomFS {
     pub fn init() -> crate::Result<Self> {
-        match ROMFS_ACTIVE.compare_exchange(false, true, Ordering::Acquire, Ordering::Relaxed) {
+        match ROMFS_ACTIVE.compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst) {
             Ok(_) => {
                 let mount_name = CStr::from_bytes_with_nul(b"romfs\0").unwrap();
                 let result = unsafe { ctru_sys::romfsMountSelf(mount_name.as_ptr()) };

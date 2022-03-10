@@ -70,7 +70,7 @@ pub struct CirclePosition(ctru_sys::circlePosition);
 /// rare in practice.
 impl Hid {
     pub fn init() -> crate::Result<Self> {
-        match HID_ACTIVE.compare_exchange(false, true, Ordering::Acquire, Ordering::Relaxed) {
+        match HID_ACTIVE.compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst) {
             Ok(_) => {
                 let r = unsafe { ctru_sys::hidInit() };
                 if r < 0 {

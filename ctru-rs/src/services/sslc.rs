@@ -12,7 +12,7 @@ static SSLC_ACTIVE: AtomicBool = AtomicBool::new(false);
 impl SslC {
     /// Initialize sslc
     pub fn init() -> crate::Result<Self> {
-        match SSLC_ACTIVE.compare_exchange(false, true, Ordering::Acquire, Ordering::Relaxed) {
+        match SSLC_ACTIVE.compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst) {
             Ok(_) => {
                 let r = unsafe { ctru_sys::sslcInit(0) };
                 if r < 0 {

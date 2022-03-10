@@ -308,7 +308,7 @@ impl Fs {
     /// as many times as desired and the service will not exit until all
     /// instances of Fs drop out of scope.
     pub fn init() -> crate::Result<Self> {
-        match FS_ACTIVE.compare_exchange(false, true, Ordering::Acquire, Ordering::Relaxed) {
+        match FS_ACTIVE.compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst) {
             Ok(_) => {
                 let r = unsafe { ctru_sys::fsInit() };
                 if r < 0 {

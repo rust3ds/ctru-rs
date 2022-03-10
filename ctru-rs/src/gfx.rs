@@ -86,7 +86,7 @@ impl Gfx {
         bottom_fb_fmt: FramebufferFormat,
         use_vram_buffers: bool,
     ) -> Result<Self> {
-        match GFX_ACTIVE.compare_exchange(false, true, Ordering::Acquire, Ordering::Relaxed) {
+        match GFX_ACTIVE.compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst) {
             Ok(_) => {
                 unsafe {
                     ctru_sys::gfxInit(top_fb_fmt.into(), bottom_fb_fmt.into(), use_vram_buffers);

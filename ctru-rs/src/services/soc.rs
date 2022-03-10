@@ -31,7 +31,7 @@ impl Soc {
     ///
     /// This function will return an error if the `Soc` service is already initialized
     pub fn init_with_buffer_size(num_bytes: usize) -> crate::Result<Self> {
-        match SOC_ACTIVE.compare_exchange(false, true, Ordering::Acquire, Ordering::Relaxed) {
+        match SOC_ACTIVE.compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst) {
             Ok(_) => unsafe {
                 let soc_mem = memalign(0x1000, num_bytes) as *mut u32;
 

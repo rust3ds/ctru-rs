@@ -9,7 +9,7 @@ static APT_ACTIVE: AtomicBool = AtomicBool::new(false);
 
 impl Apt {
     pub fn init() -> crate::Result<Self> {
-        match APT_ACTIVE.compare_exchange(false, true, Ordering::Acquire, Ordering::Relaxed) {
+        match APT_ACTIVE.compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst) {
             Ok(_) => {
                 let r = unsafe { ctru_sys::aptInit() };
                 if r < 0 {
