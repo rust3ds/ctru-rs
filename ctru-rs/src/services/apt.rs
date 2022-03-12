@@ -1,25 +1,38 @@
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::lazy::SyncLazy;
+use std::sync::Mutex;
 
-use crate::error::Error;
+use crate::services::ServiceHandler;
 
 #[non_exhaustive]
-pub struct Apt(());
+pub struct Apt {
+    _service_handler: ServiceHandler,
+}
 
-static APT_ACTIVE: AtomicBool = AtomicBool::new(false);
+static APT_ACTIVE: SyncLazy<Mutex<usize>> = SyncLazy::new(|| Mutex::new(0));
 
 impl Apt {
     pub fn init() -> crate::Result<Self> {
-        match APT_ACTIVE.compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst) {
-            Ok(_) => {
+        let _service_handler = ServiceHandler::new(
+            &APT_ACTIVE,
+            true,
+            || {
                 let r = unsafe { ctru_sys::aptInit() };
                 if r < 0 {
-                    Err(r.into())
-                } else {
-                    Ok(Self(()))
+                    return Err(r.into());
                 }
-            }
-            Err(_) => Err(Error::ServiceAlreadyActive("Apt")),
-        }
+
+                Ok(())
+            },
+            // `socExit` returns an error code. There is no documentantion of when errors could happen,
+            // but we wouldn't be able to handle them in the `Drop` implementation anyways.
+            // Surely nothing bad will happens :D
+            || unsafe {
+                // The socket buffer is freed automatically by `socExit`
+                ctru_sys::aptExit();
+            },
+        )?;
+
+        Ok(Self { _service_handler })
     }
 
     pub fn main_loop(&self) -> bool {
@@ -36,14 +49,6 @@ impl Apt {
     }
 }
 
-impl Drop for Apt {
-    fn drop(&mut self) {
-        unsafe { ctru_sys::aptExit() };
-
-        APT_ACTIVE.store(false, Ordering::SeqCst);
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -51,9 +56,8 @@ mod tests {
     #[test]
     fn apt_duplicate() {
         // We don't need to build a `Apt` because the test runner has one already
-        match Apt::init() {
-            Err(Error::ServiceAlreadyActive("Apt")) => return,
-            _ => panic!(),
-        }
+        let lock = *APT_ACTIVE.lock().unwrap();
+
+        assert_eq!(lock, 1);
     }
 }

@@ -9,15 +9,16 @@ use std::io::Error as IoError;
 use std::io::ErrorKind as IoErrorKind;
 use std::io::Result as IoResult;
 use std::io::{Read, Seek, SeekFrom, Write};
+use std::lazy::SyncLazy;
 use std::mem;
 use std::path::{Path, PathBuf};
 use std::ptr;
 use std::slice;
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
+
 use widestring::{WideCStr, WideCString};
 
-use crate::error::Error;
+use crate::services::ServiceHandler;
 
 bitflags! {
     #[derive(Default)]
@@ -86,9 +87,11 @@ pub enum ArchiveID {
 ///
 /// The service exits when all instances of this struct go out of scope.
 #[non_exhaustive]
-pub struct Fs(());
+pub struct Fs {
+    _service_handler: ServiceHandler,
+}
 
-static FS_ACTIVE: AtomicBool = AtomicBool::new(false);
+static FS_ACTIVE: SyncLazy<Mutex<usize>> = SyncLazy::new(|| Mutex::new(0));
 
 /// Handle to an open filesystem archive.
 ///
@@ -308,17 +311,27 @@ impl Fs {
     /// as many times as desired and the service will not exit until all
     /// instances of Fs drop out of scope.
     pub fn init() -> crate::Result<Self> {
-        match FS_ACTIVE.compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst) {
-            Ok(_) => {
+        let _service_handler = ServiceHandler::new(
+            &FS_ACTIVE,
+            true,
+            || {
                 let r = unsafe { ctru_sys::fsInit() };
                 if r < 0 {
-                    Err(r.into())
-                } else {
-                    Ok(Self(()))
+                    return Err(r.into());
                 }
-            }
-            Err(_) => Err(Error::ServiceAlreadyActive("Fs")),
-        }
+
+                Ok(())
+            },
+            // `socExit` returns an error code. There is no documentantion of when errors could happen,
+            // but we wouldn't be able to handle them in the `Drop` implementation anyways.
+            // Surely nothing bad will happens :D
+            || unsafe {
+                // The socket buffer is freed automatically by `socExit`
+                ctru_sys::fsExit();
+            },
+        )?;
+
+        Ok(Self { _service_handler })
     }
 
     /// Returns a handle to the SDMC (memory card) Archive.
@@ -998,16 +1011,6 @@ impl Seek for File {
     }
 }
 
-impl Drop for Fs {
-    fn drop(&mut self) {
-        unsafe {
-            ctru_sys::fsExit();
-        }
-
-        FS_ACTIVE.store(false, Ordering::SeqCst);
-    }
-}
-
 impl Drop for Archive {
     fn drop(&mut self) {
         unsafe {
@@ -1083,9 +1086,14 @@ mod tests {
     fn fs_duplicate() {
         let _fs = Fs::init().unwrap();
 
-        match Fs::init() {
-            Err(Error::ServiceAlreadyActive("Fs")) => return,
-            _ => panic!(),
-        }
+        let lock = *FS_ACTIVE.lock().unwrap();
+
+        assert_eq!(lock, 1);
+
+        drop(_fs);
+
+        let lock = *FS_ACTIVE.lock().unwrap();
+
+        assert_eq!(lock, 0);
     }
 }

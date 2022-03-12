@@ -11,39 +11,39 @@
 //! ```
 
 use std::ffi::CStr;
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::lazy::SyncLazy;
+use std::sync::Mutex;
 
-use crate::error::Error;
+use crate::services::ServiceHandler;
 
 #[non_exhaustive]
-pub struct RomFS;
+pub struct RomFS {
+    _service_handler: ServiceHandler,
+}
 
-static ROMFS_ACTIVE: AtomicBool = AtomicBool::new(false);
+static ROMFS_ACTIVE: SyncLazy<Mutex<usize>> = SyncLazy::new(|| Mutex::new(0));
 
 impl RomFS {
     pub fn init() -> crate::Result<Self> {
-        match ROMFS_ACTIVE.compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst) {
-            Ok(_) => {
+        let _service_handler = ServiceHandler::new(
+            &ROMFS_ACTIVE,
+            true,
+            || {
                 let mount_name = CStr::from_bytes_with_nul(b"romfs\0").unwrap();
-                let result = unsafe { ctru_sys::romfsMountSelf(mount_name.as_ptr()) };
-
-                if result < 0 {
-                    Err(result.into())
-                } else {
-                    Ok(Self)
+                let r = unsafe { ctru_sys::romfsMountSelf(mount_name.as_ptr()) };
+                if r < 0 {
+                    return Err(r.into());
                 }
-            }
-            Err(_) => Err(Error::ServiceAlreadyActive("RomFS")),
-        }
-    }
-}
 
-impl Drop for RomFS {
-    fn drop(&mut self) {
-        let mount_name = CStr::from_bytes_with_nul(b"romfs\0").unwrap();
-        unsafe { ctru_sys::romfsUnmount(mount_name.as_ptr()) };
+                Ok(())
+            },
+            || {
+                let mount_name = CStr::from_bytes_with_nul(b"romfs\0").unwrap();
+                unsafe { ctru_sys::romfsUnmount(mount_name.as_ptr()) };
+            },
+        )?;
 
-        ROMFS_ACTIVE.store(false, Ordering::SeqCst);
+        Ok(Self { _service_handler })
     }
 }
 
@@ -54,10 +54,14 @@ mod tests {
     #[test]
     fn romfs_duplicate() {
         let _romfs = RomFS::init().unwrap();
+        let lock = *ROMFS_ACTIVE.lock().unwrap();
 
-        match RomFS::init() {
-            Err(Error::ServiceAlreadyActive("RomFS")) => return,
-            _ => panic!(),
-        }
+        assert_eq!(lock, 1);
+
+        drop(_romfs);
+
+        let lock = *ROMFS_ACTIVE.lock().unwrap();
+
+        assert_eq!(lock, 0);
     }
 }

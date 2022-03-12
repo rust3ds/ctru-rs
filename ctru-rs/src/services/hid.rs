@@ -4,9 +4,10 @@
 //! and circle pad information. It also provides information from the sound volume slider,
 //! the accelerometer, and the gyroscope.
 
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::lazy::SyncLazy;
+use std::sync::Mutex;
 
-use crate::error::Error;
+use crate::services::ServiceHandler;
 
 bitflags::bitflags! {
     /// A set of flags corresponding to the button and directional pad
@@ -49,9 +50,11 @@ bitflags::bitflags! {
 ///
 /// This service requires no special permissions to use.
 #[non_exhaustive]
-pub struct Hid(());
+pub struct Hid {
+    _service_handler: ServiceHandler,
+}
 
-static HID_ACTIVE: AtomicBool = AtomicBool::new(false);
+static HID_ACTIVE: SyncLazy<Mutex<usize>> = SyncLazy::new(|| Mutex::new(0));
 
 /// Represents user input to the touchscreen.
 #[non_exhaustive]
@@ -70,17 +73,23 @@ pub struct CirclePosition(ctru_sys::circlePosition);
 /// rare in practice.
 impl Hid {
     pub fn init() -> crate::Result<Self> {
-        match HID_ACTIVE.compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst) {
-            Ok(_) => {
+        let _service_handler = ServiceHandler::new(
+            &HID_ACTIVE,
+            true,
+            || {
                 let r = unsafe { ctru_sys::hidInit() };
                 if r < 0 {
-                    Err(r.into())
-                } else {
-                    Ok(Self(()))
+                    return Err(r.into());
                 }
-            }
-            Err(_) => Err(Error::ServiceAlreadyActive("Hid")),
-        }
+
+                Ok(())
+            },
+            || unsafe {
+                ctru_sys::hidExit();
+            },
+        )?;
+
+        Ok(Self { _service_handler })
     }
 
     /// Scans the HID service for all user input occurring on the current
@@ -160,14 +169,6 @@ impl CirclePosition {
     }
 }
 
-impl Drop for Hid {
-    fn drop(&mut self) {
-        unsafe { ctru_sys::hidExit() };
-
-        HID_ACTIVE.store(false, Ordering::SeqCst);
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -175,9 +176,8 @@ mod tests {
     #[test]
     fn hid_duplicate() {
         // We don't need to build a `Hid` because the test runner has one already
-        match Hid::init() {
-            Err(Error::ServiceAlreadyActive("Hid")) => return,
-            _ => panic!(),
-        }
+        let lock = *HID_ACTIVE.lock().unwrap();
+
+        assert_eq!(lock, 1);
     }
 }

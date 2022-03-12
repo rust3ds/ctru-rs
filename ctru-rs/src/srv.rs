@@ -1,33 +1,34 @@
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::lazy::SyncLazy;
+use std::sync::Mutex;
 
-use crate::error::Error;
+use crate::services::ServiceHandler;
 
 #[non_exhaustive]
-pub struct Srv(());
+pub struct Srv {
+    _service_handler: ServiceHandler,
+}
 
-static SRV_ACTIVE: AtomicBool = AtomicBool::new(false);
+static SRV_ACTIVE: SyncLazy<Mutex<usize>> = SyncLazy::new(|| Mutex::new(0));
 
 impl Srv {
     pub fn init() -> crate::Result<Self> {
-        match SRV_ACTIVE.compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst) {
-            Ok(_) => {
+        let _service_handler = ServiceHandler::new(
+            &SRV_ACTIVE,
+            true,
+            || {
                 let r = unsafe { ctru_sys::srvInit() };
                 if r < 0 {
-                    Err(r.into())
-                } else {
-                    Ok(Self(()))
+                    return Err(r.into());
                 }
-            }
-            Err(_) => Err(Error::ServiceAlreadyActive("Srv")),
-        }
-    }
-}
 
-impl Drop for Srv {
-    fn drop(&mut self) {
-        unsafe { ctru_sys::srvExit() };
+                Ok(())
+            },
+            || unsafe {
+                ctru_sys::srvExit();
+            },
+        )?;
 
-        SRV_ACTIVE.store(false, Ordering::SeqCst);
+        Ok(Self { _service_handler })
     }
 }
 
@@ -39,9 +40,14 @@ mod tests {
     fn srv_duplicate() {
         let _srv = Srv::init().unwrap();
 
-        match Srv::init() {
-            Err(Error::ServiceAlreadyActive("Srv")) => return,
-            _ => panic!(),
-        }
+        let lock = *SRV_ACTIVE.lock().unwrap();
+
+        assert_eq!(lock, 1);
+
+        drop(_srv);
+
+        let lock = *SRV_ACTIVE.lock().unwrap();
+
+        assert_eq!(lock, 0);
     }
 }

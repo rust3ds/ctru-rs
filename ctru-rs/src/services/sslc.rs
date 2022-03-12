@@ -1,28 +1,41 @@
 // TODO: Implement remaining functions
 
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::lazy::SyncLazy;
+use std::sync::Mutex;
 
-use crate::error::Error;
+use crate::services::ServiceHandler;
 
 #[non_exhaustive]
-pub struct SslC(());
+pub struct SslC {
+    _service_handler: ServiceHandler,
+}
 
-static SSLC_ACTIVE: AtomicBool = AtomicBool::new(false);
+static SSLC_ACTIVE: SyncLazy<Mutex<usize>> = SyncLazy::new(|| Mutex::new(0));
 
 impl SslC {
     /// Initialize sslc
     pub fn init() -> crate::Result<Self> {
-        match SSLC_ACTIVE.compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst) {
-            Ok(_) => {
+        let _service_handler = ServiceHandler::new(
+            &SSLC_ACTIVE,
+            true,
+            || {
                 let r = unsafe { ctru_sys::sslcInit(0) };
                 if r < 0 {
-                    Err(r.into())
-                } else {
-                    Ok(Self(()))
+                    return Err(r.into());
                 }
-            }
-            Err(_) => Err(Error::ServiceAlreadyActive("SslC")),
-        }
+
+                Ok(())
+            },
+            // `socExit` returns an error code. There is no documentantion of when errors could happen,
+            // but we wouldn't be able to handle them in the `Drop` implementation anyways.
+            // Surely nothing bad will happens :D
+            || unsafe {
+                // The socket buffer is freed automatically by `socExit`
+                ctru_sys::sslcExit();
+            },
+        )?;
+
+        Ok(Self { _service_handler })
     }
 
     /// Fill `buf` with `buf.len()` random bytes
@@ -36,14 +49,6 @@ impl SslC {
     }
 }
 
-impl Drop for SslC {
-    fn drop(&mut self) {
-        unsafe { ctru_sys::sslcExit() };
-
-        SSLC_ACTIVE.store(false, Ordering::SeqCst);
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -52,9 +57,14 @@ mod tests {
     fn sslc_duplicate() {
         let _sslc = SslC::init().unwrap();
 
-        match SslC::init() {
-            Err(Error::ServiceAlreadyActive("SslC")) => return,
-            _ => panic!(),
-        }
+        let lock = *SSLC_ACTIVE.lock().unwrap();
+
+        assert_eq!(lock, 1);
+
+        drop(_sslc);
+
+        let lock = *SSLC_ACTIVE.lock().unwrap();
+
+        assert_eq!(lock, 0);
     }
 }
