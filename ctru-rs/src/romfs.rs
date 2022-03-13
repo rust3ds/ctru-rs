@@ -11,21 +11,21 @@
 //! ```
 
 use std::ffi::CStr;
-use std::lazy::SyncLazy;
+use once_cell::sync::Lazy;
 use std::sync::Mutex;
 
-use crate::services::ServiceHandler;
+use crate::services::ServiceReference;
 
 #[non_exhaustive]
 pub struct RomFS {
-    _service_handler: ServiceHandler,
+    _service_handler: ServiceReference,
 }
 
-static ROMFS_ACTIVE: SyncLazy<Mutex<usize>> = SyncLazy::new(|| Mutex::new(0));
+static ROMFS_ACTIVE: Lazy<Mutex<usize>> = Lazy::new(|| Mutex::new(0));
 
 impl RomFS {
     pub fn init() -> crate::Result<Self> {
-        let _service_handler = ServiceHandler::new(
+        let _service_handler = ServiceReference::new(
             &ROMFS_ACTIVE,
             true,
             || {
@@ -54,14 +54,14 @@ mod tests {
     #[test]
     fn romfs_duplicate() {
         let _romfs = RomFS::init().unwrap();
-        let lock = *ROMFS_ACTIVE.lock().unwrap();
+        let value = *ROMFS_ACTIVE.lock().unwrap();
 
-        assert_eq!(lock, 1);
+        assert_eq!(value, 1);
 
         drop(_romfs);
 
-        let lock = *ROMFS_ACTIVE.lock().unwrap();
+        let value = *ROMFS_ACTIVE.lock().unwrap();
 
-        assert_eq!(lock, 0);
+        assert_eq!(value, 0);
     }
 }

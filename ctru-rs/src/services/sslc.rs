@@ -1,21 +1,21 @@
 // TODO: Implement remaining functions
 
-use std::lazy::SyncLazy;
+use once_cell::sync::Lazy;
 use std::sync::Mutex;
 
-use crate::services::ServiceHandler;
+use crate::services::ServiceReference;
 
 #[non_exhaustive]
 pub struct SslC {
-    _service_handler: ServiceHandler,
+    _service_handler: ServiceReference,
 }
 
-static SSLC_ACTIVE: SyncLazy<Mutex<usize>> = SyncLazy::new(|| Mutex::new(0));
+static SSLC_ACTIVE: Lazy<Mutex<usize>> = Lazy::new(|| Mutex::new(0));
 
 impl SslC {
     /// Initialize sslc
     pub fn init() -> crate::Result<Self> {
-        let _service_handler = ServiceHandler::new(
+        let _service_handler = ServiceReference::new(
             &SSLC_ACTIVE,
             true,
             || {
@@ -26,11 +26,7 @@ impl SslC {
 
                 Ok(())
             },
-            // `socExit` returns an error code. There is no documentantion of when errors could happen,
-            // but we wouldn't be able to handle them in the `Drop` implementation anyways.
-            // Surely nothing bad will happens :D
             || unsafe {
-                // The socket buffer is freed automatically by `socExit`
                 ctru_sys::sslcExit();
             },
         )?;
@@ -57,14 +53,14 @@ mod tests {
     fn sslc_duplicate() {
         let _sslc = SslC::init().unwrap();
 
-        let lock = *SSLC_ACTIVE.lock().unwrap();
+        let value = *SSLC_ACTIVE.lock().unwrap();
 
-        assert_eq!(lock, 1);
+        assert_eq!(value, 1);
 
         drop(_sslc);
 
-        let lock = *SSLC_ACTIVE.lock().unwrap();
+        let value = *SSLC_ACTIVE.lock().unwrap();
 
-        assert_eq!(lock, 0);
+        assert_eq!(value, 0);
     }
 }

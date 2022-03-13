@@ -1,18 +1,18 @@
-use std::lazy::SyncLazy;
+use once_cell::sync::Lazy;
 use std::sync::Mutex;
 
-use crate::services::ServiceHandler;
+use crate::services::ServiceReference;
 
 #[non_exhaustive]
 pub struct Apt {
-    _service_handler: ServiceHandler,
+    _service_handler: ServiceReference,
 }
 
-static APT_ACTIVE: SyncLazy<Mutex<usize>> = SyncLazy::new(|| Mutex::new(0));
+static APT_ACTIVE: Lazy<Mutex<usize>> = Lazy::new(|| Mutex::new(0));
 
 impl Apt {
     pub fn init() -> crate::Result<Self> {
-        let _service_handler = ServiceHandler::new(
+        let _service_handler = ServiceReference::new(
             &APT_ACTIVE,
             true,
             || {
@@ -23,11 +23,7 @@ impl Apt {
 
                 Ok(())
             },
-            // `socExit` returns an error code. There is no documentantion of when errors could happen,
-            // but we wouldn't be able to handle them in the `Drop` implementation anyways.
-            // Surely nothing bad will happens :D
             || unsafe {
-                // The socket buffer is freed automatically by `socExit`
                 ctru_sys::aptExit();
             },
         )?;
@@ -56,8 +52,8 @@ mod tests {
     #[test]
     fn apt_duplicate() {
         // We don't need to build a `Apt` because the test runner has one already
-        let lock = *APT_ACTIVE.lock().unwrap();
+        let value = *APT_ACTIVE.lock().unwrap();
 
-        assert_eq!(lock, 1);
+        assert_eq!(value, 1);
     }
 }

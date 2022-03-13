@@ -1,18 +1,18 @@
-use std::lazy::SyncLazy;
+use once_cell::sync::Lazy;
 use std::sync::Mutex;
 
-use crate::services::ServiceHandler;
+use crate::services::ServiceReference;
 
 #[non_exhaustive]
 pub struct Srv {
-    _service_handler: ServiceHandler,
+    _service_handler: ServiceReference,
 }
 
-static SRV_ACTIVE: SyncLazy<Mutex<usize>> = SyncLazy::new(|| Mutex::new(0));
+static SRV_ACTIVE: Lazy<Mutex<usize>> = Lazy::new(|| Mutex::new(0));
 
 impl Srv {
     pub fn init() -> crate::Result<Self> {
-        let _service_handler = ServiceHandler::new(
+        let _service_handler = ServiceReference::new(
             &SRV_ACTIVE,
             true,
             || {
@@ -40,14 +40,14 @@ mod tests {
     fn srv_duplicate() {
         let _srv = Srv::init().unwrap();
 
-        let lock = *SRV_ACTIVE.lock().unwrap();
+        let value = *SRV_ACTIVE.lock().unwrap();
 
-        assert_eq!(lock, 1);
+        assert_eq!(value, 1);
 
         drop(_srv);
 
-        let lock = *SRV_ACTIVE.lock().unwrap();
+        let value = *SRV_ACTIVE.lock().unwrap();
 
-        assert_eq!(lock, 0);
+        assert_eq!(value, 0);
     }
 }

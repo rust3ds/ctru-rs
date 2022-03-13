@@ -1,18 +1,18 @@
 use libc::memalign;
-use std::lazy::SyncLazy;
+use once_cell::sync::Lazy;
 use std::net::Ipv4Addr;
 use std::sync::Mutex;
 
-use crate::services::ServiceHandler;
+use crate::services::ServiceReference;
 
 /// Soc service. Initializing this service will enable the use of network sockets and utilities
 /// such as those found in `std::net`. The service will be closed when this struct is is dropped.
 #[non_exhaustive]
 pub struct Soc {
-    _service_handler: ServiceHandler,
+    _service_handler: ServiceReference,
 }
 
-static SOC_ACTIVE: SyncLazy<Mutex<usize>> = SyncLazy::new(|| Mutex::new(0));
+static SOC_ACTIVE: Lazy<Mutex<usize>> = Lazy::new(|| Mutex::new(0));
 
 impl Soc {
     /// Initialize the Soc service with a default buffer size of 0x100000 bytes
@@ -31,7 +31,7 @@ impl Soc {
     ///
     /// This function will return an error if the `Soc` service is already initialized
     pub fn init_with_buffer_size(num_bytes: usize) -> crate::Result<Self> {
-        let _service_handler = ServiceHandler::new(
+        let _service_handler = ServiceReference::new(
             &SOC_ACTIVE,
             true,
             || {
@@ -69,14 +69,14 @@ mod tests {
     #[test]
     fn soc_duplicate() {
         let _soc = Soc::init().unwrap();
-        let lock = *SOC_ACTIVE.lock().unwrap();
+        let value = *SOC_ACTIVE.lock().unwrap();
 
-        assert_eq!(lock, 1);
+        assert_eq!(value, 1);
 
         drop(_soc);
 
-        let lock = *SOC_ACTIVE.lock().unwrap();
+        let value = *SOC_ACTIVE.lock().unwrap();
 
-        assert_eq!(lock, 0);
+        assert_eq!(value, 0);
     }
 }

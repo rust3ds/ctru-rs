@@ -9,7 +9,7 @@ use std::io::Error as IoError;
 use std::io::ErrorKind as IoErrorKind;
 use std::io::Result as IoResult;
 use std::io::{Read, Seek, SeekFrom, Write};
-use std::lazy::SyncLazy;
+use once_cell::sync::Lazy;
 use std::mem;
 use std::path::{Path, PathBuf};
 use std::ptr;
@@ -18,7 +18,7 @@ use std::sync::{Arc, Mutex};
 
 use widestring::{WideCStr, WideCString};
 
-use crate::services::ServiceHandler;
+use crate::services::ServiceReference;
 
 bitflags! {
     #[derive(Default)]
@@ -88,10 +88,10 @@ pub enum ArchiveID {
 /// The service exits when all instances of this struct go out of scope.
 #[non_exhaustive]
 pub struct Fs {
-    _service_handler: ServiceHandler,
+    _service_handler: ServiceReference,
 }
 
-static FS_ACTIVE: SyncLazy<Mutex<usize>> = SyncLazy::new(|| Mutex::new(0));
+static FS_ACTIVE: Lazy<Mutex<usize>> = Lazy::new(|| Mutex::new(0));
 
 /// Handle to an open filesystem archive.
 ///
@@ -311,7 +311,7 @@ impl Fs {
     /// as many times as desired and the service will not exit until all
     /// instances of Fs drop out of scope.
     pub fn init() -> crate::Result<Self> {
-        let _service_handler = ServiceHandler::new(
+        let _service_handler = ServiceReference::new(
             &FS_ACTIVE,
             true,
             || {
@@ -322,11 +322,7 @@ impl Fs {
 
                 Ok(())
             },
-            // `socExit` returns an error code. There is no documentantion of when errors could happen,
-            // but we wouldn't be able to handle them in the `Drop` implementation anyways.
-            // Surely nothing bad will happens :D
             || unsafe {
-                // The socket buffer is freed automatically by `socExit`
                 ctru_sys::fsExit();
             },
         )?;
@@ -1086,14 +1082,14 @@ mod tests {
     fn fs_duplicate() {
         let _fs = Fs::init().unwrap();
 
-        let lock = *FS_ACTIVE.lock().unwrap();
+        let value = *FS_ACTIVE.lock().unwrap();
 
-        assert_eq!(lock, 1);
+        assert_eq!(value, 1);
 
         drop(_fs);
 
-        let lock = *FS_ACTIVE.lock().unwrap();
+        let value = *FS_ACTIVE.lock().unwrap();
 
-        assert_eq!(lock, 0);
+        assert_eq!(value, 0);
     }
 }

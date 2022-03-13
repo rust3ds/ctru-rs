@@ -4,10 +4,10 @@
 //! and circle pad information. It also provides information from the sound volume slider,
 //! the accelerometer, and the gyroscope.
 
-use std::lazy::SyncLazy;
+use once_cell::sync::Lazy;
 use std::sync::Mutex;
 
-use crate::services::ServiceHandler;
+use crate::services::ServiceReference;
 
 bitflags::bitflags! {
     /// A set of flags corresponding to the button and directional pad
@@ -51,10 +51,10 @@ bitflags::bitflags! {
 /// This service requires no special permissions to use.
 #[non_exhaustive]
 pub struct Hid {
-    _service_handler: ServiceHandler,
+    _service_handler: ServiceReference,
 }
 
-static HID_ACTIVE: SyncLazy<Mutex<usize>> = SyncLazy::new(|| Mutex::new(0));
+static HID_ACTIVE: Lazy<Mutex<usize>> = Lazy::new(|| Mutex::new(0));
 
 /// Represents user input to the touchscreen.
 #[non_exhaustive]
@@ -73,7 +73,7 @@ pub struct CirclePosition(ctru_sys::circlePosition);
 /// rare in practice.
 impl Hid {
     pub fn init() -> crate::Result<Self> {
-        let _service_handler = ServiceHandler::new(
+        let _service_handler = ServiceReference::new(
             &HID_ACTIVE,
             true,
             || {
@@ -176,8 +176,8 @@ mod tests {
     #[test]
     fn hid_duplicate() {
         // We don't need to build a `Hid` because the test runner has one already
-        let lock = *HID_ACTIVE.lock().unwrap();
+        let value = *HID_ACTIVE.lock().unwrap();
 
-        assert_eq!(lock, 1);
+        assert_eq!(value, 1);
     }
 }

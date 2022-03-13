@@ -3,7 +3,6 @@
 #![feature(test)]
 #![feature(custom_test_frameworks)]
 #![test_runner(test_runner::run)]
-#![feature(once_cell)]
 
 extern "C" fn services_deinit() {
     unsafe {
@@ -27,9 +26,13 @@ pub fn init() {
         libc::atexit(services_deinit);
     }
 
+    #[cfg(test)]
+    panic_hook_setup();
+}
+
+fn panic_hook_setup() {
     use std::panic::PanicInfo;
 
-    #[cfg(not(test))]
     let main_thread = thread::current().id();
 
     // Panic Hook setup
@@ -38,7 +41,6 @@ pub fn init() {
         default_hook(info);
 
         // Only for panics in the main thread
-        #[cfg(not(test))]
         if main_thread == thread::current().id() && console::Console::exists() {
             println!("\nPress SELECT to exit the software");
 

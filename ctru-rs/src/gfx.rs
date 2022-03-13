@@ -1,13 +1,13 @@
 //! LCD screens manipulation helper
 
 use std::cell::RefCell;
-use std::lazy::SyncLazy;
+use once_cell::sync::Lazy;
 use std::marker::PhantomData;
 use std::sync::Mutex;
 
 use crate::error::{Error, Result};
 use crate::services::gspgpu::{self, FramebufferFormat};
-use crate::services::ServiceHandler;
+use crate::services::ServiceReference;
 
 /// Trait implemented by TopScreen and BottomScreen for common methods
 pub trait Screen {
@@ -73,10 +73,10 @@ pub enum Side {
 pub struct Gfx {
     pub top_screen: RefCell<TopScreen>,
     pub bottom_screen: RefCell<BottomScreen>,
-    _service_handler: ServiceHandler,
+    _service_handler: ServiceReference,
 }
 
-static GFX_ACTIVE: SyncLazy<Mutex<usize>> = SyncLazy::new(|| Mutex::new(0));
+static GFX_ACTIVE: Lazy<Mutex<usize>> = Lazy::new(|| Mutex::new(0));
 
 impl Gfx {
     /// Initialize the Gfx module with the chosen framebuffer formats for the top and bottom
@@ -88,7 +88,7 @@ impl Gfx {
         bottom_fb_fmt: FramebufferFormat,
         use_vram_buffers: bool,
     ) -> Result<Self> {
-        let _service_handler = ServiceHandler::new(
+        let _service_handler = ServiceReference::new(
             &GFX_ACTIVE,
             false,
             || unsafe {
