@@ -9,16 +9,12 @@ use std::io::Error as IoError;
 use std::io::ErrorKind as IoErrorKind;
 use std::io::Result as IoResult;
 use std::io::{Read, Seek, SeekFrom, Write};
-use once_cell::sync::Lazy;
 use std::mem;
 use std::path::{Path, PathBuf};
 use std::ptr;
 use std::slice;
-use std::sync::{Arc, Mutex};
-
+use std::sync::Arc;
 use widestring::{WideCStr, WideCString};
-
-use crate::services::ServiceReference;
 
 bitflags! {
     #[derive(Default)]
@@ -86,12 +82,7 @@ pub enum ArchiveID {
 /// until an instance of this struct is created.
 ///
 /// The service exits when all instances of this struct go out of scope.
-#[non_exhaustive]
-pub struct Fs {
-    _service_handler: ServiceReference,
-}
-
-static FS_ACTIVE: Lazy<Mutex<usize>> = Lazy::new(|| Mutex::new(0));
+pub struct Fs(());
 
 /// Handle to an open filesystem archive.
 ///
@@ -105,7 +96,6 @@ static FS_ACTIVE: Lazy<Mutex<usize>> = Lazy::new(|| Mutex::new(0));
 /// let fs = Fs::init().unwrap();
 /// let sdmc_archive = fs.sdmc().unwrap();
 /// ```
-#[non_exhaustive]
 pub struct Archive {
     id: ArchiveID,
     handle: u64,
@@ -174,7 +164,6 @@ pub struct Archive {
 /// # Ok(())
 /// # }
 /// ```
-#[non_exhaustive]
 pub struct File {
     handle: u32,
     offset: u64,
@@ -186,7 +175,6 @@ pub struct File {
 /// represents known metadata about a file.
 ///
 /// [`metadata`]: fn.metadata.html
-#[non_exhaustive]
 pub struct Metadata {
     attributes: u32,
     size: u64,
@@ -269,7 +257,6 @@ pub struct OpenOptions {
 ///
 /// This Result will return Err if there's some sort of intermittent IO error
 /// during iteration.
-#[non_exhaustive]
 pub struct ReadDir<'a> {
     handle: Dir,
     root: Arc<PathBuf>,
@@ -310,24 +297,15 @@ impl Fs {
     /// ctrulib services are reference counted, so this function may be called
     /// as many times as desired and the service will not exit until all
     /// instances of Fs drop out of scope.
-    pub fn init() -> crate::Result<Self> {
-        let _service_handler = ServiceReference::new(
-            &FS_ACTIVE,
-            true,
-            || {
-                let r = unsafe { ctru_sys::fsInit() };
-                if r < 0 {
-                    return Err(r.into());
-                }
-
-                Ok(())
-            },
-            || unsafe {
-                ctru_sys::fsExit();
-            },
-        )?;
-
-        Ok(Self { _service_handler })
+    pub fn init() -> crate::Result<Fs> {
+        unsafe {
+            let r = ctru_sys::fsInit();
+            if r < 0 {
+                Err(r.into())
+            } else {
+                Ok(Fs(()))
+            }
+        }
     }
 
     /// Returns a handle to the SDMC (memory card) Archive.
@@ -1007,6 +985,14 @@ impl Seek for File {
     }
 }
 
+impl Drop for Fs {
+    fn drop(&mut self) {
+        unsafe {
+            ctru_sys::fsExit();
+        }
+    }
+}
+
 impl Drop for Archive {
     fn drop(&mut self) {
         unsafe {
@@ -1071,25 +1057,5 @@ impl From<ArchiveID> for ctru_sys::FS_ArchiveID {
             UserSavedata => ctru_sys::ARCHIVE_USER_SAVEDATA,
             DemoSavedata => ctru_sys::ARCHIVE_DEMO_SAVEDATA,
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn fs_duplicate() {
-        let _fs = Fs::init().unwrap();
-
-        let value = *FS_ACTIVE.lock().unwrap();
-
-        assert_eq!(value, 1);
-
-        drop(_fs);
-
-        let value = *FS_ACTIVE.lock().unwrap();
-
-        assert_eq!(value, 0);
     }
 }

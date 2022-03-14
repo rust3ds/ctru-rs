@@ -1,7 +1,7 @@
 //! LCD screens manipulation helper
 
-use std::cell::RefCell;
 use once_cell::sync::Lazy;
+use std::cell::RefCell;
 use std::marker::PhantomData;
 use std::sync::Mutex;
 

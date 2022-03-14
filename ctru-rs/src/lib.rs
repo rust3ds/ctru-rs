@@ -26,7 +26,7 @@ pub fn init() {
         libc::atexit(services_deinit);
     }
 
-    #[cfg(test)]
+    #[cfg(not(test))]
     panic_hook_setup();
 }
 

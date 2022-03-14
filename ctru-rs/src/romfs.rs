@@ -10,8 +10,8 @@
 //! romfs_dir = "romfs"
 //! ```
 
-use std::ffi::CStr;
 use once_cell::sync::Lazy;
+use std::ffi::CStr;
 use std::sync::Mutex;
 
 use crate::services::ServiceReference;

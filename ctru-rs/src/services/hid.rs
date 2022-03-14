@@ -4,11 +4,6 @@
 //! and circle pad information. It also provides information from the sound volume slider,
 //! the accelerometer, and the gyroscope.
 
-use once_cell::sync::Lazy;
-use std::sync::Mutex;
-
-use crate::services::ServiceReference;
-
 bitflags::bitflags! {
     /// A set of flags corresponding to the button and directional pad
     /// inputs on the 3DS
@@ -49,19 +44,12 @@ bitflags::bitflags! {
 /// when all instances of this struct fall out of scope.
 ///
 /// This service requires no special permissions to use.
-#[non_exhaustive]
-pub struct Hid {
-    _service_handler: ServiceReference,
-}
-
-static HID_ACTIVE: Lazy<Mutex<usize>> = Lazy::new(|| Mutex::new(0));
+pub struct Hid(());
 
 /// Represents user input to the touchscreen.
-#[non_exhaustive]
 pub struct TouchPosition(ctru_sys::touchPosition);
 
 /// Represents the current position of the 3DS circle pad.
-#[non_exhaustive]
 pub struct CirclePosition(ctru_sys::circlePosition);
 
 /// Initializes the HID service.
@@ -72,24 +60,15 @@ pub struct CirclePosition(ctru_sys::circlePosition);
 /// Since this service requires no special or elevated permissions, errors are
 /// rare in practice.
 impl Hid {
-    pub fn init() -> crate::Result<Self> {
-        let _service_handler = ServiceReference::new(
-            &HID_ACTIVE,
-            true,
-            || {
-                let r = unsafe { ctru_sys::hidInit() };
-                if r < 0 {
-                    return Err(r.into());
-                }
-
-                Ok(())
-            },
-            || unsafe {
-                ctru_sys::hidExit();
-            },
-        )?;
-
-        Ok(Self { _service_handler })
+    pub fn init() -> crate::Result<Hid> {
+        unsafe {
+            let r = ctru_sys::hidInit();
+            if r < 0 {
+                Err(r.into())
+            } else {
+                Ok(Hid(()))
+            }
+        }
     }
 
     /// Scans the HID service for all user input occurring on the current
@@ -169,15 +148,8 @@ impl CirclePosition {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn hid_duplicate() {
-        // We don't need to build a `Hid` because the test runner has one already
-        let value = *HID_ACTIVE.lock().unwrap();
-
-        assert_eq!(value, 1);
+impl Drop for Hid {
+    fn drop(&mut self) {
+        unsafe { ctru_sys::hidExit() };
     }
 }
