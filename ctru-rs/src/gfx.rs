@@ -5,7 +5,7 @@ use std::cell::RefCell;
 use std::marker::PhantomData;
 use std::sync::Mutex;
 
-use crate::error::{Error, Result};
+use crate::error::Result;
 use crate::services::gspgpu::{self, FramebufferFormat};
 use crate::services::ServiceReference;
 
