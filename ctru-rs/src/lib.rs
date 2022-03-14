@@ -27,10 +27,11 @@ pub fn init() {
     }
 
     #[cfg(not(test))]
-    panic_hook_setup();
+    _panic_hook_setup();
 }
 
-fn panic_hook_setup() {
+fn _panic_hook_setup() {
+    use crate::services::hid::{Hid, KeyPad};
     use std::panic::PanicInfo;
 
     let main_thread = thread::current().id();
@@ -44,30 +45,13 @@ fn panic_hook_setup() {
         if main_thread == thread::current().id() && console::Console::exists() {
             println!("\nPress SELECT to exit the software");
 
-            // The use of unsafe functions here is basically obligatory.
-            // To have memory safety when using the `Hid` struct, we must not make more
-            // than one available at the same time, so no drop/service ownership issues arise.
-            // The problem here is that the `panic_hook` is run _before_ the app cleanup,
-            // so an `Hid` stuct may still be alive and thus make the `panic_hook` panic.
-            // If that were to happen, the system would have to reboot to properly close the app.
-            //
-            // Using `hidInit` is safe when another instance is open, and we can do safe operations afterwards.
-            // The only (probably) unsafe part of this system is the `hidExit`, since in a multithreaded
-            // environment some other threads may still be doing operations on the service
-            // before the cleanup, though the time window would be almost nonexistent, and it would only
-            // really be a problem in preemptive threads.
-            //
-            // TL;DR : This code is bad.
-            unsafe {
-                ctru_sys::hidInit();
+            let hid = Hid::init().unwrap();
 
-                loop {
-                    ctru_sys::hidScanInput();
-                    let keys = services::hid::KeyPad::from_bits_truncate(ctru_sys::hidKeysDown());
-                    if keys.contains(services::hid::KeyPad::KEY_SELECT) {
-                        ctru_sys::hidExit();
-                        break;
-                    }
+            loop {
+                hid.scan_input();
+                let keys = hid.keys_down();
+                if keys.contains(KeyPad::KEY_SELECT) {
+                    break;
                 }
             }
         }
