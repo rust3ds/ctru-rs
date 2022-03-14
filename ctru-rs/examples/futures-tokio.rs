@@ -1,7 +1,10 @@
+#![feature(horizon_thread_ext)]
+
 use ctru::console::Console;
 use ctru::services::hid::KeyPad;
 use ctru::services::{Apt, Hid};
 use ctru::Gfx;
+use std::os::horizon::thread::BuilderExt;
 use std::time::Duration;
 
 fn main() {
@@ -23,11 +26,9 @@ fn main() {
         .build()
         .expect("Couldn't build runtime");
 
-    let runtime_thread = ctru::thread::Builder::new()
+    let runtime_thread = std::thread::Builder::new()
         // Run on the system core
-        .affinity(1)
-        // Use a bigger stack size. Default is 0x1000 but we'd easily overflow that.
-        .stack_size(0x200000)
+        .processor_id(1)
         .spawn(move || {
             runtime.block_on(async move {
                 let mut wake_time = tokio::time::Instant::now() + Duration::from_secs(1);
