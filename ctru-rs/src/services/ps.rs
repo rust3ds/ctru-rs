@@ -63,8 +63,6 @@ pub fn generate_random_bytes(out: &mut [u8]) -> crate::Result<()> {
 mod tests {
     use std::collections::HashMap;
 
-    use super::*;
-
     #[test]
     fn construct_hash_map() {
         let mut input = vec![
