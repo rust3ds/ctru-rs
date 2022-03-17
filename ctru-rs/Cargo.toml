@@ -19,6 +19,7 @@ pthread-3ds = { git = "https://github.com/Meziu/pthread-3ds.git" }
 libc = "0.2.116"
 bitflags = "1.0.0"
 widestring = "0.2.2"
+once_cell = "1.10.0"
 
 [build-dependencies]
 toml = "0.5"

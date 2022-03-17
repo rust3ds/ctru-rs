@@ -26,6 +26,13 @@ pub fn init() {
         libc::atexit(services_deinit);
     }
 
+    #[cfg(not(test))]
+    panic_hook_setup();
+}
+
+#[cfg(not(test))]
+fn panic_hook_setup() {
+    use crate::services::hid::{Hid, KeyPad};
     use std::panic::PanicInfo;
 
     let main_thread = std::thread::current().id();
@@ -38,13 +45,16 @@ pub fn init() {
         // Only for panics in the main thread
         if main_thread == std::thread::current().id() && console::Console::exists() {
             println!("\nPress SELECT to exit the software");
-            let hid = services::hid::Hid::init().unwrap();
 
-            loop {
-                hid.scan_input();
-                if hid.keys_down().contains(services::hid::KeyPad::KEY_SELECT) {
-                    break;
-                }
+            match Hid::init() {
+                Ok(hid) => loop {
+                    hid.scan_input();
+                    let keys = hid.keys_down();
+                    if keys.contains(KeyPad::KEY_SELECT) {
+                        break;
+                    }
+                },
+                Err(e) => println!("Error while intializing Hid controller during panic: {e}"),
             }
         }
     });

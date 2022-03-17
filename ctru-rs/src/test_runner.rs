@@ -17,7 +17,7 @@ use crate::services::Apt;
 pub(crate) fn run(tests: &[&TestDescAndFn]) {
     crate::init();
 
-    let gfx = Gfx::default();
+    let gfx = Gfx::init().unwrap();
     let hid = Hid::init().unwrap();
     let apt = Apt::init().unwrap();
 

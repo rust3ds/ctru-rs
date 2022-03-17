@@ -8,7 +8,7 @@ fn main() {
     ctru::init();
     let apt = Apt::init().unwrap();
     let hid = Hid::init().unwrap();
-    let gfx = Gfx::default();
+    let gfx = Gfx::init().unwrap();
 
     // Start a console on the top screen
     let top_screen = Console::init(gfx.top_screen.borrow_mut());

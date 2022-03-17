@@ -9,6 +9,7 @@ pub type Result<T> = ::std::result::Result<T, Error>;
 #[non_exhaustive]
 pub enum Error {
     Os(ctru_sys::Result),
+    ServiceAlreadyActive,
 }
 
 impl From<ctru_sys::Result> for Error {
@@ -28,6 +29,7 @@ impl fmt::Debug for Error {
                 .field("summary", &R_SUMMARY(err))
                 .field("level", &R_LEVEL(err))
                 .finish(),
+            Error::ServiceAlreadyActive => f.debug_tuple("ServiceAlreadyActive").finish(),
         }
     }
 }
@@ -39,6 +41,7 @@ impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Error::Os(err) => write!(f, "libctru result code: 0x{:08X}", err),
+            Error::ServiceAlreadyActive => write!(f, "Service already active"),
         }
     }
 }

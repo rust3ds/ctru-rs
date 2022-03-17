@@ -1,11 +1,13 @@
 //! LCD screens manipulation helper
 
+use once_cell::sync::Lazy;
 use std::cell::RefCell;
-use std::default::Default;
 use std::marker::PhantomData;
-use std::ops::Drop;
+use std::sync::Mutex;
 
+use crate::error::Result;
 use crate::services::gspgpu::{self, FramebufferFormat};
+use crate::services::ServiceReference;
 
 /// Trait implemented by TopScreen and BottomScreen for common methods
 pub trait Screen {
@@ -71,25 +73,43 @@ pub enum Side {
 pub struct Gfx {
     pub top_screen: RefCell<TopScreen>,
     pub bottom_screen: RefCell<BottomScreen>,
+    _service_handler: ServiceReference,
 }
+
+static GFX_ACTIVE: Lazy<Mutex<usize>> = Lazy::new(|| Mutex::new(0));
 
 impl Gfx {
     /// Initialize the Gfx module with the chosen framebuffer formats for the top and bottom
     /// screens
     ///
-    /// Use `Gfx::default()` instead of this function to initialize the module with default parameters
-    pub fn new(
+    /// Use `Gfx::init()` instead of this function to initialize the module with default parameters
+    pub fn with_formats(
         top_fb_fmt: FramebufferFormat,
         bottom_fb_fmt: FramebufferFormat,
         use_vram_buffers: bool,
-    ) -> Self {
-        unsafe {
-            ctru_sys::gfxInit(top_fb_fmt.into(), bottom_fb_fmt.into(), use_vram_buffers);
-        }
-        Gfx {
+    ) -> Result<Self> {
+        let _service_handler = ServiceReference::new(
+            &GFX_ACTIVE,
+            false,
+            || unsafe {
+                ctru_sys::gfxInit(top_fb_fmt.into(), bottom_fb_fmt.into(), use_vram_buffers);
+
+                Ok(())
+            },
+            || unsafe { ctru_sys::gfxExit() },
+        )?;
+
+        Ok(Self {
             top_screen: RefCell::new(TopScreen),
             bottom_screen: RefCell::new(BottomScreen),
-        }
+            _service_handler,
+        })
+    }
+
+    /// Creates a new Gfx instance with default init values
+    /// It's the same as calling: `Gfx::with_formats(FramebufferFormat::Bgr8, FramebufferFormat::Bgr8, false)
+    pub fn init() -> Result<Self> {
+        Gfx::with_formats(FramebufferFormat::Bgr8, FramebufferFormat::Bgr8, false)
     }
 
     /// Flushes the current framebuffers
@@ -197,18 +217,14 @@ impl From<Side> for ctru_sys::gfx3dSide_t {
     }
 }
 
-impl Default for Gfx {
-    fn default() -> Self {
-        unsafe { ctru_sys::gfxInitDefault() };
-        Gfx {
-            top_screen: RefCell::new(TopScreen),
-            bottom_screen: RefCell::new(BottomScreen),
-        }
-    }
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::Error;
 
-impl Drop for Gfx {
-    fn drop(&mut self) {
-        unsafe { ctru_sys::gfxExit() };
+    #[test]
+    fn gfx_duplicate() {
+        // We don't need to build a `Gfx` because the test runner has one already
+        assert!(matches!(Gfx::init(), Err(Error::ServiceAlreadyActive)))
     }
 }

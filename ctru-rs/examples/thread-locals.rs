@@ -13,7 +13,7 @@ std::thread_local! {
 
 fn main() {
     ctru::init();
-    let gfx = Gfx::default();
+    let gfx = Gfx::init().expect("Couldn't obtain GFX controller");
     gfx.top_screen.borrow_mut().set_wide_mode(true);
     let hid = Hid::init().expect("Couldn't obtain HID controller");
     let apt = Apt::init().expect("Couldn't obtain APT controller");

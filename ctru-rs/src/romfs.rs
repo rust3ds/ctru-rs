@@ -10,27 +10,58 @@
 //! romfs_dir = "romfs"
 //! ```
 
+use once_cell::sync::Lazy;
 use std::ffi::CStr;
+use std::sync::Mutex;
+
+use crate::services::ServiceReference;
 
 #[non_exhaustive]
-pub struct RomFS;
+pub struct RomFS {
+    _service_handler: ServiceReference,
+}
+
+static ROMFS_ACTIVE: Lazy<Mutex<usize>> = Lazy::new(|| Mutex::new(0));
 
 impl RomFS {
-    pub fn new() -> crate::Result<Self> {
-        let mount_name = CStr::from_bytes_with_nul(b"romfs\0").unwrap();
-        let result = unsafe { ctru_sys::romfsMountSelf(mount_name.as_ptr()) };
+    pub fn init() -> crate::Result<Self> {
+        let _service_handler = ServiceReference::new(
+            &ROMFS_ACTIVE,
+            true,
+            || {
+                let mount_name = CStr::from_bytes_with_nul(b"romfs\0").unwrap();
+                let r = unsafe { ctru_sys::romfsMountSelf(mount_name.as_ptr()) };
+                if r < 0 {
+                    return Err(r.into());
+                }
 
-        if result < 0 {
-            Err(result.into())
-        } else {
-            Ok(Self)
-        }
+                Ok(())
+            },
+            || {
+                let mount_name = CStr::from_bytes_with_nul(b"romfs\0").unwrap();
+                unsafe { ctru_sys::romfsUnmount(mount_name.as_ptr()) };
+            },
+        )?;
+
+        Ok(Self { _service_handler })
     }
 }
 
-impl Drop for RomFS {
-    fn drop(&mut self) {
-        let mount_name = CStr::from_bytes_with_nul(b"romfs\0").unwrap();
-        unsafe { ctru_sys::romfsUnmount(mount_name.as_ptr()) };
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn romfs_counter() {
+        let _romfs = RomFS::init().unwrap();
+        let value = *ROMFS_ACTIVE.lock().unwrap();
+
+        assert_eq!(value, 1);
+
+        drop(_romfs);
+
+        let value = *ROMFS_ACTIVE.lock().unwrap();
+
+        assert_eq!(value, 0);
     }
 }
