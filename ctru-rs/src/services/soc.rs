@@ -33,7 +33,7 @@ impl Soc {
     pub fn init_with_buffer_size(num_bytes: usize) -> crate::Result<Self> {
         let _service_handler = ServiceReference::new(
             &SOC_ACTIVE,
-            true,
+            false,
             || {
                 let soc_mem = unsafe { memalign(0x1000, num_bytes) } as *mut u32;
                 let r = unsafe { ctru_sys::socInit(soc_mem, num_bytes as u32) };
@@ -65,18 +65,12 @@ impl Soc {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::Error;
 
     #[test]
     fn soc_duplicate() {
         let _soc = Soc::init().unwrap();
-        let value = *SOC_ACTIVE.lock().unwrap();
 
-        assert_eq!(value, 1);
-
-        drop(_soc);
-
-        let value = *SOC_ACTIVE.lock().unwrap();
-
-        assert_eq!(value, 0);
+        assert!(matches!(Soc::init(), Err(Error::ServiceAlreadyActive)))
     }
 }

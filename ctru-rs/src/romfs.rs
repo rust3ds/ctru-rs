@@ -52,7 +52,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn romfs_duplicate() {
+    fn romfs_counter() {
         let _romfs = RomFS::init().unwrap();
         let value = *ROMFS_ACTIVE.lock().unwrap();
 

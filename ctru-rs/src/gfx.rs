@@ -220,6 +220,7 @@ impl From<Side> for ctru_sys::gfx3dSide_t {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::Error;
 
     #[test]
     fn gfx_duplicate() {
