@@ -1,3 +1,4 @@
+use std::io;
 use ctru::console::Console;
 use ctru::gfx::Gfx;
 use ctru::services::apt::Apt;
@@ -37,7 +38,13 @@ fn main() {
                         let req_str = String::from_utf8_lossy(&buf);
                         println!("{}", req_str);
                     }
-                    Err(e) => println!("Unable to read stream: {}", e),
+                    Err(e) => {
+                        if e.kind() == io::ErrorKind::WouldBlock {
+                            println!("Note: Reading the connection returned ErrorKind::WouldBlock.")
+                        } else {
+                            println!("Unable to read stream: {}", e)
+                        }
+                    },
                 }
 
                 let response = b"HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n<html><body>Hello world</body></html>\r\n";
