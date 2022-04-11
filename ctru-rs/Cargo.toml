@@ -30,6 +30,7 @@ futures = "0.3"
 time = "0.3.7"
 tokio = { version = "1.16", features = ["rt", "time", "sync", "macros"] }
 cfg-if = "1.0.0"
+regex = "1.5.5"
 
 [features]
 default = ["romfs"]
