@@ -5,6 +5,8 @@ use ctru_sys::{consoleClear, consoleInit, consoleSelect, consoleSetWindow, Print
 
 use crate::gfx::Screen;
 
+mod non_flushing;
+
 static mut EMPTY_CONSOLE: PrintConsole = unsafe { const_zero::const_zero!(PrintConsole) };
 
 pub struct Console<'screen> {
@@ -25,6 +27,18 @@ impl<'screen> Console<'screen> {
             context,
             _screen: screen,
         }
+    }
+
+    /// Initialize a console that prints to the screen *without* flushing after every newline
+    /// or carriage return. This can prevent deadlocks when trying to print from multiple
+    /// threads simultaneously, but [`Gfx::flush_buffers`]
+    /// must be called for the printed output to be visible
+    ///
+    /// [`Gfx::flush_buffers`]: crate::gfx::Gfx::flush_buffers
+    pub fn non_flushing(screen: RefMut<'screen, dyn Screen>) -> Self {
+        let mut console = Self::init(screen);
+        console.context.PrintChar = Some(non_flushing::print_char);
+        console
     }
 
     /// Returns true if a valid Console to print on is selected
