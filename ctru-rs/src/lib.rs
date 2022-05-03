@@ -10,6 +10,10 @@ extern "C" fn services_deinit() {
     }
 }
 
+#[no_mangle]
+#[cfg(feature = "big-stack")]
+static __stacksize__: usize = 2 * 1024 * 1024; // 2MB
+
 /// Call this somewhere to force Rust to link some required crates
 /// This is also a setup for some crate integration only available at runtime
 ///
