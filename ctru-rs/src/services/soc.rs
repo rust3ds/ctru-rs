@@ -10,6 +10,7 @@ use crate::services::ServiceReference;
 #[non_exhaustive]
 pub struct Soc {
     _service_handler: ServiceReference,
+    sock_3dslink: libc::c_int,
 }
 
 static SOC_ACTIVE: Lazy<Mutex<usize>> = Lazy::new(|| Mutex::new(0));
@@ -52,13 +53,48 @@ impl Soc {
             },
         )?;
 
-        Ok(Self { _service_handler })
+        Ok(Self {
+            _service_handler,
+            sock_3dslink: -1,
+        })
     }
 
     /// IP Address of the Nintendo 3DS system.
     pub fn host_address(&self) -> Ipv4Addr {
         let raw_id = unsafe { libc::gethostid() };
         Ipv4Addr::from(raw_id.to_ne_bytes())
+    }
+
+    /// Redirect output streams (i.e. [`println`] and [`eprintln`]) to the `3dslink` server.
+    /// Requires `3dslink` >= 0.6.1 and `new-hbmenu` >= 2.3.0.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if a connection cannot be established to the server, or
+    /// output was already previously redirected.
+    pub fn redirect_to_3dslink(&mut self, stdout: bool, stderr: bool) -> crate::Result<()> {
+        if self.sock_3dslink >= 0 {
+            // TODO AlreadyRedirected or something
+            return Err(crate::Error::ServiceAlreadyActive);
+        }
+
+        let sock = unsafe { ctru_sys::link3dsConnectToHost(stdout, stderr) };
+        if sock < 0 {
+            Err(sock.into())
+        } else {
+            self.sock_3dslink = sock;
+            Ok(())
+        }
+    }
+}
+
+impl Drop for Soc {
+    fn drop(&mut self) {
+        if self.sock_3dslink >= 0 {
+            unsafe {
+                libc::closesocket(self.sock_3dslink);
+            }
+        }
     }
 }
 
@@ -69,7 +105,7 @@ mod tests {
 
     #[test]
     fn soc_duplicate() {
-        let _soc = Soc::init().unwrap();
+        // let _soc = Soc::init().unwrap();
 
         assert!(matches!(Soc::init(), Err(Error::ServiceAlreadyActive)))
     }
