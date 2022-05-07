@@ -1,3 +1,13 @@
+//! Use the `3dslink --server` option for redirecting output from the 3DS back
+//! to the device that sent the executable.
+//!
+//! For now, `cargo 3ds run` does not support this flag, so to run this example
+//! it must be sent manually, like this:
+//! ```sh
+//! cargo 3ds build --example output-3dslink
+//! 3dslink --server target/armv6k-nintendo-3ds/debug/examples/output-3dslink.3dsx
+//! ```
+
 use ctru::gfx::Gfx;
 use ctru::services::apt::Apt;
 use ctru::services::hid::{Hid, KeyPad};
@@ -13,6 +23,8 @@ fn main() {
 
     soc.redirect_to_3dslink(true, true)
         .expect("unable to redirect stdout/err to 3dslink server");
+
+    print!("\x1b[2J\x1b[0;0H"); // Clear screen + move to 0,0
 
     println!("Hello 3dslink!");
     eprintln!("Press Start on the device to disconnect and exit.");
