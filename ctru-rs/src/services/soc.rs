@@ -105,7 +105,7 @@ mod tests {
 
     #[test]
     fn soc_duplicate() {
-        // let _soc = Soc::init().unwrap();
+        let _soc = Soc::init().unwrap();
 
         assert!(matches!(Soc::init(), Err(Error::ServiceAlreadyActive)))
     }
