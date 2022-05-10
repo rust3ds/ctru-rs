@@ -4,6 +4,7 @@ use std::net::Ipv4Addr;
 use std::sync::Mutex;
 
 use crate::services::ServiceReference;
+use crate::Error;
 
 /// Soc service. Initializing this service will enable the use of network sockets and utilities
 /// such as those found in `std::net`. The service will be closed when this struct is is dropped.
@@ -74,15 +75,17 @@ impl Soc {
     /// output was already previously redirected.
     pub fn redirect_to_3dslink(&mut self, stdout: bool, stderr: bool) -> crate::Result<()> {
         if self.sock_3dslink >= 0 {
-            // TODO AlreadyRedirected or something
-            return Err(crate::Error::ServiceAlreadyActive);
+            return Err(Error::OutputAlreadyRedirected);
         }
 
-        let sock = unsafe { ctru_sys::link3dsConnectToHost(stdout, stderr) };
-        if sock < 0 {
-            Err(sock.into())
+        if !stdout && !stderr {
+            return Ok(());
+        }
+
+        self.sock_3dslink = unsafe { ctru_sys::link3dsConnectToHost(stdout, stderr) };
+        if self.sock_3dslink < 0 {
+            Err(Error::from_errno())
         } else {
-            self.sock_3dslink = sock;
             Ok(())
         }
     }
@@ -92,7 +95,7 @@ impl Drop for Soc {
     fn drop(&mut self) {
         if self.sock_3dslink >= 0 {
             unsafe {
-                libc::closesocket(self.sock_3dslink);
+                libc::close(self.sock_3dslink);
             }
         }
     }
@@ -101,7 +104,6 @@ impl Drop for Soc {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::Error;
 
     #[test]
     fn soc_duplicate() {

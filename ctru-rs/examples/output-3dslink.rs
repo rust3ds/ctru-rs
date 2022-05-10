@@ -24,8 +24,6 @@ fn main() {
     soc.redirect_to_3dslink(true, true)
         .expect("unable to redirect stdout/err to 3dslink server");
 
-    print!("\x1b[2J\x1b[0;0H"); // Clear screen + move to 0,0
-
     println!("Hello 3dslink!");
     eprintln!("Press Start on the device to disconnect and exit.");
 
