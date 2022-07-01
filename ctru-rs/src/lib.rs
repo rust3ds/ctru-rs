@@ -22,16 +22,22 @@ pub fn init() {
     linker_fix_3ds::init();
     pthread_3ds::init();
 
+    #[cfg(not(test))]
+    panic_hook_setup();
+
     // Initialize the PS service for random data generation
     unsafe {
-        ctru_sys::psInit();
+        let ps_ret = ctru_sys::psInit();
+        if ctru_sys::R_FAILED(ps_ret) {
+            panic!(
+                "Failed to initialize random data generation: {:?}",
+                Error::from(ps_ret)
+            )
+        }
 
         // Setup the deconstruction at the program's end
         libc::atexit(services_deinit);
     }
-
-    #[cfg(not(test))]
-    panic_hook_setup();
 }
 
 #[cfg(not(test))]

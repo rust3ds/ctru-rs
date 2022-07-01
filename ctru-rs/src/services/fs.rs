@@ -996,7 +996,7 @@ impl Drop for Fs {
 impl Drop for Archive {
     fn drop(&mut self) {
         unsafe {
-            ctru_sys::FSUSER_CloseArchive(self.handle);
+            let _ = ctru_sys::FSUSER_CloseArchive(self.handle);
         }
     }
 }
@@ -1004,7 +1004,7 @@ impl Drop for Archive {
 impl Drop for File {
     fn drop(&mut self) {
         unsafe {
-            ctru_sys::FSFILE_Close(self.handle);
+            let _ = ctru_sys::FSFILE_Close(self.handle);
         }
     }
 }
@@ -1012,7 +1012,7 @@ impl Drop for File {
 impl Drop for Dir {
     fn drop(&mut self) {
         unsafe {
-            ctru_sys::FSDIR_Close(self.0);
+            let _ = ctru_sys::FSDIR_Close(self.0);
         }
     }
 }
