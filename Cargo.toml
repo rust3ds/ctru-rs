@@ -1,9 +1,6 @@
 [workspace]
 members = ["ctru-rs", "ctru-sys"]
 
-[patch.'https://github.com/Meziu/libc']
-libc = "0.2.121"
-
 [patch.'https://github.com/Meziu/ctru-rs']
 # Make sure all dependencies use the local ctru-sys package
 ctru-sys = { path = "ctru-sys" }
