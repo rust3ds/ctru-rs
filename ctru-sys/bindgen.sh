@@ -6,6 +6,7 @@ bindgen "$DEVKITPRO/libctru/include/3ds.h" \
     --rust-target nightly \
     --use-core \
     --distrust-clang-mangling \
+    --must-use-type 'Result' \
     --no-doc-comments \
     --no-layout-tests \
     --ctypes-prefix "::libc" \

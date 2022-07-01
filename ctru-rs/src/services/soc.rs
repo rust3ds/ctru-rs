@@ -50,7 +50,7 @@ impl Soc {
             // Surely nothing bad will happens :D
             || unsafe {
                 // The socket buffer is freed automatically by `socExit`
-                ctru_sys::socExit();
+                let _ = ctru_sys::socExit();
             },
         )?;
 
