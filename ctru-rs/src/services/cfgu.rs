@@ -2,6 +2,7 @@
 //!
 //! This module contains basic methods to retrieve and change configuration from the console.
 
+#[derive(Debug)]
 #[repr(u8)]
 pub enum Region {
     Japan       = 0,
@@ -13,6 +14,7 @@ pub enum Region {
     Taiwan      = 6,
 }
 
+#[derive(Debug)]
 #[repr(u8)]
 pub enum Language {
     Japan       = 0,
@@ -29,6 +31,7 @@ pub enum Language {
     TradChinese = 11,
 }
 
+#[derive(Debug)]
 #[repr(u8)]
 pub enum SystemModel {
     Model3DS        = 0,
@@ -84,7 +87,7 @@ impl Cfgu {
     }
 
     /// Gets system's model
-    pub fn get_system_model(&self) -> crate::Result<SystemModel> {
+    pub fn get_model(&self) -> crate::Result<SystemModel> {
         let mut model: u8 = 0;
         let model_pointer: *mut u8 = &mut model;
 
@@ -100,7 +103,7 @@ impl Cfgu {
     }
 
     /// Gets system's language
-    pub fn get_system_language(&self) -> crate::Result<Language> {
+    pub fn get_language(&self) -> crate::Result<Language> {
         let mut language: u8 = 0;
         let language_pointer: *mut u8 = &mut language;
 
