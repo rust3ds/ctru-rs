@@ -3,43 +3,43 @@
 //! This module contains basic methods to retrieve and change configuration from the console.
 
 #[derive(Debug)]
-#[repr(u8)]
+#[repr(u32)]
 pub enum Region {
-    Japan       = ctru_sys::CFG_REGION_JPN as u8,
-    Usa         = ctru_sys::CFG_REGION_USA as u8,
-    Europe      = ctru_sys::CFG_REGION_EUR as u8,
-    Australia   = ctru_sys::CFG_REGION_AUS as u8,
-    China       = ctru_sys::CFG_REGION_CHN as u8,
-    Korea       = ctru_sys::CFG_REGION_KOR as u8,
-    Taiwan      = ctru_sys::CFG_REGION_TWN as u8,
+    Japan       = ctru_sys::CFG_REGION_JPN,
+    Usa         = ctru_sys::CFG_REGION_USA,
+    Europe      = ctru_sys::CFG_REGION_EUR,
+    Australia   = ctru_sys::CFG_REGION_AUS,
+    China       = ctru_sys::CFG_REGION_CHN,
+    Korea       = ctru_sys::CFG_REGION_KOR,
+    Taiwan      = ctru_sys::CFG_REGION_TWN,
 }
 
 #[derive(Debug)]
-#[repr(u8)]
+#[repr(u32)]
 pub enum Language {
-    Japan       = ctru_sys::CFG_LANGUAGE_JP as u8,
-    English     = ctru_sys::CFG_LANGUAGE_EN as u8,
-    French      = ctru_sys::CFG_LANGUAGE_FR as u8,
-    German      = ctru_sys::CFG_LANGUAGE_DE as u8,
-    Italian     = ctru_sys::CFG_LANGUAGE_IT as u8,
-    Spanish     = ctru_sys::CFG_LANGUAGE_ES as u8,
-    SimpChinese = ctru_sys::CFG_LANGUAGE_ZH as u8,
-    Korean      = ctru_sys::CFG_LANGUAGE_KO as u8,
-    Dutch       = ctru_sys::CFG_LANGUAGE_NL as u8,
-    Portuguese  = ctru_sys::CFG_LANGUAGE_PT as u8,
-    Russian     = ctru_sys::CFG_LANGUAGE_RU as u8,
-    TradChinese = ctru_sys::CFG_LANGUAGE_TW as u8,
+    Japan       = ctru_sys::CFG_LANGUAGE_JP,
+    English     = ctru_sys::CFG_LANGUAGE_EN,
+    French      = ctru_sys::CFG_LANGUAGE_FR,
+    German      = ctru_sys::CFG_LANGUAGE_DE,
+    Italian     = ctru_sys::CFG_LANGUAGE_IT,
+    Spanish     = ctru_sys::CFG_LANGUAGE_ES,
+    SimpChinese = ctru_sys::CFG_LANGUAGE_ZH,
+    Korean      = ctru_sys::CFG_LANGUAGE_KO,
+    Dutch       = ctru_sys::CFG_LANGUAGE_NL,
+    Portuguese  = ctru_sys::CFG_LANGUAGE_PT,
+    Russian     = ctru_sys::CFG_LANGUAGE_RU,
+    TradChinese = ctru_sys::CFG_LANGUAGE_TW,
 }
 
 #[derive(Debug)]
-#[repr(u8)]
+#[repr(u32)]
 pub enum SystemModel {
-    Model3DS        = ctru_sys::CFG_MODEL_3DS as u8,
-    Model3DSXL      = ctru_sys::CFG_MODEL_3DSXL as u8,
-    ModelNew3DS     = ctru_sys::CFG_MODEL_N3DS as u8,
-    Model2DS        = ctru_sys::CFG_MODEL_2DS as u8,
-    ModelNew3DSXL   = ctru_sys::CFG_MODEL_N3DSXL as u8,
-    ModelNew2DSXL   = ctru_sys::CFG_MODEL_N2DSXL as u8,
+    Model3DS        = ctru_sys::CFG_MODEL_3DS,
+    Model3DSXL      = ctru_sys::CFG_MODEL_3DSXL,
+    ModelNew3DS     = ctru_sys::CFG_MODEL_N3DS,
+    Model2DS        = ctru_sys::CFG_MODEL_2DS,
+    ModelNew3DSXL   = ctru_sys::CFG_MODEL_N3DSXL,
+    ModelNew2DSXL   = ctru_sys::CFG_MODEL_N2DSXL,
 }
 
 /// Represents the configuration service. No actions can be performed
