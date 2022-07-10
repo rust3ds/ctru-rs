@@ -5,41 +5,41 @@
 #[derive(Debug)]
 #[repr(u8)]
 pub enum Region {
-    Japan       = 0,
-    Usa         = 1,
-    Europe      = 2,
-    Australia   = 3,
-    China       = 4,
-    Korea       = 5,
-    Taiwan      = 6,
+    Japan       = ctru_sys::CFG_REGION_JPN as u8,
+    Usa         = ctru_sys::CFG_REGION_USA as u8,
+    Europe      = ctru_sys::CFG_REGION_EUR as u8,
+    Australia   = ctru_sys::CFG_REGION_AUS as u8,
+    China       = ctru_sys::CFG_REGION_CHN as u8,
+    Korea       = ctru_sys::CFG_REGION_KOR as u8,
+    Taiwan      = ctru_sys::CFG_REGION_TWN as u8,
 }
 
 #[derive(Debug)]
 #[repr(u8)]
 pub enum Language {
-    Japan       = 0,
-    English     = 1,
-    French      = 2,
-    German      = 3,
-    Italian     = 4,
-    Spanish     = 5,
-    SimpChinese = 6,
-    Korean      = 7,
-    Dutch       = 8,
-    Portuguese  = 9,
-    Russian     = 10,
-    TradChinese = 11,
+    Japan       = ctru_sys::CFG_LANGUAGE_JP as u8,
+    English     = ctru_sys::CFG_LANGUAGE_EN as u8,
+    French      = ctru_sys::CFG_LANGUAGE_FR as u8,
+    German      = ctru_sys::CFG_LANGUAGE_DE as u8,
+    Italian     = ctru_sys::CFG_LANGUAGE_IT as u8,
+    Spanish     = ctru_sys::CFG_LANGUAGE_ES as u8,
+    SimpChinese = ctru_sys::CFG_LANGUAGE_ZH as u8,
+    Korean      = ctru_sys::CFG_LANGUAGE_KO as u8,
+    Dutch       = ctru_sys::CFG_LANGUAGE_NL as u8,
+    Portuguese  = ctru_sys::CFG_LANGUAGE_PT as u8,
+    Russian     = ctru_sys::CFG_LANGUAGE_RU as u8,
+    TradChinese = ctru_sys::CFG_LANGUAGE_TW as u8,
 }
 
 #[derive(Debug)]
 #[repr(u8)]
 pub enum SystemModel {
-    Model3DS        = 0,
-    Model3DSXL      = 1,
-    ModelNew3DS     = 2,
-    Model2DS        = 3,
-    ModelNew3DSXL   = 4,
-    ModelNew2DSXL   = 5,
+    Model3DS        = ctru_sys::CFG_MODEL_3DS as u8,
+    Model3DSXL      = ctru_sys::CFG_MODEL_3DSXL as u8,
+    ModelNew3DS     = ctru_sys::CFG_MODEL_N3DS as u8,
+    Model2DS        = ctru_sys::CFG_MODEL_2DS as u8,
+    ModelNew3DSXL   = ctru_sys::CFG_MODEL_N3DSXL as u8,
+    ModelNew2DSXL   = ctru_sys::CFG_MODEL_N2DSXL as u8,
 }
 
 /// Represents the configuration service. No actions can be performed
@@ -175,14 +175,14 @@ impl TryFrom<u8> for Region {
     type Error = ();
 
     fn try_from(value: u8) -> Result<Self, Self::Error> {
-        match value {
-            0 => Ok(Region::Japan),
-            1 => Ok(Region::Usa),
-            2 => Ok(Region::Europe),
-            3 => Ok(Region::Australia),
-            4 => Ok(Region::China),
-            5 => Ok(Region::Korea),
-            6 => Ok(Region::Taiwan),
+        match value as u32 {
+            ctru_sys::CFG_REGION_JPN => Ok(Region::Japan),
+            ctru_sys::CFG_REGION_USA => Ok(Region::Usa),
+            ctru_sys::CFG_REGION_EUR => Ok(Region::Europe),
+            ctru_sys::CFG_REGION_AUS => Ok(Region::Australia),
+            ctru_sys::CFG_REGION_CHN => Ok(Region::China),
+            ctru_sys::CFG_REGION_KOR => Ok(Region::Korea),
+            ctru_sys::CFG_REGION_TWN => Ok(Region::Taiwan),
             _ => Err(())
         }
     }
@@ -192,19 +192,19 @@ impl TryFrom<u8> for Language {
     type Error = ();
 
     fn try_from(value: u8) -> Result<Self, Self::Error> {
-        match value {
-            0  => Ok(Language::Japan),
-            1  => Ok(Language::English),
-            2  => Ok(Language::French),
-            3  => Ok(Language::German),
-            4  => Ok(Language::Italian),
-            5  => Ok(Language::Spanish),
-            6  => Ok(Language::SimpChinese),
-            7  => Ok(Language::Korean),
-            8  => Ok(Language::Dutch),
-            9  => Ok(Language::Portuguese),
-            10 => Ok(Language::Russian),
-            11 => Ok(Language::TradChinese),
+        match value as u32 {
+            ctru_sys::CFG_LANGUAGE_JP  => Ok(Language::Japan),
+            ctru_sys::CFG_LANGUAGE_EN  => Ok(Language::English),
+            ctru_sys::CFG_LANGUAGE_FR  => Ok(Language::French),
+            ctru_sys::CFG_LANGUAGE_DE  => Ok(Language::German),
+            ctru_sys::CFG_LANGUAGE_IT  => Ok(Language::Italian),
+            ctru_sys::CFG_LANGUAGE_ES  => Ok(Language::Spanish),
+            ctru_sys::CFG_LANGUAGE_ZH  => Ok(Language::SimpChinese),
+            ctru_sys::CFG_LANGUAGE_KO  => Ok(Language::Korean),
+            ctru_sys::CFG_LANGUAGE_NL  => Ok(Language::Dutch),
+            ctru_sys::CFG_LANGUAGE_PT  => Ok(Language::Portuguese),
+            ctru_sys::CFG_LANGUAGE_RU => Ok(Language::Russian),
+            ctru_sys::CFG_LANGUAGE_TW => Ok(Language::TradChinese),
             _  => Err(())
         }
     }
@@ -214,13 +214,13 @@ impl TryFrom<u8> for SystemModel {
     type Error = ();
 
     fn try_from(value: u8) -> Result<Self, Self::Error> {
-        match value {
-            0 => Ok(SystemModel::Model3DS),
-            1 => Ok(SystemModel::Model3DSXL),
-            2 => Ok(SystemModel::ModelNew3DS),
-            3 => Ok(SystemModel::Model2DS),
-            4 => Ok(SystemModel::ModelNew3DSXL),
-            5 => Ok(SystemModel::ModelNew2DSXL),
+        match value as u32 {
+            ctru_sys::CFG_MODEL_3DS => Ok(SystemModel::Model3DS),
+            ctru_sys::CFG_MODEL_3DSXL => Ok(SystemModel::Model3DSXL),
+            ctru_sys::CFG_MODEL_N3DS => Ok(SystemModel::ModelNew3DS),
+            ctru_sys::CFG_MODEL_2DS => Ok(SystemModel::Model2DS),
+            ctru_sys::CFG_MODEL_N3DSXL => Ok(SystemModel::ModelNew3DSXL),
+            ctru_sys::CFG_MODEL_N2DSXL => Ok(SystemModel::ModelNew2DSXL),
             _ => Err(())
         }
     }
