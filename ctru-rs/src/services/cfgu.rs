@@ -133,17 +133,17 @@ impl Cfgu {
         }
     }
 
-    /// Check if the console is 2DS-like (2DS, New2DS, New2DSXL)
-    pub fn is_2ds_like(&self) -> crate::Result<bool> {
-        let mut is_2ds_like: u8 = 0;
-        let is_2ds_like_pointer: *mut u8 = &mut is_2ds_like;
+    /// Check if the console is from the 2DS family (2DS, New2DS, New2DSXL)
+    pub fn is_2ds_family(&self) -> crate::Result<bool> {
+        let mut is_2ds_family: u8 = 0;
+        let is_2ds_family_pointer: *mut u8 = &mut is_2ds_family;
 
         unsafe {
-            let r = ctru_sys::CFGU_GetModelNintendo2DS(is_2ds_like_pointer);
+            let r = ctru_sys::CFGU_GetModelNintendo2DS(is_2ds_family_pointer);
             if r < 0 {
                 Err(r.into())
             } else {
-                Ok(is_2ds_like < 1)
+                Ok(is_2ds_family < 1)
             }
         }
     }
