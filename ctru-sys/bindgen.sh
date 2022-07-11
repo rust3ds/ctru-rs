@@ -28,3 +28,5 @@ bindgen "$DEVKITPRO/libctru/include/3ds.h" \
     -DARM11 \
     -D__3DS__ \
 > src/bindings.rs
+
+cargo run --bin docstring-to-rustdoc -- src/bindings.rs
