@@ -1,3 +1,24 @@
+//! This script transforms _some_ Boxygen comments to Rustdoc format
+//!
+//! # Usage
+//!
+//! ``cargo run --bin docstring-to-rustdoc -- [location of the bindings.rs]``
+//! Example: ``cargo run --bin docstring-to-rustdoc -- src/bindings.rs``
+//!
+//! # Transformations
+//!
+//! The following are _completely_ removed, but _its contents are kept_:
+//! * ``@brief``
+//! * ``@ref``
+//! * ``@note``
+//! * ``@return``
+//! * ``@sa``
+//! * ``<``
+//! * ``[out]`` and ``[in]``
+//!
+//! The followings are _partially_ transformed to Rustdoc format:
+//! * ``@param``
+
 use std::{env, fs, io};
 use std::path::Path;
 
@@ -34,8 +55,7 @@ fn main() -> io::Result<()> {
             }
         })
         .map(|v| {
-            // End-lines of bindings.rs are CRLF
-            v + "\r\n"
+            v + "\n"
         })
         .collect::<String>();
 
