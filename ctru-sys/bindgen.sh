@@ -7,7 +7,6 @@ bindgen "$DEVKITPRO/libctru/include/3ds.h" \
     --use-core \
     --distrust-clang-mangling \
     --must-use-type 'Result' \
-    --no-doc-comments \
     --no-layout-tests \
     --ctypes-prefix "::libc" \
     --no-prepend-enum-name \
@@ -29,3 +28,5 @@ bindgen "$DEVKITPRO/libctru/include/3ds.h" \
     -DARM11 \
     -D__3DS__ \
 > src/bindings.rs
+
+cargo run --bin docstring-to-rustdoc -- src/bindings.rs

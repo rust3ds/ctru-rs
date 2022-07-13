@@ -17,7 +17,7 @@ static __stacksize__: usize = 2 * 1024 * 1024; // 2MB
 /// Call this somewhere to force Rust to link some required crates
 /// This is also a setup for some crate integration only available at runtime
 ///
-/// See https://github.com/rust-lang/rust/issues/47384
+/// See <https://github.com/rust-lang/rust/issues/47384>
 pub fn init() {
     linker_fix_3ds::init();
     pthread_3ds::init();
