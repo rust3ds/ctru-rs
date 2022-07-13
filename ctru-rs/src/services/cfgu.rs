@@ -17,7 +17,7 @@ pub enum Region {
 #[derive(Copy, Clone, Debug)]
 #[repr(u32)]
 pub enum Language {
-    Japan = ctru_sys::CFG_LANGUAGE_JP,
+    Japanese = ctru_sys::CFG_LANGUAGE_JP,
     English = ctru_sys::CFG_LANGUAGE_EN,
     French = ctru_sys::CFG_LANGUAGE_FR,
     German = ctru_sys::CFG_LANGUAGE_DE,
@@ -178,7 +178,7 @@ impl TryFrom<u8> for Language {
 
     fn try_from(value: u8) -> Result<Self, Self::Error> {
         match value as u32 {
-            ctru_sys::CFG_LANGUAGE_JP => Ok(Language::Japan),
+            ctru_sys::CFG_LANGUAGE_JP => Ok(Language::Japanese),
             ctru_sys::CFG_LANGUAGE_EN => Ok(Language::English),
             ctru_sys::CFG_LANGUAGE_FR => Ok(Language::French),
             ctru_sys::CFG_LANGUAGE_DE => Ok(Language::German),
