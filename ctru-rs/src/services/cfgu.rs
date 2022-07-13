@@ -2,7 +2,7 @@
 //!
 //! This module contains basic methods to retrieve and change configuration from the console.
 
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 #[repr(u32)]
 pub enum Region {
     Japan = ctru_sys::CFG_REGION_JPN,
@@ -14,7 +14,7 @@ pub enum Region {
     Taiwan = ctru_sys::CFG_REGION_TWN,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 #[repr(u32)]
 pub enum Language {
     Japan = ctru_sys::CFG_LANGUAGE_JP,
@@ -31,7 +31,7 @@ pub enum Language {
     TraditionalChinese = ctru_sys::CFG_LANGUAGE_TW,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 #[repr(u32)]
 pub enum SystemModel {
     Model3DS = ctru_sys::CFG_MODEL_3DS,
