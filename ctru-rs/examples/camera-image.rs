@@ -107,7 +107,8 @@ fn main() {
 }
 
 fn take_picture(cam: &mut Cam, buf: &mut [u8]) {
-    let buf_size = cam.get_max_bytes(WIDTH as i16, HEIGHT as i16)
+    let buf_size = cam
+        .get_max_bytes(WIDTH as i16, HEIGHT as i16)
         .expect("Failed to get max bytes");
 
     cam.set_transfer_bytes(CamPort::PORT_BOTH, buf_size, WIDTH as i16, HEIGHT as i16)
@@ -115,7 +116,6 @@ fn take_picture(cam: &mut Cam, buf: &mut [u8]) {
 
     cam.activate(CamSelect::SELECT_OUT1_OUT2)
         .expect("Failed to activate camera");
-
 
     cam.clear_buffer(CamPort::PORT_BOTH)
         .expect("Failed to clear buffer");
@@ -125,21 +125,18 @@ fn take_picture(cam: &mut Cam, buf: &mut [u8]) {
     cam.start_capture(CamPort::PORT_BOTH)
         .expect("Failed to start capture");
 
-    let receive_event = cam.set_receiving(
-        buf,
-        CamPort::PORT_CAM1,
-        SCREEN_SIZE as u32,
-        buf_size as i16,
-    )
-    .expect("Failed to set receiving");
+    let receive_event = cam
+        .set_receiving(buf, CamPort::PORT_CAM1, SCREEN_SIZE as u32, buf_size as i16)
+        .expect("Failed to set receiving");
 
-    let receive_event2 = cam.set_receiving(
-        &mut buf[SCREEN_SIZE..],
-        CamPort::PORT_CAM2,
-        SCREEN_SIZE as u32,
-        buf_size as i16,
-    )
-    .expect("Failed to set receiving");
+    let receive_event2 = cam
+        .set_receiving(
+            &mut buf[SCREEN_SIZE..],
+            CamPort::PORT_CAM2,
+            SCREEN_SIZE as u32,
+            buf_size as i16,
+        )
+        .expect("Failed to set receiving");
 
     unsafe {
         let mut r = ctru_sys::svcWaitSynchronization(receive_event, WAIT_TIMEOUT);
@@ -172,14 +169,14 @@ fn take_picture(cam: &mut Cam, buf: &mut [u8]) {
 
 fn write_picture_to_frame_buffer_rgb_565(
     fb: RawFrameBuffer,
-    img: &mut [u8],
+    img: &[u8],
     x: u16,
     y: u16,
     width: u16,
     height: u16,
 ) {
     let fb_8 = fb.ptr;
-    let img_16 = img.as_mut_ptr() as *mut u16;
+    let img_16 = img.as_ptr() as *const u16;
     let mut draw_x;
     let mut draw_y;
     for j in 0..height {
