@@ -6,7 +6,6 @@ use ctru::services::cam::{
 use ctru::services::hid::KeyPad;
 use ctru::services::{Apt, Hid};
 use ctru::Gfx;
-use ctru_sys::Handle;
 
 const WIDTH: usize = 400;
 const HEIGHT: usize = 240;
@@ -108,17 +107,15 @@ fn main() {
 }
 
 fn take_picture(cam: &mut Cam, buf: &mut [u8]) {
-    let mut buf_size = 0;
-    cam.get_max_bytes(&mut buf_size, WIDTH as i16, HEIGHT as i16)
+    let buf_size = cam.get_max_bytes(WIDTH as i16, HEIGHT as i16)
         .expect("Failed to get max bytes");
+
     cam.set_transfer_bytes(CamPort::PORT_BOTH, buf_size, WIDTH as i16, HEIGHT as i16)
         .expect("Failed to set transfer bytes");
 
     cam.activate(CamSelect::SELECT_OUT1_OUT2)
         .expect("Failed to activate camera");
 
-    let mut receive_event: Handle = 0;
-    let mut receive_event2: Handle = 0;
 
     cam.clear_buffer(CamPort::PORT_BOTH)
         .expect("Failed to clear buffer");
@@ -128,22 +125,22 @@ fn take_picture(cam: &mut Cam, buf: &mut [u8]) {
     cam.start_capture(CamPort::PORT_BOTH)
         .expect("Failed to start capture");
 
-    cam.set_receiving(
-        &mut receive_event,
+    let receive_event = cam.set_receiving(
         buf,
         CamPort::PORT_CAM1,
         SCREEN_SIZE as u32,
         buf_size as i16,
     )
     .expect("Failed to set receiving");
-    cam.set_receiving(
-        &mut receive_event2,
+
+    let receive_event2 = cam.set_receiving(
         &mut buf[SCREEN_SIZE..],
         CamPort::PORT_CAM2,
         SCREEN_SIZE as u32,
         buf_size as i16,
     )
     .expect("Failed to set receiving");
+
     unsafe {
         let mut r = ctru_sys::svcWaitSynchronization(receive_event, WAIT_TIMEOUT);
         if r < 0 {

@@ -1,4 +1,5 @@
 use bitflags::bitflags;
+use ctru_sys::Handle;
 
 pub struct Cam(());
 
@@ -174,6 +175,28 @@ bitflags! {
     }
 }
 
+pub struct CamTrimmingParams {
+    pub x_start: i16,
+    pub y_start: i16,
+    pub x_end: i16,
+    pub y_end: i16,
+}
+
+#[derive(Default)]
+pub struct ImageQualityCalibrationData(ctru_sys::CAMU_ImageQualityCalibrationData);
+
+#[derive(Default)]
+pub struct StereoCameraCalibrationData(ctru_sys::CAMU_StereoCameraCalibrationData);
+
+#[derive(Default)]
+pub struct PackageParameterCameraSelect(ctru_sys::CAMU_PackageParameterCameraSelect);
+
+#[derive(Default)]
+pub struct PackageParameterContext(ctru_sys::CAMU_PackageParameterContext);
+
+#[derive(Default)]
+pub struct PackageParameterContextDetail(ctru_sys::CAMU_PackageParameterContextDetail);
+
 impl Cam {
     pub fn init() -> crate::Result<Cam> {
         unsafe {
@@ -208,13 +231,14 @@ impl Cam {
         }
     }
 
-    pub fn is_busy(&self, bool: &mut bool, port: CamPort) -> crate::Result<()> {
+    pub fn is_busy(&self, port: CamPort) -> crate::Result<bool> {
         unsafe {
-            let r = ctru_sys::CAMU_IsBusy(bool, port.bits());
+            let mut is_busy = false;
+            let r = ctru_sys::CAMU_IsBusy(&mut is_busy, port.bits());
             if r < 0 {
                 Err(r.into())
             } else {
-                Ok(())
+                Ok(is_busy)
             }
         }
     }
@@ -230,43 +254,44 @@ impl Cam {
         }
     }
 
-    pub fn get_vsync_interrupt_event(&self, event: &mut u32, port: CamPort) -> crate::Result<()> {
+    pub fn get_vsync_interrupt_event(&self, port: CamPort) -> crate::Result<u32> {
         unsafe {
-            let r = ctru_sys::CAMU_GetVsyncInterruptEvent(event, port.bits());
+            let mut event: Handle = 0;
+            let r = ctru_sys::CAMU_GetVsyncInterruptEvent(&mut event, port.bits());
             if r < 0 {
                 Err(r.into())
             } else {
-                Ok(())
+                Ok(event)
             }
         }
     }
 
     pub fn get_buffer_error_interrupt_event(
         &self,
-        event: &mut u32,
         port: CamPort,
-    ) -> crate::Result<()> {
+    ) -> crate::Result<u32> {
         unsafe {
-            let r = ctru_sys::CAMU_GetBufferErrorInterruptEvent(event, port.bits());
+            let mut event: Handle = 0;
+            let r = ctru_sys::CAMU_GetBufferErrorInterruptEvent(&mut event, port.bits());
             if r < 0 {
                 Err(r.into())
             } else {
-                Ok(())
+                Ok(event)
             }
         }
     }
 
     pub fn set_receiving(
         &self,
-        handle: &mut u32,
         buf: &mut [u8],
         port: CamPort,
         size: u32,
         buf_size: i16,
-    ) -> crate::Result<()> {
+    ) -> crate::Result<u32> {
         unsafe {
+            let mut completion_handle: Handle = 0;
             let r = ctru_sys::CAMU_SetReceiving(
-                handle,
+                &mut completion_handle,
                 buf.as_mut_ptr() as *mut ::libc::c_void,
                 port.bits(),
                 size,
@@ -275,22 +300,22 @@ impl Cam {
             if r < 0 {
                 Err(r.into())
             } else {
-                Ok(())
+                Ok(completion_handle)
             }
         }
     }
 
     pub fn is_finished_receiving(
         &self,
-        finished_receiving: &mut bool,
         port: CamPort,
-    ) -> crate::Result<()> {
+    ) -> crate::Result<bool> {
         unsafe {
-            let r = ctru_sys::CAMU_IsFinishedReceiving(finished_receiving, port.bits());
+            let mut finished_receiving = false;
+            let r = ctru_sys::CAMU_IsFinishedReceiving(&mut finished_receiving, port.bits());
             if r < 0 {
                 Err(r.into())
             } else {
-                Ok(())
+                Ok(finished_receiving)
             }
         }
     }
@@ -312,13 +337,14 @@ impl Cam {
         }
     }
 
-    pub fn get_max_lines(&self, max_lines: &mut i16, width: i16, height: i16) -> crate::Result<()> {
+    pub fn get_max_lines(&self, width: i16, height: i16) -> crate::Result<i16> {
         unsafe {
-            let r = ctru_sys::CAMU_GetMaxLines(max_lines, width, height);
+            let mut max_lines = 0;
+            let r = ctru_sys::CAMU_GetMaxLines(&mut max_lines, width, height);
             if r < 0 {
                 Err(r.into())
             } else {
-                Ok(())
+                Ok(max_lines)
             }
         }
     }
@@ -340,24 +366,26 @@ impl Cam {
         }
     }
 
-    pub fn get_transfer_bytes(&self, transfer_bytes: &mut u32, port: CamPort) -> crate::Result<()> {
+    pub fn get_transfer_bytes(&self, port: CamPort) -> crate::Result<u32> {
         unsafe {
-            let r = ctru_sys::CAMU_GetTransferBytes(transfer_bytes, port.bits());
+            let mut transfer_bytes = 0;
+            let r = ctru_sys::CAMU_GetTransferBytes(&mut transfer_bytes, port.bits());
             if r < 0 {
                 Err(r.into())
             } else {
-                Ok(())
+                Ok(transfer_bytes)
             }
         }
     }
 
-    pub fn get_max_bytes(&self, buf_size: &mut u32, width: i16, height: i16) -> crate::Result<()> {
+    pub fn get_max_bytes(&self, width: i16, height: i16) -> crate::Result<u32> {
         unsafe {
-            let r = ctru_sys::CAMU_GetMaxBytes(buf_size, width, height);
+            let mut buf_size = 0;
+            let r = ctru_sys::CAMU_GetMaxBytes(&mut buf_size, width, height);
             if r < 0 {
                 Err(r.into())
             } else {
-                Ok(())
+                Ok(buf_size)
             }
         }
     }
@@ -373,13 +401,14 @@ impl Cam {
         }
     }
 
-    pub fn is_trimming(&self, trimming: &mut bool, port: CamPort) -> crate::Result<()> {
+    pub fn is_trimming(&self, port: CamPort) -> crate::Result<bool> {
         unsafe {
-            let r = ctru_sys::CAMU_IsTrimming(trimming, port.bits());
+            let mut trimming = false;
+            let r = ctru_sys::CAMU_IsTrimming(&mut trimming, port.bits());
             if r < 0 {
                 Err(r.into())
             } else {
-                Ok(())
+                Ok(trimming)
             }
         }
     }
@@ -387,13 +416,10 @@ impl Cam {
     pub fn set_trimming_params(
         &self,
         port: CamPort,
-        x_start: i16,
-        y_start: i16,
-        x_end: i16,
-        y_end: i16,
+        params: CamTrimmingParams,
     ) -> crate::Result<()> {
         unsafe {
-            let r = ctru_sys::CAMU_SetTrimmingParams(port.bits(), x_start, y_start, x_end, y_end);
+            let r = ctru_sys::CAMU_SetTrimmingParams(port.bits(), params.x_start, params.y_start, params.x_end, params.y_end);
             if r < 0 {
                 Err(r.into())
             } else {
@@ -404,18 +430,23 @@ impl Cam {
 
     pub fn get_trimming_params(
         &self,
-        x_start: &mut i16,
-        y_start: &mut i16,
-        x_end: &mut i16,
-        y_end: &mut i16,
         port: CamPort,
-    ) -> crate::Result<()> {
+    ) -> crate::Result<CamTrimmingParams> {
         unsafe {
-            let r = ctru_sys::CAMU_GetTrimmingParams(x_start, y_start, x_end, y_end, port.bits());
+            let mut x_start = 0;
+            let mut y_start = 0;
+            let mut x_end = 0;
+            let mut y_end = 0;
+            let r = ctru_sys::CAMU_GetTrimmingParams(&mut x_start, &mut y_start, &mut x_end, &mut y_end, port.bits());
             if r < 0 {
                 Err(r.into())
             } else {
-                Ok(())
+                Ok(CamTrimmingParams{
+                    x_start,
+                    y_start,
+                    x_end,
+                    y_end
+                })
             }
         }
     }
@@ -532,15 +563,15 @@ impl Cam {
 
     pub fn is_auto_exposure(
         &self,
-        is_auto_exposure: &mut bool,
         camera: CamSelect,
-    ) -> crate::Result<()> {
+    ) -> crate::Result<bool> {
         unsafe {
-            let r = ctru_sys::CAMU_IsAutoExposure(is_auto_exposure, camera.bits());
+            let mut is_auto_exposure= false;
+            let r = ctru_sys::CAMU_IsAutoExposure(&mut is_auto_exposure, camera.bits());
             if r < 0 {
                 Err(r.into())
             } else {
-                Ok(())
+                Ok(is_auto_exposure)
             }
         }
     }
@@ -558,15 +589,15 @@ impl Cam {
 
     pub fn is_auto_white_balance(
         &self,
-        is_auto_white_balance: &mut bool,
         camera: CamSelect,
-    ) -> crate::Result<()> {
+    ) -> crate::Result<bool> {
         unsafe {
-            let r = ctru_sys::CAMU_IsAutoWhiteBalance(is_auto_white_balance, camera.bits());
+            let mut is_auto_white_balance = false;
+            let r = ctru_sys::CAMU_IsAutoWhiteBalance(&mut is_auto_white_balance, camera.bits());
             if r < 0 {
                 Err(r.into())
             } else {
-                Ok(())
+                Ok(is_auto_white_balance)
             }
         }
     }
@@ -777,16 +808,16 @@ impl Cam {
 
     pub fn get_latest_vsync_timing(
         &self,
-        timing: &mut i64,
         port: CamPort,
         past: u32,
-    ) -> crate::Result<()> {
+    ) -> crate::Result<i64> {
+        let mut timing = 0;
         unsafe {
-            let r = ctru_sys::CAMU_GetLatestVsyncTiming(timing, port.bits(), past);
+            let r = ctru_sys::CAMU_GetLatestVsyncTiming(&mut timing, port.bits(), past);
             if r < 0 {
                 Err(r.into())
             } else {
-                Ok(())
+                Ok(timing)
             }
         }
     }
@@ -820,12 +851,39 @@ impl Cam {
 
     pub fn read_register_i2c_exclusive(
         &self,
-        data: &mut u16,
         camera: CamSelect,
         addr: u16,
-    ) -> crate::Result<()> {
+    ) -> crate::Result<u16> {
         unsafe {
-            let r = ctru_sys::CAMU_ReadRegisterI2cExclusive(data, camera.bits(), addr);
+            let mut data = 0;
+            let r = ctru_sys::CAMU_ReadRegisterI2cExclusive(&mut data, camera.bits(), addr);
+            if r < 0 {
+                Err(r.into())
+            } else {
+                Ok(data)
+            }
+        }
+    }
+
+    pub fn read_mcu_variable_i2c_exclusive(
+        &self,
+        camera: CamSelect,
+        addr: u16,
+    ) -> crate::Result<u16> {
+        unsafe {
+            let mut data = 0;
+            let r = ctru_sys::CAMU_ReadMcuVariableI2cExclusive(&mut data, camera.bits(), addr);
+            if r < 0 {
+                Err(r.into())
+            } else {
+                Ok(data)
+            }
+        }
+    }
+
+    pub fn set_image_quality_calibration_data(&self, data: ImageQualityCalibrationData) -> crate::Result<()> {
+        unsafe {
+            let r = ctru_sys::CAMU_SetImageQualityCalibrationData(data.0);
             if r < 0 {
                 Err(r.into())
             } else {
@@ -834,14 +892,43 @@ impl Cam {
         }
     }
 
-    pub fn read_mcu_variable_i2c_exclusive(
-        &self,
-        data: &mut u16,
-        camera: CamSelect,
-        addr: u16,
-    ) -> crate::Result<()> {
+    pub fn get_image_quality_calibration_data(&self) -> crate::Result<ImageQualityCalibrationData> {
         unsafe {
-            let r = ctru_sys::CAMU_ReadMcuVariableI2cExclusive(data, camera.bits(), addr);
+            let mut data = ImageQualityCalibrationData::default();
+            let r = ctru_sys::CAMU_GetImageQualityCalibrationData(&mut data.0);
+            if r < 0 {
+                Err(r.into())
+            } else {
+                Ok(data)
+            }
+        }
+    }
+
+    pub fn set_package_parameter_without_context(&self, param: PackageParameterCameraSelect) -> crate::Result<()> {
+        unsafe {
+            let r = ctru_sys::CAMU_SetPackageParameterWithoutContext(param.0);
+            if r < 0 {
+                Err(r.into())
+            } else {
+                Ok(())
+            }
+        }
+    }
+
+    pub fn set_package_parameter_with_context(&self, param: PackageParameterContext) -> crate::Result<()> {
+        unsafe {
+            let r = ctru_sys::CAMU_SetPackageParameterWithContext(param.0);
+            if r < 0 {
+                Err(r.into())
+            } else {
+                Ok(())
+            }
+        }
+    }
+
+    pub fn set_package_parameter_with_context_detail(&self, param: PackageParameterContextDetail) -> crate::Result<()> {
+        unsafe {
+            let r = ctru_sys::CAMU_SetPackageParameterWithContextDetail(param.0);
             if r < 0 {
                 Err(r.into())
             } else {
@@ -894,13 +981,14 @@ impl Cam {
         }
     }
 
-    pub fn get_sleep_camera(&self, camera: &mut u32) -> crate::Result<()> {
+    pub fn get_sleep_camera(&self) -> crate::Result<CamSelect> {
         unsafe {
-            let r = ctru_sys::CAMU_GetSleepCamera(camera);
+            let mut camera = 0;
+            let r = ctru_sys::CAMU_GetSleepCamera(&mut camera);
             if r < 0 {
                 Err(r.into())
             } else {
-                Ok(())
+                Ok(CamSelect::from_bits(camera).unwrap_or_default())
             }
         }
     }
