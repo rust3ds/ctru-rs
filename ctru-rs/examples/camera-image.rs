@@ -96,8 +96,8 @@ fn main() {
             &mut buf,
             0,
             0,
-            WIDTH,
-            HEIGHT,
+            WIDTH as usize,
+            HEIGHT as usize,
         );
 
         gfx.flush_buffers();
@@ -170,10 +170,10 @@ fn take_picture(cam: &mut Cam, buf: &mut [u8]) {
 fn write_picture_to_frame_buffer_rgb_565(
     fb: RawFrameBuffer,
     img: &[u8],
-    x: u16,
-    y: u16,
-    width: i16,
-    height: i16,
+    x: usize,
+    y: usize,
+    width: usize,
+    height: usize,
 ) {
     let fb_8 = fb.ptr;
     let img_16 = img.as_ptr() as *const u16;
@@ -181,10 +181,10 @@ fn write_picture_to_frame_buffer_rgb_565(
     let mut draw_y;
     for j in 0..height {
         for i in 0..width {
-            draw_y = y as i16 + height - j;
-            draw_x = x as i16 + i;
-            let v = (draw_y as usize + draw_x as usize * height as usize) * 3;
-            let data = unsafe { *img_16.add(j as usize * width as usize + i as usize) };
+            draw_y = y + height - j;
+            draw_x = x + i;
+            let v = (draw_y + draw_x * height) * 3;
+            let data = unsafe { *img_16.add(j * width + i) };
             let b = (((data >> 11) & 0x1F) << 3) as u8;
             let g = (((data >> 5) & 0x3F) << 2) as u8;
             let r = ((data & 0x1F) << 3) as u8;
