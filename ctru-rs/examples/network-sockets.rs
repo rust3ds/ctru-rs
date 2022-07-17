@@ -43,7 +43,7 @@ fn main() {
                         } else {
                             println!("Unable to read stream: {}", e)
                         }
-                    },
+                    }
                 }
 
                 let response = b"HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n<html><body>Hello world</body></html>\r\n";
