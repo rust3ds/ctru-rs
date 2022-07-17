@@ -176,7 +176,6 @@ fn write_picture_to_frame_buffer_rgb_565(
     height: usize,
 ) {
     let fb_8 = fb.ptr;
-    let img_16 = img.as_ptr() as *const u16;
     let mut draw_x;
     let mut draw_y;
     for j in 0..height {
@@ -184,10 +183,11 @@ fn write_picture_to_frame_buffer_rgb_565(
             draw_y = y + height - j;
             draw_x = x + i;
             let v = (draw_y + draw_x * height) * 3;
-            let data = unsafe { *img_16.add(j * width + i) };
-            let b = (((data >> 11) & 0x1F) << 3) as u8;
-            let g = (((data >> 5) & 0x3F) << 2) as u8;
-            let r = ((data & 0x1F) << 3) as u8;
+            let index = (j * width + i) * 2;
+            let pixel = u16::from_ne_bytes(img[index..index + 2].try_into().unwrap());
+            let b = (((pixel >> 11) & 0x1F) << 3) as u8;
+            let g = (((pixel >> 5) & 0x3F) << 2) as u8;
+            let r = ((pixel & 0x1F) << 3) as u8;
             unsafe {
                 *fb_8.add(v) = r;
                 *fb_8.add(v + 1) = g;
