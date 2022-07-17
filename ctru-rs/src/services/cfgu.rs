@@ -58,7 +58,7 @@ impl Cfgu {
     ///
     /// ctrulib services are reference counted, so this function may be called
     /// as many times as desired and the service will not exit until all
-    /// instances of Fs drop out of scope.
+    /// instances of Cfgu drop out of scope.
     pub fn init() -> crate::Result<Cfgu> {
         unsafe {
             let r = ctru_sys::cfguInit();
