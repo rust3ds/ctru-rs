@@ -1,4 +1,5 @@
 pub mod apt;
+pub mod cam;
 pub mod fs;
 pub mod gspgpu;
 pub mod hid;
