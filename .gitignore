@@ -4,3 +4,6 @@ Cargo.lock
 
 # IDE files
 .idea
+
+# 3ds files
+*.cia

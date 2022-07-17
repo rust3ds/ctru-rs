@@ -87,14 +87,14 @@ fn main() {
             gfx.swap_buffers();
             gfx.wait_for_vblank();
             held_r = true;
-            take_picture(&mut cam, buf.as_mut_ptr());
+            take_picture(&mut cam, &mut buf);
         } else if !key_held.contains(KeyPad::KEY_R) {
             held_r = false;
         }
 
         write_picture_to_frame_buffer_rgb_565(
             gfx.top_screen.borrow_mut().get_raw_framebuffer(Side::Left),
-            buf.as_mut_ptr(),
+            &mut buf,
             0,
             0,
             WIDTH as u16,
@@ -107,7 +107,7 @@ fn main() {
     }
 }
 
-fn take_picture(cam: &mut Cam, buf: *mut u8) {
+fn take_picture(cam: &mut Cam, buf: &mut [u8]) {
     let mut buf_size = 0;
     cam.get_max_bytes(&mut buf_size, WIDTH as i16, HEIGHT as i16)
         .expect("Failed to get max bytes");
@@ -138,7 +138,7 @@ fn take_picture(cam: &mut Cam, buf: *mut u8) {
     .expect("Failed to set receiving");
     cam.set_receiving(
         &mut receive_event2,
-        unsafe { buf.add(SCREEN_SIZE) },
+        &mut buf[SCREEN_SIZE..],
         CamPort::PORT_CAM2,
         SCREEN_SIZE as u32,
         buf_size as i16,
@@ -175,14 +175,14 @@ fn take_picture(cam: &mut Cam, buf: *mut u8) {
 
 fn write_picture_to_frame_buffer_rgb_565(
     fb: RawFrameBuffer,
-    img: *mut u8,
+    img: &mut [u8],
     x: u16,
     y: u16,
     width: u16,
     height: u16,
 ) {
     let fb_8 = fb.ptr;
-    let img_16 = img as *mut u16;
+    let img_16 = img.as_mut_ptr() as *mut u16;
     let mut draw_x;
     let mut draw_y;
     for j in 0..height {
