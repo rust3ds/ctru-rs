@@ -17,12 +17,6 @@ jobs:
     runs-on: ubuntu-latest
     container: devkitpro/devkitarm
     steps:
-      - if: ${{ env.ACT }}
-        name: Hack container for local development
-        run: |
-            curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-            sudo apt-get install -y nodejs
-
       - name: Checkout branch
         uses: actions/checkout@v2
 
