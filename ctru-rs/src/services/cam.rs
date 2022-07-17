@@ -6,172 +6,172 @@ pub struct Cam(());
 bitflags! {
     #[derive(Default)]
     pub struct CamPort: u32 {
-        const PORT_NONE = 0;
-        const PORT_CAM1 = 1;
-        const PORT_CAM2 = 2;
-        const PORT_BOTH = Self::PORT_CAM1.bits | Self::PORT_CAM2.bits;
+        const PORT_NONE = ctru_sys::PORT_NONE;
+        const PORT_CAM1 = ctru_sys::PORT_CAM1;
+        const PORT_CAM2 = ctru_sys::PORT_CAM2;
+        const PORT_BOTH = ctru_sys::PORT_BOTH;
     }
 }
 
 bitflags! {
     #[derive(Default)]
     pub struct CamSelect: u32 {
-        const SELECT_NONE      = 0;
-        const SELECT_OUT1      = 1;
-        const SELECT_IN1       = 2;
-        const SELECT_OUT2      = 4;
-        const SELECT_IN1_OUT1  = Self::SELECT_OUT1.bits | Self::SELECT_IN1.bits;
-        const SELECT_OUT1_OUT2 = Self::SELECT_OUT1.bits | Self::SELECT_OUT2.bits;
-        const SELECT_IN1_OUT2  = Self::SELECT_IN1.bits | Self::SELECT_OUT2.bits;
-        const SELECT_ALL       = Self::SELECT_IN1.bits | Self::SELECT_OUT1.bits | Self::SELECT_OUT2.bits;
+        const SELECT_NONE      = ctru_sys::SELECT_NONE;
+        const SELECT_OUT1      = ctru_sys::SELECT_OUT1;
+        const SELECT_IN1       = ctru_sys::SELECT_IN1;
+        const SELECT_OUT2      = ctru_sys::SELECT_OUT2;
+        const SELECT_IN1_OUT1  = ctru_sys::SELECT_IN1_OUT1;
+        const SELECT_OUT1_OUT2 = ctru_sys::SELECT_OUT1_OUT2;
+        const SELECT_IN1_OUT2  = ctru_sys::SELECT_IN1_OUT2;
+        const SELECT_ALL       = ctru_sys::SELECT_ALL;
     }
 }
 
 bitflags! {
     #[derive(Default)]
     pub struct CamContext: u32 {
-        const CONTEXT_NONE = 0;
-        const CONTEXT_A    = 1;
-        const CONTEXT_B    = 2;
-        const CONTEXT_BOTH = Self::CONTEXT_A.bits | Self::CONTEXT_B.bits;
+        const CONTEXT_NONE = ctru_sys::CONTEXT_NONE;
+        const CONTEXT_A    = ctru_sys::CONTEXT_A;
+        const CONTEXT_B    = ctru_sys::CONTEXT_B;
+        const CONTEXT_BOTH = ctru_sys::CONTEXT_BOTH;
     }
 }
 
 bitflags! {
     #[derive(Default)]
     pub struct CamFlip: u32 {
-        const FLIP_NONE       = 0;
-        const FLIP_HORIZONTAL = 1;
-        const FLIP_VERTICAL   = 2;
-        const FLIP_REVERSE    = 3;
+        const FLIP_NONE       = ctru_sys::FLIP_NONE;
+        const FLIP_HORIZONTAL = ctru_sys::FLIP_HORIZONTAL;
+        const FLIP_VERTICAL   = ctru_sys::FLIP_VERTICAL;
+        const FLIP_REVERSE    = ctru_sys::FLIP_REVERSE;
     }
 }
 
 bitflags! {
     #[derive(Default)]
     pub struct CamSize: u32 {
-        const SIZE_VGA            = 0;
-        const SIZE_QVGA           = 1;
-        const SIZE_QQVGA          = 2;
-        const SIZE_CIF            = 3;
-        const SIZE_QCIF           = 4;
-        const SIZE_DS_LCD         = 5;
-        const SIZE_DS_LCD_X4      = 6;
-        const SIZE_CTR_TOP_LCD    = 7;
-        const SIZE_CTR_BOTTOM_LCD = Self::SIZE_QVGA.bits;
+        const SIZE_VGA            = ctru_sys::SIZE_VGA;
+        const SIZE_QVGA           = ctru_sys::SIZE_QVGA;
+        const SIZE_QQVGA          = ctru_sys::SIZE_QQVGA;
+        const SIZE_CIF            = ctru_sys::SIZE_CIF;
+        const SIZE_QCIF           = ctru_sys::SIZE_QCIF;
+        const SIZE_DS_LCD         = ctru_sys::SIZE_DS_LCD;
+        const SIZE_DS_LCD_X4      = ctru_sys::SIZE_DS_LCDx4;
+        const SIZE_CTR_TOP_LCD    = ctru_sys::SIZE_CTR_TOP_LCD;
+        const SIZE_CTR_BOTTOM_LCD = ctru_sys::SIZE_CTR_BOTTOM_LCD;
     }
 }
 
 bitflags! {
     #[derive(Default)]
     pub struct CamFrameRate: u32 {
-        const FRAME_RATE_15       = 0;
-        const FRAME_RATE_15_TO_5  = 1;
-        const FRAME_RATE_15_TO_2  = 2;
-        const FRAME_RATE_10       = 3;
-        const FRAME_RATE_8_5      = 4;
-        const FRAME_RATE_5        = 5;
-        const FRAME_RATE_20       = 6;
-        const FRAME_RATE_20_TO_5  = 7;
-        const FRAME_RATE_30       = 8;
-        const FRAME_RATE_30_TO_5  = 9;
-        const FRAME_RATE_15_TO_10 = 10;
-        const FRAME_RATE_20_TO_10 = 11;
-        const FRAME_RATE_30_TO_10 = 12;
+        const FRAME_RATE_15       = ctru_sys::FRAME_RATE_15;
+        const FRAME_RATE_15_TO_5  = ctru_sys::FRAME_RATE_15_TO_5;
+        const FRAME_RATE_15_TO_2  = ctru_sys::FRAME_RATE_15_TO_2;
+        const FRAME_RATE_10       = ctru_sys::FRAME_RATE_10;
+        const FRAME_RATE_8_5      = ctru_sys::FRAME_RATE_8_5;
+        const FRAME_RATE_5        = ctru_sys::FRAME_RATE_5;
+        const FRAME_RATE_20       = ctru_sys::FRAME_RATE_20;
+        const FRAME_RATE_20_TO_5  = ctru_sys::FRAME_RATE_20_TO_5;
+        const FRAME_RATE_30       = ctru_sys::FRAME_RATE_30;
+        const FRAME_RATE_30_TO_5  = ctru_sys::FRAME_RATE_30_TO_5;
+        const FRAME_RATE_15_TO_10 = ctru_sys::FRAME_RATE_15_TO_10;
+        const FRAME_RATE_20_TO_10 = ctru_sys::FRAME_RATE_20_TO_10;
+        const FRAME_RATE_30_TO_10 = ctru_sys::FRAME_RATE_30_TO_10;
     }
 }
 
 bitflags! {
     #[derive(Default)]
     pub struct CamWhiteBalance: u32 {
-        const WHITE_BALANCE_AUTO  = 0;
-        const WHITE_BALANCE_3200K = 1;
-        const WHITE_BALANCE_4150K = 2;
-        const WHITE_BALANCE_5200K = 3;
-        const WHITE_BALANCE_6000K = 4;
-        const WHITE_BALANCE_7000K = 5;
+        const WHITE_BALANCE_AUTO  = ctru_sys::WHITE_BALANCE_AUTO;
+        const WHITE_BALANCE_3200K = ctru_sys::WHITE_BALANCE_3200K;
+        const WHITE_BALANCE_4150K = ctru_sys::WHITE_BALANCE_4150K;
+        const WHITE_BALANCE_5200K = ctru_sys::WHITE_BALANCE_5200K;
+        const WHITE_BALANCE_6000K = ctru_sys::WHITE_BALANCE_6000K;
+        const WHITE_BALANCE_7000K = ctru_sys::WHITE_BALANCE_7000K;
 
-        const WHITE_BALANCE_NORMAL                  = Self::WHITE_BALANCE_AUTO.bits;
-        const WHITE_BALANCE_TUNGSTEN                = Self::WHITE_BALANCE_3200K.bits;
-        const WHITE_BALANCE_WHITE_FLUORESCENT_LIGHT = Self::WHITE_BALANCE_4150K.bits;
-        const WHITE_BALANCE_DAYLIGHT                = Self::WHITE_BALANCE_5200K.bits;
-        const WHITE_BALANCE_CLOUDY                  = Self::WHITE_BALANCE_6000K.bits;
-        const WHITE_BALANCE_HORIZON                 = Self::WHITE_BALANCE_6000K.bits;
-        const WHITE_BALANCE_SHADE                   = Self::WHITE_BALANCE_7000K.bits;
+        const WHITE_BALANCE_NORMAL                  = ctru_sys::WHITE_BALANCE_NORMAL;
+        const WHITE_BALANCE_TUNGSTEN                = ctru_sys::WHITE_BALANCE_TUNGSTEN;
+        const WHITE_BALANCE_WHITE_FLUORESCENT_LIGHT = ctru_sys::WHITE_BALANCE_WHITE_FLUORESCENT_LIGHT;
+        const WHITE_BALANCE_DAYLIGHT                = ctru_sys::WHITE_BALANCE_DAYLIGHT;
+        const WHITE_BALANCE_CLOUDY                  = ctru_sys::WHITE_BALANCE_CLOUDY;
+        const WHITE_BALANCE_HORIZON                 = ctru_sys::WHITE_BALANCE_HORIZON;
+        const WHITE_BALANCE_SHADE                   = ctru_sys::WHITE_BALANCE_SHADE;
     }
 }
 
 bitflags! {
     #[derive(Default)]
     pub struct CamPhotoMode: u32 {
-        const PHOTO_MODE_NORMAL    = 0;
-        const PHOTO_MODE_PORTRAIT  = 1;
-        const PHOTO_MODE_LANDSCAPE = 2;
-        const PHOTO_MODE_NIGHTVIEW = 3;
-        const PHOTO_MODE_LETTER    = 4;
+        const PHOTO_MODE_NORMAL    = ctru_sys::PHOTO_MODE_NORMAL;
+        const PHOTO_MODE_PORTRAIT  = ctru_sys::PHOTO_MODE_PORTRAIT;
+        const PHOTO_MODE_LANDSCAPE = ctru_sys::PHOTO_MODE_LANDSCAPE;
+        const PHOTO_MODE_NIGHTVIEW = ctru_sys::PHOTO_MODE_NIGHTVIEW;
+        const PHOTO_MODE_LETTER    = ctru_sys::PHOTO_MODE_LETTER;
     }
 }
 
 bitflags! {
     #[derive(Default)]
     pub struct CamEffect: u32 {
-        const EFFECT_NONE     = 0;
-        const EFFECT_MONO     = 1;
-        const EFFECT_SEPIA    = 2;
-        const EFFECT_NEGATIVE = 3;
-        const EFFECT_NEGAFILM = 4;
-        const EFFECT_SEPIA01  = 5;
+        const EFFECT_NONE     = ctru_sys::EFFECT_NONE;
+        const EFFECT_MONO     = ctru_sys::EFFECT_MONO;
+        const EFFECT_SEPIA    = ctru_sys::EFFECT_SEPIA;
+        const EFFECT_NEGATIVE = ctru_sys::EFFECT_NEGATIVE;
+        const EFFECT_NEGAFILM = ctru_sys::EFFECT_NEGAFILM;
+        const EFFECT_SEPIA01  = ctru_sys::EFFECT_SEPIA01;
     }
 }
 
 bitflags! {
     #[derive(Default)]
     pub struct CamContrast: u32 {
-        const CONTRAST_PATTERN_01 = 0;
-        const CONTRAST_PATTERN_02 = 1;
-        const CONTRAST_PATTERN_03 = 2;
-        const CONTRAST_PATTERN_04 = 3;
-        const CONTRAST_PATTERN_05 = 4;
-        const CONTRAST_PATTERN_06 = 5;
-        const CONTRAST_PATTERN_07 = 6;
-        const CONTRAST_PATTERN_08 = 7;
-        const CONTRAST_PATTERN_09 = 8;
-        const CONTRAST_PATTERN_10 = 9;
-        const CONTRAST_PATTERN_11 = 10;
+        const CONTRAST_PATTERN_01 = ctru_sys::CONTRAST_PATTERN_01;
+        const CONTRAST_PATTERN_02 = ctru_sys::CONTRAST_PATTERN_02;
+        const CONTRAST_PATTERN_03 = ctru_sys::CONTRAST_PATTERN_03;
+        const CONTRAST_PATTERN_04 = ctru_sys::CONTRAST_PATTERN_04;
+        const CONTRAST_PATTERN_05 = ctru_sys::CONTRAST_PATTERN_05;
+        const CONTRAST_PATTERN_06 = ctru_sys::CONTRAST_PATTERN_06;
+        const CONTRAST_PATTERN_07 = ctru_sys::CONTRAST_PATTERN_07;
+        const CONTRAST_PATTERN_08 = ctru_sys::CONTRAST_PATTERN_08;
+        const CONTRAST_PATTERN_09 = ctru_sys::CONTRAST_PATTERN_09;
+        const CONTRAST_PATTERN_10 = ctru_sys::CONTRAST_PATTERN_10;
+        const CONTRAST_PATTERN_11 = ctru_sys::CONTRAST_PATTERN_11;
 
-        const CONTRAST_LOW    = Self::CONTRAST_PATTERN_05.bits;
-        const CONTRAST_NORMAL = Self::CONTRAST_PATTERN_06.bits;
-        const CONTRAST_HIGH   = Self::CONTRAST_PATTERN_07.bits;
+        const CONTRAST_LOW    = ctru_sys::CONTRAST_LOW;
+        const CONTRAST_NORMAL = ctru_sys::CONTRAST_NORMAL;
+        const CONTRAST_HIGH   = ctru_sys::CONTRAST_HIGH;
     }
 }
 
 bitflags! {
     #[derive(Default)]
     pub struct CamLensCorrection: u32 {
-        const LENS_CORRECTION_OFF   = 0;
-        const LENS_CORRECTION_ON_70 = 1;
-        const LENS_CORRECTION_ON_90 = 2;
+        const LENS_CORRECTION_OFF   = ctru_sys::LENS_CORRECTION_OFF;
+        const LENS_CORRECTION_ON_70 = ctru_sys::LENS_CORRECTION_ON_70;
+        const LENS_CORRECTION_ON_90 = ctru_sys::LENS_CORRECTION_ON_90;
 
-        const LENS_CORRECTION_DARK = Self::LENS_CORRECTION_OFF.bits;
-        const LENS_CORRECTION_NORMAL = Self::LENS_CORRECTION_ON_70.bits;
-        const LENS_CORRECTION_BRIGHT = Self::LENS_CORRECTION_ON_90.bits;
+        const LENS_CORRECTION_DARK = ctru_sys::LENS_CORRECTION_DARK;
+        const LENS_CORRECTION_NORMAL = ctru_sys::LENS_CORRECTION_NORMAL;
+        const LENS_CORRECTION_BRIGHT = ctru_sys::LENS_CORRECTION_BRIGHT;
     }
 }
 
 bitflags! {
     #[derive(Default)]
     pub struct CamOutputFormat: u32 {
-        const OUTPUT_YUV_422 = 0;
-        const OUTPUT_RGB_565 = 1;
+        const OUTPUT_YUV_422 = ctru_sys::OUTPUT_YUV_422;
+        const OUTPUT_RGB_565 = ctru_sys::OUTPUT_RGB_565;
     }
 }
 
 bitflags! {
     #[derive(Default)]
     pub struct CamShutterSoundType: u32 {
-        const SHUTTER_SOUND_TYPE_NORMAL    = 0;
-        const SHUTTER_SOUND_TYPE_MOVIE     = 1;
-        const SHUTTER_SOUND_TYPE_MOVIE_END = 2;
+        const SHUTTER_SOUND_TYPE_NORMAL    = ctru_sys::SHUTTER_SOUND_TYPE_NORMAL;
+        const SHUTTER_SOUND_TYPE_MOVIE     = ctru_sys::SHUTTER_SOUND_TYPE_MOVIE;
+        const SHUTTER_SOUND_TYPE_MOVIE_END = ctru_sys::SHUTTER_SOUND_TYPE_MOVIE_END;
     }
 }
 

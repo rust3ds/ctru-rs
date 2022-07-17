@@ -7,10 +7,10 @@ use ctru::services::hid::KeyPad;
 use ctru::services::{Apt, Hid};
 use ctru::Gfx;
 
-const WIDTH: usize = 400;
-const HEIGHT: usize = 240;
-const SCREEN_SIZE: usize = WIDTH * HEIGHT * 2;
-const BUF_SIZE: usize = SCREEN_SIZE * 2;
+const WIDTH: i16 = 400;
+const HEIGHT: i16 = 240;
+const SCREEN_SIZE: u32 = 192000; // WIDTH * HEIGHT * 2;
+const BUF_SIZE: usize = 384000; // SCREEN_SIZE * 2;
 
 const WAIT_TIMEOUT: i64 = 300000000;
 
@@ -96,8 +96,8 @@ fn main() {
             &mut buf,
             0,
             0,
-            WIDTH as u16,
-            HEIGHT as u16,
+            WIDTH,
+            HEIGHT,
         );
 
         gfx.flush_buffers();
@@ -108,10 +108,10 @@ fn main() {
 
 fn take_picture(cam: &mut Cam, buf: &mut [u8]) {
     let buf_size = cam
-        .get_max_bytes(WIDTH as i16, HEIGHT as i16)
+        .get_max_bytes(WIDTH, HEIGHT)
         .expect("Failed to get max bytes");
 
-    cam.set_transfer_bytes(CamPort::PORT_BOTH, buf_size, WIDTH as i16, HEIGHT as i16)
+    cam.set_transfer_bytes(CamPort::PORT_BOTH, buf_size, WIDTH, HEIGHT)
         .expect("Failed to set transfer bytes");
 
     cam.activate(CamSelect::SELECT_OUT1_OUT2)
@@ -126,14 +126,14 @@ fn take_picture(cam: &mut Cam, buf: &mut [u8]) {
         .expect("Failed to start capture");
 
     let receive_event = cam
-        .set_receiving(buf, CamPort::PORT_CAM1, SCREEN_SIZE as u32, buf_size as i16)
+        .set_receiving(buf, CamPort::PORT_CAM1, SCREEN_SIZE, buf_size as i16)
         .expect("Failed to set receiving");
 
     let receive_event2 = cam
         .set_receiving(
-            &mut buf[SCREEN_SIZE..],
+            &mut buf[SCREEN_SIZE as usize..],
             CamPort::PORT_CAM2,
-            SCREEN_SIZE as u32,
+            SCREEN_SIZE,
             buf_size as i16,
         )
         .expect("Failed to set receiving");
@@ -172,8 +172,8 @@ fn write_picture_to_frame_buffer_rgb_565(
     img: &[u8],
     x: u16,
     y: u16,
-    width: u16,
-    height: u16,
+    width: i16,
+    height: i16,
 ) {
     let fb_8 = fb.ptr;
     let img_16 = img.as_ptr() as *const u16;
@@ -181,8 +181,8 @@ fn write_picture_to_frame_buffer_rgb_565(
     let mut draw_y;
     for j in 0..height {
         for i in 0..width {
-            draw_y = y + height - j;
-            draw_x = x + i;
+            draw_y = y as i16 + height - j;
+            draw_x = x as i16 + i;
             let v = (draw_y as usize + draw_x as usize * height as usize) * 3;
             let data = unsafe { *img_16.add(j as usize * width as usize + i as usize) };
             let b = (((data >> 11) & 0x1F) << 3) as u8;
