@@ -167,6 +167,12 @@ fn take_picture(cam: &mut Cam, buf: &mut [u8]) {
         .expect("Failed to deactivate camera");
 }
 
+// The available camera output formats are both using u16 values.
+// To write to the frame buffer with the default RGB8 format,
+// the values must be converted.
+//
+// Alternatively, the frame buffer format could be set to RGB565 as well
+// but the image would need to be rotated 90 degrees.
 fn write_picture_to_frame_buffer_rgb_565(
     fb: RawFrameBuffer,
     img: &[u8],
@@ -180,18 +186,28 @@ fn write_picture_to_frame_buffer_rgb_565(
     let mut draw_y;
     for j in 0..height {
         for i in 0..width {
+            // Y-coordinate of where to draw in the frame buffer
             draw_y = y + height - j;
+            // X-coordinate of where to draw in the frame buffer
             draw_x = x + i;
-            let v = (draw_y + draw_x * height) * 3;
+            // Initial index of where to draw in the frame buffer based on y and x coordinates
+            let draw_index = (draw_y + draw_x * height) * 3;
+            // Index of the pixel to draw within the image buffer
             let index = (j * width + i) * 2;
+            // Pixels in the image are 2 bytes because of the RGB565 format.
             let pixel = u16::from_ne_bytes(img[index..index + 2].try_into().unwrap());
+            // b value from the pixel
             let b = (((pixel >> 11) & 0x1F) << 3) as u8;
+            // g value from the pixel
             let g = (((pixel >> 5) & 0x3F) << 2) as u8;
+            // r value from the pixel
             let r = ((pixel & 0x1F) << 3) as u8;
+
+            // set the r, g, and b values to the calculated index within the frame buffer
             unsafe {
-                *fb_8.add(v) = r;
-                *fb_8.add(v + 1) = g;
-                *fb_8.add(v + 2) = b;
+                *fb_8.add(draw_index) = r;
+                *fb_8.add(draw_index + 1) = g;
+                *fb_8.add(draw_index + 2) = b;
             };
         }
     }
