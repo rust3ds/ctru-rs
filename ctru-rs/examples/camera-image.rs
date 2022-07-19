@@ -1,5 +1,5 @@
 use ctru::console::Console;
-use ctru::gfx::{RawFrameBuffer, Screen, Side};
+use ctru::gfx::{Screen, Side};
 use ctru::services::cam::{
     Cam, CamContext, CamOutputFormat, CamPort, CamSelect, CamShutterSoundType, CamSize,
 };
@@ -26,8 +26,7 @@ fn main() {
 
     let _console = Console::init(gfx.bottom_screen.borrow_mut());
 
-    let mut key_down;
-    let mut key_held;
+    let mut keys_down;
 
     println!("Initializing camera");
 
@@ -58,47 +57,40 @@ fn main() {
     cam.set_trimming(CamPort::PORT_CAM2, false)
         .expect("Failed to disable trimming for Cam Port 2");
 
-    let mut buf = vec![0u8; BUF_SIZE];
+    let mut buf = [0u8; BUF_SIZE];
 
     gfx.flush_buffers();
     gfx.swap_buffers();
     gfx.wait_for_vblank();
 
-    let mut held_r = false;
-
     println!("\nPress R to take a new picture");
     println!("Press Start to exit to Homebrew Launcher");
 
-    gfx.top_screen.borrow_mut().set_3d_enabled(false);
-
     while apt.main_loop() {
         hid.scan_input();
-        key_down = hid.keys_down();
-        key_held = hid.keys_held();
+        keys_down = hid.keys_down();
 
-        if key_down.contains(KeyPad::KEY_START) {
+        if keys_down.contains(KeyPad::KEY_START) {
             break;
         }
 
-        if key_held.contains(KeyPad::KEY_R) && !held_r {
+        if keys_down.bits() & KeyPad::KEY_R.bits() != 0 {
             println!("Capturing new image");
             gfx.flush_buffers();
             gfx.swap_buffers();
             gfx.wait_for_vblank();
-            held_r = true;
             take_picture(&mut cam, &mut buf);
-        } else if !key_held.contains(KeyPad::KEY_R) {
-            held_r = false;
         }
 
-        write_picture_to_frame_buffer_rgb_565(
-            gfx.top_screen.borrow_mut().get_raw_framebuffer(Side::Left),
-            &mut buf,
-            0,
-            0,
-            WIDTH as usize,
-            HEIGHT as usize,
-        );
+        let img = convert_image_to_rgb8(buf, 0, 0, WIDTH as usize, HEIGHT as usize);
+
+        unsafe {
+            gfx.top_screen
+                .borrow_mut()
+                .get_raw_framebuffer(Side::Left)
+                .ptr
+                .copy_from(img.as_ptr(), img.len());
+        }
 
         gfx.flush_buffers();
         gfx.swap_buffers();
@@ -173,15 +165,14 @@ fn take_picture(cam: &mut Cam, buf: &mut [u8]) {
 //
 // Alternatively, the frame buffer format could be set to RGB565 as well
 // but the image would need to be rotated 90 degrees.
-fn write_picture_to_frame_buffer_rgb_565(
-    fb: RawFrameBuffer,
-    img: &[u8],
+fn convert_image_to_rgb8<const SIZE: usize>(
+    img: [u8; SIZE],
     x: usize,
     y: usize,
     width: usize,
     height: usize,
-) {
-    let fb_8 = fb.ptr;
+) -> [u8; SIZE] {
+    let mut rgb8 = [0u8; SIZE];
     let mut draw_x;
     let mut draw_y;
     for j in 0..height {
@@ -192,6 +183,7 @@ fn write_picture_to_frame_buffer_rgb_565(
             draw_x = x + i;
             // Initial index of where to draw in the frame buffer based on y and x coordinates
             let draw_index = (draw_y + draw_x * height) * 3;
+
             // Index of the pixel to draw within the image buffer
             let index = (j * width + i) * 2;
             // Pixels in the image are 2 bytes because of the RGB565 format.
@@ -204,11 +196,10 @@ fn write_picture_to_frame_buffer_rgb_565(
             let r = ((pixel & 0x1F) << 3) as u8;
 
             // set the r, g, and b values to the calculated index within the frame buffer
-            unsafe {
-                *fb_8.add(draw_index) = r;
-                *fb_8.add(draw_index + 1) = g;
-                *fb_8.add(draw_index + 2) = b;
-            };
+            rgb8[draw_index] = r;
+            rgb8[draw_index + 1] = g;
+            rgb8[draw_index + 2] = b;
         }
     }
+    rgb8
 }
