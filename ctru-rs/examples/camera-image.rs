@@ -33,28 +33,28 @@ fn main() {
     let mut cam = Cam::init().expect("Failed to initialize CAM service.");
 
     cam.set_size(
-        CamSelect::SELECT_OUT1_OUT2,
-        CamSize::SIZE_CTR_TOP_LCD,
-        CamContext::CONTEXT_A,
+        CamSelect::OUT1_OUT2,
+        CamSize::CTR_TOP_LCD,
+        CamContext::A,
     )
     .expect("Failed to set camera size");
     cam.set_output_format(
-        CamSelect::SELECT_OUT1_OUT2,
-        CamOutputFormat::OUTPUT_RGB_565,
-        CamContext::CONTEXT_A,
+        CamSelect::OUT1_OUT2,
+        CamOutputFormat::RGB_565,
+        CamContext::A,
     )
     .expect("Failed to set camera output format");
 
-    cam.set_noise_filter(CamSelect::SELECT_OUT1_OUT2, true)
+    cam.set_noise_filter(CamSelect::OUT1_OUT2, true)
         .expect("Failed to enable noise filter");
-    cam.set_auto_exposure(CamSelect::SELECT_OUT1_OUT2, true)
+    cam.set_auto_exposure(CamSelect::OUT1_OUT2, true)
         .expect("Failed to enable auto exposure");
-    cam.set_auto_white_balance(CamSelect::SELECT_OUT1_OUT2, true)
+    cam.set_auto_white_balance(CamSelect::OUT1_OUT2, true)
         .expect("Failed to enable auto white balance");
 
-    cam.set_trimming(CamPort::PORT_CAM1, false)
+    cam.set_trimming(CamPort::CAM1, false)
         .expect("Failed to disable trimming for Cam Port 1");
-    cam.set_trimming(CamPort::PORT_CAM2, false)
+    cam.set_trimming(CamPort::CAM2, false)
         .expect("Failed to disable trimming for Cam Port 2");
 
     let mut buf = [0u8; BUF_SIZE];
@@ -76,9 +76,6 @@ fn main() {
 
         if keys_down.bits() & KeyPad::KEY_R.bits() != 0 {
             println!("Capturing new image");
-            gfx.flush_buffers();
-            gfx.swap_buffers();
-            gfx.wait_for_vblank();
             take_picture(&mut cam, &mut buf);
         }
 
@@ -103,28 +100,28 @@ fn take_picture(cam: &mut Cam, buf: &mut [u8]) {
         .get_max_bytes(WIDTH, HEIGHT)
         .expect("Failed to get max bytes");
 
-    cam.set_transfer_bytes(CamPort::PORT_BOTH, buf_size, WIDTH, HEIGHT)
+    cam.set_transfer_bytes(CamPort::BOTH, buf_size, WIDTH, HEIGHT)
         .expect("Failed to set transfer bytes");
 
-    cam.activate(CamSelect::SELECT_OUT1_OUT2)
+    cam.activate(CamSelect::OUT1_OUT2)
         .expect("Failed to activate camera");
 
-    cam.clear_buffer(CamPort::PORT_BOTH)
+    cam.clear_buffer(CamPort::BOTH)
         .expect("Failed to clear buffer");
-    cam.synchronize_vsync_timing(CamSelect::SELECT_OUT1, CamSelect::SELECT_OUT2)
+    cam.synchronize_vsync_timing(CamSelect::OUT1, CamSelect::OUT2)
         .expect("Failed to sync vsync timings");
 
-    cam.start_capture(CamPort::PORT_BOTH)
+    cam.start_capture(CamPort::BOTH)
         .expect("Failed to start capture");
 
     let receive_event = cam
-        .set_receiving(buf, CamPort::PORT_CAM1, SCREEN_SIZE, buf_size as i16)
+        .set_receiving(buf, CamPort::CAM1, SCREEN_SIZE, buf_size as i16)
         .expect("Failed to set receiving");
 
     let receive_event2 = cam
         .set_receiving(
             &mut buf[SCREEN_SIZE as usize..],
-            CamPort::PORT_CAM2,
+            CamPort::CAM2,
             SCREEN_SIZE,
             buf_size as i16,
         )
@@ -141,7 +138,7 @@ fn take_picture(cam: &mut Cam, buf: &mut [u8]) {
         }
     };
 
-    cam.play_shutter_sound(CamShutterSoundType::SHUTTER_SOUND_TYPE_NORMAL)
+    cam.play_shutter_sound(CamShutterSoundType::NORMAL)
         .expect("Failed to play shutter sound");
 
     unsafe {
@@ -155,7 +152,7 @@ fn take_picture(cam: &mut Cam, buf: &mut [u8]) {
         }
     };
 
-    cam.activate(CamSelect::SELECT_NONE)
+    cam.activate(CamSelect::NONE)
         .expect("Failed to deactivate camera");
 }
 
