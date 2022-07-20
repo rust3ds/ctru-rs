@@ -74,7 +74,7 @@ fn main() {
             break;
         }
 
-        if keys_down.bits() & KeyPad::KEY_R.bits() != 0 {
+        if keys_down.contains(KeyPad::KEY_R) {
             println!("Capturing new image");
             take_picture(&mut cam, &mut buf);
         }
