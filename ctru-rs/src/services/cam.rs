@@ -1,5 +1,6 @@
 use bitflags::bitflags;
 use ctru_sys::Handle;
+use crate::services::gspgpu::FramebufferFormat;
 
 pub struct Cam(());
 
@@ -163,6 +164,28 @@ bitflags! {
     pub struct CamOutputFormat: u32 {
         const YUV_422 = ctru_sys::OUTPUT_YUV_422;
         const RGB_565 = ctru_sys::OUTPUT_RGB_565;
+    }
+}
+
+impl TryFrom<FramebufferFormat> for CamOutputFormat {
+    type Error = ();
+
+    fn try_from(value: FramebufferFormat) -> Result<Self, Self::Error> {
+        match value {
+            FramebufferFormat::Rgb565 => Ok(CamOutputFormat::RGB_565),
+            _ => Err(())
+        }
+    }
+}
+
+impl TryFrom<CamOutputFormat> for FramebufferFormat {
+    type Error = ();
+
+    fn try_from(value: CamOutputFormat) -> Result<Self, Self::Error> {
+        match value {
+            CamOutputFormat::RGB_565 => Ok(FramebufferFormat::Rgb565),
+            _ => Err(())
+        }
     }
 }
 
