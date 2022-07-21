@@ -1,12 +1,18 @@
+use crate::services::gspgpu::FramebufferFormat;
 use bitflags::bitflags;
 use ctru_sys::Handle;
-use crate::services::gspgpu::FramebufferFormat;
+use std::cell::RefCell;
 
-pub struct Cam(());
+pub struct Cam {
+    pub inner_cam: RefCell<InwardCam>,
+    pub outer_right_cam: RefCell<OutwardRightCam>,
+    pub outer_left_cam: RefCell<OutwardLeftCam>,
+    pub both_outer_cams: RefCell<BothOutwardCam>,
+}
 
 bitflags! {
     #[derive(Default)]
-    pub struct CamPort: u32 {
+    struct CamPort: u32 {
         const NONE = ctru_sys::PORT_NONE;
         const CAM1 = ctru_sys::PORT_CAM1;
         const CAM2 = ctru_sys::PORT_CAM2;
@@ -16,15 +22,12 @@ bitflags! {
 
 bitflags! {
     #[derive(Default)]
-    pub struct CamSelect: u32 {
+    struct CamSelect: u32 {
         const NONE      = ctru_sys::SELECT_NONE;
         const OUT1      = ctru_sys::SELECT_OUT1;
         const IN1       = ctru_sys::SELECT_IN1;
         const OUT2      = ctru_sys::SELECT_OUT2;
-        const IN1_OUT1  = ctru_sys::SELECT_IN1_OUT1;
         const OUT1_OUT2 = ctru_sys::SELECT_OUT1_OUT2;
-        const IN1_OUT2  = ctru_sys::SELECT_IN1_OUT2;
-        const ALL       = ctru_sys::SELECT_ALL;
     }
 }
 
@@ -173,7 +176,7 @@ impl TryFrom<FramebufferFormat> for CamOutputFormat {
     fn try_from(value: FramebufferFormat) -> Result<Self, Self::Error> {
         match value {
             FramebufferFormat::Rgb565 => Ok(CamOutputFormat::RGB_565),
-            _ => Err(())
+            _ => Err(()),
         }
     }
 }
@@ -184,7 +187,7 @@ impl TryFrom<CamOutputFormat> for FramebufferFormat {
     fn try_from(value: CamOutputFormat) -> Result<Self, Self::Error> {
         match value {
             CamOutputFormat::RGB_565 => Ok(FramebufferFormat::Rgb565),
-            _ => Err(())
+            _ => Err(()),
         }
     }
 }
@@ -220,21 +223,68 @@ pub struct PackageParameterContext(ctru_sys::CAMU_PackageParameterContext);
 #[derive(Default)]
 pub struct PackageParameterContextDetail(ctru_sys::CAMU_PackageParameterContextDetail);
 
-impl Cam {
-    pub fn init() -> crate::Result<Cam> {
+#[non_exhaustive]
+pub struct InwardCam;
+
+impl Camera for InwardCam {
+    fn camera_as_raw(&self) -> ctru_sys::u32_ {
+        ctru_sys::SELECT_IN1
+    }
+}
+
+#[non_exhaustive]
+pub struct OutwardRightCam;
+
+impl Camera for OutwardRightCam {
+    fn camera_as_raw(&self) -> ctru_sys::u32_ {
+        ctru_sys::SELECT_OUT1
+    }
+}
+
+#[non_exhaustive]
+pub struct OutwardLeftCam;
+
+impl Camera for OutwardLeftCam {
+    fn camera_as_raw(&self) -> ctru_sys::u32_ {
+        ctru_sys::SELECT_OUT2
+    }
+}
+
+#[non_exhaustive]
+pub struct BothOutwardCam;
+
+impl Camera for BothOutwardCam {
+    fn camera_as_raw(&self) -> ctru_sys::u32_ {
+        ctru_sys::SELECT_OUT1_OUT2
+    }
+
+    fn port_as_raw(&self) -> ctru_sys::u32_ {
+        ctru_sys::PORT_BOTH
+    }
+
+    fn synchronize_vsync_timing(&self) -> crate::Result<()> {
         unsafe {
-            let r = ctru_sys::camInit();
+            let r =
+                ctru_sys::CAMU_SynchronizeVsyncTiming(ctru_sys::SELECT_OUT1, ctru_sys::SELECT_OUT2);
             if r < 0 {
                 Err(r.into())
             } else {
-                Ok(Cam(()))
+                Ok(())
             }
         }
     }
+}
 
-    pub fn start_capture(&self, port: CamPort) -> crate::Result<()> {
+pub trait Camera {
+    fn camera_as_raw(&self) -> ctru_sys::u32_;
+
+    fn port_as_raw(&self) -> ctru_sys::u32_ {
+        ctru_sys::PORT_CAM1
+    }
+
+    fn start_capture(&mut self) -> crate::Result<()> {
         unsafe {
-            let r = ctru_sys::CAMU_StartCapture(port.bits());
+            let r = ctru_sys::CAMU_StartCapture(self.port_as_raw());
             if r < 0 {
                 Err(r.into())
             } else {
@@ -243,9 +293,9 @@ impl Cam {
         }
     }
 
-    pub fn stop_capture(&self, port: CamPort) -> crate::Result<()> {
+    fn stop_capture(&mut self) -> crate::Result<()> {
         unsafe {
-            let r = ctru_sys::CAMU_StopCapture(port.bits());
+            let r = ctru_sys::CAMU_StopCapture(self.port_as_raw());
             if r < 0 {
                 Err(r.into())
             } else {
@@ -254,10 +304,10 @@ impl Cam {
         }
     }
 
-    pub fn is_busy(&self, port: CamPort) -> crate::Result<bool> {
+    fn is_busy(&self) -> crate::Result<bool> {
         unsafe {
             let mut is_busy = false;
-            let r = ctru_sys::CAMU_IsBusy(&mut is_busy, port.bits());
+            let r = ctru_sys::CAMU_IsBusy(&mut is_busy, self.port_as_raw());
             if r < 0 {
                 Err(r.into())
             } else {
@@ -266,9 +316,9 @@ impl Cam {
         }
     }
 
-    pub fn clear_buffer(&self, port: CamPort) -> crate::Result<()> {
+    fn clear_buffer(&mut self) -> crate::Result<()> {
         unsafe {
-            let r = ctru_sys::CAMU_ClearBuffer(port.bits());
+            let r = ctru_sys::CAMU_ClearBuffer(self.port_as_raw());
             if r < 0 {
                 Err(r.into())
             } else {
@@ -277,10 +327,10 @@ impl Cam {
         }
     }
 
-    pub fn get_vsync_interrupt_event(&self, port: CamPort) -> crate::Result<u32> {
+    fn get_vsync_interrupt_event(&self) -> crate::Result<u32> {
         unsafe {
             let mut event: Handle = 0;
-            let r = ctru_sys::CAMU_GetVsyncInterruptEvent(&mut event, port.bits());
+            let r = ctru_sys::CAMU_GetVsyncInterruptEvent(&mut event, self.port_as_raw());
             if r < 0 {
                 Err(r.into())
             } else {
@@ -289,10 +339,10 @@ impl Cam {
         }
     }
 
-    pub fn get_buffer_error_interrupt_event(&self, port: CamPort) -> crate::Result<u32> {
+    fn get_buffer_error_interrupt_event(&self) -> crate::Result<u32> {
         unsafe {
             let mut event: Handle = 0;
-            let r = ctru_sys::CAMU_GetBufferErrorInterruptEvent(&mut event, port.bits());
+            let r = ctru_sys::CAMU_GetBufferErrorInterruptEvent(&mut event, self.port_as_raw());
             if r < 0 {
                 Err(r.into())
             } else {
@@ -301,21 +351,20 @@ impl Cam {
         }
     }
 
-    pub fn set_receiving(
-        &self,
+    fn set_receiving(
+        &mut self,
         buf: &mut [u8],
-        port: CamPort,
         size: u32,
-        buf_size: i16,
+        transfer_unit: i16,
     ) -> crate::Result<u32> {
         unsafe {
             let mut completion_handle: Handle = 0;
             let r = ctru_sys::CAMU_SetReceiving(
                 &mut completion_handle,
                 buf.as_mut_ptr() as *mut ::libc::c_void,
-                port.bits(),
+                self.port_as_raw(),
                 size,
-                buf_size,
+                transfer_unit,
             );
             if r < 0 {
                 Err(r.into())
@@ -325,10 +374,10 @@ impl Cam {
         }
     }
 
-    pub fn is_finished_receiving(&self, port: CamPort) -> crate::Result<bool> {
+    fn is_finished_receiving(&self) -> crate::Result<bool> {
         unsafe {
             let mut finished_receiving = false;
-            let r = ctru_sys::CAMU_IsFinishedReceiving(&mut finished_receiving, port.bits());
+            let r = ctru_sys::CAMU_IsFinishedReceiving(&mut finished_receiving, self.port_as_raw());
             if r < 0 {
                 Err(r.into())
             } else {
@@ -337,15 +386,9 @@ impl Cam {
         }
     }
 
-    pub fn set_transfer_lines(
-        &self,
-        port: CamPort,
-        lines: i16,
-        width: i16,
-        height: i16,
-    ) -> crate::Result<()> {
+    fn set_transfer_lines(&mut self, lines: i16, width: i16, height: i16) -> crate::Result<()> {
         unsafe {
-            let r = ctru_sys::CAMU_SetTransferLines(port.bits(), lines, width, height);
+            let r = ctru_sys::CAMU_SetTransferLines(self.port_as_raw(), lines, width, height);
             if r < 0 {
                 Err(r.into())
             } else {
@@ -354,27 +397,9 @@ impl Cam {
         }
     }
 
-    pub fn get_max_lines(&self, width: i16, height: i16) -> crate::Result<i16> {
+    fn set_transfer_bytes(&mut self, buf_size: u32, width: i16, height: i16) -> crate::Result<()> {
         unsafe {
-            let mut max_lines = 0;
-            let r = ctru_sys::CAMU_GetMaxLines(&mut max_lines, width, height);
-            if r < 0 {
-                Err(r.into())
-            } else {
-                Ok(max_lines)
-            }
-        }
-    }
-
-    pub fn set_transfer_bytes(
-        &self,
-        port: CamPort,
-        buf_size: u32,
-        width: i16,
-        height: i16,
-    ) -> crate::Result<()> {
-        unsafe {
-            let r = ctru_sys::CAMU_SetTransferBytes(port.bits(), buf_size, width, height);
+            let r = ctru_sys::CAMU_SetTransferBytes(self.port_as_raw(), buf_size, width, height);
             if r < 0 {
                 Err(r.into())
             } else {
@@ -383,10 +408,10 @@ impl Cam {
         }
     }
 
-    pub fn get_transfer_bytes(&self, port: CamPort) -> crate::Result<u32> {
+    fn get_transfer_bytes(&self) -> crate::Result<u32> {
         unsafe {
             let mut transfer_bytes = 0;
-            let r = ctru_sys::CAMU_GetTransferBytes(&mut transfer_bytes, port.bits());
+            let r = ctru_sys::CAMU_GetTransferBytes(&mut transfer_bytes, self.port_as_raw());
             if r < 0 {
                 Err(r.into())
             } else {
@@ -395,21 +420,9 @@ impl Cam {
         }
     }
 
-    pub fn get_max_bytes(&self, width: i16, height: i16) -> crate::Result<u32> {
+    fn set_trimming(&mut self, enabled: bool) -> crate::Result<()> {
         unsafe {
-            let mut buf_size = 0;
-            let r = ctru_sys::CAMU_GetMaxBytes(&mut buf_size, width, height);
-            if r < 0 {
-                Err(r.into())
-            } else {
-                Ok(buf_size)
-            }
-        }
-    }
-
-    pub fn set_trimming(&self, port: CamPort, enabled: bool) -> crate::Result<()> {
-        unsafe {
-            let r = ctru_sys::CAMU_SetTrimming(port.bits(), enabled);
+            let r = ctru_sys::CAMU_SetTrimming(self.port_as_raw(), enabled);
             if r < 0 {
                 Err(r.into())
             } else {
@@ -418,10 +431,10 @@ impl Cam {
         }
     }
 
-    pub fn is_trimming(&self, port: CamPort) -> crate::Result<bool> {
+    fn is_trimming(&self) -> crate::Result<bool> {
         unsafe {
             let mut trimming = false;
-            let r = ctru_sys::CAMU_IsTrimming(&mut trimming, port.bits());
+            let r = ctru_sys::CAMU_IsTrimming(&mut trimming, self.port_as_raw());
             if r < 0 {
                 Err(r.into())
             } else {
@@ -430,14 +443,10 @@ impl Cam {
         }
     }
 
-    pub fn set_trimming_params(
-        &self,
-        port: CamPort,
-        params: CamTrimmingParams,
-    ) -> crate::Result<()> {
+    fn set_trimming_params(&mut self, params: CamTrimmingParams) -> crate::Result<()> {
         unsafe {
             let r = ctru_sys::CAMU_SetTrimmingParams(
-                port.bits(),
+                self.port_as_raw(),
                 params.x_start,
                 params.y_start,
                 params.x_end,
@@ -451,7 +460,7 @@ impl Cam {
         }
     }
 
-    pub fn get_trimming_params(&self, port: CamPort) -> crate::Result<CamTrimmingParams> {
+    fn get_trimming_params(&self) -> crate::Result<CamTrimmingParams> {
         unsafe {
             let mut x_start = 0;
             let mut y_start = 0;
@@ -462,7 +471,7 @@ impl Cam {
                 &mut y_start,
                 &mut x_end,
                 &mut y_end,
-                port.bits(),
+                self.port_as_raw(),
             );
             if r < 0 {
                 Err(r.into())
@@ -477,9 +486,8 @@ impl Cam {
         }
     }
 
-    pub fn set_trimming_params_center(
+    fn set_trimming_params_center(
         &self,
-        port: CamPort,
         trim_width: i16,
         trim_height: i16,
         cam_width: i16,
@@ -487,7 +495,7 @@ impl Cam {
     ) -> crate::Result<()> {
         unsafe {
             let r = ctru_sys::CAMU_SetTrimmingParamsCenter(
-                port.bits(),
+                self.port_as_raw(),
                 trim_width,
                 trim_height,
                 cam_width,
@@ -501,9 +509,9 @@ impl Cam {
         }
     }
 
-    pub fn activate(&self, camera: CamSelect) -> crate::Result<()> {
+    fn activate(&mut self) -> crate::Result<()> {
         unsafe {
-            let r = ctru_sys::CAMU_Activate(camera.bits());
+            let r = ctru_sys::CAMU_Activate(self.camera_as_raw());
             if r < 0 {
                 Err(r.into())
             } else {
@@ -512,9 +520,9 @@ impl Cam {
         }
     }
 
-    pub fn switch_context(&self, camera: CamSelect, context: CamContext) -> crate::Result<()> {
+    fn deactivate(&mut self) -> crate::Result<()> {
         unsafe {
-            let r = ctru_sys::CAMU_SwitchContext(camera.bits(), context.bits());
+            let r = ctru_sys::CAMU_Activate(ctru_sys::SELECT_NONE);
             if r < 0 {
                 Err(r.into())
             } else {
@@ -523,9 +531,9 @@ impl Cam {
         }
     }
 
-    pub fn set_exposure(&self, camera: CamSelect, exposure: i8) -> crate::Result<()> {
+    fn switch_context(&mut self, context: CamContext) -> crate::Result<()> {
         unsafe {
-            let r = ctru_sys::CAMU_SetExposure(camera.bits(), exposure);
+            let r = ctru_sys::CAMU_SwitchContext(self.camera_as_raw(), context.bits());
             if r < 0 {
                 Err(r.into())
             } else {
@@ -534,13 +542,37 @@ impl Cam {
         }
     }
 
-    pub fn set_white_balance(
-        &self,
-        camera: CamSelect,
+    fn set_exposure(&mut self, exposure: i8) -> crate::Result<()> {
+        unsafe {
+            let r = ctru_sys::CAMU_SetExposure(self.camera_as_raw(), exposure);
+            if r < 0 {
+                Err(r.into())
+            } else {
+                Ok(())
+            }
+        }
+    }
+
+    fn set_white_balance(&mut self, white_balance: CamWhiteBalance) -> crate::Result<()> {
+        unsafe {
+            let r = ctru_sys::CAMU_SetWhiteBalance(self.camera_as_raw(), white_balance.bits());
+            if r < 0 {
+                Err(r.into())
+            } else {
+                Ok(())
+            }
+        }
+    }
+
+    fn set_white_balance_without_base_up(
+        &mut self,
         white_balance: CamWhiteBalance,
     ) -> crate::Result<()> {
         unsafe {
-            let r = ctru_sys::CAMU_SetWhiteBalance(camera.bits(), white_balance.bits());
+            let r = ctru_sys::CAMU_SetWhiteBalanceWithoutBaseUp(
+                self.camera_as_raw(),
+                white_balance.bits(),
+            );
             if r < 0 {
                 Err(r.into())
             } else {
@@ -549,14 +581,9 @@ impl Cam {
         }
     }
 
-    pub fn set_white_balance_without_base_up(
-        &self,
-        camera: CamSelect,
-        white_balance: CamWhiteBalance,
-    ) -> crate::Result<()> {
+    fn set_sharpness(&mut self, sharpness: i8) -> crate::Result<()> {
         unsafe {
-            let r =
-                ctru_sys::CAMU_SetWhiteBalanceWithoutBaseUp(camera.bits(), white_balance.bits());
+            let r = ctru_sys::CAMU_SetSharpness(self.camera_as_raw(), sharpness);
             if r < 0 {
                 Err(r.into())
             } else {
@@ -565,9 +592,9 @@ impl Cam {
         }
     }
 
-    pub fn set_sharpness(&self, camera: CamSelect, sharpness: i8) -> crate::Result<()> {
+    fn set_auto_exposure(&mut self, enabled: bool) -> crate::Result<()> {
         unsafe {
-            let r = ctru_sys::CAMU_SetSharpness(camera.bits(), sharpness);
+            let r = ctru_sys::CAMU_SetAutoExposure(self.camera_as_raw(), enabled);
             if r < 0 {
                 Err(r.into())
             } else {
@@ -576,21 +603,10 @@ impl Cam {
         }
     }
 
-    pub fn set_auto_exposure(&self, camera: CamSelect, enabled: bool) -> crate::Result<()> {
-        unsafe {
-            let r = ctru_sys::CAMU_SetAutoExposure(camera.bits(), enabled);
-            if r < 0 {
-                Err(r.into())
-            } else {
-                Ok(())
-            }
-        }
-    }
-
-    pub fn is_auto_exposure(&self, camera: CamSelect) -> crate::Result<bool> {
+    fn is_auto_exposure(&self) -> crate::Result<bool> {
         unsafe {
             let mut is_auto_exposure = false;
-            let r = ctru_sys::CAMU_IsAutoExposure(&mut is_auto_exposure, camera.bits());
+            let r = ctru_sys::CAMU_IsAutoExposure(&mut is_auto_exposure, self.camera_as_raw());
             if r < 0 {
                 Err(r.into())
             } else {
@@ -599,9 +615,9 @@ impl Cam {
         }
     }
 
-    pub fn set_auto_white_balance(&self, camera: CamSelect, enabled: bool) -> crate::Result<()> {
+    fn set_auto_white_balance(&mut self, enabled: bool) -> crate::Result<()> {
         unsafe {
-            let r = ctru_sys::CAMU_SetAutoWhiteBalance(camera.bits(), enabled);
+            let r = ctru_sys::CAMU_SetAutoWhiteBalance(self.camera_as_raw(), enabled);
             if r < 0 {
                 Err(r.into())
             } else {
@@ -610,10 +626,11 @@ impl Cam {
         }
     }
 
-    pub fn is_auto_white_balance(&self, camera: CamSelect) -> crate::Result<bool> {
+    fn is_auto_white_balance(&self) -> crate::Result<bool> {
         unsafe {
             let mut is_auto_white_balance = false;
-            let r = ctru_sys::CAMU_IsAutoWhiteBalance(&mut is_auto_white_balance, camera.bits());
+            let r =
+                ctru_sys::CAMU_IsAutoWhiteBalance(&mut is_auto_white_balance, self.camera_as_raw());
             if r < 0 {
                 Err(r.into())
             } else {
@@ -622,14 +639,9 @@ impl Cam {
         }
     }
 
-    pub fn flip_image(
-        &self,
-        camera: CamSelect,
-        flip: CamFlip,
-        context: CamContext,
-    ) -> crate::Result<()> {
+    fn flip_image(&mut self, flip: CamFlip, context: CamContext) -> crate::Result<()> {
         unsafe {
-            let r = ctru_sys::CAMU_FlipImage(camera.bits(), flip.bits(), context.bits());
+            let r = ctru_sys::CAMU_FlipImage(self.camera_as_raw(), flip.bits(), context.bits());
             if r < 0 {
                 Err(r.into())
             } else {
@@ -638,9 +650,8 @@ impl Cam {
         }
     }
 
-    pub fn set_detail_size(
-        &self,
-        camera: CamSelect,
+    fn set_detail_size(
+        &mut self,
         width: i16,
         height: i16,
         crop_x0: i16,
@@ -651,7 +662,7 @@ impl Cam {
     ) -> crate::Result<()> {
         unsafe {
             let r = ctru_sys::CAMU_SetDetailSize(
-                camera.bits(),
+                self.camera_as_raw(),
                 width,
                 height,
                 crop_x0,
@@ -668,14 +679,9 @@ impl Cam {
         }
     }
 
-    pub fn set_size(
-        &self,
-        camera: CamSelect,
-        size: CamSize,
-        context: CamContext,
-    ) -> crate::Result<()> {
+    fn set_size(&mut self, size: CamSize, context: CamContext) -> crate::Result<()> {
         unsafe {
-            let r = ctru_sys::CAMU_SetSize(camera.bits(), size.bits(), context.bits());
+            let r = ctru_sys::CAMU_SetSize(self.camera_as_raw(), size.bits(), context.bits());
             if r < 0 {
                 Err(r.into())
             } else {
@@ -684,9 +690,9 @@ impl Cam {
         }
     }
 
-    pub fn set_frame_rate(&self, camera: CamSelect, frame_rate: CamFrameRate) -> crate::Result<()> {
+    fn set_frame_rate(&mut self, frame_rate: CamFrameRate) -> crate::Result<()> {
         unsafe {
-            let r = ctru_sys::CAMU_SetFrameRate(camera.bits(), frame_rate.bits());
+            let r = ctru_sys::CAMU_SetFrameRate(self.camera_as_raw(), frame_rate.bits());
             if r < 0 {
                 Err(r.into())
             } else {
@@ -695,9 +701,9 @@ impl Cam {
         }
     }
 
-    pub fn set_photo_mode(&self, camera: CamSelect, photo_mode: CamPhotoMode) -> crate::Result<()> {
+    fn set_photo_mode(&mut self, photo_mode: CamPhotoMode) -> crate::Result<()> {
         unsafe {
-            let r = ctru_sys::CAMU_SetPhotoMode(camera.bits(), photo_mode.bits());
+            let r = ctru_sys::CAMU_SetPhotoMode(self.camera_as_raw(), photo_mode.bits());
             if r < 0 {
                 Err(r.into())
             } else {
@@ -706,14 +712,9 @@ impl Cam {
         }
     }
 
-    pub fn set_effect(
-        &self,
-        camera: CamSelect,
-        effect: CamEffect,
-        context: CamContext,
-    ) -> crate::Result<()> {
+    fn set_effect(&mut self, effect: CamEffect, context: CamContext) -> crate::Result<()> {
         unsafe {
-            let r = ctru_sys::CAMU_SetEffect(camera.bits(), effect.bits(), context.bits());
+            let r = ctru_sys::CAMU_SetEffect(self.camera_as_raw(), effect.bits(), context.bits());
             if r < 0 {
                 Err(r.into())
             } else {
@@ -722,9 +723,9 @@ impl Cam {
         }
     }
 
-    pub fn set_contrast(&self, camera: CamSelect, contrast: CamContrast) -> crate::Result<()> {
+    fn set_contrast(&mut self, contrast: CamContrast) -> crate::Result<()> {
         unsafe {
-            let r = ctru_sys::CAMU_SetContrast(camera.bits(), contrast.bits());
+            let r = ctru_sys::CAMU_SetContrast(self.camera_as_raw(), contrast.bits());
             if r < 0 {
                 Err(r.into())
             } else {
@@ -733,13 +734,9 @@ impl Cam {
         }
     }
 
-    pub fn set_lens_correction(
-        &self,
-        camera: CamSelect,
-        lens_correction: CamLensCorrection,
-    ) -> crate::Result<()> {
+    fn set_lens_correction(&mut self, lens_correction: CamLensCorrection) -> crate::Result<()> {
         unsafe {
-            let r = ctru_sys::CAMU_SetLensCorrection(camera.bits(), lens_correction.bits());
+            let r = ctru_sys::CAMU_SetLensCorrection(self.camera_as_raw(), lens_correction.bits());
             if r < 0 {
                 Err(r.into())
             } else {
@@ -748,14 +745,14 @@ impl Cam {
         }
     }
 
-    pub fn set_output_format(
-        &self,
-        camera: CamSelect,
+    fn set_output_format(
+        &mut self,
         format: CamOutputFormat,
         context: CamContext,
     ) -> crate::Result<()> {
         unsafe {
-            let r = ctru_sys::CAMU_SetOutputFormat(camera.bits(), format.bits(), context.bits());
+            let r =
+                ctru_sys::CAMU_SetOutputFormat(self.camera_as_raw(), format.bits(), context.bits());
             if r < 0 {
                 Err(r.into())
             } else {
@@ -764,16 +761,15 @@ impl Cam {
         }
     }
 
-    pub fn set_auto_exposure_window(
-        &self,
-        camera: CamSelect,
+    fn set_auto_exposure_window(
+        &mut self,
         x: i16,
         y: i16,
         width: i16,
         height: i16,
     ) -> crate::Result<()> {
         unsafe {
-            let r = ctru_sys::CAMU_SetAutoExposureWindow(camera.bits(), x, y, width, height);
+            let r = ctru_sys::CAMU_SetAutoExposureWindow(self.camera_as_raw(), x, y, width, height);
             if r < 0 {
                 Err(r.into())
             } else {
@@ -782,16 +778,16 @@ impl Cam {
         }
     }
 
-    pub fn set_auto_white_balance_window(
-        &self,
-        camera: CamSelect,
+    fn set_auto_white_balance_window(
+        &mut self,
         x: i16,
         y: i16,
         width: i16,
         height: i16,
     ) -> crate::Result<()> {
         unsafe {
-            let r = ctru_sys::CAMU_SetAutoWhiteBalanceWindow(camera.bits(), x, y, width, height);
+            let r =
+                ctru_sys::CAMU_SetAutoWhiteBalanceWindow(self.camera_as_raw(), x, y, width, height);
             if r < 0 {
                 Err(r.into())
             } else {
@@ -800,9 +796,9 @@ impl Cam {
         }
     }
 
-    pub fn set_noise_filter(&self, camera: CamSelect, enabled: bool) -> crate::Result<()> {
+    fn set_noise_filter(&mut self, enabled: bool) -> crate::Result<()> {
         unsafe {
-            let r = ctru_sys::CAMU_SetNoiseFilter(camera.bits(), enabled);
+            let r = ctru_sys::CAMU_SetNoiseFilter(self.camera_as_raw(), enabled);
             if r < 0 {
                 Err(r.into())
             } else {
@@ -811,25 +807,10 @@ impl Cam {
         }
     }
 
-    pub fn synchronize_vsync_timing(
-        &self,
-        camera1: CamSelect,
-        camera2: CamSelect,
-    ) -> crate::Result<()> {
-        unsafe {
-            let r = ctru_sys::CAMU_SynchronizeVsyncTiming(camera1.bits(), camera2.bits());
-            if r < 0 {
-                Err(r.into())
-            } else {
-                Ok(())
-            }
-        }
-    }
-
-    pub fn get_latest_vsync_timing(&self, port: CamPort, past: u32) -> crate::Result<i64> {
+    fn get_latest_vsync_timing(&self, past: u32) -> crate::Result<i64> {
         let mut timing = 0;
         unsafe {
-            let r = ctru_sys::CAMU_GetLatestVsyncTiming(&mut timing, port.bits(), past);
+            let r = ctru_sys::CAMU_GetLatestVsyncTiming(&mut timing, self.port_as_raw(), past);
             if r < 0 {
                 Err(r.into())
             } else {
@@ -838,63 +819,8 @@ impl Cam {
         }
     }
 
-    pub fn write_register_i2c(&self, camera: CamSelect, addr: u16, data: u16) -> crate::Result<()> {
-        unsafe {
-            let r = ctru_sys::CAMU_WriteRegisterI2c(camera.bits(), addr, data);
-            if r < 0 {
-                Err(r.into())
-            } else {
-                Ok(())
-            }
-        }
-    }
-
-    pub fn write_mcu_variable_i2c(
-        &self,
-        camera: CamSelect,
-        addr: u16,
-        data: u16,
-    ) -> crate::Result<()> {
-        unsafe {
-            let r = ctru_sys::CAMU_WriteMcuVariableI2c(camera.bits(), addr, data);
-            if r < 0 {
-                Err(r.into())
-            } else {
-                Ok(())
-            }
-        }
-    }
-
-    pub fn read_register_i2c_exclusive(&self, camera: CamSelect, addr: u16) -> crate::Result<u16> {
-        unsafe {
-            let mut data = 0;
-            let r = ctru_sys::CAMU_ReadRegisterI2cExclusive(&mut data, camera.bits(), addr);
-            if r < 0 {
-                Err(r.into())
-            } else {
-                Ok(data)
-            }
-        }
-    }
-
-    pub fn read_mcu_variable_i2c_exclusive(
-        &self,
-        camera: CamSelect,
-        addr: u16,
-    ) -> crate::Result<u16> {
-        unsafe {
-            let mut data = 0;
-            let r = ctru_sys::CAMU_ReadMcuVariableI2cExclusive(&mut data, camera.bits(), addr);
-            if r < 0 {
-                Err(r.into())
-            } else {
-                Ok(data)
-            }
-        }
-    }
-
-    pub fn set_image_quality_calibration_data(
-        &self,
+    fn set_image_quality_calibration_data(
+        &mut self,
         data: ImageQualityCalibrationData,
     ) -> crate::Result<()> {
         unsafe {
@@ -907,7 +833,7 @@ impl Cam {
         }
     }
 
-    pub fn get_image_quality_calibration_data(&self) -> crate::Result<ImageQualityCalibrationData> {
+    fn get_image_quality_calibration_data(&self) -> crate::Result<ImageQualityCalibrationData> {
         unsafe {
             let mut data = ImageQualityCalibrationData::default();
             let r = ctru_sys::CAMU_GetImageQualityCalibrationData(&mut data.0);
@@ -919,8 +845,8 @@ impl Cam {
         }
     }
 
-    pub fn set_package_parameter_without_context(
-        &self,
+    fn set_package_parameter_without_context(
+        &mut self,
         param: PackageParameterCameraSelect,
     ) -> crate::Result<()> {
         unsafe {
@@ -933,8 +859,8 @@ impl Cam {
         }
     }
 
-    pub fn set_package_parameter_with_context(
-        &self,
+    fn set_package_parameter_with_context(
+        &mut self,
         param: PackageParameterContext,
     ) -> crate::Result<()> {
         unsafe {
@@ -947,8 +873,8 @@ impl Cam {
         }
     }
 
-    pub fn set_package_parameter_with_context_detail(
-        &self,
+    fn set_package_parameter_with_context_detail(
+        &mut self,
         param: PackageParameterContextDetail,
     ) -> crate::Result<()> {
         unsafe {
@@ -961,9 +887,9 @@ impl Cam {
         }
     }
 
-    pub fn play_shutter_sound(&self, sound: CamShutterSoundType) -> crate::Result<()> {
+    fn set_sleep_camera(&mut self) -> crate::Result<()> {
         unsafe {
-            let r = ctru_sys::CAMU_PlayShutterSound(sound.bits());
+            let r = ctru_sys::CAMU_SetSleepCamera(self.camera_as_raw());
             if r < 0 {
                 Err(r.into())
             } else {
@@ -972,68 +898,114 @@ impl Cam {
         }
     }
 
-    pub fn driver_initialize(&self) -> crate::Result<()> {
-        unsafe {
-            let r = ctru_sys::CAMU_DriverInitialize();
-            if r < 0 {
-                Err(r.into())
-            } else {
-                Ok(())
-            }
-        }
-    }
-
-    pub fn driver_finalize(&self) -> crate::Result<()> {
-        unsafe {
-            let r = ctru_sys::CAMU_DriverFinalize();
-            if r < 0 {
-                Err(r.into())
-            } else {
-                Ok(())
-            }
-        }
-    }
-
-    pub fn get_activated_camera(&self, camera: &mut u32) -> crate::Result<()> {
-        unsafe {
-            let r = ctru_sys::CAMU_GetActivatedCamera(camera);
-            if r < 0 {
-                Err(r.into())
-            } else {
-                Ok(())
-            }
-        }
-    }
-
-    pub fn get_sleep_camera(&self) -> crate::Result<CamSelect> {
-        unsafe {
-            let mut camera = 0;
-            let r = ctru_sys::CAMU_GetSleepCamera(&mut camera);
-            if r < 0 {
-                Err(r.into())
-            } else {
-                Ok(CamSelect::from_bits(camera).unwrap_or_default())
-            }
-        }
-    }
-
-    pub fn set_sleep_camera(&self, camera: CamSelect) -> crate::Result<()> {
-        unsafe {
-            let r = ctru_sys::CAMU_SetSleepCamera(camera.bits());
-            if r < 0 {
-                Err(r.into())
-            } else {
-                Ok(())
-            }
-        }
-    }
-
-    pub fn set_brightness_synchronization(
-        &self,
+    fn set_brightness_synchronization(
+        &mut self,
         brightness_synchronization: bool,
     ) -> crate::Result<()> {
         unsafe {
             let r = ctru_sys::CAMU_SetBrightnessSynchronization(brightness_synchronization);
+            if r < 0 {
+                Err(r.into())
+            } else {
+                Ok(())
+            }
+        }
+    }
+
+    fn synchronize_vsync_timing(&self) -> crate::Result<()> {
+        Ok(())
+    }
+
+    fn take_picture(
+        &mut self,
+        width: u16,
+        height: u16,
+        transfer_unit: u32,
+        timeout: i64,
+    ) -> crate::Result<Vec<u8>> {
+        let screen_size = u32::from(width) * u32::from(width) * 2;
+
+        let mut buf = vec![0u8; usize::try_from(screen_size).unwrap()];
+
+        self.set_transfer_bytes(
+            transfer_unit,
+            width.try_into().unwrap(),
+            height.try_into().unwrap(),
+        )?;
+
+        self.activate()?;
+
+        self.clear_buffer()?;
+
+        self.start_capture()?;
+
+        let receive_event =
+            self.set_receiving(&mut buf, screen_size, transfer_unit.try_into().unwrap())?;
+
+        unsafe {
+            let r = ctru_sys::svcWaitSynchronization(receive_event, timeout);
+            if r < 0 {
+                return Err(r.into());
+            }
+        };
+
+        self.stop_capture()?;
+
+        unsafe {
+            let r = ctru_sys::svcCloseHandle(receive_event);
+            if r < 0 {
+                return Err(r.into());
+            }
+        };
+
+        Ok(buf)
+    }
+}
+
+impl Cam {
+    pub fn init() -> crate::Result<Cam> {
+        unsafe {
+            let r = ctru_sys::camInit();
+            if r < 0 {
+                Err(r.into())
+            } else {
+                Ok(Cam {
+                    inner_cam: RefCell::new(InwardCam),
+                    outer_right_cam: RefCell::new(OutwardRightCam),
+                    outer_left_cam: RefCell::new(OutwardLeftCam),
+                    both_outer_cams: RefCell::new(BothOutwardCam),
+                })
+            }
+        }
+    }
+
+    pub fn get_max_bytes(&self, width: i16, height: i16) -> crate::Result<u32> {
+        unsafe {
+            let mut buf_size = 0;
+            let r = ctru_sys::CAMU_GetMaxBytes(&mut buf_size, width, height);
+            if r < 0 {
+                Err(r.into())
+            } else {
+                Ok(buf_size)
+            }
+        }
+    }
+
+    pub fn get_max_lines(&self, width: i16, height: i16) -> crate::Result<i16> {
+        unsafe {
+            let mut max_lines = 0;
+            let r = ctru_sys::CAMU_GetMaxLines(&mut max_lines, width, height);
+            if r < 0 {
+                Err(r.into())
+            } else {
+                Ok(max_lines)
+            }
+        }
+    }
+
+    pub fn play_shutter_sound(&self, sound: CamShutterSoundType) -> crate::Result<()> {
+        unsafe {
+            let r = ctru_sys::CAMU_PlayShutterSound(sound.bits());
             if r < 0 {
                 Err(r.into())
             } else {
