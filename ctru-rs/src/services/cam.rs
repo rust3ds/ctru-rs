@@ -654,10 +654,8 @@ pub trait Camera {
         &mut self,
         width: i16,
         height: i16,
-        crop_x0: i16,
-        crop_y0: i16,
-        crop_x1: i16,
-        crop_y1: i16,
+        crop_0: (i16, i16),
+        crop_1: (i16, i16),
         context: CamContext,
     ) -> crate::Result<()> {
         unsafe {
@@ -665,10 +663,10 @@ pub trait Camera {
                 self.camera_as_raw(),
                 width,
                 height,
-                crop_x0,
-                crop_y0,
-                crop_x1,
-                crop_y1,
+                crop_0.0,
+                crop_0.1,
+                crop_1.0,
+                crop_1.1,
                 context.bits(),
             );
             if r < 0 {

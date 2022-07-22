@@ -7,7 +7,7 @@ use ctru::Gfx;
 
 const WIDTH: usize = 400;
 const HEIGHT: usize = 240;
-const BUF_SIZE: usize = 384000; // WIDTH * HEIGHT * 2 * 2; First '* 2' is for 2 bytes per pixel, second is for 3D layer.
+const BUF_SIZE: usize = WIDTH * HEIGHT * 2 * 2;
 
 const WAIT_TIMEOUT: i64 = 300000000;
 
