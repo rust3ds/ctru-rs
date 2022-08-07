@@ -14,6 +14,15 @@ env:
 
 jobs:
   lint:
+    strategy:
+      matrix:
+        toolchain:
+          # Run against a "known good" nightly
+          - nightly-2022-07-18
+          # Check for breakage on latest nightly
+          - nightly
+    # But if latest nightly fails, allow the workflow to continue
+    continue-on-error: ${{ matrix.toolchain == 'nightly' }}
     runs-on: ubuntu-latest
     container: devkitpro/devkitarm
     steps:
@@ -25,7 +34,7 @@ jobs:
         with:
           components: clippy, rustfmt, rust-src
           profile: minimal
-          toolchain: nightly
+          toolchain: ${{ matrix.toolchain }}
           default: true
 
       - name: Install build tools for host
@@ -39,20 +48,16 @@ jobs:
           # once cargo-3ds gets published somewhere...
           args: >-
             --git https://github.com/rust3ds/cargo-3ds
-            --rev 913645665391ea715bc96910bda35f98a4536a6e
+            --rev 7b70b6b26c4740b9a10ab85b832ee73c41142bbb
 
       - name: Check formatting
         run: cargo fmt --all --verbose -- --check
 
-      # For some reason, `cargo clippy` doesn't seem to work properly with
-      # -Zbuild-std (and thus with `cargo 3ds`). Maybe would be helped by
-      # https://github.com/rust3ds/cargo-3ds/pull/21 ?
       - name: Cargo check
-        run: cargo 3ds check --color=always --workspace --verbose --all-targets
+        run: cargo 3ds clippy --color=always --workspace --verbose --all-targets
         env:
           RUSTFLAGS:
             --deny=warnings
 
   # TODO: it would be nice to actually build 3dsx for examples/tests, etc.
-  # and run it somehow, but exactly how remains to be seen. Also, we probably
-  # need the std::thread PR to land before a lot of the examples are runnable.
+  # and run it somehow, but exactly how remains to be seen.

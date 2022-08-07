@@ -32,7 +32,7 @@ fn main() -> io::Result<()> {
         .lines()
         .map(|v| {
             // Only modify lines with the following structure: `` #[doc ... ] ``
-            if v.trim_start().starts_with("#[doc") && v.trim_end().ends_with("]") {
+            if v.trim_start().starts_with("#[doc") && v.trim_end().ends_with(']') {
                 v.replace("@brief", "")
                     // Example: ``@param offset Offset of the RomFS...`` -> ``- offset Offset of the RomFS...``
                     // Will improve in the future
