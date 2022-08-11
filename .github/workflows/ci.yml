@@ -7,6 +7,7 @@ on:
   pull_request:
     branches:
       - master
+  workflow_dispatch:
 
 env:
   # https://blog.rust-lang.org/2022/06/22/sparse-registry-testing.html
