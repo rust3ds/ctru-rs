@@ -34,16 +34,6 @@ bitflags! {
 
 bitflags! {
     #[derive(Default)]
-    pub struct CamContext: u32 {
-        const NONE = ctru_sys::CONTEXT_NONE;
-        const A    = ctru_sys::CONTEXT_A;
-        const B    = ctru_sys::CONTEXT_B;
-        const BOTH = ctru_sys::CONTEXT_BOTH;
-    }
-}
-
-bitflags! {
-    #[derive(Default)]
     pub struct CamFlip: u32 {
         const NONE       = ctru_sys::FLIP_NONE;
         const HORIZONTAL = ctru_sys::FLIP_HORIZONTAL;
@@ -532,17 +522,6 @@ pub trait Camera {
         }
     }
 
-    fn switch_context(&mut self, context: CamContext) -> crate::Result<()> {
-        unsafe {
-            let r = ctru_sys::CAMU_SwitchContext(self.camera_as_raw(), context.bits());
-            if r < 0 {
-                Err(r.into())
-            } else {
-                Ok(())
-            }
-        }
-    }
-
     fn set_exposure(&mut self, exposure: i8) -> crate::Result<()> {
         unsafe {
             let r = ctru_sys::CAMU_SetExposure(self.camera_as_raw(), exposure);
@@ -640,9 +619,10 @@ pub trait Camera {
         }
     }
 
-    fn flip_image(&mut self, flip: CamFlip, context: CamContext) -> crate::Result<()> {
+    fn flip_image(&mut self, flip: CamFlip) -> crate::Result<()> {
         unsafe {
-            let r = ctru_sys::CAMU_FlipImage(self.camera_as_raw(), flip.bits(), context.bits());
+            let r =
+                ctru_sys::CAMU_FlipImage(self.camera_as_raw(), flip.bits(), ctru_sys::CONTEXT_A);
             if r < 0 {
                 Err(r.into())
             } else {
@@ -657,7 +637,6 @@ pub trait Camera {
         height: i16,
         crop_0: (i16, i16),
         crop_1: (i16, i16),
-        context: CamContext,
     ) -> crate::Result<()> {
         unsafe {
             let r = ctru_sys::CAMU_SetDetailSize(
@@ -668,7 +647,7 @@ pub trait Camera {
                 crop_0.1,
                 crop_1.0,
                 crop_1.1,
-                context.bits(),
+                ctru_sys::CONTEXT_A,
             );
             if r < 0 {
                 Err(r.into())
@@ -678,9 +657,9 @@ pub trait Camera {
         }
     }
 
-    fn set_size(&mut self, size: CamSize, context: CamContext) -> crate::Result<()> {
+    fn set_size(&mut self, size: CamSize) -> crate::Result<()> {
         unsafe {
-            let r = ctru_sys::CAMU_SetSize(self.camera_as_raw(), size.bits(), context.bits());
+            let r = ctru_sys::CAMU_SetSize(self.camera_as_raw(), size.bits(), ctru_sys::CONTEXT_A);
             if r < 0 {
                 Err(r.into())
             } else {
@@ -711,9 +690,10 @@ pub trait Camera {
         }
     }
 
-    fn set_effect(&mut self, effect: CamEffect, context: CamContext) -> crate::Result<()> {
+    fn set_effect(&mut self, effect: CamEffect) -> crate::Result<()> {
         unsafe {
-            let r = ctru_sys::CAMU_SetEffect(self.camera_as_raw(), effect.bits(), context.bits());
+            let r =
+                ctru_sys::CAMU_SetEffect(self.camera_as_raw(), effect.bits(), ctru_sys::CONTEXT_A);
             if r < 0 {
                 Err(r.into())
             } else {
@@ -744,14 +724,13 @@ pub trait Camera {
         }
     }
 
-    fn set_output_format(
-        &mut self,
-        format: CamOutputFormat,
-        context: CamContext,
-    ) -> crate::Result<()> {
+    fn set_output_format(&mut self, format: CamOutputFormat) -> crate::Result<()> {
         unsafe {
-            let r =
-                ctru_sys::CAMU_SetOutputFormat(self.camera_as_raw(), format.bits(), context.bits());
+            let r = ctru_sys::CAMU_SetOutputFormat(
+                self.camera_as_raw(),
+                format.bits(),
+                ctru_sys::CONTEXT_A,
+            );
             if r < 0 {
                 Err(r.into())
             } else {

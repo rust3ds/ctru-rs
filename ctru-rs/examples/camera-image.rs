@@ -1,6 +1,6 @@
 use ctru::console::Console;
 use ctru::gfx::{Screen, Side};
-use ctru::services::cam::{Cam, CamContext, CamOutputFormat, CamShutterSoundType, CamSize, Camera};
+use ctru::services::cam::{Cam, CamOutputFormat, CamShutterSoundType, CamSize, Camera};
 use ctru::services::hid::KeyPad;
 use ctru::services::{Apt, Hid};
 use ctru::Gfx;
@@ -32,11 +32,11 @@ fn main() {
     let mut camera = cam.outer_right_cam.borrow_mut();
 
     camera
-        .set_size(CamSize::CTR_TOP_LCD, CamContext::A)
+        .set_size(CamSize::CTR_TOP_LCD)
         .expect("Failed to set camera size");
 
     camera
-        .set_output_format(CamOutputFormat::RGB_565, CamContext::A)
+        .set_output_format(CamOutputFormat::RGB_565)
         .expect("Failed to set camera output format");
 
     camera
