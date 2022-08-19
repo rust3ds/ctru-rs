@@ -4,6 +4,8 @@
 #![feature(custom_test_frameworks)]
 #![test_runner(test_runner::run)]
 
+// Test PR
+
 extern "C" fn services_deinit() {
     unsafe {
         ctru_sys::psExit();
