@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+env:
+  # https://blog.rust-lang.org/2022/06/22/sparse-registry-testing.html
+  CARGO_UNSTABLE_SPARSE_REGISTRY: "true"
+
+jobs:
+  lint:
+    strategy:
+      matrix:
+        toolchain:
+          # Run against a "known good" nightly
+          - nightly-2022-07-18
+          # Check for breakage on latest nightly
+          - nightly
+    # But if latest nightly fails, allow the workflow to continue
+    continue-on-error: ${{ matrix.toolchain == 'nightly' }}
+    runs-on: ubuntu-latest
+    container: devkitpro/devkitarm
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v2
+
+      - name: Setup default Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          components: clippy, rustfmt, rust-src
+          profile: minimal
+          toolchain: ${{ matrix.toolchain }}
+          default: true
+
+      - name: Install build tools for host
+        run: sudo apt-get install -y build-essential
+
+      - name: Install cargo-3ds
+        uses: actions-rs/cargo@v1
+        with:
+          command: install
+          # TODO: this should probably just be a released version from crates.io
+          # once cargo-3ds gets published somewhere...
+          args: >-
+            --git https://github.com/rust3ds/cargo-3ds
+            --rev 7b70b6b26c4740b9a10ab85b832ee73c41142bbb
+
+      - name: Check formatting
+        run: cargo fmt --all --verbose -- --check
+
+      - name: Cargo check
+        run: cargo 3ds clippy --color=always --workspace --verbose --all-targets
+        env:
+          RUSTFLAGS:
+            --deny=warnings
+
+  # TODO: it would be nice to actually build 3dsx for examples/tests, etc.
+  # and run it somehow, but exactly how remains to be seen.
