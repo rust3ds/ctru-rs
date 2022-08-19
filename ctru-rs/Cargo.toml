@@ -36,5 +36,29 @@ default = ["romfs", "big-stack"]
 romfs = []
 big-stack = []
 
+# Temporary feature to disable some examples by default,
+# until thread support is upstreamed
+std-threads = []
+
 [package.metadata.cargo-3ds]
 romfs_dir = "examples/romfs"
+
+[[example]]
+name = "thread-basic"
+required-features = ["std-threads"]
+
+[[example]]
+name = "thread-info"
+required-features = ["std-threads"]
+
+[[example]]
+name = "thread-locals"
+required-features = ["std-threads"]
+
+[[example]]
+name = "futures-basic"
+required-features = ["std-threads"]
+
+[[example]]
+name = "futures-tokio"
+required-features = ["std-threads"]
