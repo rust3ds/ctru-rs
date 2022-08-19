@@ -1,8 +1,8 @@
 use ctru::console::Console;
 use ctru::gfx::Gfx;
 use ctru::services::apt::Apt;
-use ctru::services::hid::{Hid, KeyPad};
 use ctru::services::cfgu::Cfgu;
+use ctru::services::hid::{Hid, KeyPad};
 
 fn main() {
     ctru::init();
@@ -12,9 +12,18 @@ fn main() {
     let cfgu = Cfgu::init().expect("Couldn't obtain CFGU controller");
     let _console = Console::init(gfx.top_screen.borrow_mut());
 
-    println!("\x1b[0;0H{}", format!("Region: {:?}", cfgu.get_region().unwrap()));
-    println!("\x1b[10;0H{}", format!("Language: {:?}", cfgu.get_language().unwrap()));
-    println!("\x1b[20;0H{}", format!("Model: {:?}", cfgu.get_model().unwrap()));
+    println!(
+        "\x1b[0;0H{}",
+        format!("Region: {:?}", cfgu.get_region().unwrap())
+    );
+    println!(
+        "\x1b[10;0H{}",
+        format!("Language: {:?}", cfgu.get_language().unwrap())
+    );
+    println!(
+        "\x1b[20;0H{}",
+        format!("Model: {:?}", cfgu.get_model().unwrap())
+    );
 
     // Main loop
     while apt.main_loop() {

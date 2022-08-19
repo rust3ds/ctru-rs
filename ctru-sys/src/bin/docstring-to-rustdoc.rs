@@ -19,8 +19,8 @@
 //! The followings are _partially_ transformed to Rustdoc format:
 //! * `@param`
 
-use std::{env, fs, io};
 use std::path::Path;
+use std::{env, fs, io};
 
 fn main() -> io::Result<()> {
     let args: Vec<String> = env::args().collect();
@@ -33,8 +33,7 @@ fn main() -> io::Result<()> {
         .map(|v| {
             // Only modify lines with the following structure: `` #[doc ... ] ``
             if v.trim_start().starts_with("#[doc") && v.trim_end().ends_with("]") {
-                v
-                    .replace("@brief", "")
+                v.replace("@brief", "")
                     // Example: ``@param offset Offset of the RomFS...`` -> ``- offset Offset of the RomFS...``
                     // Will improve in the future
                     .replace("@param", "* ")
@@ -54,9 +53,7 @@ fn main() -> io::Result<()> {
                 String::from(v)
             }
         })
-        .map(|v| {
-            v + "\n"
-        })
+        .map(|v| v + "\n")
         .collect::<String>();
 
     let old_bindings_path = bindings_path.to_str().unwrap().to_owned() + ".old";
