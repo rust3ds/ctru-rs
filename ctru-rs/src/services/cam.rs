@@ -3,6 +3,7 @@ use bitflags::bitflags;
 use ctru_sys::Handle;
 use std::cell::RefCell;
 
+#[non_exhaustive]
 pub struct Cam {
     pub inner_cam: RefCell<InwardCam>,
     pub outer_right_cam: RefCell<OutwardRightCam>,
