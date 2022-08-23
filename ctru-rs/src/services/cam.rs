@@ -387,17 +387,6 @@ pub trait Camera {
         }
     }
 
-    fn deactivate(&mut self) -> crate::Result<()> {
-        unsafe {
-            let r = ctru_sys::CAMU_Activate(ctru_sys::SELECT_NONE);
-            if r < 0 {
-                Err(r.into())
-            } else {
-                Ok(())
-            }
-        }
-    }
-
     fn set_exposure(&mut self, exposure: i8) -> crate::Result<()> {
         unsafe {
             let r = ctru_sys::CAMU_SetExposure(self.camera_as_raw(), exposure);
@@ -858,6 +847,13 @@ pub trait Camera {
 
         unsafe {
             let r = ctru_sys::svcCloseHandle(receive_event);
+            if r < 0 {
+                return Err(r.into());
+            }
+        };
+
+        unsafe {
+            let r = ctru_sys::CAMU_Activate(ctru_sys::SELECT_NONE);
             if r < 0 {
                 return Err(r.into());
             }
