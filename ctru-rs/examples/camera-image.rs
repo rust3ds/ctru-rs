@@ -34,7 +34,7 @@ fn main() {
         let camera = &mut cam.outer_right_cam;
 
         camera
-            .set_size(CamSize::CTR_TOP_LCD)
+            .set_view_size(CamSize::CTR_TOP_LCD)
             .expect("Failed to set camera size");
 
         camera
@@ -108,14 +108,12 @@ fn main() {
 // but the image would need to be rotated 90 degrees.
 fn convert_image_to_rgb8(img: &[u8], x: usize, y: usize, width: usize, height: usize) -> Vec<u8> {
     let mut rgb8 = vec![0u8; img.len()];
-    let mut draw_x;
-    let mut draw_y;
     for j in 0..height {
         for i in 0..width {
             // Y-coordinate of where to draw in the frame buffer
-            draw_y = y + height - j;
+            let draw_y = y + height - j;
             // X-coordinate of where to draw in the frame buffer
-            draw_x = x + i;
+            let draw_x = x + i;
             // Initial index of where to draw in the frame buffer based on y and x coordinates
             let draw_index = (draw_y + draw_x * height) * 3;
 

@@ -521,7 +521,7 @@ pub trait Camera {
         }
     }
 
-    fn set_size(&mut self, size: CamSize) -> crate::Result<()> {
+    fn set_view_size(&mut self, size: CamSize) -> crate::Result<()> {
         unsafe {
             let r = ctru_sys::CAMU_SetSize(self.camera_as_raw(), size.bits(), ctru_sys::CONTEXT_A);
             if r < 0 {
