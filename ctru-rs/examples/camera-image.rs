@@ -4,12 +4,13 @@ use ctru::services::cam::{Cam, CamOutputFormat, CamShutterSoundType, CamSize, Ca
 use ctru::services::hid::KeyPad;
 use ctru::services::{Apt, Hid};
 use ctru::Gfx;
+use std::time::Duration;
 
 const WIDTH: usize = 400;
 const HEIGHT: usize = 240;
 const BUF_SIZE: usize = WIDTH * HEIGHT * 2 * 2;
 
-const WAIT_TIMEOUT: i64 = 300000000;
+const WAIT_TIMEOUT: Duration = Duration::from_micros(300);
 
 fn main() {
     ctru::init();
@@ -53,10 +54,6 @@ fn main() {
         .set_trimming(false)
         .expect("Failed to disable trimming");
 
-    let transfer_unit = cam
-        .get_max_bytes(WIDTH as i16, HEIGHT as i16)
-        .expect("Failed to get max bytes for dimensions");
-
     let mut buf = vec![0u8; BUF_SIZE];
 
     println!("\nPress R to take a new picture");
@@ -72,16 +69,15 @@ fn main() {
 
         if keys_down.contains(KeyPad::KEY_R) {
             println!("Capturing new image");
+            cam.play_shutter_sound(CamShutterSoundType::NORMAL)
+                .expect("Failed to play shutter sound");
             buf = camera
                 .take_picture(
                     WIDTH.try_into().unwrap(),
                     HEIGHT.try_into().unwrap(),
-                    transfer_unit,
                     WAIT_TIMEOUT,
                 )
                 .expect("Failed to take picture");
-            cam.play_shutter_sound(CamShutterSoundType::NORMAL)
-                .expect("Failed to play shutter sound");
         }
 
         let img = convert_image_to_rgb8(&buf, 0, 0, WIDTH as usize, HEIGHT as usize);

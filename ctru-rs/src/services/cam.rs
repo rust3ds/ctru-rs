@@ -2,6 +2,7 @@ use crate::services::gspgpu::FramebufferFormat;
 use bitflags::bitflags;
 use ctru_sys::Handle;
 use std::cell::RefCell;
+use std::time::Duration;
 
 #[non_exhaustive]
 pub struct Cam {
@@ -273,28 +274,6 @@ pub trait Camera {
         ctru_sys::PORT_CAM1
     }
 
-    fn start_capture(&mut self) -> crate::Result<()> {
-        unsafe {
-            let r = ctru_sys::CAMU_StartCapture(self.port_as_raw());
-            if r < 0 {
-                Err(r.into())
-            } else {
-                Ok(())
-            }
-        }
-    }
-
-    fn stop_capture(&mut self) -> crate::Result<()> {
-        unsafe {
-            let r = ctru_sys::CAMU_StopCapture(self.port_as_raw());
-            if r < 0 {
-                Err(r.into())
-            } else {
-                Ok(())
-            }
-        }
-    }
-
     fn is_busy(&self) -> crate::Result<bool> {
         unsafe {
             let mut is_busy = false;
@@ -303,98 +282,6 @@ pub trait Camera {
                 Err(r.into())
             } else {
                 Ok(is_busy)
-            }
-        }
-    }
-
-    fn clear_buffer(&mut self) -> crate::Result<()> {
-        unsafe {
-            let r = ctru_sys::CAMU_ClearBuffer(self.port_as_raw());
-            if r < 0 {
-                Err(r.into())
-            } else {
-                Ok(())
-            }
-        }
-    }
-
-    fn get_vsync_interrupt_event(&self) -> crate::Result<u32> {
-        unsafe {
-            let mut event: Handle = 0;
-            let r = ctru_sys::CAMU_GetVsyncInterruptEvent(&mut event, self.port_as_raw());
-            if r < 0 {
-                Err(r.into())
-            } else {
-                Ok(event)
-            }
-        }
-    }
-
-    fn get_buffer_error_interrupt_event(&self) -> crate::Result<u32> {
-        unsafe {
-            let mut event: Handle = 0;
-            let r = ctru_sys::CAMU_GetBufferErrorInterruptEvent(&mut event, self.port_as_raw());
-            if r < 0 {
-                Err(r.into())
-            } else {
-                Ok(event)
-            }
-        }
-    }
-
-    fn set_receiving(
-        &mut self,
-        buf: &mut [u8],
-        size: u32,
-        transfer_unit: i16,
-    ) -> crate::Result<u32> {
-        unsafe {
-            let mut completion_handle: Handle = 0;
-            let r = ctru_sys::CAMU_SetReceiving(
-                &mut completion_handle,
-                buf.as_mut_ptr() as *mut ::libc::c_void,
-                self.port_as_raw(),
-                size,
-                transfer_unit,
-            );
-            if r < 0 {
-                Err(r.into())
-            } else {
-                Ok(completion_handle)
-            }
-        }
-    }
-
-    fn is_finished_receiving(&self) -> crate::Result<bool> {
-        unsafe {
-            let mut finished_receiving = false;
-            let r = ctru_sys::CAMU_IsFinishedReceiving(&mut finished_receiving, self.port_as_raw());
-            if r < 0 {
-                Err(r.into())
-            } else {
-                Ok(finished_receiving)
-            }
-        }
-    }
-
-    fn set_transfer_lines(&mut self, lines: i16, width: i16, height: i16) -> crate::Result<()> {
-        unsafe {
-            let r = ctru_sys::CAMU_SetTransferLines(self.port_as_raw(), lines, width, height);
-            if r < 0 {
-                Err(r.into())
-            } else {
-                Ok(())
-            }
-        }
-    }
-
-    fn set_transfer_bytes(&mut self, buf_size: u32, width: i16, height: i16) -> crate::Result<()> {
-        unsafe {
-            let r = ctru_sys::CAMU_SetTransferBytes(self.port_as_raw(), buf_size, width, height);
-            if r < 0 {
-                Err(r.into())
-            } else {
-                Ok(())
             }
         }
     }
@@ -492,17 +379,6 @@ pub trait Camera {
                 cam_width,
                 cam_height,
             );
-            if r < 0 {
-                Err(r.into())
-            } else {
-                Ok(())
-            }
-        }
-    }
-
-    fn activate(&mut self) -> crate::Result<()> {
-        unsafe {
-            let r = ctru_sys::CAMU_Activate(self.camera_as_raw());
             if r < 0 {
                 Err(r.into())
             } else {
@@ -898,36 +774,87 @@ pub trait Camera {
         &mut self,
         width: u16,
         height: u16,
-        transfer_unit: u32,
-        timeout: i64,
+        timeout: Duration,
     ) -> crate::Result<Vec<u8>> {
+        let transfer_unit = unsafe {
+            let mut buf_size = 0;
+            let r = ctru_sys::CAMU_GetMaxBytes(&mut buf_size, width as i16, height as i16);
+            if r < 0 {
+                Err(crate::Error::from(r))
+            } else {
+                Ok(buf_size)
+            }
+        }?;
+
         let screen_size = u32::from(width) * u32::from(width) * 2;
 
         let mut buf = vec![0u8; usize::try_from(screen_size).unwrap()];
 
-        self.set_transfer_bytes(
-            transfer_unit,
-            width.try_into().unwrap(),
-            height.try_into().unwrap(),
-        )?;
-
-        self.activate()?;
-
-        self.clear_buffer()?;
-
-        self.start_capture()?;
-
-        let receive_event =
-            self.set_receiving(&mut buf, screen_size, transfer_unit.try_into().unwrap())?;
-
         unsafe {
-            let r = ctru_sys::svcWaitSynchronization(receive_event, timeout);
+            let r = ctru_sys::CAMU_SetTransferBytes(
+                self.port_as_raw(),
+                transfer_unit,
+                width as i16,
+                height as i16,
+            );
             if r < 0 {
                 return Err(r.into());
             }
         };
 
-        self.stop_capture()?;
+        unsafe {
+            let r = ctru_sys::CAMU_Activate(self.camera_as_raw());
+            if r < 0 {
+                return Err(r.into());
+            }
+        };
+
+        unsafe {
+            let r = ctru_sys::CAMU_ClearBuffer(self.port_as_raw());
+            if r < 0 {
+                return Err(r.into());
+            }
+        };
+
+        unsafe {
+            let r = ctru_sys::CAMU_StartCapture(self.port_as_raw());
+            if r < 0 {
+                return Err(r.into());
+            }
+        };
+
+        let receive_event = unsafe {
+            let mut completion_handle: Handle = 0;
+            let r = ctru_sys::CAMU_SetReceiving(
+                &mut completion_handle,
+                buf.as_mut_ptr() as *mut ::libc::c_void,
+                self.port_as_raw(),
+                screen_size,
+                transfer_unit.try_into().unwrap(),
+            );
+            if r < 0 {
+                Err(crate::Error::from(r))
+            } else {
+                Ok(completion_handle)
+            }
+        }?;
+
+        unsafe {
+            let r = ctru_sys::svcWaitSynchronization(
+                receive_event,
+                timeout.as_nanos().try_into().unwrap(),
+            );
+            if r < 0 {
+                return Err(r.into());
+            }
+        };
+
+        unsafe {
+            let r = ctru_sys::CAMU_StopCapture(self.port_as_raw());
+            if r < 0 {
+                return Err(r.into());
+            }
+        };
 
         unsafe {
             let r = ctru_sys::svcCloseHandle(receive_event);
@@ -953,30 +880,6 @@ impl Cam {
                     outer_left_cam: RefCell::new(OutwardLeftCam),
                     both_outer_cams: RefCell::new(BothOutwardCam),
                 })
-            }
-        }
-    }
-
-    pub fn get_max_bytes(&self, width: i16, height: i16) -> crate::Result<u32> {
-        unsafe {
-            let mut buf_size = 0;
-            let r = ctru_sys::CAMU_GetMaxBytes(&mut buf_size, width, height);
-            if r < 0 {
-                Err(r.into())
-            } else {
-                Ok(buf_size)
-            }
-        }
-    }
-
-    pub fn get_max_lines(&self, width: i16, height: i16) -> crate::Result<i16> {
-        unsafe {
-            let mut max_lines = 0;
-            let r = ctru_sys::CAMU_GetMaxLines(&mut max_lines, width, height);
-            if r < 0 {
-                Err(r.into())
-            } else {
-                Ok(max_lines)
             }
         }
     }
