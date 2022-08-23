@@ -1,15 +1,14 @@
 use crate::services::gspgpu::FramebufferFormat;
 use bitflags::bitflags;
 use ctru_sys::Handle;
-use std::cell::RefCell;
 use std::time::Duration;
 
 #[non_exhaustive]
 pub struct Cam {
-    pub inner_cam: RefCell<InwardCam>,
-    pub outer_right_cam: RefCell<OutwardRightCam>,
-    pub outer_left_cam: RefCell<OutwardLeftCam>,
-    pub both_outer_cams: RefCell<BothOutwardCam>,
+    pub inner_cam: InwardCam,
+    pub outer_right_cam: OutwardRightCam,
+    pub outer_left_cam: OutwardLeftCam,
+    pub both_outer_cams: BothOutwardCam,
 }
 
 bitflags! {
@@ -871,10 +870,10 @@ impl Cam {
                 Err(r.into())
             } else {
                 Ok(Cam {
-                    inner_cam: RefCell::new(InwardCam),
-                    outer_right_cam: RefCell::new(OutwardRightCam),
-                    outer_left_cam: RefCell::new(OutwardLeftCam),
-                    both_outer_cams: RefCell::new(BothOutwardCam),
+                    inner_cam: InwardCam,
+                    outer_right_cam: OutwardRightCam,
+                    outer_left_cam: OutwardLeftCam,
+                    both_outer_cams: BothOutwardCam,
                 })
             }
         }

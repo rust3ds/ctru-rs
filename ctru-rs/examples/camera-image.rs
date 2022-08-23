@@ -28,32 +28,33 @@ fn main() {
 
     println!("Initializing camera");
 
-    let cam = Cam::init().expect("Failed to initialize CAM service.");
+    let mut cam = Cam::init().expect("Failed to initialize CAM service.");
 
-    let mut camera = cam.outer_right_cam.borrow_mut();
+    {
+        let camera = &mut cam.outer_right_cam;
 
-    camera
-        .set_size(CamSize::CTR_TOP_LCD)
-        .expect("Failed to set camera size");
+        camera
+            .set_size(CamSize::CTR_TOP_LCD)
+            .expect("Failed to set camera size");
 
-    camera
-        .set_output_format(CamOutputFormat::RGB_565)
-        .expect("Failed to set camera output format");
+        camera
+            .set_output_format(CamOutputFormat::RGB_565)
+            .expect("Failed to set camera output format");
 
-    camera
-        .set_noise_filter(true)
-        .expect("Failed to enable noise filter");
-    camera
-        .set_auto_exposure(true)
-        .expect("Failed to enable auto exposure");
-    camera
-        .set_auto_white_balance(true)
-        .expect("Failed to enable auto white balance");
+        camera
+            .set_noise_filter(true)
+            .expect("Failed to enable noise filter");
+        camera
+            .set_auto_exposure(true)
+            .expect("Failed to enable auto exposure");
+        camera
+            .set_auto_white_balance(true)
+            .expect("Failed to enable auto white balance");
 
-    camera
-        .set_trimming(false)
-        .expect("Failed to disable trimming");
-
+        camera
+            .set_trimming(false)
+            .expect("Failed to disable trimming");
+    }
     let mut buf = vec![0u8; BUF_SIZE];
 
     println!("\nPress R to take a new picture");
@@ -71,6 +72,9 @@ fn main() {
             println!("Capturing new image");
             cam.play_shutter_sound(CamShutterSoundType::NORMAL)
                 .expect("Failed to play shutter sound");
+
+            let camera = &mut cam.outer_right_cam;
+
             buf = camera
                 .take_picture(
                     WIDTH.try_into().unwrap(),
