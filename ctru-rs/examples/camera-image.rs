@@ -36,11 +36,9 @@ fn main() {
         camera
             .set_view_size(CamSize::CTR_TOP_LCD)
             .expect("Failed to set camera size");
-
         camera
             .set_output_format(CamOutputFormat::RGB_565)
             .expect("Failed to set camera output format");
-
         camera
             .set_noise_filter(true)
             .expect("Failed to enable noise filter");
@@ -50,7 +48,6 @@ fn main() {
         camera
             .set_auto_white_balance(true)
             .expect("Failed to enable auto white balance");
-
         camera
             .set_trimming(false)
             .expect("Failed to disable trimming");

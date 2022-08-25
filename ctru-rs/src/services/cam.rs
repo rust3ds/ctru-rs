@@ -308,7 +308,7 @@ pub trait Camera {
         }
     }
 
-    fn is_trimming(&self) -> crate::Result<bool> {
+    fn is_trimming_enabled(&self) -> crate::Result<bool> {
         unsafe {
             let mut trimming = false;
             let r = ctru_sys::CAMU_IsTrimming(&mut trimming, self.port_as_raw());
@@ -447,14 +447,14 @@ pub trait Camera {
         }
     }
 
-    fn is_auto_exposure(&self) -> crate::Result<bool> {
+    fn is_auto_exposure_enabled(&self) -> crate::Result<bool> {
         unsafe {
-            let mut is_auto_exposure = false;
-            let r = ctru_sys::CAMU_IsAutoExposure(&mut is_auto_exposure, self.camera_as_raw());
+            let mut enabled = false;
+            let r = ctru_sys::CAMU_IsAutoExposure(&mut enabled, self.camera_as_raw());
             if r < 0 {
                 Err(r.into())
             } else {
-                Ok(is_auto_exposure)
+                Ok(enabled)
             }
         }
     }
@@ -470,15 +470,14 @@ pub trait Camera {
         }
     }
 
-    fn is_auto_white_balance(&self) -> crate::Result<bool> {
+    fn is_auto_white_balance_enabled(&self) -> crate::Result<bool> {
         unsafe {
-            let mut is_auto_white_balance = false;
-            let r =
-                ctru_sys::CAMU_IsAutoWhiteBalance(&mut is_auto_white_balance, self.camera_as_raw());
+            let mut enabled = false;
+            let r = ctru_sys::CAMU_IsAutoWhiteBalance(&mut enabled, self.camera_as_raw());
             if r < 0 {
                 Err(r.into())
             } else {
-                Ok(is_auto_white_balance)
+                Ok(enabled)
             }
         }
     }
