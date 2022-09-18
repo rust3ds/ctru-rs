@@ -75,6 +75,7 @@ pub mod applets;
 pub mod console;
 pub mod error;
 pub mod gfx;
+pub mod prelude;
 pub mod services;
 pub mod srv;
 
@@ -101,6 +102,3 @@ cfg_if::cfg_if! {
 mod test_runner;
 
 pub use crate::error::{Error, Result};
-
-pub use crate::gfx::Gfx;
-pub use crate::srv::Srv;

@@ -7,10 +7,8 @@
 
 #![feature(horizon_thread_ext)]
 
-use ctru::console::Console;
-use ctru::services::hid::KeyPad;
-use ctru::services::{Apt, Hid};
-use ctru::Gfx;
+use ctru::prelude::*;
+
 use futures::StreamExt;
 use std::os::horizon::thread::BuilderExt;
 

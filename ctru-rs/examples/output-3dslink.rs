@@ -8,10 +8,7 @@
 //! 3dslink --server target/armv6k-nintendo-3ds/debug/examples/output-3dslink.3dsx
 //! ```
 
-use ctru::gfx::Gfx;
-use ctru::services::apt::Apt;
-use ctru::services::hid::{Hid, KeyPad};
-use ctru::services::soc::Soc;
+use ctru::prelude::*;
 
 fn main() {
     ctru::init();
