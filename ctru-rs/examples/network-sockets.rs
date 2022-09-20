@@ -1,8 +1,4 @@
-use ctru::console::Console;
-use ctru::gfx::Gfx;
-use ctru::services::apt::Apt;
-use ctru::services::hid::{Hid, KeyPad};
-use ctru::services::soc::Soc;
+use ctru::prelude::*;
 
 use std::io::{self, Read, Write};
 use std::net::{Shutdown, TcpListener};

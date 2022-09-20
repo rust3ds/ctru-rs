@@ -1,8 +1,5 @@
-use ctru::console::Console;
-use ctru::gfx::Gfx;
-use ctru::services::apt::Apt;
+use ctru::prelude::*;
 use ctru::services::cfgu::Cfgu;
-use ctru::services::hid::{Hid, KeyPad};
 
 fn main() {
     ctru::init();

@@ -2,10 +2,8 @@
 
 #![feature(horizon_thread_ext)]
 
-use ctru::console::Console;
-use ctru::gfx::Gfx;
-use ctru::services::apt::Apt;
-use ctru::services::hid::{Hid, KeyPad};
+use ctru::prelude::*;
+
 use std::os::horizon::thread::BuilderExt;
 
 fn main() {

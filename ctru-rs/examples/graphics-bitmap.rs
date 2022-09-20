@@ -1,8 +1,5 @@
-use ctru::console::Console;
 use ctru::gfx::Screen as _;
-use ctru::services::hid::KeyPad;
-use ctru::services::{Apt, Hid};
-use ctru::Gfx;
+use ctru::prelude::*;
 
 /// Ferris image taken from <https://rustacean.net> and scaled down to 320x240px.
 /// To regenerate the data, you will need to install `imagemagick` and run this

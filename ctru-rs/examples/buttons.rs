@@ -1,7 +1,4 @@
-use ctru::console::Console;
-use ctru::gfx::Gfx;
-use ctru::services::apt::Apt;
-use ctru::services::hid::{Hid, KeyPad};
+use ctru::prelude::*;
 
 fn main() {
     // Setup services

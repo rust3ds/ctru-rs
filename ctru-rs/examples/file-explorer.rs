@@ -2,10 +2,8 @@
 //! read the SD card.
 
 use ctru::applets::swkbd::{Button, Swkbd};
-use ctru::console::Console;
-use ctru::services::hid::KeyPad;
-use ctru::services::{Apt, Hid};
-use ctru::Gfx;
+use ctru::prelude::*;
+
 use std::fs::DirEntry;
 use std::os::horizon::fs::MetadataExt;
 use std::path::{Path, PathBuf};

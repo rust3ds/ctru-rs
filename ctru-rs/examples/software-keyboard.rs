@@ -1,8 +1,5 @@
 use ctru::applets::swkbd::{Button, Swkbd};
-use ctru::console::Console;
-use ctru::gfx::Gfx;
-use ctru::services::apt::Apt;
-use ctru::services::hid::{Hid, KeyPad};
+use ctru::prelude::*;
 
 fn main() {
     ctru::init();
