@@ -204,32 +204,24 @@ impl CamTrimmingParams {
     /// equal to the end coordinates.
     ///
     /// `x_start <= x_end && y_start <= y_end`
-    pub fn new(
-        x_start: i16,
-        y_start: i16,
-        x_end: i16,
-        y_end: i16,
-    ) -> Result<CamTrimmingParams, ()> {
-        if x_start > x_end || y_start > y_end {
-            Err(())
-        } else {
-            Self {
-                x_start,
-                y_start,
-                x_end,
-                y_end,
-            }
+    pub fn new(x_start: i16, y_start: i16, x_end: i16, y_end: i16) -> CamTrimmingParams {
+        assert!(x_start <= x_end && y_start <= y_end);
+        Self {
+            x_start,
+            y_start,
+            x_end,
+            y_end,
         }
     }
 }
 
 /// Represents data used by the camera to calibrate image quality
 #[derive(Default)]
-pub struct ImageQualityCalibrationData(ctru_sys::CAMU_ImageQualityCalibrationData);
+pub struct ImageQualityCalibrationData(pub ctru_sys::CAMU_ImageQualityCalibrationData);
 
 /// Represents data used by the camera to calibrate image quality when using both outward cameras
 #[derive(Default)]
-pub struct StereoCameraCalibrationData(ctru_sys::CAMU_StereoCameraCalibrationData);
+pub struct StereoCameraCalibrationData(pub ctru_sys::CAMU_StereoCameraCalibrationData);
 
 /// Represents the camera on the inside of the 3DS
 #[non_exhaustive]
