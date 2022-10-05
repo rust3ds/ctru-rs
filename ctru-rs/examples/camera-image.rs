@@ -8,6 +8,9 @@ use std::time::Duration;
 
 const WIDTH: usize = 400;
 const HEIGHT: usize = 240;
+
+// The screen size is the width and height multiplied by 2 and
+// then multiplied by 2 again for 3D images
 const BUF_SIZE: usize = WIDTH * HEIGHT * 2 * 2;
 
 const WAIT_TIMEOUT: Duration = Duration::from_micros(300);
