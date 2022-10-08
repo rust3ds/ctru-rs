@@ -90,7 +90,7 @@ impl Swkbd {
     /// (from 1-3).
     pub fn init(keyboard_type: Kind, num_buttons: i32) -> Self {
         unsafe {
-            let mut state = Box::new(SwkbdState::default());
+            let mut state = Box::default();
             swkbdInit(state.as_mut(), keyboard_type as u32, num_buttons, -1);
             Swkbd { state }
         }
