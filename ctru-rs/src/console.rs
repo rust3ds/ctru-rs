@@ -17,7 +17,7 @@ impl<'screen> Console<'screen> {
     /// previously (including other consoles). The new console is automatically selected for
     /// printing.
     pub fn init(screen: RefMut<'screen, dyn Screen>) -> Self {
-        let mut context = Box::default();
+        let mut context = Box::<PrintConsole>::default();
 
         unsafe { consoleInit(screen.as_raw(), context.as_mut()) };
 
