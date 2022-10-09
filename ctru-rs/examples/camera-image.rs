@@ -83,7 +83,7 @@ fn main() {
                 .expect("Failed to take picture");
         }
 
-        let img = convert_image_to_rgb8(&buf, 0, 0, WIDTH as usize, HEIGHT as usize);
+        let img = convert_image_to_rgb8(&buf, 0, 0, WIDTH, HEIGHT);
 
         unsafe {
             gfx.top_screen
