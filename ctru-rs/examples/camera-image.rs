@@ -1,9 +1,8 @@
 use ctru::console::Console;
-use ctru::gfx::{Screen, Side};
+use ctru::gfx::{Gfx, Side};
 use ctru::services::cam::{Cam, CamOutputFormat, CamShutterSoundType, CamSize, Camera};
 use ctru::services::hid::KeyPad;
 use ctru::services::{Apt, Hid};
-use ctru::Gfx;
 use std::time::Duration;
 
 const WIDTH: usize = 400;
