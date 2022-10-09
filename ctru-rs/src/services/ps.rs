@@ -45,7 +45,9 @@ pub fn device_id() -> crate::Result<u32> {
 }
 
 pub fn generate_random_bytes(out: &mut [u8]) -> crate::Result<()> {
-    LibCtruError(unsafe { ctru_sys::PS_GenerateRandomBytes(out as *mut _ as *mut _, out.len() as u32) })?;
+    LibCtruError(unsafe {
+        ctru_sys::PS_GenerateRandomBytes(out as *mut _ as *mut _, out.len() as u32)
+    })?;
     Ok(())
 }
 

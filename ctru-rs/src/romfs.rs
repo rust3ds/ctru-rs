@@ -10,10 +10,10 @@
 //! romfs_dir = "romfs"
 //! ```
 
+use crate::error::LibCtruError;
 use once_cell::sync::Lazy;
 use std::ffi::CStr;
 use std::sync::Mutex;
-use crate::error::LibCtruError;
 
 use crate::services::ServiceReference;
 

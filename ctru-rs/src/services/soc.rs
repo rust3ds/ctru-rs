@@ -3,9 +3,9 @@ use once_cell::sync::Lazy;
 use std::net::Ipv4Addr;
 use std::sync::Mutex;
 
+use crate::error::LibCtruError;
 use crate::services::ServiceReference;
 use crate::Error;
-use crate::error::LibCtruError;
 
 /// Soc service. Initializing this service will enable the use of network sockets and utilities
 /// such as those found in `std::net`. The service will be closed when this struct is is dropped.

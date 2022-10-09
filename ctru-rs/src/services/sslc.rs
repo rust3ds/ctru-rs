@@ -16,7 +16,10 @@ impl SslC {
     /// Fill `buf` with `buf.len()` random bytes
     pub fn generate_random_data(&self, buf: &mut [u8]) -> crate::Result<()> {
         unsafe {
-            LibCtruError(ctru_sys::sslcGenerateRandomData(buf.as_ptr() as _, buf.len() as u32))?;
+            LibCtruError(ctru_sys::sslcGenerateRandomData(
+                buf.as_ptr() as _,
+                buf.len() as u32,
+            ))?;
             Ok(())
         }
     }

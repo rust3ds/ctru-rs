@@ -3,11 +3,11 @@
 //! The CAM service provides access to the cameras. Cameras can return 2D images
 //! in the form of byte vectors which can be used for display or other usages.
 
+use crate::error::LibCtruError;
 use crate::services::gspgpu::FramebufferFormat;
 use bitflags::bitflags;
 use ctru_sys::Handle;
 use std::time::Duration;
-use crate::error::LibCtruError;
 
 /// A reference-counted handle to the CAM service and the usable cameras.
 /// The service is closed when all instances of this struct fall out of scope.
@@ -268,14 +268,19 @@ impl BothOutwardCam {
         brightness_synchronization: bool,
     ) -> crate::Result<()> {
         unsafe {
-            LibCtruError(ctru_sys::CAMU_SetBrightnessSynchronization(brightness_synchronization))?;
+            LibCtruError(ctru_sys::CAMU_SetBrightnessSynchronization(
+                brightness_synchronization,
+            ))?;
             Ok(())
         }
     }
 
     fn synchronize_vsync_timing(&self) -> crate::Result<()> {
         unsafe {
-            LibCtruError(ctru_sys::CAMU_SynchronizeVsyncTiming(ctru_sys::SELECT_OUT1, ctru_sys::SELECT_OUT2))?;
+            LibCtruError(ctru_sys::CAMU_SynchronizeVsyncTiming(
+                ctru_sys::SELECT_OUT1,
+                ctru_sys::SELECT_OUT2,
+            ))?;
             Ok(())
         }
     }
@@ -315,7 +320,10 @@ pub trait Camera {
     fn get_transfer_bytes(&self) -> crate::Result<u32> {
         unsafe {
             let mut transfer_bytes = 0;
-            LibCtruError(ctru_sys::CAMU_GetTransferBytes(&mut transfer_bytes, self.port_as_raw()))?;
+            LibCtruError(ctru_sys::CAMU_GetTransferBytes(
+                &mut transfer_bytes,
+                self.port_as_raw(),
+            ))?;
             Ok(transfer_bytes)
         }
     }
@@ -409,7 +417,10 @@ pub trait Camera {
     /// Sets the white balance mod of the camera based on the passed [CamWhiteBalance] argument
     fn set_white_balance(&mut self, white_balance: CamWhiteBalance) -> crate::Result<()> {
         unsafe {
-            LibCtruError(ctru_sys::CAMU_SetWhiteBalance(self.camera_as_raw(), white_balance.bits()))?;
+            LibCtruError(ctru_sys::CAMU_SetWhiteBalance(
+                self.camera_as_raw(),
+                white_balance.bits(),
+            ))?;
             Ok(())
         }
     }
@@ -440,7 +451,10 @@ pub trait Camera {
     /// Sets whether auto exposure is enabled or disabled for the camera
     fn set_auto_exposure(&mut self, enabled: bool) -> crate::Result<()> {
         unsafe {
-            LibCtruError(ctru_sys::CAMU_SetAutoExposure(self.camera_as_raw(), enabled))?;
+            LibCtruError(ctru_sys::CAMU_SetAutoExposure(
+                self.camera_as_raw(),
+                enabled,
+            ))?;
             Ok(())
         }
     }
@@ -449,7 +463,10 @@ pub trait Camera {
     fn is_auto_exposure_enabled(&self) -> crate::Result<bool> {
         unsafe {
             let mut enabled = false;
-            LibCtruError(ctru_sys::CAMU_IsAutoExposure(&mut enabled, self.camera_as_raw()))?;
+            LibCtruError(ctru_sys::CAMU_IsAutoExposure(
+                &mut enabled,
+                self.camera_as_raw(),
+            ))?;
             Ok(enabled)
         }
     }
@@ -457,7 +474,10 @@ pub trait Camera {
     /// Sets whether auto white balance is enabled or disabled for the camera
     fn set_auto_white_balance(&mut self, enabled: bool) -> crate::Result<()> {
         unsafe {
-            LibCtruError(ctru_sys::CAMU_SetAutoWhiteBalance(self.camera_as_raw(), enabled))?;
+            LibCtruError(ctru_sys::CAMU_SetAutoWhiteBalance(
+                self.camera_as_raw(),
+                enabled,
+            ))?;
             Ok(())
         }
     }
@@ -466,7 +486,10 @@ pub trait Camera {
     fn is_auto_white_balance_enabled(&self) -> crate::Result<bool> {
         unsafe {
             let mut enabled = false;
-            LibCtruError(ctru_sys::CAMU_IsAutoWhiteBalance(&mut enabled, self.camera_as_raw()))?;
+            LibCtruError(ctru_sys::CAMU_IsAutoWhiteBalance(
+                &mut enabled,
+                self.camera_as_raw(),
+            ))?;
             Ok(enabled)
         }
     }
@@ -474,7 +497,11 @@ pub trait Camera {
     /// Sets the flip direction of the camera's image based on the passed [CamFlip] argument
     fn flip_image(&mut self, flip: CamFlip) -> crate::Result<()> {
         unsafe {
-            LibCtruError(ctru_sys::CAMU_FlipImage(self.camera_as_raw(), flip.bits(), ctru_sys::CONTEXT_A))?;
+            LibCtruError(ctru_sys::CAMU_FlipImage(
+                self.camera_as_raw(),
+                flip.bits(),
+                ctru_sys::CONTEXT_A,
+            ))?;
             Ok(())
         }
     }
@@ -516,7 +543,11 @@ pub trait Camera {
     /// Sets the view size of the camera based on the passed [CamSize] argument.
     fn set_view_size(&mut self, size: CamSize) -> crate::Result<()> {
         unsafe {
-            LibCtruError(ctru_sys::CAMU_SetSize(self.camera_as_raw(), size.bits(), ctru_sys::CONTEXT_A))?;
+            LibCtruError(ctru_sys::CAMU_SetSize(
+                self.camera_as_raw(),
+                size.bits(),
+                ctru_sys::CONTEXT_A,
+            ))?;
             Ok(())
         }
     }
@@ -524,7 +555,10 @@ pub trait Camera {
     /// Sets the frame rate of the camera based on the passed [CamFrameRate] argument.
     fn set_frame_rate(&mut self, frame_rate: CamFrameRate) -> crate::Result<()> {
         unsafe {
-            LibCtruError(ctru_sys::CAMU_SetFrameRate(self.camera_as_raw(), frame_rate.bits()))?;
+            LibCtruError(ctru_sys::CAMU_SetFrameRate(
+                self.camera_as_raw(),
+                frame_rate.bits(),
+            ))?;
             Ok(())
         }
     }
@@ -532,7 +566,10 @@ pub trait Camera {
     /// Sets the photo mode of the camera based on the passed [CamPhotoMode] argument.
     fn set_photo_mode(&mut self, photo_mode: CamPhotoMode) -> crate::Result<()> {
         unsafe {
-            LibCtruError(ctru_sys::CAMU_SetPhotoMode(self.camera_as_raw(), photo_mode.bits()))?;
+            LibCtruError(ctru_sys::CAMU_SetPhotoMode(
+                self.camera_as_raw(),
+                photo_mode.bits(),
+            ))?;
             Ok(())
         }
     }
@@ -542,7 +579,11 @@ pub trait Camera {
     /// Multiple effects can be set at once by combining the bitflags of [CamEffect]
     fn set_effect(&mut self, effect: CamEffect) -> crate::Result<()> {
         unsafe {
-            LibCtruError(ctru_sys::CAMU_SetEffect(self.camera_as_raw(), effect.bits(), ctru_sys::CONTEXT_A))?;
+            LibCtruError(ctru_sys::CAMU_SetEffect(
+                self.camera_as_raw(),
+                effect.bits(),
+                ctru_sys::CONTEXT_A,
+            ))?;
             Ok(())
         }
     }
@@ -550,7 +591,10 @@ pub trait Camera {
     /// Sets the contrast of the camera based on the passed [CamContrast] argument.
     fn set_contrast(&mut self, contrast: CamContrast) -> crate::Result<()> {
         unsafe {
-            LibCtruError(ctru_sys::CAMU_SetContrast(self.camera_as_raw(), contrast.bits()))?;
+            LibCtruError(ctru_sys::CAMU_SetContrast(
+                self.camera_as_raw(),
+                contrast.bits(),
+            ))?;
             Ok(())
         }
     }
@@ -558,7 +602,10 @@ pub trait Camera {
     /// Sets the lens correction of the camera based on the passed [CamLensCorrection] argument.
     fn set_lens_correction(&mut self, lens_correction: CamLensCorrection) -> crate::Result<()> {
         unsafe {
-            LibCtruError(ctru_sys::CAMU_SetLensCorrection(self.camera_as_raw(), lens_correction.bits()))?;
+            LibCtruError(ctru_sys::CAMU_SetLensCorrection(
+                self.camera_as_raw(),
+                lens_correction.bits(),
+            ))?;
             Ok(())
         }
     }
@@ -591,7 +638,13 @@ pub trait Camera {
         height: i16,
     ) -> crate::Result<()> {
         unsafe {
-            LibCtruError(ctru_sys::CAMU_SetAutoExposureWindow(self.camera_as_raw(), x, y, width, height))?;
+            LibCtruError(ctru_sys::CAMU_SetAutoExposureWindow(
+                self.camera_as_raw(),
+                x,
+                y,
+                width,
+                height,
+            ))?;
             Ok(())
         }
     }
@@ -612,7 +665,13 @@ pub trait Camera {
         height: i16,
     ) -> crate::Result<()> {
         unsafe {
-            LibCtruError(ctru_sys::CAMU_SetAutoWhiteBalanceWindow(self.camera_as_raw(), x, y, width, height))?;
+            LibCtruError(ctru_sys::CAMU_SetAutoWhiteBalanceWindow(
+                self.camera_as_raw(),
+                x,
+                y,
+                width,
+                height,
+            ))?;
             Ok(())
         }
     }
@@ -674,7 +733,11 @@ pub trait Camera {
     ) -> crate::Result<Vec<u8>> {
         let transfer_unit = unsafe {
             let mut buf_size = 0;
-            LibCtruError(ctru_sys::CAMU_GetMaxBytes(&mut buf_size, width as i16, height as i16))?;
+            LibCtruError(ctru_sys::CAMU_GetMaxBytes(
+                &mut buf_size,
+                width as i16,
+                height as i16,
+            ))?;
             Ok::<u32, i32>(buf_size)
         }?;
 
