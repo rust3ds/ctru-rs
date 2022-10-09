@@ -8,3 +8,11 @@ edition = "2021"
 
 [dependencies]
 libc = { version = "0.2.121", default-features = false }
+doxygen-rs = { git = "https://github.com/Techie-Pi/doxygen-rs.git", rev = "ef2300a4d6e7c6dc5a6061096d69bf054a9f7896", optional = true }
+
+[features]
+build-binary = ["doxygen-rs"]
+
+[[bin]]
+name = "docstring-to-rustdoc"
+required-features = ["build-binary"]
