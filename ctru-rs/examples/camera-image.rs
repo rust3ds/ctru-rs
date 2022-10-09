@@ -1,5 +1,5 @@
 use ctru::console::Console;
-use ctru::gfx::{Gfx, Side};
+use ctru::gfx::{Gfx, Screen, Side};
 use ctru::services::cam::{Cam, CamOutputFormat, CamShutterSoundType, CamSize, Camera};
 use ctru::services::hid::KeyPad;
 use ctru::services::{Apt, Hid};
