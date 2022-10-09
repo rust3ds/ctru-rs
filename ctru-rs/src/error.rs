@@ -13,6 +13,8 @@ pub(crate) struct LibCtruResult(pub i32);
 
 impl Try for LibCtruResult {
     type Output = ();
+    // This type is passed to [FromResidual::from_residual] when the LibCtruResult is an error,
+    // so this type implies "this is a result than CAN'T be `Ok`" (Infallible is the same as !)
     type Residual = crate::Result<core::convert::Infallible>;
 
     fn from_output(_: Self::Output) -> Self {
@@ -30,13 +32,9 @@ impl Try for LibCtruResult {
 
 impl FromResidual for LibCtruResult {
     fn from_residual(e: <Self as Try>::Residual) -> Self {
-        if let Some(e) = e.err() {
-            match e {
-                Error::Os(result) => Self(result),
-                _ => Self(-1),
-            }
-        } else {
-            Self(-1)
+        match e.err().unwrap() {
+            Error::Os(result) => Self(result),
+            _ => Self(-1),
         }
     }
 }
