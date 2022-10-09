@@ -2,7 +2,7 @@
 //!
 //! This module contains basic methods to retrieve and change configuration from the console.
 
-use crate::error::LibCtruError;
+use crate::error::LibCtruResult;
 
 #[derive(Copy, Clone, Debug)]
 #[repr(u32)]
@@ -62,7 +62,7 @@ impl Cfgu {
     /// as many times as desired and the service will not exit until all
     /// instances of Cfgu drop out of scope.
     pub fn init() -> crate::Result<Cfgu> {
-        LibCtruError(unsafe { ctru_sys::cfguInit() })?;
+        LibCtruResult(unsafe { ctru_sys::cfguInit() })?;
         Ok(Cfgu(()))
     }
 
@@ -70,7 +70,7 @@ impl Cfgu {
     pub fn get_region(&self) -> crate::Result<Region> {
         let mut region: u8 = 0;
 
-        LibCtruError(unsafe { ctru_sys::CFGU_SecureInfoGetRegion(&mut region) })?;
+        LibCtruResult(unsafe { ctru_sys::CFGU_SecureInfoGetRegion(&mut region) })?;
         Ok(Region::try_from(region).unwrap())
     }
 
@@ -78,7 +78,7 @@ impl Cfgu {
     pub fn get_model(&self) -> crate::Result<SystemModel> {
         let mut model: u8 = 0;
 
-        LibCtruError(unsafe { ctru_sys::CFGU_GetSystemModel(&mut model) })?;
+        LibCtruResult(unsafe { ctru_sys::CFGU_GetSystemModel(&mut model) })?;
         Ok(SystemModel::try_from(model).unwrap())
     }
 
@@ -86,7 +86,7 @@ impl Cfgu {
     pub fn get_language(&self) -> crate::Result<Language> {
         let mut language: u8 = 0;
 
-        LibCtruError(unsafe { ctru_sys::CFGU_GetSystemLanguage(&mut language) })?;
+        LibCtruResult(unsafe { ctru_sys::CFGU_GetSystemLanguage(&mut language) })?;
         Ok(Language::try_from(language).unwrap())
     }
 
@@ -94,7 +94,7 @@ impl Cfgu {
     pub fn is_nfc_supported(&self) -> crate::Result<bool> {
         let mut supported: bool = false;
 
-        LibCtruError(unsafe { ctru_sys::CFGU_IsNFCSupported(&mut supported) })?;
+        LibCtruResult(unsafe { ctru_sys::CFGU_IsNFCSupported(&mut supported) })?;
         Ok(supported)
     }
 
@@ -102,7 +102,7 @@ impl Cfgu {
     pub fn is_2ds_family(&self) -> crate::Result<bool> {
         let mut is_2ds_family: u8 = 0;
 
-        LibCtruError(unsafe { ctru_sys::CFGU_GetModelNintendo2DS(&mut is_2ds_family) })?;
+        LibCtruResult(unsafe { ctru_sys::CFGU_GetModelNintendo2DS(&mut is_2ds_family) })?;
         Ok(is_2ds_family == 0)
     }
 }

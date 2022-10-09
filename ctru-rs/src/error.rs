@@ -9,9 +9,9 @@ pub type Result<T> = ::std::result::Result<T, Error>;
 
 #[derive(Debug, Clone, PartialEq, PartialOrd)]
 #[repr(transparent)]
-pub(crate) struct LibCtruError(pub i32);
+pub(crate) struct LibCtruResult(pub i32);
 
-impl Try for LibCtruError {
+impl Try for LibCtruResult {
     type Output = ();
     type Residual = crate::Result<core::convert::Infallible>;
 
@@ -28,7 +28,7 @@ impl Try for LibCtruError {
     }
 }
 
-impl FromResidual for LibCtruError {
+impl FromResidual for LibCtruResult {
     fn from_residual(e: <Self as Try>::Residual) -> Self {
         if let Some(e) = e.err() {
             match e {
@@ -74,8 +74,8 @@ impl From<ctru_sys::Result> for Error {
     }
 }
 
-impl From<LibCtruError> for Error {
-    fn from(err: LibCtruError) -> Self {
+impl From<LibCtruResult> for Error {
+    fn from(err: LibCtruResult) -> Self {
         Self::Os(err.0)
     }
 }
