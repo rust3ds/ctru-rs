@@ -15,6 +15,7 @@ impl Try for LibCtruResult {
     type Output = ();
     // This type is passed to [FromResidual::from_residual] when the LibCtruResult is an error,
     // so this type implies "this is a result than CAN'T be `Ok`" (Infallible is the same as !)
+    // The purpose of this type is to _only_ bring information about the *Error*
     type Residual = crate::Result<core::convert::Infallible>;
 
     fn from_output(_: Self::Output) -> Self {
