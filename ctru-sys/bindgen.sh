@@ -30,3 +30,5 @@ bindgen "$DEVKITPRO/libctru/include/3ds.h" \
 > src/bindings.rs
 
 cargo run --bin docstring-to-rustdoc --features="build-binary" -- src/bindings.rs
+
+cargo fmt --all
