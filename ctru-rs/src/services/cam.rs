@@ -274,16 +274,6 @@ impl BothOutwardCam {
             Ok(())
         }
     }
-
-    fn synchronize_vsync_timing(&self) -> crate::Result<()> {
-        unsafe {
-            LibCtruError(ctru_sys::CAMU_SynchronizeVsyncTiming(
-                ctru_sys::SELECT_OUT1,
-                ctru_sys::SELECT_OUT2,
-            ))?;
-            Ok(())
-        }
-    }
 }
 
 impl Camera for BothOutwardCam {
