@@ -20,9 +20,10 @@ impl Try for LibCtruError {
     }
 
     fn branch(self) -> ControlFlow<Self::Residual, Self::Output> {
-        match self.0 {
-            0 => ControlFlow::Continue(()),
-            _ => ControlFlow::Break(Err(self.into())),
+        if self.0 < 0 {
+            ControlFlow::Break(Err(self.into()))
+        } else {
+            ControlFlow::Continue(())
         }
     }
 }
