@@ -29,8 +29,15 @@ impl Try for LibCtruError {
 }
 
 impl FromResidual for LibCtruError {
-    fn from_residual(_: <Self as Try>::Residual) -> Self {
-        Self(1)
+    fn from_residual(e: <Self as Try>::Residual) -> Self {
+        if let Some(e) = e.err() {
+            match e {
+                Error::Os(result) => Self(result),
+                _ => Self(-1),
+            }
+        } else {
+            Self(-1)
+        }
     }
 }
 
