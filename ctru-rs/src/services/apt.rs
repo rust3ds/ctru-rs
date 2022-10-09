@@ -1,14 +1,12 @@
+use crate::error::LibCtruError;
+
 pub struct Apt(());
 
 impl Apt {
     pub fn init() -> crate::Result<Apt> {
         unsafe {
-            let r = ctru_sys::aptInit();
-            if r < 0 {
-                Err(r.into())
-            } else {
-                Ok(Apt(()))
-            }
+            LibCtruError(ctru_sys::aptInit())?;
+            Ok(Apt(()))
         }
     }
 
@@ -18,12 +16,8 @@ impl Apt {
 
     pub fn set_app_cpu_time_limit(&self, percent: u32) -> crate::Result<()> {
         unsafe {
-            let r = ctru_sys::APT_SetAppCpuTimeLimit(percent);
-            if r < 0 {
-                Err(r.into())
-            } else {
-                Ok(())
-            }
+            LibCtruError(ctru_sys::APT_SetAppCpuTimeLimit(percent))?;
+            Ok(())
         }
     }
 }

@@ -2,6 +2,7 @@
 #![crate_name = "ctru"]
 #![feature(test)]
 #![feature(custom_test_frameworks)]
+#![feature(try_trait_v2)]
 #![test_runner(test_runner::run)]
 
 extern "C" fn services_deinit() {

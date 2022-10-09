@@ -5,6 +5,7 @@ use std::sync::Mutex;
 
 use crate::services::ServiceReference;
 use crate::Error;
+use crate::error::LibCtruError;
 
 /// Soc service. Initializing this service will enable the use of network sockets and utilities
 /// such as those found in `std::net`. The service will be closed when this struct is is dropped.
@@ -38,10 +39,7 @@ impl Soc {
             false,
             || {
                 let soc_mem = unsafe { memalign(0x1000, num_bytes) } as *mut u32;
-                let r = unsafe { ctru_sys::socInit(soc_mem, num_bytes as u32) };
-                if r < 0 {
-                    return Err(r.into());
-                }
+                LibCtruError(unsafe { ctru_sys::socInit(soc_mem, num_bytes as u32) })?;
 
                 Ok(())
             },

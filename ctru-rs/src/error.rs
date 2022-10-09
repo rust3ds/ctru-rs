@@ -1,10 +1,37 @@
 use std::error;
 use std::ffi::CStr;
 use std::fmt;
+use std::ops::{ControlFlow, FromResidual, Try};
 
 use ctru_sys::result::{R_DESCRIPTION, R_LEVEL, R_MODULE, R_SUMMARY};
 
 pub type Result<T> = ::std::result::Result<T, Error>;
+
+#[derive(Debug, Clone, PartialEq, PartialOrd)]
+#[repr(transparent)]
+pub(crate) struct LibCtruError(pub i32);
+
+impl Try for LibCtruError {
+    type Output = ();
+    type Residual = crate::Result<core::convert::Infallible>;
+
+    fn from_output(_: Self::Output) -> Self {
+        Self(0)
+    }
+
+    fn branch(self) -> ControlFlow<Self::Residual, Self::Output> {
+        match self.0 {
+            0 => ControlFlow::Continue(()),
+            _ => ControlFlow::Break(Err(self.into()))
+        }
+    }
+}
+
+impl FromResidual for LibCtruError {
+    fn from_residual(_: <Self as Try>::Residual) -> Self {
+        Self(1)
+    }
+}
 
 /// The error type returned by all libctru functions.
 #[non_exhaustive]
@@ -36,6 +63,12 @@ impl Error {
 impl From<ctru_sys::Result> for Error {
     fn from(err: ctru_sys::Result) -> Self {
         Error::Os(err)
+    }
+}
+
+impl From<LibCtruError> for Error {
+    fn from(err: LibCtruError) -> Self {
+        Self::Os(err.0)
     }
 }
 

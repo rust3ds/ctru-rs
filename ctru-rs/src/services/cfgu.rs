@@ -2,6 +2,8 @@
 //!
 //! This module contains basic methods to retrieve and change configuration from the console.
 
+use crate::error::LibCtruError;
+
 #[derive(Copy, Clone, Debug)]
 #[repr(u32)]
 pub enum Region {
@@ -60,77 +62,48 @@ impl Cfgu {
     /// as many times as desired and the service will not exit until all
     /// instances of Cfgu drop out of scope.
     pub fn init() -> crate::Result<Cfgu> {
-        unsafe {
-            let r = ctru_sys::cfguInit();
-            if r < 0 {
-                Err(r.into())
-            } else {
-                Ok(Cfgu(()))
-            }
-        }
+        LibCtruError(unsafe { ctru_sys::cfguInit() })?;
+        Ok(Cfgu(()))
     }
 
     /// Gets system region from secure info
     pub fn get_region(&self) -> crate::Result<Region> {
         let mut region: u8 = 0;
 
-        let r = unsafe { ctru_sys::CFGU_SecureInfoGetRegion(&mut region) };
-        if r < 0 {
-            Err(r.into())
-        } else {
-            // The system shouldn't give an invalid value
-            Ok(Region::try_from(region).unwrap())
-        }
+        LibCtruError(unsafe { ctru_sys::CFGU_SecureInfoGetRegion(&mut region) })?;
+        Ok(Region::try_from(region).unwrap())
     }
 
     /// Gets system's model
     pub fn get_model(&self) -> crate::Result<SystemModel> {
         let mut model: u8 = 0;
 
-        let r = unsafe { ctru_sys::CFGU_GetSystemModel(&mut model) };
-        if r < 0 {
-            Err(r.into())
-        } else {
-            // The system shouldn't give an invalid value
-            Ok(SystemModel::try_from(model).unwrap())
-        }
+        LibCtruError(unsafe { ctru_sys::CFGU_GetSystemModel(&mut model) })?;
+        Ok(SystemModel::try_from(model).unwrap())
     }
 
     /// Gets system's language
     pub fn get_language(&self) -> crate::Result<Language> {
         let mut language: u8 = 0;
 
-        let r = unsafe { ctru_sys::CFGU_GetSystemLanguage(&mut language) };
-        if r < 0 {
-            Err(r.into())
-        } else {
-            // The system shouldn't give an invalid value
-            Ok(Language::try_from(language).unwrap())
-        }
+        LibCtruError(unsafe { ctru_sys::CFGU_GetSystemLanguage(&mut language) })?;
+        Ok(Language::try_from(language).unwrap())
     }
 
     /// Checks if NFC is supported by the console
     pub fn is_nfc_supported(&self) -> crate::Result<bool> {
         let mut supported: bool = false;
 
-        let r = unsafe { ctru_sys::CFGU_IsNFCSupported(&mut supported) };
-        if r < 0 {
-            Err(r.into())
-        } else {
-            Ok(supported)
-        }
+        LibCtruError(unsafe { ctru_sys::CFGU_IsNFCSupported(&mut supported) })?;
+        Ok(supported)
     }
 
     /// Check if the console is from the 2DS family (2DS, New2DS, New2DSXL)
     pub fn is_2ds_family(&self) -> crate::Result<bool> {
         let mut is_2ds_family: u8 = 0;
 
-        let r = unsafe { ctru_sys::CFGU_GetModelNintendo2DS(&mut is_2ds_family) };
-        if r < 0 {
-            Err(r.into())
-        } else {
-            Ok(is_2ds_family == 0)
-        }
+        LibCtruError(unsafe { ctru_sys::CFGU_GetModelNintendo2DS(&mut is_2ds_family) })?;
+        Ok(is_2ds_family == 0)
     }
 }
 
