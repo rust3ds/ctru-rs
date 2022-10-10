@@ -8,7 +8,7 @@ edition = "2021"
 
 [dependencies]
 libc = { version = "0.2.121", default-features = false }
-doxygen-rs = { git = "https://github.com/Techie-Pi/doxygen-rs.git", rev = "ef2300a4d6e7c6dc5a6061096d69bf054a9f7896", optional = true }
+doxygen-rs = { git = "https://github.com/Techie-Pi/doxygen-rs.git", version = "0.2.1", rev = "b941e17672852dd555dd293a5d85e8a346c5c6a9", optional = true }
 
 [features]
 build-binary = ["doxygen-rs"]
