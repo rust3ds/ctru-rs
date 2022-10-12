@@ -1586,8 +1586,7 @@ pub const MEMOP_LINEAR_FLAG: MemOp = 65536;
 #[doc = ""]
 
 pub const MEMOP_ALLOC_LINEAR: MemOp = 65539;
-#[doc = "@ref svcControlMemory operation flags"]
-#[doc = ""]
+#[doc = "[`svcControlMemory`] operation flags"]
 #[doc = ""]
 #[doc = "The lowest 8 bits are the operation"]
 #[doc = ""]
@@ -1704,10 +1703,10 @@ pub struct MemInfo {
     #[doc = "Size."]
     #[doc = ""]
     pub size: u32_,
-    #[doc = "Memory permissions. See @ref MemPerm"]
+    #[doc = "Memory permissions. See [`MemPerm`]"]
     #[doc = ""]
     pub perm: u32_,
-    #[doc = "Memory state. See @ref MemState"]
+    #[doc = "Memory state. See [`MemState`]"]
     #[doc = ""]
     pub state: u32_,
 }
@@ -1796,7 +1795,7 @@ pub const RESLIMIT_SEMAPHORE: ResourceLimitType = 5;
 #[doc = ""]
 
 pub const RESLIMIT_TIMER: ResourceLimitType = 6;
-#[doc = "Number of shared memory objects, see @ref svcCreateMemoryBlock"]
+#[doc = "Number of shared memory objects, see [`svcCreateMemoryBlock`]"]
 #[doc = ""]
 
 pub const RESLIMIT_SHAREDMEMORY: ResourceLimitType = 7;
@@ -1848,11 +1847,11 @@ pub const DMACFG_SRC_IS_DEVICE: _bindgen_ty_5 = 1;
 #[doc = ""]
 
 pub const DMACFG_DST_IS_DEVICE: _bindgen_ty_5 = 2;
-#[doc = "Make \\ref svcStartInterProcessDma wait for the channel to be unlocked."]
+#[doc = "Make [`svcStartInterProcessDma`] wait for the channel to be unlocked."]
 #[doc = ""]
 
 pub const DMACFG_WAIT_AVAILABLE: _bindgen_ty_5 = 4;
-#[doc = "Keep the channel locked after the transfer. Required for \\ref svcRestartDma."]
+#[doc = "Keep the channel locked after the transfer. Required for [`svcRestartDma`]"]
 #[doc = ""]
 
 pub const DMACFG_KEEP_LOCKED: _bindgen_ty_5 = 8;
@@ -1864,7 +1863,7 @@ pub const DMACFG_USE_SRC_CONFIG: _bindgen_ty_5 = 64;
 #[doc = ""]
 
 pub const DMACFG_USE_DST_CONFIG: _bindgen_ty_5 = 128;
-#[doc = "Configuration flags for \\ref DmaConfig."]
+#[doc = "Configuration flags for [`DmaConfig`]"]
 #[doc = ""]
 
 pub type _bindgen_ty_5 = ::libc::c_uint;
@@ -1876,16 +1875,20 @@ pub const DMARST_UNLOCK: _bindgen_ty_6 = 1;
 #[doc = ""]
 
 pub const DMARST_RESUME_DEVICE: _bindgen_ty_6 = 2;
-#[doc = "Configuration flags for \\ref svcRestartDma."]
+#[doc = "Configuration flags for [`svcRestartDma`]"]
 #[doc = ""]
 
 pub type _bindgen_ty_6 = ::libc::c_uint;
-#[doc = "Device configuration structure, part of \\ref DmaConfig."]
+#[doc = "Device configuration structure, part of [`DmaConfig`]"]
 #[doc = ""]
 #[doc = "- if (and only if) src/dst is a device, then src/dst won't be auto-incremented."]
 #[doc = "- the kernel uses DMAMOV instead of DMAADNH, when having to decrement (possibly working around an erratum);"]
 #[doc = "this forces all loops to be unrolled -- you need to keep that in mind when using negative increments, as the kernel"]
 #[doc = "uses a limit of 100 DMA instruction bytes per channel."]
+#[doc = ""]
+#[doc = "# Notes"]
+#[doc = ""]
+#[doc = "*"]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
@@ -1909,7 +1912,7 @@ pub struct DmaDeviceConfig {
     #[doc = ""]
     pub transferStride: s16,
 }
-#[doc = "Configuration stucture for \\ref svcStartInterProcessDma."]
+#[doc = "Configuration stucture for [`svcStartInterProcessDma`]"]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
@@ -1924,10 +1927,10 @@ pub struct DmaConfig {
     #[doc = ""]
     pub flags: u8_,
     pub _padding: u8_,
-    #[doc = "Source device configuration, read if \\ref DMACFG_SRC_IS_DEVICE and/or \\ref DMACFG_USE_SRC_CONFIG are set."]
+    #[doc = "Source device configuration, read if [`DMACFG_SRC_IS_DEVICE`] and/or [`DMACFG_USE_SRC_CONFIG`] are set."]
     #[doc = ""]
     pub srcCfg: DmaDeviceConfig,
-    #[doc = "Destination device configuration, read if \\ref DMACFG_SRC_IS_DEVICE and/or \\ref DMACFG_USE_SRC_CONFIG are set."]
+    #[doc = "Destination device configuration, read if [`DMACFG_SRC_IS_DEVICE`] and/or [`DMACFG_USE_SRC_CONFIG`] are set."]
     #[doc = ""]
     pub dstCfg: DmaDeviceConfig,
 }
@@ -1967,7 +1970,7 @@ pub const PERFCOUNTEROP_SET_EVENT: PerfCounterOperation = 7;
 #[doc = ""]
 
 pub const PERFCOUNTEROP_SET_VIRTUAL_COUNTER_ENABLED: PerfCounterOperation = 8;
-#[doc = "Operations for \\ref svcControlPerformanceCounter"]
+#[doc = "Operations for [`svcControlPerformanceCounter`]"]
 #[doc = ""]
 
 pub type PerfCounterOperation = ::libc::c_uint;
@@ -2075,9 +2078,12 @@ pub const PERFCOUNTEREVT_SCU_EXTERNAL_WRITE: PerfCounterEvent = 4115;
 pub const PERFCOUNTEREVT_SCU_CYCLE_COUNT: PerfCounterEvent = 4127;
 #[doc = "Performance counter event IDs (CP15 or SCU)."]
 #[doc = ""]
+#[doc = "- CP15: <https://developer.arm.com/documentation/ddi0360/e/control-coprocessor-cp15/register-descriptions/c15--performance-monitor-control-register--pmnc->"]
+#[doc = "- SCU: <https://developer.arm.com/documentation/ddi0360/e/mpcore-private-memory-region/about-the-mpcore-private-memory-region/performance-monitor-event-registers>"]
 #[doc = ""]
-#[doc = "- CP15: https://developer.arm.com/documentation/ddi0360/e/control-coprocessor-cp15/register-descriptions/c15--performance-monitor-control-register--pmnc-"]
-#[doc = "- SCU: https://developer.arm.com/documentation/ddi0360/e/mpcore-private-memory-region/about-the-mpcore-private-memory-region/performance-monitor-event-registers"]
+#[doc = "# Notes"]
+#[doc = ""]
+#[doc = "* Refer to:"]
 #[doc = ""]
 
 pub type PerfCounterEvent = ::libc::c_uint;
@@ -2103,11 +2109,11 @@ pub struct AttachProcessEvent {
 #[doc = ""]
 
 pub const EXITPROCESS_EVENT_EXIT: ExitProcessEventReason = 0;
-#[doc = "Process has been terminated by @ref svcTerminateProcess."]
+#[doc = "Process has been terminated by [`svcTerminateProcess`]"]
 #[doc = ""]
 
 pub const EXITPROCESS_EVENT_TERMINATE: ExitProcessEventReason = 1;
-#[doc = "Process has been terminated by @ref svcTerminateDebugProcess."]
+#[doc = "Process has been terminated by [`svcTerminateDebugProcess`]"]
 #[doc = ""]
 
 pub const EXITPROCESS_EVENT_DEBUG_TERMINATE: ExitProcessEventReason = 2;
@@ -2120,7 +2126,7 @@ pub type ExitProcessEventReason = ::libc::c_uint;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct ExitProcessEvent {
-    #[doc = "Reason for exiting. See @ref ExitProcessEventReason"]
+    #[doc = "Reason for exiting. See [`ExitProcessEventReason`]"]
     #[doc = ""]
     pub reason: ExitProcessEventReason,
 }
@@ -2160,7 +2166,7 @@ pub const EXITTHREAD_EVENT_TERMINATE: ExitThreadEventReason = 1;
 #[doc = ""]
 
 pub const EXITTHREAD_EVENT_EXIT_PROCESS: ExitThreadEventReason = 2;
-#[doc = "Process has been terminated by @ref svcTerminateProcess."]
+#[doc = "Process has been terminated by [`svcTerminateProcess`]"]
 #[doc = ""]
 
 pub const EXITTHREAD_EVENT_TERMINATE_PROCESS: ExitThreadEventReason = 3;
@@ -2173,7 +2179,7 @@ pub type ExitThreadEventReason = ::libc::c_uint;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct ExitThreadEvent {
-    #[doc = "Reason for exiting. See @ref ExitThreadEventReason"]
+    #[doc = "Reason for exiting. See [`ExitThreadEventReason`]"]
     #[doc = ""]
     pub reason: ExitThreadEventReason,
 }
@@ -2259,7 +2265,7 @@ pub struct FaultExceptionEvent {
     #[doc = ""]
     pub fault_information: u32_,
 }
-#[doc = "See @ref SVC_STOP_POINT."]
+#[doc = "See [`SVC_STOP_POINT`]"]
 #[doc = ""]
 
 pub const STOPPOINT_SVC_FF: StopPointType = 0;
@@ -2280,7 +2286,7 @@ pub type StopPointType = ::libc::c_uint;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct StopPointExceptionEvent {
-    #[doc = "Stop point type, see @ref StopPointType."]
+    #[doc = "Stop point type, see [`StopPointType`]"]
     #[doc = ""]
     pub type_: StopPointType,
     #[doc = "FAR for Watchpoints, otherwise 0."]
@@ -2296,12 +2302,12 @@ impl Default for StopPointExceptionEvent {
         }
     }
 }
-#[doc = "Event relating to @ref svcBreak"]
+#[doc = "Event relating to [`svcBreak`]"]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct UserBreakExceptionEvent {
-    #[doc = "User break type, see @ref UserBreakType."]
+    #[doc = "User break type, see [`UserBreakType`]"]
     #[doc = ""]
     pub type_: UserBreakType,
     #[doc = "For LOAD_RO and UNLOAD_RO."]
@@ -2320,12 +2326,12 @@ impl Default for UserBreakExceptionEvent {
         }
     }
 }
-#[doc = "Event relating to @ref svcBreakDebugProcess"]
+#[doc = "Event relating to [`svcBreakDebugProcess`]"]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct DebuggerBreakExceptionEvent {
-    #[doc = "IDs of the attached process's threads that were running on each core at the time of the @ref svcBreakDebugProcess call, or -1 (only the first 2 values are meaningful on O3DS)."]
+    #[doc = "IDs of the attached process's threads that were running on each core at the time of the [`svcBreakDebugProcess`] call, or -1 (only the first 2 values are meaningful on O3DS)."]
     #[doc = ""]
     pub thread_ids: [s32; 4usize],
 }
@@ -2334,7 +2340,7 @@ pub struct DebuggerBreakExceptionEvent {
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ExceptionEvent {
-    #[doc = "Type of event. See @ref ExceptionEventType."]
+    #[doc = "Type of event. See [`ExceptionEventType`]"]
     #[doc = ""]
     pub type_: ExceptionEventType,
     #[doc = "Address of the exception."]
@@ -2420,10 +2426,10 @@ pub struct MapEvent {
     #[doc = "Mapped size."]
     #[doc = ""]
     pub mapped_size: u32_,
-    #[doc = "Memory permissions. See @ref MemPerm."]
+    #[doc = "Memory permissions. See [`MemPerm`]"]
     #[doc = ""]
     pub memperm: MemPerm,
-    #[doc = "Memory state. See @ref MemState."]
+    #[doc = "Memory state. See [`MemState`]"]
     #[doc = ""]
     pub memstate: MemState,
 }
@@ -2497,13 +2503,13 @@ pub type DebugEventType = ::libc::c_uint;
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct DebugEventInfo {
-    #[doc = "Type of event. See @ref DebugEventType"]
+    #[doc = "Type of event. See [`DebugEventType`]"]
     #[doc = ""]
     pub type_: DebugEventType,
     #[doc = "ID of the thread."]
     #[doc = ""]
     pub thread_id: u32_,
-    #[doc = "Flags. Bit0 means that @ref svcContinueDebugEvent needs to be called for this event (except for EXIT PROCESS events, where this flag is disregarded)."]
+    #[doc = "Flags. Bit0 means that [`svcContinueDebugEvent`] needs to be called for this event (except for EXIT PROCESS events, where this flag is disregarded)."]
     #[doc = ""]
     pub flags: u32_,
     #[doc = "Always 0."]
@@ -2560,27 +2566,27 @@ impl Default for DebugEventInfo {
         }
     }
 }
-#[doc = "Inhibit user-defined CPU exception handlers (including watchpoints and breakpoints, regardless of any @ref svcKernelSetState call)."]
+#[doc = "Inhibit user-defined CPU exception handlers (including watchpoints and breakpoints, regardless of any [`svcKernelSetState`] call)."]
 #[doc = ""]
 
 pub const DBG_INHIBIT_USER_CPU_EXCEPTION_HANDLERS: DebugFlags = 1;
-#[doc = "Signal fault exception events. See @ref FaultExceptionEvent."]
+#[doc = "Signal fault exception events. See [`FaultExceptionEvent`]"]
 #[doc = ""]
 
 pub const DBG_SIGNAL_FAULT_EXCEPTION_EVENTS: DebugFlags = 2;
-#[doc = "Signal schedule in/out events. See @ref ScheduleInOutEvent."]
+#[doc = "Signal schedule in/out events. See [`ScheduleInOutEvent`]"]
 #[doc = ""]
 
 pub const DBG_SIGNAL_SCHEDULE_EVENTS: DebugFlags = 4;
-#[doc = "Signal syscall in/out events. See @ref SyscallInOutEvent."]
+#[doc = "Signal syscall in/out events. See [`SyscallInOutEvent`]"]
 #[doc = ""]
 
 pub const DBG_SIGNAL_SYSCALL_EVENTS: DebugFlags = 8;
-#[doc = "Signal map events. See @ref MapEvent."]
+#[doc = "Signal map events. See [`MapEvent`]"]
 #[doc = ""]
 
 pub const DBG_SIGNAL_MAP_EVENTS: DebugFlags = 16;
-#[doc = "Debug flags for an attached process, set by @ref svcContinueDebugEvent"]
+#[doc = "Debug flags for an attached process, set by [`svcContinueDebugEvent`]"]
 #[doc = ""]
 
 pub type DebugFlags = ::libc::c_uint;
@@ -2631,7 +2637,7 @@ pub const THREADCONTEXT_CONTROL_FPU_REGS: ThreadContextControlFlags = 12;
 #[doc = ""]
 
 pub const THREADCONTEXT_CONTROL_ALL: ThreadContextControlFlags = 15;
-#[doc = "Control flags for @ref svcGetDebugThreadContext and @ref svcSetDebugThreadContext"]
+#[doc = "Control flags for [`svcGetDebugThreadContext`] and [`svcSetDebugThreadContext`]"]
 #[doc = ""]
 
 pub type ThreadContextControlFlags = ::libc::c_uint;
@@ -2651,7 +2657,7 @@ pub const DBGTHREAD_PARAMETER_CPU_IDEAL: DebugThreadParameter = 2;
 #[doc = ""]
 
 pub const DBGTHREAD_PARAMETER_CPU_CREATOR: DebugThreadParameter = 3;
-#[doc = "Thread parameter field for @ref svcGetDebugThreadParameter"]
+#[doc = "Thread parameter field for [`svcGetDebugThreadParameter`]"]
 #[doc = ""]
 
 pub type DebugThreadParameter = ::libc::c_uint;
@@ -2730,23 +2736,27 @@ impl Default for StartupInfo {
 }
 extern "C" {
     #[must_use]
+    #[doc = "# Memory management"]
+    #[doc = ""]
     #[doc = "Controls memory mapping"]
     #[doc = ""]
     #[doc = "It has to be pointing to a RW memory."]
-    #[doc = "Use NULL if the operation is @ref MEMOP_FREE or @ref MEMOP_ALLOC."]
+    #[doc = "Use NULL if the operation is [`MEMOP_FREE`] or [`MEMOP_ALLOC`]"]
     #[doc = "Value 0 is used when unmapping memory."]
     #[doc = "If a memory is mapped for two or more addresses, you have to use MEMOP_UNMAP before being able to MEMOP_FREE it."]
     #[doc = "MEMOP_MAP will fail if @p addr1 was already mapped to another address."]
-    #[doc = "More information is available at http://3dbrew.org/wiki/SVC#Memory_Mapping."]
+    #[doc = "More information is available at <http://3dbrew.org/wiki/SVC#Memory_Mapping>"]
+    #[doc = "[`svcControlProcessMemory`]"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `addr_out` - The virtual address resulting from the operation. Usually the same as addr0. [Direction: In, Out]"]
     #[doc = "* `addr0` - The virtual address to be used for the operation."]
-    #[doc = "* `addr1` - The virtual address to be (un)mirrored by @p addr0 when using @ref MEMOP_MAP or @ref MEMOP_UNMAP."]
-    #[doc = "* `size` - The requested size for @ref MEMOP_ALLOC and @ref MEMOP_ALLOC_LINEAR."]
-    #[doc = "* `op` - Operation flags. See @ref MemOp."]
-    #[doc = "* `perm` - A combination of @ref MEMPERM_READ and @ref MEMPERM_WRITE. Using MEMPERM_EXECUTE will return an error."]
+    #[doc = "* `addr1` - The virtual address to be (un)mirrored by @p addr0 when using [`MEMOP_MAP`] or [`MEMOP_UNMAP`]"]
+    #[doc = "* `size` - The requested size for [`MEMOP_ALLOC`] and [`MEMOP_ALLOC_LINEAR`]"]
+    #[doc = "* `op` - Operation flags. See [`MemOp`]"]
+    #[doc = "* `perm` - A combination of [`MEMPERM_READ`] and [`MEMPERM_WRITE`] Using MEMPERM_EXECUTE will return an error."]
+    #[doc = ""]
     pub fn svcControlMemory(
         addr_out: *mut u32_,
         addr0: u32_,
@@ -2760,16 +2770,20 @@ extern "C" {
     #[must_use]
     #[doc = "Controls the memory mapping of a process"]
     #[doc = ""]
-    #[doc = ""]
     #[doc = "This is the only SVC which allows mapping executable memory."]
-    #[doc = "Using @ref MEMOP_PROT will change the memory permissions of an already mapped memory."]
-    #[doc = ""]
+    #[doc = "Using [`MEMOP_PROT`] will change the memory permissions of an already mapped memory."]
+    #[doc = "[`svcControlProcess`]"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `addr0` - The virtual address to map"]
     #[doc = "* `addr1` - The virtual address to be mapped by @p addr0"]
-    #[doc = "* `type` - Only operations @ref MEMOP_MAP, @ref MEMOP_UNMAP and @ref MEMOP_PROT are allowed."]
+    #[doc = "* `type` - Only operations [`MEMOP_MAP`] [`MEMOP_UNMAP`] and [`MEMOP_PROT`] are allowed."]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* The pseudo handle for the current process is not supported by this service call."]
+    #[doc = ""]
     pub fn svcControlProcessMemory(
         process: Handle,
         addr0: u32_,
@@ -2783,8 +2797,6 @@ extern "C" {
     #[must_use]
     #[doc = "Creates a block of shared memory"]
     #[doc = ""]
-    #[doc = ""]
-    #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `memblock` - Pointer to store the handle of the block [Direction: In, Out]"]
@@ -2792,6 +2804,11 @@ extern "C" {
     #[doc = "* `size` - Size of the memory to map, a multiple of 0x1000."]
     #[doc = "* `my_perm` - Memory permissions for the current process"]
     #[doc = "* `other_perm` - Memory permissions for the other processes"]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* The shared memory block, and its rights, are destroyed when the handle is closed."]
+    #[doc = ""]
     pub fn svcCreateMemoryBlock(
         memblock: *mut Handle,
         addr: u32_,
@@ -2804,14 +2821,17 @@ extern "C" {
     #[must_use]
     #[doc = "Maps a block of shared memory"]
     #[doc = ""]
-    #[doc = ""]
-    #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `memblock` - Handle of the block"]
     #[doc = "* `addr` - Address of the memory to map, page-aligned. So its alignment must be 0x1000."]
     #[doc = "* `my_perm` - Memory permissions for the current process"]
     #[doc = "* `other_perm` - Memory permissions for the other processes"]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* The shared memory block, and its rights, are destroyed when the handle is closed."]
+    #[doc = ""]
     pub fn svcMapMemoryBlock(
         memblock: Handle,
         addr: u32_,
@@ -2828,6 +2848,7 @@ extern "C" {
     #[doc = "* `process` - Handle of the process."]
     #[doc = "* `destAddress` - Address of the block of memory to map, in the current (destination) process."]
     #[doc = "* `size` - Size of the block of memory to map (truncated to a multiple of 0x1000 bytes)."]
+    #[doc = ""]
     pub fn svcMapProcessMemory(process: Handle, destAddress: u32_, size: u32_) -> Result;
 }
 extern "C" {
@@ -2839,6 +2860,7 @@ extern "C" {
     #[doc = "* `process` - Handle of the process."]
     #[doc = "* `destAddress` - Address of the block of memory to unmap, in the current (destination) process."]
     #[doc = "* `size` - Size of the block of memory to unmap (truncated to a multiple of 0x1000 bytes)."]
+    #[doc = ""]
     pub fn svcUnmapProcessMemory(process: Handle, destAddress: u32_, size: u32_) -> Result;
 }
 extern "C" {
@@ -2849,6 +2871,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `memblock` - Handle of the block"]
     #[doc = "* `addr` - Address of the memory to unmap, page-aligned. So its alignment must be 0x1000."]
+    #[doc = ""]
     pub fn svcUnmapMemoryBlock(memblock: Handle, addr: u32_) -> Result;
 }
 extern "C" {
@@ -2860,6 +2883,7 @@ extern "C" {
     #[doc = "* `info` - Pointer to output memory info to. [Direction: In, Out]"]
     #[doc = "* `out` - Pointer to output page info to."]
     #[doc = "* `addr` - Virtual memory address to query."]
+    #[doc = ""]
     pub fn svcQueryMemory(info: *mut MemInfo, out: *mut PageInfo, addr: u32_) -> Result;
 }
 extern "C" {
@@ -2872,6 +2896,7 @@ extern "C" {
     #[doc = "* `out` - Pointer to output page info to. [Direction: In, Out]"]
     #[doc = "* `process` - Process to query memory from."]
     #[doc = "* `addr` - Virtual memory address to query."]
+    #[doc = ""]
     pub fn svcQueryProcessMemory(
         info: *mut MemInfo,
         out: *mut PageInfo,
@@ -2881,12 +2906,15 @@ extern "C" {
 }
 extern "C" {
     #[must_use]
+    #[doc = "# Process management"]
+    #[doc = ""]
     #[doc = "Gets the handle of a process."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `process` - The handle of the process [Direction: In, Out]"]
     #[doc = "* `processId` - The ID of the process to open"]
+    #[doc = ""]
     pub fn svcOpenProcess(process: *mut Handle, processId: u32_) -> Result;
 }
 extern "C" {
@@ -2901,6 +2929,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `process` - Handle of the process to terminate."]
+    #[doc = ""]
     pub fn svcTerminateProcess(process: Handle) -> Result;
 }
 extern "C" {
@@ -2912,6 +2941,7 @@ extern "C" {
     #[doc = "* `out` - Pointer to output process info to. [Direction: In, Out]"]
     #[doc = "* `process` - Handle of the process to get information about."]
     #[doc = "* `type` - Type of information to retreieve."]
+    #[doc = ""]
     pub fn svcGetProcessInfo(out: *mut s64, process: Handle, type_: u32_) -> Result;
 }
 extern "C" {
@@ -2922,6 +2952,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `out` - Pointer to output the process ID to. [Direction: In, Out]"]
     #[doc = "* `handle` - Handle of the process to get the ID of."]
+    #[doc = ""]
     pub fn svcGetProcessId(out: *mut u32_, handle: Handle) -> Result;
 }
 extern "C" {
@@ -2933,6 +2964,7 @@ extern "C" {
     #[doc = "* `processCount` - Pointer to output the process count to. [Direction: In, Out]"]
     #[doc = "* `processIds` - Pointer to output the process IDs to. [Direction: In, Out]"]
     #[doc = "* `processIdMaxCount` - Maximum number of process IDs."]
+    #[doc = ""]
     pub fn svcGetProcessList(
         processCount: *mut s32,
         processIds: *mut u32_,
@@ -2949,6 +2981,7 @@ extern "C" {
     #[doc = "* `threadIds` - Pointer to output the thread IDs to. [Direction: In, Out]"]
     #[doc = "* `threadIdMaxCount` - Maximum number of thread IDs."]
     #[doc = "* `process` - Process handle to list the threads of."]
+    #[doc = ""]
     pub fn svcGetThreadList(
         threadCount: *mut s32,
         threadIds: *mut u32_,
@@ -2966,6 +2999,7 @@ extern "C" {
     #[doc = "* `portClient` - Pointer to output the port client handle to. [Direction: In, Out]"]
     #[doc = "* `name` - Name of the port."]
     #[doc = "* `maxSessions` - Maximum number of sessions that can connect to the port."]
+    #[doc = ""]
     pub fn svcCreatePort(
         portServer: *mut Handle,
         portClient: *mut Handle,
@@ -2981,6 +3015,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `out` - Pointer to output the port handle to. [Direction: In, Out]"]
     #[doc = "* `portName` - Name of the port."]
+    #[doc = ""]
     pub fn svcConnectToPort(out: *mut Handle, portName: *const ::libc::c_char) -> Result;
 }
 extern "C" {
@@ -2994,6 +3029,7 @@ extern "C" {
     #[doc = "* `code_ptr` - Pointer to .text in shared memory"]
     #[doc = "* `ro_ptr` - Pointer to .rodata in shared memory"]
     #[doc = "* `data_ptr` - Pointer to .data in shared memory"]
+    #[doc = ""]
     pub fn svcCreateCodeSet(
         out: *mut Handle,
         info: *const CodeSetInfo,
@@ -3012,6 +3048,7 @@ extern "C" {
     #[doc = "* `codeset` - Codeset created for this process"]
     #[doc = "* `arm11kernelcaps` - ARM11 Kernel Capabilities from exheader"]
     #[doc = "* `arm11kernelcaps_num` - Number of kernel capabilities"]
+    #[doc = ""]
     pub fn svcCreateProcess(
         out: *mut Handle,
         codeset: Handle,
@@ -3028,6 +3065,7 @@ extern "C" {
     #[doc = "* `affinitymask` - Pointer to store the affinity masks. [Direction: In, Out]"]
     #[doc = "* `process` - Handle of the process."]
     #[doc = "* `processorcount` - Number of processors."]
+    #[doc = ""]
     pub fn svcGetProcessAffinityMask(
         affinitymask: *mut u8_,
         process: Handle,
@@ -3043,6 +3081,7 @@ extern "C" {
     #[doc = "* `process` - Handle of the process."]
     #[doc = "* `affinitymask` - Pointer to retrieve the affinity masks from."]
     #[doc = "* `processorcount` - Number of processors."]
+    #[doc = ""]
     pub fn svcSetProcessAffinityMask(
         process: Handle,
         affinitymask: *const u8_,
@@ -3057,6 +3096,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `processorid` - Pointer to store the ID of the process's ideal processor. [Direction: In, Out]"]
     #[doc = "* `process` - Handle of the process."]
+    #[doc = ""]
     pub fn svcGetProcessIdealProcessor(processorid: *mut s32, process: Handle) -> Result;
 }
 extern "C" {
@@ -3067,6 +3107,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `process` - Handle of the process."]
     #[doc = "* `processorid` - ID of the process's ideal processor."]
+    #[doc = ""]
     pub fn svcSetProcessIdealProcessor(process: Handle, processorid: s32) -> Result;
 }
 extern "C" {
@@ -3077,10 +3118,13 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `process` - Handle of the process."]
     #[doc = "* `info` - Pointer to a StartupInfo structure describing information for the main thread."]
+    #[doc = ""]
     pub fn svcRun(process: Handle, info: *const StartupInfo) -> Result;
 }
 extern "C" {
     #[must_use]
+    #[doc = "# Multithreading"]
+    #[doc = ""]
     #[doc = "Creates a new thread."]
     #[doc = ""]
     #[doc = "For userland apps, this has to be within the range [0x18;0x3F]"]
@@ -3088,8 +3132,8 @@ extern "C" {
     #[doc = "Value -1 means all CPUs and -2 read from the Exheader."]
     #[doc = "The processor with ID 1 is the system processor."]
     #[doc = "To enable multi-threading on this core you need to call APT_SetAppCpuTimeLimit at least once with a non-zero value."]
-    #[doc = "Since a thread is considered as a waitable object, you can use @ref svcWaitSynchronization"]
-    #[doc = "and @ref svcWaitSynchronizationN to join with it."]
+    #[doc = "Since a thread is considered as a waitable object, you can use [`svcWaitSynchronization`]"]
+    #[doc = "and [`svcWaitSynchronizationN`] to join with it."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
@@ -3099,6 +3143,11 @@ extern "C" {
     #[doc = "* `stack_top` - The top of the thread's stack. Must be 0x8 bytes mem-aligned."]
     #[doc = "* `thread_priority` - Low values gives the thread higher priority."]
     #[doc = "* `processor_id` - The id of the processor the thread should be ran on. Those are labelled starting from 0."]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* The kernel will clear the @p stack_top's address low 3 bits to make sure it is 0x8-bytes aligned."]
+    #[doc = ""]
     pub fn svcCreateThread(
         thread: *mut Handle,
         entrypoint: ThreadFunc,
@@ -3116,14 +3165,15 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `thread` - The handle of the thread [Direction: In, Out]"]
     #[doc = "* `process` - The ID of the process linked to the thread"]
+    #[doc = ""]
     pub fn svcOpenThread(thread: *mut Handle, process: Handle, threadId: u32_) -> Result;
 }
 extern "C" {
     #[doc = "Exits the current thread."]
     #[doc = ""]
-    #[doc = ""]
-    #[doc = "This will trigger a state change and hence release all @ref svcWaitSynchronization operations."]
-    #[doc = "It means that you can join a thread by calling @code svcWaitSynchronization(threadHandle,yourtimeout); @endcode"]
+    #[doc = "This will trigger a state change and hence release all [`svcWaitSynchronization`] operations."]
+    #[doc = "It means that you can join a thread by calling ```"]
+    #[doc = "svcWaitSynchronization(threadHandle,yourtimeout); ```"]
     #[doc = ""]
     pub fn svcExitThread();
 }
@@ -3133,6 +3183,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `ns` - The minimum number of nanoseconds to sleep for."]
+    #[doc = ""]
     pub fn svcSleepThread(ns: s64);
 }
 extern "C" {
@@ -3145,12 +3196,12 @@ extern "C" {
     #[must_use]
     #[doc = "Changes the priority of a thread"]
     #[doc = ""]
-    #[doc = ""]
     #[doc = "Low values gives the thread higher priority."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `prio` - For userland apps, this has to be within the range [0x18;0x3F]"]
+    #[doc = ""]
     pub fn svcSetThreadPriority(thread: Handle, prio: s32) -> Result;
 }
 extern "C" {
@@ -3162,6 +3213,7 @@ extern "C" {
     #[doc = "* `affinitymask` - Pointer to output the affinity masks to. [Direction: In, Out]"]
     #[doc = "* `thread` - Handle of the thread."]
     #[doc = "* `processorcount` - Number of processors."]
+    #[doc = ""]
     pub fn svcGetThreadAffinityMask(
         affinitymask: *mut u8_,
         thread: Handle,
@@ -3177,6 +3229,7 @@ extern "C" {
     #[doc = "* `thread` - Handle of the thread."]
     #[doc = "* `affinitymask` - Pointer to retrieve the affinity masks from."]
     #[doc = "* `processorcount` - Number of processors."]
+    #[doc = ""]
     pub fn svcSetThreadAffinityMask(
         thread: Handle,
         affinitymask: *const u8_,
@@ -3191,6 +3244,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `processorid` - Pointer to output the ID of the thread's ideal processor to. [Direction: In, Out]"]
     #[doc = "* `thread` - Handle of the thread."]
+    #[doc = ""]
     pub fn svcGetThreadIdealProcessor(processorid: *mut s32, thread: Handle) -> Result;
 }
 extern "C" {
@@ -3201,10 +3255,13 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `thread` - Handle of the thread."]
     #[doc = "* `processorid` - ID of the thread's ideal processor."]
+    #[doc = ""]
     pub fn svcSetThreadIdealProcessor(thread: Handle, processorid: s32) -> Result;
 }
 extern "C" {
     #[doc = "Returns the ID of the processor the current thread is running on."]
+    #[doc = ""]
+    #[doc = "[`svcCreateThread`]"]
     #[doc = ""]
     pub fn svcGetProcessorID() -> s32;
 }
@@ -3216,6 +3273,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `out` - Pointer to output the thread ID of the thread @p handle to. [Direction: In, Out]"]
     #[doc = "* `handle` - Handle of the thread."]
+    #[doc = ""]
     pub fn svcGetThreadId(out: *mut u32_, handle: Handle) -> Result;
 }
 extern "C" {
@@ -3226,6 +3284,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `resourceLimit` - Pointer to output the resource limit set handle to. [Direction: In, Out]"]
     #[doc = "* `process` - Process to get the resource limits of."]
+    #[doc = ""]
     pub fn svcGetResourceLimit(resourceLimit: *mut Handle, process: Handle) -> Result;
 }
 extern "C" {
@@ -3238,6 +3297,7 @@ extern "C" {
     #[doc = "* `resourceLimit` - Resource limit set to use."]
     #[doc = "* `names` - Resource limit names to get the limits of."]
     #[doc = "* `nameCount` - Number of resource limit names."]
+    #[doc = ""]
     pub fn svcGetResourceLimitLimitValues(
         values: *mut s64,
         resourceLimit: Handle,
@@ -3255,6 +3315,7 @@ extern "C" {
     #[doc = "* `resourceLimit` - Resource limit set to use."]
     #[doc = "* `names` - Resource limit names to get the values of."]
     #[doc = "* `nameCount` - Number of resource limit names."]
+    #[doc = ""]
     pub fn svcGetResourceLimitCurrentValues(
         values: *mut s64,
         resourceLimit: Handle,
@@ -3270,6 +3331,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `process` - Process to set the resource limit set to."]
     #[doc = "* `resourceLimit` - Resource limit set handle."]
+    #[doc = ""]
     pub fn svcSetProcessResourceLimits(process: Handle, resourceLimit: Handle) -> Result;
 }
 extern "C" {
@@ -3279,6 +3341,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `resourceLimit` - Pointer to output the resource limit set handle to. [Direction: In, Out]"]
+    #[doc = ""]
     pub fn svcCreateResourceLimit(resourceLimit: *mut Handle) -> Result;
 }
 extern "C" {
@@ -3293,6 +3356,7 @@ extern "C" {
     #[doc = "* `names` - Resource limit names to set the limits of."]
     #[doc = "* `values` - Value limits to set. The high 32 bits of RESLIMIT_COMMIT are used to"]
     #[doc = "* `nameCount` - Number of resource limit names."]
+    #[doc = ""]
     pub fn svcSetResourceLimitValues(
         resourceLimit: Handle,
         names: *const ResourceLimitType,
@@ -3304,10 +3368,13 @@ extern "C" {
     #[must_use]
     #[doc = "Gets the process ID of a thread."]
     #[doc = ""]
+    #[doc = "[`svcOpenProcess`]"]
+    #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `out` - Pointer to output the process ID of the thread @p handle to. [Direction: In, Out]"]
     #[doc = "* `handle` - Handle of the thread."]
+    #[doc = ""]
     pub fn svcGetProcessIdOfThread(out: *mut u32_, handle: Handle) -> Result;
 }
 extern "C" {
@@ -3316,18 +3383,24 @@ extern "C" {
     #[doc = ""]
     #[doc = "This requests always return an error when called, it only checks if the handle is a thread or not."]
     #[doc = ""]
-    #[doc = "Returns: 0xD8E007F7 (BAD_HANDLE) if it isn't."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* 0xD8E007ED (BAD_ENUM) if the Handle is a Thread Handle"]
+    #[doc = "* 0xD8E007F7 (BAD_HANDLE) if it isn't."]
     #[doc = ""]
     pub fn svcGetThreadInfo(out: *mut s64, thread: Handle, type_: ThreadInfoType) -> Result;
 }
 extern "C" {
     #[must_use]
+    #[doc = "# Synchronization"]
+    #[doc = ""]
     #[doc = "Creates a mutex."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `mutex` - Pointer to output the handle of the created mutex to. [Direction: In, Out]"]
     #[doc = "* `initially_locked` - Whether the mutex should be initially locked."]
+    #[doc = ""]
     pub fn svcCreateMutex(mutex: *mut Handle, initially_locked: bool) -> Result;
 }
 extern "C" {
@@ -3337,6 +3410,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `handle` - Handle of the mutex."]
+    #[doc = ""]
     pub fn svcReleaseMutex(handle: Handle) -> Result;
 }
 extern "C" {
@@ -3348,6 +3422,7 @@ extern "C" {
     #[doc = "* `semaphore` - Pointer to output the handle of the created semaphore to. [Direction: In, Out]"]
     #[doc = "* `initial_count` - Initial count of the semaphore."]
     #[doc = "* `max_count` - Maximum count of the semaphore."]
+    #[doc = ""]
     pub fn svcCreateSemaphore(semaphore: *mut Handle, initial_count: s32, max_count: s32)
         -> Result;
 }
@@ -3360,6 +3435,7 @@ extern "C" {
     #[doc = "* `count` - Pointer to output the current count of the semaphore to. [Direction: In, Out]"]
     #[doc = "* `semaphore` - Handle of the semaphore."]
     #[doc = "* `release_count` - Number to increase the semaphore count by."]
+    #[doc = ""]
     pub fn svcReleaseSemaphore(count: *mut s32, semaphore: Handle, release_count: s32) -> Result;
 }
 extern "C" {
@@ -3370,6 +3446,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `event` - Pointer to output the created event handle to. [Direction: In, Out]"]
     #[doc = "* `reset_type` - Type of reset the event uses (RESET_ONESHOT/RESET_STICKY)."]
+    #[doc = ""]
     pub fn svcCreateEvent(event: *mut Handle, reset_type: ResetType) -> Result;
 }
 extern "C" {
@@ -3379,6 +3456,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `handle` - Handle of the event to signal."]
+    #[doc = ""]
     pub fn svcSignalEvent(handle: Handle) -> Result;
 }
 extern "C" {
@@ -3388,6 +3466,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `handle` - Handle of the event to clear."]
+    #[doc = ""]
     pub fn svcClearEvent(handle: Handle) -> Result;
 }
 extern "C" {
@@ -3398,6 +3477,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `handle` - Handle to wait on."]
     #[doc = "* `nanoseconds` - Maximum nanoseconds to wait for."]
+    #[doc = ""]
     pub fn svcWaitSynchronization(handle: Handle, nanoseconds: s64) -> Result;
 }
 extern "C" {
@@ -3411,6 +3491,7 @@ extern "C" {
     #[doc = "* `handles_num` - Number of handles."]
     #[doc = "* `wait_all` - Whether to wait for synchronization on all handles."]
     #[doc = "* `nanoseconds` - Maximum nanoseconds to wait for."]
+    #[doc = ""]
     pub fn svcWaitSynchronizationN(
         out: *mut s32,
         handles: *const Handle,
@@ -3423,22 +3504,34 @@ extern "C" {
     #[must_use]
     #[doc = "Creates an address arbiter"]
     #[doc = ""]
+    #[doc = "[`svcArbitrateAddress`]"]
+    #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `mutex` - Pointer to output the handle of the created address arbiter to. [Direction: In, Out]"]
+    #[doc = ""]
     pub fn svcCreateAddressArbiter(arbiter: *mut Handle) -> Result;
 }
 extern "C" {
     #[must_use]
     #[doc = "Arbitrate an address, can be used for synchronization"]
     #[doc = ""]
+    #[doc = "**Warning!**"]
+    #[doc = ""]
+    #[doc = "* Please use [`syncArbitrateAddressWithTimeout`] instead."]
+    #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `arbiter` - Handle of the arbiter"]
     #[doc = "* `addr` - A pointer to a s32 value."]
     #[doc = "* `type` - Type of action to be performed by the arbiter"]
-    #[doc = "* `value` - Number of threads to signal if using @ref ARBITRATION_SIGNAL, or the value used for comparison."]
-    #[doc = "* `timeout_ns` - Optional timeout in nanoseconds when using TIMEOUT actions, ignored otherwise. If not needed, use \\ref svcArbitrateAddressNoTimeout instead."]
+    #[doc = "* `value` - Number of threads to signal if using [`ARBITRATION_SIGNAL`] or the value used for comparison."]
+    #[doc = "* `timeout_ns` - Optional timeout in nanoseconds when using TIMEOUT actions, ignored otherwise. If not needed, use [`svcArbitrateAddressNoTimeout`] instead."]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* Usage of this syscall entails an implicit Data Memory Barrier (dmb)."]
+    #[doc = ""]
     pub fn svcArbitrateAddress(
         arbiter: Handle,
         addr: u32_,
@@ -3449,14 +3542,23 @@ extern "C" {
 }
 extern "C" {
     #[must_use]
-    #[doc = "Same as \\ref svcArbitrateAddress but with the timeout_ns parameter undefined."]
+    #[doc = "Same as [`svcArbitrateAddress`] but with the timeout_ns parameter undefined."]
+    #[doc = ""]
+    #[doc = "**Warning!**"]
+    #[doc = ""]
+    #[doc = "* Please use [`syncArbitrateAddress`] instead."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `arbiter` - Handle of the arbiter"]
     #[doc = "* `addr` - A pointer to a s32 value."]
     #[doc = "* `type` - Type of action to be performed by the arbiter"]
-    #[doc = "* `value` - Number of threads to signal if using @ref ARBITRATION_SIGNAL, or the value used for comparison."]
+    #[doc = "* `value` - Number of threads to signal if using [`ARBITRATION_SIGNAL`] or the value used for comparison."]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* Usage of this syscall entails an implicit Data Memory Barrier (dmb)."]
+    #[doc = ""]
     pub fn svcArbitrateAddressNoTimeout(
         arbiter: Handle,
         addr: u32_,
@@ -3471,6 +3573,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `session` - Handle of the session."]
+    #[doc = ""]
     pub fn svcSendSyncRequest(session: Handle) -> Result;
 }
 extern "C" {
@@ -3481,6 +3584,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `clientSession` - Pointer to output the client session handle to. [Direction: In, Out]"]
     #[doc = "* `clientPort` - Port client endpoint to connect to."]
+    #[doc = ""]
     pub fn svcCreateSessionToPort(clientSession: *mut Handle, clientPort: Handle) -> Result;
 }
 extern "C" {
@@ -3491,6 +3595,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `serverSession` - Pointer to output the created server endpoint handle to. [Direction: In, Out]"]
     #[doc = "* `clientSession` - Pointer to output the created client endpoint handle to. [Direction: In, Out]"]
+    #[doc = ""]
     pub fn svcCreateSession(serverSession: *mut Handle, clientSession: *mut Handle) -> Result;
 }
 extern "C" {
@@ -3501,6 +3606,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `session` - Pointer to output the created session handle to. [Direction: In, Out]"]
     #[doc = "* `port` - Handle of the port to accept a session from."]
+    #[doc = ""]
     pub fn svcAcceptSession(session: *mut Handle, port: Handle) -> Result;
 }
 extern "C" {
@@ -3513,6 +3619,7 @@ extern "C" {
     #[doc = "* `handles` - Session handles to receive requests from."]
     #[doc = "* `handleCount` - Number of handles."]
     #[doc = "* `replyTarget` - Handle of the session to reply to."]
+    #[doc = ""]
     pub fn svcReplyAndReceive(
         index: *mut s32,
         handles: *const Handle,
@@ -3522,12 +3629,15 @@ extern "C" {
 }
 extern "C" {
     #[must_use]
+    #[doc = "# Time"]
+    #[doc = ""]
     #[doc = "Creates a timer."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `timer` - Pointer to output the handle of the created timer to. [Direction: In, Out]"]
     #[doc = "* `reset_type` - Type of reset to perform on the timer."]
+    #[doc = ""]
     pub fn svcCreateTimer(timer: *mut Handle, reset_type: ResetType) -> Result;
 }
 extern "C" {
@@ -3539,6 +3649,7 @@ extern "C" {
     #[doc = "* `timer` - Handle of the timer to set."]
     #[doc = "* `initial` - Initial value of the timer."]
     #[doc = "* `interval` - Interval of the timer."]
+    #[doc = ""]
     pub fn svcSetTimer(timer: Handle, initial: s64, interval: s64) -> Result;
 }
 extern "C" {
@@ -3548,6 +3659,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `timer` - Handle of the timer to cancel."]
+    #[doc = ""]
     pub fn svcCancelTimer(timer: Handle) -> Result;
 }
 extern "C" {
@@ -3557,22 +3669,28 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `timer` - Handle of the timer to clear."]
+    #[doc = ""]
     pub fn svcClearTimer(timer: Handle) -> Result;
 }
 extern "C" {
     #[doc = "Gets the current system tick."]
     #[doc = ""]
-    #[doc = "Returns: The current system tick."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The current system tick."]
     #[doc = ""]
     pub fn svcGetSystemTick() -> u64_;
 }
 extern "C" {
     #[must_use]
+    #[doc = "# System"]
+    #[doc = ""]
     #[doc = "Closes a handle."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `handle` - Handle to close."]
+    #[doc = ""]
     pub fn svcCloseHandle(handle: Handle) -> Result;
 }
 extern "C" {
@@ -3583,6 +3701,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `out` - Pointer to output the duplicated handle to. [Direction: In, Out]"]
     #[doc = "* `original` - Handle to duplicate."]
+    #[doc = ""]
     pub fn svcDuplicateHandle(out: *mut Handle, original: Handle) -> Result;
 }
 extern "C" {
@@ -3594,6 +3713,7 @@ extern "C" {
     #[doc = "* `out` - Pointer to output the handle info to. [Direction: In, Out]"]
     #[doc = "* `handle` - Handle to get the info for."]
     #[doc = "* `param` - Parameter clarifying the handle info type."]
+    #[doc = ""]
     pub fn svcGetHandleInfo(out: *mut s64, handle: Handle, param: u32_) -> Result;
 }
 extern "C" {
@@ -3605,6 +3725,7 @@ extern "C" {
     #[doc = "* `out` - Pointer to output the system info to. [Direction: In, Out]"]
     #[doc = "* `type` - Type of system info to retrieve."]
     #[doc = "* `param` - Parameter clarifying the system info type."]
+    #[doc = ""]
     pub fn svcGetSystemInfo(out: *mut s64, type_: u32_, param: s32) -> Result;
 }
 extern "C" {
@@ -3614,6 +3735,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `type` - Type of state to set (the other parameters depend on it)."]
+    #[doc = ""]
     pub fn svcKernelSetState(type_: u32_, ...) -> Result;
 }
 extern "C" {
@@ -3622,10 +3744,11 @@ extern "C" {
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
-    #[doc = "* `interruptId` - Interrupt identfier (see https://www.3dbrew.org/wiki/ARM11_Interrupts)."]
+    #[doc = "* `interruptId` - Interrupt identfier (see <https://www.3dbrew.org/wiki/ARM11_Interrupts)>"]
     #[doc = "* `eventOrSemaphore` - Event or semaphore handle to bind to the given interrupt."]
     #[doc = "* `priority` - Priority of the interrupt for the current process."]
     #[doc = "* `isManualClear` - Indicates whether the interrupt has to be manually cleared or not (= level-high active)."]
+    #[doc = ""]
     pub fn svcBindInterrupt(
         interruptId: u32_,
         eventOrSemaphore: Handle,
@@ -3639,8 +3762,9 @@ extern "C" {
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
-    #[doc = "* `interruptId` - Interrupt identfier, see (see https://www.3dbrew.org/wiki/ARM11_Interrupts)."]
+    #[doc = "* `interruptId` - Interrupt identfier, see (see <https://www.3dbrew.org/wiki/ARM11_Interrupts)>"]
     #[doc = "* `eventOrSemaphore` - Event or semaphore handle to unbind from the given interrupt."]
+    #[doc = ""]
     pub fn svcUnbindInterrupt(interruptId: u32_, eventOrSemaphore: Handle) -> Result;
 }
 extern "C" {
@@ -3652,6 +3776,7 @@ extern "C" {
     #[doc = "* `process` - Handle of the process."]
     #[doc = "* `addr` - Address to invalidate."]
     #[doc = "* `size` - Size of the memory to invalidate."]
+    #[doc = ""]
     pub fn svcInvalidateProcessDataCache(process: Handle, addr: u32_, size: u32_) -> Result;
 }
 extern "C" {
@@ -3663,6 +3788,7 @@ extern "C" {
     #[doc = "* `process` - Handle of the process."]
     #[doc = "* `addr` - Address to clean."]
     #[doc = "* `size` - Size of the memory to clean."]
+    #[doc = ""]
     pub fn svcStoreProcessDataCache(process: Handle, addr: u32_, size: u32_) -> Result;
 }
 extern "C" {
@@ -3674,6 +3800,7 @@ extern "C" {
     #[doc = "* `process` - Handle of the process."]
     #[doc = "* `addr` - Address to flush."]
     #[doc = "* `size` - Size of the memory to flush."]
+    #[doc = ""]
     pub fn svcFlushProcessDataCache(process: Handle, addr: u32_, size: u32_) -> Result;
 }
 extern "C" {
@@ -3689,6 +3816,11 @@ extern "C" {
     #[doc = "* `srcAddr` - Address in the source to read data from."]
     #[doc = "* `size` - Size of the data to transfer."]
     #[doc = "* `cfg` - Configuration structure."]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* The handle is signaled when the transfer finishes."]
+    #[doc = ""]
     pub fn svcStartInterProcessDma(
         dma: *mut Handle,
         dstProcess: Handle,
@@ -3706,6 +3838,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `dma` - Handle of the DMA channel object."]
+    #[doc = ""]
     pub fn svcStopDma(dma: Handle) -> Result;
 }
 extern "C" {
@@ -3716,6 +3849,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `state` - Pointer to output the state of the DMA transfer to. [Direction: In, Out]"]
     #[doc = "* `dma` - Handle of the DMA channel object."]
+    #[doc = ""]
     pub fn svcGetDmaState(state: *mut DmaState, dma: Handle) -> Result;
 }
 extern "C" {
@@ -3729,7 +3863,12 @@ extern "C" {
     #[doc = "* `dstAddr` - Address in the destination process to write data to."]
     #[doc = "* `srcAddr` - Address in the source to read data from."]
     #[doc = "* `size` - Size of the data to transfer."]
-    #[doc = "* `flags` - Restart flags, \\ref DMARST_UNLOCK and/or \\ref DMARST_RESUME_DEVICE."]
+    #[doc = "* `flags` - Restart flags, [`DMARST_UNLOCK`] and/or [`DMARST_RESUME_DEVICE`]"]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* The first transfer has to be configured with [`DMACFG_KEEP_LOCKED`]"]
+    #[doc = ""]
     pub fn svcRestartDma(
         dma: Handle,
         dstAddr: u32_,
@@ -3745,6 +3884,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `useApplicationRestriction` - Whether to use the register value used for APPLICATION titles."]
+    #[doc = ""]
     pub fn svcSetGpuProt(useApplicationRestriction: bool) -> Result;
 }
 extern "C" {
@@ -3754,14 +3894,18 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `enabled` - Whether to enable or disable Wi-Fi."]
+    #[doc = ""]
     pub fn svcSetWifiEnabled(enabled: bool) -> Result;
 }
 extern "C" {
+    #[doc = "# Debugging"]
+    #[doc = ""]
     #[doc = "Breaks execution."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `breakReason` - Reason for breaking."]
+    #[doc = ""]
     pub fn svcBreak(breakReason: UserBreakType);
 }
 extern "C" {
@@ -3772,6 +3916,7 @@ extern "C" {
     #[doc = "* `breakReason` - Debug reason for breaking."]
     #[doc = "* `croInfo` - Library information."]
     #[doc = "* `croInfoSize` - Size of the above structure."]
+    #[doc = ""]
     pub fn svcBreakRO(
         breakReason: UserBreakType,
         croInfo: *const ::libc::c_void,
@@ -3786,6 +3931,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `str` - String to output."]
     #[doc = "* `length` - Length of the string to output, needs to be positive."]
+    #[doc = ""]
     pub fn svcOutputDebugString(str_: *const ::libc::c_char, length: s32) -> Result;
 }
 extern "C" {
@@ -3794,20 +3940,20 @@ extern "C" {
     #[doc = ""]
     #[doc = "The meaning of the parameters depend on the operation."]
     #[doc = "The operations are the following:"]
-    #[doc = "- \\ref PERFCOUNTEROP_ENABLE (void) -> void, tries to enable and lock perfmon. functionality."]
-    #[doc = "- \\ref PERFCOUNTEROP_DISABLE (void) -> void, disable and forcibly unlocks perfmon. functionality."]
-    #[doc = "- \\ref PERFCOUNTEROP_GET_VALUE (\\ref PerfCounterRegister reg) -> u64, gets the value of a particular counter register."]
-    #[doc = "- \\ref PERFCOUNTEROP_SET_VALUE (\\ref PerfCounterRegister reg, u64 value) -> void, sets the value of a particular counter register."]
-    #[doc = "- \\ref PERFCOUNTEROP_GET_OVERFLOW_FLAGS (void) -> u32, gets the overflow flags of all CP15 and SCU registers."]
-    #[doc = "- Format is a bitfield of \\ref PerfCounterRegister."]
-    #[doc = "- \\ref PERFCOUNTEROP_RESET (u32 valueResetMask, u32 overflowFlagResetMask) -> void, resets the value and/or"]
+    #[doc = "- [`PERFCOUNTEROP_ENABLE`] (void) -> void, tries to enable and lock perfmon. functionality."]
+    #[doc = "- [`PERFCOUNTEROP_DISABLE`] (void) -> void, disable and forcibly unlocks perfmon. functionality."]
+    #[doc = "- [`PERFCOUNTEROP_GET_VALUE`] [`PerfCounterRegister`] reg) -> u64, gets the value of a particular counter register."]
+    #[doc = "- [`PERFCOUNTEROP_SET_VALUE`] [`PerfCounterRegister`] reg, u64 value) -> void, sets the value of a particular counter register."]
+    #[doc = "- [`PERFCOUNTEROP_GET_OVERFLOW_FLAGS`] (void) -> u32, gets the overflow flags of all CP15 and SCU registers."]
+    #[doc = "- Format is a bitfield of [`PerfCounterRegister`]"]
+    #[doc = "- [`PERFCOUNTEROP_RESET`] (u32 valueResetMask, u32 overflowFlagResetMask) -> void, resets the value and/or"]
     #[doc = "overflow flags of selected registers."]
-    #[doc = "- Format is two bitfields of \\ref PerfCounterRegister."]
-    #[doc = "- \\ref PERFCOUNTEROP_GET_EVENT (\\ref PerfCounterRegister reg) -> \\ref PerfCounterEvent, gets the event associated"]
+    #[doc = "- Format is two bitfields of [`PerfCounterRegister`]"]
+    #[doc = "- [`PERFCOUNTEROP_GET_EVENT`] [`PerfCounterRegister`] reg) -> [`PerfCounterEvent`] gets the event associated"]
     #[doc = "to a particular counter register."]
-    #[doc = "- \\ref PERFCOUNTEROP_SET_EVENT (\\ref PerfCounterRegister reg, \\ref PerfCounterEvent) -> void, sets the event associated"]
+    #[doc = "- [`PERFCOUNTEROP_SET_EVENT`] [`PerfCounterRegister`] reg, [`PerfCounterEvent)`] -> void, sets the event associated"]
     #[doc = "to a particular counter register."]
-    #[doc = "- \\ref PERFCOUNTEROP_SET_VIRTUAL_COUNTER_ENABLED (bool enabled) -> void, (dis)allows the kernel to track counter overflows"]
+    #[doc = "- [`PERFCOUNTEROP_SET_VIRTUAL_COUNTER_ENABLED`] (bool enabled) -> void, (dis)allows the kernel to track counter overflows"]
     #[doc = "and to use 64-bit counter values."]
     #[doc = ""]
     #[doc = "# Arguments"]
@@ -3816,6 +3962,7 @@ extern "C" {
     #[doc = "* `op` - Operation, see details."]
     #[doc = "* `param1` - First parameter."]
     #[doc = "* `param2` - Second parameter."]
+    #[doc = ""]
     pub fn svcControlPerformanceCounter(
         out: *mut u64_,
         op: PerfCounterOperation,
@@ -3831,6 +3978,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `debug` - Pointer to output the created debug handle to. [Direction: In, Out]"]
     #[doc = "* `processId` - ID of the process to debug."]
+    #[doc = ""]
     pub fn svcDebugActiveProcess(debug: *mut Handle, processId: u32_) -> Result;
 }
 extern "C" {
@@ -3840,6 +3988,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `debug` - Debug handle of the process."]
+    #[doc = ""]
     pub fn svcBreakDebugProcess(debug: Handle) -> Result;
 }
 extern "C" {
@@ -3849,6 +3998,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `debug` - Debug handle of the process."]
+    #[doc = ""]
     pub fn svcTerminateDebugProcess(debug: Handle) -> Result;
 }
 extern "C" {
@@ -3859,28 +4009,31 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `info` - Pointer to output the debug event information to. [Direction: In, Out]"]
     #[doc = "* `debug` - Debug handle of the process."]
+    #[doc = ""]
     pub fn svcGetProcessDebugEvent(info: *mut DebugEventInfo, debug: Handle) -> Result;
 }
 extern "C" {
     #[must_use]
-    #[doc = "Continues the current debug event of a debugged process (not necessarily the same as @ref svcGetProcessDebugEvent)."]
+    #[doc = "Continues the current debug event of a debugged process (not necessarily the same as [`svcGetProcessDebugEvent)`]"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `debug` - Debug handle of the process."]
-    #[doc = "* `flags` - Flags to continue with, see @ref DebugFlags."]
+    #[doc = "* `flags` - Flags to continue with, see [`DebugFlags`]"]
+    #[doc = ""]
     pub fn svcContinueDebugEvent(debug: Handle, flags: DebugFlags) -> Result;
 }
 extern "C" {
     #[must_use]
-    #[doc = "Fetches the saved registers of a thread, either inactive or awaiting @ref svcContinueDebugEvent, belonging to a debugged process."]
+    #[doc = "Fetches the saved registers of a thread, either inactive or awaiting [`svcContinueDebugEvent`] belonging to a debugged process."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
-    #[doc = "* `context` - Values of the registers to fetch, see @ref ThreadContext. [Direction: In, Out]"]
+    #[doc = "* `context` - Values of the registers to fetch, see [`ThreadContext`] [Direction: In, Out]"]
     #[doc = "* `debug` - Debug handle of the parent process."]
     #[doc = "* `threadId` - ID of the thread to fetch the saved registers of."]
-    #[doc = "* `controlFlags` - Which registers to fetch, see @ref ThreadContextControlFlags."]
+    #[doc = "* `controlFlags` - Which registers to fetch, see [`ThreadContextControlFlags`]"]
+    #[doc = ""]
     pub fn svcGetDebugThreadContext(
         context: *mut ThreadContext,
         debug: Handle,
@@ -3890,14 +4043,15 @@ extern "C" {
 }
 extern "C" {
     #[must_use]
-    #[doc = "Updates the saved registers of a thread, either inactive or awaiting @ref svcContinueDebugEvent, belonging to a debugged process."]
+    #[doc = "Updates the saved registers of a thread, either inactive or awaiting [`svcContinueDebugEvent`] belonging to a debugged process."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `debug` - Debug handle of the parent process."]
     #[doc = "* `threadId` - ID of the thread to update the saved registers of."]
-    #[doc = "* `context` - Values of the registers to update, see @ref ThreadContext."]
-    #[doc = "* `controlFlags` - Which registers to update, see @ref ThreadContextControlFlags."]
+    #[doc = "* `context` - Values of the registers to update, see [`ThreadContext`]"]
+    #[doc = "* `controlFlags` - Which registers to update, see [`ThreadContextControlFlags`]"]
+    #[doc = ""]
     pub fn svcSetDebugThreadContext(
         debug: Handle,
         threadId: u32_,
@@ -3915,6 +4069,7 @@ extern "C" {
     #[doc = "* `out` - Pointer to output page info to. [Direction: In, Out]"]
     #[doc = "* `debug` - Debug handle of the process to query memory from."]
     #[doc = "* `addr` - Virtual memory address to query."]
+    #[doc = ""]
     pub fn svcQueryDebugProcessMemory(
         info: *mut MemInfo,
         out: *mut PageInfo,
@@ -3932,6 +4087,7 @@ extern "C" {
     #[doc = "* `debug` - Debug handle of the process."]
     #[doc = "* `addr` - Address to read from."]
     #[doc = "* `size` - Size of the memory to read."]
+    #[doc = ""]
     pub fn svcReadProcessMemory(
         buffer: *mut ::libc::c_void,
         debug: Handle,
@@ -3949,6 +4105,7 @@ extern "C" {
     #[doc = "* `buffer` - Buffer to write data from."]
     #[doc = "* `addr` - Address to write to."]
     #[doc = "* `size` - Size of the memory to write."]
+    #[doc = ""]
     pub fn svcWriteProcessMemory(
         debug: Handle,
         buffer: *const ::libc::c_void,
@@ -3958,13 +4115,14 @@ extern "C" {
 }
 extern "C" {
     #[must_use]
-    #[doc = "Sets an hardware breakpoint or watchpoint. This is an interface to the BRP/WRP registers, see http://infocenter.arm.com/help/topic/com.arm.doc.ddi0360f/CEGEBGFC.html ."]
+    #[doc = "Sets an hardware breakpoint or watchpoint. This is an interface to the BRP/WRP registers, see <http://infocenter.arm.com/help/topic/com.arm.doc.ddi0360f/CEGEBGFC.html> ."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `registerId` - range 0..5 = breakpoints (BRP0-5), 0x100..0x101 = watchpoints (WRP0-1). The previous stop point for the register is disabled."]
     #[doc = "* `control` - Value of the control regiser."]
     #[doc = "* `value` - Value of the value register: either and address (if bit21 of control is clear) or the debug handle of a process to fetch the context ID of."]
+    #[doc = ""]
     pub fn svcSetHardwareBreakPoint(registerId: s32, control: u32_, value: u32_) -> Result;
 }
 extern "C" {
@@ -3977,7 +4135,8 @@ extern "C" {
     #[doc = "* `out` - Output value. [Direction: In, Out]"]
     #[doc = "* `debug` - Debug handle of the process."]
     #[doc = "* `threadId` - ID of the thread"]
-    #[doc = "* `parameter` - Parameter to fetch, see @ref DebugThreadParameter."]
+    #[doc = "* `parameter` - Parameter to fetch, see [`DebugThreadParameter`]"]
+    #[doc = ""]
     pub fn svcGetDebugThreadParam(
         unused: *mut s64,
         out: *mut u32_,
@@ -3993,6 +4152,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `callback` - Function to execute."]
+    #[doc = ""]
     pub fn svcBackdoor(callback: ::core::option::Option<unsafe extern "C" fn() -> s32>) -> Result;
 }
 #[doc = "Mount \"nand:/\""]
@@ -4256,22 +4416,22 @@ pub struct ExHeader_CodeSetInfo {
     #[doc = "Title name"]
     #[doc = ""]
     pub name: [::libc::c_char; 8usize],
-    #[doc = "System info flags, see @ref ExHeader_SystemInfoFlags"]
+    #[doc = "System info flags, see [`ExHeader_SystemInfoFlags`]"]
     #[doc = ""]
     pub flags: ExHeader_SystemInfoFlags,
-    #[doc = ".text section info, see @ref ExHeader_CodeSectionInfo"]
+    #[doc = ".text section info, see [`ExHeader_CodeSectionInfo`]"]
     #[doc = ""]
     pub text: ExHeader_CodeSectionInfo,
     #[doc = "Stack size"]
     #[doc = ""]
     pub stack_size: u32_,
-    #[doc = ".rodata section info, see @ref ExHeader_CodeSectionInfo"]
+    #[doc = ".rodata section info, see [`ExHeader_CodeSectionInfo`]"]
     #[doc = ""]
     pub rodata: ExHeader_CodeSectionInfo,
     #[doc = "Reserved"]
     #[doc = ""]
     pub reserved: u32_,
-    #[doc = ".data section info, see @ref ExHeader_CodeSectionInfo"]
+    #[doc = ".data section info, see [`ExHeader_CodeSectionInfo`]"]
     #[doc = ""]
     pub data: ExHeader_CodeSectionInfo,
     #[doc = ".bss section size"]
@@ -4307,13 +4467,13 @@ impl Default for ExHeader_SystemInfo {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct ExHeader_SystemControlInfo {
-    #[doc = "Code set info, see @ref ExHeader_CodeSetInfo"]
+    #[doc = "Code set info, see [`ExHeader_CodeSetInfo`]"]
     #[doc = ""]
     pub codeset_info: ExHeader_CodeSetInfo,
     #[doc = "Title IDs of the titles that this program depends on"]
     #[doc = ""]
     pub dependencies: [u64_; 48usize],
-    #[doc = "System info, see @ref ExHeader_SystemInfo"]
+    #[doc = "System info, see [`ExHeader_SystemInfo`]"]
     #[doc = ""]
     pub system_info: ExHeader_SystemInfo,
 }
@@ -4571,13 +4731,13 @@ pub struct ExHeader_Arm11SystemLocalCapabilities {
     #[doc = "Title ID"]
     #[doc = ""]
     pub title_id: u64_,
-    #[doc = "Core info, see @ref ExHeader_Arm11CoreInfo"]
+    #[doc = "Core info, see [`ExHeader_Arm11CoreInfo`]"]
     #[doc = ""]
     pub core_info: ExHeader_Arm11CoreInfo,
     #[doc = "Resource limit descriptors, only \"CpuTime\" (first byte) sems to be used"]
     #[doc = ""]
     pub reslimits: [u16_; 16usize],
-    #[doc = "Storage info, see @ref ExHeader_Arm11StorageInfo"]
+    #[doc = "Storage info, see [`ExHeader_Arm11StorageInfo`]"]
     #[doc = ""]
     pub storage_info: ExHeader_Arm11StorageInfo,
     #[doc = "List of the services the title has access to. Limited to 32 prior to system version 9.3"]
@@ -4586,7 +4746,7 @@ pub struct ExHeader_Arm11SystemLocalCapabilities {
     #[doc = "Reserved"]
     #[doc = ""]
     pub reserved: [u8_; 15usize],
-    #[doc = "Resource limit category, see @ref ExHeader_Arm11SystemLocalCapabilities"]
+    #[doc = "Resource limit category, see [`ExHeader_Arm11SystemLocalCapabilities`]"]
     #[doc = ""]
     pub reslimit_category: ResourceLimitCategory,
 }
@@ -4628,13 +4788,13 @@ pub struct ExHeader_Arm9AccessControl {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct ExHeader_AccessControlInfo {
-    #[doc = "ARM11 system-local capabilities, see @ref ExHeader_Arm11SystemLocalCapabilities"]
+    #[doc = "ARM11 system-local capabilities, see [`ExHeader_Arm11SystemLocalCapabilities`]"]
     #[doc = ""]
     pub local_caps: ExHeader_Arm11SystemLocalCapabilities,
-    #[doc = "ARM11 kernel capabilities, see @ref ExHeader_Arm11SystemLocalCapabilities"]
+    #[doc = "ARM11 kernel capabilities, see [`ExHeader_Arm11SystemLocalCapabilities`]"]
     #[doc = ""]
     pub kernel_caps: ExHeader_Arm11KernelCapabilities,
-    #[doc = "ARM9 access control, see @ref ExHeader_Arm9AccessControl"]
+    #[doc = "ARM9 access control, see [`ExHeader_Arm9AccessControl`]"]
     #[doc = ""]
     pub access_control: ExHeader_Arm9AccessControl,
 }
@@ -4652,10 +4812,10 @@ impl Default for ExHeader_AccessControlInfo {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct ExHeader_Info {
-    #[doc = "System control info, see @ref ExHeader_SystemControlInfo"]
+    #[doc = "System control info, see [`ExHeader_SystemControlInfo`]"]
     #[doc = ""]
     pub sci: ExHeader_SystemControlInfo,
-    #[doc = "Access control info, see @ref ExHeader_AccessControlInfo"]
+    #[doc = "Access control info, see [`ExHeader_AccessControlInfo`]"]
     #[doc = ""]
     pub aci: ExHeader_AccessControlInfo,
 }
@@ -4679,7 +4839,7 @@ pub struct ExHeader_AccessDescriptor {
     #[doc = "The modulus used for the above signature, with 65537 as public exponent"]
     #[doc = ""]
     pub ncchModulus: [u8_; 256usize],
-    #[doc = "This is compared for equality with the first ACI by Process9, see @ref ExHeader_AccessControlInfo"]
+    #[doc = "This is compared for equality with the first ACI by Process9, see [`ExHeader_AccessControlInfo`]"]
     #[doc = ""]
     pub acli: ExHeader_AccessControlInfo,
 }
@@ -4697,10 +4857,10 @@ impl Default for ExHeader_AccessDescriptor {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct ExHeader {
-    #[doc = "Main extended header data, see @ref ExHeader_Info"]
+    #[doc = "Main extended header data, see [`ExHeader_Info`]"]
     #[doc = ""]
     pub info: ExHeader_Info,
-    #[doc = "Access descriptor, see @ref ExHeader_AccessDescriptor"]
+    #[doc = "Access descriptor, see [`ExHeader_AccessDescriptor`]"]
     #[doc = ""]
     pub access_descriptor: ExHeader_AccessDescriptor,
 }
@@ -4733,12 +4893,15 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `blocking` - Whether srvGetServiceHandle should be non-blocking."]
+    #[doc = ""]
     pub fn srvSetBlockingPolicy(nonBlocking: bool);
 }
 extern "C" {
     #[doc = "Gets the current service API session handle."]
     #[doc = ""]
-    #[doc = "Returns: The current service API session handle."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The current service API session handle."]
     #[doc = ""]
     pub fn srvGetSessionHandle() -> *mut Handle;
 }
@@ -4747,14 +4910,17 @@ extern "C" {
     #[doc = "Retrieves a service handle, retrieving from the environment handle list if possible."]
     #[doc = ""]
     #[doc = "0xD8E06406 if the caller has no right to access the service,"]
-    #[doc = "0xD0401834 if the requested service port is full and srvGetServiceHandle is non-blocking (see @ref srvSetBlockingPolicy)."]
+    #[doc = "0xD0401834 if the requested service port is full and srvGetServiceHandle is non-blocking (see [`srvSetBlockingPolicy)`]"]
     #[doc = ""]
-    #[doc = "Returns: 0 if no error occured,"]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* 0 if no error occured,"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `out` - Pointer to write the handle to."]
     #[doc = "* `name` - Name of the service."]
+    #[doc = ""]
     pub fn srvGetServiceHandle(out: *mut Handle, name: *const ::libc::c_char) -> Result;
 }
 extern "C" {
@@ -4770,6 +4936,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `semaphoreOut` - Pointer to output the notification semaphore to."]
+    #[doc = ""]
     pub fn srvEnableNotification(semaphoreOut: *mut Handle) -> Result;
 }
 extern "C" {
@@ -4781,6 +4948,7 @@ extern "C" {
     #[doc = "* `out` - Pointer to write the service handle to."]
     #[doc = "* `name` - Name of the service."]
     #[doc = "* `maxSessions` - Maximum number of sessions the service can handle."]
+    #[doc = ""]
     pub fn srvRegisterService(
         out: *mut Handle,
         name: *const ::libc::c_char,
@@ -4794,6 +4962,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `name` - Name of the service."]
+    #[doc = ""]
     pub fn srvUnregisterService(name: *const ::libc::c_char) -> Result;
 }
 extern "C" {
@@ -4801,14 +4970,17 @@ extern "C" {
     #[doc = "Retrieves a service handle."]
     #[doc = ""]
     #[doc = "0xD8E06406 if the caller has no right to access the service,"]
-    #[doc = "0xD0401834 if the requested service port is full and srvGetServiceHandle is non-blocking (see @ref srvSetBlockingPolicy)."]
+    #[doc = "0xD0401834 if the requested service port is full and srvGetServiceHandle is non-blocking (see [`srvSetBlockingPolicy)`]"]
     #[doc = ""]
-    #[doc = "Returns: 0 if no error occured,"]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* 0 if no error occured,"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `out` - Pointer to output the handle to."]
     #[doc = "* `name` - Name of the service."]
+    #[doc = ""]
     pub fn srvGetServiceHandleDirect(out: *mut Handle, name: *const ::libc::c_char) -> Result;
 }
 extern "C" {
@@ -4819,6 +4991,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `name` - Name of the port."]
     #[doc = "* `clientHandle` - Client handle of the port."]
+    #[doc = ""]
     pub fn srvRegisterPort(name: *const ::libc::c_char, clientHandle: Handle) -> Result;
 }
 extern "C" {
@@ -4828,6 +5001,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `name` - Name of the port."]
+    #[doc = ""]
     pub fn srvUnregisterPort(name: *const ::libc::c_char) -> Result;
 }
 extern "C" {
@@ -4838,6 +5012,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `out` - Pointer to output the handle to."]
     #[doc = "* `name` - Name of the port."]
+    #[doc = ""]
     pub fn srvGetPort(out: *mut Handle, name: *const ::libc::c_char) -> Result;
 }
 extern "C" {
@@ -4847,6 +5022,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `name` - Name of the port to wait for registration."]
+    #[doc = ""]
     pub fn srvWaitForPortRegistered(name: *const ::libc::c_char) -> Result;
 }
 extern "C" {
@@ -4856,6 +5032,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `notificationId` - ID of the notification."]
+    #[doc = ""]
     pub fn srvSubscribe(notificationId: u32_) -> Result;
 }
 extern "C" {
@@ -4865,6 +5042,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `notificationId` - ID of the notification."]
+    #[doc = ""]
     pub fn srvUnsubscribe(notificationId: u32_) -> Result;
 }
 extern "C" {
@@ -4874,6 +5052,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `notificationIdOut` - Pointer to output the ID of the received notification to."]
+    #[doc = ""]
     pub fn srvReceiveNotification(notificationIdOut: *mut u32_) -> Result;
 }
 extern "C" {
@@ -4884,6 +5063,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `notificationId` - ID of the notification."]
     #[doc = "* `flags` - Flags to publish with. (bit 0 = only fire if not fired, bit 1 = do not report an error if there are more than 16 pending notifications)"]
+    #[doc = ""]
     pub fn srvPublishToSubscriber(notificationId: u32_, flags: u32_) -> Result;
 }
 extern "C" {
@@ -4895,6 +5075,7 @@ extern "C" {
     #[doc = "* `processIdCountOut` - Pointer to output the number of process IDs to."]
     #[doc = "* `processIdsOut` - Pointer to output the process IDs to. Should have size \"60 * sizeof(u32)\"."]
     #[doc = "* `notificationId` - ID of the notification."]
+    #[doc = ""]
     pub fn srvPublishAndGetSubscriber(
         processIdCountOut: *mut u32_,
         processIdsOut: *mut u32_,
@@ -4909,6 +5090,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `registeredOut` - Pointer to output the registration status to."]
     #[doc = "* `name` - Name of the service to check."]
+    #[doc = ""]
     pub fn srvIsServiceRegistered(registeredOut: *mut bool, name: *const ::libc::c_char) -> Result;
 }
 extern "C" {
@@ -4919,6 +5101,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `registeredOut` - Pointer to output the registration status to."]
     #[doc = "* `name` - Name of the port to check."]
+    #[doc = ""]
     pub fn srvIsPortRegistered(registeredOut: *mut bool, name: *const ::libc::c_char) -> Result;
 }
 #[doc = "For generic errors. Shows miscellaneous info."]
@@ -5087,7 +5270,9 @@ extern "C" {
 extern "C" {
     #[doc = "Gets the current err:f API session handle."]
     #[doc = ""]
-    #[doc = "Returns: The current err:f API session handle."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The current err:f API session handle."]
     #[doc = ""]
     pub fn errfGetSessionHandle() -> *mut Handle;
 }
@@ -5095,68 +5280,62 @@ extern "C" {
     #[must_use]
     #[doc = "Throws a system error and possibly results in ErrDisp triggering."]
     #[doc = ""]
-    #[doc = ""]
     #[doc = "After performing this, the system may panic and need to be rebooted. Extra information will be displayed on the"]
     #[doc = "top screen with a developer console or the proper patches in a CFW applied."]
-    #[doc = ""]
     #[doc = "The error may not be shown and execution aborted until errfExit(void) is called."]
-    #[doc = ""]
     #[doc = "You may wish to use ERRF_ThrowResult() or ERRF_ThrowResultWithMessage() instead of"]
     #[doc = "constructing the ERRF_FatalErrInfo struct yourself."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `error` - Error to throw. [Direction: In]"]
+    #[doc = ""]
     pub fn ERRF_Throw(error: *const ERRF_FatalErrInfo) -> Result;
 }
 extern "C" {
     #[must_use]
     #[doc = "Throws a system error with the given Result code."]
     #[doc = ""]
-    #[doc = ""]
     #[doc = "This calls ERRF_Throw() with error type ERRF_ERRTYPE_GENERIC and fills in the required data."]
-    #[doc = ""]
     #[doc = "This function \\em does fill in the address where this function was called from."]
-    #[doc = ""]
-    #[doc = "See https://3dbrew.org/wiki/ERR:Throw#Generic for expected top screen output"]
+    #[doc = "See <https://3dbrew.org/wiki/ERR:Throw#Generic> for expected top screen output"]
     #[doc = "on development units/patched ErrDisp."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `failure` - Result code to throw. [Direction: In]"]
+    #[doc = ""]
     pub fn ERRF_ThrowResult(failure: Result) -> Result;
 }
 extern "C" {
     #[must_use]
     #[doc = "Throws a system error with the given Result code and message."]
     #[doc = ""]
-    #[doc = ""]
     #[doc = "This calls ERRF_Throw() with error type ERRF_ERRTYPE_FAILURE and fills in the required data."]
-    #[doc = ""]
     #[doc = "This function does \\em not fill in the address where this function was called from because it"]
     #[doc = "would not be displayed."]
-    #[doc = ""]
     #[doc = "The message is only displayed on development units/patched ErrDisp."]
-    #[doc = ""]
-    #[doc = "See https://3dbrew.org/wiki/ERR:Throw#Result_Failure for expected top screen output"]
+    #[doc = "See <https://3dbrew.org/wiki/ERR:Throw#Result_Failure> for expected top screen output"]
     #[doc = "on development units/patched ErrDisp."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `failure` - Result code to throw. [Direction: In]"]
     #[doc = "* `message` - The message to display. [Direction: In]"]
+    #[doc = ""]
     pub fn ERRF_ThrowResultWithMessage(failure: Result, message: *const ::libc::c_char) -> Result;
 }
 extern "C" {
     #[doc = "Handles an exception using ErrDisp."]
     #[doc = ""]
-    #[doc = ""]
     #[doc = "You might want to clear ENVINFO's bit0 to be able to see any debugging information."]
+    #[doc = "[`threadOnException`]"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `excep` - Exception information"]
     #[doc = "* `regs` - CPU registers"]
+    #[doc = ""]
     pub fn ERRF_ExceptionHandler(excep: *mut ERRF_ExceptionInfo, regs: *mut CpuRegisters);
 }
 #[doc = "Kernel configuration page (read-only)."]
@@ -5195,7 +5374,7 @@ pub struct osTimeRef_s {
     #[doc = "System ticks elapsed since boot when this structure was last updated"]
     #[doc = ""]
     pub value_tick: u64_,
-    #[doc = "System clock frequency in Hz adjusted using RTC measurements (usually around \\ref SYSCLOCK_ARM11)"]
+    #[doc = "System clock frequency in Hz adjusted using RTC measurements (usually around [`SYSCLOCK_ARM11)`]"]
     #[doc = ""]
     pub sysclock_hz: s64,
     #[doc = "Measured time drift of the system clock (according to the RTC) in milliseconds since the last update"]
@@ -5256,58 +5435,73 @@ extern "C" {
     #[doc = ""]
     #[doc = "It is sometimes required by services or when using the GPU command buffer."]
     #[doc = ""]
-    #[doc = "Returns: The corresponding physical address."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The corresponding physical address."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `vaddr` - Input virtual address."]
+    #[doc = ""]
     pub fn osConvertVirtToPhys(vaddr: *const ::libc::c_void) -> u32_;
 }
 extern "C" {
     #[doc = "Converts 0x14* vmem to 0x30*."]
     #[doc = ""]
-    #[doc = "Returns: The corresponding address in the 0x30* range, the input address if it's already within the new vmem, or 0 if it's outside of both ranges."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The corresponding address in the 0x30* range, the input address if it's already within the new vmem, or 0 if it's outside of both ranges."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `vaddr` - Input virtual address."]
+    #[doc = ""]
     pub fn osConvertOldLINEARMemToNew(vaddr: *const ::libc::c_void) -> *mut ::libc::c_void;
 }
 extern "C" {
     #[doc = "Retrieves basic information about a service error."]
     #[doc = ""]
-    #[doc = ""]
     #[doc = "This can be used to get some details about an error returned by a service call."]
     #[doc = ""]
-    #[doc = "Returns: A string containing a summary of an error."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* A string containing a summary of an error."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `error` - Error to retrieve information about."]
+    #[doc = ""]
     pub fn osStrError(error: Result) -> *const ::libc::c_char;
 }
 extern "C" {
     #[doc = "Reads the latest reference timepoint published by PTM."]
     #[doc = ""]
-    #[doc = "Returns: Structure (see \\ref osTimeRef_s)."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* Structure (see [`osTimeRef_s)`]"]
     #[doc = ""]
     pub fn osGetTimeRef() -> osTimeRef_s;
 }
 extern "C" {
     #[doc = "Gets the current time."]
     #[doc = ""]
-    #[doc = "Returns: The number of milliseconds since 1st Jan 1900 00:00."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The number of milliseconds since 1st Jan 1900 00:00."]
     #[doc = ""]
     pub fn osGetTime() -> u64_;
 }
 extern "C" {
     #[doc = "Reads the elapsed time in a tick counter."]
     #[doc = ""]
-    #[doc = "Returns: The number of milliseconds elapsed."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The number of milliseconds elapsed."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `cnt` - The tick counter."]
+    #[doc = ""]
     pub fn osTickCounterRead(cnt: *const TickCounter) -> f64;
 }
 extern "C" {
@@ -5316,18 +5510,22 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `enable` - Specifies whether to enable or disable the speedup."]
+    #[doc = ""]
     pub fn osSetSpeedupEnable(enable: bool);
 }
 extern "C" {
     #[must_use]
     #[doc = "Gets the NAND system-version stored in NVer/CVer."]
     #[doc = ""]
-    #[doc = "Returns: The result-code. This value can be positive if opening \"romfs:/version.bin\" fails with stdio, since errno would be returned in that case. In some cases the error can be special negative values as well."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The result-code. This value can be positive if opening \"romfs:/version.bin\" fails with stdio, since errno would be returned in that case. In some cases the error can be special negative values as well."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `nver_versionbin` - Output OS_VersionBin structure for the data read from NVer."]
     #[doc = "* `cver_versionbin` - Output OS_VersionBin structure for the data read from CVer."]
+    #[doc = ""]
     pub fn osGetSystemVersionData(
         nver_versionbin: *mut OS_VersionBin,
         cver_versionbin: *mut OS_VersionBin,
@@ -5337,7 +5535,9 @@ extern "C" {
     #[must_use]
     #[doc = "This is a wrapper for osGetSystemVersionData."]
     #[doc = ""]
-    #[doc = "Returns: See osGetSystemVersionData."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* See osGetSystemVersionData."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
@@ -5345,6 +5545,7 @@ extern "C" {
     #[doc = "* `cver_versionbin` - Optional output OS_VersionBin structure for the data read from CVer, can be NULL."]
     #[doc = "* `sysverstr` - Output string where the printed system-version will be written, in the same format displayed by the System Settings title."]
     #[doc = "* `sysverstr_maxsize` - Max size of the above string buffer, *including* NULL-terminator."]
+    #[doc = ""]
     pub fn osGetSystemVersionDataString(
         nver_versionbin: *mut OS_VersionBin,
         cver_versionbin: *mut OS_VersionBin,
@@ -5434,38 +5635,48 @@ extern "C" {
     #[must_use]
     #[doc = "Function used to implement user-mode synchronization primitives."]
     #[doc = ""]
-    #[doc = ""]
     #[doc = "This will perform an arbitration based on #type. The comparisons are done between #value and the value at the address #addr."]
+    #[doc = "```"]
     #[doc = ""]
     #[doc = "s32 val=0;"]
     #[doc = "// Does *nothing* since val >= 0"]
     #[doc = "syncArbitrateAddress(&val,ARBITRATION_WAIT_IF_LESS_THAN,0);"]
-    #[doc = ""]
+    #[doc = "```"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `addr` - Pointer to a signed 32-bit value whose address will be used to identify waiting threads."]
     #[doc = "* `type` - Type of action to be performed by the arbiter"]
-    #[doc = "* `value` - Number of threads to signal if using @ref ARBITRATION_SIGNAL, or the value used for comparison."]
+    #[doc = "* `value` - Number of threads to signal if using [`ARBITRATION_SIGNAL`] or the value used for comparison."]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* Usage of this function entails an implicit Data Memory Barrier (dmb)."]
+    #[doc = ""]
     pub fn syncArbitrateAddress(addr: *mut s32, type_: ArbitrationType, value: s32) -> Result;
 }
 extern "C" {
     #[must_use]
     #[doc = "Function used to implement user-mode synchronization primitives (with timeout)."]
     #[doc = ""]
-    #[doc = ""]
     #[doc = "This will perform an arbitration based on #type. The comparisons are done between #value and the value at the address #addr."]
+    #[doc = "```"]
     #[doc = ""]
     #[doc = "s32 val=0;"]
     #[doc = "// Thread will wait for a signal or wake up after 10000000 nanoseconds because val 1."]
     #[doc = "syncArbitrateAddressWithTimeout(&val,ARBITRATION_WAIT_IF_LESS_THAN_TIMEOUT,1,10000000LL);"]
-    #[doc = ""]
+    #[doc = "```"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `addr` - Pointer to a signed 32-bit value whose address will be used to identify waiting threads."]
-    #[doc = "* `type` - Type of action to be performed by the arbiter (must use \\ref ARBITRATION_WAIT_IF_LESS_THAN_TIMEOUT or \\ref ARBITRATION_DECREMENT_AND_WAIT_IF_LESS_THAN_TIMEOUT)"]
-    #[doc = "* `value` - Number of threads to signal if using @ref ARBITRATION_SIGNAL, or the value used for comparison."]
+    #[doc = "* `type` - Type of action to be performed by the arbiter (must use [`ARBITRATION_WAIT_IF_LESS_THAN_TIMEOUT`] or [`ARBITRATION_DECREMENT_AND_WAIT_IF_LESS_THAN_TIMEOUT)`]"]
+    #[doc = "* `value` - Number of threads to signal if using [`ARBITRATION_SIGNAL`] or the value used for comparison."]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* Usage of this function entails an implicit Data Memory Barrier (dmb)."]
+    #[doc = ""]
     pub fn syncArbitrateAddressWithTimeout(
         addr: *mut s32,
         type_: ArbitrationType,
@@ -5479,6 +5690,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `lock` - Pointer to the lock."]
+    #[doc = ""]
     pub fn LightLock_Init(lock: *mut LightLock);
 }
 extern "C" {
@@ -5487,16 +5699,20 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `lock` - Pointer to the lock."]
+    #[doc = ""]
     pub fn LightLock_Lock(lock: *mut LightLock);
 }
 extern "C" {
     #[doc = "Attempts to lock a light lock."]
     #[doc = ""]
-    #[doc = "Returns: Zero on success, non-zero on failure."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* Zero on success, non-zero on failure."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `lock` - Pointer to the lock."]
+    #[doc = ""]
     pub fn LightLock_TryLock(lock: *mut LightLock) -> ::libc::c_int;
 }
 extern "C" {
@@ -5505,6 +5721,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `lock` - Pointer to the lock."]
+    #[doc = ""]
     pub fn LightLock_Unlock(lock: *mut LightLock);
 }
 extern "C" {
@@ -5513,6 +5730,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `lock` - Pointer to the lock."]
+    #[doc = ""]
     pub fn RecursiveLock_Init(lock: *mut RecursiveLock);
 }
 extern "C" {
@@ -5521,16 +5739,20 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `lock` - Pointer to the lock."]
+    #[doc = ""]
     pub fn RecursiveLock_Lock(lock: *mut RecursiveLock);
 }
 extern "C" {
     #[doc = "Attempts to lock a recursive lock."]
     #[doc = ""]
-    #[doc = "Returns: Zero on success, non-zero on failure."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* Zero on success, non-zero on failure."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `lock` - Pointer to the lock."]
+    #[doc = ""]
     pub fn RecursiveLock_TryLock(lock: *mut RecursiveLock) -> ::libc::c_int;
 }
 extern "C" {
@@ -5539,6 +5761,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `lock` - Pointer to the lock."]
+    #[doc = ""]
     pub fn RecursiveLock_Unlock(lock: *mut RecursiveLock);
 }
 extern "C" {
@@ -5547,6 +5770,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `cv` - Pointer to the condition variable."]
+    #[doc = ""]
     pub fn CondVar_Init(cv: *mut CondVar);
 }
 extern "C" {
@@ -5556,18 +5780,22 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `cv` - Pointer to the condition variable."]
     #[doc = "* `lock` - Pointer to the lock to atomically unlock/relock during the wait."]
+    #[doc = ""]
     pub fn CondVar_Wait(cv: *mut CondVar, lock: *mut LightLock);
 }
 extern "C" {
     #[doc = "Waits on a condition variable with a timeout."]
     #[doc = ""]
-    #[doc = "Returns: Zero on success, non-zero on failure."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* Zero on success, non-zero on failure."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `cv` - Pointer to the condition variable."]
     #[doc = "* `lock` - Pointer to the lock to atomically unlock/relock during the wait."]
     #[doc = "* `timeout_ns` - Timeout in nanoseconds."]
+    #[doc = ""]
     pub fn CondVar_WaitTimeout(
         cv: *mut CondVar,
         lock: *mut LightLock,
@@ -5580,7 +5808,8 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `cv` - Pointer to the condition variable."]
-    #[doc = "* `num_threads` - Maximum number of threads to wake up (or \\ref ARBITRATION_SIGNAL_ALL to wake them all)."]
+    #[doc = "* `num_threads` - Maximum number of threads to wake up (or [`ARBITRATION_SIGNAL_ALL`] to wake them all)."]
+    #[doc = ""]
     pub fn CondVar_WakeUp(cv: *mut CondVar, num_threads: s32);
 }
 extern "C" {
@@ -5590,6 +5819,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `event` - Pointer to the event."]
     #[doc = "* `reset_type` - Type of reset the event uses (RESET_ONESHOT/RESET_STICKY)."]
+    #[doc = ""]
     pub fn LightEvent_Init(event: *mut LightEvent, reset_type: ResetType);
 }
 extern "C" {
@@ -5598,6 +5828,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `event` - Pointer to the event."]
+    #[doc = ""]
     pub fn LightEvent_Clear(event: *mut LightEvent);
 }
 extern "C" {
@@ -5606,6 +5837,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `event` - Pointer to the event."]
+    #[doc = ""]
     pub fn LightEvent_Pulse(event: *mut LightEvent);
 }
 extern "C" {
@@ -5614,16 +5846,20 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `event` - Pointer to the event."]
+    #[doc = ""]
     pub fn LightEvent_Signal(event: *mut LightEvent);
 }
 extern "C" {
     #[doc = "Attempts to wait on a light event."]
     #[doc = ""]
-    #[doc = "Returns: Non-zero if the event was signaled, zero otherwise."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* Non-zero if the event was signaled, zero otherwise."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `event` - Pointer to the event."]
+    #[doc = ""]
     pub fn LightEvent_TryWait(event: *mut LightEvent) -> ::libc::c_int;
 }
 extern "C" {
@@ -5632,17 +5868,21 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `event` - Pointer to the event."]
+    #[doc = ""]
     pub fn LightEvent_Wait(event: *mut LightEvent);
 }
 extern "C" {
     #[doc = "Waits on a light event until either the event is signaled or the timeout is reached."]
     #[doc = ""]
-    #[doc = "Returns: Non-zero on timeout, zero otherwise."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* Non-zero on timeout, zero otherwise."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `event` - Pointer to the event."]
     #[doc = "* `timeout_ns` - Timeout in nanoseconds."]
+    #[doc = ""]
     pub fn LightEvent_WaitTimeout(event: *mut LightEvent, timeout_ns: s64) -> ::libc::c_int;
 }
 extern "C" {
@@ -5653,6 +5893,7 @@ extern "C" {
     #[doc = "* `event` - Pointer to the semaphore."]
     #[doc = "* `max_count` - Initial count of the semaphore."]
     #[doc = "* `max_count` - Maximum count of the semaphore."]
+    #[doc = ""]
     pub fn LightSemaphore_Init(semaphore: *mut LightSemaphore, initial_count: s16, max_count: s16);
 }
 extern "C" {
@@ -5662,17 +5903,21 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `semaphore` - Pointer to the semaphore."]
     #[doc = "* `count` - Acquire count"]
+    #[doc = ""]
     pub fn LightSemaphore_Acquire(semaphore: *mut LightSemaphore, count: s32);
 }
 extern "C" {
     #[doc = "Attempts to acquire a light semaphore."]
     #[doc = ""]
-    #[doc = "Returns: Zero on success, non-zero on failure"]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* Zero on success, non-zero on failure"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `semaphore` - Pointer to the semaphore."]
     #[doc = "* `count` - Acquire count"]
+    #[doc = ""]
     pub fn LightSemaphore_TryAcquire(semaphore: *mut LightSemaphore, count: s32) -> ::libc::c_int;
 }
 extern "C" {
@@ -5682,6 +5927,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `semaphore` - Pointer to the semaphore."]
     #[doc = "* `count` - Release count"]
+    #[doc = ""]
     pub fn LightSemaphore_Release(semaphore: *mut LightSemaphore, count: s32);
 }
 #[repr(C)]
@@ -5707,15 +5953,19 @@ extern "C" {
     #[doc = "to create a thread with a priority that is explicitly greater or smaller than that of the main thread."]
     #[doc = "On Old3DS it must be <2, and on New3DS it must be <4."]
     #[doc = "Pass -1 to execute the thread on all CPUs and -2 to execute the thread on the default CPU (read from the Exheader)."]
-    #[doc = ""]
     #[doc = "- Processor #0 is the application core. It is always possible to create a thread on this core."]
     #[doc = "- Processor #1 is the system core. If APT_SetAppCpuTimeLimit is used, it is possible to create a single thread on this core."]
     #[doc = "- Processor #2 is New3DS exclusive. Normal applications can create threads on this core if the exheader kernel flags bitmask has 0x2000 set."]
     #[doc = "- Processor #3 is New3DS exclusive. Normal applications cannot create threads on this core."]
     #[doc = "- Processes in the BASE memory region can always create threads on processors #2 and #3."]
     #[doc = ""]
+    #[doc = "**Warning!**"]
     #[doc = ""]
-    #[doc = "Returns: The libctru thread handle on success, NULL on failure."]
+    #[doc = "* [`svcExitThread`] should never be called from the thread, use [`threadExit`] instead."]
+    #[doc = ""]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The libctru thread handle on success, NULL on failure."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
@@ -5725,6 +5975,11 @@ extern "C" {
     #[doc = "* `prio` - Low values gives the thread higher priority."]
     #[doc = "* `core_id` - The ID of the processor the thread should be ran on. Processor IDs are labeled starting from 0."]
     #[doc = "* `detached` - When set to true, the thread is automatically freed when it finishes."]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* Default exit code of a thread is 0."]
+    #[doc = ""]
     pub fn threadCreate(
         entrypoint: ThreadFunc,
         arg: *mut ::libc::c_void,
@@ -5737,21 +5992,27 @@ extern "C" {
 extern "C" {
     #[doc = "Retrieves the OS thread handle of a libctru thread."]
     #[doc = ""]
-    #[doc = "Returns: OS thread handle"]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* OS thread handle"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `thread` - libctru thread handle"]
+    #[doc = ""]
     pub fn threadGetHandle(thread: Thread) -> Handle;
 }
 extern "C" {
     #[doc = "Retrieves the exit code of a finished libctru thread."]
     #[doc = ""]
-    #[doc = "Returns: Exit code"]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* Exit code"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `thread` - libctru thread handle"]
+    #[doc = ""]
     pub fn threadGetExitCode(thread: Thread) -> ::libc::c_int;
 }
 extern "C" {
@@ -5760,6 +6021,11 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `thread` - libctru thread handle"]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* This function should not be called if the thread is detached, as it is freed automatically when it finishes."]
+    #[doc = ""]
     pub fn threadFree(thread: Thread);
 }
 extern "C" {
@@ -5770,6 +6036,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `thread` - libctru thread handle"]
     #[doc = "* `timeout_ns` - Timeout in nanoseconds. Pass U64_MAX if a timeout isn't desired"]
+    #[doc = ""]
     pub fn threadJoin(thread: Thread, timeout_ns: u64_) -> Result;
 }
 extern "C" {
@@ -5778,12 +6045,15 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `thread` - libctru thread handle"]
+    #[doc = ""]
     pub fn threadDetach(thread: Thread);
 }
 extern "C" {
     #[doc = "Retrieves the libctru thread handle of the current thread."]
     #[doc = ""]
-    #[doc = "Returns: Libctru thread handle of the current thread, or NULL for the main thread"]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* libctru thread handle of the current thread, or NULL for the main thread"]
     #[doc = ""]
     pub fn threadGetCurrent() -> Thread;
 }
@@ -5793,6 +6063,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `rc` - Exit code"]
+    #[doc = ""]
     pub fn threadExit(rc: ::libc::c_int);
 }
 #[doc = "Framebuffer information."]
@@ -5950,7 +6221,9 @@ extern "C" {
 extern "C" {
     #[doc = "Gets a pointer to the current gsp::Gpu session handle."]
     #[doc = ""]
-    #[doc = "Returns: A pointer to the current gsp::Gpu session handle."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* A pointer to the current gsp::Gpu session handle."]
     #[doc = ""]
     pub fn gspGetSessionHandle() -> *mut Handle;
 }
@@ -5962,16 +6235,23 @@ extern "C" {
 extern "C" {
     #[doc = "Presents a buffer to the specified screen."]
     #[doc = ""]
-    #[doc = "Returns: True if a buffer had already been presented to the screen but not processed yet by GSP, false otherwise."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* true if a buffer had already been presented to the screen but not processed yet by GSP, false otherwise."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
-    #[doc = "* `screen` - Screen ID (see \\ref GSP_SCREEN_TOP and \\ref GSP_SCREEN_BOTTOM)"]
+    #[doc = "* `screen` - Screen ID (see [`GSP_SCREEN_TOP`] and [`GSP_SCREEN_BOTTOM)`]"]
     #[doc = "* `swap` - Specifies which set of framebuffer registers to configure and activate (0 or 1)"]
     #[doc = "* `fb_a` - Pointer to the framebuffer (in stereo mode: left eye)"]
     #[doc = "* `fb_b` - Pointer to the secondary framebuffer (only used in stereo mode for the right eye, otherwise pass the same as fb_a)"]
     #[doc = "* `stride` - Stride in bytes between scanlines"]
     #[doc = "* `mode` - Mode configuration to be written to LCD register"]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* The most recently presented buffer is processed and configured during the specified screen's next VBlank event."]
+    #[doc = ""]
     pub fn gspPresentBuffer(
         screen: ::libc::c_uint,
         swap: ::libc::c_uint,
@@ -5982,11 +6262,12 @@ extern "C" {
     ) -> bool;
 }
 extern "C" {
-    #[doc = "Returns true if a prior \\ref gspPresentBuffer command is still pending to be processed by GSP."]
+    #[doc = "Returns true if a prior [`gspPresentBuffer`] command is still pending to be processed by GSP."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
-    #[doc = "* `screen` - Screen ID (see \\ref GSP_SCREEN_TOP and \\ref GSP_SCREEN_BOTTOM)"]
+    #[doc = "* `screen` - Screen ID (see [`GSP_SCREEN_TOP`] and [`GSP_SCREEN_BOTTOM)`]"]
+    #[doc = ""]
     pub fn gspIsPresentPending(screen: ::libc::c_uint) -> bool;
 }
 extern "C" {
@@ -5998,6 +6279,7 @@ extern "C" {
     #[doc = "* `cb` - Callback to run."]
     #[doc = "* `data` - Data to be passed to the callback."]
     #[doc = "* `oneShot` - When true, the callback is only executed once. When false, the callback is executed every time the event occurs."]
+    #[doc = ""]
     pub fn gspSetEventCallback(
         id: GSPGPU_Event,
         cb: ThreadFunc,
@@ -6012,15 +6294,17 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `id` - ID of the event."]
     #[doc = "* `nextEvent` - Whether to discard the current event and wait for the next event."]
+    #[doc = ""]
     pub fn gspWaitForEvent(id: GSPGPU_Event, nextEvent: bool);
 }
 extern "C" {
     #[doc = "Waits for any GSPGPU event to occur."]
     #[doc = ""]
-    #[doc = ""]
     #[doc = "The function returns immediately if there are unprocessed events at the time of call."]
     #[doc = ""]
-    #[doc = "Returns: The ID of the event that occurred."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The ID of the event that occurred."]
     #[doc = ""]
     pub fn gspWaitForAnyEvent() -> GSPGPU_Event;
 }
@@ -6031,6 +6315,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `gxCommand` - GX command to execute."]
+    #[doc = ""]
     pub fn gspSubmitGxCommand(gxCommand: *const u32_) -> Result;
 }
 extern "C" {
@@ -6040,6 +6325,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `flags` - Flags to acquire with."]
+    #[doc = ""]
     pub fn GSPGPU_AcquireRight(flags: u8_) -> Result;
 }
 extern "C" {
@@ -6055,6 +6341,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `captureinfo` - Pointer to output capture info to."]
+    #[doc = ""]
     pub fn GSPGPU_ImportDisplayCaptureInfo(captureinfo: *mut GSPGPU_CaptureInfo) -> Result;
 }
 extern "C" {
@@ -6082,6 +6369,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `flags` - Whether to force the LCD to black. (0 = no, non-zero = yes)"]
+    #[doc = ""]
     pub fn GSPGPU_SetLcdForceBlack(flags: u8_) -> Result;
 }
 extern "C" {
@@ -6092,6 +6380,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `screenid` - ID of the screen to update."]
     #[doc = "* `framebufinfo` - Framebuffer information to update with."]
+    #[doc = ""]
     pub fn GSPGPU_SetBufferSwap(
         screenid: u32_,
         framebufinfo: *const GSPGPU_FramebufferInfo,
@@ -6105,6 +6394,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `adr` - Address to flush."]
     #[doc = "* `size` - Size of the memory to flush."]
+    #[doc = ""]
     pub fn GSPGPU_FlushDataCache(adr: *const ::libc::c_void, size: u32_) -> Result;
 }
 extern "C" {
@@ -6115,6 +6405,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `adr` - Address to invalidate."]
     #[doc = "* `size` - Size of the memory to invalidate."]
+    #[doc = ""]
     pub fn GSPGPU_InvalidateDataCache(adr: *const ::libc::c_void, size: u32_) -> Result;
 }
 extern "C" {
@@ -6126,6 +6417,7 @@ extern "C" {
     #[doc = "* `regAddr` - Register address to write to."]
     #[doc = "* `data` - Data to write."]
     #[doc = "* `size` - Size of the data to write."]
+    #[doc = ""]
     pub fn GSPGPU_WriteHWRegs(regAddr: u32_, data: *const u32_, size: u8_) -> Result;
 }
 extern "C" {
@@ -6139,6 +6431,7 @@ extern "C" {
     #[doc = "* `datasize` - Size of the data to write."]
     #[doc = "* `maskdata` - Data of the mask."]
     #[doc = "* `masksize` - Size of the mask."]
+    #[doc = ""]
     pub fn GSPGPU_WriteHWRegsWithMask(
         regAddr: u32_,
         data: *const u32_,
@@ -6156,6 +6449,7 @@ extern "C" {
     #[doc = "* `regAddr` - Register address to read from."]
     #[doc = "* `data` - Buffer to read data to."]
     #[doc = "* `size` - Size of the buffer."]
+    #[doc = ""]
     pub fn GSPGPU_ReadHWRegs(regAddr: u32_, data: *mut u32_, size: u8_) -> Result;
 }
 extern "C" {
@@ -6168,6 +6462,7 @@ extern "C" {
     #[doc = "* `flags` - Flags to register with."]
     #[doc = "* `outMemHandle` - Pointer to output the shared memory handle to."]
     #[doc = "* `threadID` - Pointer to output the GSP thread ID to."]
+    #[doc = ""]
     pub fn GSPGPU_RegisterInterruptRelayQueue(
         eventHandle: Handle,
         flags: u32_,
@@ -6194,6 +6489,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `disable` - False = 3D LED enable, true = 3D LED disable."]
+    #[doc = ""]
     pub fn GSPGPU_SetLedForceOff(disable: bool) -> Result;
 }
 #[doc = "Top screen"]
@@ -6218,32 +6514,35 @@ pub const GFX_LEFT: gfx3dSide_t = 0;
 pub const GFX_RIGHT: gfx3dSide_t = 1;
 #[doc = "Top screen framebuffer side."]
 #[doc = ""]
-#[doc = ""]
 #[doc = "This is only meaningful when stereoscopic 3D is enabled on the top screen."]
-#[doc = "In any other case, use \\ref GFX_LEFT."]
+#[doc = "In any other case, use [`GFX_LEFT`]"]
 #[doc = ""]
 
 pub type gfx3dSide_t = ::libc::c_uint;
 extern "C" {
     #[doc = "Initializes the LCD framebuffers with default parameters"]
     #[doc = ""]
-    #[doc = "This is equivalent to calling: @code gfxInit(GSP_BGR8_OES,GSP_BGR8_OES,false); @endcode"]
+    #[doc = "This is equivalent to calling: ```"]
+    #[doc = "gfxInit(GSP_BGR8_OES,GSP_BGR8_OES,false); ```"]
     #[doc = ""]
     pub fn gfxInitDefault();
 }
 extern "C" {
     #[doc = "Initializes the LCD framebuffers."]
     #[doc = ""]
-    #[doc = ""]
     #[doc = "This function allocates memory for the framebuffers in the specified memory region."]
     #[doc = "Initially, stereoscopic 3D is disabled and double buffering is enabled."]
-    #[doc = ""]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `topFormat` - The format of the top screen framebuffers."]
     #[doc = "* `bottomFormat` - The format of the bottom screen framebuffers."]
     #[doc = "* `vramBuffers` - Whether to allocate the framebuffers in VRAM."]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* This function internally calls [`gspInit`]"]
+    #[doc = ""]
     pub fn gfxInit(
         topFormat: GSPGPU_FramebufferFormat,
         bottomFormat: GSPGPU_FramebufferFormat,
@@ -6253,6 +6552,10 @@ extern "C" {
 extern "C" {
     #[doc = "Deinitializes and frees the LCD framebuffers."]
     #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* This function internally calls [`gspExit`]"]
+    #[doc = ""]
     pub fn gfxExit();
 }
 extern "C" {
@@ -6261,28 +6564,48 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `enable` - Pass true to enable, false to disable."]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* Stereoscopic 3D is disabled by default."]
+    #[doc = ""]
     pub fn gfxSet3D(enable: bool);
 }
 extern "C" {
     #[doc = "Retrieves the status of the 3D stereoscopic effect on the top screen."]
     #[doc = ""]
-    #[doc = "Returns: True if 3D enabled, false otherwise."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* true if 3D enabled, false otherwise."]
     #[doc = ""]
     pub fn gfxIs3D() -> bool;
 }
 extern "C" {
     #[doc = "Retrieves the status of the 800px (double-height) high resolution display mode of the top screen."]
     #[doc = ""]
-    #[doc = "Returns: True if wide mode enabled, false otherwise."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* true if wide mode enabled, false otherwise."]
     #[doc = ""]
     pub fn gfxIsWide() -> bool;
 }
 extern "C" {
     #[doc = "Enables or disables the 800px (double-height) high resolution display mode of the top screen."]
     #[doc = ""]
+    #[doc = "**Warning!**"]
+    #[doc = ""]
+    #[doc = "* Wide mode does not work on Old 2DS consoles (however it does work on New 2DS XL consoles)."]
+    #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `enable` - Pass true to enable, false to disable."]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* Wide mode is disabled by default."]
+    #[doc = "* Wide and stereoscopic 3D modes are mutually exclusive."]
+    #[doc = "* In wide mode pixels are not square, since scanlines are half as tall as they normally are."]
+    #[doc = ""]
     pub fn gfxSetWide(enable: bool);
 }
 extern "C" {
@@ -6292,18 +6615,26 @@ extern "C" {
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
-    #[doc = "* `screen` - Screen ID (see \\ref gfxScreen_t)"]
-    #[doc = "* `format` - Pixel format (see \\ref GSPGPU_FramebufferFormat)"]
+    #[doc = "* `screen` - Screen ID (see [`gfxScreen_t)`]"]
+    #[doc = "* `format` - Pixel format (see [`GSPGPU_FramebufferFormat)`]"]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* If the currently allocated framebuffers are too small for the specified format,"]
+    #[doc = ""]
     pub fn gfxSetScreenFormat(screen: gfxScreen_t, format: GSPGPU_FramebufferFormat);
 }
 extern "C" {
     #[doc = "Retrieves the current pixel format of a screen."]
     #[doc = ""]
-    #[doc = "Returns: Pixel format (see \\ref GSPGPU_FramebufferFormat)"]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* Pixel format (see [`GSPGPU_FramebufferFormat)`]"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
-    #[doc = "* `screen` - Screen ID (see \\ref gfxScreen_t)"]
+    #[doc = "* `screen` - Screen ID (see [`gfxScreen_t)`]"]
+    #[doc = ""]
     pub fn gfxGetScreenFormat(screen: gfxScreen_t) -> GSPGPU_FramebufferFormat;
 }
 extern "C" {
@@ -6311,24 +6642,31 @@ extern "C" {
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
-    #[doc = "* `screen` - Screen ID (see \\ref gfxScreen_t)"]
+    #[doc = "* `screen` - Screen ID (see [`gfxScreen_t)`]"]
     #[doc = "* `enable` - Pass true to enable, false to disable."]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* Double buffering is enabled by default."]
+    #[doc = ""]
     pub fn gfxSetDoubleBuffering(screen: gfxScreen_t, enable: bool);
 }
 extern "C" {
     #[doc = "Retrieves the framebuffer of the specified screen to which graphics should be rendered."]
     #[doc = ""]
-    #[doc = ""]
     #[doc = "Please remember that the returned pointer will change every frame if double buffering is enabled."]
     #[doc = ""]
-    #[doc = "Returns: A pointer to the current framebuffer of the chosen screen."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* A pointer to the current framebuffer of the chosen screen."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
-    #[doc = "* `screen` - Screen ID (see \\ref gfxScreen_t)"]
-    #[doc = "* `side` - Framebuffer side (see \\ref gfx3dSide_t) (pass \\ref GFX_LEFT if not using stereoscopic 3D)"]
+    #[doc = "* `screen` - Screen ID (see [`gfxScreen_t)`]"]
+    #[doc = "* `side` - Framebuffer side (see [`gfx3dSide_t)`] (pass [`GFX_LEFT`] if not using stereoscopic 3D)"]
     #[doc = "* `width` - Pointer that will hold the width of the framebuffer in pixels."]
     #[doc = "* `height` - Pointer that will hold the height of the framebuffer in pixels."]
+    #[doc = ""]
     pub fn gfxGetFramebuffer(
         screen: gfxScreen_t,
         side: gfx3dSide_t,
@@ -6341,6 +6679,10 @@ extern "C" {
     #[doc = ""]
     #[doc = "it is preferred to call this only once per frame, after all software rendering is completed."]
     #[doc = ""]
+    #[doc = "**Warning!**"]
+    #[doc = ""]
+    #[doc = "* This is **only used during software rendering**. Since this function has significant overhead,"]
+    #[doc = ""]
     pub fn gfxFlushBuffers();
 }
 extern "C" {
@@ -6349,30 +6691,45 @@ extern "C" {
     #[doc = "for both eyes, or false if the left image should be duplicated to the right eye."]
     #[doc = "since this API does not implement triple buffering."]
     #[doc = ""]
+    #[doc = "**Warning!**"]
+    #[doc = ""]
+    #[doc = "* Only call this once per screen per frame, otherwise graphical glitches will occur"]
+    #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
-    #[doc = "* `scr` - Screen ID (see \\ref gfxScreen_t)"]
+    #[doc = "* `scr` - Screen ID (see [`gfxScreen_t)`]"]
     #[doc = "* `hasStereo` - For the top screen in 3D mode: true if the framebuffer contains individual images"]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* Previously rendered content will be displayed on the screen after the next VBlank."]
+    #[doc = "* This function is still useful even if double buffering is disabled, as it must be used to commit configuration changes."]
+    #[doc = ""]
     pub fn gfxScreenSwapBuffers(scr: gfxScreen_t, hasStereo: bool);
 }
 extern "C" {
-    #[doc = "**Warning!** This is deprecated! - This function has been superseded by \\ref gfxScreenSwapBuffers, please use that instead."]
+    #[doc = "**Warning!** This is deprecated! - This function has been superseded by [`gfxScreenSwapBuffers`] please use that instead."]
     #[doc = ""]
-    #[doc = "Same as \\ref gfxScreenSwapBuffers, but with hasStereo set to true."]
+    #[doc = "Same as [`gfxScreenSwapBuffers`] but with hasStereo set to true."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
-    #[doc = "* `scr` - Screen ID (see \\ref gfxScreen_t)"]
+    #[doc = "* `scr` - Screen ID (see [`gfxScreen_t)`]"]
     #[doc = "* `immediate` - This parameter no longer has any effect and is thus ignored."]
+    #[doc = ""]
     pub fn gfxConfigScreen(scr: gfxScreen_t, immediate: bool);
 }
 extern "C" {
     #[doc = "Updates the configuration of both screens."]
     #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* This function is equivalent to: ``` gfxScreenSwapBuffers(GFX_TOP,true); gfxScreenSwapBuffers(GFX_BOTTOM,true); ```"]
+    #[doc = ""]
     pub fn gfxSwapBuffers();
 }
 extern "C" {
-    #[doc = "Same as \\ref gfxSwapBuffers (formerly different)."]
+    #[doc = "Same as [`gfxSwapBuffers`] (formerly different)."]
     #[doc = ""]
     pub fn gfxSwapBuffersGpu();
 }
@@ -6408,11 +6765,13 @@ impl Default for ConsoleFont {
 }
 #[doc = "Console structure used to store the state of a console render context."]
 #[doc = ""]
-#[doc = ""]
 #[doc = "Default values from consoleGetDefault();"]
+#[doc = "```"]
+#[doc = ""]
 #[doc = "PrintConsole defaultConsole ="]
 #[doc = "{"]
 #[doc = "};"]
+#[doc = "```"]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -6505,6 +6864,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `console` - Pointer to the console to update, if NULL it will update the current console."]
     #[doc = "* `font` - The font to load."]
+    #[doc = ""]
     pub fn consoleSetFont(console: *mut PrintConsole, font: *mut ConsoleFont);
 }
 extern "C" {
@@ -6517,6 +6877,7 @@ extern "C" {
     #[doc = "* `y` - Y location of the window."]
     #[doc = "* `width` - Width of the window."]
     #[doc = "* `height` - Height of the window."]
+    #[doc = ""]
     pub fn consoleSetWindow(
         console: *mut PrintConsole,
         x: ::libc::c_int,
@@ -6530,29 +6891,37 @@ extern "C" {
     #[doc = ""]
     #[doc = "This should only be used when using a single console or without changing the console that is returned, otherwise use consoleInit()."]
     #[doc = ""]
-    #[doc = "Returns: A pointer to the console with the default values."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* A pointer to the console with the default values."]
     #[doc = ""]
     pub fn consoleGetDefault() -> *mut PrintConsole;
 }
 extern "C" {
     #[doc = "Make the specified console the render target."]
     #[doc = ""]
-    #[doc = "Returns: A pointer to the previous console."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* A pointer to the previous console."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `console` - A pointer to the console struct (must have been initialized with consoleInit(PrintConsole* console))."]
+    #[doc = ""]
     pub fn consoleSelect(console: *mut PrintConsole) -> *mut PrintConsole;
 }
 extern "C" {
     #[doc = "Initialise the console."]
     #[doc = ""]
-    #[doc = "Returns: A pointer to the current console."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* A pointer to the current console."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `screen` - The screen to use for the console."]
     #[doc = "* `console` - A pointer to the console data to initialize (if it's NULL, the default console will be used)."]
+    #[doc = ""]
     pub fn consoleInit(screen: gfxScreen_t, console: *mut PrintConsole) -> *mut PrintConsole;
 }
 extern "C" {
@@ -6561,6 +6930,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `device` - The debug device (or devices) to output debug print statements to."]
+    #[doc = ""]
     pub fn consoleDebugInit(device: debugDevice);
 }
 extern "C" {
@@ -6587,11 +6957,14 @@ pub type _bindgen_ty_9 = ::libc::c_uint;
 extern "C" {
     #[doc = "Retrieves a handle from the environment handle list."]
     #[doc = ""]
-    #[doc = "Returns: The retrieved handle."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The retrieved handle."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `name` - Name of the handle."]
+    #[doc = ""]
     pub fn envGetHandle(name: *const ::libc::c_char) -> Handle;
 }
 pub type _off_t = __int64_t;
@@ -6883,13 +7256,16 @@ pub type decompressCallback = ::core::option::Option<
 extern "C" {
     #[doc = "Decompression callback for file descriptors"]
     #[doc = ""]
-    #[doc = "Returns: Number of bytes read"]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* Number of bytes read"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `userdata` - Address of file descriptor [Direction: In]"]
     #[doc = "* `buffer` - Buffer to write into [Direction: In]"]
     #[doc = "* `size` - Size to read from file descriptor [Direction: In]"]
+    #[doc = ""]
     pub fn decompressCallback_FD(
         userdata: *mut ::libc::c_void,
         buffer: *mut ::libc::c_void,
@@ -6899,13 +7275,16 @@ extern "C" {
 extern "C" {
     #[doc = "Decompression callback for stdio FILE*"]
     #[doc = ""]
-    #[doc = "Returns: Number of bytes read"]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* Number of bytes read"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `userdata` - FILE* [Direction: In]"]
     #[doc = "* `buffer` - Buffer to write into [Direction: In]"]
     #[doc = "* `size` - Size to read from file descriptor [Direction: In]"]
+    #[doc = ""]
     pub fn decompressCallback_Stdio(
         userdata: *mut ::libc::c_void,
         buffer: *mut ::libc::c_void,
@@ -6915,7 +7294,9 @@ extern "C" {
 extern "C" {
     #[doc = "Decode decompression header"]
     #[doc = ""]
-    #[doc = "Returns: Bytes consumed"]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* Bytes consumed"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
@@ -6924,6 +7305,10 @@ extern "C" {
     #[doc = "* `callback` - Data callback (see decompressV()) [Direction: In]"]
     #[doc = "* `userdata` - User data passed to callback (see decompressV()) [Direction: In]"]
     #[doc = "* `insize` - Size of userdata (see decompressV()) [Direction: In]"]
+    #[doc = ""]
+    #[doc = "# Return values"]
+    #[doc = "* -1 error"]
+    #[doc = ""]
     pub fn decompressHeader(
         type_: *mut decompressType,
         size: *mut size_t,
@@ -6935,12 +7320,13 @@ extern "C" {
 extern "C" {
     #[doc = "Decompress data"]
     #[doc = ""]
-    #[doc = ""]
     #[doc = "and insize is the size of that data. If callback is not null,"]
     #[doc = "userdata is passed to callback to fetch more data, and insize is"]
     #[doc = "unused."]
     #[doc = ""]
-    #[doc = "Returns: Whether succeeded"]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* Whether succeeded"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
@@ -6949,6 +7335,11 @@ extern "C" {
     #[doc = "* `callback` - Data callback (see note) [Direction: In]"]
     #[doc = "* `userdata` - User data passed to callback (see note) [Direction: In]"]
     #[doc = "* `insize` - Size of userdata (see note) [Direction: In]"]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* If callback is null, userdata is a pointer to memory to read from,"]
+    #[doc = ""]
     pub fn decompressV(
         iov: *const decompressIOVec,
         iovcnt: size_t,
@@ -6960,7 +7351,9 @@ extern "C" {
 extern "C" {
     #[doc = "Decompress LZSS/LZ10"]
     #[doc = ""]
-    #[doc = "Returns: Whether succeeded"]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* Whether succeeded"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
@@ -6969,6 +7362,7 @@ extern "C" {
     #[doc = "* `callback` - Data callback (see decompressV()) [Direction: In]"]
     #[doc = "* `userdata` - User data passed to callback (see decompressV()) [Direction: In]"]
     #[doc = "* `insize` - Size of userdata (see decompressV()) [Direction: In]"]
+    #[doc = ""]
     pub fn decompressV_LZSS(
         iov: *const decompressIOVec,
         iovcnt: size_t,
@@ -6980,7 +7374,9 @@ extern "C" {
 extern "C" {
     #[doc = "Decompress LZ11"]
     #[doc = ""]
-    #[doc = "Returns: Whether succeeded"]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* Whether succeeded"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
@@ -6989,6 +7385,7 @@ extern "C" {
     #[doc = "* `callback` - Data callback (see decompressV()) [Direction: In]"]
     #[doc = "* `userdata` - User data passed to callback (see decompressV()) [Direction: In]"]
     #[doc = "* `insize` - Size of userdata (see decompressV()) [Direction: In]"]
+    #[doc = ""]
     pub fn decompressV_LZ11(
         iov: *const decompressIOVec,
         iovcnt: size_t,
@@ -7000,7 +7397,9 @@ extern "C" {
 extern "C" {
     #[doc = "Decompress Huffman"]
     #[doc = ""]
-    #[doc = "Returns: Whether succeeded"]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* Whether succeeded"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
@@ -7010,6 +7409,7 @@ extern "C" {
     #[doc = "* `callback` - Data callback (see decompressV()) [Direction: In]"]
     #[doc = "* `userdata` - User data passed to callback (see decompressV()) [Direction: In]"]
     #[doc = "* `insize` - Size of userdata (see decompressV()) [Direction: In]"]
+    #[doc = ""]
     pub fn decompressV_Huff(
         bits: size_t,
         iov: *const decompressIOVec,
@@ -7022,7 +7422,9 @@ extern "C" {
 extern "C" {
     #[doc = "Decompress run-length encoding"]
     #[doc = ""]
-    #[doc = "Returns: Whether succeeded"]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* Whether succeeded"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
@@ -7031,6 +7433,7 @@ extern "C" {
     #[doc = "* `callback` - Data callback (see decompressV()) [Direction: In]"]
     #[doc = "* `userdata` - User data passed to callback (see decompressV()) [Direction: In]"]
     #[doc = "* `insize` - Size of userdata (see decompressV()) [Direction: In]"]
+    #[doc = ""]
     pub fn decompressV_RLE(
         iov: *const decompressIOVec,
         iovcnt: size_t,
@@ -7042,191 +7445,236 @@ extern "C" {
 extern "C" {
     #[doc = "Convert a UTF-8 sequence into a UTF-32 codepoint"]
     #[doc = ""]
+    #[doc = "Returns:"]
     #[doc = ""]
-    #[doc = ""]
-    #[doc = "Returns: -1 for error"]
+    #[doc = "* number of input code units consumed"]
+    #[doc = "* -1 for error"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `out` - Output codepoint [Direction: In, Out]"]
     #[doc = "* `in` - Input sequence [Direction: In]"]
+    #[doc = ""]
     pub fn decode_utf8(out: *mut u32, in_: *const u8) -> ssize_t;
 }
 extern "C" {
     #[doc = "Convert a UTF-16 sequence into a UTF-32 codepoint"]
     #[doc = ""]
+    #[doc = "Returns:"]
     #[doc = ""]
-    #[doc = ""]
-    #[doc = "Returns: -1 for error"]
+    #[doc = "* number of input code units consumed"]
+    #[doc = "* -1 for error"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `out` - Output codepoint [Direction: In, Out]"]
     #[doc = "* `in` - Input sequence [Direction: In]"]
+    #[doc = ""]
     pub fn decode_utf16(out: *mut u32, in_: *const u16) -> ssize_t;
 }
 extern "C" {
     #[doc = "Convert a UTF-32 codepoint into a UTF-8 sequence"]
     #[doc = ""]
+    #[doc = "Returns:"]
     #[doc = ""]
-    #[doc = ""]
-    #[doc = ""]
-    #[doc = "Returns: -1 for error"]
+    #[doc = "* number of output code units produced"]
+    #[doc = "* -1 for error"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `out` - Output sequence [Direction: In, Out]"]
     #[doc = "* `in` - Input codepoint [Direction: In]"]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* \\a out must be able to store 4 code units"]
+    #[doc = ""]
     pub fn encode_utf8(out: *mut u8, in_: u32) -> ssize_t;
 }
 extern "C" {
     #[doc = "Convert a UTF-32 codepoint into a UTF-16 sequence"]
     #[doc = ""]
+    #[doc = "Returns:"]
     #[doc = ""]
-    #[doc = ""]
-    #[doc = ""]
-    #[doc = "Returns: -1 for error"]
+    #[doc = "* number of output code units produced"]
+    #[doc = "* -1 for error"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `out` - Output sequence [Direction: In, Out]"]
     #[doc = "* `in` - Input codepoint [Direction: In]"]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* \\a out must be able to store 2 code units"]
+    #[doc = ""]
     pub fn encode_utf16(out: *mut u16, in_: u32) -> ssize_t;
 }
 extern "C" {
     #[doc = "Convert a UTF-8 sequence into a UTF-16 sequence"]
-    #[doc = ""]
     #[doc = "Fills the output buffer up to \\a len code units."]
     #[doc = "Returns the number of code units that the input would produce;"]
     #[doc = "if it returns greater than \\a len, the output has been"]
     #[doc = "truncated."]
     #[doc = ""]
+    #[doc = "Returns:"]
     #[doc = ""]
-    #[doc = ""]
-    #[doc = ""]
-    #[doc = "Returns: -1 for error"]
+    #[doc = "* number of output code units produced"]
+    #[doc = "* -1 for error"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `out` - Output sequence [Direction: In, Out]"]
     #[doc = "* `in` - Input sequence (null-terminated) [Direction: In]"]
     #[doc = "* `len` - Output length [Direction: In]"]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* \\a out is not null-terminated"]
+    #[doc = ""]
     pub fn utf8_to_utf16(out: *mut u16, in_: *const u8, len: size_t) -> ssize_t;
 }
 extern "C" {
     #[doc = "Convert a UTF-8 sequence into a UTF-32 sequence"]
-    #[doc = ""]
     #[doc = "Fills the output buffer up to \\a len code units."]
     #[doc = "Returns the number of code units that the input would produce;"]
     #[doc = "if it returns greater than \\a len, the output has been"]
     #[doc = "truncated."]
     #[doc = ""]
+    #[doc = "Returns:"]
     #[doc = ""]
-    #[doc = ""]
-    #[doc = ""]
-    #[doc = "Returns: -1 for error"]
+    #[doc = "* number of output code units produced"]
+    #[doc = "* -1 for error"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `out` - Output sequence [Direction: In, Out]"]
     #[doc = "* `in` - Input sequence (null-terminated) [Direction: In]"]
     #[doc = "* `len` - Output length [Direction: In]"]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* \\a out is not null-terminated"]
+    #[doc = ""]
     pub fn utf8_to_utf32(out: *mut u32, in_: *const u8, len: size_t) -> ssize_t;
 }
 extern "C" {
     #[doc = "Convert a UTF-16 sequence into a UTF-8 sequence"]
-    #[doc = ""]
     #[doc = "Fills the output buffer up to \\a len code units."]
     #[doc = "Returns the number of code units that the input would produce;"]
     #[doc = "if it returns greater than \\a len, the output has been"]
     #[doc = "truncated."]
     #[doc = ""]
+    #[doc = "Returns:"]
     #[doc = ""]
-    #[doc = ""]
-    #[doc = ""]
-    #[doc = "Returns: -1 for error"]
+    #[doc = "* number of output code units produced"]
+    #[doc = "* -1 for error"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `out` - Output sequence [Direction: In, Out]"]
     #[doc = "* `in` - Input sequence (null-terminated) [Direction: In]"]
     #[doc = "* `len` - Output length [Direction: In]"]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* \\a out is not null-terminated"]
+    #[doc = ""]
     pub fn utf16_to_utf8(out: *mut u8, in_: *const u16, len: size_t) -> ssize_t;
 }
 extern "C" {
     #[doc = "Convert a UTF-16 sequence into a UTF-32 sequence"]
-    #[doc = ""]
     #[doc = "Fills the output buffer up to \\a len code units."]
     #[doc = "Returns the number of code units that the input would produce;"]
     #[doc = "if it returns greater than \\a len, the output has been"]
     #[doc = "truncated."]
     #[doc = ""]
+    #[doc = "Returns:"]
     #[doc = ""]
-    #[doc = ""]
-    #[doc = ""]
-    #[doc = "Returns: -1 for error"]
+    #[doc = "* number of output code units produced"]
+    #[doc = "* -1 for error"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `out` - Output sequence [Direction: In, Out]"]
     #[doc = "* `in` - Input sequence (null-terminated) [Direction: In]"]
     #[doc = "* `len` - Output length [Direction: In]"]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* \\a out is not null-terminated"]
+    #[doc = ""]
     pub fn utf16_to_utf32(out: *mut u32, in_: *const u16, len: size_t) -> ssize_t;
 }
 extern "C" {
     #[doc = "Convert a UTF-32 sequence into a UTF-8 sequence"]
-    #[doc = ""]
     #[doc = "Fills the output buffer up to \\a len code units."]
     #[doc = "Returns the number of code units that the input would produce;"]
     #[doc = "if it returns greater than \\a len, the output has been"]
     #[doc = "truncated."]
     #[doc = ""]
+    #[doc = "Returns:"]
     #[doc = ""]
-    #[doc = ""]
-    #[doc = ""]
-    #[doc = "Returns: -1 for error"]
+    #[doc = "* number of output code units produced"]
+    #[doc = "* -1 for error"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `out` - Output sequence [Direction: In, Out]"]
     #[doc = "* `in` - Input sequence (null-terminated) [Direction: In]"]
     #[doc = "* `len` - Output length [Direction: In]"]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* \\a out is not null-terminated"]
+    #[doc = ""]
     pub fn utf32_to_utf8(out: *mut u8, in_: *const u32, len: size_t) -> ssize_t;
 }
 extern "C" {
     #[doc = "Convert a UTF-32 sequence into a UTF-16 sequence"]
     #[doc = ""]
+    #[doc = "Returns:"]
     #[doc = ""]
-    #[doc = ""]
-    #[doc = ""]
-    #[doc = "Returns: -1 for error"]
+    #[doc = "* number of output code units produced"]
+    #[doc = "* -1 for error"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `out` - Output sequence [Direction: In, Out]"]
     #[doc = "* `in` - Input sequence (null-terminated) [Direction: In]"]
     #[doc = "* `len` - Output length [Direction: In]"]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* \\a out is not null-terminated"]
+    #[doc = ""]
     pub fn utf32_to_utf16(out: *mut u16, in_: *const u32, len: size_t) -> ssize_t;
 }
 extern "C" {
     #[doc = "Allocates a 0x80-byte aligned buffer."]
     #[doc = ""]
-    #[doc = "Returns: The allocated buffer."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The allocated buffer."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `size` - Size of the buffer to allocate."]
+    #[doc = ""]
     pub fn linearAlloc(size: size_t) -> *mut ::libc::c_void;
 }
 extern "C" {
     #[doc = "Allocates a buffer aligned to the given size."]
     #[doc = ""]
-    #[doc = "Returns: The allocated buffer."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The allocated buffer."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `size` - Size of the buffer to allocate."]
     #[doc = "* `alignment` - Alignment to use."]
+    #[doc = ""]
     pub fn linearMemAlign(size: size_t, alignment: size_t) -> *mut ::libc::c_void;
 }
 extern "C" {
@@ -7234,18 +7682,23 @@ extern "C" {
     #[doc = ""]
     #[doc = "Note: Not implemented yet."]
     #[doc = ""]
-    #[doc = "Returns: The reallocated buffer."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The reallocated buffer."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `mem` - Buffer to reallocate."]
     #[doc = "* `size` - Size of the buffer to allocate."]
+    #[doc = ""]
     pub fn linearRealloc(mem: *mut ::libc::c_void, size: size_t) -> *mut ::libc::c_void;
 }
 extern "C" {
     #[doc = "Retrieves the allocated size of a buffer."]
     #[doc = ""]
-    #[doc = "Returns: The size of the buffer."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The size of the buffer."]
     #[doc = ""]
     pub fn linearGetSize(mem: *mut ::libc::c_void) -> size_t;
 }
@@ -7255,12 +7708,15 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `mem` - Buffer to free."]
+    #[doc = ""]
     pub fn linearFree(mem: *mut ::libc::c_void);
 }
 extern "C" {
     #[doc = "Gets the current linear free space."]
     #[doc = ""]
-    #[doc = "Returns: The current linear free space."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The current linear free space."]
     #[doc = ""]
     pub fn linearSpaceFree() -> u32_;
 }
@@ -7271,16 +7727,20 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `addrMin` - Minimum address."]
     #[doc = "* `addrMax` - Maxium address."]
+    #[doc = ""]
     pub fn mappableInit(addrMin: u32_, addrMax: u32_);
 }
 extern "C" {
     #[doc = "Finds a mappable memory area."]
     #[doc = ""]
-    #[doc = "Returns: The mappable area."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The mappable area."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `size` - Size of the area to find."]
+    #[doc = ""]
     pub fn mappableAlloc(size: size_t) -> *mut ::libc::c_void;
 }
 extern "C" {
@@ -7289,6 +7749,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `mem` - Mappable area to free."]
+    #[doc = ""]
     pub fn mappableFree(mem: *mut ::libc::c_void);
 }
 pub const VRAM_ALLOC_A: vramAllocPos = 1;
@@ -7298,45 +7759,57 @@ pub type vramAllocPos = ::libc::c_uint;
 extern "C" {
     #[doc = "Allocates a 0x80-byte aligned buffer."]
     #[doc = ""]
-    #[doc = "Returns: The allocated buffer."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The allocated buffer."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `size` - Size of the buffer to allocate."]
+    #[doc = ""]
     pub fn vramAlloc(size: size_t) -> *mut ::libc::c_void;
 }
 extern "C" {
     #[doc = "Allocates a 0x80-byte aligned buffer in the given VRAM bank."]
     #[doc = ""]
-    #[doc = "Returns: The allocated buffer."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The allocated buffer."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `size` - Size of the buffer to allocate."]
-    #[doc = "* `pos` - VRAM bank to use (see \\ref vramAllocPos)."]
+    #[doc = "* `pos` - VRAM bank to use (see [`vramAllocPos)`]"]
+    #[doc = ""]
     pub fn vramAllocAt(size: size_t, pos: vramAllocPos) -> *mut ::libc::c_void;
 }
 extern "C" {
     #[doc = "Allocates a buffer aligned to the given size."]
     #[doc = ""]
-    #[doc = "Returns: The allocated buffer."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The allocated buffer."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `size` - Size of the buffer to allocate."]
     #[doc = "* `alignment` - Alignment to use."]
+    #[doc = ""]
     pub fn vramMemAlign(size: size_t, alignment: size_t) -> *mut ::libc::c_void;
 }
 extern "C" {
     #[doc = "Allocates a buffer aligned to the given size in the given VRAM bank."]
     #[doc = ""]
-    #[doc = "Returns: The allocated buffer."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The allocated buffer."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `size` - Size of the buffer to allocate."]
     #[doc = "* `alignment` - Alignment to use."]
-    #[doc = "* `pos` - VRAM bank to use (see \\ref vramAllocPos)."]
+    #[doc = "* `pos` - VRAM bank to use (see [`vramAllocPos)`]"]
+    #[doc = ""]
     pub fn vramMemAlignAt(
         size: size_t,
         alignment: size_t,
@@ -7348,18 +7821,23 @@ extern "C" {
     #[doc = ""]
     #[doc = "Note: Not implemented yet."]
     #[doc = ""]
-    #[doc = "Returns: The reallocated buffer."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The reallocated buffer."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `mem` - Buffer to reallocate."]
     #[doc = "* `size` - Size of the buffer to allocate."]
+    #[doc = ""]
     pub fn vramRealloc(mem: *mut ::libc::c_void, size: size_t) -> *mut ::libc::c_void;
 }
 extern "C" {
     #[doc = "Retrieves the allocated size of a buffer."]
     #[doc = ""]
-    #[doc = "Returns: The size of the buffer."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The size of the buffer."]
     #[doc = ""]
     pub fn vramGetSize(mem: *mut ::libc::c_void) -> size_t;
 }
@@ -7369,12 +7847,15 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `mem` - Buffer to free."]
+    #[doc = ""]
     pub fn vramFree(mem: *mut ::libc::c_void);
 }
 extern "C" {
     #[doc = "Gets the current VRAM free space."]
     #[doc = ""]
-    #[doc = "Returns: The current VRAM free space."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The current VRAM free space."]
     #[doc = ""]
     pub fn vramSpaceFree() -> u32_;
 }
@@ -7454,6 +7935,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `out` - Pointer to output the connected Wifi status to. (0 = not connected, 1 = O3DS Internet, 2 = N3DS Internet)"]
+    #[doc = ""]
     pub fn ACU_GetWifiStatus(out: *mut u32_) -> Result;
 }
 extern "C" {
@@ -7463,6 +7945,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `out` - Pointer to output the connected Wifi status to. (1 = not connected, 3 = connected)"]
+    #[doc = ""]
     pub fn ACU_GetStatus(out: *mut u32_) -> Result;
 }
 extern "C" {
@@ -7472,6 +7955,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `mode` - Pointer to output the connected Wifi security mode to. (0 = Open Authentication, 1 = WEP 40-bit, 2 = WEP 104-bit, 3 = WEP 128-bit, 4 = WPA TKIP, 5 = WPA2 TKIP, 6 = WPA AES, 7 = WPA2 AES)"]
+    #[doc = ""]
     pub fn ACU_GetSecurityMode(mode: *mut acSecurityMode) -> Result;
 }
 extern "C" {
@@ -7481,6 +7965,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `SSID` - Pointer to output the connected Wifi SSID to."]
+    #[doc = ""]
     pub fn ACU_GetSSID(SSID: *mut ::libc::c_char) -> Result;
 }
 extern "C" {
@@ -7490,6 +7975,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `out` - Pointer to output the connected Wifi SSID length to."]
+    #[doc = ""]
     pub fn ACU_GetSSIDLength(out: *mut u32_) -> Result;
 }
 extern "C" {
@@ -7499,6 +7985,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `enable` - Pointer to output the proxy status to."]
+    #[doc = ""]
     pub fn ACU_GetProxyEnable(enable: *mut bool) -> Result;
 }
 extern "C" {
@@ -7508,6 +7995,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `out` - Pointer to output the proxy port to."]
+    #[doc = ""]
     pub fn ACU_GetProxyPort(out: *mut u32_) -> Result;
 }
 extern "C" {
@@ -7517,6 +8005,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `username` - Pointer to output the proxy username to. (The size must be at least 0x20-bytes)"]
+    #[doc = ""]
     pub fn ACU_GetProxyUserName(username: *mut ::libc::c_char) -> Result;
 }
 extern "C" {
@@ -7526,6 +8015,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `password` - Pointer to output the proxy password to. (The size must be at least 0x20-bytes)"]
+    #[doc = ""]
     pub fn ACU_GetProxyPassword(password: *mut ::libc::c_char) -> Result;
 }
 extern "C" {
@@ -7535,6 +8025,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `errorCode` - Pointer to output the error code to."]
+    #[doc = ""]
     pub fn ACU_GetLastErrorCode(errorCode: *mut u32_) -> Result;
 }
 extern "C" {
@@ -7544,6 +8035,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `errorCode` - Pointer to output the error code to."]
+    #[doc = ""]
     pub fn ACU_GetLastDetailErrorCode(errorCode: *mut u32_) -> Result;
 }
 extern "C" {
@@ -7553,6 +8045,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `config` - Pointer to an acuConfig struct to contain the data."]
+    #[doc = ""]
     pub fn ACU_CreateDefaultConfig(config: *mut acuConfig) -> Result;
 }
 extern "C" {
@@ -7563,6 +8056,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `config` - Pointer to an acuConfig struct used with ACU_CreateDefaultConfig previously."]
     #[doc = "* `area` - Always 2 ?"]
+    #[doc = ""]
     pub fn ACU_SetNetworkArea(config: *mut acuConfig, area: u8_) -> Result;
 }
 extern "C" {
@@ -7573,6 +8067,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `config` - Pointer to an acuConfig struct used with ACU_CreateDefaultConfig previously."]
     #[doc = "* `type` - Allowed slots flag. BIT(0) for slot 1, BIT(1) for slot 2, BIT(2) for slot 3."]
+    #[doc = ""]
     pub fn ACU_SetAllowApType(config: *mut acuConfig, type_: u8_) -> Result;
 }
 extern "C" {
@@ -7582,6 +8077,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `config` - Pointer to an acuConfig struct used with ACU_CreateDefaultConfig previously."]
+    #[doc = ""]
     pub fn ACU_SetRequestEulaVersion(config: *mut acuConfig) -> Result;
 }
 extern "C" {
@@ -7592,6 +8088,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `config` - Pointer to an acuConfig struct used with ACU_CreateDefaultConfig previously."]
     #[doc = "* `connectionHandle` - Handle created with svcCreateEvent to wait on until the connection succeeds or fails."]
+    #[doc = ""]
     pub fn ACU_ConnectAsync(config: *const acuConfig, connectionHandle: Handle) -> Result;
 }
 #[doc = "Open for reading."]
@@ -8221,6 +8718,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `session` - The handle of the FSUSER session to use."]
+    #[doc = ""]
     pub fn fsUseSession(session: Handle);
 }
 extern "C" {
@@ -8229,38 +8727,45 @@ extern "C" {
     pub fn fsEndUseSession();
 }
 extern "C" {
-    #[doc = "Exempts an archive from using alternate FS session handles provided with @ref fsUseSession"]
+    #[doc = "Exempts an archive from using alternate FS session handles provided with [`fsUseSession`]"]
     #[doc = ""]
-    #[doc = "Instead, the archive will use the default FS session handle, opened with @ref srvGetSessionHandle"]
+    #[doc = "Instead, the archive will use the default FS session handle, opened with [`srvGetSessionHandle`]"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `archive` - Archive to exempt."]
+    #[doc = ""]
     pub fn fsExemptFromSession(archive: FS_Archive);
 }
 extern "C" {
-    #[doc = "Unexempts an archive from using alternate FS session handles provided with @ref fsUseSession"]
+    #[doc = "Unexempts an archive from using alternate FS session handles provided with [`fsUseSession`]"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `archive` - Archive to remove from the exemption list."]
+    #[doc = ""]
     pub fn fsUnexemptFromSession(archive: FS_Archive);
 }
 extern "C" {
     #[doc = "Creates an FS_Path instance."]
     #[doc = ""]
-    #[doc = "Returns: The created FS_Path instance."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The created FS_Path instance."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `type` - Type of path."]
     #[doc = "* `path` - Path to use."]
+    #[doc = ""]
     pub fn fsMakePath(type_: FS_PathType, path: *const ::libc::c_void) -> FS_Path;
 }
 extern "C" {
     #[doc = "Gets the current FS session handle."]
     #[doc = ""]
-    #[doc = "Returns: The current FS session handle."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The current FS session handle."]
     #[doc = ""]
     pub fn fsGetSessionHandle() -> *mut Handle;
 }
@@ -8275,6 +8780,7 @@ extern "C" {
     #[doc = "* `inputSize` - Size of the input."]
     #[doc = "* `output` - Buffer to write output to."]
     #[doc = "* `outputSize` - Size of the output."]
+    #[doc = ""]
     pub fn FSUSER_Control(
         action: FS_Action,
         input: *mut ::libc::c_void,
@@ -8290,6 +8796,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `session` - The handle of the FSUSER session to initialize."]
+    #[doc = ""]
     pub fn FSUSER_Initialize(session: Handle) -> Result;
 }
 extern "C" {
@@ -8303,6 +8810,7 @@ extern "C" {
     #[doc = "* `path` - Path of the file."]
     #[doc = "* `openFlags` - Flags to open the file with."]
     #[doc = "* `attributes` - Attributes of the file."]
+    #[doc = ""]
     pub fn FSUSER_OpenFile(
         out: *mut Handle,
         archive: FS_Archive,
@@ -8323,6 +8831,7 @@ extern "C" {
     #[doc = "* `filePath` - Path of the file."]
     #[doc = "* `openFlags` - Flags to open the file with."]
     #[doc = "* `attributes` - Attributes of the file."]
+    #[doc = ""]
     pub fn FSUSER_OpenFileDirectly(
         out: *mut Handle,
         archiveId: FS_ArchiveID,
@@ -8340,6 +8849,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `archive` - Archive containing the file."]
     #[doc = "* `path` - Path of the file."]
+    #[doc = ""]
     pub fn FSUSER_DeleteFile(archive: FS_Archive, path: FS_Path) -> Result;
 }
 extern "C" {
@@ -8352,6 +8862,7 @@ extern "C" {
     #[doc = "* `srcPath` - Path of the source file."]
     #[doc = "* `dstArchive` - Archive containing the destination file."]
     #[doc = "* `dstPath` - Path of the destination file."]
+    #[doc = ""]
     pub fn FSUSER_RenameFile(
         srcArchive: FS_Archive,
         srcPath: FS_Path,
@@ -8367,6 +8878,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `archive` - Archive containing the directory."]
     #[doc = "* `path` - Path of the directory."]
+    #[doc = ""]
     pub fn FSUSER_DeleteDirectory(archive: FS_Archive, path: FS_Path) -> Result;
 }
 extern "C" {
@@ -8377,6 +8889,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `archive` - Archive containing the directory."]
     #[doc = "* `path` - Path of the directory."]
+    #[doc = ""]
     pub fn FSUSER_DeleteDirectoryRecursively(archive: FS_Archive, path: FS_Path) -> Result;
 }
 extern "C" {
@@ -8389,6 +8902,7 @@ extern "C" {
     #[doc = "* `path` - Path of the file."]
     #[doc = "* `attributes` - Attributes of the file."]
     #[doc = "* `fileSize` - Size of the file."]
+    #[doc = ""]
     pub fn FSUSER_CreateFile(
         archive: FS_Archive,
         path: FS_Path,
@@ -8405,6 +8919,7 @@ extern "C" {
     #[doc = "* `archive` - Archive to create the directory in."]
     #[doc = "* `path` - Path of the directory."]
     #[doc = "* `attributes` - Attributes of the directory."]
+    #[doc = ""]
     pub fn FSUSER_CreateDirectory(archive: FS_Archive, path: FS_Path, attributes: u32_) -> Result;
 }
 extern "C" {
@@ -8417,6 +8932,7 @@ extern "C" {
     #[doc = "* `srcPath` - Path of the source directory."]
     #[doc = "* `dstArchive` - Archive containing the destination directory."]
     #[doc = "* `dstPath` - Path of the destination directory."]
+    #[doc = ""]
     pub fn FSUSER_RenameDirectory(
         srcArchive: FS_Archive,
         srcPath: FS_Path,
@@ -8433,6 +8949,7 @@ extern "C" {
     #[doc = "* `out` - Pointer to output the directory handle to."]
     #[doc = "* `archive` - Archive containing the directory."]
     #[doc = "* `path` - Path of the directory."]
+    #[doc = ""]
     pub fn FSUSER_OpenDirectory(out: *mut Handle, archive: FS_Archive, path: FS_Path) -> Result;
 }
 extern "C" {
@@ -8444,6 +8961,7 @@ extern "C" {
     #[doc = "* `archive` - Pointer to output the opened archive to."]
     #[doc = "* `id` - ID of the archive."]
     #[doc = "* `path` - Path of the archive."]
+    #[doc = ""]
     pub fn FSUSER_OpenArchive(archive: *mut FS_Archive, id: FS_ArchiveID, path: FS_Path) -> Result;
 }
 extern "C" {
@@ -8458,6 +8976,7 @@ extern "C" {
     #[doc = "* `inputSize` - Size of the input."]
     #[doc = "* `output` - Buffer to write output to."]
     #[doc = "* `outputSize` - Size of the output."]
+    #[doc = ""]
     pub fn FSUSER_ControlArchive(
         archive: FS_Archive,
         action: FS_ArchiveAction,
@@ -8474,6 +8993,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `archive` - Archive to close."]
+    #[doc = ""]
     pub fn FSUSER_CloseArchive(archive: FS_Archive) -> Result;
 }
 extern "C" {
@@ -8484,6 +9004,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `freeBytes` - Pointer to output the free bytes to."]
     #[doc = "* `archive` - Archive to check."]
+    #[doc = ""]
     pub fn FSUSER_GetFreeBytes(freeBytes: *mut u64_, archive: FS_Archive) -> Result;
 }
 extern "C" {
@@ -8493,6 +9014,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `type` - Pointer to output the card type to."]
+    #[doc = ""]
     pub fn FSUSER_GetCardType(type_: *mut FS_CardType) -> Result;
 }
 extern "C" {
@@ -8502,6 +9024,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `archiveResource` - Pointer to output the archive resource information to."]
+    #[doc = ""]
     pub fn FSUSER_GetSdmcArchiveResource(archiveResource: *mut FS_ArchiveResource) -> Result;
 }
 extern "C" {
@@ -8511,6 +9034,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `archiveResource` - Pointer to output the archive resource information to."]
+    #[doc = ""]
     pub fn FSUSER_GetNandArchiveResource(archiveResource: *mut FS_ArchiveResource) -> Result;
 }
 extern "C" {
@@ -8520,6 +9044,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `error` - Pointer to output the error to."]
+    #[doc = ""]
     pub fn FSUSER_GetSdmcFatfsError(error: *mut u32_) -> Result;
 }
 extern "C" {
@@ -8529,6 +9054,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `detected` - Pointer to output the detection status to."]
+    #[doc = ""]
     pub fn FSUSER_IsSdmcDetected(detected: *mut bool) -> Result;
 }
 extern "C" {
@@ -8538,6 +9064,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `writable` - Pointer to output the writable status to."]
+    #[doc = ""]
     pub fn FSUSER_IsSdmcWritable(writable: *mut bool) -> Result;
 }
 extern "C" {
@@ -8548,6 +9075,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `out` - Pointer to output the CID to."]
     #[doc = "* `length` - Length of the CID buffer. (should be 0x10)"]
+    #[doc = ""]
     pub fn FSUSER_GetSdmcCid(out: *mut u8_, length: u32_) -> Result;
 }
 extern "C" {
@@ -8558,6 +9086,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `out` - Pointer to output the CID to."]
     #[doc = "* `length` - Length of the CID buffer. (should be 0x10)"]
+    #[doc = ""]
     pub fn FSUSER_GetNandCid(out: *mut u8_, length: u32_) -> Result;
 }
 extern "C" {
@@ -8567,6 +9096,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `speedInfo` - Pointer to output the speed info to."]
+    #[doc = ""]
     pub fn FSUSER_GetSdmcSpeedInfo(speedInfo: *mut FS_SdMmcSpeedInfo) -> Result;
 }
 extern "C" {
@@ -8576,6 +9106,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `speedInfo` - Pointer to output the speed info to."]
+    #[doc = ""]
     pub fn FSUSER_GetNandSpeedInfo(speedInfo: *mut FS_SdMmcSpeedInfo) -> Result;
 }
 extern "C" {
@@ -8586,6 +9117,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `out` - Pointer to output the log to."]
     #[doc = "* `length` - Length of the log buffer."]
+    #[doc = ""]
     pub fn FSUSER_GetSdmcLog(out: *mut u8_, length: u32_) -> Result;
 }
 extern "C" {
@@ -8596,6 +9128,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `out` - Pointer to output the log to."]
     #[doc = "* `length` - Length of the log buffer."]
+    #[doc = ""]
     pub fn FSUSER_GetNandLog(out: *mut u8_, length: u32_) -> Result;
 }
 extern "C" {
@@ -8617,6 +9150,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `inserted` - Pointer to output the insertion status to."]
+    #[doc = ""]
     pub fn FSUSER_CardSlotIsInserted(inserted: *mut bool) -> Result;
 }
 extern "C" {
@@ -8626,6 +9160,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `status` - Pointer to output the power status to."]
+    #[doc = ""]
     pub fn FSUSER_CardSlotPowerOn(status: *mut bool) -> Result;
 }
 extern "C" {
@@ -8635,6 +9170,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `status` - Pointer to output the power status to."]
+    #[doc = ""]
     pub fn FSUSER_CardSlotPowerOff(status: *mut bool) -> Result;
 }
 extern "C" {
@@ -8644,6 +9180,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `status` - Pointer to output the power status to."]
+    #[doc = ""]
     pub fn FSUSER_CardSlotGetCardIFPowerStatus(status: *mut bool) -> Result;
 }
 extern "C" {
@@ -8653,6 +9190,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `commandId` - ID of the command."]
+    #[doc = ""]
     pub fn FSUSER_CardNorDirectCommand(commandId: u8_) -> Result;
 }
 extern "C" {
@@ -8663,6 +9201,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `commandId` - ID of the command."]
     #[doc = "* `address` - Address to provide."]
+    #[doc = ""]
     pub fn FSUSER_CardNorDirectCommandWithAddress(commandId: u8_, address: u32_) -> Result;
 }
 extern "C" {
@@ -8674,6 +9213,7 @@ extern "C" {
     #[doc = "* `commandId` - ID of the command."]
     #[doc = "* `size` - Size of the output buffer."]
     #[doc = "* `output` - Output buffer."]
+    #[doc = ""]
     pub fn FSUSER_CardNorDirectRead(
         commandId: u8_,
         size: u32_,
@@ -8690,6 +9230,7 @@ extern "C" {
     #[doc = "* `address` - Address to provide."]
     #[doc = "* `size` - Size of the output buffer."]
     #[doc = "* `output` - Output buffer."]
+    #[doc = ""]
     pub fn FSUSER_CardNorDirectReadWithAddress(
         commandId: u8_,
         address: u32_,
@@ -8706,6 +9247,7 @@ extern "C" {
     #[doc = "* `commandId` - ID of the command."]
     #[doc = "* `size` - Size of the input buffer."]
     #[doc = "* `output` - Input buffer."]
+    #[doc = ""]
     pub fn FSUSER_CardNorDirectWrite(
         commandId: u8_,
         size: u32_,
@@ -8722,6 +9264,7 @@ extern "C" {
     #[doc = "* `address` - Address to provide."]
     #[doc = "* `size` - Size of the input buffer."]
     #[doc = "* `input` - Input buffer."]
+    #[doc = ""]
     pub fn FSUSER_CardNorDirectWriteWithAddress(
         commandId: u8_,
         address: u32_,
@@ -8739,6 +9282,7 @@ extern "C" {
     #[doc = "* `address` - Address to provide."]
     #[doc = "* `size` - Size of the output buffer."]
     #[doc = "* `output` - Output buffer."]
+    #[doc = ""]
     pub fn FSUSER_CardNorDirectRead_4xIO(
         commandId: u8_,
         address: u32_,
@@ -8755,6 +9299,7 @@ extern "C" {
     #[doc = "* `address` - Address to provide."]
     #[doc = "* `size` - Size of the input buffer."]
     #[doc = "* `output` - Input buffer."]
+    #[doc = ""]
     pub fn FSUSER_CardNorDirectCpuWriteWithoutVerify(
         address: u32_,
         size: u32_,
@@ -8768,6 +9313,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `address` - Address to provide."]
+    #[doc = ""]
     pub fn FSUSER_CardNorDirectSectorEraseWithoutVerify(address: u32_) -> Result;
 }
 extern "C" {
@@ -8778,6 +9324,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `info` - Pointer to output the product info to."]
     #[doc = "* `processId` - ID of the process."]
+    #[doc = ""]
     pub fn FSUSER_GetProductInfo(info: *mut FS_ProductInfo, processId: u32_) -> Result;
 }
 extern "C" {
@@ -8788,6 +9335,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `info` - Pointer to output the program launch info to."]
     #[doc = "* `processId` - ID of the process."]
+    #[doc = ""]
     pub fn FSUSER_GetProgramLaunchInfo(info: *mut FS_ProgramInfo, processId: u32_) -> Result;
 }
 extern "C" {
@@ -8797,6 +9345,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `baudRate` - Baud rate to set."]
+    #[doc = ""]
     pub fn FSUSER_SetCardSpiBaudRate(baudRate: FS_CardSpiBaudRate) -> Result;
 }
 extern "C" {
@@ -8806,6 +9355,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `busMode` - Bus mode to set."]
+    #[doc = ""]
     pub fn FSUSER_SetCardSpiBusMode(busMode: FS_CardSpiBusMode) -> Result;
 }
 extern "C" {
@@ -8824,6 +9374,7 @@ extern "C" {
     #[doc = "* `mediaType` - Media type of the special content."]
     #[doc = "* `programId` - Program ID owning the special content."]
     #[doc = "* `type` - Type of special content."]
+    #[doc = ""]
     pub fn FSUSER_GetSpecialContentIndex(
         index: *mut u16_,
         mediaType: FS_MediaType,
@@ -8840,6 +9391,7 @@ extern "C" {
     #[doc = "* `mediaType` - Media type of the program."]
     #[doc = "* `programId` - ID of the program."]
     #[doc = "* `header` - Pointer to output the legacy ROM header to. (size = 0x3B4)"]
+    #[doc = ""]
     pub fn FSUSER_GetLegacyRomHeader(
         mediaType: FS_MediaType,
         programId: u64_,
@@ -8855,6 +9407,7 @@ extern "C" {
     #[doc = "* `mediaType` - Media type of the program."]
     #[doc = "* `programId` - ID of the program."]
     #[doc = "* `header` - Pointer to output the legacy banner data to. (size = 0x23C0)"]
+    #[doc = ""]
     pub fn FSUSER_GetLegacyBannerData(
         mediaType: FS_MediaType,
         programId: u64_,
@@ -8871,6 +9424,7 @@ extern "C" {
     #[doc = "* `mediaType` - Media type of the save data."]
     #[doc = "* `saveId` - ID of the save data."]
     #[doc = "* `processId` - ID of the process to check."]
+    #[doc = ""]
     pub fn FSUSER_CheckAuthorityToAccessExtSaveData(
         access: *mut bool,
         mediaType: FS_MediaType,
@@ -8889,6 +9443,7 @@ extern "C" {
     #[doc = "* `files` - Number of files."]
     #[doc = "* `fileSizeCount` - Number of file sizes to provide."]
     #[doc = "* `fileSizes` - File sizes to provide."]
+    #[doc = ""]
     pub fn FSUSER_QueryTotalQuotaSize(
         quotaSize: *mut u64_,
         directories: u32_,
@@ -8904,6 +9459,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `accessRight` - Access right to abnegate."]
+    #[doc = ""]
     pub fn FSUSER_AbnegateAccessRight(accessRight: u32_) -> Result;
 }
 extern "C" {
@@ -8942,6 +9498,7 @@ extern "C" {
     #[doc = "* `duplicateData` - Pointer to output whether to duplicate data to."]
     #[doc = "* `archiveId` - ID of the archive."]
     #[doc = "* `path` - Path of the archive."]
+    #[doc = ""]
     pub fn FSUSER_GetFormatInfo(
         totalSize: *mut u32_,
         directories: *mut u32_,
@@ -8961,6 +9518,7 @@ extern "C" {
     #[doc = "* `mediaType` - Media type of the program."]
     #[doc = "* `programId` - ID of the program."]
     #[doc = "* `header` - Pointer to output the legacy ROM header to."]
+    #[doc = ""]
     pub fn FSUSER_GetLegacyRomHeader2(
         headerSize: u32_,
         mediaType: FS_MediaType,
@@ -8976,6 +9534,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `out` - Pointer to output the root path to."]
     #[doc = "* `length` - Length of the output buffer."]
+    #[doc = ""]
     pub fn FSUSER_GetSdmcCtrRootPath(out: *mut u8_, length: u32_) -> Result;
 }
 extern "C" {
@@ -8986,6 +9545,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `archiveResource` - Pointer to output the archive resource information to."]
     #[doc = "* `mediaType` - System media type to check."]
+    #[doc = ""]
     pub fn FSUSER_GetArchiveResource(
         archiveResource: *mut FS_ArchiveResource,
         mediaType: FS_SystemMediaType,
@@ -8998,6 +9558,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `seed` - Pointer to output the seed to."]
+    #[doc = ""]
     pub fn FSUSER_ExportIntegrityVerificationSeed(
         seed: *mut FS_IntegrityVerificationSeed,
     ) -> Result;
@@ -9009,6 +9570,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `seed` - Seed to import."]
+    #[doc = ""]
     pub fn FSUSER_ImportIntegrityVerificationSeed(
         seed: *mut FS_IntegrityVerificationSeed,
     ) -> Result;
@@ -9027,6 +9589,7 @@ extern "C" {
     #[doc = "* `directoryBuckets` - Directory hash tree bucket count."]
     #[doc = "* `fileBuckets` - File hash tree bucket count."]
     #[doc = "* `duplicateData` - Whether to store an internal duplicate of the data."]
+    #[doc = ""]
     pub fn FSUSER_FormatSaveData(
         archiveId: FS_ArchiveID,
         path: FS_Path,
@@ -9048,6 +9611,7 @@ extern "C" {
     #[doc = "* `mediaType` - Media type of the program."]
     #[doc = "* `programId` - ID of the program."]
     #[doc = "* `header` - Pointer to output the legacy sub banner data to."]
+    #[doc = ""]
     pub fn FSUSER_GetLegacySubBannerData(
         bannerSize: u32_,
         mediaType: FS_MediaType,
@@ -9064,6 +9628,7 @@ extern "C" {
     #[doc = "* `data` - Pointer to the data to be hashed."]
     #[doc = "* `inputSize` - The size of the data."]
     #[doc = "* `hash` - Hash output pointer."]
+    #[doc = ""]
     pub fn FSUSER_UpdateSha256Context(
         data: *const ::libc::c_void,
         inputSize: u32_,
@@ -9080,6 +9645,7 @@ extern "C" {
     #[doc = "* `fileOffset` - Offset of the file."]
     #[doc = "* `size` - Size of the buffer."]
     #[doc = "* `data` - Buffer to read to."]
+    #[doc = ""]
     pub fn FSUSER_ReadSpecialFile(
         bytesRead: *mut u32_,
         fileOffset: u64_,
@@ -9094,6 +9660,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `fileSize` - Pointer to output the size to."]
+    #[doc = ""]
     pub fn FSUSER_GetSpecialFileSize(fileSize: *mut u64_) -> Result;
 }
 extern "C" {
@@ -9108,6 +9675,7 @@ extern "C" {
     #[doc = "* `sizeLimit` - Size limit of the save data."]
     #[doc = "* `smdhSize` - Size of the save data's SMDH data."]
     #[doc = "* `smdh` - SMDH data."]
+    #[doc = ""]
     pub fn FSUSER_CreateExtSaveData(
         info: FS_ExtSaveDataInfo,
         directories: u32_,
@@ -9124,6 +9692,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `info` - Info of the save data."]
+    #[doc = ""]
     pub fn FSUSER_DeleteExtSaveData(info: FS_ExtSaveDataInfo) -> Result;
 }
 extern "C" {
@@ -9136,6 +9705,7 @@ extern "C" {
     #[doc = "* `info` - Info of the save data."]
     #[doc = "* `smdhSize` - Size of the save data SMDH."]
     #[doc = "* `smdh` - Pointer to output SMDH data to."]
+    #[doc = ""]
     pub fn FSUSER_ReadExtSaveDataIcon(
         bytesRead: *mut u32_,
         info: FS_ExtSaveDataInfo,
@@ -9153,6 +9723,7 @@ extern "C" {
     #[doc = "* `freeBlocks` - Pointer to output the free blocks to."]
     #[doc = "* `blockSize` - Pointer to output the block size to."]
     #[doc = "* `info` - Info of the save data."]
+    #[doc = ""]
     pub fn FSUSER_GetExtDataBlockSize(
         totalBlocks: *mut u64_,
         freeBlocks: *mut u64_,
@@ -9172,6 +9743,7 @@ extern "C" {
     #[doc = "* `idSize` - Size of each ID element."]
     #[doc = "* `shared` - Whether to enumerate shared ext save data."]
     #[doc = "* `ids` - Pointer to output IDs to."]
+    #[doc = ""]
     pub fn FSUSER_EnumerateExtSaveData(
         idsWritten: *mut u32_,
         idsSize: u32_,
@@ -9195,6 +9767,7 @@ extern "C" {
     #[doc = "* `directoryBuckets` - Directory hash tree bucket count."]
     #[doc = "* `fileBuckets` - File hash tree bucket count."]
     #[doc = "* `duplicateData` - Whether to store an internal duplicate of the data."]
+    #[doc = ""]
     pub fn FSUSER_CreateSystemSaveData(
         info: FS_SystemSaveDataInfo,
         totalSize: u32_,
@@ -9213,6 +9786,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `info` - Info of the save data."]
+    #[doc = ""]
     pub fn FSUSER_DeleteSystemSaveData(info: FS_SystemSaveDataInfo) -> Result;
 }
 extern "C" {
@@ -9222,6 +9796,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `context` - Pointer to output the context to."]
+    #[doc = ""]
     pub fn FSUSER_StartDeviceMoveAsSource(context: *mut FS_DeviceMoveContext) -> Result;
 }
 extern "C" {
@@ -9232,6 +9807,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `context` - Context to use."]
     #[doc = "* `clear` - Whether to clear the device's data first."]
+    #[doc = ""]
     pub fn FSUSER_StartDeviceMoveAsDestination(
         context: FS_DeviceMoveContext,
         clear: bool,
@@ -9245,6 +9821,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `archive` - Archive to use."]
     #[doc = "* `priority` - Priority to set."]
+    #[doc = ""]
     pub fn FSUSER_SetArchivePriority(archive: FS_Archive, priority: u32_) -> Result;
 }
 extern "C" {
@@ -9255,6 +9832,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `priority` - Pointer to output the priority to."]
     #[doc = "* `archive` - Archive to use."]
+    #[doc = ""]
     pub fn FSUSER_GetArchivePriority(priority: *mut u32_, archive: FS_Archive) -> Result;
 }
 extern "C" {
@@ -9265,6 +9843,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `latency` - Latency to apply, in milliseconds."]
     #[doc = "* `emulateEndurance` - Whether to emulate card endurance."]
+    #[doc = ""]
     pub fn FSUSER_SetCtrCardLatencyParameter(latency: u64_, emulateEndurance: bool) -> Result;
 }
 extern "C" {
@@ -9274,6 +9853,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `enable` - Whether to enable cleaning up invalid save data."]
+    #[doc = ""]
     pub fn FSUSER_SwitchCleanupInvalidSaveData(enable: bool) -> Result;
 }
 extern "C" {
@@ -9285,6 +9865,7 @@ extern "C" {
     #[doc = "* `idsWritten` - Pointer to output the number of IDs written to."]
     #[doc = "* `idsSize` - Size of the IDs buffer."]
     #[doc = "* `ids` - Pointer to output IDs to."]
+    #[doc = ""]
     pub fn FSUSER_EnumerateSystemSaveData(
         idsWritten: *mut u32_,
         idsSize: u32_,
@@ -9299,6 +9880,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `session` - The handle of the FSUSER session to initialize."]
     #[doc = "* `version` - SDK version to initialize with."]
+    #[doc = ""]
     pub fn FSUSER_InitializeWithSdkVersion(session: Handle, version: u32_) -> Result;
 }
 extern "C" {
@@ -9308,6 +9890,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `priority` - Priority to set."]
+    #[doc = ""]
     pub fn FSUSER_SetPriority(priority: u32_) -> Result;
 }
 extern "C" {
@@ -9317,6 +9900,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `priority` - Pointer to output the priority to."]
+    #[doc = ""]
     pub fn FSUSER_GetPriority(priority: *mut u32_) -> Result;
 }
 extern "C" {
@@ -9329,6 +9913,7 @@ extern "C" {
     #[doc = "* `slot` - Slot of the secure value."]
     #[doc = "* `titleUniqueId` - Unique ID of the title. (default = 0)"]
     #[doc = "* `titleVariation` - Variation of the title. (default = 0)"]
+    #[doc = ""]
     pub fn FSUSER_SetSaveDataSecureValue(
         value: u64_,
         slot: FS_SecureValueSlot,
@@ -9347,6 +9932,7 @@ extern "C" {
     #[doc = "* `slot` - Slot of the secure value."]
     #[doc = "* `titleUniqueId` - Unique ID of the title. (default = 0)"]
     #[doc = "* `titleVariation` - Variation of the title. (default = 0)"]
+    #[doc = ""]
     pub fn FSUSER_GetSaveDataSecureValue(
         exists: *mut bool,
         value: *mut u64_,
@@ -9366,6 +9952,7 @@ extern "C" {
     #[doc = "* `inputSize` - Size of the input."]
     #[doc = "* `output` - Buffer to write output to."]
     #[doc = "* `outputSize` - Size of the output."]
+    #[doc = ""]
     pub fn FSUSER_ControlSecureSave(
         action: FS_SecureSaveAction,
         input: *mut ::libc::c_void,
@@ -9381,6 +9968,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `mediaType` - Pointer to output the media type to."]
+    #[doc = ""]
     pub fn FSUSER_GetMediaType(mediaType: *mut FS_MediaType) -> Result;
 }
 extern "C" {
@@ -9395,6 +9983,7 @@ extern "C" {
     #[doc = "* `inputSize` - Size of the input."]
     #[doc = "* `output` - Buffer to write output to."]
     #[doc = "* `outputSize` - Size of the output."]
+    #[doc = ""]
     pub fn FSFILE_Control(
         handle: Handle,
         action: FS_FileAction,
@@ -9414,6 +10003,7 @@ extern "C" {
     #[doc = "* `subFile` - Pointer to output the sub-file to."]
     #[doc = "* `offset` - Offset of the sub-section."]
     #[doc = "* `size` - Size of the sub-section."]
+    #[doc = ""]
     pub fn FSFILE_OpenSubFile(
         handle: Handle,
         subFile: *mut Handle,
@@ -9432,6 +10022,7 @@ extern "C" {
     #[doc = "* `offset` - Offset to read from."]
     #[doc = "* `buffer` - Buffer to read to."]
     #[doc = "* `size` - Size of the buffer."]
+    #[doc = ""]
     pub fn FSFILE_Read(
         handle: Handle,
         bytesRead: *mut u32_,
@@ -9452,6 +10043,7 @@ extern "C" {
     #[doc = "* `buffer` - Buffer to write from."]
     #[doc = "* `size` - Size of the buffer."]
     #[doc = "* `flags` - Flags to use when writing."]
+    #[doc = ""]
     pub fn FSFILE_Write(
         handle: Handle,
         bytesWritten: *mut u32_,
@@ -9469,6 +10061,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `handle` - Handle of the file."]
     #[doc = "* `size` - Pointer to output the size to."]
+    #[doc = ""]
     pub fn FSFILE_GetSize(handle: Handle, size: *mut u64_) -> Result;
 }
 extern "C" {
@@ -9479,6 +10072,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `handle` - Handle of the file."]
     #[doc = "* `size` - Size to set."]
+    #[doc = ""]
     pub fn FSFILE_SetSize(handle: Handle, size: u64_) -> Result;
 }
 extern "C" {
@@ -9489,6 +10083,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `handle` - Handle of the file."]
     #[doc = "* `attributes` - Pointer to output the attributes to."]
+    #[doc = ""]
     pub fn FSFILE_GetAttributes(handle: Handle, attributes: *mut u32_) -> Result;
 }
 extern "C" {
@@ -9499,6 +10094,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `handle` - Handle of the file."]
     #[doc = "* `attributes` - Attributes to set."]
+    #[doc = ""]
     pub fn FSFILE_SetAttributes(handle: Handle, attributes: u32_) -> Result;
 }
 extern "C" {
@@ -9508,6 +10104,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `handle` - Handle of the file."]
+    #[doc = ""]
     pub fn FSFILE_Close(handle: Handle) -> Result;
 }
 extern "C" {
@@ -9517,6 +10114,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `handle` - Handle of the file."]
+    #[doc = ""]
     pub fn FSFILE_Flush(handle: Handle) -> Result;
 }
 extern "C" {
@@ -9527,6 +10125,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `handle` - Handle of the file."]
     #[doc = "* `priority` - Priority to set."]
+    #[doc = ""]
     pub fn FSFILE_SetPriority(handle: Handle, priority: u32_) -> Result;
 }
 extern "C" {
@@ -9537,6 +10136,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `handle` - Handle of the file."]
     #[doc = "* `priority` - Pointer to output the priority to."]
+    #[doc = ""]
     pub fn FSFILE_GetPriority(handle: Handle, priority: *mut u32_) -> Result;
 }
 extern "C" {
@@ -9547,6 +10147,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `handle` - Handle of the file."]
     #[doc = "* `linkFile` - Pointer to output the link handle to."]
+    #[doc = ""]
     pub fn FSFILE_OpenLinkFile(handle: Handle, linkFile: *mut Handle) -> Result;
 }
 extern "C" {
@@ -9561,6 +10162,7 @@ extern "C" {
     #[doc = "* `inputSize` - Size of the input."]
     #[doc = "* `output` - Buffer to write output to."]
     #[doc = "* `outputSize` - Size of the output."]
+    #[doc = ""]
     pub fn FSDIR_Control(
         handle: Handle,
         action: FS_DirectoryAction,
@@ -9580,6 +10182,7 @@ extern "C" {
     #[doc = "* `entriesRead` - Pointer to output the number of entries read to."]
     #[doc = "* `entryCount` - Number of entries to read."]
     #[doc = "* `entryOut` - Pointer to output directory entries to."]
+    #[doc = ""]
     pub fn FSDIR_Read(
         handle: Handle,
         entriesRead: *mut u32_,
@@ -9594,6 +10197,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `handle` - Handle of the directory."]
+    #[doc = ""]
     pub fn FSDIR_Close(handle: Handle) -> Result;
 }
 extern "C" {
@@ -9604,6 +10208,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `handle` - Handle of the directory."]
     #[doc = "* `priority` - Priority to set."]
+    #[doc = ""]
     pub fn FSDIR_SetPriority(handle: Handle, priority: u32_) -> Result;
 }
 extern "C" {
@@ -9614,6 +10219,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `handle` - Handle of the directory."]
     #[doc = "* `priority` - Pointer to output the priority to."]
+    #[doc = ""]
     pub fn FSDIR_GetPriority(handle: Handle, priority: *mut u32_) -> Result;
 }
 #[doc = "Contains basic information about a title."]
@@ -9675,7 +10281,7 @@ pub struct AM_PendingTitleEntry {
     #[doc = "Version"]
     #[doc = ""]
     pub version: u16_,
-    #[doc = "@ref AM_InstallStatus"]
+    #[doc = "[`AM_InstallStatus`]"]
     #[doc = ""]
     pub status: u16_,
     #[doc = "Title Type"]
@@ -9732,7 +10338,7 @@ pub struct AM_ContentInfo {
     #[doc = "Size of the content in the title."]
     #[doc = ""]
     pub size: u64_,
-    #[doc = "@ref AM_ContentInfoFlags"]
+    #[doc = "[`AM_ContentInfoFlags`]"]
     #[doc = ""]
     pub flags: u8_,
     #[doc = "Padding"]
@@ -9781,6 +10387,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `mediatype` - Media type to get titles from."]
     #[doc = "* `count` - Pointer to write the title count to. [Direction: In, Out]"]
+    #[doc = ""]
     pub fn AM_GetTitleCount(mediatype: FS_MediaType, count: *mut u32_) -> Result;
 }
 extern "C" {
@@ -9793,6 +10400,7 @@ extern "C" {
     #[doc = "* `mediatype` - Media type to get titles from."]
     #[doc = "* `titleCount` - Number of title IDs to get."]
     #[doc = "* `titleIds` - Buffer to output the retrieved title IDs to."]
+    #[doc = ""]
     pub fn AM_GetTitleList(
         titlesRead: *mut u32_,
         mediatype: FS_MediaType,
@@ -9810,6 +10418,7 @@ extern "C" {
     #[doc = "* `titleCount` - Number of titles to list."]
     #[doc = "* `titleIds` - List of title IDs to retrieve details for."]
     #[doc = "* `titleInfo` - Buffer to write AM_TitleEntry's to."]
+    #[doc = ""]
     pub fn AM_GetTitleInfo(
         mediatype: FS_MediaType,
         titleCount: u32_,
@@ -9824,6 +10433,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `count` - Pointer to output the ticket count to. [Direction: In, Out]"]
+    #[doc = ""]
     pub fn AM_GetTicketCount(count: *mut u32_) -> Result;
 }
 extern "C" {
@@ -9836,6 +10446,7 @@ extern "C" {
     #[doc = "* `ticketCount` - Number of tickets to read."]
     #[doc = "* `skip` - Number of tickets to skip."]
     #[doc = "* `ticketIds` - Buffer to output the retrieved ticket IDs to."]
+    #[doc = ""]
     pub fn AM_GetTicketList(
         ticketsRead: *mut u32_,
         ticketCount: u32_,
@@ -9852,6 +10463,7 @@ extern "C" {
     #[doc = "* `count` - Pointer to output the pending title count to. [Direction: In, Out]"]
     #[doc = "* `mediatype` - Media type of pending titles to count."]
     #[doc = "* `statusMask` - Bit mask of status values to include."]
+    #[doc = ""]
     pub fn AM_GetPendingTitleCount(
         count: *mut u32_,
         mediatype: FS_MediaType,
@@ -9869,6 +10481,7 @@ extern "C" {
     #[doc = "* `mediatype` - Media type of pending titles to list."]
     #[doc = "* `statusMask` - Bit mask of status values to include."]
     #[doc = "* `titleIds` - Buffer to output the retrieved pending title IDs to."]
+    #[doc = ""]
     pub fn AM_GetPendingTitleList(
         titlesRead: *mut u32_,
         titleCount: u32_,
@@ -9887,6 +10500,7 @@ extern "C" {
     #[doc = "* `mediatype` - Media type of pending titles to get information on."]
     #[doc = "* `titleIds` - IDs of the titles to get information about."]
     #[doc = "* `titleInfo` - Buffer to output the retrieved pending title info to."]
+    #[doc = ""]
     pub fn AM_GetPendingTitleInfo(
         titleCount: u32_,
         mediatype: FS_MediaType,
@@ -9901,6 +10515,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `deviceID` - Pointer to write the device ID to."]
+    #[doc = ""]
     pub fn AM_GetDeviceId(deviceID: *mut u32_) -> Result;
 }
 extern "C" {
@@ -9914,6 +10529,7 @@ extern "C" {
     #[doc = "* `workbuf` - Work buffer."]
     #[doc = "* `workbuf_size` - Work buffer size, must be >=0x20000."]
     #[doc = "* `filepath` - UTF-8 filepath(converted to UTF-16 internally)."]
+    #[doc = ""]
     pub fn AM_ExportTwlBackup(
         titleID: u64_,
         operation: u8_,
@@ -9932,6 +10548,7 @@ extern "C" {
     #[doc = "* `operation` - DSiWare operation type."]
     #[doc = "* `buffer` - Work buffer."]
     #[doc = "* `size` - Buffer size, must be >=0x20000."]
+    #[doc = ""]
     pub fn AM_ImportTwlBackup(
         filehandle: Handle,
         operation: u8_,
@@ -9952,6 +10569,7 @@ extern "C" {
     #[doc = "* `workbuf_size` - Work buffer size."]
     #[doc = "* `banner` - Output banner buffer."]
     #[doc = "* `banner_size` - Output banner buffer size."]
+    #[doc = ""]
     pub fn AM_ReadTwlBackupInfo(
         filehandle: Handle,
         outinfo: *mut ::libc::c_void,
@@ -9969,6 +10587,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `info` - Pointer to output the TWL partition info to. [Direction: In, Out]"]
+    #[doc = ""]
     pub fn AM_GetTWLPartitionInfo(info: *mut AM_TWLPartitionInfo) -> Result;
 }
 extern "C" {
@@ -9979,6 +10598,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `mediatype` - Media type to install the CIA to."]
     #[doc = "* `ciaHandle` - Pointer to write the CIA handle to. [Direction: In, Out]"]
+    #[doc = ""]
     pub fn AM_StartCiaInstall(mediatype: FS_MediaType, ciaHandle: *mut Handle) -> Result;
 }
 extern "C" {
@@ -9988,6 +10608,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `ciaHandle` - Pointer to write the CIA handle to. [Direction: In, Out]"]
+    #[doc = ""]
     pub fn AM_StartDlpChildCiaInstall(ciaHandle: *mut Handle) -> Result;
 }
 extern "C" {
@@ -9997,6 +10618,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `ciaHandle` - CIA handle to cancel."]
+    #[doc = ""]
     pub fn AM_CancelCIAInstall(ciaHandle: Handle) -> Result;
 }
 extern "C" {
@@ -10006,6 +10628,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `ciaHandle` - CIA handle to finalize."]
+    #[doc = ""]
     pub fn AM_FinishCiaInstall(ciaHandle: Handle) -> Result;
 }
 extern "C" {
@@ -10015,6 +10638,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `ciaHandle` - CIA handle to finalize."]
+    #[doc = ""]
     pub fn AM_FinishCiaInstallWithoutCommit(ciaHandle: Handle) -> Result;
 }
 extern "C" {
@@ -10027,6 +10651,7 @@ extern "C" {
     #[doc = "* `titleCount` - Number of titles to finalize."]
     #[doc = "* `temp` - Whether the titles being finalized are in the temporary database."]
     #[doc = "* `titleIds` - Title IDs to finalize."]
+    #[doc = ""]
     pub fn AM_CommitImportPrograms(
         mediaType: FS_MediaType,
         titleCount: u32_,
@@ -10042,6 +10667,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `mediatype` - Media type to delete from."]
     #[doc = "* `titleID` - ID of the title to delete."]
+    #[doc = ""]
     pub fn AM_DeleteTitle(mediatype: FS_MediaType, titleID: u64_) -> Result;
 }
 extern "C" {
@@ -10052,6 +10678,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `mediatype` - Media type to delete from."]
     #[doc = "* `titleID` - ID of the title to delete."]
+    #[doc = ""]
     pub fn AM_DeleteAppTitle(mediatype: FS_MediaType, titleID: u64_) -> Result;
 }
 extern "C" {
@@ -10061,6 +10688,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `titleID` - ID of the ticket to delete."]
+    #[doc = ""]
     pub fn AM_DeleteTicket(ticketId: u64_) -> Result;
 }
 extern "C" {
@@ -10071,6 +10699,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `mediatype` - Media type to delete from."]
     #[doc = "* `titleId` - ID of the pending title to delete."]
+    #[doc = ""]
     pub fn AM_DeletePendingTitle(mediatype: FS_MediaType, titleId: u64_) -> Result;
 }
 extern "C" {
@@ -10081,6 +10710,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `mediatype` - Media type to delete from."]
     #[doc = "* `flags` - Flags used to select pending titles."]
+    #[doc = ""]
     pub fn AM_DeletePendingTitles(mediatype: FS_MediaType, flags: u32_) -> Result;
 }
 extern "C" {
@@ -10090,6 +10720,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `mediatype` - Media type to delete from."]
+    #[doc = ""]
     pub fn AM_DeleteAllPendingTitles(mediatype: FS_MediaType) -> Result;
 }
 extern "C" {
@@ -10105,6 +10736,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `titleID` - Title ID of the NATIVE_FIRM to install."]
+    #[doc = ""]
     pub fn AM_InstallFirm(titleID: u64_) -> Result;
 }
 extern "C" {
@@ -10116,6 +10748,7 @@ extern "C" {
     #[doc = "* `mediatype` - Media type of the title."]
     #[doc = "* `titleID` - ID of the title."]
     #[doc = "* `productCode` - Pointer to output the product code to. (length = 16) [Direction: In, Out]"]
+    #[doc = ""]
     pub fn AM_GetTitleProductCode(
         mediatype: FS_MediaType,
         titleId: u64_,
@@ -10131,6 +10764,7 @@ extern "C" {
     #[doc = "* `extDataId` - Pointer to output the ext data ID to. [Direction: In, Out]"]
     #[doc = "* `mediatype` - Media type of the title."]
     #[doc = "* `titleID` - ID of the title."]
+    #[doc = ""]
     pub fn AM_GetTitleExtDataId(
         extDataId: *mut u64_,
         mediatype: FS_MediaType,
@@ -10146,6 +10780,7 @@ extern "C" {
     #[doc = "* `mediatype` - Media type that this CIA would be installed to."]
     #[doc = "* `titleEntry` - Pointer to write the AM_TitleEntry instance to. [Direction: In, Out]"]
     #[doc = "* `fileHandle` - Handle of the CIA file."]
+    #[doc = ""]
     pub fn AM_GetCiaFileInfo(
         mediatype: FS_MediaType,
         titleEntry: *mut AM_TitleEntry,
@@ -10160,6 +10795,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `icon` - Buffer to store the icon data in. Must be of size 0x36C0 bytes."]
     #[doc = "* `fileHandle` - Handle of the CIA file."]
+    #[doc = ""]
     pub fn AM_GetCiaIcon(icon: *mut ::libc::c_void, fileHandle: Handle) -> Result;
 }
 extern "C" {
@@ -10170,6 +10806,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `dependencies` - Buffer to store dependency title IDs in. Must be of size 0x300 bytes."]
     #[doc = "* `fileHandle` - Handle of the CIA file."]
+    #[doc = ""]
     pub fn AM_GetCiaDependencies(dependencies: *mut u64_, fileHandle: Handle) -> Result;
 }
 extern "C" {
@@ -10180,6 +10817,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `metaOffset` - Pointer to output the meta section offset to. [Direction: In, Out]"]
     #[doc = "* `fileHandle` - Handle of the CIA file."]
+    #[doc = ""]
     pub fn AM_GetCiaMetaOffset(metaOffset: *mut u64_, fileHandle: Handle) -> Result;
 }
 extern "C" {
@@ -10190,6 +10828,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `coreVersion` - Pointer to output the core version to. [Direction: In, Out]"]
     #[doc = "* `fileHandle` - Handle of the CIA file."]
+    #[doc = ""]
     pub fn AM_GetCiaCoreVersion(coreVersion: *mut u32_, fileHandle: Handle) -> Result;
 }
 extern "C" {
@@ -10201,6 +10840,7 @@ extern "C" {
     #[doc = "* `requiredSpace` - Pointer to output the required free space to. [Direction: In, Out]"]
     #[doc = "* `mediaType` - Media type to check free space needed to install to."]
     #[doc = "* `fileHandle` - Handle of the CIA file."]
+    #[doc = ""]
     pub fn AM_GetCiaRequiredSpace(
         requiredSpace: *mut u64_,
         mediaType: FS_MediaType,
@@ -10216,6 +10856,7 @@ extern "C" {
     #[doc = "* `meta` - Buffer to store the meta section in."]
     #[doc = "* `size` - Size of the buffer. Must be greater than or equal to the actual section data's size."]
     #[doc = "* `fileHandle` - Handle of the CIA file."]
+    #[doc = ""]
     pub fn AM_GetCiaMetaSection(
         meta: *mut ::libc::c_void,
         size: u32_,
@@ -10229,6 +10870,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `overwrite` - Overwrites the database if it already exists."]
+    #[doc = ""]
     pub fn AM_InitializeExternalTitleDatabase(overwrite: bool) -> Result;
 }
 extern "C" {
@@ -10238,6 +10880,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `available` - Pointer to output the availability status to. [Direction: In, Out]"]
+    #[doc = ""]
     pub fn AM_QueryAvailableExternalTitleDatabase(available: *mut bool) -> Result;
 }
 extern "C" {
@@ -10247,6 +10890,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `ticketHandle` - Pointer to output a handle to write ticket data to. [Direction: In, Out]"]
+    #[doc = ""]
     pub fn AM_InstallTicketBegin(ticketHandle: *mut Handle) -> Result;
 }
 extern "C" {
@@ -10256,6 +10900,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `ticketHandle` - Handle of the installation to abort."]
+    #[doc = ""]
     pub fn AM_InstallTicketAbort(ticketHandle: Handle) -> Result;
 }
 extern "C" {
@@ -10265,6 +10910,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `ticketHandle` - Handle of the installation to finalize."]
+    #[doc = ""]
     pub fn AM_InstallTicketFinish(ticketHandle: Handle) -> Result;
 }
 extern "C" {
@@ -10276,6 +10922,7 @@ extern "C" {
     #[doc = "* `mediaType` - Destination to install to."]
     #[doc = "* `titleId` - ID of the title to install."]
     #[doc = "* `unk` - Unknown. (usually false)"]
+    #[doc = ""]
     pub fn AM_InstallTitleBegin(mediaType: FS_MediaType, titleId: u64_, unk: bool) -> Result;
 }
 extern "C" {
@@ -10292,6 +10939,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `mediaType` - Destination to install to."]
     #[doc = "* `titleId` - ID of the title to install."]
+    #[doc = ""]
     pub fn AM_InstallTitleResume(mediaType: FS_MediaType, titleId: u64_) -> Result;
 }
 extern "C" {
@@ -10316,6 +10964,7 @@ extern "C" {
     #[doc = "* `titleCount` - Number of titles to finalize."]
     #[doc = "* `temp` - Whether the titles being finalized are in the temporary database."]
     #[doc = "* `titleIds` - Title IDs to finalize."]
+    #[doc = ""]
     pub fn AM_CommitImportTitles(
         mediaType: FS_MediaType,
         titleCount: u32_,
@@ -10330,6 +10979,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `tmdHandle` - Pointer to output a handle to write TMD data to. [Direction: In, Out]"]
+    #[doc = ""]
     pub fn AM_InstallTmdBegin(tmdHandle: *mut Handle) -> Result;
 }
 extern "C" {
@@ -10339,6 +10989,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `tmdHandle` - Handle of the installation to abort."]
+    #[doc = ""]
     pub fn AM_InstallTmdAbort(tmdHandle: Handle) -> Result;
 }
 extern "C" {
@@ -10349,6 +11000,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `tmdHandle` - Handle of the installation to finalize."]
     #[doc = "* `unk` - Unknown. (usually true)"]
+    #[doc = ""]
     pub fn AM_InstallTmdFinish(tmdHandle: Handle, unk: bool) -> Result;
 }
 extern "C" {
@@ -10359,6 +11011,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `contentCount` - Number of contents to be imported."]
     #[doc = "* `contentIndices` - Indices of the contents to be imported."]
+    #[doc = ""]
     pub fn AM_CreateImportContentContexts(contentCount: u32_, contentIndices: *mut u16_) -> Result;
 }
 extern "C" {
@@ -10369,6 +11022,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `contentHandle` - Pointer to output a handle to write content data to. [Direction: In, Out]"]
     #[doc = "* `index` - Index of the content to install."]
+    #[doc = ""]
     pub fn AM_InstallContentBegin(contentHandle: *mut Handle, index: u16_) -> Result;
 }
 extern "C" {
@@ -10378,6 +11032,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `contentHandle` - Handle of the installation to abort."]
+    #[doc = ""]
     pub fn AM_InstallContentStop(contentHandle: Handle) -> Result;
 }
 extern "C" {
@@ -10389,6 +11044,7 @@ extern "C" {
     #[doc = "* `contentHandle` - Pointer to output a handle to write content data to. [Direction: In, Out]"]
     #[doc = "* `resumeOffset` - Pointer to write the offset to resume content installation at to. [Direction: In, Out]"]
     #[doc = "* `index` - Index of the content to install."]
+    #[doc = ""]
     pub fn AM_InstallContentResume(
         contentHandle: *mut Handle,
         resumeOffset: *mut u64_,
@@ -10402,6 +11058,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `contentHandle` - Handle of the installation to finalize."]
+    #[doc = ""]
     pub fn AM_InstallContentCancel(contentHandle: Handle) -> Result;
 }
 extern "C" {
@@ -10411,6 +11068,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `contentHandle` - Handle of the installation to finalize."]
+    #[doc = ""]
     pub fn AM_InstallContentFinish(contentHandle: Handle) -> Result;
 }
 extern "C" {
@@ -10427,6 +11085,7 @@ extern "C" {
     #[doc = "* `cert3` - Data of the third certificate."]
     #[doc = "* `cert4Size` - Size of the fourth certificate."]
     #[doc = "* `cert4` - Data of the fourth certificate."]
+    #[doc = ""]
     pub fn AM_ImportCertificates(
         cert1Size: u32_,
         cert1: *mut ::libc::c_void,
@@ -10446,6 +11105,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `certSize` - Size of the certificate."]
     #[doc = "* `cert` - Data of the certificate."]
+    #[doc = ""]
     pub fn AM_ImportCertificate(certSize: u32_, cert: *mut ::libc::c_void) -> Result;
 }
 extern "C" {
@@ -10458,6 +11118,7 @@ extern "C" {
     #[doc = "* `titleCount` - Number of titles to finalize."]
     #[doc = "* `temp` - Whether the titles being finalized are in the temporary database."]
     #[doc = "* `titleIds` - Title IDs to finalize."]
+    #[doc = ""]
     pub fn AM_CommitImportTitlesAndUpdateFirmwareAuto(
         mediaType: FS_MediaType,
         titleCount: u32_,
@@ -10484,6 +11145,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `mediatype` - Media type to delete from."]
+    #[doc = ""]
     pub fn AM_DeleteAllExpiredTitles(mediatype: FS_MediaType) -> Result;
 }
 extern "C" {
@@ -10501,6 +11163,7 @@ extern "C" {
     #[doc = "* `count` - Pointer to output the number of content indices to. [Direction: In, Out]"]
     #[doc = "* `mediatype` - Media type of the title."]
     #[doc = "* `titleID` - Title ID to retrieve the count for (high-id is 0x0004008C)."]
+    #[doc = ""]
     pub fn AMAPP_GetDLCContentInfoCount(
         count: *mut u32_,
         mediatype: FS_MediaType,
@@ -10519,6 +11182,7 @@ extern "C" {
     #[doc = "* `contentInfoCount` - Number of content infos to retrieve."]
     #[doc = "* `offset` - Offset from the first content index the count starts at."]
     #[doc = "* `contentInfos` - Pointer to output the content infos read to. [Direction: In, Out]"]
+    #[doc = ""]
     pub fn AMAPP_ListDLCContentInfos(
         contentInfoRead: *mut u32_,
         mediatype: FS_MediaType,
@@ -10535,6 +11199,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `servhandle` - Optional service session handle to use for AMPXI, if zero srvGetServiceHandle() will be used."]
+    #[doc = ""]
     pub fn ampxiInit(servhandle: Handle) -> Result;
 }
 extern "C" {
@@ -10544,7 +11209,7 @@ extern "C" {
 }
 extern "C" {
     #[must_use]
-    #[doc = "Writes a TWL save-file to NAND. https://www.3dbrew.org/wiki/AMPXI:WriteTWLSavedata"]
+    #[doc = "Writes a TWL save-file to NAND. <https://www.3dbrew.org/wiki/AMPXI:WriteTWLSavedata>"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
@@ -10552,8 +11217,9 @@ extern "C" {
     #[doc = "* `buffer` - Savedata buffer ptr."]
     #[doc = "* `size` - Size of the savedata buffer."]
     #[doc = "* `image_filepos` - Filepos to use for writing the data to the NAND savedata file."]
-    #[doc = "* `section_type` - https://www.3dbrew.org/wiki/AMPXI:WriteTWLSavedata"]
-    #[doc = "* `operation` - https://3dbrew.org/wiki/AM:ImportDSiWare"]
+    #[doc = "* `section_type` - <https://www.3dbrew.org/wiki/AMPXI:WriteTWLSavedata>"]
+    #[doc = "* `operation` - <https://3dbrew.org/wiki/AM:ImportDSiWare>"]
+    #[doc = ""]
     pub fn AMPXI_WriteTWLSavedata(
         titleid: u64_,
         buffer: *mut u8_,
@@ -10565,7 +11231,7 @@ extern "C" {
 }
 extern "C" {
     #[must_use]
-    #[doc = "Finalizes title installation. https://3dbrew.org/wiki/AMPXI:InstallTitlesFinish"]
+    #[doc = "Finalizes title installation. <https://3dbrew.org/wiki/AMPXI:InstallTitlesFinish>"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
@@ -10574,6 +11240,7 @@ extern "C" {
     #[doc = "* `size` - Size of the savedata buffer."]
     #[doc = "* `titlecount` - Total titles."]
     #[doc = "* `tidlist` - List of titleIDs."]
+    #[doc = ""]
     pub fn AMPXI_InstallTitlesFinish(
         mediaType: FS_MediaType,
         db: u8_,
@@ -10664,8 +11331,7 @@ pub const APPID_EXTRAPAD: NS_APPID = 1032;
 pub const APPID_MEMOLIB: NS_APPID = 1033;
 #[doc = "NS Application IDs."]
 #[doc = ""]
-#[doc = ""]
-#[doc = "Retrieved from http://3dbrew.org/wiki/NS_and_APT_Services#AppIDs"]
+#[doc = "Retrieved from <http://3dbrew.org/wiki/NS_and_APT_Services#AppIDs>"]
 #[doc = ""]
 
 pub type NS_APPID = ::libc::c_uint;
@@ -10940,6 +11606,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `aptcmdbuf` - Pointer to command buffer (should have capacity for at least 16 words)."]
+    #[doc = ""]
     pub fn aptSendCommand(aptcmdbuf: *mut u32_) -> Result;
 }
 extern "C" {
@@ -10983,7 +11650,7 @@ extern "C" {
     pub fn aptShouldJumpToHome() -> bool;
 }
 extern "C" {
-    #[doc = "Returns true if there is an incoming HOME button press rejected by the policy set by \\ref aptSetHomeAllowed (use this to show a \"no HOME allowed\" icon)."]
+    #[doc = "Returns true if there is an incoming HOME button press rejected by the policy set by [`aptSetHomeAllowed`] (use this to show a \"no HOME allowed\" icon)."]
     #[doc = ""]
     pub fn aptCheckHomePressRejected() -> bool;
 }
@@ -10995,7 +11662,9 @@ extern "C" {
 extern "C" {
     #[doc = "Main function which handles sleep mode and HOME/power buttons - call this at the beginning of every frame."]
     #[doc = ""]
-    #[doc = "Returns: True if the application should keep running, false otherwise (see \\ref aptShouldClose)."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* true if the application should keep running, false otherwise (see [`aptShouldClose)`]"]
     #[doc = ""]
     pub fn aptMainLoop() -> bool;
 }
@@ -11007,6 +11676,7 @@ extern "C" {
     #[doc = "* `cookie` - Hook cookie to use."]
     #[doc = "* `callback` - Function to call when APT's status changes."]
     #[doc = "* `param` - User-defined parameter to pass to the callback."]
+    #[doc = ""]
     pub fn aptHook(cookie: *mut aptHookCookie, callback: aptHookFn, param: *mut ::libc::c_void);
 }
 extern "C" {
@@ -11015,6 +11685,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `cookie` - Hook cookie to remove."]
+    #[doc = ""]
     pub fn aptUnhook(cookie: *mut aptHookCookie);
 }
 extern "C" {
@@ -11024,6 +11695,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `callback` - Callback function."]
     #[doc = "* `user` - User-defined data to be passed to the callback."]
+    #[doc = ""]
     pub fn aptSetMessageCallback(callback: aptMessageCb, user: *mut ::libc::c_void);
 }
 extern "C" {
@@ -11035,6 +11707,7 @@ extern "C" {
     #[doc = "* `buf` - Input/output buffer that contains launch parameters on entry and result data on exit."]
     #[doc = "* `bufsize` - Size of the buffer."]
     #[doc = "* `handle` - Handle to pass to the library applet."]
+    #[doc = ""]
     pub fn aptLaunchLibraryApplet(
         appId: NS_APPID,
         buf: *mut ::libc::c_void,
@@ -11054,6 +11727,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `programID` - ID of the program to chainload to."]
     #[doc = "* `mediatype` - Media type of the program to chainload to."]
+    #[doc = ""]
     pub fn aptSetChainloader(programID: u64_, mediatype: u8_);
 }
 extern "C" {
@@ -11069,6 +11743,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `flags` - Flags to use."]
     #[doc = "* `lockHandle` - Pointer to output the lock handle to."]
+    #[doc = ""]
     pub fn APT_GetLockHandle(flags: u16_, lockHandle: *mut Handle) -> Result;
 }
 extern "C" {
@@ -11081,6 +11756,7 @@ extern "C" {
     #[doc = "* `attr` - Attributes of the application."]
     #[doc = "* `signalEvent` - Pointer to output the signal event handle to."]
     #[doc = "* `resumeEvent` - Pointer to output the resume event handle to."]
+    #[doc = ""]
     pub fn APT_Initialize(
         appId: NS_APPID,
         attr: APT_AppletAttr,
@@ -11095,6 +11771,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `appID` - ID of the application."]
+    #[doc = ""]
     pub fn APT_Finalize(appId: NS_APPID) -> Result;
 }
 extern "C" {
@@ -11110,6 +11787,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `attr` - Attributes of the application."]
+    #[doc = ""]
     pub fn APT_Enable(attr: APT_AppletAttr) -> Result;
 }
 extern "C" {
@@ -11123,6 +11801,7 @@ extern "C" {
     #[doc = "* `req_appid` - Pointer to output the AppID of the applet at the requested position to."]
     #[doc = "* `menu_appid` - Pointer to output the HOME menu AppID to."]
     #[doc = "* `active_appid` - Pointer to output the AppID of the currently active applet to."]
+    #[doc = ""]
     pub fn APT_GetAppletManInfo(
         inpos: APT_AppletPos,
         outpos: *mut APT_AppletPos,
@@ -11143,6 +11822,7 @@ extern "C" {
     #[doc = "* `pRegistered` - Pointer to output the registration status to."]
     #[doc = "* `pLoadState` - Pointer to output the load state to."]
     #[doc = "* `pAttributes` - Pointer to output the applet atrributes to."]
+    #[doc = ""]
     pub fn APT_GetAppletInfo(
         appID: NS_APPID,
         pProgramID: *mut u64_,
@@ -11155,7 +11835,6 @@ extern "C" {
 extern "C" {
     #[must_use]
     #[doc = "Gets an applet's program information."]
-    #[doc = ""]
     #[doc = ""]
     #[doc = "Flags:"]
     #[doc = "- 0x01: Use AM_ListTitles with NAND media type."]
@@ -11170,6 +11849,7 @@ extern "C" {
     #[doc = "* `id` - ID of the applet."]
     #[doc = "* `flags` - Flags to use when retreiving the information."]
     #[doc = "* `titleversion` - Pointer to output the applet's title version to."]
+    #[doc = ""]
     pub fn APT_GetAppletProgramInfo(id: u32_, flags: u32_, titleversion: *mut u16_) -> Result;
 }
 extern "C" {
@@ -11179,6 +11859,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `pProgramID` - Pointer to output the program ID to."]
+    #[doc = ""]
     pub fn APT_GetProgramID(pProgramID: *mut u64_) -> Result;
 }
 extern "C" {
@@ -11196,6 +11877,7 @@ extern "C" {
     #[doc = "* `param` - Parameters to jump with."]
     #[doc = "* `Size` - of the parameter buffer."]
     #[doc = "* `handle` - Handle to pass."]
+    #[doc = ""]
     pub fn APT_JumpToHomeMenu(
         param: *const ::libc::c_void,
         paramSize: size_t,
@@ -11209,6 +11891,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `exiting` - Specifies whether the applet is exiting."]
+    #[doc = ""]
     pub fn APT_PrepareToJumpToApplication(exiting: bool) -> Result;
 }
 extern "C" {
@@ -11220,6 +11903,7 @@ extern "C" {
     #[doc = "* `param` - Parameters to jump with."]
     #[doc = "* `Size` - of the parameter buffer."]
     #[doc = "* `handle` - Handle to pass."]
+    #[doc = ""]
     pub fn APT_JumpToApplication(
         param: *const ::libc::c_void,
         paramSize: size_t,
@@ -11234,6 +11918,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `appID` - ID of the application."]
     #[doc = "* `out` - Pointer to output the registration state to."]
+    #[doc = ""]
     pub fn APT_IsRegistered(appID: NS_APPID, out: *mut bool) -> Result;
 }
 extern "C" {
@@ -11244,6 +11929,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `appID` - ID of the application."]
     #[doc = "* `signalType` - Pointer to output the signal type to."]
+    #[doc = ""]
     pub fn APT_InquireNotification(appID: u32_, signalType: *mut APT_Signal) -> Result;
 }
 extern "C" {
@@ -11255,6 +11941,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `wakeEvents` - The wake events. Limited to \"shell\" (bit 1) for the PDN wake events part"]
+    #[doc = ""]
     pub fn APT_SleepSystem(wakeEvents: *const PtmWakeEvents) -> Result;
 }
 extern "C" {
@@ -11264,6 +11951,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `appID` - ID of the application."]
+    #[doc = ""]
     pub fn APT_NotifyToWait(appID: NS_APPID) -> Result;
 }
 extern "C" {
@@ -11277,6 +11965,7 @@ extern "C" {
     #[doc = "* `outSize` - Size of the output buffer."]
     #[doc = "* `in` - Pointer to the input data."]
     #[doc = "* `inSize` - Size of the input buffer."]
+    #[doc = ""]
     pub fn APT_AppletUtility(
         id: ::libc::c_int,
         out: *mut ::libc::c_void,
@@ -11299,6 +11988,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `transition` - Transition ID."]
     #[doc = "* `flag` - Flag (?)"]
+    #[doc = ""]
     pub fn APT_LockTransition(transition: u32_, flag: bool) -> Result;
 }
 extern "C" {
@@ -11309,6 +11999,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `transition` - Transition ID."]
     #[doc = "* `succeeded` - Pointer to output whether the lock was successfully applied."]
+    #[doc = ""]
     pub fn APT_TryLockTransition(transition: u32_, succeeded: *mut bool) -> Result;
 }
 extern "C" {
@@ -11318,6 +12009,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `transition` - Transition ID."]
+    #[doc = ""]
     pub fn APT_UnlockTransition(transition: u32_) -> Result;
 }
 extern "C" {
@@ -11333,6 +12025,7 @@ extern "C" {
     #[doc = "* `command` - Pointer to output the command ID to."]
     #[doc = "* `actualSize` - Pointer to output the actual received data size to."]
     #[doc = "* `parameter` - Pointer to output the parameter handle to."]
+    #[doc = ""]
     pub fn APT_GlanceParameter(
         appID: NS_APPID,
         buffer: *mut ::libc::c_void,
@@ -11356,6 +12049,7 @@ extern "C" {
     #[doc = "* `command` - Pointer to output the command ID to."]
     #[doc = "* `actualSize` - Pointer to output the actual received data size to."]
     #[doc = "* `parameter` - Pointer to output the parameter handle to."]
+    #[doc = ""]
     pub fn APT_ReceiveParameter(
         appID: NS_APPID,
         buffer: *mut ::libc::c_void,
@@ -11378,6 +12072,7 @@ extern "C" {
     #[doc = "* `buffer` - Buffer to send."]
     #[doc = "* `bufferSize` - Size of the buffer."]
     #[doc = "* `parameter` - Parameter handle to pass."]
+    #[doc = ""]
     pub fn APT_SendParameter(
         source: NS_APPID,
         dest: NS_APPID,
@@ -11396,6 +12091,7 @@ extern "C" {
     #[doc = "* `source` - AppID of the source application (use APPID_NONE to disable the check)."]
     #[doc = "* `dest` - AppID of the destination application (use APPID_NONE to disable the check)."]
     #[doc = "* `success` - Pointer to output true if a parameter was cancelled, or false otherwise."]
+    #[doc = ""]
     pub fn APT_CancelParameter(source: NS_APPID, dest: NS_APPID, success: *mut bool) -> Result;
 }
 extern "C" {
@@ -11405,6 +12101,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `captureBuf` - Capture buffer information to send."]
+    #[doc = ""]
     pub fn APT_SendCaptureBufferInfo(captureBuf: *const aptCaptureBufInfo) -> Result;
 }
 extern "C" {
@@ -11415,6 +12112,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `appID` - ID of the application."]
     #[doc = "* `reply` - Query reply value."]
+    #[doc = ""]
     pub fn APT_ReplySleepQuery(appID: NS_APPID, reply: APT_QueryReply) -> Result;
 }
 extern "C" {
@@ -11424,6 +12122,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `appID` - ID of the application."]
+    #[doc = ""]
     pub fn APT_ReplySleepNotificationComplete(appID: NS_APPID) -> Result;
 }
 extern "C" {
@@ -11433,6 +12132,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `cancelPreload` - Whether applet preloads should be cancelled."]
+    #[doc = ""]
     pub fn APT_PrepareToCloseApplication(cancelPreload: bool) -> Result;
 }
 extern "C" {
@@ -11444,6 +12144,7 @@ extern "C" {
     #[doc = "* `param` - Parameters to close with."]
     #[doc = "* `paramSize` - Size of param."]
     #[doc = "* `handle` - Handle to pass."]
+    #[doc = ""]
     pub fn APT_CloseApplication(
         param: *const ::libc::c_void,
         paramSize: size_t,
@@ -11457,6 +12158,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `percent` - CPU time limit percentage to set."]
+    #[doc = ""]
     pub fn APT_SetAppCpuTimeLimit(percent: u32_) -> Result;
 }
 extern "C" {
@@ -11466,6 +12168,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `percent` - Pointer to output the CPU time limit percentage to."]
+    #[doc = ""]
     pub fn APT_GetAppCpuTimeLimit(percent: *mut u32_) -> Result;
 }
 extern "C" {
@@ -11475,6 +12178,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `out` - Pointer to write the New 3DS flag to."]
+    #[doc = ""]
     pub fn APT_CheckNew3DS(out: *mut bool) -> Result;
 }
 extern "C" {
@@ -11486,6 +12190,7 @@ extern "C" {
     #[doc = "* `flags` - Flags to use."]
     #[doc = "* `programID` - ID of the program to jump to."]
     #[doc = "* `mediatype` - Media type of the program to jump to."]
+    #[doc = ""]
     pub fn APT_PrepareToDoApplicationJump(flags: u8_, programID: u64_, mediatype: u8_) -> Result;
 }
 extern "C" {
@@ -11497,6 +12202,7 @@ extern "C" {
     #[doc = "* `param` - Parameter buffer."]
     #[doc = "* `paramSize` - Size of parameter buffer."]
     #[doc = "* `hmac` - HMAC buffer (should be 0x20 bytes long)."]
+    #[doc = ""]
     pub fn APT_DoApplicationJump(
         param: *const ::libc::c_void,
         paramSize: size_t,
@@ -11510,6 +12216,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `appID` - AppID of the applet to start."]
+    #[doc = ""]
     pub fn APT_PrepareToStartLibraryApplet(appID: NS_APPID) -> Result;
 }
 extern "C" {
@@ -11522,6 +12229,7 @@ extern "C" {
     #[doc = "* `param` - Buffer containing applet parameters."]
     #[doc = "* `paramsize` - Size of the buffer."]
     #[doc = "* `handle` - Handle to pass to the applet."]
+    #[doc = ""]
     pub fn APT_StartLibraryApplet(
         appID: NS_APPID,
         param: *const ::libc::c_void,
@@ -11536,6 +12244,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `appID` - AppID of the applet to start."]
+    #[doc = ""]
     pub fn APT_PrepareToStartSystemApplet(appID: NS_APPID) -> Result;
 }
 extern "C" {
@@ -11548,6 +12257,7 @@ extern "C" {
     #[doc = "* `param` - Buffer containing applet parameters."]
     #[doc = "* `paramSize` - Size of the parameter buffer."]
     #[doc = "* `handle` - Handle to pass to the applet."]
+    #[doc = ""]
     pub fn APT_StartSystemApplet(
         appID: NS_APPID,
         param: *const ::libc::c_void,
@@ -11572,6 +12282,7 @@ extern "C" {
     #[doc = "* `hmac` - HMAC buffer (should be 0x20 bytes long)."]
     #[doc = "* `sender` - Pointer to output the sender's AppID to."]
     #[doc = "* `received` - Pointer to output whether an argument was received to."]
+    #[doc = ""]
     pub fn APT_ReceiveDeliverArg(
         param: *const ::libc::c_void,
         paramSize: size_t,
@@ -11637,6 +12348,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `programID` - programID to use, 0 for the current process. Only used when BOSSP is available without *hax payload."]
     #[doc = "* `force_user` - When true, just use bossU instead of trying to initialize with bossP first."]
+    #[doc = ""]
     pub fn bossInit(programID: u64_, force_user: bool) -> Result;
 }
 extern "C" {
@@ -11646,6 +12358,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `programID` - programID to use, 0 for the current process."]
+    #[doc = ""]
     pub fn bossReinit(programID: u64_) -> Result;
 }
 extern "C" {
@@ -11667,6 +12380,7 @@ extern "C" {
     #[doc = "* `extdataID` - u64 extdataID, must have the high word set to the shared-extdata value when it's for NAND."]
     #[doc = "* `boss_size` - Probably the max size in the extdata which BOSS can use."]
     #[doc = "* `mediaType` - Roughly the same as FS mediatype."]
+    #[doc = ""]
     pub fn bossSetStorageInfo(extdataID: u64_, boss_size: u32_, mediaType: u8_) -> Result;
 }
 extern "C" {
@@ -11684,6 +12398,7 @@ extern "C" {
     #[doc = "* `taskID` - BOSS taskID."]
     #[doc = "* `unk0` - Unknown, usually zero."]
     #[doc = "* `unk1` - Unknown, usually zero."]
+    #[doc = ""]
     pub fn bossRegisterTask(taskID: *const ::libc::c_char, unk0: u8_, unk1: u8_) -> Result;
 }
 extern "C" {
@@ -11695,6 +12410,7 @@ extern "C" {
     #[doc = "* `PropertyID` - PropertyID"]
     #[doc = "* `buf` - Input buffer data."]
     #[doc = "* `size` - Buffer size."]
+    #[doc = ""]
     pub fn bossSendProperty(PropertyID: u16_, buf: *const ::libc::c_void, size: u32_) -> Result;
 }
 extern "C" {
@@ -11704,6 +12420,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `NsDataId` - NsDataId"]
+    #[doc = ""]
     pub fn bossDeleteNsData(NsDataId: u32_) -> Result;
 }
 extern "C" {
@@ -11716,6 +12433,7 @@ extern "C" {
     #[doc = "* `type` - Type of data to load."]
     #[doc = "* `buffer` - Output buffer."]
     #[doc = "* `size` - Output buffer size."]
+    #[doc = ""]
     pub fn bossGetNsDataHeaderInfo(
         NsDataId: u32_,
         type_: u8_,
@@ -11735,6 +12453,7 @@ extern "C" {
     #[doc = "* `size` - Output buffer size."]
     #[doc = "* `transfer_total` - Optional output actual read size, can be NULL."]
     #[doc = "* `unk_out` - Optional unknown output, can be NULL."]
+    #[doc = ""]
     pub fn bossReadNsData(
         NsDataId: u32_,
         offset: u64_,
@@ -11751,6 +12470,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `taskID` - BOSS taskID."]
+    #[doc = ""]
     pub fn bossStartTaskImmediate(taskID: *const ::libc::c_char) -> Result;
 }
 extern "C" {
@@ -11760,6 +12480,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `taskID` - BOSS taskID."]
+    #[doc = ""]
     pub fn bossStartBgImmediate(taskID: *const ::libc::c_char) -> Result;
 }
 extern "C" {
@@ -11770,6 +12491,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `taskID` - BOSS taskID."]
     #[doc = "* `unk` - Unknown, usually zero?"]
+    #[doc = ""]
     pub fn bossDeleteTask(taskID: *const ::libc::c_char, unk: u32_) -> Result;
 }
 extern "C" {
@@ -11783,6 +12505,7 @@ extern "C" {
     #[doc = "* `status` - Output status, see bossTaskStatus."]
     #[doc = "* `out1` - Output field."]
     #[doc = "* `out2` - Output field."]
+    #[doc = ""]
     pub fn bossGetTaskState(
         taskID: *const ::libc::c_char,
         inval: s8,
@@ -11798,6 +12521,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `taskID` - BOSS taskID."]
+    #[doc = ""]
     pub fn bossGetTaskProperty0(taskID: *const ::libc::c_char, out: *mut u8_) -> Result;
 }
 extern "C" {
@@ -11808,6 +12532,7 @@ extern "C" {
     #[doc = "* `bossContext` - BOSS context."]
     #[doc = "* `seconds_interval` - Interval in seconds for running the task automatically."]
     #[doc = "* `url` - Task URL."]
+    #[doc = ""]
     pub fn bossSetupContextDefault(
         ctx: *mut bossContext,
         seconds_interval: u32_,
@@ -11821,6 +12546,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `bossContext` - BOSS context."]
+    #[doc = ""]
     pub fn bossSendContextConfig(ctx: *mut bossContext) -> Result;
 }
 #[doc = "8-bit per component, planar YUV 4:2:2, 16bpp, (1 Cr & Cb sample per 2x1 Y samples).\\n Usually named YUV422P."]
@@ -11845,12 +12571,11 @@ pub const INPUT_YUV420_INDIV_16: Y2RU_InputFormat = 3;
 pub const INPUT_YUV422_BATCH: Y2RU_InputFormat = 4;
 #[doc = "Input color formats"]
 #[doc = ""]
-#[doc = ""]
 #[doc = "For the 16-bit per component formats, bits 15-8 are padding and 7-0 contains the value."]
 #[doc = ""]
 
 pub type Y2RU_InputFormat = ::libc::c_uint;
-#[doc = "32-bit RGBA8888. The alpha component is the 8-bit value set by @ref Y2RU_SetAlpha"]
+#[doc = "32-bit RGBA8888. The alpha component is the 8-bit value set by [`Y2RU_SetAlpha`]"]
 #[doc = ""]
 
 pub const OUTPUT_RGB_32: Y2RU_OutputFormat = 0;
@@ -11858,7 +12583,7 @@ pub const OUTPUT_RGB_32: Y2RU_OutputFormat = 0;
 #[doc = ""]
 
 pub const OUTPUT_RGB_24: Y2RU_OutputFormat = 1;
-#[doc = "16-bit RGBA5551. The alpha bit is the 7th bit of the alpha value set by @ref Y2RU_SetAlpha"]
+#[doc = "16-bit RGBA5551. The alpha bit is the 7th bit of the alpha value set by [`Y2RU_SetAlpha`]"]
 #[doc = ""]
 
 pub const OUTPUT_RGB_16_555: Y2RU_OutputFormat = 2;
@@ -11867,7 +12592,6 @@ pub const OUTPUT_RGB_16_555: Y2RU_OutputFormat = 2;
 
 pub const OUTPUT_RGB_16_565: Y2RU_OutputFormat = 3;
 #[doc = "Output color formats"]
-#[doc = ""]
 #[doc = ""]
 #[doc = "Those are the same as the framebuffer and GPU texture formats."]
 #[doc = ""]
@@ -11903,22 +12627,22 @@ pub const BLOCK_LINE: Y2RU_BlockAlignment = 0;
 pub const BLOCK_8_BY_8: Y2RU_BlockAlignment = 1;
 #[doc = "Block alignment of output"]
 #[doc = ""]
-#[doc = ""]
 #[doc = "Defines the way the output will be laid out in memory."]
 #[doc = ""]
 
 pub type Y2RU_BlockAlignment = ::libc::c_uint;
 #[doc = "Coefficients of the YUV->RGB conversion formula."]
 #[doc = ""]
-#[doc = ""]
 #[doc = "A set of coefficients configuring the RGB to YUV conversion. Coefficients 0-4 are unsigned 2.8"]
 #[doc = "fixed pointer numbers representing entries on the conversion matrix, while coefficient 5-7 are"]
 #[doc = "signed 11.5 fixed point numbers added as offsets to the RGB result."]
-#[doc = ""]
 #[doc = "The overall conversion process formula is:"]
-#[doc = "R = trunc((rgb_Y * Y           + r_V * V) + 0.75 + r_offset)"]
+#[doc = "```"]
+#[doc = ""]
+#[doc = "R = trunc((rgb_Y * Y + r_V * V) + 0.75 + r_offset)"]
 #[doc = "G = trunc((rgb_Y * Y - g_U * U - g_V * V) + 0.75 + g_offset)"]
-#[doc = "B = trunc((rgb_Y * Y + b_U * U          ) + 0.75 + b_offset)"]
+#[doc = "B = trunc((rgb_Y * Y + b_U * U ) + 0.75 + b_offset)"]
+#[doc = "```"]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
@@ -11966,15 +12690,13 @@ pub const COEFFICIENT_ITU_R_BT_601_SCALING: Y2RU_StandardCoefficient = 2;
 pub const COEFFICIENT_ITU_R_BT_709_SCALING: Y2RU_StandardCoefficient = 3;
 #[doc = "Preset conversion coefficients based on ITU standards for the YUV->RGB formula."]
 #[doc = ""]
-#[doc = ""]
-#[doc = "For more details refer to @ref Y2RU_ColorCoefficients"]
+#[doc = "For more details refer to [`Y2RU_ColorCoefficients`]"]
 #[doc = ""]
 
 pub type Y2RU_StandardCoefficient = ::libc::c_uint;
 #[doc = "Structure used to configure all parameters at once."]
 #[doc = ""]
-#[doc = ""]
-#[doc = "You can send a batch of configuration parameters using this structure and @ref Y2RU_SetConversionParams."]
+#[doc = "You can send a batch of configuration parameters using this structure and [`Y2RU_SetConversionParams`]"]
 #[doc = ""]
 #[repr(C)]
 #[repr(align(4))]
@@ -11982,10 +12704,10 @@ pub type Y2RU_StandardCoefficient = ::libc::c_uint;
 pub struct Y2RU_ConversionParams {
     pub _bitfield_align_1: [u8; 0],
     pub _bitfield_1: __BindgenBitfieldUnit<[u8; 4usize]>,
-    #[doc = "Value passed to @ref Y2RU_SetInputLineWidth"]
+    #[doc = "Value passed to [`Y2RU_SetInputLineWidth`]"]
     #[doc = ""]
     pub input_line_width: s16,
-    #[doc = "Value passed to @ref Y2RU_SetInputLines"]
+    #[doc = "Value passed to [`Y2RU_SetInputLines`]"]
     #[doc = ""]
     pub input_lines: s16,
     pub _bitfield_align_2: [u8; 0],
@@ -11993,7 +12715,7 @@ pub struct Y2RU_ConversionParams {
     #[doc = "Unused."]
     #[doc = ""]
     pub unused: u8_,
-    #[doc = "Value passed to @ref Y2RU_SetAlpha"]
+    #[doc = "Value passed to [`Y2RU_SetAlpha`]"]
     #[doc = ""]
     pub alpha: u16_,
 }
@@ -12158,14 +12880,12 @@ extern "C" {
     #[must_use]
     #[doc = "Initializes the y2r service."]
     #[doc = ""]
-    #[doc = ""]
     #[doc = "This will internally get the handle of the service, and on success call Y2RU_DriverInitialize."]
     #[doc = ""]
     pub fn y2rInit() -> Result;
 }
 extern "C" {
     #[doc = "Closes the y2r service."]
-    #[doc = ""]
     #[doc = ""]
     #[doc = "This will internally call Y2RU_DriverFinalize and close the handle of the service."]
     #[doc = ""]
@@ -12175,11 +12895,14 @@ extern "C" {
     #[must_use]
     #[doc = "Used to configure the input format."]
     #[doc = ""]
-    #[doc = ""]
-    #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `format` - Input format to use."]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* Prefer using [`Y2RU_SetConversionParams`] if you have to set multiple parameters."]
+    #[doc = ""]
     pub fn Y2RU_SetInputFormat(format: Y2RU_InputFormat) -> Result;
 }
 extern "C" {
@@ -12189,17 +12912,21 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `format` - Pointer to output the input format to."]
+    #[doc = ""]
     pub fn Y2RU_GetInputFormat(format: *mut Y2RU_InputFormat) -> Result;
 }
 extern "C" {
     #[must_use]
     #[doc = "Used to configure the output format."]
     #[doc = ""]
-    #[doc = ""]
-    #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `format` - Output format to use."]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* Prefer using [`Y2RU_SetConversionParams`] if you have to set multiple parameters."]
+    #[doc = ""]
     pub fn Y2RU_SetOutputFormat(format: Y2RU_OutputFormat) -> Result;
 }
 extern "C" {
@@ -12209,19 +12936,23 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `format` - Pointer to output the output format to."]
+    #[doc = ""]
     pub fn Y2RU_GetOutputFormat(format: *mut Y2RU_OutputFormat) -> Result;
 }
 extern "C" {
     #[must_use]
     #[doc = "Used to configure the rotation of the output."]
     #[doc = ""]
-    #[doc = ""]
     #[doc = "It seems to apply the rotation per batch of 8 lines, so the output will be (height/8) images of size 8 x width."]
-    #[doc = ""]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `rotation` - Rotation to use."]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* Prefer using [`Y2RU_SetConversionParams`] if you have to set multiple parameters."]
+    #[doc = ""]
     pub fn Y2RU_SetRotation(rotation: Y2RU_Rotation) -> Result;
 }
 extern "C" {
@@ -12231,17 +12962,21 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `rotation` - Pointer to output the rotation to."]
+    #[doc = ""]
     pub fn Y2RU_GetRotation(rotation: *mut Y2RU_Rotation) -> Result;
 }
 extern "C" {
     #[must_use]
     #[doc = "Used to configure the alignment of the output buffer."]
     #[doc = ""]
-    #[doc = ""]
-    #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `alignment` - Alignment to use."]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* Prefer using [`Y2RU_SetConversionParams`] if you have to set multiple parameters."]
+    #[doc = ""]
     pub fn Y2RU_SetBlockAlignment(alignment: Y2RU_BlockAlignment) -> Result;
 }
 extern "C" {
@@ -12251,6 +12986,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `alignment` - Pointer to output the alignment to."]
+    #[doc = ""]
     pub fn Y2RU_GetBlockAlignment(alignment: *mut Y2RU_BlockAlignment) -> Result;
 }
 extern "C" {
@@ -12260,6 +12996,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `enable` - Whether to use spacial dithering."]
+    #[doc = ""]
     pub fn Y2RU_SetSpacialDithering(enable: bool) -> Result;
 }
 extern "C" {
@@ -12269,6 +13006,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `enable` - Pointer to output the spacial dithering state to."]
+    #[doc = ""]
     pub fn Y2RU_GetSpacialDithering(enabled: *mut bool) -> Result;
 }
 extern "C" {
@@ -12278,6 +13016,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `enable` - Whether to use temporal dithering."]
+    #[doc = ""]
     pub fn Y2RU_SetTemporalDithering(enable: bool) -> Result;
 }
 extern "C" {
@@ -12287,17 +13026,21 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `enable` - Pointer to output the temporal dithering state to."]
+    #[doc = ""]
     pub fn Y2RU_GetTemporalDithering(enabled: *mut bool) -> Result;
 }
 extern "C" {
     #[must_use]
     #[doc = "Used to configure the width of the image."]
     #[doc = ""]
-    #[doc = ""]
-    #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `line_width` - Width of the image in pixels. Must be a multiple of 8, up to 1024."]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* Prefer using [`Y2RU_SetConversionParams`] if you have to set multiple parameters."]
+    #[doc = ""]
     pub fn Y2RU_SetInputLineWidth(line_width: u16_) -> Result;
 }
 extern "C" {
@@ -12307,20 +13050,24 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `line_width` - Pointer to output the line width to."]
+    #[doc = ""]
     pub fn Y2RU_GetInputLineWidth(line_width: *mut u16_) -> Result;
 }
 extern "C" {
     #[must_use]
     #[doc = "Used to configure the height of the image."]
     #[doc = ""]
-    #[doc = ""]
     #[doc = "A multiple of 8 seems to be preferred."]
-    #[doc = "If using the @ref BLOCK_8_BY_8 mode, it must be a multiple of 8."]
-    #[doc = ""]
+    #[doc = "If using the [`BLOCK_8_BY_8`] mode, it must be a multiple of 8."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `num_lines` - Number of lines to be converted."]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* Prefer using [`Y2RU_SetConversionParams`] if you have to set multiple parameters."]
+    #[doc = ""]
     pub fn Y2RU_SetInputLines(num_lines: u16_) -> Result;
 }
 extern "C" {
@@ -12330,19 +13077,23 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `num_lines` - Pointer to output the input lines to."]
+    #[doc = ""]
     pub fn Y2RU_GetInputLines(num_lines: *mut u16_) -> Result;
 }
 extern "C" {
     #[must_use]
     #[doc = "Used to configure the color conversion formula."]
     #[doc = ""]
-    #[doc = ""]
-    #[doc = "See @ref Y2RU_ColorCoefficients for more information about the coefficients."]
-    #[doc = ""]
+    #[doc = "See [`Y2RU_ColorCoefficients`] for more information about the coefficients."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `coefficients` - Coefficients to use."]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* Prefer using [`Y2RU_SetConversionParams`] if you have to set multiple parameters."]
+    #[doc = ""]
     pub fn Y2RU_SetCoefficients(coefficients: *const Y2RU_ColorCoefficients) -> Result;
 }
 extern "C" {
@@ -12352,19 +13103,23 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `num_lines` - Pointer to output the coefficients to."]
+    #[doc = ""]
     pub fn Y2RU_GetCoefficients(coefficients: *mut Y2RU_ColorCoefficients) -> Result;
 }
 extern "C" {
     #[must_use]
     #[doc = "Used to configure the color conversion formula with ITU stantards coefficients."]
     #[doc = ""]
-    #[doc = ""]
-    #[doc = "See @ref Y2RU_ColorCoefficients for more information about the coefficients."]
-    #[doc = ""]
+    #[doc = "See [`Y2RU_ColorCoefficients`] for more information about the coefficients."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `coefficient` - Standard coefficient to use."]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* Prefer using [`Y2RU_SetConversionParams`] if you have to set multiple parameters."]
+    #[doc = ""]
     pub fn Y2RU_SetStandardCoefficient(coefficient: Y2RU_StandardCoefficient) -> Result;
 }
 extern "C" {
@@ -12375,6 +13130,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `coefficients` - Pointer to output the coefficients to."]
     #[doc = "* `standardCoeff` - Standard coefficient to check."]
+    #[doc = ""]
     pub fn Y2RU_GetStandardCoefficient(
         coefficients: *mut Y2RU_ColorCoefficients,
         standardCoeff: Y2RU_StandardCoefficient,
@@ -12384,11 +13140,14 @@ extern "C" {
     #[must_use]
     #[doc = "Used to configure the alpha value of the output."]
     #[doc = ""]
-    #[doc = ""]
-    #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `alpha` - 8-bit value to be used for the output when the format requires it."]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* Prefer using [`Y2RU_SetConversionParams`] if you have to set multiple parameters."]
+    #[doc = ""]
     pub fn Y2RU_SetAlpha(alpha: u16_) -> Result;
 }
 extern "C" {
@@ -12398,21 +13157,25 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `alpha` - Pointer to output the alpha value to."]
+    #[doc = ""]
     pub fn Y2RU_GetAlpha(alpha: *mut u16_) -> Result;
 }
 extern "C" {
     #[must_use]
     #[doc = "Used to enable the end of conversion interrupt."]
     #[doc = ""]
-    #[doc = ""]
     #[doc = "It is possible to fire an interrupt when the conversion is finished, and that the DMA is done copying the data."]
-    #[doc = "This interrupt will then be used to fire an event. See @ref Y2RU_GetTransferEndEvent."]
+    #[doc = "This interrupt will then be used to fire an event. See [`Y2RU_GetTransferEndEvent`]"]
     #[doc = "By default the interrupt is enabled."]
-    #[doc = ""]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `should_interrupt` - Enables the interrupt if true, disable it if false."]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* It seems that the event can be fired too soon in some cases, depending the transfer_unit size.\\n Please see the note at [`Y2RU_SetReceiving`]"]
+    #[doc = ""]
     pub fn Y2RU_SetTransferEndInterrupt(should_interrupt: bool) -> Result;
 }
 extern "C" {
@@ -12422,30 +13185,37 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `should_interrupt` - Pointer to output the interrupt state to."]
+    #[doc = ""]
     pub fn Y2RU_GetTransferEndInterrupt(should_interrupt: *mut bool) -> Result;
 }
 extern "C" {
     #[must_use]
     #[doc = "Gets an handle to the end of conversion event."]
     #[doc = ""]
-    #[doc = ""]
-    #[doc = "To enable this event you have to use @code{C} Y2RU_SetTransferEndInterrupt(true);@endcode"]
+    #[doc = "To enable this event you have to use ```"]
+    #[doc = "```"]
     #[doc = "The event will be triggered when the corresponding interrupt is fired."]
-    #[doc = ""]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `end_event` - Pointer to the event handle to be set to the end of conversion event. It isn't necessary to create or close this handle."]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* It is recommended to use a timeout when waiting on this event, as it sometimes (but rarely) isn't triggered."]
+    #[doc = ""]
     pub fn Y2RU_GetTransferEndEvent(end_event: *mut Handle) -> Result;
 }
 extern "C" {
     #[must_use]
     #[doc = "Configures the Y plane buffer."]
     #[doc = ""]
-    #[doc = ""]
-    #[doc = ""]
     #[doc = "This specifies the Y data buffer for the planar input formats (INPUT_YUV42*_INDIV_*)."]
-    #[doc = "The actual transfer will only happen after calling @ref Y2RU_StartConversion."]
+    #[doc = "The actual transfer will only happen after calling [`Y2RU_StartConversion`]"]
+    #[doc = ""]
+    #[doc = "**Warning!**"]
+    #[doc = ""]
+    #[doc = "* transfer_unit+transfer_gap must be less than 32768 (0x8000)"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
@@ -12453,6 +13223,7 @@ extern "C" {
     #[doc = "* `image_size` - The total size of the data buffer."]
     #[doc = "* `transfer_unit` - Specifies the size of 1 DMA transfer. Usually set to 1 line. This has to be a divisor of image_size."]
     #[doc = "* `transfer_gap` - Specifies the gap (offset) to be added after each transfer. Can be used to convert images with stride or only a part of it."]
+    #[doc = ""]
     pub fn Y2RU_SetSendingY(
         src_buf: *const ::libc::c_void,
         image_size: u32_,
@@ -12464,10 +13235,12 @@ extern "C" {
     #[must_use]
     #[doc = "Configures the U plane buffer."]
     #[doc = ""]
-    #[doc = ""]
-    #[doc = ""]
     #[doc = "This specifies the U data buffer for the planar input formats (INPUT_YUV42*_INDIV_*)."]
-    #[doc = "The actual transfer will only happen after calling @ref Y2RU_StartConversion."]
+    #[doc = "The actual transfer will only happen after calling [`Y2RU_StartConversion`]"]
+    #[doc = ""]
+    #[doc = "**Warning!**"]
+    #[doc = ""]
+    #[doc = "* transfer_unit+transfer_gap must be less than 32768 (0x8000)"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
@@ -12475,6 +13248,7 @@ extern "C" {
     #[doc = "* `image_size` - The total size of the data buffer."]
     #[doc = "* `transfer_unit` - Specifies the size of 1 DMA transfer. Usually set to 1 line. This has to be a divisor of image_size."]
     #[doc = "* `transfer_gap` - Specifies the gap (offset) to be added after each transfer. Can be used to convert images with stride or only a part of it."]
+    #[doc = ""]
     pub fn Y2RU_SetSendingU(
         src_buf: *const ::libc::c_void,
         image_size: u32_,
@@ -12486,10 +13260,12 @@ extern "C" {
     #[must_use]
     #[doc = "Configures the V plane buffer."]
     #[doc = ""]
-    #[doc = ""]
-    #[doc = ""]
     #[doc = "This specifies the V data buffer for the planar input formats (INPUT_YUV42*_INDIV_*)."]
-    #[doc = "The actual transfer will only happen after calling @ref Y2RU_StartConversion."]
+    #[doc = "The actual transfer will only happen after calling [`Y2RU_StartConversion`]"]
+    #[doc = ""]
+    #[doc = "**Warning!**"]
+    #[doc = ""]
+    #[doc = "* transfer_unit+transfer_gap must be less than 32768 (0x8000)"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
@@ -12497,6 +13273,7 @@ extern "C" {
     #[doc = "* `image_size` - The total size of the data buffer."]
     #[doc = "* `transfer_unit` - Specifies the size of 1 DMA transfer. Usually set to 1 line. This has to be a divisor of image_size."]
     #[doc = "* `transfer_gap` - Specifies the gap (offset) to be added after each transfer. Can be used to convert images with stride or only a part of it."]
+    #[doc = ""]
     pub fn Y2RU_SetSendingV(
         src_buf: *const ::libc::c_void,
         image_size: u32_,
@@ -12508,10 +13285,12 @@ extern "C" {
     #[must_use]
     #[doc = "Configures the YUYV source buffer."]
     #[doc = ""]
+    #[doc = "This specifies the YUYV data buffer for the packed input format [`INPUT_YUV422_BATCH`]"]
+    #[doc = "The actual transfer will only happen after calling [`Y2RU_StartConversion`]"]
     #[doc = ""]
+    #[doc = "**Warning!**"]
     #[doc = ""]
-    #[doc = "This specifies the YUYV data buffer for the packed input format @ref INPUT_YUV422_BATCH."]
-    #[doc = "The actual transfer will only happen after calling @ref Y2RU_StartConversion."]
+    #[doc = "* transfer_unit+transfer_gap must be less than 32768 (0x8000)"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
@@ -12519,6 +13298,7 @@ extern "C" {
     #[doc = "* `image_size` - The total size of the data buffer."]
     #[doc = "* `transfer_unit` - Specifies the size of 1 DMA transfer. Usually set to 1 line. This has to be a divisor of image_size."]
     #[doc = "* `transfer_gap` - Specifies the gap (offset) to be added after each transfer. Can be used to convert images with stride or only a part of it."]
+    #[doc = ""]
     pub fn Y2RU_SetSendingYUYV(
         src_buf: *const ::libc::c_void,
         image_size: u32_,
@@ -12530,16 +13310,16 @@ extern "C" {
     #[must_use]
     #[doc = "Configures the destination buffer."]
     #[doc = ""]
-    #[doc = ""]
     #[doc = "This specifies the destination buffer of the conversion."]
-    #[doc = "The actual transfer will only happen after calling @ref Y2RU_StartConversion."]
+    #[doc = "The actual transfer will only happen after calling [`Y2RU_StartConversion`]"]
     #[doc = "The buffer does NOT need to be allocated in the linear heap."]
-    #[doc = ""]
-    #[doc = ""]
     #[doc = "It seems that depending on the size of the image and of the transfer unit,\\n"]
     #[doc = "it is possible for the end of conversion interrupt to be triggered right after the conversion began.\\n"]
     #[doc = "One line as transfer_unit seems to trigger this issue for 400x240, setting to 2/4/8 lines fixes it."]
     #[doc = ""]
+    #[doc = "**Warning!**"]
+    #[doc = ""]
+    #[doc = "* transfer_unit+transfer_gap must be less than 32768 (0x8000)"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
@@ -12547,6 +13327,12 @@ extern "C" {
     #[doc = "* `image_size` - The total size of the data buffer."]
     #[doc = "* `transfer_unit` - Specifies the size of 1 DMA transfer. Usually set to 1 line. This has to be a divisor of image_size."]
     #[doc = "* `transfer_gap` - Specifies the gap (offset) to be added after each transfer. Can be used to convert images with stride or only a part of it."]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "*"]
+    #[doc = "* Setting a transfer_unit of 4 or 8 lines seems to bring the best results in terms of speed for a 400x240 image."]
+    #[doc = ""]
     pub fn Y2RU_SetReceiving(
         dst_buf: *mut ::libc::c_void,
         image_size: u32_,
@@ -12558,60 +13344,60 @@ extern "C" {
     #[must_use]
     #[doc = "Checks if the DMA has finished sending the Y buffer."]
     #[doc = ""]
-    #[doc = ""]
-    #[doc = "True if the DMA has finished transferring the Y plane, false otherwise. To be used with @ref Y2RU_SetSendingY."]
+    #[doc = "True if the DMA has finished transferring the Y plane, false otherwise. To be used with [`Y2RU_SetSendingY`]"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `is_done` - Pointer to the boolean that will hold the result."]
+    #[doc = ""]
     pub fn Y2RU_IsDoneSendingY(is_done: *mut bool) -> Result;
 }
 extern "C" {
     #[must_use]
     #[doc = "Checks if the DMA has finished sending the U buffer."]
     #[doc = ""]
-    #[doc = ""]
-    #[doc = "True if the DMA has finished transferring the U plane, false otherwise. To be used with @ref Y2RU_SetSendingU."]
+    #[doc = "True if the DMA has finished transferring the U plane, false otherwise. To be used with [`Y2RU_SetSendingU`]"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `is_done` - Pointer to the boolean that will hold the result."]
+    #[doc = ""]
     pub fn Y2RU_IsDoneSendingU(is_done: *mut bool) -> Result;
 }
 extern "C" {
     #[must_use]
     #[doc = "Checks if the DMA has finished sending the V buffer."]
     #[doc = ""]
-    #[doc = ""]
-    #[doc = "True if the DMA has finished transferring the V plane, false otherwise. To be used with @ref Y2RU_SetSendingV."]
+    #[doc = "True if the DMA has finished transferring the V plane, false otherwise. To be used with [`Y2RU_SetSendingV`]"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `is_done` - Pointer to the boolean that will hold the result."]
+    #[doc = ""]
     pub fn Y2RU_IsDoneSendingV(is_done: *mut bool) -> Result;
 }
 extern "C" {
     #[must_use]
     #[doc = "Checks if the DMA has finished sending the YUYV buffer."]
     #[doc = ""]
-    #[doc = ""]
-    #[doc = "True if the DMA has finished transferring the YUYV buffer, false otherwise. To be used with @ref Y2RU_SetSendingYUYV."]
+    #[doc = "True if the DMA has finished transferring the YUYV buffer, false otherwise. To be used with [`Y2RU_SetSendingYUYV`]"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `is_done` - Pointer to the boolean that will hold the result."]
+    #[doc = ""]
     pub fn Y2RU_IsDoneSendingYUYV(is_done: *mut bool) -> Result;
 }
 extern "C" {
     #[must_use]
     #[doc = "Checks if the DMA has finished sending the converted result."]
     #[doc = ""]
-    #[doc = ""]
     #[doc = "True if the DMA has finished transferring data to your destination buffer, false otherwise."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `is_done` - Pointer to the boolean that will hold the result."]
+    #[doc = ""]
     pub fn Y2RU_IsDoneReceiving(is_done: *mut bool) -> Result;
 }
 extern "C" {
@@ -12621,6 +13407,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `params` - Dithering weight parameters to use."]
+    #[doc = ""]
     pub fn Y2RU_SetDitheringWeightParams(params: *const Y2RU_DitheringWeightParams) -> Result;
 }
 extern "C" {
@@ -12630,18 +13417,19 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `params` - Pointer to output the dithering weight parameters to."]
+    #[doc = ""]
     pub fn Y2RU_GetDitheringWeightParams(params: *mut Y2RU_DitheringWeightParams) -> Result;
 }
 extern "C" {
     #[must_use]
     #[doc = "Sets all of the parameters of Y2RU_ConversionParams at once."]
     #[doc = ""]
-    #[doc = ""]
     #[doc = "Faster than calling the individual value through Y2R_Set* because only one system call is made."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `params` - Conversion parameters to set."]
+    #[doc = ""]
     pub fn Y2RU_SetConversionParams(params: *const Y2RU_ConversionParams) -> Result;
 }
 extern "C" {
@@ -12660,12 +13448,12 @@ extern "C" {
     #[must_use]
     #[doc = "Checks if the conversion and DMA transfer are finished."]
     #[doc = ""]
-    #[doc = ""]
-    #[doc = "This can have the same problems as the event and interrupt. See @ref Y2RU_SetTransferEndInterrupt."]
+    #[doc = "This can have the same problems as the event and interrupt. See [`Y2RU_SetTransferEndInterrupt`]"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `is_busy` - Pointer to output the busy state to."]
+    #[doc = ""]
     pub fn Y2RU_IsBusyConversion(is_busy: *mut bool) -> Result;
 }
 extern "C" {
@@ -12675,6 +13463,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `ping` - Pointer to output the ready status to."]
+    #[doc = ""]
     pub fn Y2RU_PingProcess(ping: *mut u8_) -> Result;
 }
 extern "C" {
@@ -12785,31 +13574,31 @@ pub const FLIP_REVERSE: CAMU_Flip = 3;
 #[doc = ""]
 
 pub type CAMU_Flip = ::libc::c_uint;
-#[doc = "VGA size.         (640x480)"]
+#[doc = "VGA size. (640x480)"]
 #[doc = ""]
 
 pub const SIZE_VGA: CAMU_Size = 0;
-#[doc = "QVGA size.        (320x240)"]
+#[doc = "QVGA size. (320x240)"]
 #[doc = ""]
 
 pub const SIZE_QVGA: CAMU_Size = 1;
-#[doc = "QQVGA size.       (160x120)"]
+#[doc = "QQVGA size. (160x120)"]
 #[doc = ""]
 
 pub const SIZE_QQVGA: CAMU_Size = 2;
-#[doc = "CIF size.         (352x288)"]
+#[doc = "CIF size. (352x288)"]
 #[doc = ""]
 
 pub const SIZE_CIF: CAMU_Size = 3;
-#[doc = "QCIF size.        (176x144)"]
+#[doc = "QCIF size. (176x144)"]
 #[doc = ""]
 
 pub const SIZE_QCIF: CAMU_Size = 4;
-#[doc = "DS LCD size.      (256x192)"]
+#[doc = "DS LCD size. (256x192)"]
 #[doc = ""]
 
 pub const SIZE_DS_LCD: CAMU_Size = 5;
-#[doc = "DS LCD x4 size.   (512x384)"]
+#[doc = "DS LCD x4 size. (512x384)"]
 #[doc = ""]
 
 pub const SIZE_DS_LCDx4: CAMU_Size = 6;
@@ -13012,7 +13801,7 @@ pub const CONTRAST_PATTERN_10: CAMU_Contrast = 9;
 #[doc = ""]
 
 pub const CONTRAST_PATTERN_11: CAMU_Contrast = 10;
-#[doc = "Low contrast.    (5)"]
+#[doc = "Low contrast. (5)"]
 #[doc = ""]
 
 pub const CONTRAST_LOW: CAMU_Contrast = 4;
@@ -13020,7 +13809,7 @@ pub const CONTRAST_LOW: CAMU_Contrast = 4;
 #[doc = ""]
 
 pub const CONTRAST_NORMAL: CAMU_Contrast = 5;
-#[doc = "High contrast.   (7)"]
+#[doc = "High contrast. (7)"]
 #[doc = ""]
 
 pub const CONTRAST_HIGH: CAMU_Contrast = 6;
@@ -13040,7 +13829,7 @@ pub const LENS_CORRECTION_ON_70: CAMU_LensCorrection = 1;
 #[doc = ""]
 
 pub const LENS_CORRECTION_ON_90: CAMU_LensCorrection = 2;
-#[doc = "Dark lens correction.   (OFF)"]
+#[doc = "Dark lens correction. (OFF)"]
 #[doc = ""]
 
 pub const LENS_CORRECTION_DARK: CAMU_LensCorrection = 0;
@@ -13301,14 +14090,12 @@ extern "C" {
     #[must_use]
     #[doc = "Initializes the cam service."]
     #[doc = ""]
-    #[doc = ""]
     #[doc = "This will internally get the handle of the service, and on success call CAMU_DriverInitialize."]
     #[doc = ""]
     pub fn camInit() -> Result;
 }
 extern "C" {
     #[doc = "Closes the cam service."]
-    #[doc = ""]
     #[doc = ""]
     #[doc = "This will internally call CAMU_DriverFinalize and close the handle of the service."]
     #[doc = ""]
@@ -13321,6 +14108,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `port` - Port to begin capture on."]
+    #[doc = ""]
     pub fn CAMU_StartCapture(port: u32_) -> Result;
 }
 extern "C" {
@@ -13330,6 +14118,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `port` - Port to terminate capture on."]
+    #[doc = ""]
     pub fn CAMU_StopCapture(port: u32_) -> Result;
 }
 extern "C" {
@@ -13340,6 +14129,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `busy` - Pointer to output the busy state to."]
     #[doc = "* `port` - Port to check."]
+    #[doc = ""]
     pub fn CAMU_IsBusy(busy: *mut bool, port: u32_) -> Result;
 }
 extern "C" {
@@ -13349,6 +14139,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `port` - Port to clear."]
+    #[doc = ""]
     pub fn CAMU_ClearBuffer(port: u32_) -> Result;
 }
 extern "C" {
@@ -13359,6 +14150,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `event` - Pointer to output the event handle to."]
     #[doc = "* `port` - Port to use."]
+    #[doc = ""]
     pub fn CAMU_GetVsyncInterruptEvent(event: *mut Handle, port: u32_) -> Result;
 }
 extern "C" {
@@ -13369,6 +14161,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `event` - Pointer to output the event handle to."]
     #[doc = "* `port` - Port to use."]
+    #[doc = ""]
     pub fn CAMU_GetBufferErrorInterruptEvent(event: *mut Handle, port: u32_) -> Result;
 }
 extern "C" {
@@ -13382,6 +14175,7 @@ extern "C" {
     #[doc = "* `port` - Port to receive from."]
     #[doc = "* `imageSize` - Size of the image to receive."]
     #[doc = "* `transferUnit` - Transfer unit to use when receiving."]
+    #[doc = ""]
     pub fn CAMU_SetReceiving(
         event: *mut Handle,
         dst: *mut ::libc::c_void,
@@ -13398,6 +14192,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `finishedReceiving` - Pointer to output the receiving status to."]
     #[doc = "* `port` - Port to check."]
+    #[doc = ""]
     pub fn CAMU_IsFinishedReceiving(finishedReceiving: *mut bool, port: u32_) -> Result;
 }
 extern "C" {
@@ -13410,6 +14205,7 @@ extern "C" {
     #[doc = "* `lines` - Lines to transfer."]
     #[doc = "* `width` - Width of the image."]
     #[doc = "* `height` - Height of the image."]
+    #[doc = ""]
     pub fn CAMU_SetTransferLines(port: u32_, lines: s16, width: s16, height: s16) -> Result;
 }
 extern "C" {
@@ -13421,6 +14217,7 @@ extern "C" {
     #[doc = "* `maxLines` - Pointer to write the maximum number of lines to."]
     #[doc = "* `width` - Width of the image."]
     #[doc = "* `height` - Height of the image."]
+    #[doc = ""]
     pub fn CAMU_GetMaxLines(maxLines: *mut s16, width: s16, height: s16) -> Result;
 }
 extern "C" {
@@ -13433,6 +14230,7 @@ extern "C" {
     #[doc = "* `bytes` - Bytes to transfer."]
     #[doc = "* `width` - Width of the image."]
     #[doc = "* `height` - Height of the image."]
+    #[doc = ""]
     pub fn CAMU_SetTransferBytes(port: u32_, bytes: u32_, width: s16, height: s16) -> Result;
 }
 extern "C" {
@@ -13443,6 +14241,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `transferBytes` - Pointer to write the number of bytes to."]
     #[doc = "* `port` - Port to use."]
+    #[doc = ""]
     pub fn CAMU_GetTransferBytes(transferBytes: *mut u32_, port: u32_) -> Result;
 }
 extern "C" {
@@ -13454,6 +14253,7 @@ extern "C" {
     #[doc = "* `maxBytes` - Pointer to write the maximum number of bytes to."]
     #[doc = "* `width` - Width of the image."]
     #[doc = "* `height` - Height of the image."]
+    #[doc = ""]
     pub fn CAMU_GetMaxBytes(maxBytes: *mut u32_, width: s16, height: s16) -> Result;
 }
 extern "C" {
@@ -13464,6 +14264,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `port` - Port to use."]
     #[doc = "* `trimming` - Whether image trimming is enabled."]
+    #[doc = ""]
     pub fn CAMU_SetTrimming(port: u32_, trimming: bool) -> Result;
 }
 extern "C" {
@@ -13474,6 +14275,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `trimming` - Pointer to output the trim state to."]
     #[doc = "* `port` - Port to use."]
+    #[doc = ""]
     pub fn CAMU_IsTrimming(trimming: *mut bool, port: u32_) -> Result;
 }
 extern "C" {
@@ -13487,6 +14289,7 @@ extern "C" {
     #[doc = "* `yStart` - Start Y coordinate."]
     #[doc = "* `xEnd` - End X coordinate."]
     #[doc = "* `yEnd` - End Y coordinate."]
+    #[doc = ""]
     pub fn CAMU_SetTrimmingParams(
         port: u32_,
         xStart: s16,
@@ -13506,6 +14309,7 @@ extern "C" {
     #[doc = "* `xEnd` - Pointer to write the end X coordinate to."]
     #[doc = "* `yEnd` - Pointer to write the end Y coordinate to."]
     #[doc = "* `port` - Port to use."]
+    #[doc = ""]
     pub fn CAMU_GetTrimmingParams(
         xStart: *mut s16,
         yStart: *mut s16,
@@ -13525,6 +14329,7 @@ extern "C" {
     #[doc = "* `trimHeight` - Trim height."]
     #[doc = "* `camWidth` - Camera width."]
     #[doc = "* `camHeight` - Camera height."]
+    #[doc = ""]
     pub fn CAMU_SetTrimmingParamsCenter(
         port: u32_,
         trimWidth: s16,
@@ -13540,6 +14345,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `select` - Camera to use."]
+    #[doc = ""]
     pub fn CAMU_Activate(select: u32_) -> Result;
 }
 extern "C" {
@@ -13550,6 +14356,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `select` - Camera to use."]
     #[doc = "* `context` - Context to use."]
+    #[doc = ""]
     pub fn CAMU_SwitchContext(select: u32_, context: CAMU_Context) -> Result;
 }
 extern "C" {
@@ -13560,6 +14367,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `select` - Camera to use."]
     #[doc = "* `exposure` - Exposure value to use."]
+    #[doc = ""]
     pub fn CAMU_SetExposure(select: u32_, exposure: s8) -> Result;
 }
 extern "C" {
@@ -13570,6 +14378,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `select` - Camera to use."]
     #[doc = "* `whiteBalance` - White balance mode to use."]
+    #[doc = ""]
     pub fn CAMU_SetWhiteBalance(select: u32_, whiteBalance: CAMU_WhiteBalance) -> Result;
 }
 extern "C" {
@@ -13582,6 +14391,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `select` - Camera to use."]
     #[doc = "* `whiteBalance` - White balance mode to use."]
+    #[doc = ""]
     pub fn CAMU_SetWhiteBalanceWithoutBaseUp(
         select: u32_,
         whiteBalance: CAMU_WhiteBalance,
@@ -13595,6 +14405,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `select` - Camera to use."]
     #[doc = "* `sharpness` - Sharpness to use."]
+    #[doc = ""]
     pub fn CAMU_SetSharpness(select: u32_, sharpness: s8) -> Result;
 }
 extern "C" {
@@ -13605,6 +14416,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `select` - Camera to use."]
     #[doc = "* `autoWhiteBalance` - Whether auto exposure is enabled."]
+    #[doc = ""]
     pub fn CAMU_SetAutoExposure(select: u32_, autoExposure: bool) -> Result;
 }
 extern "C" {
@@ -13615,6 +14427,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `autoExposure` - Pointer to output the auto exposure state to."]
     #[doc = "* `select` - Camera to use."]
+    #[doc = ""]
     pub fn CAMU_IsAutoExposure(autoExposure: *mut bool, select: u32_) -> Result;
 }
 extern "C" {
@@ -13625,6 +14438,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `select` - Camera to use."]
     #[doc = "* `autoWhiteBalance` - Whether auto white balance is enabled."]
+    #[doc = ""]
     pub fn CAMU_SetAutoWhiteBalance(select: u32_, autoWhiteBalance: bool) -> Result;
 }
 extern "C" {
@@ -13635,6 +14449,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `autoWhiteBalance` - Pointer to output the auto white balance state to."]
     #[doc = "* `select` - Camera to use."]
+    #[doc = ""]
     pub fn CAMU_IsAutoWhiteBalance(autoWhiteBalance: *mut bool, select: u32_) -> Result;
 }
 extern "C" {
@@ -13646,6 +14461,7 @@ extern "C" {
     #[doc = "* `select` - Camera to use."]
     #[doc = "* `flip` - Flip mode to use."]
     #[doc = "* `context` - Context to use."]
+    #[doc = ""]
     pub fn CAMU_FlipImage(select: u32_, flip: CAMU_Flip, context: CAMU_Context) -> Result;
 }
 extern "C" {
@@ -13662,6 +14478,7 @@ extern "C" {
     #[doc = "* `cropX1` - Second crop point X."]
     #[doc = "* `cropY1` - Second crop point Y."]
     #[doc = "* `context` - Context to use."]
+    #[doc = ""]
     pub fn CAMU_SetDetailSize(
         select: u32_,
         width: s16,
@@ -13682,6 +14499,7 @@ extern "C" {
     #[doc = "* `select` - Camera to use."]
     #[doc = "* `size` - Size to use."]
     #[doc = "* `context` - Context to use."]
+    #[doc = ""]
     pub fn CAMU_SetSize(select: u32_, size: CAMU_Size, context: CAMU_Context) -> Result;
 }
 extern "C" {
@@ -13692,6 +14510,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `select` - Camera to use."]
     #[doc = "* `frameRate` - Frame rate to use."]
+    #[doc = ""]
     pub fn CAMU_SetFrameRate(select: u32_, frameRate: CAMU_FrameRate) -> Result;
 }
 extern "C" {
@@ -13702,6 +14521,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `select` - Camera to use."]
     #[doc = "* `photoMode` - Photo mode to use."]
+    #[doc = ""]
     pub fn CAMU_SetPhotoMode(select: u32_, photoMode: CAMU_PhotoMode) -> Result;
 }
 extern "C" {
@@ -13713,6 +14533,7 @@ extern "C" {
     #[doc = "* `select` - Camera to use."]
     #[doc = "* `effect` - Effect to use."]
     #[doc = "* `context` - Context to use."]
+    #[doc = ""]
     pub fn CAMU_SetEffect(select: u32_, effect: CAMU_Effect, context: CAMU_Context) -> Result;
 }
 extern "C" {
@@ -13723,6 +14544,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `select` - Camera to use."]
     #[doc = "* `contrast` - Contrast mode to use."]
+    #[doc = ""]
     pub fn CAMU_SetContrast(select: u32_, contrast: CAMU_Contrast) -> Result;
 }
 extern "C" {
@@ -13733,6 +14555,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `select` - Camera to use."]
     #[doc = "* `lensCorrection` - Lens correction mode to use."]
+    #[doc = ""]
     pub fn CAMU_SetLensCorrection(select: u32_, lensCorrection: CAMU_LensCorrection) -> Result;
 }
 extern "C" {
@@ -13744,6 +14567,7 @@ extern "C" {
     #[doc = "* `select` - Camera to use."]
     #[doc = "* `format` - Format to output."]
     #[doc = "* `context` - Context to use."]
+    #[doc = ""]
     pub fn CAMU_SetOutputFormat(
         select: u32_,
         format: CAMU_OutputFormat,
@@ -13761,6 +14585,7 @@ extern "C" {
     #[doc = "* `y` - Y of the region."]
     #[doc = "* `width` - Width of the region."]
     #[doc = "* `height` - Height of the region."]
+    #[doc = ""]
     pub fn CAMU_SetAutoExposureWindow(
         select: u32_,
         x: s16,
@@ -13780,6 +14605,7 @@ extern "C" {
     #[doc = "* `y` - Y of the region."]
     #[doc = "* `width` - Width of the region."]
     #[doc = "* `height` - Height of the region."]
+    #[doc = ""]
     pub fn CAMU_SetAutoWhiteBalanceWindow(
         select: u32_,
         x: s16,
@@ -13796,6 +14622,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `select` - Camera to use."]
     #[doc = "* `noiseFilter` - Whether the noise filter is enabled."]
+    #[doc = ""]
     pub fn CAMU_SetNoiseFilter(select: u32_, noiseFilter: bool) -> Result;
 }
 extern "C" {
@@ -13806,6 +14633,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `select1` - First camera."]
     #[doc = "* `select2` - Second camera."]
+    #[doc = ""]
     pub fn CAMU_SynchronizeVsyncTiming(select1: u32_, select2: u32_) -> Result;
 }
 extern "C" {
@@ -13817,6 +14645,7 @@ extern "C" {
     #[doc = "* `timing` - Pointer to write timing data to. (size \"past * sizeof(s64)\")"]
     #[doc = "* `port` - Port to use."]
     #[doc = "* `past` - Number of past timings to retrieve."]
+    #[doc = ""]
     pub fn CAMU_GetLatestVsyncTiming(timing: *mut s64, port: u32_, past: u32_) -> Result;
 }
 extern "C" {
@@ -13826,6 +14655,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `data` - Pointer to output the stereo camera data to."]
+    #[doc = ""]
     pub fn CAMU_GetStereoCameraCalibrationData(
         data: *mut CAMU_StereoCameraCalibrationData,
     ) -> Result;
@@ -13837,6 +14667,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `data` - Data to set."]
+    #[doc = ""]
     pub fn CAMU_SetStereoCameraCalibrationData(data: CAMU_StereoCameraCalibrationData) -> Result;
 }
 extern "C" {
@@ -13848,6 +14679,7 @@ extern "C" {
     #[doc = "* `select` - Camera to write to."]
     #[doc = "* `addr` - Address to write to."]
     #[doc = "* `data` - Data to write."]
+    #[doc = ""]
     pub fn CAMU_WriteRegisterI2c(select: u32_, addr: u16_, data: u16_) -> Result;
 }
 extern "C" {
@@ -13859,6 +14691,7 @@ extern "C" {
     #[doc = "* `select` - Camera to write to."]
     #[doc = "* `addr` - Address to write to."]
     #[doc = "* `data` - Data to write."]
+    #[doc = ""]
     pub fn CAMU_WriteMcuVariableI2c(select: u32_, addr: u16_, data: u16_) -> Result;
 }
 extern "C" {
@@ -13870,6 +14703,7 @@ extern "C" {
     #[doc = "* `data` - Pointer to read data to."]
     #[doc = "* `select` - Camera to read from."]
     #[doc = "* `addr` - Address to read."]
+    #[doc = ""]
     pub fn CAMU_ReadRegisterI2cExclusive(data: *mut u16_, select: u32_, addr: u16_) -> Result;
 }
 extern "C" {
@@ -13881,6 +14715,7 @@ extern "C" {
     #[doc = "* `data` - Pointer to read data to."]
     #[doc = "* `select` - Camera to read from."]
     #[doc = "* `addr` - Address to read."]
+    #[doc = ""]
     pub fn CAMU_ReadMcuVariableI2cExclusive(data: *mut u16_, select: u32_, addr: u16_) -> Result;
 }
 extern "C" {
@@ -13890,6 +14725,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `data` - Data to set."]
+    #[doc = ""]
     pub fn CAMU_SetImageQualityCalibrationData(data: CAMU_ImageQualityCalibrationData) -> Result;
 }
 extern "C" {
@@ -13899,6 +14735,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `data` - Pointer to write the quality data to."]
+    #[doc = ""]
     pub fn CAMU_GetImageQualityCalibrationData(
         data: *mut CAMU_ImageQualityCalibrationData,
     ) -> Result;
@@ -13910,6 +14747,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `Parameter` - to use."]
+    #[doc = ""]
     pub fn CAMU_SetPackageParameterWithoutContext(
         param: CAMU_PackageParameterCameraSelect,
     ) -> Result;
@@ -13921,6 +14759,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `Parameter` - to use."]
+    #[doc = ""]
     pub fn CAMU_SetPackageParameterWithContext(param: CAMU_PackageParameterContext) -> Result;
 }
 extern "C" {
@@ -13930,6 +14769,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `Parameter` - to use."]
+    #[doc = ""]
     pub fn CAMU_SetPackageParameterWithContextDetail(
         param: CAMU_PackageParameterContextDetail,
     ) -> Result;
@@ -13941,6 +14781,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `coefficient` - Pointer to output the Y2R coefficient to."]
+    #[doc = ""]
     pub fn CAMU_GetSuitableY2rStandardCoefficient(
         coefficient: *mut Y2RU_StandardCoefficient,
     ) -> Result;
@@ -13952,6 +14793,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `sound` - Shutter sound to play."]
+    #[doc = ""]
     pub fn CAMU_PlayShutterSound(sound: CAMU_ShutterSoundType) -> Result;
 }
 extern "C" {
@@ -13973,6 +14815,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `select` - Pointer to output the current activated camera to."]
+    #[doc = ""]
     pub fn CAMU_GetActivatedCamera(select: *mut u32_) -> Result;
 }
 extern "C" {
@@ -13982,6 +14825,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `select` - Pointer to output the current sleep camera to."]
+    #[doc = ""]
     pub fn CAMU_GetSleepCamera(select: *mut u32_) -> Result;
 }
 extern "C" {
@@ -13991,6 +14835,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `select` - Camera to set."]
+    #[doc = ""]
     pub fn CAMU_SetSleepCamera(select: u32_) -> Result;
 }
 extern "C" {
@@ -14000,6 +14845,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `brightnessSynchronization` - Whether to enable brightness synchronization."]
+    #[doc = ""]
     pub fn CAMU_SetBrightnessSynchronization(brightnessSynchronization: bool) -> Result;
 }
 extern "C" {
@@ -14009,6 +14855,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `value` - Unknown, usually 1."]
+    #[doc = ""]
     pub fn cfgnorInit(value: u8_) -> Result;
 }
 extern "C" {
@@ -14024,6 +14871,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `buf` - Buffer to dump to."]
     #[doc = "* `size` - Size of the buffer."]
+    #[doc = ""]
     pub fn cfgnorDumpFlash(buf: *mut u32_, size: u32_) -> Result;
 }
 extern "C" {
@@ -14034,6 +14882,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `buf` - Buffer to write from."]
     #[doc = "* `size` - Size of the buffer."]
+    #[doc = ""]
     pub fn cfgnorWriteFlash(buf: *mut u32_, size: u32_) -> Result;
 }
 extern "C" {
@@ -14043,6 +14892,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `value` - Unknown, usually 1."]
+    #[doc = ""]
     pub fn CFGNOR_Initialize(value: u8_) -> Result;
 }
 extern "C" {
@@ -14060,6 +14910,7 @@ extern "C" {
     #[doc = "* `offset` - Offset to read from."]
     #[doc = "* `buf` - Buffer to read data to."]
     #[doc = "* `size` - Size of the buffer."]
+    #[doc = ""]
     pub fn CFGNOR_ReadData(offset: u32_, buf: *mut u32_, size: u32_) -> Result;
 }
 extern "C" {
@@ -14071,6 +14922,7 @@ extern "C" {
     #[doc = "* `offset` - Offset to write to."]
     #[doc = "* `buf` - Buffer to write data from."]
     #[doc = "* `size` - Size of the buffer."]
+    #[doc = ""]
     pub fn CFGNOR_WriteData(offset: u32_, buf: *mut u32_, size: u32_) -> Result;
 }
 #[doc = "Japan"]
@@ -14199,7 +15051,8 @@ extern "C" {
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
-    #[doc = "* `region` - Pointer to output the region to. (see @ref CFG_Region)"]
+    #[doc = "* `region` - Pointer to output the region to. (see [`CFG_Region)`]"]
+    #[doc = ""]
     pub fn CFGU_SecureInfoGetRegion(region: *mut u8_) -> Result;
 }
 extern "C" {
@@ -14210,6 +15063,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `appIDSalt` - Salt to use."]
     #[doc = "* `hash` - Pointer to output the hash to."]
+    #[doc = ""]
     pub fn CFGU_GenHashConsoleUnique(appIDSalt: u32_, hash: *mut u64_) -> Result;
 }
 extern "C" {
@@ -14219,6 +15073,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `value` - Pointer to output the result to. (0 = no, 1 = yes)"]
+    #[doc = ""]
     pub fn CFGU_GetRegionCanadaUSA(value: *mut u8_) -> Result;
 }
 extern "C" {
@@ -14227,7 +15082,8 @@ extern "C" {
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
-    #[doc = "* `model` - Pointer to output the model to. (see @ref CFG_SystemModel)"]
+    #[doc = "* `model` - Pointer to output the model to. (see [`CFG_SystemModel)`]"]
+    #[doc = ""]
     pub fn CFGU_GetSystemModel(model: *mut u8_) -> Result;
 }
 extern "C" {
@@ -14237,6 +15093,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `value` - Pointer to output the result to. (0 = yes, 1 = no)"]
+    #[doc = ""]
     pub fn CFGU_GetModelNintendo2DS(value: *mut u8_) -> Result;
 }
 extern "C" {
@@ -14247,6 +15104,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `code` - Country code to use."]
     #[doc = "* `string` - Pointer to output the string to."]
+    #[doc = ""]
     pub fn CFGU_GetCountryCodeString(code: u16_, string: *mut u16_) -> Result;
 }
 extern "C" {
@@ -14257,6 +15115,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `string` - String to use."]
     #[doc = "* `code` - Pointer to output the country code to."]
+    #[doc = ""]
     pub fn CFGU_GetCountryCodeID(string: u16_, code: *mut u16_) -> Result;
 }
 extern "C" {
@@ -14266,6 +15125,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `isSupported` - pointer to the output the result to."]
+    #[doc = ""]
     pub fn CFGU_IsNFCSupported(isSupported: *mut bool) -> Result;
 }
 extern "C" {
@@ -14277,6 +15137,7 @@ extern "C" {
     #[doc = "* `size` - Size of the data to retrieve."]
     #[doc = "* `blkID` - ID of the block to retrieve."]
     #[doc = "* `outData` - Pointer to write the block data to."]
+    #[doc = ""]
     pub fn CFGU_GetConfigInfoBlk2(size: u32_, blkID: u32_, outData: *mut ::libc::c_void) -> Result;
 }
 extern "C" {
@@ -14288,6 +15149,7 @@ extern "C" {
     #[doc = "* `size` - Size of the data to retrieve."]
     #[doc = "* `blkID` - ID of the block to retrieve."]
     #[doc = "* `outData` - Pointer to write the block data to."]
+    #[doc = ""]
     pub fn CFG_GetConfigInfoBlk4(size: u32_, blkID: u32_, outData: *mut ::libc::c_void) -> Result;
 }
 extern "C" {
@@ -14299,6 +15161,7 @@ extern "C" {
     #[doc = "* `size` - Size of the data to retrieve."]
     #[doc = "* `blkID` - ID of the block to retrieve."]
     #[doc = "* `outData` - Pointer to write the block data to."]
+    #[doc = ""]
     pub fn CFG_GetConfigInfoBlk8(size: u32_, blkID: u32_, outData: *mut ::libc::c_void) -> Result;
 }
 extern "C" {
@@ -14310,6 +15173,7 @@ extern "C" {
     #[doc = "* `size` - Size of the data to retrieve."]
     #[doc = "* `blkID` - ID of the block to retrieve."]
     #[doc = "* `inData` - Pointer to block data to write."]
+    #[doc = ""]
     pub fn CFG_SetConfigInfoBlk4(size: u32_, blkID: u32_, inData: *const ::libc::c_void) -> Result;
 }
 extern "C" {
@@ -14321,6 +15185,7 @@ extern "C" {
     #[doc = "* `size` - Size of the data to retrieve."]
     #[doc = "* `blkID` - ID of the block to retrieve."]
     #[doc = "* `inData` - Pointer to block data to write."]
+    #[doc = ""]
     pub fn CFG_SetConfigInfoBlk8(size: u32_, blkID: u32_, inData: *const ::libc::c_void) -> Result;
 }
 extern "C" {
@@ -14335,7 +15200,8 @@ extern "C" {
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
-    #[doc = "* `language` - Pointer to write the language to. (see @ref CFG_Language)"]
+    #[doc = "* `language` - Pointer to write the language to. (see [`CFG_Language)`]"]
+    #[doc = ""]
     pub fn CFGU_GetSystemLanguage(language: *mut u8_) -> Result;
 }
 extern "C" {
@@ -14387,6 +15253,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `serial` - Pointer to output the serial to. (This is normally 0xF)"]
+    #[doc = ""]
     pub fn CFGI_SecureInfoGetSerialNumber(serial: *mut u8_) -> Result;
 }
 extern "C" {
@@ -14396,6 +15263,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `data` - Pointer to output the buffer. (The size must be at least 0x110-bytes)"]
+    #[doc = ""]
     pub fn CFGI_GetLocalFriendCodeSeedData(data: *mut u8_) -> Result;
 }
 extern "C" {
@@ -14405,6 +15273,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `seed` - Pointer to write the friend code seed to."]
+    #[doc = ""]
     pub fn CFGI_GetLocalFriendCodeSeed(seed: *mut u64_) -> Result;
 }
 extern "C" {
@@ -14414,6 +15283,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `data` - Pointer to output the buffer. (The size must be at least 0x11-bytes)"]
+    #[doc = ""]
     pub fn CFGI_GetSecureInfoData(data: *mut u8_) -> Result;
 }
 extern "C" {
@@ -14423,6 +15293,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `data` - Pointer to output the buffer. (The size must be at least 0x100-bytes)"]
+    #[doc = ""]
     pub fn CFGI_GetSecureInfoSignature(data: *mut u8_) -> Result;
 }
 #[doc = "PCM8"]
@@ -14662,6 +15533,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `capUnit` - Pointer to output the capture unit to."]
+    #[doc = ""]
     pub fn CSND_AcquireCapUnit(capUnit: *mut u32_) -> Result;
 }
 extern "C" {
@@ -14671,6 +15543,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `capUnit` - Capture unit to release."]
+    #[doc = ""]
     pub fn CSND_ReleaseCapUnit(capUnit: u32_) -> Result;
 }
 extern "C" {
@@ -14681,6 +15554,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `adr` - Address of the memory region."]
     #[doc = "* `size` - Size of the memory region."]
+    #[doc = ""]
     pub fn CSND_FlushDataCache(adr: *const ::libc::c_void, size: u32_) -> Result;
 }
 extern "C" {
@@ -14691,6 +15565,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `adr` - Address of the memory region."]
     #[doc = "* `size` - Size of the memory region."]
+    #[doc = ""]
     pub fn CSND_StoreDataCache(adr: *const ::libc::c_void, size: u32_) -> Result;
 }
 extern "C" {
@@ -14701,6 +15576,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `adr` - Address of the memory region."]
     #[doc = "* `size` - Size of the memory region."]
+    #[doc = ""]
     pub fn CSND_InvalidateDataCache(adr: *const ::libc::c_void, size: u32_) -> Result;
 }
 extern "C" {
@@ -14725,11 +15601,14 @@ extern "C" {
 extern "C" {
     #[doc = "Adds a command to the list, returning a buffer to write arguments to."]
     #[doc = ""]
-    #[doc = "Returns: A buffer to write command arguments to."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* A buffer to write command arguments to."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `cmdid` - ID of the command to add."]
+    #[doc = ""]
     pub fn csndAddCmd(cmdid: ::libc::c_int) -> *mut u32_;
 }
 extern "C" {
@@ -14739,6 +15618,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `cmdid` - ID of the command to add."]
     #[doc = "* `cmdparams` - Buffer containing the command's parameters."]
+    #[doc = ""]
     pub fn csndWriteCmd(cmdid: ::libc::c_int, cmdparams: *mut u8_);
 }
 extern "C" {
@@ -14748,6 +15628,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `waitDone` - Whether to wait until the commands have finished executing."]
+    #[doc = ""]
     pub fn csndExecCmds(waitDone: bool) -> Result;
 }
 extern "C" {
@@ -14757,6 +15638,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `channel` - Channel to use."]
     #[doc = "* `value` - Play state to set."]
+    #[doc = ""]
     pub fn CSND_SetPlayStateR(channel: u32_, value: u32_);
 }
 extern "C" {
@@ -14766,6 +15648,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `channel` - Channel to use."]
     #[doc = "* `value` - Play state to set."]
+    #[doc = ""]
     pub fn CSND_SetPlayState(channel: u32_, value: u32_);
 }
 extern "C" {
@@ -14775,6 +15658,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `channel` - Channel to use."]
     #[doc = "* `value` - Encoding to set."]
+    #[doc = ""]
     pub fn CSND_SetEncoding(channel: u32_, value: u32_);
 }
 extern "C" {
@@ -14786,6 +15670,7 @@ extern "C" {
     #[doc = "* `block` - Block to set."]
     #[doc = "* `physaddr` - Physical address to set the block to."]
     #[doc = "* `size` - Size of the block."]
+    #[doc = ""]
     pub fn CSND_SetBlock(channel: u32_, block: ::libc::c_int, physaddr: u32_, size: u32_);
 }
 extern "C" {
@@ -14795,6 +15680,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `channel` - Channel to use."]
     #[doc = "* `value` - Whether to loop the channel."]
+    #[doc = ""]
     pub fn CSND_SetLooping(channel: u32_, value: u32_);
 }
 extern "C" {
@@ -14804,6 +15690,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `channel` - Channel to use."]
     #[doc = "* `set` - Value to set."]
+    #[doc = ""]
     pub fn CSND_SetBit7(channel: u32_, set: bool);
 }
 extern "C" {
@@ -14813,6 +15700,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `channel` - Channel to use."]
     #[doc = "* `interp` - Whether to use interpolation."]
+    #[doc = ""]
     pub fn CSND_SetInterp(channel: u32_, interp: bool);
 }
 extern "C" {
@@ -14822,6 +15710,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `channel` - Channel to use."]
     #[doc = "* `duty` - Duty to set."]
+    #[doc = ""]
     pub fn CSND_SetDuty(channel: u32_, duty: CSND_DutyCycle);
 }
 extern "C" {
@@ -14831,6 +15720,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `channel` - Channel to use."]
     #[doc = "* `timer` - Timer to set."]
+    #[doc = ""]
     pub fn CSND_SetTimer(channel: u32_, timer: u32_);
 }
 extern "C" {
@@ -14841,6 +15731,7 @@ extern "C" {
     #[doc = "* `channel` - Channel to use."]
     #[doc = "* `chnVolumes` - Channel volume data to set."]
     #[doc = "* `capVolumes` - Capture volume data to set."]
+    #[doc = ""]
     pub fn CSND_SetVol(channel: u32_, chnVolumes: u32_, capVolumes: u32_);
 }
 extern "C" {
@@ -14852,6 +15743,7 @@ extern "C" {
     #[doc = "* `block` - Current block."]
     #[doc = "* `sample` - Current sample."]
     #[doc = "* `index` - Current index."]
+    #[doc = ""]
     pub fn CSND_SetAdpcmState(
         channel: u32_,
         block: ::libc::c_int,
@@ -14866,6 +15758,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `channel` - Channel to use."]
     #[doc = "* `reload` - Whether to reload ADPCM data."]
+    #[doc = ""]
     pub fn CSND_SetAdpcmReload(channel: u32_, reload: bool);
 }
 extern "C" {
@@ -14879,6 +15772,7 @@ extern "C" {
     #[doc = "* `totalbytesize` - Total size of the data to play."]
     #[doc = "* `chnVolumes` - Channel volume data."]
     #[doc = "* `capVolumes` - Capture volume data."]
+    #[doc = ""]
     pub fn CSND_SetChnRegs(
         flags: u32_,
         physaddr0: u32_,
@@ -14897,6 +15791,7 @@ extern "C" {
     #[doc = "* `chnVolumes` - Channel volume data."]
     #[doc = "* `capVolumes` - Capture volume data."]
     #[doc = "* `duty` - Duty value to set."]
+    #[doc = ""]
     pub fn CSND_SetChnRegsPSG(
         flags: u32_,
         chnVolumes: u32_,
@@ -14912,6 +15807,7 @@ extern "C" {
     #[doc = "* `flags` - Flags to set."]
     #[doc = "* `chnVolumes` - Channel volume data."]
     #[doc = "* `capVolumes` - Capture volume data."]
+    #[doc = ""]
     pub fn CSND_SetChnRegsNoise(flags: u32_, chnVolumes: u32_, capVolumes: u32_);
 }
 extern "C" {
@@ -14921,6 +15817,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `capUnit` - Capture unit to use."]
     #[doc = "* `enable` - Whether to enable the capture unit."]
+    #[doc = ""]
     pub fn CSND_CapEnable(capUnit: u32_, enable: bool);
 }
 extern "C" {
@@ -14930,6 +15827,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `capUnit` - Capture unit to use."]
     #[doc = "* `repeat` - Whether the capture unit should repeat."]
+    #[doc = ""]
     pub fn CSND_CapSetRepeat(capUnit: u32_, repeat: bool);
 }
 extern "C" {
@@ -14939,6 +15837,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `capUnit` - Capture unit to use."]
     #[doc = "* `eightbit` - Format to use."]
+    #[doc = ""]
     pub fn CSND_CapSetFormat(capUnit: u32_, eightbit: bool);
 }
 extern "C" {
@@ -14948,6 +15847,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `capUnit` - Capture unit to use."]
     #[doc = "* `set` - Value to set."]
+    #[doc = ""]
     pub fn CSND_CapSetBit2(capUnit: u32_, set: bool);
 }
 extern "C" {
@@ -14957,6 +15857,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `capUnit` - Capture unit to use."]
     #[doc = "* `timer` - Timer to set."]
+    #[doc = ""]
     pub fn CSND_CapSetTimer(capUnit: u32_, timer: u32_);
 }
 extern "C" {
@@ -14967,6 +15868,7 @@ extern "C" {
     #[doc = "* `capUnit` - Capture unit to use."]
     #[doc = "* `addr` - Buffer address to use."]
     #[doc = "* `size` - Size of the buffer."]
+    #[doc = ""]
     pub fn CSND_CapSetBuffer(capUnit: u32_, addr: u32_, size: u32_);
 }
 extern "C" {
@@ -14978,6 +15880,7 @@ extern "C" {
     #[doc = "* `flags` - Capture unit flags."]
     #[doc = "* `addr` - Capture unit buffer address."]
     #[doc = "* `size` - Buffer size."]
+    #[doc = ""]
     pub fn CSND_SetCapRegs(capUnit: u32_, flags: u32_, addr: u32_, size: u32_);
 }
 extern "C" {
@@ -14987,6 +15890,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `waitDone` - Whether to wait for completion."]
+    #[doc = ""]
     pub fn CSND_SetDspFlags(waitDone: bool) -> Result;
 }
 extern "C" {
@@ -14996,12 +15900,12 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `waitDone` - Whether to wait for completion."]
+    #[doc = ""]
     pub fn CSND_UpdateInfo(waitDone: bool) -> Result;
 }
 extern "C" {
     #[must_use]
     #[doc = "Plays a sound."]
-    #[doc = ""]
     #[doc = ""]
     #[doc = "In this implementation if the loop mode is used, data1 must be in the range [data0 ; data0 + size]. Sound will be played once from data0 to data0 + size and then loop between data1 and data0+size."]
     #[doc = ""]
@@ -15015,6 +15919,7 @@ extern "C" {
     #[doc = "* `data0` - First block of sound data."]
     #[doc = "* `data1` - Second block of sound data. This is the block that will be looped over."]
     #[doc = "* `size` - Size of the sound data."]
+    #[doc = ""]
     pub fn csndPlaySound(
         chn: ::libc::c_int,
         flags: u32_,
@@ -15035,6 +15940,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `outSemFlags` - Pointer to write semaphore flags to."]
     #[doc = "* `outIrqFlags` - Pointer to write interrupt flags to."]
+    #[doc = ""]
     pub fn csndGetDspFlags(outSemFlags: *mut u32_, outIrqFlags: *mut u32_);
 }
 extern "C" {
@@ -15042,11 +15948,14 @@ extern "C" {
     #[doc = ""]
     #[doc = "Note: Requires previous CSND_UpdateInfo()"]
     #[doc = ""]
-    #[doc = "Returns: The channel's information."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The channel's information."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `channel` - Channel to get information for."]
+    #[doc = ""]
     pub fn csndGetChnInfo(channel: u32_) -> *mut CSND_ChnInfo;
 }
 extern "C" {
@@ -15054,11 +15963,14 @@ extern "C" {
     #[doc = ""]
     #[doc = "Note: Requires previous CSND_UpdateInfo()"]
     #[doc = ""]
-    #[doc = "Returns: The capture unit's information."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The capture unit's information."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `capUnit` - Capture unit to get information for."]
+    #[doc = ""]
     pub fn csndGetCapInfo(capUnit: u32_) -> *mut CSND_CapInfo;
 }
 extern "C" {
@@ -15069,6 +15981,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `channel` - Channel to get the state of."]
     #[doc = "* `out` - Pointer to output channel information to."]
+    #[doc = ""]
     pub fn csndGetState(channel: u32_, out: *mut CSND_ChnInfo) -> Result;
 }
 extern "C" {
@@ -15079,6 +15992,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `channel` - Channel to check."]
     #[doc = "* `status` - Pointer to output the channel status to."]
+    #[doc = ""]
     pub fn csndIsPlaying(channel: u32_, status: *mut u8_) -> Result;
 }
 #[doc = "Pipe interrupt."]
@@ -15138,14 +16052,21 @@ extern "C" {
     #[must_use]
     #[doc = "Initializes the dsp service."]
     #[doc = ""]
-    #[doc = ""]
     #[doc = "Call this before calling any DSP_* function."]
     #[doc = "It is done this way since you have to provide your binary when the 3DS leaves sleep mode anyway."]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* This will also unload any previously loaded DSP binary."]
     #[doc = ""]
     pub fn dspInit() -> Result;
 }
 extern "C" {
     #[doc = "Closes the dsp service."]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* This will also unload the DSP binary."]
     #[doc = ""]
     pub fn dspExit();
 }
@@ -15161,6 +16082,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `cookie` - Hook cookie to use."]
     #[doc = "* `callback` - Function to call when DSP's status changes."]
+    #[doc = ""]
     pub fn dspHook(cookie: *mut dspHookCookie, callback: dspHookFn);
 }
 extern "C" {
@@ -15169,6 +16091,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `cookie` - Hook cookie to remove."]
+    #[doc = ""]
     pub fn dspUnhook(cookie: *mut dspHookCookie);
 }
 extern "C" {
@@ -15178,12 +16101,12 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `is_inserted` - Pointer to output the insertion status to."]
+    #[doc = ""]
     pub fn DSP_GetHeadphoneStatus(is_inserted: *mut bool) -> Result;
 }
 extern "C" {
     #[must_use]
     #[doc = "Flushes the cache"]
-    #[doc = ""]
     #[doc = ""]
     #[doc = "Flushes the cache for the specified memory range and invalidates the cache"]
     #[doc = ""]
@@ -15191,12 +16114,12 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `address` - Beginning of the memory range to flush, inside the Linear or DSP memory regions"]
     #[doc = "* `size` - Size of the memory range to flush"]
+    #[doc = ""]
     pub fn DSP_FlushDataCache(address: *const ::libc::c_void, size: u32_) -> Result;
 }
 extern "C" {
     #[must_use]
     #[doc = "Invalidates the cache"]
-    #[doc = ""]
     #[doc = ""]
     #[doc = "Invalidates the cache for the specified memory range"]
     #[doc = ""]
@@ -15204,6 +16127,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `address` - Beginning of the memory range to invalidate, inside the Linear or DSP memory regions"]
     #[doc = "* `size` - Size of the memory range to flush"]
+    #[doc = ""]
     pub fn DSP_InvalidateDataCache(address: *const ::libc::c_void, size: u32_) -> Result;
 }
 extern "C" {
@@ -15213,6 +16137,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `semaphore` - Pointer to output the semaphore to."]
+    #[doc = ""]
     pub fn DSP_GetSemaphoreHandle(semaphore: *mut Handle) -> Result;
 }
 extern "C" {
@@ -15222,6 +16147,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `value` - Value to set."]
+    #[doc = ""]
     pub fn DSP_SetSemaphore(value: u16_) -> Result;
 }
 extern "C" {
@@ -15231,13 +16157,12 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `mask` - Mask to apply."]
+    #[doc = ""]
     pub fn DSP_SetSemaphoreMask(mask: u16_) -> Result;
 }
 extern "C" {
     #[must_use]
     #[doc = "Loads a DSP binary and starts the DSP"]
-    #[doc = ""]
-    #[doc = ""]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
@@ -15246,6 +16171,12 @@ extern "C" {
     #[doc = "* `prog_mask` - DSP memory block related ? Default is 0xff."]
     #[doc = "* `data_mask` - DSP memory block related ? Default is 0xff."]
     #[doc = "* `is_loaded` - Indicates if the DSP was succesfully loaded."]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* The binary must be signed (http://3dbrew.org/wiki/DSP_Binary)"]
+    #[doc = "* Seems to be called when the 3ds leaves the Sleep mode"]
+    #[doc = ""]
     pub fn DSP_LoadComponent(
         component: *const ::libc::c_void,
         size: u32_,
@@ -15264,13 +16195,16 @@ extern "C" {
     #[must_use]
     #[doc = "Registers an event handle with the DSP through IPC"]
     #[doc = ""]
-    #[doc = ""]
-    #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `handle` - Event handle to register."]
     #[doc = "* `interrupt` - The type of interrupt that will trigger the event. Usual value is DSP_INTERRUPT_PIPE."]
     #[doc = "* `channel` - The pipe channel. Usual value is 2"]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* It is possible that interrupt are inverted"]
+    #[doc = ""]
     pub fn DSP_RegisterInterruptEvents(handle: Handle, interrupt: u32_, channel: u32_) -> Result;
 }
 extern "C" {
@@ -15284,6 +16218,7 @@ extern "C" {
     #[doc = "* `buffer` - The buffer that will store the values read from the pipe"]
     #[doc = "* `length` - Length of the buffer"]
     #[doc = "* `length_read` - Number of bytes read by the command"]
+    #[doc = ""]
     pub fn DSP_ReadPipeIfPossible(
         channel: u32_,
         peer: u32_,
@@ -15301,6 +16236,7 @@ extern "C" {
     #[doc = "* `channel` - unknown. Usually 2"]
     #[doc = "* `buffer` - The message to send to the DSP process"]
     #[doc = "* `length` - Length of the message"]
+    #[doc = ""]
     pub fn DSP_WriteProcessPipe(
         channel: u32_,
         buffer: *const ::libc::c_void,
@@ -15315,6 +16251,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `dsp_address` - Address to convert."]
     #[doc = "* `arm_address` - Pointer to output the converted address to."]
+    #[doc = ""]
     pub fn DSP_ConvertProcessAddressFromDspDram(
         dsp_address: u32_,
         arm_address: *mut u32_,
@@ -15328,30 +16265,37 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `regNo` - Offset of the hardware register, base address is 0x1EC40000"]
     #[doc = "* `value` - Pointer to read the register value to."]
+    #[doc = ""]
     pub fn DSP_RecvData(regNo: u16_, value: *mut u16_) -> Result;
 }
 extern "C" {
     #[must_use]
     #[doc = "Checks if you can read a DSP register"]
     #[doc = ""]
+    #[doc = "**Warning!**"]
     #[doc = ""]
+    #[doc = "* This call might hang if the data is not ready. See [`DSP_SendDataIsEmpty`]"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `regNo` - Offset of the hardware register, base address is 0x1EC40000"]
     #[doc = "* `is_ready` - Pointer to write the ready status to."]
+    #[doc = ""]
     pub fn DSP_RecvDataIsReady(regNo: u16_, is_ready: *mut bool) -> Result;
 }
 extern "C" {
     #[must_use]
     #[doc = "Writes to a DSP register"]
     #[doc = ""]
+    #[doc = "**Warning!**"]
     #[doc = ""]
+    #[doc = "* This call might hang if the SendData is not empty. See [`DSP_SendDataIsEmpty`]"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `regNo` - Offset of the hardware register, base address is 0x1EC40000"]
     #[doc = "* `value` - Value to write."]
+    #[doc = ""]
     pub fn DSP_SendData(regNo: u16_, value: u16_) -> Result;
 }
 extern "C" {
@@ -15362,6 +16306,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `regNo` - Offset of the hardware register, base address is 0x1EC40000"]
     #[doc = "* `is_empty` - Pointer to write the empty status to."]
+    #[doc = ""]
     pub fn DSP_SendDataIsEmpty(regNo: u16_, is_empty: *mut bool) -> Result;
 }
 pub type FSPXI_Archive = u64_;
@@ -15378,6 +16323,7 @@ extern "C" {
     #[doc = "* `path` - Path of the file."]
     #[doc = "* `flags` - Flags to open the file with."]
     #[doc = "* `attributes` - Attributes of the file."]
+    #[doc = ""]
     pub fn FSPXI_OpenFile(
         serviceHandle: Handle,
         out: *mut FSPXI_File,
@@ -15395,6 +16341,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `archive` - Archive containing the file."]
     #[doc = "* `path` - Path of the file."]
+    #[doc = ""]
     pub fn FSPXI_DeleteFile(serviceHandle: Handle, archive: FSPXI_Archive, path: FS_Path)
         -> Result;
 }
@@ -15408,6 +16355,7 @@ extern "C" {
     #[doc = "* `srcPath` - Path of the source file."]
     #[doc = "* `dstArchive` - Archive containing the destination file."]
     #[doc = "* `dstPath` - Path of the destination file."]
+    #[doc = ""]
     pub fn FSPXI_RenameFile(
         serviceHandle: Handle,
         srcArchive: FSPXI_Archive,
@@ -15424,6 +16372,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `archive` - Archive containing the directory."]
     #[doc = "* `path` - Path of the directory."]
+    #[doc = ""]
     pub fn FSPXI_DeleteDirectory(
         serviceHandle: Handle,
         archive: FSPXI_Archive,
@@ -15440,6 +16389,7 @@ extern "C" {
     #[doc = "* `path` - Path of the file."]
     #[doc = "* `attributes` - Attributes of the file."]
     #[doc = "* `size` - Size of the file."]
+    #[doc = ""]
     pub fn FSPXI_CreateFile(
         serviceHandle: Handle,
         archive: FSPXI_Archive,
@@ -15457,6 +16407,7 @@ extern "C" {
     #[doc = "* `archive` - Archive to create the directory in."]
     #[doc = "* `path` - Path of the directory."]
     #[doc = "* `attributes` - Attributes of the directory."]
+    #[doc = ""]
     pub fn FSPXI_CreateDirectory(
         serviceHandle: Handle,
         archive: FSPXI_Archive,
@@ -15474,6 +16425,7 @@ extern "C" {
     #[doc = "* `srcPath` - Path of the source directory."]
     #[doc = "* `dstArchive` - Archive containing the destination directory."]
     #[doc = "* `dstPath` - Path of the destination directory."]
+    #[doc = ""]
     pub fn FSPXI_RenameDirectory(
         serviceHandle: Handle,
         srcArchive: FSPXI_Archive,
@@ -15491,6 +16443,7 @@ extern "C" {
     #[doc = "* `out` - Pointer to output the directory handle to."]
     #[doc = "* `archive` - Archive containing the directory."]
     #[doc = "* `path` - Path of the directory."]
+    #[doc = ""]
     pub fn FSPXI_OpenDirectory(
         serviceHandle: Handle,
         out: *mut FSPXI_Directory,
@@ -15509,6 +16462,7 @@ extern "C" {
     #[doc = "* `offset` - Offset to read from."]
     #[doc = "* `buffer` - Buffer to read to."]
     #[doc = "* `size` - Size of the buffer."]
+    #[doc = ""]
     pub fn FSPXI_ReadFile(
         serviceHandle: Handle,
         file: FSPXI_File,
@@ -15527,6 +16481,7 @@ extern "C" {
     #[doc = "* `file` - File to calculate the hash of."]
     #[doc = "* `buffer` - Buffer to output the hash to."]
     #[doc = "* `size` - Size of the buffer."]
+    #[doc = ""]
     pub fn FSPXI_CalculateFileHashSHA256(
         serviceHandle: Handle,
         file: FSPXI_File,
@@ -15546,6 +16501,7 @@ extern "C" {
     #[doc = "* `buffer` - Buffer to write from."]
     #[doc = "* `size` - Size of the buffer."]
     #[doc = "* `flags` - Flags to use when writing."]
+    #[doc = ""]
     pub fn FSPXI_WriteFile(
         serviceHandle: Handle,
         file: FSPXI_File,
@@ -15567,6 +16523,7 @@ extern "C" {
     #[doc = "* `inSize` - Size of inBuffer."]
     #[doc = "* `outBuffer` - Buffer to write MAC to."]
     #[doc = "* `outSize` - Size of outBuffer."]
+    #[doc = ""]
     pub fn FSPXI_CalcSavegameMAC(
         serviceHandle: Handle,
         file: FSPXI_File,
@@ -15584,6 +16541,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `file` - File to get the size of."]
     #[doc = "* `size` - Pointer to output size to."]
+    #[doc = ""]
     pub fn FSPXI_GetFileSize(serviceHandle: Handle, file: FSPXI_File, size: *mut u64_) -> Result;
 }
 extern "C" {
@@ -15594,6 +16552,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `file` - File to set the size of"]
     #[doc = "* `size` - Size to set the file to"]
+    #[doc = ""]
     pub fn FSPXI_SetFileSize(serviceHandle: Handle, file: FSPXI_File, size: u64_) -> Result;
 }
 extern "C" {
@@ -15603,6 +16562,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `file` - File to close"]
+    #[doc = ""]
     pub fn FSPXI_CloseFile(serviceHandle: Handle, file: FSPXI_File) -> Result;
 }
 extern "C" {
@@ -15615,6 +16575,7 @@ extern "C" {
     #[doc = "* `entriesRead` - Pointer to output the number of entries read to."]
     #[doc = "* `entryCount` - Number of entries to read."]
     #[doc = "* `entryOut` - Pointer to output directory entries to."]
+    #[doc = ""]
     pub fn FSPXI_ReadDirectory(
         serviceHandle: Handle,
         directory: FSPXI_Directory,
@@ -15630,6 +16591,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `directory` - Directory to close."]
+    #[doc = ""]
     pub fn FSPXI_CloseDirectory(serviceHandle: Handle, directory: FSPXI_Directory) -> Result;
 }
 extern "C" {
@@ -15641,6 +16603,7 @@ extern "C" {
     #[doc = "* `archive` - Pointer to output the opened archive to."]
     #[doc = "* `id` - ID of the archive."]
     #[doc = "* `path` - Path of the archive."]
+    #[doc = ""]
     pub fn FSPXI_OpenArchive(
         serviceHandle: Handle,
         archive: *mut FSPXI_Archive,
@@ -15657,6 +16620,7 @@ extern "C" {
     #[doc = "* `archive` - Archive to check."]
     #[doc = "* `out` - Pointer to output existence to."]
     #[doc = "* `path` - Path to check for file"]
+    #[doc = ""]
     pub fn FSPXI_HasFile(
         serviceHandle: Handle,
         archive: FSPXI_Archive,
@@ -15673,6 +16637,7 @@ extern "C" {
     #[doc = "* `archive` - Archive to check."]
     #[doc = "* `out` - Pointer to output existence to."]
     #[doc = "* `path` - Path to check for directory"]
+    #[doc = ""]
     pub fn FSPXI_HasDirectory(
         serviceHandle: Handle,
         archive: FSPXI_Archive,
@@ -15688,6 +16653,11 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `archive` - Archive to commit."]
     #[doc = "* `id` - Archive action sent by FSUSER_ControlArchive. Must not be 0 or 0x789D"]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* Unsure why id is sent. This appears to be the default action for FSUSER_ControlArchive, with every action other than 0 and 0x789D being sent to this command."]
+    #[doc = ""]
     pub fn FSPXI_CommitSaveData(serviceHandle: Handle, archive: FSPXI_Archive, id: u32_) -> Result;
 }
 extern "C" {
@@ -15697,6 +16667,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `archive` - Archive to close."]
+    #[doc = ""]
     pub fn FSPXI_CloseArchive(serviceHandle: Handle, archive: FSPXI_Archive) -> Result;
 }
 extern "C" {
@@ -15707,6 +16678,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `archive` - Archive handle to check validity of."]
     #[doc = "* `out` - Pointer to output validity to."]
+    #[doc = ""]
     pub fn FSPXI_Unknown0x17(
         serviceHandle: Handle,
         archive: FSPXI_Archive,
@@ -15720,6 +16692,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `out` - Pointer to output the card type to."]
+    #[doc = ""]
     pub fn FSPXI_GetCardType(serviceHandle: Handle, out: *mut FS_CardType) -> Result;
 }
 extern "C" {
@@ -15729,6 +16702,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `out` - Pointer to output the archive resource information to."]
+    #[doc = ""]
     pub fn FSPXI_GetSdmcArchiveResource(
         serviceHandle: Handle,
         out: *mut FS_ArchiveResource,
@@ -15741,6 +16715,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `out` - Pointer to output the archive resource information to."]
+    #[doc = ""]
     pub fn FSPXI_GetNandArchiveResource(
         serviceHandle: Handle,
         out: *mut FS_ArchiveResource,
@@ -15753,6 +16728,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `out` - Pointer to output the error code to"]
+    #[doc = ""]
     pub fn FSPXI_GetSdmcFatFsError(serviceHandle: Handle, out: *mut u32_) -> Result;
 }
 extern "C" {
@@ -15762,6 +16738,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `out` - Pointer to output the detection status to"]
+    #[doc = ""]
     pub fn FSPXI_IsSdmcDetected(serviceHandle: Handle, out: *mut bool) -> Result;
 }
 extern "C" {
@@ -15771,6 +16748,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `out` - Pointer to output the writable status to"]
+    #[doc = ""]
     pub fn FSPXI_IsSdmcWritable(serviceHandle: Handle, out: *mut bool) -> Result;
 }
 extern "C" {
@@ -15781,6 +16759,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `out` - Buffer to output the CID to."]
     #[doc = "* `size` - Size of buffer."]
+    #[doc = ""]
     pub fn FSPXI_GetSdmcCid(serviceHandle: Handle, out: *mut ::libc::c_void, size: u32_) -> Result;
 }
 extern "C" {
@@ -15791,6 +16770,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `out` - Buffer to output the CID to."]
     #[doc = "* `size` - Size of buffer."]
+    #[doc = ""]
     pub fn FSPXI_GetNandCid(serviceHandle: Handle, out: *mut ::libc::c_void, size: u32_) -> Result;
 }
 extern "C" {
@@ -15800,6 +16780,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `out` - Buffer to output the speed info to."]
+    #[doc = ""]
     pub fn FSPXI_GetSdmcSpeedInfo(serviceHandle: Handle, out: *mut FS_SdMmcSpeedInfo) -> Result;
 }
 extern "C" {
@@ -15809,6 +16790,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `out` - Buffer to output the speed info to."]
+    #[doc = ""]
     pub fn FSPXI_GetNandSpeedInfo(serviceHandle: Handle, out: *mut FS_SdMmcSpeedInfo) -> Result;
 }
 extern "C" {
@@ -15819,6 +16801,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `out` - Buffer to output the log to."]
     #[doc = "* `size` - Size of buffer."]
+    #[doc = ""]
     pub fn FSPXI_GetSdmcLog(serviceHandle: Handle, out: *mut ::libc::c_void, size: u32_) -> Result;
 }
 extern "C" {
@@ -15829,6 +16812,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `out` - Buffer to output the log to."]
     #[doc = "* `size` - Size of buffer."]
+    #[doc = ""]
     pub fn FSPXI_GetNandLog(serviceHandle: Handle, out: *mut ::libc::c_void, size: u32_) -> Result;
 }
 extern "C" {
@@ -15850,6 +16834,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `inserted` - Pointer to output the insertion status to."]
+    #[doc = ""]
     pub fn FSPXI_CardSlotIsInserted(serviceHandle: Handle, inserted: *mut bool) -> Result;
 }
 extern "C" {
@@ -15859,6 +16844,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `status` - Pointer to output the power status to."]
+    #[doc = ""]
     pub fn FSPXI_CardSlotPowerOn(serviceHandle: Handle, status: *mut bool) -> Result;
 }
 extern "C" {
@@ -15868,6 +16854,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `status` - Pointer to output the power status to."]
+    #[doc = ""]
     pub fn FSPXI_CardSlotPowerOff(serviceHandle: Handle, status: *mut bool) -> Result;
 }
 extern "C" {
@@ -15877,6 +16864,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `status` - Pointer to output the power status to."]
+    #[doc = ""]
     pub fn FSPXI_CardSlotGetCardIFPowerStatus(serviceHandle: Handle, status: *mut bool) -> Result;
 }
 extern "C" {
@@ -15886,6 +16874,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `commandId` - ID of the command."]
+    #[doc = ""]
     pub fn FSPXI_CardNorDirectCommand(serviceHandle: Handle, commandId: u8_) -> Result;
 }
 extern "C" {
@@ -15896,6 +16885,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `commandId` - ID of the command."]
     #[doc = "* `address` - Address to provide."]
+    #[doc = ""]
     pub fn FSPXI_CardNorDirectCommandWithAddress(
         serviceHandle: Handle,
         commandId: u8_,
@@ -15911,6 +16901,7 @@ extern "C" {
     #[doc = "* `commandId` - ID of the command."]
     #[doc = "* `size` - Size of the output buffer."]
     #[doc = "* `output` - Output buffer."]
+    #[doc = ""]
     pub fn FSPXI_CardNorDirectRead(
         serviceHandle: Handle,
         commandId: u8_,
@@ -15928,6 +16919,7 @@ extern "C" {
     #[doc = "* `address` - Address to provide."]
     #[doc = "* `size` - Size of the output buffer."]
     #[doc = "* `output` - Output buffer."]
+    #[doc = ""]
     pub fn FSPXI_CardNorDirectReadWithAddress(
         serviceHandle: Handle,
         commandId: u8_,
@@ -15945,6 +16937,11 @@ extern "C" {
     #[doc = "* `commandId` - ID of the command."]
     #[doc = "* `size` - Size of the input buffer."]
     #[doc = "* `output` - Input buffer."]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* Stubbed in latest firmware, since ?.?.?"]
+    #[doc = ""]
     pub fn FSPXI_CardNorDirectWrite(
         serviceHandle: Handle,
         commandId: u8_,
@@ -15962,6 +16959,7 @@ extern "C" {
     #[doc = "* `address` - Address to provide."]
     #[doc = "* `size` - Size of the input buffer."]
     #[doc = "* `input` - Input buffer."]
+    #[doc = ""]
     pub fn FSPXI_CardNorDirectWriteWithAddress(
         serviceHandle: Handle,
         commandId: u8_,
@@ -15980,6 +16978,7 @@ extern "C" {
     #[doc = "* `address` - Address to provide."]
     #[doc = "* `size` - Size of the output buffer."]
     #[doc = "* `output` - Output buffer."]
+    #[doc = ""]
     pub fn FSPXI_CardNorDirectRead_4xIO(
         serviceHandle: Handle,
         commandId: u8_,
@@ -15997,6 +16996,7 @@ extern "C" {
     #[doc = "* `address` - Address to provide."]
     #[doc = "* `size` - Size of the input buffer."]
     #[doc = "* `output` - Input buffer."]
+    #[doc = ""]
     pub fn FSPXI_CardNorDirectCpuWriteWithoutVerify(
         serviceHandle: Handle,
         address: u32_,
@@ -16011,6 +17011,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `address` - Address to provide."]
+    #[doc = ""]
     pub fn FSPXI_CardNorDirectSectorEraseWithoutVerify(
         serviceHandle: Handle,
         address: u32_,
@@ -16024,6 +17025,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `info` - Pointer to output the product info to."]
     #[doc = "* `archive` - Open NCCH content archive"]
+    #[doc = ""]
     pub fn FSPXI_GetProductInfo(
         serviceHandle: Handle,
         info: *mut FS_ProductInfo,
@@ -16037,6 +17039,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `baudRate` - Baud rate to set."]
+    #[doc = ""]
     pub fn FSPXI_SetCardSpiBaudrate(serviceHandle: Handle, baudRate: FS_CardSpiBaudRate) -> Result;
 }
 extern "C" {
@@ -16046,6 +17049,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `busMode` - Bus mode to set."]
+    #[doc = ""]
     pub fn FSPXI_SetCardSpiBusMode(serviceHandle: Handle, busMode: FS_CardSpiBusMode) -> Result;
 }
 extern "C" {
@@ -16055,6 +17059,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `unk` - FS sends *(0x1FF81086)"]
+    #[doc = ""]
     pub fn FSPXI_SendInitializeInfoTo9(serviceHandle: Handle, unk: u8_) -> Result;
 }
 extern "C" {
@@ -16064,6 +17069,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `info` - Info of the save data."]
+    #[doc = ""]
     pub fn FSPXI_CreateExtSaveData(serviceHandle: Handle, info: FS_ExtSaveDataInfo) -> Result;
 }
 extern "C" {
@@ -16073,6 +17079,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `info` - Info of the save data."]
+    #[doc = ""]
     pub fn FSPXI_DeleteExtSaveData(serviceHandle: Handle, info: FS_ExtSaveDataInfo) -> Result;
 }
 extern "C" {
@@ -16087,6 +17094,7 @@ extern "C" {
     #[doc = "* `idSize` - Size of each ID element."]
     #[doc = "* `shared` - Whether to enumerate shared ext save data."]
     #[doc = "* `ids` - Pointer to output IDs to."]
+    #[doc = ""]
     pub fn FSPXI_EnumerateExtSaveData(
         serviceHandle: Handle,
         idsWritten: *mut u32_,
@@ -16107,6 +17115,7 @@ extern "C" {
     #[doc = "* `mediaType` - Media type of the special content."]
     #[doc = "* `programId` - Program ID owning the special content."]
     #[doc = "* `type` - Type of special content."]
+    #[doc = ""]
     pub fn FSPXI_GetSpecialContentIndex(
         serviceHandle: Handle,
         index: *mut u16_,
@@ -16124,6 +17133,7 @@ extern "C" {
     #[doc = "* `mediaType` - Media type of the program."]
     #[doc = "* `programId` - ID of the program."]
     #[doc = "* `header` - Pointer to output the legacy ROM header to. (size = 0x3B4)"]
+    #[doc = ""]
     pub fn FSPXI_GetLegacyRomHeader(
         serviceHandle: Handle,
         mediaType: FS_MediaType,
@@ -16141,6 +17151,7 @@ extern "C" {
     #[doc = "* `programId` - ID of the program."]
     #[doc = "* `banner` - Pointer to output the legacy banner data to. (size = 0x23C0)"]
     #[doc = "* `unk` - Unknown. Always 1?"]
+    #[doc = ""]
     pub fn FSPXI_GetLegacyBannerData(
         serviceHandle: Handle,
         mediaType: FS_MediaType,
@@ -16156,6 +17167,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `unk` - Unknown. Transaction?"]
+    #[doc = ""]
     pub fn FSPXI_FormatCardNorDevice(serviceHandle: Handle, unk: u32_) -> Result;
 }
 extern "C" {
@@ -16190,6 +17202,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `out` - Pointer to output the root path to."]
     #[doc = "* `length` - Length of the output buffer in bytes."]
+    #[doc = ""]
     pub fn FSPXI_GetSdmcCtrRootPath(serviceHandle: Handle, out: *mut u16_, length: u32_) -> Result;
 }
 extern "C" {
@@ -16200,6 +17213,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `archiveResource` - Pointer to output the archive resource information to."]
     #[doc = "* `mediaType` - System media type to check."]
+    #[doc = ""]
     pub fn FSPXI_GetArchiveResource(
         serviceHandle: Handle,
         archiveResource: *mut FS_ArchiveResource,
@@ -16213,6 +17227,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `seed` - Pointer to output the seed to."]
+    #[doc = ""]
     pub fn FSPXI_ExportIntegrityVerificationSeed(
         serviceHandle: Handle,
         seed: *mut FS_IntegrityVerificationSeed,
@@ -16225,6 +17240,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `seed` - Seed to import."]
+    #[doc = ""]
     pub fn FSPXI_ImportIntegrityVerificationSeed(
         serviceHandle: Handle,
         seed: *const FS_IntegrityVerificationSeed,
@@ -16240,6 +17256,7 @@ extern "C" {
     #[doc = "* `mediaType` - Media type of the program."]
     #[doc = "* `programId` - ID of the program."]
     #[doc = "* `header` - Pointer to output the legacy sub banner data to."]
+    #[doc = ""]
     pub fn FSPXI_GetLegacySubBannerData(
         serviceHandle: Handle,
         bannerSize: u32_,
@@ -16256,6 +17273,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `buf` - Buffer to output random bytes to."]
     #[doc = "* `size` - Size of buffer."]
+    #[doc = ""]
     pub fn FSPXI_GenerateRandomBytes(
         serviceHandle: Handle,
         buffer: *mut ::libc::c_void,
@@ -16272,6 +17290,7 @@ extern "C" {
     #[doc = "* `out` - The pointer to write the timestamp to."]
     #[doc = "* `path` - The UTF-16 path of the file."]
     #[doc = "* `size` - The size of the path."]
+    #[doc = ""]
     pub fn FSPXI_GetFileLastModified(
         serviceHandle: Handle,
         archive: FSPXI_Archive,
@@ -16290,6 +17309,7 @@ extern "C" {
     #[doc = "* `fileOffset` - Offset of the file."]
     #[doc = "* `size` - Size of the buffer."]
     #[doc = "* `data` - Buffer to read to."]
+    #[doc = ""]
     pub fn FSPXI_ReadSpecialFile(
         serviceHandle: Handle,
         bytesRead: *mut u32_,
@@ -16305,6 +17325,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `fileSize` - Pointer to output the size to."]
+    #[doc = ""]
     pub fn FSPXI_GetSpecialFileSize(serviceHandle: Handle, fileSize: *mut u64_) -> Result;
 }
 extern "C" {
@@ -16314,6 +17335,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `context` - Pointer to output the context to."]
+    #[doc = ""]
     pub fn FSPXI_StartDeviceMoveAsSource(
         serviceHandle: Handle,
         context: *mut FS_DeviceMoveContext,
@@ -16327,6 +17349,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `context` - Context to use."]
     #[doc = "* `clear` - Whether to clear the device's data first."]
+    #[doc = ""]
     pub fn FSPXI_StartDeviceMoveAsDestination(
         serviceHandle: Handle,
         context: FS_DeviceMoveContext,
@@ -16347,6 +17370,7 @@ extern "C" {
     #[doc = "* `hashtable` - Pointer to store SHA256 hashes in."]
     #[doc = "* `hashtableSize` - Size of hashtable."]
     #[doc = "* `unk` - Unknown. Always 0x00001000? Possibly block size?"]
+    #[doc = ""]
     pub fn FSPXI_ReadFileSHA256(
         serviceHandle: Handle,
         file: FSPXI_File,
@@ -16374,6 +17398,7 @@ extern "C" {
     #[doc = "* `hashtableSize` - Size of hashtable"]
     #[doc = "* `unk1` - Unknown. Might match with ReadFileSHA256's unknown?"]
     #[doc = "* `unk2` - Unknown. Might match with ReadFileSHA256's unknown?"]
+    #[doc = ""]
     pub fn FSPXI_WriteFileSHA256(
         serviceHandle: Handle,
         file: FSPXI_File,
@@ -16394,6 +17419,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `latency` - Latency to apply."]
+    #[doc = ""]
     pub fn FSPXI_SetCtrCardLatencyParameter(serviceHandle: Handle, latency: u64_) -> Result;
 }
 extern "C" {
@@ -16403,6 +17429,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `priority` - Priority to set."]
+    #[doc = ""]
     pub fn FSPXI_SetPriority(serviceHandle: Handle, priority: u32_) -> Result;
 }
 extern "C" {
@@ -16412,6 +17439,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `enable` - Whether to enable cleaning up invalid save data."]
+    #[doc = ""]
     pub fn FSPXI_SwitchCleanupInvalidSaveData(serviceHandle: Handle, enable: bool) -> Result;
 }
 extern "C" {
@@ -16423,6 +17451,7 @@ extern "C" {
     #[doc = "* `idsWritten` - Pointer to output the number of IDs written to."]
     #[doc = "* `idsSize` - Size of the IDs buffer."]
     #[doc = "* `ids` - Pointer to output IDs to."]
+    #[doc = ""]
     pub fn FSPXI_EnumerateSystemSaveData(
         serviceHandle: Handle,
         idsWritten: *mut u32_,
@@ -16439,6 +17468,7 @@ extern "C" {
     #[doc = "* `unk` - Unknown"]
     #[doc = "* `buffer` - Buffer to write the report to."]
     #[doc = "* `size` - Size of buffer"]
+    #[doc = ""]
     pub fn FSPXI_ReadNandReport(
         serviceHandle: Handle,
         buffer: *mut ::libc::c_void,
@@ -16449,6 +17479,10 @@ extern "C" {
 extern "C" {
     #[must_use]
     #[doc = "Unknown command 0x56"]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* Called by FSUSER_ControlArchive with ArchiveAction 0x789D"]
     #[doc = ""]
     pub fn FSPXI_Unknown0x56(
         serviceHandle: Handle,
@@ -16471,7 +17505,9 @@ extern "C" {
 extern "C" {
     #[doc = "Gets the current fs:REG session handle."]
     #[doc = ""]
-    #[doc = "Returns: The current fs:REG session handle."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The current fs:REG session handle."]
     #[doc = ""]
     pub fn fsRegGetSessionHandle() -> *mut Handle;
 }
@@ -16485,6 +17521,7 @@ extern "C" {
     #[doc = "* `programHandle` - The program handle."]
     #[doc = "* `programInfo` - Information about the program."]
     #[doc = "* `storageInfo` - Storage information to register."]
+    #[doc = ""]
     pub fn FSREG_Register(
         pid: u32_,
         programHandle: u64_,
@@ -16499,6 +17536,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `pid` - The Process ID of the program."]
+    #[doc = ""]
     pub fn FSREG_Unregister(pid: u32_) -> Result;
 }
 extern "C" {
@@ -16510,6 +17548,7 @@ extern "C" {
     #[doc = "* `exheaderInfos[out]` - Pointer to the output exheader information set(s)."]
     #[doc = "* `maxNumEntries` - The maximum number of entries."]
     #[doc = "* `programHandle` - The program handle."]
+    #[doc = ""]
     pub fn FSREG_GetProgramInfo(
         exheaderInfos: *mut ExHeader_Info,
         maxNumEntries: u32_,
@@ -16524,6 +17563,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `programHandle[out]` - Pointer to the output the program handle to."]
     #[doc = "* `programInfo` - Information about the program to load."]
+    #[doc = ""]
     pub fn FSREG_LoadProgram(
         programHandle: *mut u64_,
         programInfo: *const FS_ProgramInfo,
@@ -16536,6 +17576,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `programHandle` - The program handle."]
+    #[doc = ""]
     pub fn FSREG_UnloadProgram(programHandle: u64_) -> Result;
 }
 extern "C" {
@@ -16545,6 +17586,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `programHandle` - The program handle."]
+    #[doc = ""]
     pub fn FSREG_CheckHostLoadId(programHandle: u64_) -> Result;
 }
 #[doc = "Shared Mii struct"]
@@ -17845,6 +18887,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `state` - Pointer to write the current user's login status to."]
+    #[doc = ""]
     pub fn FRDU_HasLoggedIn(state: *mut bool) -> Result;
 }
 extern "C" {
@@ -17854,6 +18897,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `state` - Pointer to write the current user's online status to."]
+    #[doc = ""]
     pub fn FRDU_IsOnline(state: *mut bool) -> Result;
 }
 extern "C" {
@@ -17869,6 +18913,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `event` - Event to signal when Login is done."]
+    #[doc = ""]
     pub fn FRD_Login(event: Handle) -> Result;
 }
 extern "C" {
@@ -17878,6 +18923,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `key` - Pointer to write the current user's friend key to."]
+    #[doc = ""]
     pub fn FRD_GetMyFriendKey(key: *mut FriendKey) -> Result;
 }
 extern "C" {
@@ -17889,6 +18935,7 @@ extern "C" {
     #[doc = "* `isPublicMode` - Determines whether friends are notified of the current user's online status."]
     #[doc = "* `isShowGameName` - Determines whether friends are notified of the application that the current user is running."]
     #[doc = "* `isShowPlayedGame` - Determiens whether to display the current user's game history."]
+    #[doc = ""]
     pub fn FRD_GetMyPreference(
         isPublicMode: *mut bool,
         isShowGameName: *mut bool,
@@ -17902,6 +18949,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `profile` - Pointer to write the current user's profile information to."]
+    #[doc = ""]
     pub fn FRD_GetMyProfile(profile: *mut FriendProfile) -> Result;
 }
 extern "C" {
@@ -17912,6 +18960,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `name` - Pointer to write the current user's screen name to."]
     #[doc = "* `max_size` - Max size of the screen name."]
+    #[doc = ""]
     pub fn FRD_GetMyScreenName(name: *mut ::libc::c_char, max_size: size_t) -> Result;
 }
 extern "C" {
@@ -17921,6 +18970,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `mii` - Pointer to write the current user's mii data to."]
+    #[doc = ""]
     pub fn FRD_GetMyMii(mii: *mut MiiData) -> Result;
 }
 extern "C" {
@@ -17930,6 +18980,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `titleId` - Pointer to write the current user's playing game to."]
+    #[doc = ""]
     pub fn FRD_GetMyPlayingGame(titleId: *mut u64_) -> Result;
 }
 extern "C" {
@@ -17939,6 +18990,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `titleId` - Pointer to write the title ID of current user's favourite game to."]
+    #[doc = ""]
     pub fn FRD_GetMyFavoriteGame(titleId: *mut u64_) -> Result;
 }
 extern "C" {
@@ -17949,6 +19001,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `comment` - Pointer to write the current user's comment to."]
     #[doc = "* `max_size` - Max size of the comment."]
+    #[doc = ""]
     pub fn FRD_GetMyComment(comment: *mut ::libc::c_char, max_size: size_t) -> Result;
 }
 extern "C" {
@@ -17961,6 +19014,7 @@ extern "C" {
     #[doc = "* `num` - Stores the number of friend keys obtained."]
     #[doc = "* `offset` - The index of the friend key to start with."]
     #[doc = "* `size` - Size of the friend key list. (FRIEND_LIST_SIZE)"]
+    #[doc = ""]
     pub fn FRD_GetFriendKeyList(
         friendKeyList: *mut FriendKey,
         num: *mut u32_,
@@ -17977,6 +19031,7 @@ extern "C" {
     #[doc = "* `miiDataList` - Pointer to write Mii data to."]
     #[doc = "* `friendKeyList` - Pointer to FriendKeys."]
     #[doc = "* `size` - Number of Friendkeys."]
+    #[doc = ""]
     pub fn FRD_GetFriendMii(
         miiDataList: *mut MiiData,
         friendKeyList: *const FriendKey,
@@ -17992,6 +19047,7 @@ extern "C" {
     #[doc = "* `profile` - Pointer to write profile data to."]
     #[doc = "* `friendKeyList` - Pointer to FriendKeys."]
     #[doc = "* `size` - Number of FriendKeys."]
+    #[doc = ""]
     pub fn FRD_GetFriendProfile(
         profile: *mut FriendProfile,
         friendKeyList: *const FriendKey,
@@ -18007,6 +19063,7 @@ extern "C" {
     #[doc = "* `desc` - Pointer to write Game Description data to."]
     #[doc = "* `friendKeyList` - Pointer to FriendKeys,"]
     #[doc = "* `size` - Number Of FriendKeys."]
+    #[doc = ""]
     pub fn FRD_GetFriendPlayingGame(
         desc: *mut GameDescription,
         friendKeyList: *const FriendKey,
@@ -18022,6 +19079,7 @@ extern "C" {
     #[doc = "* `desc` - Pointer to write Game Description data to."]
     #[doc = "* `friendKeyList` - Pointer to FriendKeys,"]
     #[doc = "* `count` - Number Of FriendKeys."]
+    #[doc = ""]
     pub fn FRD_GetFriendFavouriteGame(
         desc: *mut GameDescription,
         friendKeyList: *const FriendKey,
@@ -18036,6 +19094,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `friendKeyList` - Pointer to a list of friend keys."]
     #[doc = "* `isFromList` - Pointer to a write the friendship status to."]
+    #[doc = ""]
     pub fn FRD_IsInFriendList(friendKeyList: *mut FriendKey, isFromList: *mut bool) -> Result;
 }
 extern "C" {
@@ -18045,6 +19104,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `desc` - Pointer to write the game mode description to."]
+    #[doc = ""]
     pub fn FRD_UpdateGameModeDescription(desc: *const ::libc::c_char) -> Result;
 }
 extern "C" {
@@ -18054,6 +19114,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `event` - event which will be signaled."]
+    #[doc = ""]
     pub fn FRD_AttachToEventNotification(event: Handle) -> Result;
 }
 extern "C" {
@@ -18065,6 +19126,7 @@ extern "C" {
     #[doc = "* `event` - Pointer to write recieved notification event struct to."]
     #[doc = "* `count` - Number of events"]
     #[doc = "* `recievedNotifCount` - Number of notification reccieved."]
+    #[doc = ""]
     pub fn FRD_GetEventNotification(
         event: *mut NotificationEvent,
         count: u32_,
@@ -18079,6 +19141,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `principalId` - The principal ID being used."]
     #[doc = "* `friendCode` - Pointer to write the friend code to."]
+    #[doc = ""]
     pub fn FRD_PrincipalIdToFriendCode(principalId: u32_, friendCode: *mut u64_) -> Result;
 }
 extern "C" {
@@ -18089,6 +19152,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `friendCode` - The friend code being used."]
     #[doc = "* `principalId` - Pointer to write the principal ID to."]
+    #[doc = ""]
     pub fn FRD_FriendCodeToPrincipalId(friendCode: u64_, principalId: *mut u32_) -> Result;
 }
 extern "C" {
@@ -18099,6 +19163,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `friendCode` - The friend code being used."]
     #[doc = "* `isValid` - Pointer to write the validity of the friend code to."]
+    #[doc = ""]
     pub fn FRD_IsValidFriendCode(friendCode: u64_, isValid: *mut bool) -> Result;
 }
 extern "C" {
@@ -18108,6 +19173,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `sdkVer` - The SDK version needed to be used."]
+    #[doc = ""]
     pub fn FRD_SetClientSdkVersion(sdkVer: u32_) -> Result;
 }
 extern "C" {
@@ -18118,6 +19184,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `event` - Event signaled when friend is registered."]
     #[doc = "* `principalId` - PrincipalId of the friend to add."]
+    #[doc = ""]
     pub fn FRD_AddFriendOnline(event: Handle, principalId: u32_) -> Result;
 }
 extern "C" {
@@ -18128,6 +19195,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `principalId` - PrinipalId of the friend code to remove."]
     #[doc = "* `localFriendCode` - LocalFriendCode of the friend code to remove."]
+    #[doc = ""]
     pub fn FRD_RemoveFriend(principalId: u32_, localFriendCode: u64_) -> Result;
 }
 #[doc = "Top screen."]
@@ -18160,7 +19228,9 @@ extern "C" {
 extern "C" {
     #[doc = "Gets a pointer to the current gsp::Lcd session handle."]
     #[doc = ""]
-    #[doc = "Returns: A pointer to the current gsp::Lcd session handle."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* A pointer to the current gsp::Lcd session handle."]
     #[doc = ""]
     pub fn gspLcdGetSessionHandle() -> *mut Handle;
 }
@@ -18183,6 +19253,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `screen` - Screen to power on."]
+    #[doc = ""]
     pub fn GSPLCD_PowerOnBacklight(screen: u32_) -> Result;
 }
 extern "C" {
@@ -18192,6 +19263,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `screen` - Screen to power off."]
+    #[doc = ""]
     pub fn GSPLCD_PowerOffBacklight(screen: u32_) -> Result;
 }
 extern "C" {
@@ -18201,6 +19273,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `disable` - False = 3D LED enable, true = 3D LED disable."]
+    #[doc = ""]
     pub fn GSPLCD_SetLedForceOff(disable: bool) -> Result;
 }
 extern "C" {
@@ -18210,6 +19283,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `vendor` - Pointer to output the screen vendors to."]
+    #[doc = ""]
     pub fn GSPLCD_GetVendors(vendors: *mut u8_) -> Result;
 }
 extern "C" {
@@ -18220,6 +19294,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `screen` - Screen to get the brightness value of."]
     #[doc = "* `brightness` - Brightness value returned."]
+    #[doc = ""]
     pub fn GSPLCD_GetBrightness(screen: u32_, brightness: *mut u32_) -> Result;
 }
 extern "C" {
@@ -18230,6 +19305,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `screen` - Screen to set the brightness value of."]
     #[doc = "* `brightness` - Brightness value set."]
+    #[doc = ""]
     pub fn GSPLCD_SetBrightness(screen: u32_, brightness: u32_) -> Result;
 }
 extern "C" {
@@ -18240,6 +19316,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `screen` - Screen to set the brightness value of."]
     #[doc = "* `brightness` - Brightness value set."]
+    #[doc = ""]
     pub fn GSPLCD_SetBrightnessRaw(screen: u32_, brightness: u32_) -> Result;
 }
 #[doc = "A"]
@@ -18458,12 +19535,13 @@ extern "C" {
     pub fn hidExit();
 }
 extern "C" {
-    #[doc = "Sets the key repeat parameters for @ref hidKeysRepeat."]
+    #[doc = "Sets the key repeat parameters for [`hidKeysRepeat`]"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `delay` - Initial delay."]
     #[doc = "* `interval` - Repeat interval."]
+    #[doc = ""]
     pub fn hidSetRepeatParameters(delay: u32_, interval: u32_);
 }
 extern "C" {
@@ -18476,7 +19554,9 @@ extern "C" {
     #[doc = ""]
     #[doc = "Individual buttons can be extracted using binary AND."]
     #[doc = ""]
-    #[doc = "Returns: 32-bit bitmask of held buttons (1+ frames)."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* 32-bit bitmask of held buttons (1+ frames)."]
     #[doc = ""]
     pub fn hidKeysHeld() -> u32_;
 }
@@ -18485,7 +19565,9 @@ extern "C" {
     #[doc = ""]
     #[doc = "Individual buttons can be extracted using binary AND."]
     #[doc = ""]
-    #[doc = "Returns: 32-bit bitmask of newly pressed buttons."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* 32-bit bitmask of newly pressed buttons."]
     #[doc = ""]
     pub fn hidKeysDown() -> u32_;
 }
@@ -18494,7 +19576,9 @@ extern "C" {
     #[doc = ""]
     #[doc = "Individual buttons can be extracted using binary AND."]
     #[doc = ""]
-    #[doc = "Returns: 32-bit bitmask of newly pressed or repeated buttons."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* 32-bit bitmask of newly pressed or repeated buttons."]
     #[doc = ""]
     pub fn hidKeysDownRepeat() -> u32_;
 }
@@ -18503,7 +19587,9 @@ extern "C" {
     #[doc = ""]
     #[doc = "Individual buttons can be extracted using binary AND."]
     #[doc = ""]
-    #[doc = "Returns: 32-bit bitmask of newly released buttons."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* 32-bit bitmask of newly released buttons."]
     #[doc = ""]
     pub fn hidKeysUp() -> u32_;
 }
@@ -18513,6 +19599,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `pos` - Pointer to output the touch position to."]
+    #[doc = ""]
     pub fn hidTouchRead(pos: *mut touchPosition);
 }
 extern "C" {
@@ -18521,6 +19608,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `pos` - Pointer to output the circle pad position to."]
+    #[doc = ""]
     pub fn hidCircleRead(pos: *mut circlePosition);
 }
 extern "C" {
@@ -18529,6 +19617,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `vector` - Pointer to output the accelerometer data to."]
+    #[doc = ""]
     pub fn hidAccelRead(vector: *mut accelVector);
 }
 extern "C" {
@@ -18537,6 +19626,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `rate` - Pointer to output the gyroscope data to."]
+    #[doc = ""]
     pub fn hidGyroRead(rate: *mut angularRate);
 }
 extern "C" {
@@ -18546,6 +19636,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `id` - ID of the event."]
     #[doc = "* `nextEvent` - Whether to discard the current event and wait for the next event."]
+    #[doc = ""]
     pub fn hidWaitForEvent(id: HID_Event, nextEvent: bool);
 }
 extern "C" {
@@ -18557,6 +19648,7 @@ extern "C" {
     #[doc = "* `nextEvents` - Whether to discard the current events and wait for the next events."]
     #[doc = "* `cancelEvent` - Optional additional handle to wait on, otherwise 0."]
     #[doc = "* `timeout` - Timeout."]
+    #[doc = ""]
     pub fn hidWaitForAnyEvent(nextEvents: bool, cancelEvent: Handle, timeout: s64) -> Result;
 }
 extern "C" {
@@ -18571,6 +19663,7 @@ extern "C" {
     #[doc = "* `eventaccel` - Pointer to output the accelerometer event handle to."]
     #[doc = "* `eventgyro` - Pointer to output the gyroscope event handle to."]
     #[doc = "* `eventdebugpad` - Pointer to output the debug pad event handle to."]
+    #[doc = ""]
     pub fn HIDUSER_GetHandles(
         outMemHandle: *mut Handle,
         eventpad0: *mut Handle,
@@ -18611,6 +19704,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `coeff` - Pointer to output the coefficient to."]
+    #[doc = ""]
     pub fn HIDUSER_GetGyroscopeRawToDpsCoefficient(coeff: *mut f32) -> Result;
 }
 extern "C" {
@@ -18620,6 +19714,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `volume` - Pointer to write the volume slider value to."]
+    #[doc = ""]
     pub fn HIDUSER_GetSoundVolume(volume: *mut u8_) -> Result;
 }
 extern "C" {
@@ -18656,7 +19751,9 @@ extern "C" {
 extern "C" {
     #[doc = "Gets IRRST's held keys."]
     #[doc = ""]
-    #[doc = "Returns: IRRST's held keys."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* IRRST's held keys."]
     #[doc = ""]
     pub fn irrstKeysHeld() -> u32_;
 }
@@ -18666,6 +19763,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `pos` - Pointer to output the current c-stick position to."]
+    #[doc = ""]
     pub fn irrstCstickRead(pos: *mut circlePosition);
 }
 extern "C" {
@@ -18674,6 +19772,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `nextEvent` - Whether to discard the current event and wait until the next event."]
+    #[doc = ""]
     pub fn irrstWaitForEvent(nextEvent: bool);
 }
 extern "C" {
@@ -18684,6 +19783,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `outMemHandle` - Pointer to write the shared memory handle to."]
     #[doc = "* `outEventHandle` - Pointer to write the event handle to."]
+    #[doc = ""]
     pub fn IRRST_GetHandles(outMemHandle: *mut Handle, outEventHandle: *mut Handle) -> Result;
 }
 extern "C" {
@@ -18694,6 +19794,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `unk1` - Unknown."]
     #[doc = "* `unk2` - Unknown."]
+    #[doc = ""]
     pub fn IRRST_Initialize(unk1: u32_, unk2: u8_) -> Result;
 }
 extern "C" {
@@ -18732,7 +19833,7 @@ pub type SSLC_DefaultClientCert = ::libc::c_uint;
 pub const SSLCOPT_Default: _bindgen_ty_23 = 0;
 pub const SSLCOPT_DisableVerify: _bindgen_ty_23 = 512;
 pub const SSLCOPT_TLSv10: _bindgen_ty_23 = 2048;
-#[doc = "sslc options. https://www.3dbrew.org/wiki/SSL_Services#SSLOpt"]
+#[doc = "sslc options. <https://www.3dbrew.org/wiki/SSL_Services#SSLOpt>"]
 #[doc = ""]
 
 pub type _bindgen_ty_23 = ::libc::c_uint;
@@ -18754,6 +19855,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `RootCertChain_contexthandle` - Output contexthandle."]
+    #[doc = ""]
     pub fn sslcCreateRootCertChain(RootCertChain_contexthandle: *mut u32_) -> Result;
 }
 extern "C" {
@@ -18763,6 +19865,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `RootCertChain_contexthandle` - RootCertChain contexthandle."]
+    #[doc = ""]
     pub fn sslcDestroyRootCertChain(RootCertChain_contexthandle: u32_) -> Result;
 }
 extern "C" {
@@ -18774,6 +19877,7 @@ extern "C" {
     #[doc = "* `RootCertChain_contexthandle` - RootCertChain to use."]
     #[doc = "* `cert` - Pointer to the DER cert."]
     #[doc = "* `certsize` - Size of the DER cert."]
+    #[doc = ""]
     pub fn sslcAddTrustedRootCA(
         RootCertChain_contexthandle: u32_,
         cert: *const u8_,
@@ -18790,6 +19894,7 @@ extern "C" {
     #[doc = "* `RootCertChain_contexthandle` - RootCertChain to use."]
     #[doc = "* `certID` - ID of the cert to add."]
     #[doc = "* `cert_contexthandle` - Optional, the cert contexthandle can be written here."]
+    #[doc = ""]
     pub fn sslcRootCertChainAddDefaultCert(
         RootCertChain_contexthandle: u32_,
         certID: SSLC_DefaultRootCert,
@@ -18804,6 +19909,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `RootCertChain_contexthandle` - RootCertChain to use."]
     #[doc = "* `cert_contexthandle` - Cert contexthandle to remove from the RootCertChain."]
+    #[doc = ""]
     pub fn sslcRootCertChainRemoveCert(
         RootCertChain_contexthandle: u32_,
         cert_contexthandle: u32_,
@@ -18816,6 +19922,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `CertChain_contexthandle` - Output contexthandle."]
+    #[doc = ""]
     pub fn sslcCreate8CertChain(CertChain_contexthandle: *mut u32_) -> Result;
 }
 extern "C" {
@@ -18825,6 +19932,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `CertChain_contexthandle` - CertChain contexthandle."]
+    #[doc = ""]
     pub fn sslcDestroy8CertChain(CertChain_contexthandle: u32_) -> Result;
 }
 extern "C" {
@@ -18836,6 +19944,7 @@ extern "C" {
     #[doc = "* `CertChain_contexthandle` - CertChain to use."]
     #[doc = "* `cert` - Pointer to the cert."]
     #[doc = "* `certsize` - Size of the cert."]
+    #[doc = ""]
     pub fn sslc8CertChainAddCert(
         CertChain_contexthandle: u32_,
         cert: *const u8_,
@@ -18852,6 +19961,7 @@ extern "C" {
     #[doc = "* `CertChain_contexthandle` - CertChain to use."]
     #[doc = "* `certID` - ID of the cert to add."]
     #[doc = "* `cert_contexthandle` - Optional, the cert contexthandle can be written here."]
+    #[doc = ""]
     pub fn sslc8CertChainAddDefaultCert(
         CertChain_contexthandle: u32_,
         certID: u8_,
@@ -18866,6 +19976,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `CertChain_contexthandle` - CertChain to use."]
     #[doc = "* `cert_contexthandle` - Cert contexthandle to remove from the CertChain."]
+    #[doc = ""]
     pub fn sslc8CertChainRemoveCert(
         CertChain_contexthandle: u32_,
         cert_contexthandle: u32_,
@@ -18882,6 +19993,7 @@ extern "C" {
     #[doc = "* `key` - Pointer to the DER key."]
     #[doc = "* `keysize` - Size of the DER key."]
     #[doc = "* `ClientCert_contexthandle` - Output contexthandle."]
+    #[doc = ""]
     pub fn sslcOpenClientCertContext(
         cert: *const u8_,
         certsize: u32_,
@@ -18898,6 +20010,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `certID` - ID of the ClientCert to use."]
     #[doc = "* `ClientCert_contexthandle` - Output contexthandle."]
+    #[doc = ""]
     pub fn sslcOpenDefaultClientCertContext(
         certID: SSLC_DefaultClientCert,
         ClientCert_contexthandle: *mut u32_,
@@ -18910,6 +20023,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `ClientCert_contexthandle` - ClientCert-context to use."]
+    #[doc = ""]
     pub fn sslcCloseClientCertContext(ClientCert_contexthandle: u32_) -> Result;
 }
 extern "C" {
@@ -18926,6 +20040,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `buf` - Output buffer."]
     #[doc = "* `size` - Output size."]
+    #[doc = ""]
     pub fn sslcGenerateRandomData(buf: *mut u8_, size: u32_) -> Result;
 }
 extern "C" {
@@ -18938,6 +20053,7 @@ extern "C" {
     #[doc = "* `sockfd` - Socket fd, this code automatically uses the required SOC command before using the actual sslc command."]
     #[doc = "* `input_opt` - Input sslc options bitmask."]
     #[doc = "* `hostname` - Server hostname."]
+    #[doc = ""]
     pub fn sslcCreateContext(
         context: *mut sslcContext,
         sockfd: ::libc::c_int,
@@ -19068,6 +20184,7 @@ extern "C" {
     #[doc = "* `context` - Context to open."]
     #[doc = "* `url` - URL to connect to."]
     #[doc = "* `use_defaultproxy` - Whether the default proxy should be used (0 for default)"]
+    #[doc = ""]
     pub fn httpcOpenContext(
         context: *mut httpcContext,
         method: HTTPC_RequestMethod,
@@ -19082,6 +20199,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `context` - Context to close."]
+    #[doc = ""]
     pub fn httpcCloseContext(context: *mut httpcContext) -> Result;
 }
 extern "C" {
@@ -19091,6 +20209,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `context` - Context to close."]
+    #[doc = ""]
     pub fn httpcCancelConnection(context: *mut httpcContext) -> Result;
 }
 extern "C" {
@@ -19102,6 +20221,7 @@ extern "C" {
     #[doc = "* `context` - Context to use."]
     #[doc = "* `name` - Name of the field."]
     #[doc = "* `value` - Value of the field."]
+    #[doc = ""]
     pub fn httpcAddRequestHeaderField(
         context: *mut httpcContext,
         name: *const ::libc::c_char,
@@ -19117,6 +20237,7 @@ extern "C" {
     #[doc = "* `context` - Context to use."]
     #[doc = "* `name` - Name of the field."]
     #[doc = "* `value` - Value of the field."]
+    #[doc = ""]
     pub fn httpcAddPostDataAscii(
         context: *mut httpcContext,
         name: *const ::libc::c_char,
@@ -19133,6 +20254,7 @@ extern "C" {
     #[doc = "* `name` - Name of the field."]
     #[doc = "* `value` - The binary data to pass as a value."]
     #[doc = "* `len` - Length of the binary data which has been passed."]
+    #[doc = ""]
     pub fn httpcAddPostDataBinary(
         context: *mut httpcContext,
         name: *const ::libc::c_char,
@@ -19149,6 +20271,7 @@ extern "C" {
     #[doc = "* `context` - Context to use."]
     #[doc = "* `data` - The data to be passed as raw into the body of the post request."]
     #[doc = "* `len` - Length of data passed by data param."]
+    #[doc = ""]
     pub fn httpcAddPostDataRaw(context: *mut httpcContext, data: *const u32_, len: u32_) -> Result;
 }
 extern "C" {
@@ -19158,6 +20281,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `context` - Context to use."]
+    #[doc = ""]
     pub fn httpcBeginRequest(context: *mut httpcContext) -> Result;
 }
 extern "C" {
@@ -19169,6 +20293,7 @@ extern "C" {
     #[doc = "* `context` - Context to use."]
     #[doc = "* `buffer` - Buffer to receive data to."]
     #[doc = "* `size` - Size of the buffer."]
+    #[doc = ""]
     pub fn httpcReceiveData(context: *mut httpcContext, buffer: *mut u8_, size: u32_) -> Result;
 }
 extern "C" {
@@ -19181,6 +20306,7 @@ extern "C" {
     #[doc = "* `buffer` - Buffer to receive data to."]
     #[doc = "* `size` - Size of the buffer."]
     #[doc = "* `timeout` - Maximum time in nanoseconds to wait for a reply."]
+    #[doc = ""]
     pub fn httpcReceiveDataTimeout(
         context: *mut httpcContext,
         buffer: *mut u8_,
@@ -19196,6 +20322,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `context` - Context to use."]
     #[doc = "* `out` - Pointer to output the HTTP request state to."]
+    #[doc = ""]
     pub fn httpcGetRequestState(
         context: *mut httpcContext,
         out: *mut HTTPC_RequestStatus,
@@ -19210,6 +20337,7 @@ extern "C" {
     #[doc = "* `context` - Context to use."]
     #[doc = "* `downloadedsize` - Pointer to output the downloaded size to."]
     #[doc = "* `contentsize` - Pointer to output the total content size to."]
+    #[doc = ""]
     pub fn httpcGetDownloadSizeState(
         context: *mut httpcContext,
         downloadedsize: *mut u32_,
@@ -19224,6 +20352,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `context` - Context to get the response code of."]
     #[doc = "* `out` - Pointer to write the response code to."]
+    #[doc = ""]
     pub fn httpcGetResponseStatusCode(context: *mut httpcContext, out: *mut u32_) -> Result;
 }
 extern "C" {
@@ -19235,6 +20364,7 @@ extern "C" {
     #[doc = "* `context` - Context to get the response code of."]
     #[doc = "* `out` - Pointer to write the response code to."]
     #[doc = "* `timeout` - Maximum time in nanoseconds to wait for a reply."]
+    #[doc = ""]
     pub fn httpcGetResponseStatusCodeTimeout(
         context: *mut httpcContext,
         out: *mut u32_,
@@ -19251,6 +20381,7 @@ extern "C" {
     #[doc = "* `name` - Name of the field."]
     #[doc = "* `value` - Pointer to output the value of the field to."]
     #[doc = "* `valuebuf_maxsize` - Maximum size of the value buffer."]
+    #[doc = ""]
     pub fn httpcGetResponseHeader(
         context: *mut httpcContext,
         name: *const ::libc::c_char,
@@ -19267,6 +20398,7 @@ extern "C" {
     #[doc = "* `context` - Context to use."]
     #[doc = "* `cert` - Pointer to DER cert."]
     #[doc = "* `certsize` - Size of the DER cert."]
+    #[doc = ""]
     pub fn httpcAddTrustedRootCA(
         context: *mut httpcContext,
         cert: *const u8_,
@@ -19281,6 +20413,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `context` - Context to use."]
     #[doc = "* `certID` - ID of the cert to add, see sslc.h."]
+    #[doc = ""]
     pub fn httpcAddDefaultCert(context: *mut httpcContext, certID: SSLC_DefaultRootCert) -> Result;
 }
 extern "C" {
@@ -19291,6 +20424,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `context` - Context to use."]
     #[doc = "* `RootCertChain_contexthandle` - Contexthandle for the RootCertChain."]
+    #[doc = ""]
     pub fn httpcSelectRootCertChain(
         context: *mut httpcContext,
         RootCertChain_contexthandle: u32_,
@@ -19307,6 +20441,7 @@ extern "C" {
     #[doc = "* `certsize` - Size of the DER cert."]
     #[doc = "* `privk` - Pointer to the DER private key."]
     #[doc = "* `privk_size` - Size of the privk."]
+    #[doc = ""]
     pub fn httpcSetClientCert(
         context: *mut httpcContext,
         cert: *const u8_,
@@ -19323,6 +20458,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `context` - Context to use."]
     #[doc = "* `certID` - ID of the cert to add, see sslc.h."]
+    #[doc = ""]
     pub fn httpcSetClientCertDefault(
         context: *mut httpcContext,
         certID: SSLC_DefaultClientCert,
@@ -19336,6 +20472,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `context` - Context to use."]
     #[doc = "* `ClientCert_contexthandle` - Contexthandle for the ClientCert."]
+    #[doc = ""]
     pub fn httpcSetClientCertContext(
         context: *mut httpcContext,
         ClientCert_contexthandle: u32_,
@@ -19351,6 +20488,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `context` - Context to set flags on."]
     #[doc = "* `options` - SSL option flags."]
+    #[doc = ""]
     pub fn httpcSetSSLOpt(context: *mut httpcContext, options: u32_) -> Result;
 }
 extern "C" {
@@ -19363,6 +20501,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `context` - Context to clear flags on."]
     #[doc = "* `options` - SSL option flags."]
+    #[doc = ""]
     pub fn httpcSetSSLClearOpt(context: *mut httpcContext, options: u32_) -> Result;
 }
 extern "C" {
@@ -19372,6 +20511,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `RootCertChain_contexthandle` - Output RootCertChain contexthandle."]
+    #[doc = ""]
     pub fn httpcCreateRootCertChain(RootCertChain_contexthandle: *mut u32_) -> Result;
 }
 extern "C" {
@@ -19381,6 +20521,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `RootCertChain_contexthandle` - RootCertChain to use."]
+    #[doc = ""]
     pub fn httpcDestroyRootCertChain(RootCertChain_contexthandle: u32_) -> Result;
 }
 extern "C" {
@@ -19393,6 +20534,7 @@ extern "C" {
     #[doc = "* `cert` - Pointer to DER cert."]
     #[doc = "* `certsize` - Size of the DER cert."]
     #[doc = "* `cert_contexthandle` - Optional output ptr for the cert contexthandle(this can be NULL)."]
+    #[doc = ""]
     pub fn httpcRootCertChainAddCert(
         RootCertChain_contexthandle: u32_,
         cert: *const u8_,
@@ -19409,6 +20551,7 @@ extern "C" {
     #[doc = "* `RootCertChain_contexthandle` - RootCertChain to use."]
     #[doc = "* `certID` - ID of the cert to add, see sslc.h."]
     #[doc = "* `cert_contexthandle` - Optional output ptr for the cert contexthandle(this can be NULL)."]
+    #[doc = ""]
     pub fn httpcRootCertChainAddDefaultCert(
         RootCertChain_contexthandle: u32_,
         certID: SSLC_DefaultRootCert,
@@ -19423,6 +20566,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `RootCertChain_contexthandle` - RootCertChain to use."]
     #[doc = "* `cert_contexthandle` - Contexthandle of the cert to remove."]
+    #[doc = ""]
     pub fn httpcRootCertChainRemoveCert(
         RootCertChain_contexthandle: u32_,
         cert_contexthandle: u32_,
@@ -19439,6 +20583,7 @@ extern "C" {
     #[doc = "* `privk` - Pointer to the DER private key."]
     #[doc = "* `privk_size` - Size of the privk."]
     #[doc = "* `ClientCert_contexthandle` - Output ClientCert context handle."]
+    #[doc = ""]
     pub fn httpcOpenClientCertContext(
         cert: *const u8_,
         certsize: u32_,
@@ -19455,6 +20600,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `certID` - ID of the cert to add, see sslc.h."]
     #[doc = "* `ClientCert_contexthandle` - Output ClientCert context handle."]
+    #[doc = ""]
     pub fn httpcOpenDefaultClientCertContext(
         certID: SSLC_DefaultClientCert,
         ClientCert_contexthandle: *mut u32_,
@@ -19467,6 +20613,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `ClientCert_contexthandle` - ClientCert context to use."]
+    #[doc = ""]
     pub fn httpcCloseClientCertContext(ClientCert_contexthandle: u32_) -> Result;
 }
 extern "C" {
@@ -19481,6 +20628,7 @@ extern "C" {
     #[doc = "* `buffer` - Buffer to write data to."]
     #[doc = "* `size` - Size of the buffer."]
     #[doc = "* `downloadedsize` - Pointer to write the size of the downloaded data to."]
+    #[doc = ""]
     pub fn httpcDownloadData(
         context: *mut httpcContext,
         buffer: *mut u8_,
@@ -19496,6 +20644,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `context` - Context to set the KeepAlive flag on."]
     #[doc = "* `option` - HTTPC_KeepAlive option."]
+    #[doc = ""]
     pub fn httpcSetKeepAlive(context: *mut httpcContext, option: HTTPC_KeepAlive) -> Result;
 }
 #[doc = "Node info struct."]
@@ -19678,6 +20827,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `sharedmem_size` - This must be 0x1000-byte aligned."]
     #[doc = "* `username` - Optional custom UTF-8 username(converted to UTF-16 internally) that other nodes on the UDS network can use. If not set the username from system-config is used. Max len is 10 characters without NUL-terminator."]
+    #[doc = ""]
     pub fn udsInit(sharedmem_size: size_t, username: *const ::libc::c_char) -> Result;
 }
 extern "C" {
@@ -19693,6 +20843,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `nodeinfo` - Output NodeInfo struct."]
     #[doc = "* `username` - If set, this is the UTF-8 string to convert for use in the struct. Max len is 10 characters without NUL-terminator."]
+    #[doc = ""]
     pub fn udsGenerateNodeInfo(
         nodeinfo: *mut udsNodeInfo,
         username: *const ::libc::c_char,
@@ -19706,6 +20857,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `nodeinfo` - Input NodeInfo struct."]
     #[doc = "* `username` - This is the output UTF-8 string. Max len is 10 characters without NUL-terminator."]
+    #[doc = ""]
     pub fn udsGetNodeInfoUsername(
         nodeinfo: *const udsNodeInfo,
         username: *mut ::libc::c_char,
@@ -19717,6 +20869,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `nodeinfo` - Input NodeInfo struct."]
+    #[doc = ""]
     pub fn udsCheckNodeInfoInitialized(nodeinfo: *const udsNodeInfo) -> bool;
 }
 extern "C" {
@@ -19728,6 +20881,7 @@ extern "C" {
     #[doc = "* `wlancommID` - Unique local-WLAN communications ID for each application."]
     #[doc = "* `id8` - Additional ID that can be used by the application for different types of networks."]
     #[doc = "* `max_nodes` - Maximum number of nodes(devices) that can be connected to the network, including the host."]
+    #[doc = ""]
     pub fn udsGenerateDefaultNetworkStruct(
         network: *mut udsNetworkStruct,
         wlancommID: u32_,
@@ -19746,6 +20900,7 @@ extern "C" {
     #[doc = "* `wlancommID` - Unique local-WLAN communications ID for each application."]
     #[doc = "* `id8` - Additional ID that can be used by the application for different types of networks."]
     #[doc = "* `host_macaddress` - When set, this code will only return network info from the specified host MAC address."]
+    #[doc = ""]
     pub fn udsScanBeacons(
         outbuf: *mut ::libc::c_void,
         maxsize: size_t,
@@ -19765,6 +20920,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `buf` - Appdata buffer."]
     #[doc = "* `size` - Size of the input appdata."]
+    #[doc = ""]
     pub fn udsSetApplicationData(buf: *const ::libc::c_void, size: size_t) -> Result;
 }
 extern "C" {
@@ -19776,6 +20932,7 @@ extern "C" {
     #[doc = "* `buf` - Appdata buffer."]
     #[doc = "* `size` - Max size of the output buffer."]
     #[doc = "* `actual_size` - If set, the actual size of the appdata written into the buffer is stored here."]
+    #[doc = ""]
     pub fn udsGetApplicationData(
         buf: *mut ::libc::c_void,
         size: size_t,
@@ -19791,6 +20948,7 @@ extern "C" {
     #[doc = "* `buf` - Appdata buffer."]
     #[doc = "* `size` - Max size of the output buffer."]
     #[doc = "* `actual_size` - If set, the actual size of the appdata written into the buffer is stored here."]
+    #[doc = ""]
     pub fn udsGetNetworkStructApplicationData(
         network: *const udsNetworkStruct,
         buf: *mut ::libc::c_void,
@@ -19809,6 +20967,7 @@ extern "C" {
     #[doc = "* `spectator` - False for a regular bind, true for a spectator."]
     #[doc = "* `data_channel` - This is an arbitrary value to use for data-frame filtering. This bind will only receive data frames which contain a matching data_channel value, which was specified by udsSendTo(). The data_channel must be non-zero."]
     #[doc = "* `recv_buffer_size` - Size of the buffer under sharedmem used for temporarily storing received data-frames which are then loaded by udsPullPacket(). The system requires this to be >=0x5F4. UDS_DEFAULT_RECVBUFSIZE can be used for this."]
+    #[doc = ""]
     pub fn udsBind(
         bindcontext: *mut udsBindContext,
         NetworkNodeID: u16_,
@@ -19824,18 +20983,22 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `bindcontext` - The bind context."]
+    #[doc = ""]
     pub fn udsUnbind(bindcontext: *mut udsBindContext) -> Result;
 }
 extern "C" {
     #[doc = "Waits for the bind event to occur, or checks if the event was signaled. This event is signaled every time new data is available via udsPullPacket()."]
     #[doc = ""]
-    #[doc = "Returns: Always true. However if wait=false, this will return false if the event wasn't signaled."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* Always true. However if wait=false, this will return false if the event wasn't signaled."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `bindcontext` - The bind context."]
     #[doc = "* `nextEvent` - Whether to discard the current event and wait for the next event."]
     #[doc = "* `wait` - When true this will not return until the event is signaled. When false this checks if the event was signaled without waiting for it."]
+    #[doc = ""]
     pub fn udsWaitDataAvailable(
         bindcontext: *const udsBindContext,
         nextEvent: bool,
@@ -19853,6 +21016,7 @@ extern "C" {
     #[doc = "* `size` - Size of the buffer."]
     #[doc = "* `actual_size` - If set, the actual size written into the output buffer is stored here. This is zero when no data was received."]
     #[doc = "* `src_NetworkNodeID` - If set, the source NetworkNodeID is written here. This is zero when no data was received."]
+    #[doc = ""]
     pub fn udsPullPacket(
         bindcontext: *const udsBindContext,
         buf: *mut ::libc::c_void,
@@ -19872,6 +21036,7 @@ extern "C" {
     #[doc = "* `flags` - Send flags, see the UDS_SENDFLAG enum values."]
     #[doc = "* `buf` - Input send buffer."]
     #[doc = "* `size` - Size of the buffer."]
+    #[doc = ""]
     pub fn udsSendTo(
         dst_NetworkNodeID: u16_,
         data_channel: u8_,
@@ -19887,6 +21052,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `channel` - Output channel."]
+    #[doc = ""]
     pub fn udsGetChannel(channel: *mut u8_) -> Result;
 }
 extern "C" {
@@ -19901,6 +21067,7 @@ extern "C" {
     #[doc = "* `context` - Optional output bind context which will be created for this host, with NetworkNodeID=UDS_BROADCAST_NETWORKNODEID."]
     #[doc = "* `data_channel` - This is the data_channel value which will be passed to udsBind() internally."]
     #[doc = "* `recv_buffer_size` - This is the recv_buffer_size value which will be passed to udsBind() internally."]
+    #[doc = ""]
     pub fn udsCreateNetwork(
         network: *const udsNetworkStruct,
         passphrase: *const ::libc::c_void,
@@ -19924,6 +21091,7 @@ extern "C" {
     #[doc = "* `connection_type` - Type of connection, see the udsConnectionType enum values."]
     #[doc = "* `data_channel` - This is the data_channel value which will be passed to udsBind() internally."]
     #[doc = "* `recv_buffer_size` - This is the recv_buffer_size value which will be passed to udsBind() internally."]
+    #[doc = ""]
     pub fn udsConnectNetwork(
         network: *const udsNetworkStruct,
         passphrase: *const ::libc::c_void,
@@ -19954,6 +21122,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `NetworkNodeID` - Target NetworkNodeID. UDS_BROADCAST_NETWORKNODEID can be used to disconnect all clients."]
+    #[doc = ""]
     pub fn udsEjectClient(NetworkNodeID: u16_) -> Result;
 }
 extern "C" {
@@ -19970,6 +21139,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `bitmask` - Bitmask to clear/set in the attributes. See the UDSNETATTR enum values."]
     #[doc = "* `flag` - When false, bit-clear, otherwise bit-set."]
+    #[doc = ""]
     pub fn udsUpdateNetworkAttribute(bitmask: u16_, flag: bool) -> Result;
 }
 extern "C" {
@@ -19981,6 +21151,7 @@ extern "C" {
     #[doc = "* `block` - When true, block the specified connection types(bitmask set). Otherwise allow them(bitmask clear)."]
     #[doc = "* `clients` - When true, (un)block regular clients."]
     #[doc = "* `flag` - When true, update UDSNETATTR_x4. Normally this should be false."]
+    #[doc = ""]
     pub fn udsSetNewConnectionsBlocked(block: bool, clients: bool, flag: bool) -> Result;
 }
 extern "C" {
@@ -19996,17 +21167,21 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `output` - Output ConnectionStatus struct."]
+    #[doc = ""]
     pub fn udsGetConnectionStatus(output: *mut udsConnectionStatus) -> Result;
 }
 extern "C" {
     #[doc = "Waits for the ConnectionStatus event to occur, or checks if the event was signaled. This event is signaled when the data from udsGetConnectionStatus() was updated internally."]
     #[doc = ""]
-    #[doc = "Returns: Always true. However if wait=false, this will return false if the event wasn't signaled."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* Always true. However if wait=false, this will return false if the event wasn't signaled."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `nextEvent` - Whether to discard the current event and wait for the next event."]
     #[doc = "* `wait` - When true this will not return until the event is signaled. When false this checks if the event was signaled without waiting for it."]
+    #[doc = ""]
     pub fn udsWaitConnectionStatusEvent(nextEvent: bool, wait: bool) -> bool;
 }
 extern "C" {
@@ -20017,6 +21192,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `NetworkNodeID` - Target NetworkNodeID."]
     #[doc = "* `output` - Output NodeInfo struct."]
+    #[doc = ""]
     pub fn udsGetNodeInformation(NetworkNodeID: u16_, output: *mut udsNodeInfo) -> Result;
 }
 pub const NDM_EXCLUSIVE_STATE_NONE: ndmExclusiveState = 0;
@@ -20083,6 +21259,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `state` - State specified in the ndmExclusiveState enumerator."]
+    #[doc = ""]
     pub fn NDMU_EnterExclusiveState(state: ndmExclusiveState) -> Result;
 }
 extern "C" {
@@ -20098,6 +21275,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `state` - Pointer to write the exclsuive state to."]
+    #[doc = ""]
     pub fn NDMU_GetExclusiveState(state: *mut ndmExclusiveState) -> Result;
 }
 extern "C" {
@@ -20119,6 +21297,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `mask` - The specified daemon."]
+    #[doc = ""]
     pub fn NDMU_SuspendDaemons(mask: ndmDaemonMask) -> Result;
 }
 extern "C" {
@@ -20128,6 +21307,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `mask` - The specified daemon."]
+    #[doc = ""]
     pub fn NDMU_ResumeDaemons(mask: ndmDaemonMask) -> Result;
 }
 extern "C" {
@@ -20137,6 +21317,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `flag` - 0 = Wait for completion, 1 = Perform in background."]
+    #[doc = ""]
     pub fn NDMU_SuspendScheduler(flag: u32_) -> Result;
 }
 extern "C" {
@@ -20152,6 +21333,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `state` - Pointer to write the current state to."]
+    #[doc = ""]
     pub fn NDMU_GetCurrentState(state: *mut ndmState) -> Result;
 }
 extern "C" {
@@ -20161,6 +21343,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `state` - Pointer to write the daemons state to."]
+    #[doc = ""]
     pub fn NDMU_QueryStatus(status: *mut ndmDaemonStatus) -> Result;
 }
 extern "C" {
@@ -20170,6 +21353,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `interval` - Value to set the scan interval to."]
+    #[doc = ""]
     pub fn NDMU_SetScanInterval(interval: u32_) -> Result;
 }
 extern "C" {
@@ -20179,6 +21363,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `interval` - Pointer to write the interval value to."]
+    #[doc = ""]
     pub fn NDMU_GetScanInterval(interval: *mut u32_) -> Result;
 }
 extern "C" {
@@ -20188,6 +21373,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `interval` - Pointer to write the interval value to."]
+    #[doc = ""]
     pub fn NDMU_GetRetryInterval(interval: *mut u32_) -> Result;
 }
 extern "C" {
@@ -20203,6 +21389,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `interval` - Pointer to write the default daemon mask value to. The default value is (DAEMONMASK_CEC | DAEMONMASK_FRIENDS)"]
+    #[doc = ""]
     pub fn NDMU_GetDefaultDaemons(mask: *mut ndmDaemonMask) -> Result;
 }
 extern "C" {
@@ -20300,7 +21487,7 @@ pub struct NIM_TitleConfig {
     #[doc = "Age for the HOME Menu parental controls"]
     #[doc = ""]
     pub ratingAge: u8_,
-    #[doc = "Media type, see @ref FS_MediaType enum"]
+    #[doc = "Media type, see [`FS_MediaType`] enum"]
     #[doc = ""]
     pub mediaType: u8_,
     #[doc = "Padding"]
@@ -20336,6 +21523,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `buffer` - A buffer for internal use. It must be at least 0x20000 bytes long."]
     #[doc = "* `buffer_len` - Length of the passed buffer."]
+    #[doc = ""]
     pub fn nimsInit(buffer: *mut ::libc::c_void, buffer_len: size_t) -> Result;
 }
 extern "C" {
@@ -20346,7 +21534,8 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `buffer` - A buffer for internal use. It must be at least 0x20000 bytes long."]
     #[doc = "* `buffer_len` - Length of the passed buffer."]
-    #[doc = "* `TIN` - The TIN to initialize nim:s with. If you do not know what a TIN is or why you would want to change it, use @ref nimsInit instead."]
+    #[doc = "* `TIN` - The TIN to initialize nim:s with. If you do not know what a TIN is or why you would want to change it, use [`nimsInit`] instead."]
+    #[doc = ""]
     pub fn nimsInitWithTIN(
         buffer: *mut ::libc::c_void,
         buffer_len: size_t,
@@ -20371,6 +21560,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `attr` - Name of the attribute."]
     #[doc = "* `val` - Value of the attribute."]
+    #[doc = ""]
     pub fn NIMS_SetAttribute(attr: *const ::libc::c_char, val: *const ::libc::c_char) -> Result;
 }
 extern "C" {
@@ -20380,10 +21570,11 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `want_update` - Set to true if a system update is required. Can be NULL."]
+    #[doc = ""]
     pub fn NIMS_WantUpdate(want_update: *mut bool) -> Result;
 }
 extern "C" {
-    #[doc = "Makes a TitleConfig struct for use with @ref NIMS_RegisterTask, @ref NIMS_StartDownload or @ref NIMS_StartDownloadSimple."]
+    #[doc = "Makes a TitleConfig struct for use with [`NIMS_RegisterTask`] [`NIMS_StartDownload`] or [`NIMS_StartDownloadSimple`]"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
@@ -20392,6 +21583,7 @@ extern "C" {
     #[doc = "* `version` - Version of the title to download and install."]
     #[doc = "* `ratingAge` - Age for which the title is aged; used by parental controls in HOME Menu."]
     #[doc = "* `mediaType` - Media type of the title to download and install."]
+    #[doc = ""]
     pub fn NIMS_MakeTitleConfig(
         cfg: *mut NIM_TitleConfig,
         titleId: u64_,
@@ -20406,9 +21598,10 @@ extern "C" {
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
-    #[doc = "* `cfg` - Title config to use. See @ref NIMS_MakeTitleConfig."]
+    #[doc = "* `cfg` - Title config to use. See [`NIMS_MakeTitleConfig`]"]
     #[doc = "* `name` - Name of the title in UTF-8. Will be displayed on the HOME Menu. Maximum 73 characters."]
     #[doc = "* `maker` - Name of the maker/publisher in UTF-8. Will be displayed on the HOME Menu. Maximum 37 characters."]
+    #[doc = ""]
     pub fn NIMS_RegisterTask(
         cfg: *const NIM_TitleConfig,
         name: *const ::libc::c_char,
@@ -20423,6 +21616,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `titleId` - Title ID to check for."]
     #[doc = "* `registered` - Whether there is a background download task registered."]
+    #[doc = ""]
     pub fn NIMS_IsTaskRegistered(titleId: u64_, registered: *mut bool) -> Result;
 }
 extern "C" {
@@ -20432,25 +21626,28 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `titleId` - Title ID whose background download task to cancel."]
+    #[doc = ""]
     pub fn NIMS_UnregisterTask(titleId: u64_) -> Result;
 }
 extern "C" {
     #[must_use]
-    #[doc = "Starts an active download with NIM. Progress can be checked with @ref NIMS_GetProcess. Do not exit the process while a download is in progress without calling @ref NIMS_CancelDownload."]
+    #[doc = "Starts an active download with NIM. Progress can be checked with [`NIMS_GetProcess`] Do not exit the process while a download is in progress without calling [`NIMS_CancelDownload`]"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
-    #[doc = "* `cfg` - Title config to use. See @ref NIMS_MakeTitleConfig."]
-    #[doc = "* `mode` - The installation mode to use. See @ref NIM_InstallationMode."]
+    #[doc = "* `cfg` - Title config to use. See [`NIMS_MakeTitleConfig`]"]
+    #[doc = "* `mode` - The installation mode to use. See [`NIM_InstallationMode`]"]
+    #[doc = ""]
     pub fn NIMS_StartDownload(cfg: *const NIM_TitleConfig, mode: NIM_InstallationMode) -> Result;
 }
 extern "C" {
     #[must_use]
-    #[doc = "Starts an active download with NIM with default installation mode; cannot reinstall titles. Progress can be checked with @ref NIMS_GetProcess. Do not exit the process while a download is in progress without calling @ref NIMS_CancelDownload."]
+    #[doc = "Starts an active download with NIM with default installation mode; cannot reinstall titles. Progress can be checked with [`NIMS_GetProcess`] Do not exit the process while a download is in progress without calling [`NIMS_CancelDownload`]"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
-    #[doc = "* `cfg` - Title config to use. See @ref NIMS_MakeTitleConfig."]
+    #[doc = "* `cfg` - Title config to use. See [`NIMS_MakeTitleConfig`]"]
+    #[doc = ""]
     pub fn NIMS_StartDownloadSimple(cfg: *const NIM_TitleConfig) -> Result;
 }
 extern "C" {
@@ -20459,7 +21656,8 @@ extern "C" {
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
-    #[doc = "* `tp` - Title progress struct to write to. See @ref NIM_TitleProgress."]
+    #[doc = "* `tp` - Title progress struct to write to. See [`NIM_TitleProgress`]"]
+    #[doc = ""]
     pub fn NIMS_GetProgress(tp: *mut NIM_TitleProgress) -> Result;
 }
 extern "C" {
@@ -20482,6 +21680,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `enableWifi` - True enables it, false disables it."]
+    #[doc = ""]
     pub fn NWMEXT_ControlWirelessEnabled(enableWifi: bool) -> Result;
 }
 extern "C" {
@@ -20494,6 +21693,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `sharedmem_addr` - Address of the shared memory block to use."]
     #[doc = "* `sharedmem_size` - Size of the shared memory block."]
+    #[doc = ""]
     pub fn iruInit(sharedmem_addr: *mut u32_, sharedmem_size: u32_) -> Result;
 }
 extern "C" {
@@ -20504,7 +21704,9 @@ extern "C" {
 extern "C" {
     #[doc = "Gets the IRU service handle."]
     #[doc = ""]
-    #[doc = "Returns: The IRU service handle."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The IRU service handle."]
     #[doc = ""]
     pub fn iruGetServHandle() -> Handle;
 }
@@ -20517,6 +21719,7 @@ extern "C" {
     #[doc = "* `buf` - Buffer to send data from."]
     #[doc = "* `size` - Size of the buffer."]
     #[doc = "* `wait` - Whether to wait for the data to be sent."]
+    #[doc = ""]
     pub fn iruSendData(buf: *mut u8_, size: u32_, wait: bool) -> Result;
 }
 extern "C" {
@@ -20530,6 +21733,7 @@ extern "C" {
     #[doc = "* `flag` - Flags to receive data with."]
     #[doc = "* `transfercount` - Pointer to output the number of bytes read to."]
     #[doc = "* `wait` - Whether to wait for the data to be received."]
+    #[doc = ""]
     pub fn iruRecvData(
         buf: *mut u8_,
         size: u32_,
@@ -20558,6 +21762,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `buf` - Buffer to send."]
     #[doc = "* `size` - Size of the buffer."]
+    #[doc = ""]
     pub fn IRU_StartSendTransfer(buf: *mut u8_, size: u32_) -> Result;
 }
 extern "C" {
@@ -20574,6 +21779,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `size` - Size of the data to receive."]
     #[doc = "* `flag` - Flags to use when receiving."]
+    #[doc = ""]
     pub fn IRU_StartRecvTransfer(size: u32_, flag: u8_) -> Result;
 }
 extern "C" {
@@ -20583,6 +21789,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `transfercount` - Pointer to output the number of bytes read to."]
+    #[doc = ""]
     pub fn IRU_WaitRecvTransfer(transfercount: *mut u32_) -> Result;
 }
 extern "C" {
@@ -20592,6 +21799,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `value` - Bit rate to set."]
+    #[doc = ""]
     pub fn IRU_SetBitRate(value: u8_) -> Result;
 }
 extern "C" {
@@ -20601,6 +21809,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `out` - Pointer to write the bit rate to."]
+    #[doc = ""]
     pub fn IRU_GetBitRate(out: *mut u8_) -> Result;
 }
 extern "C" {
@@ -20610,6 +21819,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `value` - IR LED state to set."]
+    #[doc = ""]
     pub fn IRU_SetIRLEDState(value: u32_) -> Result;
 }
 extern "C" {
@@ -20619,6 +21829,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `out` - Pointer to write the IR LED state to."]
+    #[doc = ""]
     pub fn IRU_GetIRLEDRecvState(out: *mut u32_) -> Result;
 }
 extern "C" {
@@ -20639,6 +21850,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `titleid` - ID of the title to launch, 0 for gamecard, JPN System Settings' titleID for System Settings."]
+    #[doc = ""]
     pub fn NS_LaunchFIRM(titleid: u64_) -> Result;
 }
 extern "C" {
@@ -20650,6 +21862,7 @@ extern "C" {
     #[doc = "* `titleid` - ID of the title to launch, or 0 for gamecard."]
     #[doc = "* `launch_flags` - Flags used when launching the title."]
     #[doc = "* `procid` - Pointer to write the process ID of the launched title to."]
+    #[doc = ""]
     pub fn NS_LaunchTitle(titleid: u64_, launch_flags: u32_, procid: *mut u32_) -> Result;
 }
 extern "C" {
@@ -20666,6 +21879,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `titleid` - ID of the title to launch, 0 for gamecard."]
     #[doc = "* `flags` - Flags for firm-launch. bit0: require an application title-info structure in FIRM paramters to be specified via FIRM parameters. bit1: if clear, NS will check certain Configuration Memory fields."]
+    #[doc = ""]
     pub fn NS_LaunchApplicationFIRM(titleid: u64_, flags: u32_) -> Result;
 }
 extern "C" {
@@ -20676,6 +21890,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `mediatype` - Mediatype of the title."]
     #[doc = "* `titleid` - ID of the title to launch."]
+    #[doc = ""]
     pub fn NS_RebootToTitle(mediatype: u8_, titleid: u64_) -> Result;
 }
 extern "C" {
@@ -20686,6 +21901,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `titleid` - ID of the title to terminate."]
     #[doc = "* `timeout` - Timeout in nanoseconds. Pass 0 if not required."]
+    #[doc = ""]
     pub fn NS_TerminateProcessTID(titleid: u64_, timeout: u64_) -> Result;
 }
 extern "C" {
@@ -20726,7 +21942,9 @@ extern "C" {
 extern "C" {
     #[doc = "Gets the current pm:app session handle."]
     #[doc = ""]
-    #[doc = "Returns: The current pm:app session handle."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The current pm:app session handle."]
     #[doc = ""]
     pub fn pmAppGetSessionHandle() -> *mut Handle;
 }
@@ -20738,6 +21956,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `programInfo` - Program information of the title."]
     #[doc = "* `launchFlags` - Flags to launch the title with."]
+    #[doc = ""]
     pub fn PMAPP_LaunchTitle(programInfo: *const FS_ProgramInfo, launchFlags: u32_) -> Result;
 }
 extern "C" {
@@ -20749,6 +21968,7 @@ extern "C" {
     #[doc = "* `programInfo` - Program information of the title."]
     #[doc = "* `programInfoUpdate` - Program information of the update title."]
     #[doc = "* `launchFlags` - Flags to launch the title with."]
+    #[doc = ""]
     pub fn PMAPP_LaunchTitleUpdate(
         programInfo: *const FS_ProgramInfo,
         programInfoUpdate: *const FS_ProgramInfo,
@@ -20764,6 +21984,7 @@ extern "C" {
     #[doc = "* `outCoreInfo` - Pointer to write the ExHeader Arm11CoreInfo to. [Direction: In, Out]"]
     #[doc = "* `outSiFlags` - Pointer to write the ExHeader SystemInfo flags to. [Direction: In, Out]"]
     #[doc = "* `programInfo` - Program information of the title."]
+    #[doc = ""]
     pub fn PMAPP_GetTitleExheaderFlags(
         outCoreInfo: *mut ExHeader_Arm11CoreInfo,
         outSiFlags: *mut ExHeader_SystemInfoFlags,
@@ -20778,6 +21999,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `size` - Size of the FIRM launch parameter buffer."]
     #[doc = "* `in` - Buffer to retrieve the launch parameters from."]
+    #[doc = ""]
     pub fn PMAPP_SetFIRMLaunchParams(size: u32_, in_: *const ::libc::c_void) -> Result;
 }
 extern "C" {
@@ -20788,6 +22010,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `size` - Size of the FIRM launch parameter buffer."]
     #[doc = "* `out` - Buffer to write the launch parameters to. [Direction: In, Out]"]
+    #[doc = ""]
     pub fn PMAPP_GetFIRMLaunchParams(out: *mut ::libc::c_void, size: u32_) -> Result;
 }
 extern "C" {
@@ -20799,6 +22022,7 @@ extern "C" {
     #[doc = "* `firmTidLow` - Low Title ID of the FIRM title to launch."]
     #[doc = "* `size` - Size of the FIRM launch parameter buffer."]
     #[doc = "* `in` - Buffer to retrieve the launch parameters from."]
+    #[doc = ""]
     pub fn PMAPP_LaunchFIRMSetParams(
         firmTidLow: u32_,
         size: u32_,
@@ -20812,6 +22036,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `timeout` - Time limit in ns for process termination, after which the remaining processes are killed."]
+    #[doc = ""]
     pub fn PMAPP_PrepareForReboot(timeout: s64) -> Result;
 }
 extern "C" {
@@ -20821,6 +22046,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `timeout` - Timeout in nanoseconds"]
+    #[doc = ""]
     pub fn PMAPP_TerminateCurrentApplication(timeout: s64) -> Result;
 }
 extern "C" {
@@ -20831,6 +22057,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `titleId` - Title ID of the processes to terminate"]
     #[doc = "* `timeout` - Timeout in nanoseconds"]
+    #[doc = ""]
     pub fn PMAPP_TerminateTitle(titleId: u64_, timeout: s64) -> Result;
 }
 extern "C" {
@@ -20841,6 +22068,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `pid` - Process-ID of the process to terminate"]
     #[doc = "* `timeout` - Timeout in nanoseconds"]
+    #[doc = ""]
     pub fn PMAPP_TerminateProcess(pid: u32_, timeout: s64) -> Result;
 }
 extern "C" {
@@ -20850,6 +22078,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `tid` - TitleID of the process to unregister"]
+    #[doc = ""]
     pub fn PMAPP_UnregisterProcess(tid: u64_) -> Result;
 }
 extern "C" {
@@ -20859,6 +22088,11 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `cpuTime` - Reslimit value."]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* cpuTime can be no higher than reslimitdesc[0] & 0x7F in exheader (or 80 if the latter is 0)."]
+    #[doc = ""]
     pub fn PMAPP_SetAppResourceLimit(cpuTime: s64) -> Result;
 }
 extern "C" {
@@ -20868,6 +22102,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `cpuTime` - Pointer to write the reslimit value to. [Direction: In, Out]"]
+    #[doc = ""]
     pub fn PMAPP_GetAppResourceLimit(outCpuTime: *mut s64) -> Result;
 }
 extern "C" {
@@ -20884,7 +22119,9 @@ extern "C" {
 extern "C" {
     #[doc = "Gets the current pm:dbg session handle."]
     #[doc = ""]
-    #[doc = "Returns: The current pm:dbg session handle."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The current pm:dbg session handle."]
     #[doc = ""]
     pub fn pmDbgGetSessionHandle() -> *mut Handle;
 }
@@ -20892,13 +22129,14 @@ extern "C" {
     #[must_use]
     #[doc = "Enqueues an application for debug after setting cpuTime to 0, and returns a debug handle to it."]
     #[doc = ""]
-    #[doc = "If another process was enqueued, this just calls @ref RunQueuedProcess instead."]
+    #[doc = "If another process was enqueued, this just calls [`RunQueuedProcess`] instead."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `Pointer` - to output the debug handle to. [Direction: In, Out]"]
     #[doc = "* `programInfo` - Program information of the title."]
     #[doc = "* `launchFlags` - Flags to launch the title with."]
+    #[doc = ""]
     pub fn PMDBG_LaunchAppDebug(
         outDebug: *mut Handle,
         programInfo: *const FS_ProgramInfo,
@@ -20913,6 +22151,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `programInfo` - Program information of the title."]
     #[doc = "* `launchFlags` - Flags to launch the title with."]
+    #[doc = ""]
     pub fn PMDBG_LaunchApp(programInfo: *const FS_ProgramInfo, launchFlags: u32_) -> Result;
 }
 extern "C" {
@@ -20922,6 +22161,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `Pointer` - to output the debug handle to. [Direction: In, Out]"]
+    #[doc = ""]
     pub fn PMDBG_RunQueuedProcess(outDebug: *mut Handle) -> Result;
 }
 #[doc = "CBC encryption."]
@@ -21028,6 +22268,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `handle` - Session handle."]
+    #[doc = ""]
     pub fn psInitHandle(handle: Handle) -> Result;
 }
 extern "C" {
@@ -21049,6 +22290,7 @@ extern "C" {
     #[doc = "* `hash` - SHA256 hash to sign."]
     #[doc = "* `ctx` - RSA context."]
     #[doc = "* `signature` - RSA signature."]
+    #[doc = ""]
     pub fn PS_SignRsaSha256(hash: *mut u8_, ctx: *mut psRSAContext, signature: *mut u8_) -> Result;
 }
 extern "C" {
@@ -21060,6 +22302,7 @@ extern "C" {
     #[doc = "* `hash` - SHA256 hash to compare with."]
     #[doc = "* `ctx` - RSA context."]
     #[doc = "* `signature` - RSA signature."]
+    #[doc = ""]
     pub fn PS_VerifyRsaSha256(
         hash: *mut u8_,
         ctx: *mut psRSAContext,
@@ -21078,6 +22321,7 @@ extern "C" {
     #[doc = "* `aes_algo` - AES algorithm to use."]
     #[doc = "* `key_type` - Key type to use."]
     #[doc = "* `iv` - Pointer to the CTR/IV. The output CTR/IV is also written here."]
+    #[doc = ""]
     pub fn PS_EncryptDecryptAes(
         size: u32_,
         in_: *mut u8_,
@@ -21105,6 +22349,7 @@ extern "C" {
     #[doc = "* `aes_algo` - AES algorithm to use."]
     #[doc = "* `key_type` - Key type to use."]
     #[doc = "* `nonce` - Pointer to the nonce."]
+    #[doc = ""]
     pub fn PS_EncryptSignDecryptVerifyAesCcm(
         in_: *mut u8_,
         in_size: u32_,
@@ -21125,6 +22370,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `seed` - Pointer to write the friend code seed to."]
+    #[doc = ""]
     pub fn PS_GetLocalFriendCodeSeed(seed: *mut u64_) -> Result;
 }
 extern "C" {
@@ -21134,6 +22380,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `device_id` - Pointer to write the device ID to."]
+    #[doc = ""]
     pub fn PS_GetDeviceId(device_id: *mut u32_) -> Result;
 }
 extern "C" {
@@ -21144,6 +22391,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `out` - Pointer to the buffer to write the bytes to."]
     #[doc = "* `len` - Number of bytes to write."]
+    #[doc = ""]
     pub fn PS_GenerateRandomBytes(out: *mut ::libc::c_void, len: size_t) -> Result;
 }
 extern "C" {
@@ -21160,7 +22408,9 @@ extern "C" {
 extern "C" {
     #[doc = "Gets a pointer to the current ptm:u session handle."]
     #[doc = ""]
-    #[doc = "Returns: A pointer to the current ptm:u session handle."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* A pointer to the current ptm:u session handle."]
     #[doc = ""]
     pub fn ptmuGetSessionHandle() -> *mut Handle;
 }
@@ -21171,6 +22421,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `out` - Pointer to write the current shell state to. (0 = closed, 1 = open)"]
+    #[doc = ""]
     pub fn PTMU_GetShellState(out: *mut u8_) -> Result;
 }
 extern "C" {
@@ -21180,6 +22431,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `out` - Pointer to write the current battery level to. (0-5)"]
+    #[doc = ""]
     pub fn PTMU_GetBatteryLevel(out: *mut u8_) -> Result;
 }
 extern "C" {
@@ -21189,6 +22441,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `out` - Pointer to write the current battery charge state to. (0 = not charging, 1 = charging)"]
+    #[doc = ""]
     pub fn PTMU_GetBatteryChargeState(out: *mut u8_) -> Result;
 }
 extern "C" {
@@ -21198,6 +22451,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `out` - Pointer to write the current pedometer state to. (0 = not counting, 1 = counting)"]
+    #[doc = ""]
     pub fn PTMU_GetPedometerState(out: *mut u8_) -> Result;
 }
 extern "C" {
@@ -21207,6 +22461,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `steps` - Pointer to write the total step count to."]
+    #[doc = ""]
     pub fn PTMU_GetTotalStepCount(steps: *mut u32_) -> Result;
 }
 extern "C" {
@@ -21216,6 +22471,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `out` - Pointer to write the adapter state to."]
+    #[doc = ""]
     pub fn PTMU_GetAdapterState(out: *mut bool) -> Result;
 }
 #[doc = "PDN wake events and MCU interrupts to select, combined with those of other processes"]
@@ -21240,15 +22496,15 @@ pub struct PtmSleepConfig {
     #[doc = ""]
     pub continue_sleep_events: PtmWakeEvents,
 }
-#[doc = "@ref PTMSYSM_RequestSleep has been called (ack = 3)"]
+#[doc = "[`PTMSYSM_RequestSleep`] has been called (ack = 3)"]
 #[doc = ""]
 
 pub const PTMNOTIFID_SLEEP_REQUESTED: _bindgen_ty_27 = 257;
-#[doc = "The sleep request has been denied by @ref PTMSYSM_ReplyToSleepQuery(true) (no ack required)."]
+#[doc = "The sleep request has been denied by [`PTMSYSM_ReplyToSleepQuery(true)`] (no ack required)."]
 #[doc = ""]
 
 pub const PTMNOTIFID_SLEEP_DENIED: _bindgen_ty_27 = 258;
-#[doc = "The sleep request has been allowed by @ref PTMSYSM_ReplyToSleepQuery(false) (ack = 1)."]
+#[doc = "The sleep request has been allowed by [`PTMSYSM_ReplyToSleepQuery(false)`] (ack = 1)."]
 #[doc = ""]
 
 pub const PTMNOTIFID_SLEEP_ALLOWED: _bindgen_ty_27 = 259;
@@ -21295,7 +22551,9 @@ extern "C" {
 extern "C" {
     #[doc = "Gets a pointer to the current ptm:sysm session handle."]
     #[doc = ""]
-    #[doc = "Returns: A pointer to the current ptm:sysm session handle."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* A pointer to the current ptm:sysm session handle."]
     #[doc = ""]
     pub fn ptmSysmGetSessionHandle() -> *mut Handle;
 }
@@ -21312,6 +22570,11 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `deny` - Whether or not to deny the sleep request."]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* If deny = false, this is equivalent to calling [`PTMSYSM_NotifySleepPreparationComplete(3)`]"]
+    #[doc = ""]
     pub fn PTMSYSM_ReplyToSleepQuery(deny: bool) -> Result;
 }
 extern "C" {
@@ -21320,7 +22583,12 @@ extern "C" {
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
-    #[doc = "* `ackValue` - Use @ref ptmSysmGetNotificationAckValue"]
+    #[doc = "* `ackValue` - Use [`ptmSysmGetNotificationAckValue`]"]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* [`PTMNOTIFID_SLEEP_DENIED`] and [`PTMNOTIFID_FULLY_AWAKE`] don't require this."]
+    #[doc = ""]
     pub fn PTMSYSM_NotifySleepPreparationComplete(ackValue: s32) -> Result;
 }
 extern "C" {
@@ -21330,6 +22598,11 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `sleepConfig` - Pointer to the two sets of wake events."]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* Can only be called just before acknowledging [`PTMNOTIFID_GOING_TO_SLEEP`] or [`PTMNOTIFID_HALF_AWAKE`]"]
+    #[doc = ""]
     pub fn PTMSYSM_SetWakeEvents(sleepConfig: *const PtmSleepConfig) -> Result;
 }
 extern "C" {
@@ -21339,6 +22612,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `sleepConfig` - Pointer to the two sets of wake events. Only the relevant set will be filled."]
+    #[doc = ""]
     pub fn PTMSYSM_GetWakeReason(outSleepConfig: *mut PtmSleepConfig) -> Result;
 }
 extern "C" {
@@ -21354,6 +22628,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `msY2k` - The number of milliseconds since 01/01/2000."]
+    #[doc = ""]
     pub fn PTMSYSM_SetUserTime(msY2k: s64) -> Result;
 }
 extern "C" {
@@ -21369,6 +22644,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `outMsY2k` - The pointer to write the number of milliseconds since 01/01/2000 to. [Direction: In, Out]"]
+    #[doc = ""]
     pub fn PTMSYSM_GetRtcTime(outMsY2k: *mut s64) -> Result;
 }
 extern "C" {
@@ -21378,6 +22654,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `msY2k` - The number of milliseconds since 01/01/2000."]
+    #[doc = ""]
     pub fn PTMSYSM_SetRtcTime(msY2k: s64) -> Result;
 }
 extern "C" {
@@ -21393,6 +22670,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `value` - Bit0: enable higher clock, Bit1: enable L2 cache."]
+    #[doc = ""]
     pub fn PTMSYSM_ConfigureNew3DSCPU(value: u8_) -> Result;
 }
 extern "C" {
@@ -21402,6 +22680,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `timeout:` - timeout passed to PMApp:ShutdownAsync (PrepareForReboot)."]
+    #[doc = ""]
     pub fn PTMSYSM_ShutdownAsync(timeout: u64_) -> Result;
 }
 extern "C" {
@@ -21411,6 +22690,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `timeout:` - timeout passed to PMApp:ShutdownAsync (PrepareForReboot)."]
+    #[doc = ""]
     pub fn PTMSYSM_RebootAsync(timeout: u64_) -> Result;
 }
 extern "C" {
@@ -21427,7 +22707,9 @@ extern "C" {
 extern "C" {
     #[doc = "Gets a pointer to the current ptm:gets session handle."]
     #[doc = ""]
-    #[doc = "Returns: A pointer to the current ptm:gets session handle."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* A pointer to the current ptm:gets session handle."]
     #[doc = ""]
     pub fn ptmGetsGetSessionHandle() -> *mut Handle;
 }
@@ -21438,6 +22720,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `outMsY2k` - The pointer to write the number of milliseconds since 01/01/2000 to. [Direction: In, Out]"]
+    #[doc = ""]
     pub fn PTMGETS_GetSystemTime(outMsY2k: *mut s64) -> Result;
 }
 extern "C" {
@@ -21454,7 +22737,9 @@ extern "C" {
 extern "C" {
     #[doc = "Gets a pointer to the current ptm:sets session handle."]
     #[doc = ""]
-    #[doc = "Returns: A pointer to the current ptm:sets session handle."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* A pointer to the current ptm:sets session handle."]
     #[doc = ""]
     pub fn ptmSetsGetSessionHandle() -> *mut Handle;
 }
@@ -21465,6 +22750,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `msY2k` - The number of milliseconds since 01/01/2000."]
+    #[doc = ""]
     pub fn PTMSETS_SetSystemTime(msY2k: s64) -> Result;
 }
 #[doc = "Do not wait."]
@@ -21514,10 +22800,10 @@ pub struct PXIDEV_SPIBuffer {
     #[doc = "Data size."]
     #[doc = ""]
     pub size: u32_,
-    #[doc = "Transfer options. See @ref pxiDevMakeTransferOption"]
+    #[doc = "Transfer options. See [`pxiDevMakeTransferOption`]"]
     #[doc = ""]
     pub transferOption: u8_,
-    #[doc = "Wait operation. See @ref pxiDevMakeWaitOperation"]
+    #[doc = "Wait operation. See [`pxiDevMakeWaitOperation`]"]
     #[doc = ""]
     pub waitOperation: u64_,
 }
@@ -21553,6 +22839,7 @@ extern "C" {
     #[doc = "* `writeBuffer2` - Buffer to make second transfer from."]
     #[doc = "* `readBuffer2` - Buffer to receive second response to."]
     #[doc = "* `footer` - Footer to follow the transfers with. Must be, at most, 8 bytes in size. Wait operation is unused."]
+    #[doc = ""]
     pub fn PXIDEV_SPIMultiWriteRead(
         header: *mut PXIDEV_SPIBuffer,
         writeBuffer1: *mut PXIDEV_SPIBuffer,
@@ -21572,6 +22859,7 @@ extern "C" {
     #[doc = "* `initialWaitOperation` - Wait operation to perform before transferring data."]
     #[doc = "* `writeBuffer` - Buffer to transfer data from."]
     #[doc = "* `readBuffer` - Buffer to receive data to."]
+    #[doc = ""]
     pub fn PXIDEV_SPIWriteRead(
         bytesRead: *mut u32_,
         initialWaitOperation: u64_,
@@ -21593,7 +22881,9 @@ extern "C" {
 extern "C" {
     #[doc = "Gets the current PxiPM session handle."]
     #[doc = ""]
-    #[doc = "Returns: The current PxiPM session handle."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The current PxiPM session handle."]
     #[doc = ""]
     pub fn pxiPmGetSessionHandle() -> *mut Handle;
 }
@@ -21605,6 +22895,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `exheaderInfos[out]` - Pointer to the output exheader information set."]
     #[doc = "* `programHandle` - The program handle."]
+    #[doc = ""]
     pub fn PXIPM_GetProgramInfo(exheaderInfo: *mut ExHeader_Info, programHandle: u64_) -> Result;
 }
 extern "C" {
@@ -21616,6 +22907,7 @@ extern "C" {
     #[doc = "* `programHandle[out]` - Pointer to the output the program handle to."]
     #[doc = "* `programInfo` - Information about the program to load."]
     #[doc = "* `updateInfo` - Information about the program update to load."]
+    #[doc = ""]
     pub fn PXIPM_RegisterProgram(
         programHandle: *mut u64_,
         programInfo: *const FS_ProgramInfo,
@@ -21629,6 +22921,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `programHandle` - The program handle."]
+    #[doc = ""]
     pub fn PXIPM_UnregisterProgram(programHandle: u64_) -> Result;
 }
 #[repr(C)]
@@ -22392,11 +23685,11 @@ pub struct ip_mreq {
 #[doc = ""]
 
 pub const NETOPT_MAC_ADDRESS: NetworkOpt = 4100;
-#[doc = "The ARP table @see SOCU_ARPTableEntry"]
+#[doc = "The ARP table [`SOCU_ARPTableEntry`]"]
 #[doc = ""]
 
 pub const NETOPT_ARP_TABLE: NetworkOpt = 12290;
-#[doc = "The current IP setup @see SOCU_IPInfo"]
+#[doc = "The current IP setup [`SOCU_IPInfo`]"]
 #[doc = ""]
 
 pub const NETOPT_IP_INFO: NetworkOpt = 16387;
@@ -22404,7 +23697,7 @@ pub const NETOPT_IP_INFO: NetworkOpt = 16387;
 #[doc = ""]
 
 pub const NETOPT_IP_MTU: NetworkOpt = 16388;
-#[doc = "The routing table @see SOCU_RoutingTableEntry"]
+#[doc = "The routing table [`SOCU_RoutingTableEntry`]"]
 #[doc = ""]
 
 pub const NETOPT_ROUTING_TABLE: NetworkOpt = 16390;
@@ -22412,7 +23705,7 @@ pub const NETOPT_ROUTING_TABLE: NetworkOpt = 16390;
 #[doc = ""]
 
 pub const NETOPT_UDP_NUMBER: NetworkOpt = 32770;
-#[doc = "The table of opened UDP sockets @see SOCU_UDPTableEntry"]
+#[doc = "The table of opened UDP sockets [`SOCU_UDPTableEntry`]"]
 #[doc = ""]
 
 pub const NETOPT_UDP_TABLE: NetworkOpt = 32771;
@@ -22420,11 +23713,11 @@ pub const NETOPT_UDP_TABLE: NetworkOpt = 32771;
 #[doc = ""]
 
 pub const NETOPT_TCP_NUMBER: NetworkOpt = 36866;
-#[doc = "The table of opened TCP sockets @see SOCU_TCPTableEntry"]
+#[doc = "The table of opened TCP sockets [`SOCU_TCPTableEntry`]"]
 #[doc = ""]
 
 pub const NETOPT_TCP_TABLE: NetworkOpt = 36867;
-#[doc = "The table of the DNS servers @see SOCU_DNSTableEntry -- Returns a buffer of size 336 but only 2 entries are set ?"]
+#[doc = "The table of the DNS servers [`SOCU_DNSTableEntry`] -- Returns a buffer of size 336 but only 2 entries are set ?"]
 #[doc = ""]
 
 pub const NETOPT_DNS_TABLE: NetworkOpt = 45059;
@@ -22432,11 +23725,11 @@ pub const NETOPT_DNS_TABLE: NetworkOpt = 45059;
 #[doc = ""]
 
 pub const NETOPT_DHCP_LEASE_TIME: NetworkOpt = 49153;
-#[doc = "Options to be used with @ref SOCU_GetNetworkOpt"]
+#[doc = "Options to be used with [`SOCU_GetNetworkOpt`]"]
 #[doc = ""]
 
 pub type NetworkOpt = ::libc::c_uint;
-#[doc = "One entry of the ARP table retrieved by using @ref SOCU_GetNetworkOpt and @ref NETOPT_ARP_TABLE"]
+#[doc = "One entry of the ARP table retrieved by using [`SOCU_GetNetworkOpt`] and [`NETOPT_ARP_TABLE`]"]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
@@ -22450,7 +23743,7 @@ pub struct SOCU_ARPTableEntry {
     pub mac: [u8_; 6usize],
     pub padding: [u8_; 2usize],
 }
-#[doc = "Structure returned by @ref SOCU_GetNetworkOpt when using @ref NETOPT_IP_INFO"]
+#[doc = "Structure returned by [`SOCU_GetNetworkOpt`] when using [`NETOPT_IP_INFO`]"]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
@@ -22465,7 +23758,7 @@ pub struct SOCU_IPInfo {
     #[doc = ""]
     pub broadcast: in_addr,
 }
-#[doc = "One entry of the routing table retrieved by using @ref SOCU_GetNetworkOpt and @ref NETOPT_ROUTING_TABLE"]
+#[doc = "One entry of the routing table retrieved by using [`SOCU_GetNetworkOpt`] and [`NETOPT_ROUTING_TABLE`]"]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
@@ -22479,14 +23772,14 @@ pub struct SOCU_RoutingTableEntry {
     #[doc = "Gateway address to reach the network"]
     #[doc = ""]
     pub gateway: in_addr,
-    #[doc = "Linux netstat flags @see ROUTING_FLAG_G"]
+    #[doc = "Linux netstat flags [`ROUTING_FLAG_G`]"]
     #[doc = ""]
     pub flags: u32_,
     #[doc = "number of milliseconds since 1st Jan 1900 00:00."]
     #[doc = ""]
     pub time: u64_,
 }
-#[doc = "One entry of the UDP sockets table retrieved by using @ref SOCU_GetNetworkOpt and @ref NETOPT_UDP_TABLE"]
+#[doc = "One entry of the UDP sockets table retrieved by using [`SOCU_GetNetworkOpt`] and [`NETOPT_UDP_TABLE`]"]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
@@ -22498,12 +23791,12 @@ pub struct SOCU_UDPTableEntry {
     #[doc = ""]
     pub remote: sockaddr_storage,
 }
-#[doc = "One entry of the TCP sockets table retrieved by using @ref SOCU_GetNetworkOpt and @ref NETOPT_TCP_TABLE"]
+#[doc = "One entry of the TCP sockets table retrieved by using [`SOCU_GetNetworkOpt`] and [`NETOPT_TCP_TABLE`]"]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct SOCU_TCPTableEntry {
-    #[doc = "@see TCP states defines"]
+    #[doc = "[`TCP`] states defines"]
     #[doc = ""]
     pub state: u32_,
     #[doc = "Local address information"]
@@ -22513,7 +23806,7 @@ pub struct SOCU_TCPTableEntry {
     #[doc = ""]
     pub remote: sockaddr_storage,
 }
-#[doc = "One entry of the DNS servers table retrieved by using @ref SOCU_GetNetworkOpt and @ref NETOPT_DNS_TABLE"]
+#[doc = "One entry of the DNS servers table retrieved by using [`SOCU_GetNetworkOpt`] and [`NETOPT_DNS_TABLE`]"]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
@@ -22534,18 +23827,29 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `context_addr` - Address of a page-aligned (0x1000) buffer to be used."]
     #[doc = "* `context_size` - Size of the buffer, a multiple of 0x1000."]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* The specified context buffer can no longer be accessed by the process which called this function, since the userland permissions for this block are set to no-access."]
+    #[doc = ""]
     pub fn socInit(context_addr: *mut u32_, context_size: u32_) -> Result;
 }
 extern "C" {
     #[must_use]
     #[doc = "Closes the soc service."]
     #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* You need to call this in order to be able to use the buffer again."]
+    #[doc = ""]
     pub fn socExit() -> Result;
 }
 extern "C" {
     #[doc = "Gets the system's host ID."]
     #[doc = ""]
-    #[doc = "Returns: The system's host ID."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The system's host ID."]
     #[doc = ""]
     pub fn gethostid() -> ::libc::c_long;
 }
@@ -22561,14 +23865,17 @@ extern "C" {
 extern "C" {
     #[doc = "Retrieves information from the network configuration. Similar to getsockopt()."]
     #[doc = ""]
-    #[doc = "Returns: 0 if successful. -1 if failed, and errno will be set accordingly. Can also return a system error code."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* 0 if successful. -1 if failed, and errno will be set accordingly. Can also return a system error code."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
-    #[doc = "* `level` - Only value allowed seems to be @ref SOL_CONFIG"]
+    #[doc = "* `level` - Only value allowed seems to be [`SOL_CONFIG`]"]
     #[doc = "* `optname` - The option to be retrieved"]
     #[doc = "* `optval` - Will contain the output of the command"]
     #[doc = "* `optlen` - Size of the optval buffer, will be updated to hold the size of the output"]
+    #[doc = ""]
     pub fn SOCU_GetNetworkOpt(
         level: ::libc::c_int,
         optname: NetworkOpt,
@@ -22579,7 +23886,9 @@ extern "C" {
 extern "C" {
     #[doc = "Gets the system's IP address, netmask, and subnet broadcast"]
     #[doc = ""]
-    #[doc = "Returns: Error"]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* error"]
     #[doc = ""]
     pub fn SOCU_GetIPInfo(
         ip: *mut in_addr,
@@ -22590,11 +23899,14 @@ extern "C" {
 extern "C" {
     #[doc = "Adds a global socket."]
     #[doc = ""]
-    #[doc = "Returns: Error"]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* error"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `sockfd` - The socket fd."]
+    #[doc = ""]
     pub fn SOCU_AddGlobalSocket(sockfd: ::libc::c_int) -> ::libc::c_int;
 }
 #[doc = "Unsigned 8-bit PCM."]
@@ -22645,6 +23957,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `size` - Shared memory buffer to write audio data to. Must be aligned to 0x1000 bytes."]
     #[doc = "* `handle` - Size of the shared memory buffer."]
+    #[doc = ""]
     pub fn micInit(buffer: *mut u8_, bufferSize: u32_) -> Result;
 }
 extern "C" {
@@ -22655,14 +23968,18 @@ extern "C" {
 extern "C" {
     #[doc = "Gets the size of the sample data area within the shared memory buffer."]
     #[doc = ""]
-    #[doc = "Returns: The sample data's size."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The sample data's size."]
     #[doc = ""]
     pub fn micGetSampleDataSize() -> u32_;
 }
 extern "C" {
     #[doc = "Gets the offset within the shared memory buffer of the last sample written."]
     #[doc = ""]
-    #[doc = "Returns: The last sample's offset."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The last sample's offset."]
     #[doc = ""]
     pub fn micGetLastSampleOffset() -> u32_;
 }
@@ -22674,6 +23991,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `size` - Size of the shared memory."]
     #[doc = "* `handle` - Handle of the shared memory."]
+    #[doc = ""]
     pub fn MICU_MapSharedMem(size: u32_, handle: Handle) -> Result;
 }
 extern "C" {
@@ -22693,6 +24011,7 @@ extern "C" {
     #[doc = "* `sharedMemAudioOffset` - Offset to write audio data to in the shared memory buffer."]
     #[doc = "* `sharedMemAudioSize` - Size of audio data to write to the shared memory buffer. This should be at most \"bufferSize - 4\"."]
     #[doc = "* `loop` - Whether to loop back to the beginning of the buffer when the end is reached."]
+    #[doc = ""]
     pub fn MICU_StartSampling(
         encoding: MICU_Encoding,
         sampleRate: MICU_SampleRate,
@@ -22708,6 +24027,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `sampleRate` - Sample rate of outputted audio."]
+    #[doc = ""]
     pub fn MICU_AdjustSampling(sampleRate: MICU_SampleRate) -> Result;
 }
 extern "C" {
@@ -22723,6 +24043,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `sampling` - Pointer to output the sampling state to."]
+    #[doc = ""]
     pub fn MICU_IsSampling(sampling: *mut bool) -> Result;
 }
 extern "C" {
@@ -22732,6 +24053,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `handle` - Pointer to output the event handle to."]
+    #[doc = ""]
     pub fn MICU_GetEventHandle(handle: *mut Handle) -> Result;
 }
 extern "C" {
@@ -22741,6 +24063,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `gain` - Gain to set."]
+    #[doc = ""]
     pub fn MICU_SetGain(gain: u8_) -> Result;
 }
 extern "C" {
@@ -22750,6 +24073,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `gain` - Pointer to output the current gain to."]
+    #[doc = ""]
     pub fn MICU_GetGain(gain: *mut u8_) -> Result;
 }
 extern "C" {
@@ -22759,6 +24083,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `power` - Whether the microphone is powered on."]
+    #[doc = ""]
     pub fn MICU_SetPower(power: bool) -> Result;
 }
 extern "C" {
@@ -22768,6 +24093,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `power` - Pointer to output the power state to."]
+    #[doc = ""]
     pub fn MICU_GetPower(power: *mut bool) -> Result;
 }
 extern "C" {
@@ -22777,6 +24103,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `clamp` - Whether to clamp microphone input."]
+    #[doc = ""]
     pub fn MICU_SetClamp(clamp: bool) -> Result;
 }
 extern "C" {
@@ -22786,6 +24113,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `clamp` - Pointer to output the clamp state to."]
+    #[doc = ""]
     pub fn MICU_GetClamp(clamp: *mut bool) -> Result;
 }
 extern "C" {
@@ -22795,6 +24123,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `allowShellClosed` - Whether to allow sampling when the shell is closed."]
+    #[doc = ""]
     pub fn MICU_SetAllowShellClosed(allowShellClosed: bool) -> Result;
 }
 #[doc = "Converting color formats."]
@@ -22966,7 +24295,7 @@ impl Default for MVDSTD_OutputBuffersEntryList {
         }
     }
 }
-#[doc = "This can be used to override the default input values for MVDSTD commands during initialization with video-processing. The default for these fields are all-zero, except for cmd1b_inval which is 1. See also here: https://www.3dbrew.org/wiki/MVD_Services"]
+#[doc = "This can be used to override the default input values for MVDSTD commands during initialization with video-processing. The default for these fields are all-zero, except for cmd1b_inval which is 1. See also here: <https://www.3dbrew.org/wiki/MVD_Services>"]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
@@ -22988,6 +24317,7 @@ extern "C" {
     #[doc = "* `output_type` - Type of output to produce."]
     #[doc = "* `size` - Size of the work buffer, MVD_DEFAULT_WORKBUF_SIZE can be used for this. Only used when type == MVDMODE_VIDEOPROCESSING."]
     #[doc = "* `initstruct` - Optional MVDSTD_InitStruct, this should be NULL normally."]
+    #[doc = ""]
     pub fn mvdstdInit(
         mode: MVDSTD_Mode,
         input_type: MVDSTD_InputFormat,
@@ -23014,6 +24344,7 @@ extern "C" {
     #[doc = "* `vaddr_colorconv_indata` - Virtual address of the color conversion input data."]
     #[doc = "* `vaddr_outdata0` - Virtual address of the output data."]
     #[doc = "* `vaddr_outdata1` - Additional virtual address for output data, only used when the output format type is value 0x00020001."]
+    #[doc = ""]
     pub fn mvdstdGenerateDefaultConfig(
         config: *mut MVDSTD_Config,
         input_width: u32_,
@@ -23032,6 +24363,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `config` - Pointer to the configuration to use."]
+    #[doc = ""]
     pub fn mvdstdConvertImage(config: *mut MVDSTD_Config) -> Result;
 }
 extern "C" {
@@ -23042,8 +24374,9 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `inbuf_vaddr` - Input NAL-unit starting with the 3-byte \"00 00 01\" prefix. Must be located in linearmem."]
     #[doc = "* `size` - Size of the input buffer."]
-    #[doc = "* `flag` - See here regarding this input flag: https://www.3dbrew.org/wiki/MVDSTD:ProcessNALUnit"]
+    #[doc = "* `flag` - See here regarding this input flag: <https://www.3dbrew.org/wiki/MVDSTD:ProcessNALUnit>"]
     #[doc = "* `out` - Optional output MVDSTD_ProcessNALUnitOut structure."]
+    #[doc = ""]
     pub fn mvdstdProcessVideoFrame(
         inbuf_vaddr: *mut ::libc::c_void,
         size: size_t,
@@ -23059,6 +24392,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `config` - Optional pointer to the configuration to use. When NULL, MVDSTD_SetConfig() should have been used previously for this video."]
     #[doc = "* `wait` - When true, wait for rendering to finish. When false, you can manually call this function repeatedly until it stops returning MVD_STATUS_BUSY."]
+    #[doc = ""]
     pub fn mvdstdRenderVideoFrame(config: *mut MVDSTD_Config, wait: bool) -> Result;
 }
 extern "C" {
@@ -23068,16 +24402,18 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `config` - Pointer to the configuration to set."]
+    #[doc = ""]
     pub fn MVDSTD_SetConfig(config: *mut MVDSTD_Config) -> Result;
 }
 extern "C" {
     #[must_use]
-    #[doc = "New3DS Internet Browser doesn't use this. Once done, rendered frames will be written to the output buffers specified by the entrylist instead of the output specified by configuration. See here: https://www.3dbrew.org/wiki/MVDSTD:SetupOutputBuffers"]
+    #[doc = "New3DS Internet Browser doesn't use this. Once done, rendered frames will be written to the output buffers specified by the entrylist instead of the output specified by configuration. See here: <https://www.3dbrew.org/wiki/MVDSTD:SetupOutputBuffers>"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `entrylist` - Input entrylist."]
     #[doc = "* `bufsize` - Size of each buffer from the entrylist."]
+    #[doc = ""]
     pub fn mvdstdSetupOutputBuffers(
         entrylist: *mut MVDSTD_OutputBuffersEntryList,
         bufsize: u32_,
@@ -23085,7 +24421,7 @@ extern "C" {
 }
 extern "C" {
     #[must_use]
-    #[doc = "New3DS Internet Browser doesn't use this. This overrides the entry0 output buffers originally setup by mvdstdSetupOutputBuffers(). See also here: https://www.3dbrew.org/wiki/MVDSTD:OverrideOutputBuffers"]
+    #[doc = "New3DS Internet Browser doesn't use this. This overrides the entry0 output buffers originally setup by mvdstdSetupOutputBuffers(). See also here: <https://www.3dbrew.org/wiki/MVDSTD:OverrideOutputBuffers>"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
@@ -23093,6 +24429,7 @@ extern "C" {
     #[doc = "* `cur_outdata1` - Linearmem vaddr. The current outdata1 for this entry must match this value."]
     #[doc = "* `new_outdata0` - Linearmem vaddr. This is the new address to use for outaddr0."]
     #[doc = "* `new_outdata1` - Linearmem vaddr. This is the new address to use for outaddr1."]
+    #[doc = ""]
     pub fn mvdstdOverrideOutputBuffers(
         cur_outdata0: *mut ::libc::c_void,
         cur_outdata1: *mut ::libc::c_void,
@@ -23162,7 +24499,7 @@ impl Default for NFC_TagInfo {
         }
     }
 }
-#[doc = "AmiiboSettings structure, see also here: https://3dbrew.org/wiki/NFC:GetAmiiboSettings"]
+#[doc = "AmiiboSettings structure, see also here: <https://3dbrew.org/wiki/NFC:GetAmiiboSettings>"]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -23189,7 +24526,7 @@ impl Default for NFC_AmiiboSettings {
         }
     }
 }
-#[doc = "AmiiboConfig structure, see also here: https://3dbrew.org/wiki/NFC:GetAmiiboConfig"]
+#[doc = "AmiiboConfig structure, see also here: <https://3dbrew.org/wiki/NFC:GetAmiiboConfig>"]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -23224,7 +24561,7 @@ impl Default for NFC_AmiiboConfig {
         }
     }
 }
-#[doc = "Used by nfcInitializeWriteAppData() internally, see also here: https://3dbrew.org/wiki/NFC:GetAppDataInitStruct"]
+#[doc = "Used by nfcInitializeWriteAppData() internally, see also here: <https://3dbrew.org/wiki/NFC:GetAppDataInitStruct>"]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -23241,7 +24578,7 @@ impl Default for NFC_AppDataInitStruct {
         }
     }
 }
-#[doc = "Used by nfcWriteAppData() internally, see also: https://3dbrew.org/wiki/NFC:WriteAppData"]
+#[doc = "Used by nfcWriteAppData() internally, see also: <https://3dbrew.org/wiki/NFC:WriteAppData>"]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
@@ -23257,6 +24594,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `type` - See the NFC_OpType enum."]
+    #[doc = ""]
     pub fn nfcInit(type_: NFC_OpType) -> Result;
 }
 extern "C" {
@@ -23267,7 +24605,9 @@ extern "C" {
 extern "C" {
     #[doc = "Gets the NFC service handle."]
     #[doc = ""]
-    #[doc = "Returns: The NFC service handle."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The NFC service handle."]
     #[doc = ""]
     pub fn nfcGetSessionHandle() -> Handle;
 }
@@ -23278,6 +24618,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `inval` - Unknown. See NFC_STARTSCAN_DEFAULTINPUT."]
+    #[doc = ""]
     pub fn nfcStartScanning(inval: u16_) -> Result;
 }
 extern "C" {
@@ -23310,6 +24651,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `state` - Pointer to write NFC tag state."]
+    #[doc = ""]
     pub fn nfcGetTagState(state: *mut NFC_TagState) -> Result;
 }
 extern "C" {
@@ -23319,15 +24661,17 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `out` - Pointer to write the output TagInfo."]
+    #[doc = ""]
     pub fn nfcGetTagInfo(out: *mut NFC_TagInfo) -> Result;
 }
 extern "C" {
     #[must_use]
-    #[doc = "Opens the appdata, when the amiibo appdata was previously initialized. This must be used before reading/writing the appdata. See also: https://3dbrew.org/wiki/NFC:OpenAppData"]
+    #[doc = "Opens the appdata, when the amiibo appdata was previously initialized. This must be used before reading/writing the appdata. See also: <https://3dbrew.org/wiki/NFC:OpenAppData>"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
-    #[doc = "* `amiibo_appid` - Amiibo AppID. See here: https://www.3dbrew.org/wiki/Amiibo"]
+    #[doc = "* `amiibo_appid` - Amiibo AppID. See here: <https://www.3dbrew.org/wiki/Amiibo>"]
+    #[doc = ""]
     pub fn nfcOpenAppData(amiibo_appid: u32_) -> Result;
 }
 extern "C" {
@@ -23339,6 +24683,7 @@ extern "C" {
     #[doc = "* `amiibo_appid` - amiibo AppID. See also nfcOpenAppData()."]
     #[doc = "* `buf` - Input buffer."]
     #[doc = "* `size` - Buffer size."]
+    #[doc = ""]
     pub fn nfcInitializeWriteAppData(
         amiibo_appid: u32_,
         buf: *const ::libc::c_void,
@@ -23353,17 +24698,19 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `buf` - Output buffer."]
     #[doc = "* `size` - Buffer size."]
+    #[doc = ""]
     pub fn nfcReadAppData(buf: *mut ::libc::c_void, size: size_t) -> Result;
 }
 extern "C" {
     #[must_use]
-    #[doc = "Writes the appdata, after nfcOpenAppData() was used successfully. The size should be <=0xD8-bytes. See also: https://3dbrew.org/wiki/NFC:WriteAppData"]
+    #[doc = "Writes the appdata, after nfcOpenAppData() was used successfully. The size should be <=0xD8-bytes. See also: <https://3dbrew.org/wiki/NFC:WriteAppData>"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `buf` - Input buffer."]
     #[doc = "* `size` - Buffer size."]
     #[doc = "* `taginfo` - TagInfo from nfcGetTagInfo()."]
+    #[doc = ""]
     pub fn nfcWriteAppData(
         buf: *const ::libc::c_void,
         size: size_t,
@@ -23377,6 +24724,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `out` - Pointer to write the output AmiiboSettings."]
+    #[doc = ""]
     pub fn nfcGetAmiiboSettings(out: *mut NFC_AmiiboSettings) -> Result;
 }
 extern "C" {
@@ -23386,21 +24734,23 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `out` - Pointer to write the output AmiiboConfig."]
+    #[doc = ""]
     pub fn nfcGetAmiiboConfig(out: *mut NFC_AmiiboConfig) -> Result;
 }
 extern "C" {
     #[must_use]
-    #[doc = "Starts scanning for NFC tags when initialized with NFC_OpType_RawNFC. See also: https://www.3dbrew.org/wiki/NFC:StartOtherTagScanning"]
+    #[doc = "Starts scanning for NFC tags when initialized with NFC_OpType_RawNFC. See also: <https://www.3dbrew.org/wiki/NFC:StartOtherTagScanning>"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `unk0` - Same as nfcStartScanning() input."]
     #[doc = "* `unk1` - Unknown."]
+    #[doc = ""]
     pub fn nfcStartOtherTagScanning(unk0: u16_, unk1: u32_) -> Result;
 }
 extern "C" {
     #[must_use]
-    #[doc = "This sends a raw NFC command to the tag. This can only be used when initialized with NFC_OpType_RawNFC, and when the TagState is NFC_TagState_InRange. See also: https://www.3dbrew.org/wiki/NFC:SendTagCommand"]
+    #[doc = "This sends a raw NFC command to the tag. This can only be used when initialized with NFC_OpType_RawNFC, and when the TagState is NFC_TagState_InRange. See also: <https://www.3dbrew.org/wiki/NFC:SendTagCommand>"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
@@ -23410,6 +24760,7 @@ extern "C" {
     #[doc = "* `outsize` - Size of the output buffer."]
     #[doc = "* `actual_transfer_size` - Optional output ptr to write the actual output-size to, can be NULL."]
     #[doc = "* `microseconds` - Timing-related field in microseconds."]
+    #[doc = ""]
     pub fn nfcSendTagCommand(
         inbuf: *const ::libc::c_void,
         insize: size_t,
@@ -23473,6 +24824,7 @@ extern "C" {
     #[doc = "* `image` - Data of the image to show in the notification, or NULL for no image."]
     #[doc = "* `imageSize` - Size of the image data in bytes."]
     #[doc = "* `jpeg` - Whether the image is a JPEG or not."]
+    #[doc = ""]
     pub fn NEWS_AddNotification(
         title: *const u16_,
         titleLength: u32_,
@@ -23490,6 +24842,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `num` - Pointer where total number will be saved."]
+    #[doc = ""]
     pub fn NEWS_GetTotalNotifications(num: *mut u32_) -> Result;
 }
 extern "C" {
@@ -23500,6 +24853,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `news_id` - Identification number of the notification."]
     #[doc = "* `header` - Pointer to notification header to set."]
+    #[doc = ""]
     pub fn NEWS_SetNotificationHeader(news_id: u32_, header: *const NotificationHeader) -> Result;
 }
 extern "C" {
@@ -23510,6 +24864,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `news_id` - Identification number of the notification."]
     #[doc = "* `header` - Pointer where header of the notification will be saved."]
+    #[doc = ""]
     pub fn NEWS_GetNotificationHeader(news_id: u32_, header: *mut NotificationHeader) -> Result;
 }
 extern "C" {
@@ -23521,6 +24876,7 @@ extern "C" {
     #[doc = "* `news_id` - Identification number of the notification."]
     #[doc = "* `message` - Pointer to UTF-16 message to set."]
     #[doc = "* `size` - Size of message to set."]
+    #[doc = ""]
     pub fn NEWS_SetNotificationMessage(news_id: u32_, message: *const u16_, size: u32_) -> Result;
 }
 extern "C" {
@@ -23532,6 +24888,7 @@ extern "C" {
     #[doc = "* `news_id` - Identification number of the notification."]
     #[doc = "* `message` - Pointer where UTF-16 message of the notification will be saved."]
     #[doc = "* `size` - Pointer where size of the message data will be saved in bytes."]
+    #[doc = ""]
     pub fn NEWS_GetNotificationMessage(
         news_id: u32_,
         message: *mut u16_,
@@ -23547,6 +24904,7 @@ extern "C" {
     #[doc = "* `news_id` - Identification number of the notification."]
     #[doc = "* `buffer` - Pointer to MPO image to set."]
     #[doc = "* `size` - Size of the MPO image to set."]
+    #[doc = ""]
     pub fn NEWS_SetNotificationImage(
         news_id: u32_,
         buffer: *const ::libc::c_void,
@@ -23562,6 +24920,7 @@ extern "C" {
     #[doc = "* `news_id` - Identification number of the notification."]
     #[doc = "* `buffer` - Pointer where MPO image of the notification will be saved."]
     #[doc = "* `size` - Pointer where size of the image data will be saved in bytes."]
+    #[doc = ""]
     pub fn NEWS_GetNotificationImage(
         news_id: u32_,
         buffer: *mut ::libc::c_void,
@@ -23615,7 +24974,9 @@ extern "C" {
 extern "C" {
     #[doc = "Checks whether QTM is initialized."]
     #[doc = ""]
-    #[doc = "Returns: Whether QTM is initialized."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* Whether QTM is initialized."]
     #[doc = ""]
     pub fn qtmCheckInitialized() -> bool;
 }
@@ -23625,6 +24986,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `info` - Tracking info to check."]
+    #[doc = ""]
     pub fn qtmCheckHeadFullyDetected(info: *mut QTM_HeadTrackingInfo) -> bool;
 }
 extern "C" {
@@ -23638,6 +25000,7 @@ extern "C" {
     #[doc = "* `screen_height` - Height of the screen. Can be NULL to use the default value for the top screen."]
     #[doc = "* `x` - Pointer to output the screen X coordinate to."]
     #[doc = "* `y` - Pointer to output the screen Y coordinate to."]
+    #[doc = ""]
     pub fn qtmConvertCoordToScreen(
         coord: *mut QTM_HeadTrackingInfoCoord,
         screen_width: *mut f32,
@@ -23654,6 +25017,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `val` - Normally 0."]
     #[doc = "* `out` - Pointer to write head tracking info to."]
+    #[doc = ""]
     pub fn QTM_GetHeadTrackingInfo(val: u64_, out: *mut QTM_HeadTrackingInfo) -> Result;
 }
 extern "C" {
@@ -23670,7 +25034,9 @@ extern "C" {
 extern "C" {
     #[doc = "Gets the current srv:pm session handle."]
     #[doc = ""]
-    #[doc = "Returns: The current srv:pm session handle."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The current srv:pm session handle."]
     #[doc = ""]
     pub fn srvPmGetSessionHandle() -> *mut Handle;
 }
@@ -23682,6 +25048,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `notificationId` - ID of the notification."]
     #[doc = "* `process` - Process to publish to."]
+    #[doc = ""]
     pub fn SRVPM_PublishToProcess(notificationId: u32_, process: Handle) -> Result;
 }
 extern "C" {
@@ -23691,6 +25058,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `notificationId` - ID of the notification."]
+    #[doc = ""]
     pub fn SRVPM_PublishToAll(notificationId: u32_) -> Result;
 }
 extern "C" {
@@ -23702,6 +25070,7 @@ extern "C" {
     #[doc = "* `pid` - ID of the process."]
     #[doc = "* `count` - Number of services within the service access control data."]
     #[doc = "* `serviceAccessControlList` - Service Access Control list."]
+    #[doc = ""]
     pub fn SRVPM_RegisterProcess(
         pid: u32_,
         count: u32_,
@@ -23715,6 +25084,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `pid` - ID of the process."]
+    #[doc = ""]
     pub fn SRVPM_UnregisterProcess(pid: u32_) -> Result;
 }
 extern "C" {
@@ -23736,6 +25106,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `process` - Pointer to output the process handle to. [Direction: In, Out]"]
     #[doc = "* `programHandle` - The handle of the program to load."]
+    #[doc = ""]
     pub fn LOADER_LoadProcess(process: *mut Handle, programHandle: u64_) -> Result;
 }
 extern "C" {
@@ -23747,6 +25118,7 @@ extern "C" {
     #[doc = "* `programHandle` - Pointer to output the program handle to. [Direction: In, Out]"]
     #[doc = "* `programInfo` - The program info."]
     #[doc = "* `programInfo` - The program update info."]
+    #[doc = ""]
     pub fn LOADER_RegisterProgram(
         programHandle: *mut u64_,
         programInfo: *const FS_ProgramInfo,
@@ -23760,16 +25132,18 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `programHandle` - The handle of the program to unregister."]
+    #[doc = ""]
     pub fn LOADER_UnregisterProgram(programHandle: u64_) -> Result;
 }
 extern "C" {
     #[must_use]
-    #[doc = "Retrives a program's main NCCH extended header info (SCI + ACI, see @ref ExHeader_Info)."]
+    #[doc = "Retrives a program's main NCCH extended header info (SCI + ACI, see [`ExHeader_Info)`]"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `exheaderInfo` - Pointer to output the main NCCH extended header info. [Direction: In, Out]"]
     #[doc = "* `programHandle` - The handle of the program to unregister"]
+    #[doc = ""]
     pub fn LOADER_GetProgramInfo(exheaderInfo: *mut ExHeader_Info, programHandle: u64_) -> Result;
 }
 #[doc = "The normal mode of the led"]
@@ -23814,9 +25188,10 @@ extern "C" {
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
-    #[doc = "* `reg` - Register number. See https://www.3dbrew.org/wiki/I2C_Registers#Device_3 for more info"]
+    #[doc = "* `reg` - Register number. See <https://www.3dbrew.org/wiki/I2C_Registers#Device_3> for more info"]
     #[doc = "* `data` - Pointer to write the data to."]
     #[doc = "* `size` - Size of data to be read"]
+    #[doc = ""]
     pub fn MCUHWC_ReadRegister(reg: u8_, data: *mut ::libc::c_void, size: u32_) -> Result;
 }
 extern "C" {
@@ -23825,9 +25200,10 @@ extern "C" {
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
-    #[doc = "* `reg` - Register number. See https://www.3dbrew.org/wiki/I2C_Registers#Device_3 for more info"]
+    #[doc = "* `reg` - Register number. See <https://www.3dbrew.org/wiki/I2C_Registers#Device_3> for more info"]
     #[doc = "* `data` - Pointer to write the data to."]
     #[doc = "* `size` - Size of data to be written"]
+    #[doc = ""]
     pub fn MCUHWC_WriteRegister(reg: u8_, data: *const ::libc::c_void, size: u32_) -> Result;
 }
 extern "C" {
@@ -23837,6 +25213,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `voltage` - Pointer to write the battery voltage to."]
+    #[doc = ""]
     pub fn MCUHWC_GetBatteryVoltage(voltage: *mut u8_) -> Result;
 }
 extern "C" {
@@ -23846,6 +25223,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `level` - Pointer to write the current battery level to."]
+    #[doc = ""]
     pub fn MCUHWC_GetBatteryLevel(level: *mut u8_) -> Result;
 }
 extern "C" {
@@ -23855,6 +25233,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `level` - Pointer to write the slider level to."]
+    #[doc = ""]
     pub fn MCUHWC_GetSoundSliderLevel(level: *mut u8_) -> Result;
 }
 extern "C" {
@@ -23864,6 +25243,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `state` - State of Wifi LED. (True/False)"]
+    #[doc = ""]
     pub fn MCUHWC_SetWifiLedState(state: bool) -> Result;
 }
 extern "C" {
@@ -23873,6 +25253,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `state` - powerLedState State of power LED."]
+    #[doc = ""]
     pub fn MCUHWC_SetPowerLedState(state: powerLedState) -> Result;
 }
 extern "C" {
@@ -23882,6 +25263,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `level` - Pointer to write 3D slider level to."]
+    #[doc = ""]
     pub fn MCUHWC_Get3dSliderLevel(level: *mut u8_) -> Result;
 }
 extern "C" {
@@ -23891,6 +25273,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `out` - Pointer to write the major firmware version to."]
+    #[doc = ""]
     pub fn MCUHWC_GetFwVerHigh(out: *mut u8_) -> Result;
 }
 extern "C" {
@@ -23900,6 +25283,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `out` - Pointer to write the minor firmware version to."]
+    #[doc = ""]
     pub fn MCUHWC_GetFwVerLow(out: *mut u8_) -> Result;
 }
 #[doc = "8-bit Red + 8-bit Green + 8-bit Blue + 8-bit Alpha"]
@@ -23924,6 +25308,8 @@ pub const GX_TRANSFER_FMT_RGB5A1: GX_TRANSFER_FORMAT = 3;
 pub const GX_TRANSFER_FMT_RGBA4: GX_TRANSFER_FORMAT = 4;
 #[doc = "Supported transfer pixel formats."]
 #[doc = ""]
+#[doc = "[`GSPGPU_FramebufferFormat`]"]
+#[doc = ""]
 
 pub type GX_TRANSFER_FORMAT = ::libc::c_uint;
 #[doc = "No anti-aliasing"]
@@ -23939,7 +25325,6 @@ pub const GX_TRANSFER_SCALE_X: GX_TRANSFER_SCALE = 1;
 
 pub const GX_TRANSFER_SCALE_XY: GX_TRANSFER_SCALE = 2;
 #[doc = "Anti-aliasing modes"]
-#[doc = ""]
 #[doc = ""]
 #[doc = "Please remember that the framebuffer is sideways."]
 #[doc = "Hence if you activate 2x1 anti-aliasing the destination dimensions are w = 240*2 and h = 400"]
@@ -24048,6 +25433,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `queue` - The GX command queue."]
+    #[doc = ""]
     pub fn gxCmdQueueClear(queue: *mut gxCmdQueue_s);
 }
 extern "C" {
@@ -24057,6 +25443,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `queue` - The GX command queue."]
     #[doc = "* `entry` - The GX command to add."]
+    #[doc = ""]
     pub fn gxCmdQueueAdd(queue: *mut gxCmdQueue_s, entry: *const gxCmdEntry_s);
 }
 extern "C" {
@@ -24065,6 +25452,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `queue` - The GX command queue."]
+    #[doc = ""]
     pub fn gxCmdQueueRun(queue: *mut gxCmdQueue_s);
 }
 extern "C" {
@@ -24073,17 +25461,21 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `queue` - The GX command queue."]
+    #[doc = ""]
     pub fn gxCmdQueueStop(queue: *mut gxCmdQueue_s);
 }
 extern "C" {
     #[doc = "Waits for a GX command queue to finish executing pending commands."]
     #[doc = ""]
-    #[doc = "Returns: False if timeout expired, true otherwise."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* false if timeout expired, true otherwise."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `queue` - The GX command queue."]
     #[doc = "* `timeout` - Optional timeout (in nanoseconds) to wait (specify -1 for no timeout)."]
+    #[doc = ""]
     pub fn gxCmdQueueWait(queue: *mut gxCmdQueue_s, timeout: s64) -> bool;
 }
 extern "C" {
@@ -24092,6 +25484,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `queue` - The GX command queue. (Pass NULL to remove the bound command queue)"]
+    #[doc = ""]
     pub fn GX_BindQueue(queue: *mut gxCmdQueue_s);
 }
 extern "C" {
@@ -24103,6 +25496,7 @@ extern "C" {
     #[doc = "* `src` - Source to DMA from."]
     #[doc = "* `dst` - Destination to DMA to."]
     #[doc = "* `length` - Length of data to transfer."]
+    #[doc = ""]
     pub fn GX_RequestDma(src: *mut u32_, dst: *mut u32_, length: u32_) -> Result;
 }
 extern "C" {
@@ -24114,6 +25508,7 @@ extern "C" {
     #[doc = "* `buf0a` - Command list address."]
     #[doc = "* `buf0s` - Command list size."]
     #[doc = "* `flags` - Flags to process with."]
+    #[doc = ""]
     pub fn GX_ProcessCommandList(buf0a: *mut u32_, buf0s: u32_, flags: u8_) -> Result;
 }
 extern "C" {
@@ -24130,6 +25525,7 @@ extern "C" {
     #[doc = "* `buf1v` - Dimensions of the second buffer."]
     #[doc = "* `buf1e` - End address of the second buffer."]
     #[doc = "* `control1` - Value to fill the second buffer with."]
+    #[doc = ""]
     pub fn GX_MemoryFill(
         buf0a: *mut u32_,
         buf0v: u32_,
@@ -24152,6 +25548,11 @@ extern "C" {
     #[doc = "* `outadr` - Address of the output."]
     #[doc = "* `outdim` - Dimensions of the output."]
     #[doc = "* `flags` - Flags to transfer with."]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* The PPF event will be signaled on completion."]
+    #[doc = ""]
     pub fn GX_DisplayTransfer(
         inadr: *mut u32_,
         indim: u32_,
@@ -24172,6 +25573,11 @@ extern "C" {
     #[doc = "* `outdim` - Dimensions of the output."]
     #[doc = "* `size` - Size of the data to transfer."]
     #[doc = "* `flags` - Flags to transfer with."]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* The PPF event will be signaled on completion."]
+    #[doc = ""]
     pub fn GX_TextureCopy(
         inadr: *mut u32_,
         indim: u32_,
@@ -24193,6 +25599,7 @@ extern "C" {
     #[doc = "* `buf1s` - Size of the second buffer."]
     #[doc = "* `buf2a` - Address of the third buffer."]
     #[doc = "* `buf2s` - Size of the third buffer."]
+    #[doc = ""]
     pub fn GX_FlushCacheRegions(
         buf0a: *mut u32_,
         buf0s: u32_,
@@ -25356,6 +26763,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `cmd` - Buffer containing commands to add."]
     #[doc = "* `size` - Size of the buffer."]
+    #[doc = ""]
     pub fn GPUCMD_AddRawCommands(cmd: *const u32_, size: u32_);
 }
 extern "C" {
@@ -25366,6 +26774,7 @@ extern "C" {
     #[doc = "* `header` - Header of the command."]
     #[doc = "* `param` - Parameters of the command."]
     #[doc = "* `paramlength` - Size of the parameter buffer."]
+    #[doc = ""]
     pub fn GPUCMD_Add(header: u32_, param: *const u32_, paramlength: u32_);
 }
 extern "C" {
@@ -25375,46 +26784,59 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `addr` - Pointer to output the command buffer to."]
     #[doc = "* `size` - Pointer to output the size (in words) of the command buffer to."]
+    #[doc = ""]
     pub fn GPUCMD_Split(addr: *mut *mut u32_, size: *mut u32_);
 }
 extern "C" {
     #[doc = "Converts a 32-bit float to a 16-bit float."]
     #[doc = ""]
-    #[doc = "Returns: The converted float."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The converted float."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `f` - Float to convert."]
+    #[doc = ""]
     pub fn f32tof16(f: f32) -> u32_;
 }
 extern "C" {
     #[doc = "Converts a 32-bit float to a 20-bit float."]
     #[doc = ""]
-    #[doc = "Returns: The converted float."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The converted float."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `f` - Float to convert."]
+    #[doc = ""]
     pub fn f32tof20(f: f32) -> u32_;
 }
 extern "C" {
     #[doc = "Converts a 32-bit float to a 24-bit float."]
     #[doc = ""]
-    #[doc = "Returns: The converted float."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The converted float."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `f` - Float to convert."]
+    #[doc = ""]
     pub fn f32tof24(f: f32) -> u32_;
 }
 extern "C" {
     #[doc = "Converts a 32-bit float to a 31-bit float."]
     #[doc = ""]
-    #[doc = "Returns: The converted float."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The converted float."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `f` - Float to convert."]
+    #[doc = ""]
     pub fn f32tof31(f: f32) -> u32_;
 }
 #[doc = "Vertex shader."]
@@ -25533,7 +26955,7 @@ impl Default for DVLP_s {
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct DVLE_constEntry_s {
-    #[doc = "Constant type. See @ref DVLE_constantType"]
+    #[doc = "Constant type. See [`DVLE_constantType`]"]
     #[doc = ""]
     pub type_: u16_,
     #[doc = "Constant ID."]
@@ -25548,7 +26970,7 @@ pub struct DVLE_constEntry_s {
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct DVLE_outEntry_s {
-    #[doc = "Output type. See @ref DVLE_outputAttribute_t"]
+    #[doc = "Output type. See [`DVLE_outputAttribute_t`]"]
     #[doc = ""]
     pub type_: u16_,
     #[doc = "Output register ID."]
@@ -25678,12 +27100,15 @@ impl Default for DVLB_s {
 extern "C" {
     #[doc = "Parses a shader binary."]
     #[doc = ""]
-    #[doc = "Returns: The parsed shader binary."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The parsed shader binary."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `shbinData` - Shader binary data."]
     #[doc = "* `shbinSize` - Shader binary size."]
+    #[doc = ""]
     pub fn DVLB_ParseFile(shbinData: *mut u32_, shbinSize: u32_) -> *mut DVLB_s;
 }
 extern "C" {
@@ -25692,17 +27117,21 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `dvlb` - DVLB to free."]
+    #[doc = ""]
     pub fn DVLB_Free(dvlb: *mut DVLB_s);
 }
 extern "C" {
     #[doc = "Gets a uniform register index from a shader."]
     #[doc = ""]
-    #[doc = "Returns: The uniform register index."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The uniform register index."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `dvle` - Shader to get the register from."]
     #[doc = "* `name` - Name of the register."]
+    #[doc = ""]
     pub fn DVLE_GetUniformRegister(dvle: *mut DVLE_s, name: *const ::libc::c_char) -> s8;
 }
 extern "C" {
@@ -25711,6 +27140,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `dvle` - Shader to generate an output map for."]
+    #[doc = ""]
     pub fn DVLE_GenerateOutmap(dvle: *mut DVLE_s);
 }
 #[doc = "24-bit float uniforms."]
@@ -25796,6 +27226,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `si` - Shader instance to initialize."]
     #[doc = "* `dvle` - DVLE to initialize the shader instance with."]
+    #[doc = ""]
     pub fn shaderInstanceInit(si: *mut shaderInstance_s, dvle: *mut DVLE_s) -> Result;
 }
 extern "C" {
@@ -25805,6 +27236,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `si` - Shader instance to free."]
+    #[doc = ""]
     pub fn shaderInstanceFree(si: *mut shaderInstance_s) -> Result;
 }
 extern "C" {
@@ -25816,6 +27248,7 @@ extern "C" {
     #[doc = "* `si` - Shader instance to use."]
     #[doc = "* `id` - ID of the bool uniform."]
     #[doc = "* `value` - Value to set."]
+    #[doc = ""]
     pub fn shaderInstanceSetBool(
         si: *mut shaderInstance_s,
         id: ::libc::c_int,
@@ -25831,6 +27264,7 @@ extern "C" {
     #[doc = "* `si` - Shader instance to use."]
     #[doc = "* `id` - ID of the bool uniform."]
     #[doc = "* `value` - Pointer to output the value to."]
+    #[doc = ""]
     pub fn shaderInstanceGetBool(
         si: *mut shaderInstance_s,
         id: ::libc::c_int,
@@ -25844,6 +27278,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `si` - Shader instance to use."]
     #[doc = "* `name` - Name of the uniform."]
+    #[doc = ""]
     pub fn shaderInstanceGetUniformLocation(
         si: *mut shaderInstance_s,
         name: *const ::libc::c_char,
@@ -25856,6 +27291,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `sp` - Shader program to initialize."]
+    #[doc = ""]
     pub fn shaderProgramInit(sp: *mut shaderProgram_s) -> Result;
 }
 extern "C" {
@@ -25865,6 +27301,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `sp` - Shader program to free."]
+    #[doc = ""]
     pub fn shaderProgramFree(sp: *mut shaderProgram_s) -> Result;
 }
 extern "C" {
@@ -25875,6 +27312,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `sp` - Shader program to use."]
     #[doc = "* `dvle` - Vertex shader to set."]
+    #[doc = ""]
     pub fn shaderProgramSetVsh(sp: *mut shaderProgram_s, dvle: *mut DVLE_s) -> Result;
 }
 extern "C" {
@@ -25886,6 +27324,7 @@ extern "C" {
     #[doc = "* `sp` - Shader program to use."]
     #[doc = "* `dvle` - Geometry shader to set."]
     #[doc = "* `stride` - Input stride of the shader (pass 0 to match the number of outputs of the vertex shader)."]
+    #[doc = ""]
     pub fn shaderProgramSetGsh(sp: *mut shaderProgram_s, dvle: *mut DVLE_s, stride: u8_) -> Result;
 }
 extern "C" {
@@ -25896,6 +27335,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `sp` - Shader program to use."]
     #[doc = "* `permutation` - Attribute permutation to use."]
+    #[doc = ""]
     pub fn shaderProgramSetGshInputPermutation(
         sp: *mut shaderProgram_s,
         permutation: u64_,
@@ -25910,6 +27350,7 @@ extern "C" {
     #[doc = "* `sp` - Shader program to use."]
     #[doc = "* `sendVshCode` - When true, the vertex shader's code and operand descriptors are uploaded."]
     #[doc = "* `sendGshCode` - When true, the geometry shader's code and operand descriptors are uploaded."]
+    #[doc = ""]
     pub fn shaderProgramConfigure(
         sp: *mut shaderProgram_s,
         sendVshCode: bool,
@@ -25923,6 +27364,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `sp` - Shader program to use."]
+    #[doc = ""]
     pub fn shaderProgramUse(sp: *mut shaderProgram_s) -> Result;
 }
 #[doc = "Mono sound"]
@@ -25937,6 +27379,8 @@ pub const NDSP_OUTPUT_STEREO: ndspOutputMode = 1;
 #[doc = ""]
 
 pub const NDSP_OUTPUT_SURROUND: ndspOutputMode = 2;
+#[doc = "# Data types"]
+#[doc = ""]
 #[doc = "Sound output modes."]
 #[doc = ""]
 
@@ -26079,6 +27523,8 @@ pub type ndspAuxCallback = ::core::option::Option<
     ),
 >;
 extern "C" {
+    #[doc = "# Initialization and basic operations"]
+    #[doc = ""]
     #[doc = "Sets up the DSP component."]
     #[doc = ""]
     #[doc = "# Arguments"]
@@ -26087,6 +27533,7 @@ extern "C" {
     #[doc = "* `size` - Size of the DSP binary."]
     #[doc = "* `progMask` - Program RAM block mask to load the binary to."]
     #[doc = "* `dataMask` - Data RAM block mask to load the binary to."]
+    #[doc = ""]
     pub fn ndspUseComponent(
         binary: *const ::libc::c_void,
         size: u32_,
@@ -26108,23 +27555,30 @@ extern "C" {
 extern "C" {
     #[doc = "Gets the number of dropped sound frames."]
     #[doc = ""]
-    #[doc = "Returns: The number of dropped sound frames."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The number of dropped sound frames."]
     #[doc = ""]
     pub fn ndspGetDroppedFrames() -> u32_;
 }
 extern "C" {
     #[doc = "Gets the total sound frame count."]
     #[doc = ""]
-    #[doc = "Returns: The total sound frame count."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The total sound frame count."]
     #[doc = ""]
     pub fn ndspGetFrameCount() -> u32_;
 }
 extern "C" {
+    #[doc = "# General parameters"]
+    #[doc = ""]
     #[doc = "Sets the master volume."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `volume` - Volume to set. Defaults to 1.0f."]
+    #[doc = ""]
     pub fn ndspSetMasterVol(volume: f32);
 }
 extern "C" {
@@ -26133,6 +27587,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `mode` - Output mode to set. Defaults to NDSP_OUTPUT_STEREO."]
+    #[doc = ""]
     pub fn ndspSetOutputMode(mode: ndspOutputMode);
 }
 extern "C" {
@@ -26141,6 +27596,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `mode` - Clipping mode to set. Defaults to NDSP_CLIP_SOFT."]
+    #[doc = ""]
     pub fn ndspSetClippingMode(mode: ndspClippingMode);
 }
 extern "C" {
@@ -26149,6 +27605,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `count` - Output count to set. Defaults to 2."]
+    #[doc = ""]
     pub fn ndspSetOutputCount(count: ::libc::c_int);
 }
 extern "C" {
@@ -26157,6 +27614,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `capture` - Wave buffer to capture to."]
+    #[doc = ""]
     pub fn ndspSetCapture(capture: *mut ndspWaveBuf);
 }
 extern "C" {
@@ -26166,14 +27624,18 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `callback` - Callback to set."]
     #[doc = "* `data` - User-defined data to pass to the callback."]
+    #[doc = ""]
     pub fn ndspSetCallback(callback: ndspCallback, data: *mut ::libc::c_void);
 }
 extern "C" {
+    #[doc = "# Surround"]
+    #[doc = ""]
     #[doc = "Sets the surround sound depth."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `depth` - Depth to set. Defaults to 0x7FFF."]
+    #[doc = ""]
     pub fn ndspSurroundSetDepth(depth: u16_);
 }
 extern "C" {
@@ -26182,6 +27644,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `pos` - Position to set. Defaults to NDSP_SPKPOS_SQUARE."]
+    #[doc = ""]
     pub fn ndspSurroundSetPos(pos: ndspSpeakerPos);
 }
 extern "C" {
@@ -26190,15 +27653,19 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `ratio` - Rear ratio to set. Defaults to 0x8000."]
+    #[doc = ""]
     pub fn ndspSurroundSetRearRatio(ratio: u16_);
 }
 extern "C" {
+    #[doc = "# Auxiliary output"]
+    #[doc = ""]
     #[doc = "Configures whether an auxiliary output is enabled."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `id` - ID of the auxiliary output."]
     #[doc = "* `enable` - Whether to enable the auxiliary output."]
+    #[doc = ""]
     pub fn ndspAuxSetEnable(id: ::libc::c_int, enable: bool);
 }
 extern "C" {
@@ -26208,6 +27675,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `id` - ID of the auxiliary output."]
     #[doc = "* `bypass` - Whether to use front bypass."]
+    #[doc = ""]
     pub fn ndspAuxSetFrontBypass(id: ::libc::c_int, bypass: bool);
 }
 extern "C" {
@@ -26217,6 +27685,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `id` - ID of the auxiliary output."]
     #[doc = "* `volume` - Volume to set."]
+    #[doc = ""]
     pub fn ndspAuxSetVolume(id: ::libc::c_int, volume: f32);
 }
 extern "C" {
@@ -26227,6 +27696,7 @@ extern "C" {
     #[doc = "* `id` - ID of the auxiliary output."]
     #[doc = "* `callback` - Callback to set."]
     #[doc = "* `data` - User-defined data to pass to the callback."]
+    #[doc = ""]
     pub fn ndspAuxSetCallback(
         id: ::libc::c_int,
         callback: ndspAuxCallback,
@@ -26245,19 +27715,21 @@ pub const NDSP_ENCODING_PCM16: _bindgen_ty_30 = 1;
 #[doc = ""]
 
 pub const NDSP_ENCODING_ADPCM: _bindgen_ty_30 = 2;
+#[doc = "# Data types"]
+#[doc = ""]
 #[doc = "Supported sample encodings."]
 #[doc = ""]
 
 pub type _bindgen_ty_30 = ::libc::c_uint;
-#[doc = "Buffer contains Mono   PCM8."]
+#[doc = "Buffer contains Mono PCM8."]
 #[doc = ""]
 
 pub const NDSP_FORMAT_MONO_PCM8: _bindgen_ty_31 = 1;
-#[doc = "Buffer contains Mono   PCM16."]
+#[doc = "Buffer contains Mono PCM16."]
 #[doc = ""]
 
 pub const NDSP_FORMAT_MONO_PCM16: _bindgen_ty_31 = 5;
-#[doc = "Buffer contains Mono   ADPCM."]
+#[doc = "Buffer contains Mono ADPCM."]
 #[doc = ""]
 
 pub const NDSP_FORMAT_MONO_ADPCM: _bindgen_ty_31 = 9;
@@ -26310,11 +27782,14 @@ pub const NDSP_INTERP_NONE: ndspInterpType = 2;
 
 pub type ndspInterpType = ::libc::c_uint;
 extern "C" {
+    #[doc = "# Basic channel operation"]
+    #[doc = ""]
     #[doc = "Resets a channel."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `id` - ID of the channel (0..23)."]
+    #[doc = ""]
     pub fn ndspChnReset(id: ::libc::c_int);
 }
 extern "C" {
@@ -26323,46 +27798,59 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `id` - ID of the channel (0..23)."]
+    #[doc = ""]
     pub fn ndspChnInitParams(id: ::libc::c_int);
 }
 extern "C" {
     #[doc = "Checks whether a channel is currently playing."]
     #[doc = ""]
-    #[doc = "Returns: Whether the channel is currently playing."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* Whether the channel is currently playing."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `id` - ID of the channel (0..23)."]
+    #[doc = ""]
     pub fn ndspChnIsPlaying(id: ::libc::c_int) -> bool;
 }
 extern "C" {
     #[doc = "Gets the current sample position of a channel."]
     #[doc = ""]
-    #[doc = "Returns: The channel's sample position."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The channel's sample position."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `id` - ID of the channel (0..23)."]
+    #[doc = ""]
     pub fn ndspChnGetSamplePos(id: ::libc::c_int) -> u32_;
 }
 extern "C" {
     #[doc = "Gets the sequence ID of the wave buffer that is currently playing in a channel."]
     #[doc = ""]
-    #[doc = "Returns: The sequence ID of the wave buffer."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The sequence ID of the wave buffer."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `id` - ID of the channel (0..23)."]
+    #[doc = ""]
     pub fn ndspChnGetWaveBufSeq(id: ::libc::c_int) -> u16_;
 }
 extern "C" {
     #[doc = "Checks whether a channel is currently paused."]
     #[doc = ""]
-    #[doc = "Returns: Whether the channel is currently paused."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* Whether the channel is currently paused."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `id` - ID of the channel (0..23)."]
+    #[doc = ""]
     pub fn ndspChnIsPaused(id: ::libc::c_int) -> bool;
 }
 extern "C" {
@@ -26372,15 +27860,19 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `id` - ID of the channel (0..23)."]
     #[doc = "* `paused` - Whether the channel is to be paused (true) or unpaused (false)."]
+    #[doc = ""]
     pub fn ndspChnSetPaused(id: ::libc::c_int, paused: bool);
 }
 extern "C" {
+    #[doc = "# Configuration"]
+    #[doc = ""]
     #[doc = "Sets the format of a channel."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `id` - ID of the channel (0..23)."]
     #[doc = "* `format` - Format to use."]
+    #[doc = ""]
     pub fn ndspChnSetFormat(id: ::libc::c_int, format: u16_);
 }
 extern "C" {
@@ -26390,6 +27882,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `id` - ID of the channel (0..23)."]
     #[doc = "* `type` - Interpolation type to use."]
+    #[doc = ""]
     pub fn ndspChnSetInterp(id: ::libc::c_int, type_: ndspInterpType);
 }
 extern "C" {
@@ -26399,6 +27892,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `id` - ID of the channel (0..23)."]
     #[doc = "* `rate` - Sample rate to use."]
+    #[doc = ""]
     pub fn ndspChnSetRate(id: ::libc::c_int, rate: f32);
 }
 extern "C" {
@@ -26415,6 +27909,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `id` - ID of the channel (0..23)."]
     #[doc = "* `mix` - Mix parameters to use. Working hypothesis:"]
+    #[doc = ""]
     pub fn ndspChnSetMix(id: ::libc::c_int, mix: *mut f32);
 }
 extern "C" {
@@ -26424,14 +27919,18 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `id` - ID of the channel (0..23)."]
     #[doc = "* `coefs` - DSPADPCM coefficients to use."]
+    #[doc = ""]
     pub fn ndspChnSetAdpcmCoefs(id: ::libc::c_int, coefs: *mut u16_);
 }
 extern "C" {
+    #[doc = "# Wave buffers"]
+    #[doc = ""]
     #[doc = "Clears the wave buffer queue of a channel and stops playback."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `id` - ID of the channel (0..23)."]
+    #[doc = ""]
     pub fn ndspChnWaveBufClear(id: ::libc::c_int);
 }
 extern "C" {
@@ -26441,15 +27940,23 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `id` - ID of the channel (0..23)."]
     #[doc = "* `buf` - Wave buffer to add."]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* If the channel's wave buffer queue was empty before the use of this function, playback is started."]
+    #[doc = ""]
     pub fn ndspChnWaveBufAdd(id: ::libc::c_int, buf: *mut ndspWaveBuf);
 }
 extern "C" {
+    #[doc = "# IIR filters"]
+    #[doc = ""]
     #[doc = "Configures whether the IIR monopole filter of a channel is enabled."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `id` - ID of the channel (0..23)."]
     #[doc = "* `enable` - Whether to enable the IIR monopole filter."]
+    #[doc = ""]
     pub fn ndspChnIirMonoSetEnable(id: ::libc::c_int, enable: bool);
 }
 extern "C" {
@@ -26459,6 +27966,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `id` - ID of the channel (0..23)."]
     #[doc = "* `enable` - Whether to enable the IIR monopole filter."]
+    #[doc = ""]
     pub fn ndspChnIirMonoSetParamsCustomFilter(
         id: ::libc::c_int,
         a0: f32,
@@ -26473,6 +27981,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `id` - ID of the channel (0..23)."]
     #[doc = "* `f0` - Low pass cut-off frequency."]
+    #[doc = ""]
     pub fn ndspChnIirMonoSetParamsLowPassFilter(id: ::libc::c_int, f0: f32) -> bool;
 }
 extern "C" {
@@ -26482,6 +27991,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `id` - ID of the channel (0..23)."]
     #[doc = "* `f0` - High pass cut-off frequency."]
+    #[doc = ""]
     pub fn ndspChnIirMonoSetParamsHighPassFilter(id: ::libc::c_int, f0: f32) -> bool;
 }
 extern "C" {
@@ -26491,6 +28001,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `id` - ID of the channel (0..23)."]
     #[doc = "* `enable` - Whether to enable the IIR biquad filter."]
+    #[doc = ""]
     pub fn ndspChnIirBiquadSetEnable(id: ::libc::c_int, enable: bool);
 }
 extern "C" {
@@ -26499,6 +28010,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `id` - ID of the channel (0..23)."]
+    #[doc = ""]
     pub fn ndspChnIirBiquadSetParamsCustomFilter(
         id: ::libc::c_int,
         a0: f32,
@@ -26517,6 +28029,7 @@ extern "C" {
     #[doc = "* `id` - ID of the channel (0..23)."]
     #[doc = "* `f0` - Low pass cut-off frequency."]
     #[doc = "* `Q` - \"Quality factor\", typically should be sqrt(2)/2 (i.e. 0.7071)."]
+    #[doc = ""]
     pub fn ndspChnIirBiquadSetParamsLowPassFilter(id: ::libc::c_int, f0: f32, Q: f32) -> bool;
 }
 extern "C" {
@@ -26527,6 +28040,7 @@ extern "C" {
     #[doc = "* `id` - ID of the channel (0..23)."]
     #[doc = "* `f0` - High pass cut-off frequency."]
     #[doc = "* `Q` - \"Quality factor\", typically should be sqrt(2)/2 (i.e. 0.7071)."]
+    #[doc = ""]
     pub fn ndspChnIirBiquadSetParamsHighPassFilter(id: ::libc::c_int, f0: f32, Q: f32) -> bool;
 }
 extern "C" {
@@ -26537,6 +28051,7 @@ extern "C" {
     #[doc = "* `id` - ID of the channel (0..23)."]
     #[doc = "* `f0` - Mid-frequency."]
     #[doc = "* `Q` - \"Quality factor\", typically should be sqrt(2)/2 (i.e. 0.7071)."]
+    #[doc = ""]
     pub fn ndspChnIirBiquadSetParamsBandPassFilter(id: ::libc::c_int, f0: f32, Q: f32) -> bool;
 }
 extern "C" {
@@ -26547,6 +28062,7 @@ extern "C" {
     #[doc = "* `id` - ID of the channel (0..23)."]
     #[doc = "* `f0` - Notch frequency."]
     #[doc = "* `Q` - \"Quality factor\", typically should be sqrt(2)/2 (i.e. 0.7071)."]
+    #[doc = ""]
     pub fn ndspChnIirBiquadSetParamsNotchFilter(id: ::libc::c_int, f0: f32, Q: f32) -> bool;
 }
 extern "C" {
@@ -26558,6 +28074,7 @@ extern "C" {
     #[doc = "* `f0` - Central frequency."]
     #[doc = "* `Q` - \"Quality factor\", typically should be sqrt(2)/2 (i.e. 0.7071)."]
     #[doc = "* `gain` - Amount of gain (raw value = 10 ^ dB/40)"]
+    #[doc = ""]
     pub fn ndspChnIirBiquadSetParamsPeakingEqualizer(
         id: ::libc::c_int,
         f0: f32,
@@ -26955,6 +28472,7 @@ extern "C" {
     #[doc = "* `type` - Keyboard type."]
     #[doc = "* `numButtons` - Number of dialog buttons to display (1, 2 or 3)."]
     #[doc = "* `maxTextLength` - Maximum number of UTF-16 code units that input text can have (or -1 to let libctru use a big default)."]
+    #[doc = ""]
     pub fn swkbdInit(
         swkbd: *mut SwkbdState,
         type_: SwkbdType,
@@ -26969,6 +28487,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `swkbd` - Pointer to swkbd state."]
     #[doc = "* `features` - Feature bitmask."]
+    #[doc = ""]
     pub fn swkbdSetFeatures(swkbd: *mut SwkbdState, features: u32_);
 }
 extern "C" {
@@ -26978,6 +28497,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `swkbd` - Pointer to swkbd state."]
     #[doc = "* `text` - Hint text."]
+    #[doc = ""]
     pub fn swkbdSetHintText(swkbd: *mut SwkbdState, text: *const ::libc::c_char);
 }
 extern "C" {
@@ -26989,6 +28509,7 @@ extern "C" {
     #[doc = "* `button` - Specifies which button to configure."]
     #[doc = "* `text` - Button text."]
     #[doc = "* `submit` - Specifies whether pushing the button will submit the text or discard it."]
+    #[doc = ""]
     pub fn swkbdSetButton(
         swkbd: *mut SwkbdState,
         button: SwkbdButton,
@@ -27003,6 +28524,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `swkbd` - Pointer to swkbd state."]
     #[doc = "* `text` - Initial text."]
+    #[doc = ""]
     pub fn swkbdSetInitialText(swkbd: *mut SwkbdState, text: *const ::libc::c_char);
 }
 extern "C" {
@@ -27013,6 +28535,7 @@ extern "C" {
     #[doc = "* `word` - Pointer to dictionary word structure."]
     #[doc = "* `reading` - Reading of the word, that is, the sequence of characters that need to be typed to trigger the word in the predictive input system."]
     #[doc = "* `text` - Spelling of the word, that is, the actual characters that will be produced when the user decides to select the word."]
+    #[doc = ""]
     pub fn swkbdSetDictWord(
         word: *mut SwkbdDictWord,
         reading: *const ::libc::c_char,
@@ -27027,6 +28550,7 @@ extern "C" {
     #[doc = "* `swkbd` - Pointer to swkbd state."]
     #[doc = "* `dict` - Pointer to dictionary words."]
     #[doc = "* `wordCount` - Number of words in the dictionary."]
+    #[doc = ""]
     pub fn swkbdSetDictionary(
         swkbd: *mut SwkbdState,
         dict: *const SwkbdDictWord,
@@ -27042,6 +28566,7 @@ extern "C" {
     #[doc = "* `data` - Pointer to internal status structure (can be in, out or both depending on the other parameters)."]
     #[doc = "* `in` - Specifies whether the data should be read from the structure when the keyboard is launched."]
     #[doc = "* `out` - Specifies whether the data should be written to the structure when the keyboard is closed."]
+    #[doc = ""]
     pub fn swkbdSetStatusData(
         swkbd: *mut SwkbdState,
         data: *mut SwkbdStatusData,
@@ -27058,6 +28583,7 @@ extern "C" {
     #[doc = "* `data` - Pointer to learning data structure (can be in, out or both depending on the other parameters)."]
     #[doc = "* `in` - Specifies whether the data should be read from the structure when the keyboard is launched."]
     #[doc = "* `out` - Specifies whether the data should be written to the structure when the keyboard is closed."]
+    #[doc = ""]
     pub fn swkbdSetLearningData(
         swkbd: *mut SwkbdState,
         data: *mut SwkbdLearningData,
@@ -27073,6 +28599,7 @@ extern "C" {
     #[doc = "* `swkbd` - Pointer to swkbd state."]
     #[doc = "* `callback` - Filter callback function."]
     #[doc = "* `user` - Custom data to be passed to the callback function."]
+    #[doc = ""]
     pub fn swkbdSetFilterCallback(
         swkbd: *mut SwkbdState,
         callback: SwkbdCallbackFn,
@@ -27082,13 +28609,16 @@ extern "C" {
 extern "C" {
     #[doc = "Launches a software keyboard in order to input text."]
     #[doc = ""]
-    #[doc = "Returns: The identifier of the dialog button that was pressed, or SWKBD_BUTTON_NONE if a different condition was triggered - in that case use swkbdGetResult to check the condition."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* The identifier of the dialog button that was pressed, or SWKBD_BUTTON_NONE if a different condition was triggered - in that case use swkbdGetResult to check the condition."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `swkbd` - Pointer to swkbd state."]
     #[doc = "* `buf` - Pointer to output buffer which will hold the inputted text."]
     #[doc = "* `bufsize` - Maximum number of UTF-8 code units that the buffer can hold (including null terminator)."]
+    #[doc = ""]
     pub fn swkbdInputText(
         swkbd: *mut SwkbdState,
         buf: *mut ::libc::c_char,
@@ -27191,6 +28721,7 @@ extern "C" {
     #[doc = "* `err` - Pointer to errorConf."]
     #[doc = "* `type` - errorType Type of error."]
     #[doc = "* `lang` - CFG_Language Lang of error."]
+    #[doc = ""]
     pub fn errorInit(err: *mut errorConf, type_: errorType, lang: CFG_Language);
 }
 extern "C" {
@@ -27200,6 +28731,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `err` - Pointer to errorConf."]
     #[doc = "* `error` - Error-code to display."]
+    #[doc = ""]
     pub fn errorCode(err: *mut errorConf, error: ::libc::c_int);
 }
 extern "C" {
@@ -27209,6 +28741,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `err` - Pointer to errorConf."]
     #[doc = "* `text` - Error-text to display."]
+    #[doc = ""]
     pub fn errorText(err: *mut errorConf, text: *const ::libc::c_char);
 }
 extern "C" {
@@ -27217,6 +28750,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `err` - Pointer to errorConf."]
+    #[doc = ""]
     pub fn errorDisp(err: *mut errorConf);
 }
 #[doc = "Parameter structure passed to AppletEd"]
@@ -27252,7 +28786,7 @@ pub struct MiiSelectorConf {
     #[doc = ""]
     pub _unk0x8D: [u8_; 3usize],
     #[doc = "Index of the initially selected Mii. If"]
-    #[doc = "@ref MiiSelectorConf.show_guest_page is"]
+    #[doc = "[`MiiSelectorConf.show_guest_page`] is"]
     #[doc = "set, this is the index of a Guest Mii,"]
     #[doc = "otherwise that of a user Mii."]
     #[doc = ""]
@@ -27270,7 +28804,7 @@ pub struct MiiSelectorConf {
     #[doc = "@private"]
     #[doc = ""]
     pub _unk0xFE: u16_,
-    #[doc = "Will be set to @ref MIISELECTOR_MAGIC before launching the"]
+    #[doc = "Will be set to [`MIISELECTOR_MAGIC`] before launching the"]
     #[doc = "applet."]
     #[doc = ""]
     pub magic: u32_,
@@ -27307,7 +28841,7 @@ pub struct MiiSelectorReturn {
     pub _pad0x68: u16_,
     #[doc = "Checksum of the returned Mii data."]
     #[doc = "Stored as a big-endian value; use"]
-    #[doc = "@ref miiSelectorChecksumIsValid to"]
+    #[doc = "[`miiSelectorChecksumIsValid`] to"]
     #[doc = "verify."]
     #[doc = ""]
     pub checksum: u16_,
@@ -27352,87 +28886,88 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `conf` - Pointer to Miiselector config."]
+    #[doc = ""]
     pub fn miiSelectorInit(conf: *mut MiiSelectorConf);
 }
 extern "C" {
     #[doc = "Launch the Mii selector library applet"]
     #[doc = ""]
-    #[doc = ""]
-    #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `conf` - Configuration determining how the applet should behave"]
+    #[doc = ""]
     pub fn miiSelectorLaunch(conf: *const MiiSelectorConf, returnbuf: *mut MiiSelectorReturn);
 }
 extern "C" {
     #[doc = "Sets title of the Mii selector library applet"]
     #[doc = ""]
-    #[doc = ""]
-    #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `conf` - Pointer to miiSelector configuration"]
     #[doc = "* `text` - Title text of Mii selector"]
+    #[doc = ""]
     pub fn miiSelectorSetTitle(conf: *mut MiiSelectorConf, text: *const ::libc::c_char);
 }
 extern "C" {
     #[doc = "Specifies which special options are enabled in the Mii selector"]
     #[doc = ""]
-    #[doc = ""]
-    #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `conf` - Pointer to miiSelector configuration"]
     #[doc = "* `options` - Options bitmask"]
+    #[doc = ""]
     pub fn miiSelectorSetOptions(conf: *mut MiiSelectorConf, options: u32_);
 }
 extern "C" {
     #[doc = "Specifies which guest Miis will be selectable"]
     #[doc = ""]
-    #[doc = ""]
+    #[doc = "[`MIISELECTOR_GUESTMII_SLOTS`] can be used to whitelist all the guest Miis."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `conf` - Pointer to miiSelector configuration"]
     #[doc = "* `index` - Index of the guest Miis that will be whitelisted."]
+    #[doc = ""]
     pub fn miiSelectorWhitelistGuestMii(conf: *mut MiiSelectorConf, index: u32_);
 }
 extern "C" {
     #[doc = "Specifies which guest Miis will be unselectable"]
     #[doc = ""]
-    #[doc = ""]
+    #[doc = "[`MIISELECTOR_GUESTMII_SLOTS`] can be used to blacklist all the guest Miis."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `conf` - Pointer to miiSelector configuration"]
     #[doc = "* `index` - Index of the guest Miis that will be blacklisted."]
+    #[doc = ""]
     pub fn miiSelectorBlacklistGuestMii(conf: *mut MiiSelectorConf, index: u32_);
 }
 extern "C" {
     #[doc = "Specifies which user Miis will be selectable"]
     #[doc = ""]
-    #[doc = ""]
+    #[doc = "[`MIISELECTOR_USERMII_SLOTS`] can be used to whitlist all the user Miis"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `conf` - Pointer to miiSelector configuration"]
     #[doc = "* `index` - Index of the user Miis that will be whitelisted."]
+    #[doc = ""]
     pub fn miiSelectorWhitelistUserMii(conf: *mut MiiSelectorConf, index: u32_);
 }
 extern "C" {
     #[doc = "Specifies which user Miis will be selectable"]
     #[doc = ""]
-    #[doc = ""]
+    #[doc = "[`MIISELECTOR_USERMII_SLOTS`] can be used to blacklist all the user Miis"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `conf` - Pointer to miiSelector configuration"]
     #[doc = "* `index` - Index of the user Miis that will be blacklisted."]
+    #[doc = ""]
     pub fn miiSelectorBlacklistUserMii(conf: *mut MiiSelectorConf, index: u32_);
 }
 extern "C" {
     #[doc = "Get Mii name"]
-    #[doc = ""]
     #[doc = ""]
     #[doc = "(assuming that no non-BMP characters are used), this value should be 36 (or 30 if you are not"]
     #[doc = "dealing with guest miis)."]
@@ -27442,6 +28977,7 @@ extern "C" {
     #[doc = "* `returnbuf` - Pointer to miiSelector return"]
     #[doc = "* `out` - String containing a Mii's name"]
     #[doc = "* `max_size` - Size of string. Since UTF8 characters range in size from 1-3 bytes"]
+    #[doc = ""]
     pub fn miiSelectorReturnGetName(
         returnbuf: *const MiiSelectorReturn,
         out: *mut ::libc::c_char,
@@ -27451,7 +28987,6 @@ extern "C" {
 extern "C" {
     #[doc = "Get Mii Author"]
     #[doc = ""]
-    #[doc = ""]
     #[doc = "(assuming that no non-BMP characters are used), this value should be 30."]
     #[doc = ""]
     #[doc = "# Arguments"]
@@ -27459,6 +28994,7 @@ extern "C" {
     #[doc = "* `returnbuf` - Pointer to miiSelector return"]
     #[doc = "* `out` - String containing a Mii's author"]
     #[doc = "* `max_size` - Size of string. Since UTF8 characters range in size from 1-3 bytes"]
+    #[doc = ""]
     pub fn miiSelectorReturnGetAuthor(
         returnbuf: *const MiiSelectorReturn,
         out: *mut ::libc::c_char,
@@ -27470,12 +29006,14 @@ extern "C" {
     #[doc = ""]
     #[doc = "checksum"]
     #[doc = ""]
+    #[doc = "Returns:"]
     #[doc = ""]
-    #[doc = "Returns: `true` if `returnbuf->checksum` is the same as the one computed from `returnbuf`"]
+    #[doc = "* `true` if `returnbuf->checksum` is the same as the one computed from `returnbuf`"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `returnbuf` - Buffer filled by Mii selector applet"]
+    #[doc = ""]
     pub fn miiSelectorChecksumIsValid(returnbuf: *const MiiSelectorReturn) -> bool;
 }
 #[doc = "Open directory struct"]
@@ -27643,11 +29181,16 @@ extern "C" {
     #[doc = "Mounts the Application's RomFS."]
     #[doc = ""]
     #[doc = "If the application is running as 3DSX, it mounts the embedded RomFS section inside the 3DSX."]
-    #[doc = "If on the other hand it's an NCCH, it behaves identically to \\ref romfsMountFromCurrentProcess."]
+    #[doc = "If on the other hand it's an NCCH, it behaves identically to [`romfsMountFromCurrentProcess`]"]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `name` - Device mount name."]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* This function is intended to be used to access one's own RomFS."]
+    #[doc = ""]
     pub fn romfsMountSelf(name: *const ::libc::c_char) -> Result;
 }
 extern "C" {
@@ -27659,6 +29202,7 @@ extern "C" {
     #[doc = "* `fd` - FSFILE handle of the RomFS image."]
     #[doc = "* `offset` - Offset of the RomFS within the file."]
     #[doc = "* `name` - Device mount name."]
+    #[doc = ""]
     pub fn romfsMountFromFile(fd: Handle, offset: u32_, name: *const ::libc::c_char) -> Result;
 }
 extern "C" {
@@ -27668,6 +29212,7 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `name` - Device mount name."]
+    #[doc = ""]
     pub fn romfsMountFromCurrentProcess(name: *const ::libc::c_char) -> Result;
 }
 extern "C" {
@@ -27679,6 +29224,7 @@ extern "C" {
     #[doc = "* `tid` - Title ID"]
     #[doc = "* `mediatype` - Mediatype"]
     #[doc = "* `name` - Device mount name."]
+    #[doc = ""]
     pub fn romfsMountFromTitle(
         tid: u64_,
         mediatype: FS_MediaType,
@@ -28037,6 +29583,11 @@ extern "C" {
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `font` - Font to fix"]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* Should never be run on the system font, and only once on any other font."]
+    #[doc = ""]
     pub fn fontFixPointers(font: *mut CFNT_s);
 }
 extern "C" {
@@ -28046,6 +29597,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `font` - Pointer to font structure. If NULL, the shared system font is used."]
     #[doc = "* `codePoint` - Unicode codepoint."]
+    #[doc = ""]
     pub fn fontGlyphIndexFromCodePoint(font: *mut CFNT_s, codePoint: u32_) -> ::libc::c_int;
 }
 extern "C" {
@@ -28055,6 +29607,7 @@ extern "C" {
     #[doc = ""]
     #[doc = "* `font` - Pointer to font structure. If NULL, the shared system font is used."]
     #[doc = "* `glyphIndex` - Index of the glyph."]
+    #[doc = ""]
     pub fn fontGetCharWidthInfo(
         font: *mut CFNT_s,
         glyphIndex: ::libc::c_int,
@@ -28071,6 +29624,7 @@ extern "C" {
     #[doc = "* `flags` - Calculation flags (see GLYPH_POS_* flags)."]
     #[doc = "* `scaleX` - Scale factor to apply horizontally."]
     #[doc = "* `scaleY` - Scale factor to apply vertically."]
+    #[doc = ""]
     pub fn fontCalcGlyphPos(
         out: *mut fontGlyphPos_s,
         font: *mut CFNT_s,
@@ -28115,11 +29669,18 @@ extern "C" {
 extern "C" {
     #[doc = "Connects to the 3dslink host, setting up an output stream."]
     #[doc = ""]
-    #[doc = "Returns: Socket fd on success, negative number on failure."]
+    #[doc = "Returns:"]
+    #[doc = ""]
+    #[doc = "* Socket fd on success, negative number on failure."]
     #[doc = ""]
     #[doc = "# Arguments"]
     #[doc = ""]
     #[doc = "* `redirStdout` - Whether to redirect stdout to nxlink output. [Direction: In]"]
     #[doc = "* `redirStderr` - Whether to redirect stderr to nxlink output. [Direction: In]"]
+    #[doc = ""]
+    #[doc = "# Notes"]
+    #[doc = ""]
+    #[doc = "* The socket should be closed with close() during application cleanup."]
+    #[doc = ""]
     pub fn link3dsConnectToHost(redirStdout: bool, redirStderr: bool) -> ::libc::c_int;
 }
