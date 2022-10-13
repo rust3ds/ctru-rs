@@ -7,7 +7,7 @@ use ctru_sys::result::{R_DESCRIPTION, R_LEVEL, R_MODULE, R_SUMMARY};
 
 pub type Result<T> = ::std::result::Result<T, Error>;
 
-#[derive(Debug, Clone, PartialEq, PartialOrd)]
+#[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Eq, Ord)]
 #[repr(transparent)]
 pub(crate) struct LibCtruResult(pub i32);
 
