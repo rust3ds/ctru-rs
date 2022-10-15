@@ -1,7 +1,7 @@
 //! LCD screens manipulation helper
 
 use once_cell::sync::Lazy;
-use std::cell::RefCell;
+use std::cell::{Ref, RefCell, RefMut};
 use std::marker::PhantomData;
 use std::sync::Mutex;
 
@@ -9,10 +9,18 @@ use crate::error::Result;
 use crate::services::gspgpu::{self, FramebufferFormat};
 use crate::services::ServiceReference;
 
-/// Trait implemented by TopScreen and BottomScreen for common methods
+/// This trait is implemented by the screen structs for working with frame buffers and
+/// drawing to the screens. Graphics-related code can be made generic over this
+/// trait to work with any of the given screens.
 pub trait Screen {
     /// Returns the libctru value for the Screen kind
     fn as_raw(&self) -> ctru_sys::gfxScreen_t;
+
+    /// Returns a [`RawFrameBuffer`] for the screen.
+    ///
+    /// Note that the pointer of the framebuffer returned by this function can
+    /// change after each call to this function if double buffering is enabled.
+    fn get_raw_framebuffer(&mut self) -> RawFrameBuffer;
 
     /// Sets whether to use double buffering. Enabled by default.
     ///
@@ -33,8 +41,23 @@ pub trait Screen {
     }
 }
 
+// TODO: it might be nice to do `TopScreen<const SIDE: Side>` but it requires
+// #![feature(adt_const_params)] which is unstable, and doesn't seem worth it
+// just for this.
 #[non_exhaustive]
-pub struct TopScreen;
+pub struct TopLeftScreen;
+
+#[non_exhaustive]
+pub struct TopRightScreen;
+
+/// A helper container for both sides of the top screen.
+pub struct TopScreenInner {
+    left: TopLeftScreen,
+    right: TopRightScreen,
+}
+
+#[non_exhaustive]
+pub struct TopScreen(RefCell<TopScreenInner>);
 
 #[non_exhaustive]
 pub struct BottomScreen;
@@ -71,7 +94,7 @@ pub enum Side {
 /// The service exits when this struct is dropped.
 #[non_exhaustive]
 pub struct Gfx {
-    pub top_screen: RefCell<TopScreen>,
+    pub top_screen: TopScreen,
     pub bottom_screen: RefCell<BottomScreen>,
     _service_handler: ServiceReference,
 }
@@ -100,14 +123,15 @@ impl Gfx {
         )?;
 
         Ok(Self {
-            top_screen: RefCell::new(TopScreen),
+            top_screen: TopScreen::new(TopLeftScreen, TopRightScreen),
             bottom_screen: RefCell::new(BottomScreen),
             _service_handler,
         })
     }
 
-    /// Creates a new Gfx instance with default init values
-    /// It's the same as calling: `Gfx::with_formats(FramebufferFormat::Bgr8, FramebufferFormat::Bgr8, false)
+    /// Creates a new [Gfx] instance with default init values
+    /// It's the same as calling:
+    /// `Gfx::with_formats(FramebufferFormat::Bgr8, FramebufferFormat::Bgr8, false)`
     pub fn init() -> Result<Self> {
         Gfx::with_formats(FramebufferFormat::Bgr8, FramebufferFormat::Bgr8, false)
     }
@@ -140,6 +164,36 @@ impl Gfx {
 }
 
 impl TopScreen {
+    fn new(left: TopLeftScreen, right: TopRightScreen) -> Self {
+        Self(RefCell::new(TopScreenInner { left, right }))
+    }
+
+    pub fn borrow(&self) -> Ref<'_, TopScreenInner> {
+        self.0.borrow()
+    }
+
+    pub fn borrow_mut(&self) -> RefMut<'_, TopScreenInner> {
+        self.0.borrow_mut()
+    }
+
+    pub fn borrow_side(&self, side: Side) -> Ref<'_, dyn Screen> {
+        let borrow = self.0.borrow();
+        match side {
+            Side::Left => Ref::map(borrow, |top| &top.left),
+            Side::Right => Ref::map(borrow, |top| &top.right),
+        }
+    }
+
+    pub fn borrow_side_mut(&self, side: Side) -> RefMut<'_, dyn Screen> {
+        let borrow = self.0.borrow_mut();
+        match side {
+            Side::Left => RefMut::map(borrow, |top| &mut top.left),
+            Side::Right => RefMut::map(borrow, |top| &mut top.right),
+        }
+    }
+}
+
+impl TopScreenInner {
     /// Enable or disable the 3D stereoscopic effect
     pub fn set_3d_enabled(&mut self, enabled: bool) {
         unsafe {
@@ -159,24 +213,6 @@ impl TopScreen {
     pub fn get_wide_mode(&self) -> bool {
         unsafe { ctru_sys::gfxIsWide() }
     }
-
-    /// Returns a [`RawFrameBuffer`] for the given [`Side`] of the top screen.
-    ///
-    /// Note that the pointer of the framebuffer returned by this function can
-    /// change after each call to this function if double buffering is enabled.
-    pub fn get_raw_framebuffer(&mut self, side: Side) -> RawFrameBuffer {
-        RawFrameBuffer::for_screen_side(self, side)
-    }
-}
-
-impl BottomScreen {
-    /// Returns a [`RawFrameBuffer`] for the bottom screen.
-    ///
-    /// Note that the pointer of the framebuffer returned by this function can
-    /// change after each call to this function if double buffering is enabled.
-    pub fn get_raw_framebuffer(&mut self) -> RawFrameBuffer {
-        RawFrameBuffer::for_screen_side(self, Side::Left)
-    }
 }
 
 impl<'screen> RawFrameBuffer<'screen> {
@@ -195,15 +231,45 @@ impl<'screen> RawFrameBuffer<'screen> {
     }
 }
 
-impl Screen for TopScreen {
+impl Screen for TopScreenInner {
+    fn as_raw(&self) -> ctru_sys::gfxScreen_t {
+        self.left.as_raw()
+    }
+
+    fn get_raw_framebuffer(&mut self) -> RawFrameBuffer {
+        // When dealing with the "whole" top screen, the left framebuffer is the
+        // one used for writing pixel data.
+        self.left.get_raw_framebuffer()
+    }
+}
+
+impl Screen for TopLeftScreen {
     fn as_raw(&self) -> ctru_sys::gfxScreen_t {
         ctru_sys::GFX_TOP
+    }
+
+    fn get_raw_framebuffer(&mut self) -> RawFrameBuffer {
+        RawFrameBuffer::for_screen_side(self, Side::Left)
+    }
+}
+
+impl Screen for TopRightScreen {
+    fn as_raw(&self) -> ctru_sys::gfxScreen_t {
+        ctru_sys::GFX_TOP
+    }
+
+    fn get_raw_framebuffer(&mut self) -> RawFrameBuffer {
+        RawFrameBuffer::for_screen_side(self, Side::Right)
     }
 }
 
 impl Screen for BottomScreen {
     fn as_raw(&self) -> ctru_sys::gfxScreen_t {
         ctru_sys::GFX_BOTTOM
+    }
+
+    fn get_raw_framebuffer(&mut self) -> RawFrameBuffer {
+        RawFrameBuffer::for_screen_side(self, Side::Left)
     }
 }
 

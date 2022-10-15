@@ -1,3 +1,4 @@
+use ctru::gfx::Side;
 use ctru::prelude::*;
 
 use std::io::BufWriter;
@@ -7,7 +8,7 @@ fn main() {
     let gfx = Gfx::init().expect("Couldn't obtain GFX controller");
     let hid = Hid::init().expect("Couldn't obtain HID controller");
     let apt = Apt::init().expect("Couldn't obtain APT controller");
-    let _console = Console::init(gfx.top_screen.borrow_mut());
+    let _console = Console::init(gfx.top_screen.borrow_side_mut(Side::Left));
 
     let out = b"Hello fellow Rustaceans, I'm on the Nintendo 3DS!";
     let width = 24;
