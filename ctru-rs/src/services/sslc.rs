@@ -1,6 +1,6 @@
 // TODO: Implement remaining functions
 
-use crate::error::LibCtruResult;
+use crate::error::ResultCode;
 
 pub struct SslC(());
 
@@ -8,7 +8,7 @@ impl SslC {
     /// Initialize sslc
     pub fn init() -> crate::Result<Self> {
         unsafe {
-            LibCtruResult(ctru_sys::sslcInit(0))?;
+            ResultCode(ctru_sys::sslcInit(0))?;
             Ok(SslC(()))
         }
     }
@@ -16,7 +16,7 @@ impl SslC {
     /// Fill `buf` with `buf.len()` random bytes
     pub fn generate_random_data(&self, buf: &mut [u8]) -> crate::Result<()> {
         unsafe {
-            LibCtruResult(ctru_sys::sslcGenerateRandomData(
+            ResultCode(ctru_sys::sslcGenerateRandomData(
                 buf.as_ptr() as _,
                 buf.len() as u32,
             ))?;

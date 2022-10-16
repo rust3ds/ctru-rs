@@ -4,7 +4,7 @@
 //! and circle pad information. It also provides information from the sound volume slider,
 //! the accelerometer, and the gyroscope.
 
-use crate::error::LibCtruResult;
+use crate::error::ResultCode;
 bitflags::bitflags! {
     /// A set of flags corresponding to the button and directional pad
     /// inputs on the 3DS
@@ -63,7 +63,7 @@ pub struct CirclePosition(ctru_sys::circlePosition);
 impl Hid {
     pub fn init() -> crate::Result<Hid> {
         unsafe {
-            LibCtruResult(ctru_sys::hidInit())?;
+            ResultCode(ctru_sys::hidInit())?;
             Ok(Hid(()))
         }
     }

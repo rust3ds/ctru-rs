@@ -9,14 +9,11 @@ pub type Result<T> = ::std::result::Result<T, Error>;
 
 #[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Eq, Ord)]
 #[repr(transparent)]
-pub(crate) struct LibCtruResult(pub i32);
+pub(crate) struct ResultCode(pub i32);
 
-impl Try for LibCtruResult {
+impl Try for ResultCode {
     type Output = ();
-    // This type is passed to [FromResidual::from_residual] when the LibCtruResult is an error,
-    // so this type implies "this is a result than CAN'T be `Ok`" (Infallible is the same as !)
-    // The purpose of this type is to _only_ bring information about the *Error*
-    type Residual = crate::Result<core::convert::Infallible>;
+    type Residual = Error;
 
     fn from_output(_: Self::Output) -> Self {
         Self(0)
@@ -24,19 +21,25 @@ impl Try for LibCtruResult {
 
     fn branch(self) -> ControlFlow<Self::Residual, Self::Output> {
         if self.0 < 0 {
-            ControlFlow::Break(Err(self.into()))
+            ControlFlow::Break(self.into())
         } else {
             ControlFlow::Continue(())
         }
     }
 }
 
-impl FromResidual for LibCtruResult {
+impl FromResidual for ResultCode {
     fn from_residual(e: <Self as Try>::Residual) -> Self {
-        match e.err().unwrap() {
+        match e {
             Error::Os(result) => Self(result),
-            _ => Self(-1),
+            _ => unreachable!(),
         }
+    }
+}
+
+impl<T> FromResidual<Error> for Result<T> {
+    fn from_residual(e: Error) -> Self {
+        Err(e)
     }
 }
 
@@ -73,8 +76,8 @@ impl From<ctru_sys::Result> for Error {
     }
 }
 
-impl From<LibCtruResult> for Error {
-    fn from(err: LibCtruResult) -> Self {
+impl From<ResultCode> for Error {
+    fn from(err: ResultCode) -> Self {
         Self::Os(err.0)
     }
 }
