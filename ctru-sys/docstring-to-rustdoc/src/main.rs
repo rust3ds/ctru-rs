@@ -2,8 +2,8 @@
 //!
 //! # Usage
 //!
-//! `cargo docstring-to-rustdoc [location of the bindings.rs]`
-//! Example: `cargo docstring-to-rustdoc src/bindings.rs`
+//! `cargo run --package docstring-to-rustdoc -- [location of the bindings.rs]`
+//! Example: `cargo run --package docstring-to-rustdoc -- src/bindings.rs`
 //!
 //! # Transformations
 //!
