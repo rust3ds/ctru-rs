@@ -14,8 +14,8 @@ name = "ctru"
 cfg-if = "1.0"
 ctru-sys = { path = "../ctru-sys", version = "0.4" }
 const-zero = "0.1.0"
-linker-fix-3ds = { git = "https://github.com/Meziu/rust-linker-fix-3ds.git" }
-pthread-3ds = { git = "https://github.com/Meziu/pthread-3ds.git" }
+linker-fix-3ds = { git = "https://github.com/rust3ds/rust-linker-fix-3ds.git" }
+pthread-3ds = { git = "https://github.com/rust3ds/pthread-3ds.git" }
 libc = "0.2.121"
 bitflags = "1.0.0"
 widestring = "0.2.2"
