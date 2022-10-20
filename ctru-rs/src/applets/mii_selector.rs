@@ -127,8 +127,10 @@ impl MiiSelectorReturn {
 
     pub fn author(&self) -> String {
         let mut tmp = [0u8; 30];
-        unsafe { ctru_sys::miiSelectorReturnGetName(self.raw_return.as_ref(), tmp.as_mut_ptr(), 30) }
-        let utf8 = unsafe { std::str::from_utf8_unchecked(&tmp) };
+        unsafe { ctru_sys::miiSelectorReturnGetAuthor(self.raw_return.as_ref(), tmp.as_mut_ptr(), 30) }
+
+        let len = unsafe { libc::strlen(tmp.as_ptr()) };
+        let utf8 = unsafe { std::str::from_utf8_unchecked(&tmp[..len]) };
 
         utf8.to_owned()
     }
@@ -162,5 +164,11 @@ impl From<Box<ctru_sys::MiiSelectorReturn>> for MiiSelectorReturn {
             },
             checksum,
         }
+    }
+}
+
+impl From<u32> for MiiConfigIndex {
+    fn from(v: u32) -> Self {
+        Self::Index(v)
     }
 }
