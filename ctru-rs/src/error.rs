@@ -1,10 +1,47 @@
 use std::error;
 use std::ffi::CStr;
 use std::fmt;
+use std::ops::{ControlFlow, FromResidual, Try};
 
 use ctru_sys::result::{R_DESCRIPTION, R_LEVEL, R_MODULE, R_SUMMARY};
 
 pub type Result<T> = ::std::result::Result<T, Error>;
+
+#[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Eq, Ord)]
+#[repr(transparent)]
+pub(crate) struct ResultCode(pub ctru_sys::Result);
+
+impl Try for ResultCode {
+    type Output = ();
+    type Residual = Error;
+
+    fn from_output(_: Self::Output) -> Self {
+        Self(0)
+    }
+
+    fn branch(self) -> ControlFlow<Self::Residual, Self::Output> {
+        if self.0 < 0 {
+            ControlFlow::Break(self.into())
+        } else {
+            ControlFlow::Continue(())
+        }
+    }
+}
+
+impl FromResidual for ResultCode {
+    fn from_residual(e: <Self as Try>::Residual) -> Self {
+        match e {
+            Error::Os(result) => Self(result),
+            _ => unreachable!(),
+        }
+    }
+}
+
+impl<T> FromResidual<Error> for Result<T> {
+    fn from_residual(e: Error) -> Self {
+        Err(e)
+    }
+}
 
 /// The error type returned by all libctru functions.
 #[non_exhaustive]
@@ -36,6 +73,12 @@ impl Error {
 impl From<ctru_sys::Result> for Error {
     fn from(err: ctru_sys::Result) -> Self {
         Error::Os(err)
+    }
+}
+
+impl From<ResultCode> for Error {
+    fn from(err: ResultCode) -> Self {
+        Self::Os(err.0)
     }
 }
 

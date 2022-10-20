@@ -1,9 +1,8 @@
 use ctru::console::Console;
-use ctru::gfx::{Screen, Side};
+use ctru::gfx::{Gfx, Screen, Side};
 use ctru::services::cam::{Cam, CamOutputFormat, CamShutterSoundType, CamSize, Camera};
 use ctru::services::hid::KeyPad;
 use ctru::services::{Apt, Hid};
-use ctru::Gfx;
 use std::time::Duration;
 
 const WIDTH: usize = 400;
@@ -84,7 +83,7 @@ fn main() {
                 .expect("Failed to take picture");
         }
 
-        let img = convert_image_to_rgb8(&buf, 0, 0, WIDTH as usize, HEIGHT as usize);
+        let img = convert_image_to_rgb8(&buf, 0, 0, WIDTH, HEIGHT);
 
         unsafe {
             gfx.top_screen
