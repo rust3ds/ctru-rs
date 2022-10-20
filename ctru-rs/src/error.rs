@@ -9,7 +9,7 @@ pub type Result<T> = ::std::result::Result<T, Error>;
 
 #[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Eq, Ord)]
 #[repr(transparent)]
-pub(crate) struct ResultCode(pub i32);
+pub(crate) struct ResultCode(pub ctru_sys::Result);
 
 impl Try for ResultCode {
     type Output = ();
