@@ -1,5 +1,6 @@
 use bitflags::bitflags;
 use std::ffi::CString;
+use crate::mii::MiiData;
 
 #[derive(Debug, Clone)]
 pub enum MiiConfigIndex {
@@ -28,6 +29,7 @@ pub struct MiiSelector {
 
 pub struct MiiSelectorReturn {
     raw_return: Box<ctru_sys::MiiSelectorReturn>,
+    pub mii_data: MiiData,
     pub is_mii_selected: bool,
     pub mii_type: MiiType,
     pub checksum: u16,
@@ -158,12 +160,14 @@ impl MiiSelectorReturn {
 impl From<Box<ctru_sys::MiiSelectorReturn>> for MiiSelectorReturn {
     fn from(ret: Box<ctru_sys::MiiSelectorReturn>) -> Self {
         let checksum = ret.checksum;
+        let raw_mii_data = ret.mii._bindgen_opaque_blob.clone();
         let no_mii_selected = ret.no_mii_selected;
         let guest_mii_index_clone = ret.guest_mii_index;
         let mut guest_mii_name = ret.guest_mii_name;
 
         MiiSelectorReturn {
             raw_return: ret,
+            mii_data: raw_mii_data.into(),
             is_mii_selected: no_mii_selected == 0,
             mii_type: if guest_mii_index_clone != 0xFFFFFFFF {
                 MiiType::Guest {
