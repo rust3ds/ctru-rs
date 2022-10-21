@@ -237,7 +237,6 @@ impl From<[u8; 92]> for MiiData {
 
         let position = SelectorPosition {
             page_index: partial_vec_to_u8_with_reverse(&raw_position[0..3]),
-            //page_index: vec_bit_to_u8([false, false, false, false, raw_position[3], raw_position[2], raw_position[1], raw_position[0]]),
             slot_index: partial_vec_to_u8_with_reverse(&raw_position[4..7])
         };
 
