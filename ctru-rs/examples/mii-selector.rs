@@ -17,11 +17,12 @@ fn main() {
     let result = mii_selector.launch();
 
     println!("\x1b[0;0HIs Mii selected?: {:?}", result.is_mii_selected);
-    println!("\x1b[2;0HValid checksum?: {:?}", result.valid_checksum());
-    println!("\x1b[4;0HMii type: {:?}", result.mii_type);
-    println!("\x1b[6;0HMii checksum: {:?}", result.checksum);
-    println!("\x1b[8;0HName: {:?}", result.name());
-    println!("\x1b[12;0HAuthor: {:?}", result.author());
+    println!("\x1b[1;0HValid checksum?: {:?}", result.valid_checksum());
+    println!("\x1b[2;0HMii type: {:?}", result.mii_type);
+    println!("\x1b[3;0HMii checksum: {:?}", result.checksum);
+    println!("\x1b[4;0HName: {:?}", result.name());
+    println!("\x1b[5;0HAuthor: {:?}", result.author());
+    println!("\x1b[5;0HDoes it have moles?: {:?}", result.mii_data.mole_details.is_enabled);
 
     // Main loop
     while apt.main_loop() {
