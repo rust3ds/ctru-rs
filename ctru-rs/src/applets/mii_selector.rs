@@ -1,6 +1,6 @@
+use crate::mii::MiiData;
 use bitflags::bitflags;
 use std::ffi::CString;
-use crate::mii::MiiData;
 
 #[derive(Debug, Clone)]
 pub enum MiiConfigIndex {

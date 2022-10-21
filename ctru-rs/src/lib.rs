@@ -76,9 +76,9 @@ pub mod applets;
 pub mod console;
 pub mod error;
 pub mod gfx;
+pub mod mii;
 pub mod prelude;
 pub mod services;
-pub mod mii;
 
 cfg_if::cfg_if! {
     if #[cfg(all(feature = "romfs", romfs_exists))] {
