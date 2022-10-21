@@ -160,7 +160,7 @@ impl MiiSelectorReturn {
 impl From<Box<ctru_sys::MiiSelectorReturn>> for MiiSelectorReturn {
     fn from(ret: Box<ctru_sys::MiiSelectorReturn>) -> Self {
         let checksum = ret.checksum;
-        let raw_mii_data = ret.mii._bindgen_opaque_blob.clone();
+        let raw_mii_data = ret.mii._bindgen_opaque_blob;
         let no_mii_selected = ret.no_mii_selected;
         let guest_mii_index_clone = ret.guest_mii_index;
         let mut guest_mii_name = ret.guest_mii_name;

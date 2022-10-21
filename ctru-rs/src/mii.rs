@@ -417,11 +417,11 @@ fn utf16_byte_pairs_to_string(data: &[u8]) -> String {
         .collect::<Vec<&[u8]>>()
         .iter()
         .map(|v| {
-            u16::from_le_bytes([*v.get(0).unwrap_or(&0), *v.get(1).unwrap_or(&0)])
+            u16::from_le_bytes([*v.first().unwrap_or(&0), *v.get(1).unwrap_or(&0)])
         })
         .collect::<Vec<u16>>();
 
-    String::from_utf16(raw_utf16_composed.as_slice()).unwrap().replace("\0", "")
+    String::from_utf16(raw_utf16_composed.as_slice()).unwrap().replace('\0', "")
 }
 
 /// Gets the values from the slice and concatenates them
