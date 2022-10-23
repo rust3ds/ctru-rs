@@ -1,6 +1,6 @@
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum RegionLock {
-    NoLock,
+    None,
     Japan,
     USA,
     Europe,
