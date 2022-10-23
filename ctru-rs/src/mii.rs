@@ -255,7 +255,7 @@ impl From<[u8; 92]> for MiiData {
                 let second_bit = raw_options[2];
                 if !first_bit && !second_bit {
                     // 0b00
-                    RegionLock::NoLock
+                    RegionLock::None
                 } else if !first_bit && second_bit {
                     // 0b01
                     RegionLock::Japan
