@@ -23,7 +23,7 @@ fn main() {
     println!("\x1b[4;0HName: {:?}", result.name());
     println!("\x1b[5;0HAuthor: {:?}", result.author());
     println!(
-        "\x1b[5;0HDoes it have moles?: {:?}",
+        "\x1b[6;0HDoes the Mii have moles?: {:?}",
         result.mii_data.mole_details.is_enabled
     );
 
