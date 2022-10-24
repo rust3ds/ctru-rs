@@ -263,8 +263,8 @@ impl From<ctru_sys::MiiData> for MiiData {
         };
 
         let position = SelectorPosition {
-            page_index: partial_vec_to_u8_with_reverse(&raw_position[0..3]),
-            slot_index: partial_vec_to_u8_with_reverse(&raw_position[4..7]),
+            page_index: partial_u8_bits_to_u8(&raw_position[0..3]),
+            slot_index: partial_u8_bits_to_u8(&raw_position[4..7]),
         };
 
         let device = ConsoleIdentity {
@@ -285,85 +285,85 @@ impl From<ctru_sys::MiiData> for MiiData {
                     false => MiiSex::Male,
                 }
             },
-            birthday_month: partial_vec_to_u8_with_reverse(&raw_details[1..4]),
-            birthday_day: partial_vec_to_u8_with_reverse(&raw_details[5..9]),
-            shirt_color: partial_vec_to_u8_with_reverse(&raw_details[10..13]),
+            birthday_month: partial_u8_bits_to_u8(&raw_details[1..4]),
+            birthday_day: partial_u8_bits_to_u8(&raw_details[5..9]),
+            shirt_color: partial_u8_bits_to_u8(&raw_details[10..13]),
             is_favorite: raw_details[14],
         };
 
         let face_style = FaceStyle {
             is_sharing_enabled: !raw_face_style[1],
-            shape: partial_vec_to_u8_with_reverse(&raw_face_style[1..4]),
-            skin_color: partial_vec_to_u8_with_reverse(&raw_face_style[5..7]),
+            shape: partial_u8_bits_to_u8(&raw_face_style[1..4]),
+            skin_color: partial_u8_bits_to_u8(&raw_face_style[5..7]),
         };
 
         let face_details = FaceDetails {
-            wrinkles: partial_vec_to_u8_with_reverse(&raw_face_details[0..3]),
-            makeup: partial_vec_to_u8_with_reverse(&raw_face_details[4..7]),
+            wrinkles: partial_u8_bits_to_u8(&raw_face_details[0..3]),
+            makeup: partial_u8_bits_to_u8(&raw_face_details[4..7]),
         };
 
         let hair_details = HairDetails {
-            color: partial_vec_to_u8_with_reverse(&raw_hair_details[0..2]),
+            color: partial_u8_bits_to_u8(&raw_hair_details[0..2]),
             is_flipped: raw_hair_details[3],
         };
 
         let eye_details = EyeDetails {
-            style: partial_vec_to_u8_with_reverse(&raw_eye_details[0..5]),
-            color: partial_vec_to_u8_with_reverse(&raw_eye_details[6..8]),
-            scale: partial_vec_to_u8_with_reverse(&raw_eye_details[9..12]),
-            y_scale: partial_vec_to_u8_with_reverse(&raw_eye_details[13..15]),
-            rotation: partial_vec_to_u8_with_reverse(&raw_eye_details[16..20]),
-            x_spacing: partial_vec_to_u8_with_reverse(&raw_eye_details[21..24]),
-            y_position: partial_vec_to_u8_with_reverse(&raw_eye_details[25..29]),
+            style: partial_u8_bits_to_u8(&raw_eye_details[0..5]),
+            color: partial_u8_bits_to_u8(&raw_eye_details[6..8]),
+            scale: partial_u8_bits_to_u8(&raw_eye_details[9..12]),
+            y_scale: partial_u8_bits_to_u8(&raw_eye_details[13..15]),
+            rotation: partial_u8_bits_to_u8(&raw_eye_details[16..20]),
+            x_spacing: partial_u8_bits_to_u8(&raw_eye_details[21..24]),
+            y_position: partial_u8_bits_to_u8(&raw_eye_details[25..29]),
         };
 
         let eyebrow_details = EyebrowDetails {
-            style: partial_vec_to_u8_with_reverse(&raw_eyebrow_details[0..4]),
-            color: partial_vec_to_u8_with_reverse(&raw_eyebrow_details[5..7]),
-            scale: partial_vec_to_u8_with_reverse(&raw_eyebrow_details[8..11]),
-            y_scale: partial_vec_to_u8_with_reverse(&raw_eyebrow_details[12..14]),
-            rotation: partial_vec_to_u8_with_reverse(&raw_eyebrow_details[16..19]),
-            x_spacing: partial_vec_to_u8_with_reverse(&raw_eyebrow_details[21..24]),
-            y_position: partial_vec_to_u8_with_reverse(&raw_eyebrow_details[25..29]),
+            style: partial_u8_bits_to_u8(&raw_eyebrow_details[0..4]),
+            color: partial_u8_bits_to_u8(&raw_eyebrow_details[5..7]),
+            scale: partial_u8_bits_to_u8(&raw_eyebrow_details[8..11]),
+            y_scale: partial_u8_bits_to_u8(&raw_eyebrow_details[12..14]),
+            rotation: partial_u8_bits_to_u8(&raw_eyebrow_details[16..19]),
+            x_spacing: partial_u8_bits_to_u8(&raw_eyebrow_details[21..24]),
+            y_position: partial_u8_bits_to_u8(&raw_eyebrow_details[25..29]),
         };
 
         let nose_details = NoseDetails {
-            style: partial_vec_to_u8_with_reverse(&raw_nose_details[0..4]),
-            scale: partial_vec_to_u8_with_reverse(&raw_nose_details[5..8]),
-            y_position: partial_vec_to_u8_with_reverse(&raw_nose_details[9..13]),
+            style: partial_u8_bits_to_u8(&raw_nose_details[0..4]),
+            scale: partial_u8_bits_to_u8(&raw_nose_details[5..8]),
+            y_position: partial_u8_bits_to_u8(&raw_nose_details[9..13]),
         };
 
         let mouth_details = MouthDetails {
-            style: partial_vec_to_u8_with_reverse(&raw_mouth_details[0..5]),
-            color: partial_vec_to_u8_with_reverse(&raw_mouth_details[6..8]),
-            scale: partial_vec_to_u8_with_reverse(&raw_mouth_details[9..12]),
-            y_scale: partial_vec_to_u8_with_reverse(&raw_mouth_details[13..15]),
+            style: partial_u8_bits_to_u8(&raw_mouth_details[0..5]),
+            color: partial_u8_bits_to_u8(&raw_mouth_details[6..8]),
+            scale: partial_u8_bits_to_u8(&raw_mouth_details[9..12]),
+            y_scale: partial_u8_bits_to_u8(&raw_mouth_details[13..15]),
         };
 
         let mustache_details = MustacheDetails {
-            mouth_y_position: partial_vec_to_u8_with_reverse(&raw_mustache_details[0..4]),
-            mustache_style: partial_vec_to_u8_with_reverse(&raw_mustache_details[5..7]),
+            mouth_y_position: partial_u8_bits_to_u8(&raw_mustache_details[0..4]),
+            mustache_style: partial_u8_bits_to_u8(&raw_mustache_details[5..7]),
         };
 
         let beard_details = BeardDetails {
-            style: partial_vec_to_u8_with_reverse(&raw_beard_details[0..2]),
-            color: partial_vec_to_u8_with_reverse(&raw_beard_details[3..5]),
-            scale: partial_vec_to_u8_with_reverse(&raw_beard_details[6..9]),
-            y_position: partial_vec_to_u8_with_reverse(&raw_beard_details[10..14]),
+            style: partial_u8_bits_to_u8(&raw_beard_details[0..2]),
+            color: partial_u8_bits_to_u8(&raw_beard_details[3..5]),
+            scale: partial_u8_bits_to_u8(&raw_beard_details[6..9]),
+            y_position: partial_u8_bits_to_u8(&raw_beard_details[10..14]),
         };
 
         let glass_details = GlassDetails {
-            style: partial_vec_to_u8_with_reverse(&raw_glass_details[0..3]),
-            color: partial_vec_to_u8_with_reverse(&raw_glass_details[4..6]),
-            scale: partial_vec_to_u8_with_reverse(&raw_glass_details[7..10]),
-            y_position: partial_vec_to_u8_with_reverse(&raw_glass_details[11..15]),
+            style: partial_u8_bits_to_u8(&raw_glass_details[0..3]),
+            color: partial_u8_bits_to_u8(&raw_glass_details[4..6]),
+            scale: partial_u8_bits_to_u8(&raw_glass_details[7..10]),
+            y_position: partial_u8_bits_to_u8(&raw_glass_details[11..15]),
         };
 
         let mole_details = MoleDetails {
             is_enabled: raw_mole_details[0],
-            scale: partial_vec_to_u8_with_reverse(&raw_mole_details[1..4]),
-            x_position: partial_vec_to_u8_with_reverse(&raw_mole_details[5..9]),
-            y_position: partial_vec_to_u8_with_reverse(&raw_mole_details[10..14]),
+            scale: partial_u8_bits_to_u8(&raw_mole_details[1..4]),
+            x_position: partial_u8_bits_to_u8(&raw_mole_details[5..9]),
+            y_position: partial_u8_bits_to_u8(&raw_mole_details[10..14]),
         };
 
         MiiData {
@@ -411,12 +411,10 @@ fn vec_bit_to_u8(data: [bool; 8]) -> u8 {
         .fold(0, |result, bit| (result << 1) ^ u8::from(bit))
 }
 
-/// The reverse allows to write things on a more _humane_ way, but return a LE u8
-fn partial_vec_to_u8_with_reverse(data: &[bool]) -> u8 {
+fn partial_u8_bits_to_u8(data: &[bool]) -> u8 {
     let leading_zeroes_to_add = 8 - data.len();
     let leading_zeroes = vec![false; leading_zeroes_to_add];
     let mut val = [data, leading_zeroes.as_slice()].concat();
-    val.reverse();
     vec_bit_to_u8(val.try_into().unwrap())
 }
 
