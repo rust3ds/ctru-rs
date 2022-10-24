@@ -1,13 +1,20 @@
+//! Mii Selector applet
+//!
+//! This module contains the methods to launch the Mii Selector.
+
 use crate::mii::MiiData;
 use bitflags::bitflags;
 use std::ffi::CString;
 
+/// Index of a Mii used to configure some parameters of the Mii Selector
+/// Can be either a single index, or _all_ Miis
 #[derive(Debug, Clone)]
 pub enum MiiConfigIndex {
     Index(u32),
     All,
 }
 
+/// The type of a Mii with their respective data
 #[derive(Debug, Clone)]
 pub enum MiiType {
     Guest { index: u32, name: String },
@@ -15,19 +22,36 @@ pub enum MiiType {
 }
 
 bitflags! {
+    /// Options for the Mii Selector
     pub struct Options: u32 {
+        /// Show the cancel button
         const MII_SELECTOR_CANCEL = ctru_sys::MIISELECTOR_CANCEL;
+        /// Make guest Miis selectable
         const MII_SELECTOR_GUESTS = ctru_sys::MIISELECTOR_GUESTS;
+        /// Show on the top screen
         const MII_SELECTOR_TOP = ctru_sys::MIISELECTOR_TOP;
+        /// Start on the guest's page
         const MII_SELECTOR_GUEST_START = ctru_sys::MIISELECTOR_GUESTSTART;
     }
 }
 
+/// An instance of the Mii Selector
+///
+/// # Example
+/// ```
+/// use ctru::applets::mii_selector::MiiSelector;
+///
+/// let mut mii_selector = MiiSelector::init();
+/// mii_selector.set_title("Example Mii selector");
+///
+/// let result = mii_selector.launch().unwrap();
+/// ```
 #[derive(Clone, Debug)]
 pub struct MiiSelector {
     config: Box<ctru_sys::MiiSelectorConf>,
 }
 
+/// Return value from a MiiSelector's launch
 #[derive(Clone, Debug)]
 pub struct MiiSelectorReturn {
     pub mii_data: MiiData,
@@ -36,12 +60,14 @@ pub struct MiiSelectorReturn {
     pub checksum: u16,
 }
 
+/// Error type for the Mii selector
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum MiiLaunchError {
     InvalidChecksum,
 }
 
 impl MiiSelector {
+    /// Initializes a Mii Selector
     pub fn init() -> Self {
         let mut config = Box::<ctru_sys::MiiSelectorConf>::default();
         unsafe {
@@ -50,6 +76,7 @@ impl MiiSelector {
         Self { config }
     }
 
+    /// Set the title of the Mii Selector
     pub fn set_title(&mut self, text: &str) {
         // This can only fail if the text contains NUL bytes in the string... which seems
         // unlikely and is documented
@@ -59,10 +86,12 @@ impl MiiSelector {
         }
     }
 
+    /// Set the options of the Mii Selector
     pub fn set_options(&mut self, options: Options) {
         unsafe { ctru_sys::miiSelectorSetOptions(self.config.as_mut(), options.bits) }
     }
 
+    /// Whitelist a guest Mii
     pub fn whitelist_guest_mii(&mut self, mii_index: MiiConfigIndex) {
         let index = match mii_index {
             MiiConfigIndex::Index(i) => i,
@@ -72,6 +101,7 @@ impl MiiSelector {
         unsafe { ctru_sys::miiSelectorWhitelistGuestMii(self.config.as_mut(), index) }
     }
 
+    /// Blacklist a guest Mii
     pub fn blacklist_guest_mii(&mut self, mii_index: MiiConfigIndex) {
         let index = match mii_index {
             MiiConfigIndex::Index(i) => i,
@@ -81,6 +111,7 @@ impl MiiSelector {
         unsafe { ctru_sys::miiSelectorBlacklistGuestMii(self.config.as_mut(), index) }
     }
 
+    /// Whitelist a user Mii
     pub fn whitelist_user_mii(&mut self, mii_index: MiiConfigIndex) {
         let index = match mii_index {
             MiiConfigIndex::Index(i) => i,
@@ -90,6 +121,7 @@ impl MiiSelector {
         unsafe { ctru_sys::miiSelectorWhitelistUserMii(self.config.as_mut(), index) }
     }
 
+    /// Blacklist a user Mii
     pub fn blacklist_user_mii(&mut self, mii_index: MiiConfigIndex) {
         let index = match mii_index {
             MiiConfigIndex::Index(i) => i,
@@ -99,12 +131,17 @@ impl MiiSelector {
         unsafe { ctru_sys::miiSelectorBlacklistUserMii(self.config.as_mut(), index) }
     }
 
-    // This function is static inline in libctru
-    // https://github.com/devkitPro/libctru/blob/af5321c78ee5c72a55b526fd2ed0d95ca1c05af9/libctru/include/3ds/applets/miiselector.h#L155
+
+    /// Set where the cursor will be.
+    /// If there's no Mii at that index, the cursor will start at the Mii with the index 0
     pub fn set_initial_index(&mut self, index: u32) {
+        // This function is static inline in libctru
+        // https://github.com/devkitPro/libctru/blob/af5321c78ee5c72a55b526fd2ed0d95ca1c05af9/libctru/include/3ds/applets/miiselector.h#L155
         self.config.initial_index = index
     }
 
+    /// Launch the Mii Selector.
+    /// Returns an error when the checksum of the Mii is invalid.
     pub fn launch(&mut self) -> Result<MiiSelectorReturn, MiiLaunchError> {
         let mut return_val = Box::<ctru_sys::MiiSelectorReturn>::default();
         unsafe { ctru_sys::miiSelectorLaunch(self.config.as_mut(), return_val.as_mut()) }

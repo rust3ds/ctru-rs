@@ -1,3 +1,9 @@
+//! Mii Data
+//!
+//! This module contains the structs that represent all the data of a Mii.
+//! This data is given by the [``MiiSelector``]
+
+/// Represents the region lock of the console
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum RegionLock {
     None,
@@ -6,6 +12,7 @@ pub enum RegionLock {
     Europe,
 }
 
+/// Represent the charset of the console
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum Charset {
     JapanUSAEurope,
@@ -14,6 +21,7 @@ pub enum Charset {
     Taiwan,
 }
 
+/// Represents the options of the Mii
 #[derive(Copy, Clone, Debug)]
 pub struct MiiDataOptions {
     pub is_copying_allowed: bool,
@@ -22,12 +30,14 @@ pub struct MiiDataOptions {
     pub charset: Charset,
 }
 
+/// Represents the position that the Mii has on the selector
 #[derive(Copy, Clone, Debug)]
 pub struct SelectorPosition {
     pub page_index: u8,
     pub slot_index: u8,
 }
 
+/// Represents the kind of origin console
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum OriginConsole {
     ConsoleWii,
@@ -36,17 +46,20 @@ pub enum OriginConsole {
     ConsoleWiiUSwitch,
 }
 
+/// Represents the identity of the origin console
 #[derive(Copy, Clone, Debug)]
 pub struct ConsoleIdentity {
     pub origin_console: OriginConsole,
 }
 
+/// Represents the sex of the Mii
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum MiiSex {
     Male,
     Female,
 }
 
+/// Represents the details of the Mii
 #[derive(Copy, Clone, Debug)]
 pub struct Details {
     pub sex: MiiSex,
@@ -56,6 +69,7 @@ pub struct Details {
     pub is_favorite: bool,
 }
 
+/// Represents the face style of the Mii
 #[derive(Copy, Clone, Debug)]
 pub struct FaceStyle {
     pub is_sharing_enabled: bool,
@@ -63,18 +77,21 @@ pub struct FaceStyle {
     pub skin_color: u8,
 }
 
+/// Represents the face details of the Mii
 #[derive(Copy, Clone, Debug)]
 pub struct FaceDetails {
     pub wrinkles: u8,
     pub makeup: u8,
 }
 
+/// Represents the hair details of the Mii
 #[derive(Copy, Clone, Debug)]
 pub struct HairDetails {
     pub color: u8,
     pub is_flipped: bool,
 }
 
+/// Represents the eye details of the Mii
 #[derive(Copy, Clone, Debug)]
 pub struct EyeDetails {
     pub style: u8,
@@ -82,10 +99,12 @@ pub struct EyeDetails {
     pub scale: u8,
     pub y_scale: u8,
     pub rotation: u8,
+    /// Spacing between the eyes
     pub x_spacing: u8,
     pub y_position: u8,
 }
 
+/// Represents the eyebrow details of the Mii
 #[derive(Copy, Clone, Debug)]
 pub struct EyebrowDetails {
     pub style: u8,
@@ -93,10 +112,12 @@ pub struct EyebrowDetails {
     pub scale: u8,
     pub y_scale: u8,
     pub rotation: u8,
+    /// Spacing between the eyebrows
     pub x_spacing: u8,
     pub y_position: u8,
 }
 
+/// Represents the details of the nose
 #[derive(Copy, Clone, Debug)]
 pub struct NoseDetails {
     pub style: u8,
@@ -104,6 +125,7 @@ pub struct NoseDetails {
     pub y_position: u8,
 }
 
+/// Represents the details of the mouth
 #[derive(Copy, Clone, Debug)]
 pub struct MouthDetails {
     pub style: u8,
@@ -112,12 +134,14 @@ pub struct MouthDetails {
     pub y_scale: u8,
 }
 
+/// Represents the details of the mustache
 #[derive(Copy, Clone, Debug)]
 pub struct MustacheDetails {
     pub mouth_y_position: u8,
     pub mustache_style: u8,
 }
 
+/// Represents the details of the beard
 #[derive(Copy, Clone, Debug)]
 pub struct BeardDetails {
     pub style: u8,
@@ -126,6 +150,7 @@ pub struct BeardDetails {
     pub y_position: u8,
 }
 
+/// Represents the details of the glass
 #[derive(Copy, Clone, Debug)]
 pub struct GlassDetails {
     pub style: u8,
@@ -134,6 +159,7 @@ pub struct GlassDetails {
     pub y_position: u8,
 }
 
+/// Represents the details of the mole
 #[derive(Copy, Clone, Debug)]
 pub struct MoleDetails {
     pub is_enabled: bool,
@@ -142,12 +168,14 @@ pub struct MoleDetails {
     pub y_position: u8,
 }
 
+/// Represents all the data of a Mii
 #[derive(Clone, Debug)]
 pub struct MiiData {
     pub options: MiiDataOptions,
     pub selector_position: SelectorPosition,
     pub console_identity: ConsoleIdentity,
 
+    /// Unique system ID, not dependant on the MAC address
     pub system_id: [u8; 8],
     pub mac_address: [u8; 6],
 
@@ -411,11 +439,12 @@ fn vec_bit_to_u8(data: [bool; 8]) -> u8 {
         .fold(0, |result, bit| (result << 1) ^ u8::from(bit))
 }
 
+/// Given a series of LE bits, they are filled until a full LE u8 is reached
 fn partial_u8_bits_to_u8(data: &[bool]) -> u8 {
     let leading_zeroes_to_add = 8 - data.len();
     let leading_zeroes = vec![false; leading_zeroes_to_add];
-    let mut val = [data, leading_zeroes.as_slice()].concat();
-    vec_bit_to_u8(val.try_into().unwrap())
+
+    vec_bit_to_u8([data, &leading_zeroes].concat().try_into().unwrap())
 }
 
 /// UTF-16 Strings are give in pairs of bytes (u8), this converts them into an _actual_ string
