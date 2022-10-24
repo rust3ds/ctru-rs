@@ -76,7 +76,9 @@ impl MiiSelector {
         Self { config }
     }
 
-    /// Set the title of the Mii Selector
+    /// Set the title of the Mii Selector.
+    ///
+    /// This function would panic if the given ``&str`` contains NUL bytes.
     pub fn set_title(&mut self, text: &str) {
         // This can only fail if the text contains NUL bytes in the string... which seems
         // unlikely and is documented
