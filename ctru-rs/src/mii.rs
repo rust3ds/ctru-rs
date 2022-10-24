@@ -1,7 +1,7 @@
 //! Mii Data
 //!
 //! This module contains the structs that represent all the data of a Mii.
-//! This data is given by the [``MiiSelector``]
+//! This data is given by the [``MiiSelector``](crate::applets::mii_selector::MiiSelector)
 
 /// Represents the region lock of the console
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
