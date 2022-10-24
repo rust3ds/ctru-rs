@@ -80,6 +80,7 @@ pub struct FaceStyle {
 /// Represents the face details of the Mii
 #[derive(Copy, Clone, Debug)]
 pub struct FaceDetails {
+    pub style: FaceStyle,
     pub wrinkles: u8,
     pub makeup: u8,
 }
@@ -87,6 +88,7 @@ pub struct FaceDetails {
 /// Represents the hair details of the Mii
 #[derive(Copy, Clone, Debug)]
 pub struct HairDetails {
+    pub style: u8,
     pub color: u8,
     pub is_flipped: bool,
 }
@@ -188,11 +190,7 @@ pub struct MiiData {
     pub height: u8,
     pub width: u8,
 
-    pub face_style: FaceStyle,
     pub face_details: FaceDetails,
-
-    pub hair_style: u8,
-
     pub hair_details: HairDetails,
     pub eye_details: EyeDetails,
     pub eyebrow_details: EyebrowDetails,
@@ -239,7 +237,6 @@ impl From<ctru_sys::MiiData> for MiiData {
         let width = raw_mii_data[0x2F];
         let raw_face_style = vec_bit(raw_mii_data[0x30]);
         let raw_face_details = vec_bit(raw_mii_data[0x31]);
-        let hair_style = raw_mii_data[0x32];
         let raw_hair_details = vec_bit(raw_mii_data[0x33]);
         let raw_eye_details: [bool; 32] =
             get_and_concat_vec_bit(&raw_mii_data, &[0x34, 0x35, 0x36, 0x37])
@@ -322,18 +319,18 @@ impl From<ctru_sys::MiiData> for MiiData {
             is_favorite: raw_details[14],
         };
 
-        let face_style = FaceStyle {
-            is_sharing_enabled: !raw_face_style[1],
-            shape: partial_u8_bits_to_u8(&raw_face_style[1..4]),
-            skin_color: partial_u8_bits_to_u8(&raw_face_style[5..7]),
-        };
-
         let face_details = FaceDetails {
+            style: FaceStyle {
+                is_sharing_enabled: !raw_face_style[1],
+                shape: partial_u8_bits_to_u8(&raw_face_style[1..4]),
+                skin_color: partial_u8_bits_to_u8(&raw_face_style[5..7]),
+            },
             wrinkles: partial_u8_bits_to_u8(&raw_face_details[0..3]),
             makeup: partial_u8_bits_to_u8(&raw_face_details[4..7]),
         };
 
         let hair_details = HairDetails {
+            style: raw_mii_data[0x32],
             color: partial_u8_bits_to_u8(&raw_hair_details[0..2]),
             is_flipped: raw_hair_details[3],
         };
@@ -407,9 +404,7 @@ impl From<ctru_sys::MiiData> for MiiData {
             name: mii_name,
             height,
             width,
-            face_style,
             face_details,
-            hair_style,
             hair_details,
             eye_details,
             eyebrow_details,
