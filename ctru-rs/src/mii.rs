@@ -1,4 +1,4 @@
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum RegionLock {
     None,
     Japan,
@@ -6,7 +6,7 @@ pub enum RegionLock {
     Europe,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum Charset {
     JapanUSAEurope,
     China,
@@ -14,7 +14,7 @@ pub enum Charset {
     Taiwan,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct MiiDataOptions {
     pub is_copying_allowed: bool,
     pub is_profanity_flag_enabled: bool,
@@ -22,13 +22,13 @@ pub struct MiiDataOptions {
     pub charset: Charset,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct SelectorPosition {
     pub page_index: u8,
     pub slot_index: u8,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum OriginConsole {
     ConsoleWii,
     ConsoleDSi,
@@ -36,18 +36,18 @@ pub enum OriginConsole {
     ConsoleWiiUSwitch,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct ConsoleIdentity {
     pub origin_console: OriginConsole,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum MiiSex {
     Male,
     Female,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct Details {
     pub sex: MiiSex,
     pub birthday_month: u8,
@@ -56,26 +56,26 @@ pub struct Details {
     pub is_favorite: bool,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct FaceStyle {
     pub is_sharing_enabled: bool,
     pub shape: u8,
     pub skin_color: u8,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct FaceDetails {
     pub wrinkles: u8,
     pub makeup: u8,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct HairDetails {
     pub color: u8,
     pub is_flipped: bool,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct EyeDetails {
     pub style: u8,
     pub color: u8,
@@ -86,7 +86,7 @@ pub struct EyeDetails {
     pub y_position: u8,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct EyebrowDetails {
     pub style: u8,
     pub color: u8,
@@ -97,14 +97,14 @@ pub struct EyebrowDetails {
     pub y_position: u8,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct NoseDetails {
     pub style: u8,
     pub scale: u8,
     pub y_position: u8,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct MouthDetails {
     pub style: u8,
     pub color: u8,
@@ -112,13 +112,13 @@ pub struct MouthDetails {
     pub y_scale: u8,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct MustacheDetails {
     pub mouth_y_position: u8,
     pub mustache_style: u8,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct BeardDetails {
     pub style: u8,
     pub color: u8,
@@ -126,7 +126,7 @@ pub struct BeardDetails {
     pub y_position: u8,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct GlassDetails {
     pub style: u8,
     pub color: u8,
@@ -134,7 +134,7 @@ pub struct GlassDetails {
     pub y_position: u8,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct MoleDetails {
     pub is_enabled: bool,
     pub scale: u8,
@@ -144,15 +144,15 @@ pub struct MoleDetails {
 
 #[derive(Clone, Debug)]
 pub struct MiiData {
-    pub mii_options: MiiDataOptions,
-    pub mii_selector_position: SelectorPosition,
-    pub mii_console_identity: ConsoleIdentity,
+    pub options: MiiDataOptions,
+    pub selector_position: SelectorPosition,
+    pub console_identity: ConsoleIdentity,
 
     pub system_id: [u8; 8],
     pub mac_address: [u8; 6],
 
-    pub mii_details: Details,
-    pub mii_name: String,
+    pub details: Details,
+    pub name: String,
 
     pub height: u8,
     pub width: u8,
@@ -175,8 +175,9 @@ pub struct MiiData {
     pub author_name: String,
 }
 
-impl From<[u8; 92]> for MiiData {
-    fn from(raw_mii_data: [u8; 92]) -> Self {
+impl From<ctru_sys::MiiData> for MiiData {
+    fn from(mii_data: ctru_sys::MiiData) -> Self {
+        let raw_mii_data = mii_data._bindgen_opaque_blob;
         // Source for the representation and what each thing means: https://www.3dbrew.org/wiki/Mii
         let raw_options = vec_bit(raw_mii_data[0x1]);
         let raw_position = vec_bit(raw_mii_data[0x2]);
@@ -200,10 +201,10 @@ impl From<[u8; 92]> for MiiData {
             raw_mii_data[0x15],
         ];
         let raw_details: [bool; 16] =
-            get_and_concat_vec_bit(raw_mii_data.as_slice(), &[0x18, 0x19])
+            get_and_concat_vec_bit(&raw_mii_data, &[0x18, 0x19])
                 .try_into()
                 .unwrap();
-        let raw_utf16_name = &raw_mii_data.as_slice()[0x1A..0x2D];
+        let raw_utf16_name = &raw_mii_data[0x1A..0x2D];
         let height = raw_mii_data[0x2E];
         let width = raw_mii_data[0x2F];
         let raw_face_style = vec_bit(raw_mii_data[0x30]);
@@ -211,75 +212,59 @@ impl From<[u8; 92]> for MiiData {
         let hair_style = raw_mii_data[0x32];
         let raw_hair_details = vec_bit(raw_mii_data[0x33]);
         let raw_eye_details: [bool; 32] =
-            get_and_concat_vec_bit(raw_mii_data.as_slice(), &[0x34, 0x35, 0x36, 0x37])
+            get_and_concat_vec_bit(&raw_mii_data, &[0x34, 0x35, 0x36, 0x37])
                 .try_into()
                 .unwrap();
         let raw_eyebrow_details: [bool; 32] =
-            get_and_concat_vec_bit(raw_mii_data.as_slice(), &[0x38, 0x39, 0x3A, 0x3B])
+            get_and_concat_vec_bit(&raw_mii_data, &[0x38, 0x39, 0x3A, 0x3B])
                 .try_into()
                 .unwrap();
         let raw_nose_details: [bool; 16] =
-            get_and_concat_vec_bit(raw_mii_data.as_slice(), &[0x3C, 0x3D])
+            get_and_concat_vec_bit(&raw_mii_data, &[0x3C, 0x3D])
                 .try_into()
                 .unwrap();
         let raw_mouth_details: [bool; 16] =
-            get_and_concat_vec_bit(raw_mii_data.as_slice(), &[0x3E, 0x3F])
+            get_and_concat_vec_bit(&raw_mii_data, &[0x3E, 0x3F])
                 .try_into()
                 .unwrap();
         let raw_mustache_details: [bool; 16] =
-            get_and_concat_vec_bit(raw_mii_data.as_slice(), &[0x40, 0x41])
+            get_and_concat_vec_bit(&raw_mii_data, &[0x40, 0x41])
                 .try_into()
                 .unwrap();
         let raw_beard_details: [bool; 16] =
-            get_and_concat_vec_bit(raw_mii_data.as_slice(), &[0x42, 0x42])
+            get_and_concat_vec_bit(&raw_mii_data, &[0x42, 0x42])
                 .try_into()
                 .unwrap();
         let raw_glass_details: [bool; 16] =
-            get_and_concat_vec_bit(raw_mii_data.as_slice(), &[0x44, 0x45])
+            get_and_concat_vec_bit(&raw_mii_data, &[0x44, 0x45])
                 .try_into()
                 .unwrap();
         let raw_mole_details: [bool; 16] =
-            get_and_concat_vec_bit(raw_mii_data.as_slice(), &[0x46, 0x47])
+            get_and_concat_vec_bit(&raw_mii_data, &[0x46, 0x47])
                 .try_into()
                 .unwrap();
-        let raw_utf16_author = &raw_mii_data.as_slice()[0x48..0x5C];
+        let raw_utf16_author = &raw_mii_data[0x48..0x5C];
 
         let mii_name = utf16_byte_pairs_to_string(raw_utf16_name);
         let author_name = utf16_byte_pairs_to_string(raw_utf16_author);
 
         let options = MiiDataOptions {
-            is_copying_allowed: *raw_options.first().unwrap(),
-            is_profanity_flag_enabled: *raw_options.get(1).unwrap(),
+            is_copying_allowed: raw_options[0],
+            is_profanity_flag_enabled: raw_options[1],
             region_lock: {
-                let first_bit = raw_options[3];
-                let second_bit = raw_options[2];
-                if !first_bit && !second_bit {
-                    // 0b00
-                    RegionLock::None
-                } else if !first_bit && second_bit {
-                    // 0b01
-                    RegionLock::Japan
-                } else if first_bit && !second_bit {
-                    // 0b10
-                    RegionLock::USA
-                } else {
-                    RegionLock::Europe
+                match (raw_options[3], raw_options[2]) {
+                    (false, false) => RegionLock::None,
+                    (false, true) => RegionLock::Japan,
+                    (true, false) => RegionLock::USA,
+                    (true, true) => RegionLock::Europe,
                 }
             },
             charset: {
-                let first_bit = raw_options[5];
-                let second_bit = raw_options[4];
-                if !first_bit && !second_bit {
-                    // 0b00
-                    Charset::JapanUSAEurope
-                } else if !first_bit && second_bit {
-                    // 0b01
-                    Charset::China
-                } else if first_bit && !second_bit {
-                    // 0b10
-                    Charset::Korea
-                } else {
-                    Charset::Taiwan
+                match (raw_options[5], raw_options[4]) {
+                    (false, false) => Charset::JapanUSAEurope,
+                    (false, true) => Charset::China,
+                    (true, false) => Charset::Korea,
+                    (true, true) => Charset::Taiwan,
                 }
             },
         };
@@ -291,29 +276,20 @@ impl From<[u8; 92]> for MiiData {
 
         let device = ConsoleIdentity {
             origin_console: {
-                let first_bit = raw_device[6];
-                let second_bit = raw_device[5];
-                let third_bit = raw_device[4];
-
-                if !first_bit && !second_bit && third_bit {
-                    OriginConsole::ConsoleWii
-                } else if !first_bit && second_bit && !third_bit {
-                    OriginConsole::ConsoleDSi
-                } else if !first_bit && second_bit && third_bit {
-                    OriginConsole::Console3DS
-                } else {
-                    OriginConsole::ConsoleWiiUSwitch
+                match (raw_device[6], raw_device[5], raw_device[4]) {
+                    (false, false, true) => OriginConsole::ConsoleWii,
+                    (false, true, false) => OriginConsole::ConsoleDSi,
+                    (false, true, true) => OriginConsole::Console3DS,
+                    _ => OriginConsole::ConsoleWiiUSwitch,
                 }
             },
         };
 
         let details = Details {
             sex: {
-                let first_bit = raw_details[0];
-                if first_bit {
-                    MiiSex::Female
-                } else {
-                    MiiSex::Male
+                match raw_details[0] {
+                    true => MiiSex::Female,
+                    false => MiiSex::Male,
                 }
             },
             birthday_month: partial_vec_to_u8_with_reverse(&raw_details[1..4]),
@@ -398,13 +374,13 @@ impl From<[u8; 92]> for MiiData {
         };
 
         MiiData {
-            mii_options: options,
-            mii_selector_position: position,
-            mii_console_identity: device,
+            options: options,
+            selector_position: position,
+            console_identity: device,
             system_id,
             mac_address: creator_mac,
-            mii_details: details,
-            mii_name,
+            details: details,
+            name: mii_name,
             height,
             width,
             face_style,
@@ -438,12 +414,9 @@ fn vec_bit(data: u8) -> [bool; 8] {
 
 /// Transforms a [bool; 8] into an u8
 fn vec_bit_to_u8(data: [bool; 8]) -> u8 {
-    let mut result: u8 = 0;
-    data.map(u8::from).iter().for_each(|&bit| {
-        result <<= 1;
-        result ^= bit;
-    });
-    result
+    data.into_iter().fold(0, |result, bit| {
+        (result << 1) ^ u8::from(bit)
+    })
 }
 
 /// The reverse allows to write things on a more _humane_ way, but return a LE u8
@@ -458,22 +431,17 @@ fn partial_vec_to_u8_with_reverse(data: &[bool]) -> u8 {
 /// UTF-16 Strings are give in pairs of bytes (u8), this converts them into an _actual_ string
 fn utf16_byte_pairs_to_string(data: &[u8]) -> String {
     let raw_utf16_composed = data
-        .chunks(2)
-        .collect::<Vec<&[u8]>>()
-        .iter()
-        .map(|v| u16::from_le_bytes([*v.first().unwrap_or(&0), *v.get(1).unwrap_or(&0)]))
+        .chunks_exact(2)
+        .map(|chunk| u16::from_le_bytes([chunk[0], chunk[1]]))
         .collect::<Vec<u16>>();
 
-    String::from_utf16(raw_utf16_composed.as_slice())
-        .unwrap()
-        .replace('\0', "")
+    String::from_utf16_lossy(raw_utf16_composed.as_slice())
 }
 
 /// Gets the values from the slice and concatenates them
 fn get_and_concat_vec_bit(data: &[u8], get_values: &[usize]) -> Vec<bool> {
     get_values
         .iter()
-        .map(|v| vec_bit(data[*v]))
-        .collect::<Vec<[bool; 8]>>()
-        .concat()
+        .flat_map(|v| vec_bit(data[*v]))
+        .collect()
 }

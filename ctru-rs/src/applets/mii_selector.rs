@@ -28,11 +28,14 @@ pub struct MiiSelector {
 }
 
 pub struct MiiSelectorReturn {
-    raw_return: Box<ctru_sys::MiiSelectorReturn>,
     pub mii_data: MiiData,
     pub is_mii_selected: bool,
     pub mii_type: MiiType,
     pub checksum: u16,
+}
+
+pub enum MiiLaunchError {
+    InvalidChecksum,
 }
 
 impl MiiSelector {
@@ -47,7 +50,7 @@ impl MiiSelector {
     pub fn set_title(&mut self, text: &str) {
         // This can only fail if the text contains NUL bytes in the string... which seems
         // unlikely and is documented
-        let c_text = CString::new(text).expect("Cstring::new failed");
+        let c_text = CString::new(text).expect("Failed to convert the title text into a CString");
         unsafe {
             ctru_sys::miiSelectorSetTitle(self.config.as_mut(), c_text.as_ptr());
         }
@@ -58,59 +61,39 @@ impl MiiSelector {
     }
 
     pub fn whitelist_guest_mii(&mut self, mii_index: MiiConfigIndex) {
-        match mii_index {
-            MiiConfigIndex::Index(i) => unsafe {
-                ctru_sys::miiSelectorWhitelistGuestMii(self.config.as_mut(), i)
-            },
-            MiiConfigIndex::All => unsafe {
-                ctru_sys::miiSelectorWhitelistGuestMii(
-                    self.config.as_mut(),
-                    ctru_sys::MIISELECTOR_GUESTMII_SLOTS,
-                )
-            },
-        }
+        let index = match mii_index {
+            MiiConfigIndex::Index(i) => i,
+            MiiConfigIndex::All => ctru_sys::MIISELECTOR_GUESTMII_SLOTS,
+        };
+
+        unsafe { ctru_sys::miiSelectorWhitelistGuestMii(self.config.as_mut(), index) }
     }
 
     pub fn blacklist_guest_mii(&mut self, mii_index: MiiConfigIndex) {
-        match mii_index {
-            MiiConfigIndex::Index(i) => unsafe {
-                ctru_sys::miiSelectorBlacklistGuestMii(self.config.as_mut(), i)
-            },
-            MiiConfigIndex::All => unsafe {
-                ctru_sys::miiSelectorBlacklistGuestMii(
-                    self.config.as_mut(),
-                    ctru_sys::MIISELECTOR_GUESTMII_SLOTS,
-                )
-            },
-        }
+        let index = match mii_index {
+            MiiConfigIndex::Index(i) => i,
+            MiiConfigIndex::All => ctru_sys::MIISELECTOR_GUESTMII_SLOTS,
+        };
+
+        unsafe { ctru_sys::miiSelectorBlacklistGuestMii(self.config.as_mut(), index) }
     }
 
     pub fn whitelist_user_mii(&mut self, mii_index: MiiConfigIndex) {
-        match mii_index {
-            MiiConfigIndex::Index(i) => unsafe {
-                ctru_sys::miiSelectorWhitelistUserMii(self.config.as_mut(), i)
-            },
-            MiiConfigIndex::All => unsafe {
-                ctru_sys::miiSelectorWhitelistUserMii(
-                    self.config.as_mut(),
-                    ctru_sys::MIISELECTOR_USERMII_SLOTS,
-                )
-            },
-        }
+        let index = match mii_index {
+            MiiConfigIndex::Index(i) => i,
+            MiiConfigIndex::All => ctru_sys::MIISELECTOR_USERMII_SLOTS,
+        };
+
+        unsafe { ctru_sys::miiSelectorWhitelistUserMii(self.config.as_mut(), index) }
     }
 
     pub fn blacklist_user_mii(&mut self, mii_index: MiiConfigIndex) {
-        match mii_index {
-            MiiConfigIndex::Index(i) => unsafe {
-                ctru_sys::miiSelectorBlacklistUserMii(self.config.as_mut(), i)
-            },
-            MiiConfigIndex::All => unsafe {
-                ctru_sys::miiSelectorBlacklistUserMii(
-                    self.config.as_mut(),
-                    ctru_sys::MIISELECTOR_USERMII_SLOTS,
-                )
-            },
-        }
+        let index = match mii_index {
+            MiiConfigIndex::Index(i) => i,
+            MiiConfigIndex::All => ctru_sys::MIISELECTOR_USERMII_SLOTS,
+        };
+
+        unsafe { ctru_sys::miiSelectorBlacklistUserMii(self.config.as_mut(), index) }
     }
 
     // This function is static inline in libctru
@@ -119,54 +102,27 @@ impl MiiSelector {
         self.config.initial_index = index
     }
 
-    pub fn launch(&mut self) -> MiiSelectorReturn {
+    pub fn launch(&mut self) -> Result<MiiSelectorReturn, MiiLaunchError> {
         let mut return_val = Box::<ctru_sys::MiiSelectorReturn>::default();
         unsafe { ctru_sys::miiSelectorLaunch(self.config.as_mut(), return_val.as_mut()) }
 
-        return_val.into()
-    }
-}
-
-impl MiiSelectorReturn {
-    pub fn name(&self) -> String {
-        let mut tmp = [0u8; 36];
-        unsafe {
-            ctru_sys::miiSelectorReturnGetName(self.raw_return.as_ref(), tmp.as_mut_ptr(), 36)
+        if unsafe { ctru_sys::miiSelectorChecksumIsValid(return_val.as_mut()) } {
+            Ok(return_val.into())
+        } else {
+            Err(MiiLaunchError::InvalidChecksum)
         }
-
-        let len = unsafe { libc::strlen(tmp.as_ptr()) };
-        let utf8 = unsafe { std::str::from_utf8_unchecked(&tmp[..len]) };
-
-        utf8.to_owned()
-    }
-
-    pub fn author(&self) -> String {
-        let mut tmp = [0u8; 30];
-        unsafe {
-            ctru_sys::miiSelectorReturnGetAuthor(self.raw_return.as_ref(), tmp.as_mut_ptr(), 30)
-        }
-
-        let len = unsafe { libc::strlen(tmp.as_ptr()) };
-        let utf8 = unsafe { std::str::from_utf8_unchecked(&tmp[..len]) };
-
-        utf8.to_owned()
-    }
-
-    pub fn valid_checksum(&self) -> bool {
-        unsafe { ctru_sys::miiSelectorChecksumIsValid(self.raw_return.as_ref()) }
     }
 }
 
 impl From<Box<ctru_sys::MiiSelectorReturn>> for MiiSelectorReturn {
     fn from(ret: Box<ctru_sys::MiiSelectorReturn>) -> Self {
         let checksum = ret.checksum;
-        let raw_mii_data = ret.mii._bindgen_opaque_blob;
+        let raw_mii_data = ret.mii;
         let no_mii_selected = ret.no_mii_selected;
         let guest_mii_index_clone = ret.guest_mii_index;
         let mut guest_mii_name = ret.guest_mii_name;
 
         MiiSelectorReturn {
-            raw_return: ret,
             mii_data: raw_mii_data.into(),
             is_mii_selected: no_mii_selected == 0,
             mii_type: if guest_mii_index_clone != 0xFFFFFFFF {
