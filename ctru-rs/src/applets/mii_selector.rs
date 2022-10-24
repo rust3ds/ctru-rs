@@ -131,7 +131,6 @@ impl MiiSelector {
         unsafe { ctru_sys::miiSelectorBlacklistUserMii(self.config.as_mut(), index) }
     }
 
-
     /// Set where the cursor will be.
     /// If there's no Mii at that index, the cursor will start at the Mii with the index 0
     pub fn set_initial_index(&mut self, index: u32) {
