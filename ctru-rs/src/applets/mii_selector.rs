@@ -23,10 +23,12 @@ bitflags! {
     }
 }
 
+#[derive(Clone, Debug)]
 pub struct MiiSelector {
     config: Box<ctru_sys::MiiSelectorConf>,
 }
 
+#[derive(Clone, Debug)]
 pub struct MiiSelectorReturn {
     pub mii_data: MiiData,
     pub is_mii_selected: bool,
@@ -34,6 +36,7 @@ pub struct MiiSelectorReturn {
     pub checksum: u16,
 }
 
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum MiiLaunchError {
     InvalidChecksum,
 }

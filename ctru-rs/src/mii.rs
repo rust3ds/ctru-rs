@@ -435,7 +435,7 @@ fn utf16_byte_pairs_to_string(data: &[u8]) -> String {
         .map(|chunk| u16::from_le_bytes([chunk[0], chunk[1]]))
         .collect::<Vec<u16>>();
 
-    String::from_utf16_lossy(raw_utf16_composed.as_slice())
+    String::from_utf16_lossy(raw_utf16_composed.as_slice()).replace("\0", "")
 }
 
 /// Gets the values from the slice and concatenates them
