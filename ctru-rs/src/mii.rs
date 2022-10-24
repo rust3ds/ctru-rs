@@ -200,10 +200,9 @@ impl From<ctru_sys::MiiData> for MiiData {
             raw_mii_data[0x14],
             raw_mii_data[0x15],
         ];
-        let raw_details: [bool; 16] =
-            get_and_concat_vec_bit(&raw_mii_data, &[0x18, 0x19])
-                .try_into()
-                .unwrap();
+        let raw_details: [bool; 16] = get_and_concat_vec_bit(&raw_mii_data, &[0x18, 0x19])
+            .try_into()
+            .unwrap();
         let raw_utf16_name = &raw_mii_data[0x1A..0x2D];
         let height = raw_mii_data[0x2E];
         let width = raw_mii_data[0x2F];
@@ -219,30 +218,24 @@ impl From<ctru_sys::MiiData> for MiiData {
             get_and_concat_vec_bit(&raw_mii_data, &[0x38, 0x39, 0x3A, 0x3B])
                 .try_into()
                 .unwrap();
-        let raw_nose_details: [bool; 16] =
-            get_and_concat_vec_bit(&raw_mii_data, &[0x3C, 0x3D])
-                .try_into()
-                .unwrap();
-        let raw_mouth_details: [bool; 16] =
-            get_and_concat_vec_bit(&raw_mii_data, &[0x3E, 0x3F])
-                .try_into()
-                .unwrap();
-        let raw_mustache_details: [bool; 16] =
-            get_and_concat_vec_bit(&raw_mii_data, &[0x40, 0x41])
-                .try_into()
-                .unwrap();
-        let raw_beard_details: [bool; 16] =
-            get_and_concat_vec_bit(&raw_mii_data, &[0x42, 0x42])
-                .try_into()
-                .unwrap();
-        let raw_glass_details: [bool; 16] =
-            get_and_concat_vec_bit(&raw_mii_data, &[0x44, 0x45])
-                .try_into()
-                .unwrap();
-        let raw_mole_details: [bool; 16] =
-            get_and_concat_vec_bit(&raw_mii_data, &[0x46, 0x47])
-                .try_into()
-                .unwrap();
+        let raw_nose_details: [bool; 16] = get_and_concat_vec_bit(&raw_mii_data, &[0x3C, 0x3D])
+            .try_into()
+            .unwrap();
+        let raw_mouth_details: [bool; 16] = get_and_concat_vec_bit(&raw_mii_data, &[0x3E, 0x3F])
+            .try_into()
+            .unwrap();
+        let raw_mustache_details: [bool; 16] = get_and_concat_vec_bit(&raw_mii_data, &[0x40, 0x41])
+            .try_into()
+            .unwrap();
+        let raw_beard_details: [bool; 16] = get_and_concat_vec_bit(&raw_mii_data, &[0x42, 0x42])
+            .try_into()
+            .unwrap();
+        let raw_glass_details: [bool; 16] = get_and_concat_vec_bit(&raw_mii_data, &[0x44, 0x45])
+            .try_into()
+            .unwrap();
+        let raw_mole_details: [bool; 16] = get_and_concat_vec_bit(&raw_mii_data, &[0x46, 0x47])
+            .try_into()
+            .unwrap();
         let raw_utf16_author = &raw_mii_data[0x48..0x5C];
 
         let mii_name = utf16_byte_pairs_to_string(raw_utf16_name);
@@ -374,12 +367,12 @@ impl From<ctru_sys::MiiData> for MiiData {
         };
 
         MiiData {
-            options: options,
+            options,
             selector_position: position,
             console_identity: device,
             system_id,
             mac_address: creator_mac,
-            details: details,
+            details,
             name: mii_name,
             height,
             width,
@@ -414,9 +407,8 @@ fn vec_bit(data: u8) -> [bool; 8] {
 
 /// Transforms a [bool; 8] into an u8
 fn vec_bit_to_u8(data: [bool; 8]) -> u8 {
-    data.into_iter().fold(0, |result, bit| {
-        (result << 1) ^ u8::from(bit)
-    })
+    data.into_iter()
+        .fold(0, |result, bit| (result << 1) ^ u8::from(bit))
 }
 
 /// The reverse allows to write things on a more _humane_ way, but return a LE u8
@@ -435,13 +427,10 @@ fn utf16_byte_pairs_to_string(data: &[u8]) -> String {
         .map(|chunk| u16::from_le_bytes([chunk[0], chunk[1]]))
         .collect::<Vec<u16>>();
 
-    String::from_utf16_lossy(raw_utf16_composed.as_slice()).replace("\0", "")
+    String::from_utf16_lossy(raw_utf16_composed.as_slice()).replace('\0', "")
 }
 
 /// Gets the values from the slice and concatenates them
 fn get_and_concat_vec_bit(data: &[u8], get_values: &[usize]) -> Vec<bool> {
-    get_values
-        .iter()
-        .flat_map(|v| vec_bit(data[*v]))
-        .collect()
+    get_values.iter().flat_map(|v| vec_bit(data[*v])).collect()
 }
