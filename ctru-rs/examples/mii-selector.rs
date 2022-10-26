@@ -18,7 +18,6 @@ fn main() {
 
     println!("Is Mii selected?: {:?}", result.is_mii_selected);
     println!("Mii type: {:?}", result.mii_type);
-    println!("Mii checksum: {:?}", result.checksum);
     println!("Name: {:?}", result.mii_data.name);
     println!("Author: {:?}", result.mii_data.author_name);
     println!(

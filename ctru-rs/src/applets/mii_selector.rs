@@ -52,12 +52,12 @@ pub struct MiiSelector {
 }
 
 /// Return value from a MiiSelector's launch
+#[non_exhaustive]
 #[derive(Clone, Debug)]
 pub struct MiiSelectorReturn {
     pub mii_data: MiiData,
     pub is_mii_selected: bool,
     pub mii_type: MiiType,
-    pub checksum: u16,
 }
 
 /// Error type for the Mii selector
@@ -148,16 +148,15 @@ impl MiiSelector {
         unsafe { ctru_sys::miiSelectorLaunch(self.config.as_mut(), return_val.as_mut()) }
 
         if unsafe { ctru_sys::miiSelectorChecksumIsValid(return_val.as_mut()) } {
-            Ok(return_val.into())
+            Ok((*return_val).into())
         } else {
             Err(MiiLaunchError::InvalidChecksum)
         }
     }
 }
 
-impl From<Box<ctru_sys::MiiSelectorReturn>> for MiiSelectorReturn {
-    fn from(ret: Box<ctru_sys::MiiSelectorReturn>) -> Self {
-        let checksum = ret.checksum;
+impl From<ctru_sys::MiiSelectorReturn> for MiiSelectorReturn {
+    fn from(ret: ctru_sys::MiiSelectorReturn) -> Self {
         let raw_mii_data = ret.mii;
         let no_mii_selected = ret.no_mii_selected;
         let guest_mii_index_clone = ret.guest_mii_index;
@@ -178,7 +177,6 @@ impl From<Box<ctru_sys::MiiSelectorReturn>> for MiiSelectorReturn {
             } else {
                 MiiType::User
             },
-            checksum,
         }
     }
 }
