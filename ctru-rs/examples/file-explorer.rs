@@ -96,7 +96,7 @@ impl<'a> FileExplorer<'a> {
                 }
             }
             Err(e) => {
-                println!("Failed to read {}: {}", self.path.display(), e)
+                println!("Failed to read {}: {e}", self.path.display())
             }
         };
 
@@ -110,7 +110,7 @@ impl<'a> FileExplorer<'a> {
         for (i, entry) in dir_listing.enumerate() {
             match entry {
                 Ok(entry) => {
-                    println!("{:2} - {}", i, entry.file_name().to_string_lossy());
+                    println!("{i:2} - {}", entry.file_name().to_string_lossy());
                     self.entries.push(entry);
 
                     if (i + 1) % 20 == 0 {
@@ -118,7 +118,7 @@ impl<'a> FileExplorer<'a> {
                     }
                 }
                 Err(e) => {
-                    println!("{} - Error: {}", i, e);
+                    println!("{i} - Error: {e}");
                 }
             }
         }
@@ -132,7 +132,7 @@ impl<'a> FileExplorer<'a> {
                 println!("{0:->80}", "");
             }
             Err(err) => {
-                println!("Error reading file: {}", err);
+                println!("Error reading file: {err}");
             }
         }
     }
@@ -175,7 +175,7 @@ impl<'a> FileExplorer<'a> {
                 unreachable!()
             }
             Err(e) => {
-                panic!("Error: {:?}", e)
+                panic!("Error: {e:?}")
             }
         }
     }
@@ -184,7 +184,7 @@ impl<'a> FileExplorer<'a> {
         let next_path_index: usize = match next_path_index.parse() {
             Ok(index) => index,
             Err(e) => {
-                println!("Number parsing error: {}", e);
+                println!("Number parsing error: {e}");
                 return;
             }
         };
@@ -205,7 +205,7 @@ impl<'a> FileExplorer<'a> {
     fn set_exact_path(&mut self, new_path_str: String) {
         let new_path = Path::new(&new_path_str);
         if !new_path.is_dir() {
-            println!("Not a directory: {}", new_path_str);
+            println!("Not a directory: {new_path_str}");
             return;
         }
 

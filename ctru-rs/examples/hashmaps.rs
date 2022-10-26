@@ -17,7 +17,7 @@ fn main() {
     map.insert("Another key?", 543);
     map.remove("A Key!");
 
-    println!("{:#?}", map);
+    println!("{map:#?}");
 
     while apt.main_loop() {
         gfx.flush_buffers();

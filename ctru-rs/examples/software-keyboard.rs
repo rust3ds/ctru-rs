@@ -29,7 +29,7 @@ fn main() {
             // Raise the software keyboard. You can perform different actions depending on which
             // software button the user pressed
             match keyboard.get_utf8(&mut text) {
-                Ok(Button::Right) => println!("You entered: {}", text),
+                Ok(Button::Right) => println!("You entered: {text}"),
                 Ok(Button::Left) => println!("Cancelled"),
                 Ok(Button::Middle) => println!("How did you even press this?"),
                 Err(_) => println!("Oh noes, an error happened!"),
