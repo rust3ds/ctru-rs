@@ -51,6 +51,7 @@ pub enum Error {
     Libc(String),
     ServiceAlreadyActive,
     OutputAlreadyRedirected,
+    InvalidChannel,
 }
 
 impl Error {
