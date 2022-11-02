@@ -158,16 +158,14 @@ impl MiiSelector {
 impl From<ctru_sys::MiiSelectorReturn> for MiiSelectorReturn {
     fn from(ret: ctru_sys::MiiSelectorReturn) -> Self {
         let raw_mii_data = ret.mii;
-        let no_mii_selected = ret.no_mii_selected;
-        let guest_mii_index_clone = ret.guest_mii_index;
         let mut guest_mii_name = ret.guest_mii_name;
 
         MiiSelectorReturn {
             mii_data: raw_mii_data.into(),
-            is_mii_selected: no_mii_selected == 0,
-            mii_type: if guest_mii_index_clone != 0xFFFFFFFF {
+            is_mii_selected: ret.no_mii_selected == 0,
+            mii_type: if ret.guest_mii_index != 0xFFFFFFFF {
                 MiiType::Guest {
-                    index: guest_mii_index_clone,
+                    index: ret.guest_mii_index,
                     name: {
                         let utf16_be = &mut guest_mii_name;
                         utf16_be.reverse();
