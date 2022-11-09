@@ -87,7 +87,7 @@ impl fmt::Debug for Error {
         match self {
             &Self::Os(err) => f
                 .debug_struct("Error")
-                .field("raw", &format_args!("{:#08X}", err))
+                .field("raw", &format_args!("{err:#08X}"))
                 .field("description", &R_DESCRIPTION(err))
                 .field("module", &R_MODULE(err))
                 .field("summary", &R_SUMMARY(err))
@@ -106,8 +106,8 @@ impl fmt::Debug for Error {
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            &Self::Os(err) => write!(f, "libctru result code: 0x{:08X}", err),
-            Self::Libc(err) => write!(f, "{}", err),
+            &Self::Os(err) => write!(f, "libctru result code: 0x{err:08X}"),
+            Self::Libc(err) => write!(f, "{err}"),
             Self::ServiceAlreadyActive => write!(f, "Service already active"),
             Self::OutputAlreadyRedirected => {
                 write!(f, "output streams are already redirected to 3dslink")

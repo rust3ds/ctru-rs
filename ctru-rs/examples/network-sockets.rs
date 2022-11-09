@@ -25,19 +25,19 @@ fn main() {
 
         match server.accept() {
             Ok((mut stream, socket_addr)) => {
-                println!("Got connection from {}", socket_addr);
+                println!("Got connection from {socket_addr}");
 
                 let mut buf = [0u8; 4096];
                 match stream.read(&mut buf) {
                     Ok(_) => {
                         let req_str = String::from_utf8_lossy(&buf);
-                        println!("{}", req_str);
+                        println!("{req_str}");
                     }
                     Err(e) => {
                         if e.kind() == io::ErrorKind::WouldBlock {
                             println!("Note: Reading the connection returned ErrorKind::WouldBlock.")
                         } else {
-                            println!("Unable to read stream: {}", e)
+                            println!("Unable to read stream: {e}")
                         }
                     }
                 }
@@ -45,7 +45,7 @@ fn main() {
                 let response = b"HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n<html><body>Hello world</body></html>\r\n";
 
                 if let Err(e) = stream.write(response) {
-                    println!("Error writing http response: {}", e);
+                    println!("Error writing http response: {e}");
                 }
 
                 stream.shutdown(Shutdown::Both).unwrap();
@@ -53,7 +53,7 @@ fn main() {
             Err(e) => match e.kind() {
                 std::io::ErrorKind::WouldBlock => {}
                 _ => {
-                    println!("Error accepting connection: {}", e);
+                    println!("Error accepting connection: {e}");
                     std::thread::sleep(Duration::from_secs(2));
                 }
             },
