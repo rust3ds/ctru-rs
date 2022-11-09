@@ -175,6 +175,8 @@ pub struct MoleDetails {
 ///
 /// Some values are not ordered _like_ the Mii Editor UI. The mapped values can be seen here:
 /// <https://www.3dbrew.org/wiki/Mii#Mapped_Editor_.3C-.3E_Hex_values>
+///
+/// This struct is returned by the [``MiiSelector``](crate::applets::mii_selector::MiiSelector)
 #[derive(Clone, Debug)]
 pub struct MiiData {
     pub options: MiiDataOptions,
@@ -222,7 +224,7 @@ impl From<ctru_sys::MiiData> for MiiData {
             raw_mii_data[0xA],
             raw_mii_data[0xB],
         ];
-        let creator_mac = [
+        let mac_address = [
             raw_mii_data[0x10],
             raw_mii_data[0x11],
             raw_mii_data[0x12],
@@ -267,7 +269,7 @@ impl From<ctru_sys::MiiData> for MiiData {
             .unwrap();
         let raw_utf16_author = &raw_mii_data[0x48..0x5C];
 
-        let mii_name = utf16_byte_pairs_to_string(raw_utf16_name);
+        let name = utf16_byte_pairs_to_string(raw_utf16_name);
         let author_name = utf16_byte_pairs_to_string(raw_utf16_author);
 
         let options = MiiDataOptions {
@@ -291,12 +293,12 @@ impl From<ctru_sys::MiiData> for MiiData {
             },
         };
 
-        let position = SelectorPosition {
+        let selector_position = SelectorPosition {
             page_index: partial_u8_bits_to_u8(&raw_position[0..=3]),
             slot_index: partial_u8_bits_to_u8(&raw_position[4..=7]),
         };
 
-        let device = ConsoleIdentity {
+        let console_identity = ConsoleIdentity {
             origin_console: {
                 match (raw_device[6], raw_device[5], raw_device[4]) {
                     (false, false, true) => OriginConsole::Wii,
@@ -350,6 +352,8 @@ impl From<ctru_sys::MiiData> for MiiData {
             style: partial_u8_bits_to_u8(&raw_eyebrow_details[0..=4]),
             color: partial_u8_bits_to_u8(&raw_eyebrow_details[5..=7]),
             scale: partial_u8_bits_to_u8(&raw_eyebrow_details[8..=11]),
+            // Bits are skipped here, following the 3dbrew wiki:
+            // https://www.3dbrew.org/wiki/Mii#Mii_format offset 0x38
             y_scale: partial_u8_bits_to_u8(&raw_eyebrow_details[12..=14]),
             rotation: partial_u8_bits_to_u8(&raw_eyebrow_details[16..=19]),
             x_spacing: partial_u8_bits_to_u8(&raw_eyebrow_details[21..=24]),
@@ -397,12 +401,12 @@ impl From<ctru_sys::MiiData> for MiiData {
 
         MiiData {
             options,
-            selector_position: position,
-            console_identity: device,
+            selector_position,
+            console_identity,
             system_id,
-            mac_address: creator_mac,
+            mac_address,
             details,
-            name: mii_name,
+            name,
             height,
             width,
             face_details,
