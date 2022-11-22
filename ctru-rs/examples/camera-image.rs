@@ -1,9 +1,8 @@
 use ctru::console::Console;
-use ctru::gfx::{Screen, Side};
+use ctru::gfx::{Gfx, Screen};
 use ctru::services::cam::{Cam, CamOutputFormat, CamShutterSoundType, CamSize, Camera};
 use ctru::services::hid::KeyPad;
 use ctru::services::{Apt, Hid};
-use ctru::Gfx;
 use std::time::Duration;
 
 const WIDTH: usize = 400;
@@ -89,7 +88,7 @@ fn main() {
         unsafe {
             gfx.top_screen
                 .borrow_mut()
-                .get_raw_framebuffer(Side::Left)
+                .get_raw_framebuffer()
                 .ptr
                 .copy_from(img.as_ptr(), img.len());
         }
