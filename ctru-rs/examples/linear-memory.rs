@@ -1,7 +1,7 @@
 #![feature(allocator_api)]
 
-use ctru::prelude::*;
 use ctru::linear::LinearAllocator;
+use ctru::prelude::*;
 
 fn main() {
     ctru::init();
@@ -15,13 +15,16 @@ fn main() {
     // Normal `Box` on the heap
     let heap_box = Box::new(1492);
     // `Box` living on the linear memory sector
-    let linear_box: Box::<i32, LinearAllocator> = Box::new_in(2022, LinearAllocator);
+    let linear_box: Box<i32, LinearAllocator> = Box::new_in(2022, LinearAllocator);
 
     println!("This value is from the heap: {heap_box}");
     println!("This value is from the LINEAR memory: {linear_box}");
 
     println!("\nLINEAR space free before allocation: {linear_space_before}");
-    println!("LINEAR space free after allocation: {}", LinearAllocator::free_space());
+    println!(
+        "LINEAR space free after allocation: {}",
+        LinearAllocator::free_space()
+    );
 
     println!("\x1b[29;16HPress Start to exit");
 

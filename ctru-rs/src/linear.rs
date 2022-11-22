@@ -2,7 +2,7 @@
 //!
 //! Linear memory is a sector of the 3DS' RAM that binds virtual addresses exactly to the physical address.
 //! As such, it is used for fast and safe memory sharing between services (and is especially needed for GPU and DSP).
-//! 
+//!
 //! Resources:<br>
 //! <https://github.com/devkitPro/libctru/blob/master/libctru/source/allocator/linear.cpp><br>
 //! <https://www.3dbrew.org/wiki/Memory_layout>
@@ -25,10 +25,14 @@ impl LinearAllocator {
 }
 
 unsafe impl Allocator for LinearAllocator {
-    fn allocate(&self, layout: std::alloc::Layout) -> Result<std::ptr::NonNull<[u8]>, std::alloc::AllocError> {
+    fn allocate(
+        &self,
+        layout: std::alloc::Layout,
+    ) -> Result<std::ptr::NonNull<[u8]>, std::alloc::AllocError> {
         let pointer = unsafe { ctru_sys::linearAlloc(layout.size() as u32) };
-        let slice: &mut [u8] = unsafe { std::slice::from_raw_parts_mut(pointer as *mut u8, layout.size()) };
-        
+        let slice: &mut [u8] =
+            unsafe { std::slice::from_raw_parts_mut(pointer as *mut u8, layout.size()) };
+
         std::ptr::NonNull::new(slice).ok_or(std::alloc::AllocError)
     }
 
