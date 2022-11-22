@@ -37,6 +37,6 @@ unsafe impl Allocator for LinearAllocator {
     }
 
     unsafe fn deallocate(&self, ptr: std::ptr::NonNull<u8>, _layout: std::alloc::Layout) {
-        unsafe { ctru_sys::linearFree(ptr.as_ptr() as *mut _) };
+        ctru_sys::linearFree(ptr.as_ptr() as *mut _);
     }
 }
