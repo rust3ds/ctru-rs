@@ -3,6 +3,7 @@
 #![feature(test)]
 #![feature(custom_test_frameworks)]
 #![feature(try_trait_v2)]
+#![feature(allocator_api)]
 #![test_runner(test_runner::run)]
 
 extern "C" fn services_deinit() {
@@ -76,6 +77,7 @@ pub mod applets;
 pub mod console;
 pub mod error;
 pub mod gfx;
+pub mod linear;
 pub mod prelude;
 pub mod services;
 
