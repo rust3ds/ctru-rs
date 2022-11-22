@@ -28,5 +28,5 @@ fn main() {
         println!("cargo:rustc-cfg=romfs_exists");
     }
 
-    println!("cargo:rerun-if-changed={}", manifest_dir);
+    println!("cargo:rerun-if-changed={manifest_dir}");
 }

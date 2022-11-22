@@ -669,7 +669,7 @@ impl<'a> DirEntry<'a> {
     /// The full path is created by joining the original path to `read_dir`
     /// with the filename of this entry.
     pub fn path(&self) -> PathBuf {
-        self.root.join(&self.file_name())
+        self.root.join(self.file_name())
     }
 
     /// Return the metadata for the file that this entry points at.

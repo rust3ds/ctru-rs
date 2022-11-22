@@ -78,6 +78,7 @@ pub mod console;
 pub mod error;
 pub mod gfx;
 pub mod linear;
+pub mod mii;
 pub mod prelude;
 pub mod services;
 
