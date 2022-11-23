@@ -4,6 +4,7 @@
 #![feature(custom_test_frameworks)]
 #![feature(try_trait_v2)]
 #![feature(allocator_api)]
+#![feature(nonnull_slice_from_raw_parts)]
 #![test_runner(test_runner::run)]
 
 extern "C" fn services_deinit() {

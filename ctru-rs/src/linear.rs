@@ -7,7 +7,8 @@
 //! <https://github.com/devkitPro/libctru/blob/master/libctru/source/allocator/linear.cpp><br>
 //! <https://www.3dbrew.org/wiki/Memory_layout>
 
-use std::alloc::Allocator;
+use std::alloc::{Allocator, AllocError, Layout};
+use std::ptr::NonNull;
 
 // Implementing an `std::alloc::Allocator` type is the best way to handle this case, since it gives
 // us full control over the normal `std` implementations (like `Box`). The only issue is that this is another unstable feature to add.
@@ -15,6 +16,7 @@ use std::alloc::Allocator;
 // but the default fallback of the `std` will take care of that for us.
 
 /// [`std::alloc::Allocator`] struct for LINEAR memory
+/// To use this struct the main crate must activate the `allocator_api` unstable feature.
 pub struct LinearAllocator;
 
 impl LinearAllocator {
@@ -27,16 +29,16 @@ impl LinearAllocator {
 unsafe impl Allocator for LinearAllocator {
     fn allocate(
         &self,
-        layout: std::alloc::Layout,
-    ) -> Result<std::ptr::NonNull<[u8]>, std::alloc::AllocError> {
-        let pointer = unsafe { ctru_sys::linearAlloc(layout.size() as u32) };
-        let slice: &mut [u8] =
-            unsafe { std::slice::from_raw_parts_mut(pointer as *mut u8, layout.size()) };
+        layout: Layout,
+    ) -> Result<NonNull<[u8]>, AllocError> {
+        let pointer = unsafe { ctru_sys::linearMemAlign(layout.size() as u32, layout.align() as u32) };
 
-        std::ptr::NonNull::new(slice).ok_or(std::alloc::AllocError)
+        NonNull::new(pointer.cast())
+            .map(|ptr| NonNull::slice_from_raw_parts(ptr, layout.size()))
+            .ok_or(AllocError)
     }
 
-    unsafe fn deallocate(&self, ptr: std::ptr::NonNull<u8>, _layout: std::alloc::Layout) {
+    unsafe fn deallocate(&self, ptr: NonNull<u8>, _layout: Layout) {
         ctru_sys::linearFree(ptr.as_ptr() as *mut _);
     }
 }
