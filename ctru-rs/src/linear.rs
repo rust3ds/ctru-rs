@@ -7,7 +7,7 @@
 //! <https://github.com/devkitPro/libctru/blob/master/libctru/source/allocator/linear.cpp><br>
 //! <https://www.3dbrew.org/wiki/Memory_layout>
 
-use std::alloc::{Allocator, AllocError, Layout};
+use std::alloc::{AllocError, Allocator, Layout};
 use std::ptr::NonNull;
 
 // Implementing an `std::alloc::Allocator` type is the best way to handle this case, since it gives
@@ -27,11 +27,9 @@ impl LinearAllocator {
 }
 
 unsafe impl Allocator for LinearAllocator {
-    fn allocate(
-        &self,
-        layout: Layout,
-    ) -> Result<NonNull<[u8]>, AllocError> {
-        let pointer = unsafe { ctru_sys::linearMemAlign(layout.size() as u32, layout.align() as u32) };
+    fn allocate(&self, layout: Layout) -> Result<NonNull<[u8]>, AllocError> {
+        let pointer =
+            unsafe { ctru_sys::linearMemAlign(layout.size() as u32, layout.align() as u32) };
 
         NonNull::new(pointer.cast())
             .map(|ptr| NonNull::slice_from_raw_parts(ptr, layout.size()))
