@@ -23,14 +23,20 @@ mod private {
 /// drawing to the screens. Graphics-related code can be made generic over this
 /// trait to work with any of the given screens.
 pub trait Screen: private::Sealed {
-    /// Returns the libctru value for the Screen kind
+    /// Returns the `libctru` value for the Screen kind.
     fn as_raw(&self) -> ctru_sys::gfxScreen_t;
+
+    /// Returns the Screen side (left or right).
+    fn side(&self) -> Side;
 
     /// Returns a [`RawFrameBuffer`] for the screen.
     ///
     /// Note that the pointer of the framebuffer returned by this function can
     /// change after each call to this function if double buffering is enabled.
-    fn get_raw_framebuffer(&mut self) -> RawFrameBuffer;
+    fn get_raw_framebuffer(&mut self) -> RawFrameBuffer {
+        let side = self.side();
+        RawFrameBuffer::for_screen_side(self, side)
+    }
 
     /// Sets whether to use double buffering. Enabled by default.
     ///
@@ -52,16 +58,19 @@ pub trait Screen: private::Sealed {
 }
 
 #[non_exhaustive]
+/// The top screen. Mutable access to this struct is required to write to the top
+/// screen's frame buffer. To enable 3D mode, it can be converted into a [`TopScreen3D`].
 pub struct TopScreen;
 
-/// A helper container for both sides of the top screen.
-pub struct TopScreen3D<'a> {
+/// A helper container for both sides of the top screen. Once the [`TopScreen`] is
+/// converted into this, 3D mode will be enabled until this struct is dropped.
+pub struct TopScreen3D<'top_screen> {
     // morally, this should be &mut or RefMut, but if we do
     // - &mut: it means gfx can no longer be borrowed immutably while this exists
     // - RefMut: we don't have an easy way to obtain Ref<dyn Screen> for the left side.
     //      maybe this one isn't as important since the use case is typically RefMut anyway.
     //      we could just return &dyn Screen instead of Ref<dyn Screen> ?
-    left: &'a RefCell<TopScreen>,
+    left: &'top_screen RefCell<TopScreen>,
     right: RefCell<TopScreenRight>,
 }
 
@@ -70,6 +79,8 @@ pub struct TopScreen3D<'a> {
 struct TopScreenRight;
 
 #[non_exhaustive]
+/// The bottom screen. Mutable access to this struct is required to write to the
+/// bottom screen's frame buffer.
 pub struct BottomScreen;
 
 /// Representation of a framebuffer for one [`Side`] of the top screen, or the
@@ -91,7 +102,7 @@ pub struct RawFrameBuffer<'screen> {
 /// Side of top screen framebuffer
 ///
 /// The top screen of the 3DS can have two separate sets of framebuffers to support its 3D functionality
-enum Side {
+pub enum Side {
     /// The left framebuffer. This framebuffer is also the one used when 3D is disabled
     Left,
     /// The right framebuffer
@@ -174,7 +185,7 @@ impl Gfx {
 }
 
 impl<'screen> RawFrameBuffer<'screen> {
-    fn for_screen_side(screen: &'screen mut dyn Screen, side: Side) -> Self {
+    fn for_screen_side(screen: &'screen mut (impl Screen + ?Sized), side: Side) -> Self {
         let mut width = 0;
         let mut height = 0;
         let ptr = unsafe {
@@ -190,18 +201,22 @@ impl<'screen> RawFrameBuffer<'screen> {
 }
 
 impl TopScreen3D<'_> {
+    /// Immutably borrow the left side of the screen.
     pub fn left(&self) -> Ref<dyn Screen> {
         self.left.borrow()
     }
 
+    /// Mutably borrow the left side of the screen.
     pub fn left_mut(&self) -> RefMut<dyn Screen> {
         self.left.borrow_mut()
     }
 
+    /// Immutably borrow the right side of the screen.
     pub fn right(&self) -> Ref<dyn Screen> {
         self.right.borrow()
     }
 
+    /// Mutably borrow the right side of the screen.
     pub fn right_mut(&self) -> RefMut<dyn Screen> {
         self.right.borrow_mut()
     }
@@ -228,12 +243,14 @@ impl Drop for TopScreen3D<'_> {
 }
 
 impl TopScreen {
+    /// Enable or disable wide mode on the top screen.
     pub fn set_wide_mode(&mut self, enable: bool) {
         unsafe {
             ctru_sys::gfxSetWide(enable);
         }
     }
 
+    /// Returns whether or not wide mode is enabled on the top screen.
     pub fn get_wide_mode(&self) -> bool {
         unsafe { ctru_sys::gfxIsWide() }
     }
@@ -244,8 +261,8 @@ impl Screen for TopScreen {
         ctru_sys::GFX_TOP
     }
 
-    fn get_raw_framebuffer(&mut self) -> RawFrameBuffer {
-        RawFrameBuffer::for_screen_side(self, Side::Left)
+    fn side(&self) -> Side {
+        Side::Left
     }
 }
 
@@ -254,8 +271,8 @@ impl Screen for TopScreenRight {
         ctru_sys::GFX_TOP
     }
 
-    fn get_raw_framebuffer(&mut self) -> RawFrameBuffer {
-        RawFrameBuffer::for_screen_side(self, Side::Right)
+    fn side(&self) -> Side {
+        Side::Right
     }
 }
 
@@ -264,8 +281,8 @@ impl Screen for BottomScreen {
         ctru_sys::GFX_BOTTOM
     }
 
-    fn get_raw_framebuffer(&mut self) -> RawFrameBuffer {
-        RawFrameBuffer::for_screen_side(self, Side::Left)
+    fn side(&self) -> Side {
+        Side::Left
     }
 }
 
