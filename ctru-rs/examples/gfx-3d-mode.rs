@@ -7,7 +7,7 @@ use ctru::prelude::*;
 /// probably not be viewed for too long or at all if you are photosensitive.
 
 const IMAGE: &[u8] = include_bytes!("assets/ferris.rgb");
-const ZERO: &[u8] = &[0; IMAGE.len()];
+static ZERO: &[u8] = &[0; IMAGE.len()];
 
 fn main() {
     ctru::init();

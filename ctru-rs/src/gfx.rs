@@ -10,11 +10,12 @@ use crate::services::gspgpu::{self, FramebufferFormat};
 use crate::services::ServiceReference;
 
 mod private {
-    use super::{BottomScreen, TopScreen, TopScreenRight};
+    use super::{BottomScreen, TopScreen, TopScreenLeft, TopScreenRight};
 
     pub trait Sealed {}
 
     impl Sealed for TopScreen {}
+    impl Sealed for TopScreenLeft {}
     impl Sealed for TopScreenRight {}
     impl Sealed for BottomScreen {}
 }
@@ -60,22 +61,19 @@ pub trait Screen: private::Sealed {
 #[non_exhaustive]
 /// The top screen. Mutable access to this struct is required to write to the top
 /// screen's frame buffer. To enable 3D mode, it can be converted into a [`TopScreen3D`].
-pub struct TopScreen;
+pub struct TopScreen {
+    left: TopScreenLeft,
+    right: TopScreenRight,
+}
 
 /// A helper container for both sides of the top screen. Once the [`TopScreen`] is
 /// converted into this, 3D mode will be enabled until this struct is dropped.
 pub struct TopScreen3D<'top_screen> {
-    // morally, this should be &mut or RefMut, but if we do
-    // - &mut: it means gfx can no longer be borrowed immutably while this exists
-    // - RefMut: we don't have an easy way to obtain Ref<dyn Screen> for the left side.
-    //      maybe this one isn't as important since the use case is typically RefMut anyway.
-    //      we could just return &dyn Screen instead of Ref<dyn Screen> ?
-    left: &'top_screen RefCell<TopScreen>,
-    right: RefCell<TopScreenRight>,
+    screen: &'top_screen RefCell<TopScreen>,
 }
 
-// TODO: it feels a little weird to have an asymmetric separate type like this,
-// but maybe if it's not `pub` it's not as weird...
+struct TopScreenLeft;
+
 struct TopScreenRight;
 
 #[non_exhaustive]
@@ -132,7 +130,7 @@ impl Gfx {
         bottom_fb_fmt: FramebufferFormat,
         use_vram_buffers: bool,
     ) -> Result<Self> {
-        let _service_handler = ServiceReference::new(
+        let handler = ServiceReference::new(
             &GFX_ACTIVE,
             false,
             || unsafe {
@@ -144,9 +142,9 @@ impl Gfx {
         )?;
 
         Ok(Self {
-            top_screen: RefCell::new(TopScreen),
+            top_screen: RefCell::new(TopScreen::new()),
             bottom_screen: RefCell::new(BottomScreen),
-            _service_handler,
+            _service_handler: handler,
         })
     }
 
@@ -203,34 +201,32 @@ impl<'screen> RawFrameBuffer<'screen> {
 impl TopScreen3D<'_> {
     /// Immutably borrow the left side of the screen.
     pub fn left(&self) -> Ref<dyn Screen> {
-        self.left.borrow()
+        Ref::map(self.screen.borrow(), |screen| &screen.left)
     }
 
     /// Mutably borrow the left side of the screen.
     pub fn left_mut(&self) -> RefMut<dyn Screen> {
-        self.left.borrow_mut()
+        RefMut::map(self.screen.borrow_mut(), |screen| &mut screen.left)
     }
 
     /// Immutably borrow the right side of the screen.
     pub fn right(&self) -> Ref<dyn Screen> {
-        self.right.borrow()
+        Ref::map(self.screen.borrow(), |screen| &screen.right)
     }
 
     /// Mutably borrow the right side of the screen.
     pub fn right_mut(&self) -> RefMut<dyn Screen> {
-        self.right.borrow_mut()
+        RefMut::map(self.screen.borrow_mut(), |screen| &mut screen.right)
     }
 }
 
-impl<'a> From<&'a RefCell<TopScreen>> for TopScreen3D<'a> {
-    fn from(top_screen: &'a RefCell<TopScreen>) -> Self {
+impl<'top_screen> From<&'top_screen RefCell<TopScreen>> for TopScreen3D<'top_screen> {
+    fn from(top_screen: &'top_screen RefCell<TopScreen>) -> Self {
         unsafe {
             ctru_sys::gfxSet3D(true);
         }
-        TopScreen3D {
-            left: top_screen,
-            right: RefCell::new(TopScreenRight),
-        }
+
+        TopScreen3D { screen: top_screen }
     }
 }
 
@@ -243,6 +239,13 @@ impl Drop for TopScreen3D<'_> {
 }
 
 impl TopScreen {
+    fn new() -> Self {
+        Self {
+            left: TopScreenLeft,
+            right: TopScreenRight,
+        }
+    }
+
     /// Enable or disable wide mode on the top screen.
     pub fn set_wide_mode(&mut self, enable: bool) {
         unsafe {
@@ -257,6 +260,16 @@ impl TopScreen {
 }
 
 impl Screen for TopScreen {
+    fn as_raw(&self) -> ctru_sys::gfxScreen_t {
+        self.left.as_raw()
+    }
+
+    fn side(&self) -> Side {
+        self.left.side()
+    }
+}
+
+impl Screen for TopScreenLeft {
     fn as_raw(&self) -> ctru_sys::gfxScreen_t {
         ctru_sys::GFX_TOP
     }
@@ -288,10 +301,9 @@ impl Screen for BottomScreen {
 
 impl From<Side> for ctru_sys::gfx3dSide_t {
     fn from(s: Side) -> ctru_sys::gfx3dSide_t {
-        use self::Side::*;
         match s {
-            Left => ctru_sys::GFX_LEFT,
-            Right => ctru_sys::GFX_RIGHT,
+            Side::Left => ctru_sys::GFX_LEFT,
+            Side::Right => ctru_sys::GFX_RIGHT,
         }
     }
 }
@@ -304,6 +316,6 @@ mod tests {
     #[test]
     fn gfx_duplicate() {
         // We don't need to build a `Gfx` because the test runner has one already
-        assert!(matches!(Gfx::init(), Err(Error::ServiceAlreadyActive)))
+        assert!(matches!(Gfx::init(), Err(Error::ServiceAlreadyActive)));
     }
 }
