@@ -4,6 +4,8 @@
 //! As such, it is initialized by default in `ctru::init` instead of having a safety handler
 //! See also <https://www.3dbrew.org/wiki/Process_Services>
 
+use crate::error::ResultCode;
+
 #[repr(u32)]
 pub enum AESAlgorithm {
     CbcEnc,
@@ -31,32 +33,22 @@ pub enum AESKeyType {
 pub fn local_friend_code_seed() -> crate::Result<u64> {
     let mut seed: u64 = 0;
 
-    let r = unsafe { ctru_sys::PS_GetLocalFriendCodeSeed(&mut seed) };
-    if r < 0 {
-        Err(r.into())
-    } else {
-        Ok(seed)
-    }
+    ResultCode(unsafe { ctru_sys::PS_GetLocalFriendCodeSeed(&mut seed) })?;
+    Ok(seed)
 }
 
 pub fn device_id() -> crate::Result<u32> {
     let mut id: u32 = 0;
 
-    let r = unsafe { ctru_sys::PS_GetDeviceId(&mut id) };
-    if r < 0 {
-        Err(r.into())
-    } else {
-        Ok(id)
-    }
+    ResultCode(unsafe { ctru_sys::PS_GetDeviceId(&mut id) })?;
+    Ok(id)
 }
 
 pub fn generate_random_bytes(out: &mut [u8]) -> crate::Result<()> {
-    let r = unsafe { ctru_sys::PS_GenerateRandomBytes(out as *mut _ as *mut _, out.len() as u32) };
-    if r < 0 {
-        Err(r.into())
-    } else {
-        Ok(())
-    }
+    ResultCode(unsafe {
+        ctru_sys::PS_GenerateRandomBytes(out as *mut _ as *mut _, out.len() as u32)
+    })?;
+    Ok(())
 }
 
 #[cfg(test)]

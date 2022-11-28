@@ -10,6 +10,7 @@
 //! romfs_dir = "romfs"
 //! ```
 
+use crate::error::ResultCode;
 use once_cell::sync::Lazy;
 use std::ffi::CStr;
 use std::sync::Mutex;
@@ -30,11 +31,7 @@ impl RomFS {
             true,
             || {
                 let mount_name = CStr::from_bytes_with_nul(b"romfs\0").unwrap();
-                let r = unsafe { ctru_sys::romfsMountSelf(mount_name.as_ptr()) };
-                if r < 0 {
-                    return Err(r.into());
-                }
-
+                ResultCode(unsafe { ctru_sys::romfsMountSelf(mount_name.as_ptr()) })?;
                 Ok(())
             },
             || {

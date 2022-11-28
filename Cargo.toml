@@ -1,6 +1,6 @@
 [workspace]
-members = ["ctru-rs", "ctru-sys"]
+members = ["ctru-rs", "ctru-sys", "ctru-sys/docstring-to-rustdoc"]
 
-[patch.'https://github.com/Meziu/ctru-rs']
+[patch.'https://github.com/rust3ds/ctru-rs']
 # Make sure all dependencies use the local ctru-sys package
 ctru-sys = { path = "ctru-sys" }

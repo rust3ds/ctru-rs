@@ -3,6 +3,7 @@ use once_cell::sync::Lazy;
 use std::net::Ipv4Addr;
 use std::sync::Mutex;
 
+use crate::error::ResultCode;
 use crate::services::ServiceReference;
 use crate::Error;
 
@@ -38,10 +39,7 @@ impl Soc {
             false,
             || {
                 let soc_mem = unsafe { memalign(0x1000, num_bytes) } as *mut u32;
-                let r = unsafe { ctru_sys::socInit(soc_mem, num_bytes as u32) };
-                if r < 0 {
-                    return Err(r.into());
-                }
+                ResultCode(unsafe { ctru_sys::socInit(soc_mem, num_bytes as u32) })?;
 
                 Ok(())
             },
