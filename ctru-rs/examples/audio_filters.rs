@@ -1,5 +1,8 @@
+#![feature(allocator_api)]
+
 use ctru::prelude::*;
 use ctru::services::ndsp::{Ndsp, OutputMode, InterpolationType};
+use ctru::linear::LinearAllocator;
 
 const SAMPLERATE: u32 = 22050;
 const SAMPLESPERBUF: u32 = SAMPLERATE / 30; // 735
@@ -33,11 +36,13 @@ fn main() {
 
 	println!("libctru filtered streamed audio\n");
 
-	let audioBuffer = [0u32; (SAMPLESPERBUF * BYTESPERSAMPLE * 2)];
+	let audioBuffer = Box::new_in([0u32; (SAMPLESPERBUF * BYTESPERSAMPLE * 2)], LinearAllocator);
 
 	let fillBlock = false;
 
 	let ndsp = Ndsp::init().expect("Couldn't obtain NDSP controller");
+
+	// This line isn't needed since the default NDSP configuration already sets the output mode to `Stereo`
 	ndsp.set_output_mode(OutputMode::Stereo);
 
 	let channel_zero = ndsp.channel(0);
@@ -48,34 +53,33 @@ fn main() {
 	// Output at 100% on the first pair of left and right channels.
 
 	let mix = [0f32; 12];
-	memset(mix, 0, sizeof(mix));
 	mix[0] = 1.0;
 	mix[1] = 1.0;
-	ndspChnSetMix(0, mix);
+	channel_zero.set_mix(mix);
 
 	// Note Frequencies
 
-	int notefreq[] = {
+	let notefreq = [
 		220,
 		440, 880, 1760, 3520, 7040,
 		14080,
 		7040, 3520, 1760, 880, 440
-	};
+	];
 
-	int note = 4;
+	let note: i32 = 4;
 
 	// Filters
 
-	const char* filter_names[] = {
+	let filter_names = [
 		"None",
 		"Low-Pass",
 		"High-Pass",
 		"Band-Pass",
 		"Notch",
 		"Peaking"
-	};
+	];
 
-	int filter = 0;
+	let filter = 0;
 
 	// We set up two wave buffers and alternate between the two,
 	// effectively streaming an infinitely long sine wave.
@@ -87,14 +91,14 @@ fn main() {
 	waveBuf[1].data_vaddr = &audioBuffer[SAMPLESPERBUF];
 	waveBuf[1].nsamples = SAMPLESPERBUF;
 
-	size_t stream_offset = 0;
+	let stream_offset = 0;
 
 	fill_buffer(audioBuffer,stream_offset, SAMPLESPERBUF * 2, notefreq[note]);
 
 	stream_offset += SAMPLESPERBUF;
 
-	ndspChnWaveBufAdd(0, &waveBuf[0]);
-	ndspChnWaveBufAdd(0, &waveBuf[1]);
+	channel_zero.add_wave_buffer(&waveBuf[0]);
+	channel_zero.add_wave_buffer(&waveBuf[1]);
 
 	println!("Press up/down to change tone frequency\n");
 	println!("Press left/right to change filter\n");
@@ -173,11 +177,4 @@ fn main() {
 			fillBlock = !fillBlock;
 		}
 	}
-
-	ndspExit();
-
-	linearFree(audioBuffer);
-
-	gfxExit();
-	return 0;
 }
