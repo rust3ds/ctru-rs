@@ -4,6 +4,7 @@ pub mod cfgu;
 pub mod fs;
 pub mod gspgpu;
 pub mod hid;
+pub mod ir_user;
 pub mod ps;
 mod reference;
 pub mod soc;
