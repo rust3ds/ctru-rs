@@ -32,17 +32,19 @@ pub enum AudioFormat {
 }
 
 /// Base struct to represent audio wave data. This requires audio format information.
+#[derive(Debug, Clone)]
 pub struct WaveBuffer {
     /// Buffer data. This data must be allocated on the LINEAR memory.
     data: Box<[u8], LinearAllocator>,
     audio_format: AudioFormat,
-    length: usize,
-    // adpcm_data: AdpcmData, TODO: Requires research on how this format is handled.
+    nsamples: usize, // We don't use the slice's length here because depending on the format it may vary
+                     // adpcm_data: AdpcmData, TODO: Requires research on how this format is handled.
 }
 
-pub struct WaveInfo {
+/// Informational struct holding the raw audio data and playaback info. This corresponds to [ctru_sys::ndspWaveBuf]
+pub struct WaveInfo<'b> {
     /// Data block of the audio wave (plus its format information).
-    buffer: WaveBuffer,
+    buffer: &'b mut WaveBuffer,
     // Holding the data with the raw format is necessary since `libctru` will access it.
     raw_data: ctru_sys::ndspWaveBuf,
 }
@@ -178,12 +180,22 @@ impl AudioFormat {
 }
 
 impl WaveBuffer {
-    pub fn new(data: Box<[u8], LinearAllocator>, audio_format: AudioFormat) -> Self {
-        WaveBuffer {
+    pub fn new(data: Box<[u8], LinearAllocator>, audio_format: AudioFormat) -> crate::Result<Self> {
+        let nsamples = data.len() / format.size();
+
+        unsafe {
+            ResultCode(ctru_sys::DSP_FlushDataCache(data.as_ptr(), data.len()))?;
+        }
+
+        Ok(WaveBuffer {
             data,
             audio_format,
-            length: data.len() / format.size(),
-        }
+            nsamples,
+        })
+    }
+
+    pub fn get_mut_data(&mut self) -> &mut Box<[u8], LinearAllocator> {
+        &mut self.data
     }
 
     pub fn format(&self) -> AudioFormat {
@@ -195,8 +207,8 @@ impl WaveBuffer {
     }
 }
 
-impl WaveInfo {
-    pub fn new(buffer: WaveBuffer, looping: bool) -> Self {
+impl<'b> WaveInfo<'b> {
+    pub fn new(buffer: &'b mut WaveBuffer, looping: bool) -> Self {
         let raw_data = ctru_sys::ndspWaveBuf {
             __bindgen_anon_1: buffer.data.as_ptr(), // Buffer data virtual address
             nsamples: buffer.length,
@@ -210,6 +222,10 @@ impl WaveInfo {
         };
 
         Self { buffer, raw_data }
+    }
+
+    pub fn get_mut_wavebuffer(&mut self) -> &'b mut WaveBuffer {
+        &mut self.buffer
     }
 }
 

@@ -1,180 +1,170 @@
 #![feature(allocator_api)]
 
-use ctru::prelude::*;
-use ctru::services::ndsp::{Ndsp, OutputMode, InterpolationType};
 use ctru::linear::LinearAllocator;
+use ctru::prelude::*;
+use ctru::services::ndsp::{
+    AudioFormat, InterpolationType, Ndsp, OutputMode, WaveBuffer, WaveInfo,
+};
 
 const SAMPLERATE: u32 = 22050;
 const SAMPLESPERBUF: u32 = SAMPLERATE / 30; // 735
 const BYTESPERSAMPLE: u32 = 4;
 
 fn array_size(array: &[u8]) -> usize {
-	array.len()
+    array.len()
 } // (sizeof(array)/sizeof(array[0]))
 
 // audioBuffer is stereo PCM16
-void fill_buffer(void* audioBuffer, size_t offset, size_t size, int frequency) {
-	u32* dest = (u32*) audioBuffer;
+fn fill_buffer(audioData: &mut Box<[u8], LinearAlloc>, frequency: i32) {
+    for i in 0..size {
+        // This is a simple sine wave, with a frequency of `frequency` Hz, and an amplitude 30% of maximum.
+        let sample: i16 = 0.3 * 0x7FFF * sin(frequency * (2 * std::f32::PI) * i / SAMPLERATE);
 
-	for (int i = 0; i < size; i++) {
-		// This is a simple sine wave, with a frequency of `frequency` Hz, and an amplitude 30% of maximum.
-		s16 sample = 0.3 * 0x7FFF * sin(frequency * (2 * M_PI) * (offset + i) / SAMPLERATE);
-
-		// Stereo samples are interleaved: left and right channels.
-		dest[i] = (sample << 16) | (sample & 0xffff);
-	}
-
-	DSP_FlushDataCache(audioBuffer, size);
+        // Stereo samples are interleaved: left and right channels.
+        audioData[i] = (sample << 16) | (sample & 0xffff);
+    }
 }
 
 fn main() {
-	ctru::init();
+    ctru::init();
     let gfx = Gfx::init().expect("Couldn't obtain GFX controller");
     let hid = Hid::init().expect("Couldn't obtain HID controller");
     let apt = Apt::init().expect("Couldn't obtain APT controller");
     let _console = Console::init(gfx.top_screen.borrow_mut());
 
-	println!("libctru filtered streamed audio\n");
+    println!("libctru filtered streamed audio\n");
 
-	let audioBuffer = Box::new_in([0u32; (SAMPLESPERBUF * BYTESPERSAMPLE * 2)], LinearAllocator);
+    let audioBuffer = Box::new_in(
+        [0u32; (SAMPLESPERBUF * BYTESPERSAMPLE * 2)],
+        LinearAllocator,
+    );
+    fill_buffer(audioBuffer, notefreq[note]);
 
-	let fillBlock = false;
+    let audioBuffer1 =
+        WaveBuffer::new(audioBuffer, AudioFormat::PCM16Stereo).expect("Couldn't sync DSP cache");
+    let audioBuffer2 = audioBuffer1.clone();
 
-	let ndsp = Ndsp::init().expect("Couldn't obtain NDSP controller");
+    let fillBlock = false;
 
-	// This line isn't needed since the default NDSP configuration already sets the output mode to `Stereo`
-	ndsp.set_output_mode(OutputMode::Stereo);
+    let ndsp = Ndsp::init().expect("Couldn't obtain NDSP controller");
 
-	let channel_zero = ndsp.channel(0);
-	channel_zero.set_interpolation(InterpolationType::Linear);
-	channel_zero.set_sample_rate(SAMPLERATE);
-	channel_zero.set_format(NDSP_FORMAT_STEREO_PCM16);
+    // This line isn't needed since the default NDSP configuration already sets the output mode to `Stereo`
+    ndsp.set_output_mode(OutputMode::Stereo);
 
-	// Output at 100% on the first pair of left and right channels.
+    let channel_zero = ndsp.channel(0);
+    channel_zero.set_interpolation(InterpolationType::Linear);
+    channel_zero.set_sample_rate(SAMPLERATE);
+    channel_zero.set_format(NDSP_FORMAT_STEREO_PCM16);
 
-	let mix = [0f32; 12];
-	mix[0] = 1.0;
-	mix[1] = 1.0;
-	channel_zero.set_mix(mix);
+    // Output at 100% on the first pair of left and right channels.
 
-	// Note Frequencies
+    let mix = [0f32; 12];
+    mix[0] = 1.0;
+    mix[1] = 1.0;
+    channel_zero.set_mix(mix);
 
-	let notefreq = [
-		220,
-		440, 880, 1760, 3520, 7040,
-		14080,
-		7040, 3520, 1760, 880, 440
-	];
+    // Note Frequencies
 
-	let note: i32 = 4;
+    let notefreq = [
+        220, 440, 880, 1760, 3520, 7040, 14080, 7040, 3520, 1760, 880, 440,
+    ];
 
-	// Filters
+    let note: i32 = 4;
 
-	let filter_names = [
-		"None",
-		"Low-Pass",
-		"High-Pass",
-		"Band-Pass",
-		"Notch",
-		"Peaking"
-	];
+    // Filters
 
-	let filter = 0;
+    let filter_names = [
+        "None",
+        "Low-Pass",
+        "High-Pass",
+        "Band-Pass",
+        "Notch",
+        "Peaking",
+    ];
 
-	// We set up two wave buffers and alternate between the two,
-	// effectively streaming an infinitely long sine wave.
+    let filter = 0;
 
-	ndspWaveBuf waveBuf[2];
-	memset(waveBuf,0,sizeof(waveBuf));
-	waveBuf[0].data_vaddr = &audioBuffer[0];
-	waveBuf[0].nsamples = SAMPLESPERBUF;
-	waveBuf[1].data_vaddr = &audioBuffer[SAMPLESPERBUF];
-	waveBuf[1].nsamples = SAMPLESPERBUF;
+    // We set up two wave buffers and alternate between the two,
+    // effectively streaming an infinitely long sine wave.
 
-	let stream_offset = 0;
+    let mut buf1 = WaveInfo::new(&mut audioBuffer1, false);
+    let mut buf2 = WaveInfo::new(&mut audioBuffer2, false);
 
-	fill_buffer(audioBuffer,stream_offset, SAMPLESPERBUF * 2, notefreq[note]);
+    unsafe {
+        channel_zero.add_wave_buffer(buf1);
+        channel_zero.add_wave_buffer(buf2);
+    };
 
-	stream_offset += SAMPLESPERBUF;
+    println!("Press up/down to change tone frequency\n");
+    println!("Press left/right to change filter\n");
+    println!("\x1b[6;1Hnote = {} Hz        ", notefreq[note]);
+    println!("\x1b[7;1Hfilter = {}         ", filter_names[filter]);
 
-	channel_zero.add_wave_buffer(&waveBuf[0]);
-	channel_zero.add_wave_buffer(&waveBuf[1]);
+    while apt.main_loop() {
+        hid.scan_input();
+        let keys_down = hid.keys_down();
 
-	println!("Press up/down to change tone frequency\n");
-	println!("Press left/right to change filter\n");
-	println!("\x1b[6;1Hnote = {} Hz        ", notefreq[note]);
-	println!("\x1b[7;1Hfilter = {}         ", filter_names[filter]);
+        if keys_down.contains(KeyPad::KEY_START) {
+            break;
+        } // break in order to return to hbmenu
 
-	while(aptMainLoop()) {
+        if keys_down.contains(KeyPad::KEY_DOWN) {
+            note -= 1;
+            if (note < 0) {
+                note = notefreq.len() - 1;
+            }
+            println!("\x1b[6;1Hnote = {} Hz        ", notefreq[note]);
+        } else if keys_down.contains(KeyPad::KEY_UP) {
+            note += 1;
+            if (note >= notefreq.len()) {
+                note = 0;
+            }
+            println!("\x1b[6;1Hnote = {} Hz        ", notefreq[note]);
+        }
 
-		gfxSwapBuffers();
-		gfxFlushBuffers();
-		gspWaitForVBlank();
+        let update_params = false;
+        if keys_down.contains(KeyPad::KEY_LEFT) {
+            filter -= 1;
+            if (filter < 0) {
+                filter = filter_names.len() - 1;
+            }
+            update_params = true;
+        } else if keys_down.contains(KeyPad::KEY_LEFT) {
+            filter += 1;
+            if (filter >= filter_names.len()) {
+                filter = 0;
+            }
+            update_params = true;
+        }
 
-		hidScanInput();
-		u32 kDown = hidKeysDown();
+        if update_params {
+            println!("\x1b[7;1Hfilter = {}         ", filter_names[filter]);
+            match filter {
+                1 => ndspChnIirBiquadSetParamsLowPassFilter(0, 1760., 0.707),
+                2 => ndspChnIirBiquadSetParamsHighPassFilter(0, 1760., 0.707),
+                3 => ndspChnIirBiquadSetParamsBandPassFilter(0, 1760., 0.707),
+                4 => ndspChnIirBiquadSetParamsNotchFilter(0, 1760., 0.707),
+                5 => ndspChnIirBiquadSetParamsPeakingEqualizer(0, 1760., 0.707, 3.0),
+                _ => ndspChnIirBiquadSetEnable(0, false),
+            }
+        }
 
-		if (kDown & KEY_START)
-			break; // break in order to return to hbmenu
+        if waveBuf[fillBlock].status == NDSP_WBUF_DONE {
+            if fillBlock {
+                fill_buffer(buf1.data_pcm16, notefreq[note]);
+                channel_zero.add_wave_buffer(buf1);
+            } else {
+                fill_buffer(waveBuf[fillBlock].data_pcm16, notefreq[note]);
+                channel_zero.add_wave_buffer(buf2);
+            }
+            fillBlock = !fillBlock;
+        }
 
-		if (kDown & KEY_DOWN) {
-			note--;
-			if (note < 0) {
-				note = ARRAY_SIZE(notefreq) - 1;
-			}
-			println!("\x1b[6;1Hnote = {} Hz        ", notefreq[note]);
-		} else if (kDown & KEY_UP) {
-			note++;
-			if (note >= ARRAY_SIZE(notefreq)) {
-				note = 0;
-			}
-			println!("\x1b[6;1Hnote = {} Hz        ", notefreq[note]);
-		}
+        // Flush and swap framebuffers
+        gfx.flush_buffers();
+        gfx.swap_buffers();
 
-		bool update_params = false;
-		if (kDown & KEY_LEFT) {
-			filter--;
-			if (filter < 0) {
-				filter = ARRAY_SIZE(filter_names) - 1;
-			}
-			update_params = true;
-		} else if (kDown & KEY_RIGHT) {
-			filter++;
-			if (filter >= ARRAY_SIZE(filter_names)) {
-				filter = 0;
-			}
-			update_params = true;
-		}
-
-		if (update_params) {
-			println!("\x1b[7;1Hfilter = {}         ", filter_names[filter]);
-			switch (filter) {
-			default:
-				ndspChnIirBiquadSetEnable(0, false);
-				break;
-			case 1:
-				ndspChnIirBiquadSetParamsLowPassFilter(0, 1760.f, 0.707f);
-				break;
-			case 2:
-				ndspChnIirBiquadSetParamsHighPassFilter(0, 1760.f, 0.707f);
-				break;
-			case 3:
-				ndspChnIirBiquadSetParamsBandPassFilter(0, 1760.f, 0.707f);
-				break;
-			case 4:
-				ndspChnIirBiquadSetParamsNotchFilter(0, 1760.f, 0.707f);
-				break;
-			case 5:
-				ndspChnIirBiquadSetParamsPeakingEqualizer(0, 1760.f, 0.707f, 3.0f);
-				break;
-			}
-		}
-
-		if (waveBuf[fillBlock].status == NDSP_WBUF_DONE) {
-			fill_buffer(waveBuf[fillBlock].data_pcm16, stream_offset, waveBuf[fillBlock].nsamples, notefreq[note]);
-			ndspChnWaveBufAdd(0, &waveBuf[fillBlock]);
-			stream_offset += waveBuf[fillBlock].nsamples;
-			fillBlock = !fillBlock;
-		}
-	}
+        //Wait for VBlank
+        gfx.wait_for_vblank();
+    }
 }
