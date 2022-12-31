@@ -1,8 +1,6 @@
 use crate::error::ResultCode;
 use crate::linear::LinearAllocator;
 
-use arr_macro::arr;
-
 #[derive(Copy, Clone, Debug)]
 #[repr(u32)]
 pub enum OutputMode {
@@ -49,14 +47,16 @@ pub struct WaveInfo<'b> {
     raw_data: ctru_sys::ndspWaveBuf,
 }
 
+pub struct Channel {
+    id: i32,
+}
+
 #[non_exhaustive]
 pub struct Ndsp(());
 
 impl Ndsp {
     pub fn init() -> crate::Result<Self> {
         ResultCode(unsafe { ctru_sys::ndspInit() })?;
-
-        let mut i = 0;
 
         Ok(Self(()))
     }
@@ -66,12 +66,12 @@ impl Ndsp {
     /// # Errors
     ///
     /// An error will be returned if the channel id is not between 0 and 23.
-    pub fn channel(&self, id: usize) -> crate::Result<Channel> {
+    pub fn channel(&self, id: u8) -> crate::Result<Channel> {
         if id > 23 {
             return Err(crate::Error::InvalidChannel);
         }
-
-        Ok(self.channels[id])
+        
+        Ok(Channel { id: id.into() })
     }
 
     /// Set the audio output mode. Defaults to `OutputMode::Stereo`.
@@ -168,7 +168,11 @@ impl Channel {
 }
 
 impl AudioFormat {
-    pub fn size(self) -> u8 {
+    /// Returns the amount of bytes needed to store one sample
+    /// Eg.
+    /// 8 bit formats return 1 (byte)
+    /// 16 bit formats return 2 (bytes)
+    pub fn bytes_size(self) -> u8 {
         match self {
             AudioFormat::PCM16Mono | AudioFormat::PCM16Stereo => 2,
             AudioFormat::SurroundPreprocessed => {
@@ -181,10 +185,10 @@ impl AudioFormat {
 
 impl WaveBuffer {
     pub fn new(data: Box<[u8], LinearAllocator>, audio_format: AudioFormat) -> crate::Result<Self> {
-        let nsamples = data.len() / format.size();
+        let nsamples: usize = data.len() / (audio_format.bytes_size() as usize);
 
         unsafe {
-            ResultCode(ctru_sys::DSP_FlushDataCache(data.as_ptr(), data.len()))?;
+            ResultCode(ctru_sys::DSP_FlushDataCache(data.as_ptr().cast(), data.len().try_into().unwrap()))?;
         }
 
         Ok(WaveBuffer {
@@ -198,27 +202,29 @@ impl WaveBuffer {
         &mut self.data
     }
 
-    pub fn format(&self) -> AudioFormat {
+    pub fn get_format(&self) -> AudioFormat {
         self.audio_format
     }
 
-    pub fn len(&self) -> usize {
-        self.length
+    pub fn get_sample_amount(&self) -> usize {
+        self.nsamples
     }
 }
 
 impl<'b> WaveInfo<'b> {
     pub fn new(buffer: &'b mut WaveBuffer, looping: bool) -> Self {
+        let address = ctru_sys::tag_ndspWaveBuf__bindgen_ty_1{ data_vaddr: buffer.data.as_ptr().cast() };
+
         let raw_data = ctru_sys::ndspWaveBuf {
-            __bindgen_anon_1: buffer.data.as_ptr(), // Buffer data virtual address
-            nsamples: buffer.length,
-            adpcm_data: std::ptr::null(),
+            __bindgen_anon_1: address, // Buffer data virtual address
+            nsamples: buffer.nsamples.try_into().unwrap(),
+            adpcm_data: std::ptr::null_mut(),
             offset: 0,
             looping,
             // The ones after this point aren't supposed to be setup by the user
             status: 0,
             sequence_id: 0,
-            next: std::ptr::null(),
+            next: std::ptr::null_mut(),
         };
 
         Self { buffer, raw_data }
@@ -233,6 +239,14 @@ impl Drop for Ndsp {
     fn drop(&mut self) {
         unsafe {
             ctru_sys::ndspExit();
+        }
+    }
+}
+
+impl Drop for WaveBuffer {
+    fn drop(&mut self) {
+        unsafe {
+            ctru_sys::DSP_InvalidateDataCache(self.data.as_ptr().cast(), self.data.len().try_into().unwrap());
         }
     }
 }
