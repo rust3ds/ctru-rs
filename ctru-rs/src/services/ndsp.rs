@@ -68,7 +68,7 @@ impl Ndsp {
     /// An error will be returned if the channel id is not between 0 and 23.
     pub fn channel(&self, id: u8) -> crate::Result<Channel> {
         if id > 23 {
-            return Err(crate::Error::InvalidChannel);
+            return Err(crate::Error::InvalidChannel(id.into()));
         }
         
         Ok(Channel { id: id.into() })
@@ -132,7 +132,7 @@ impl Channel {
 
     /// Set the channel's volume mix.
     /// Docs about the buffer usage: https://libctru.devkitpro.org/channel_8h.html#a30eb26f1972cc3ec28370263796c0444
-    pub fn set_mix(&self, mix: &[f32; 12]) {
+    pub fn set_mix(&self, mix: &mut [f32; 12]) {
         unsafe { ctru_sys::ndspChnSetMix(self.id, mix.as_mut_ptr()) }
     }
 
@@ -162,7 +162,7 @@ impl Channel {
     // Sadly `libctru` lacks the infrastructure to make runtime checks on the queued objects, like callbacks and iterators.
     // Also, in most cases the memory is still accessible even after a `free`, so it may not be a problem to the average user.
     // This is still a big "hole" in the Rust wrapper. Upstream changes to `libctru` would be my go-to way to solve this issue.
-    pub unsafe fn queue_wave(&self, buffer: WaveInfo) {
+    pub unsafe fn queue_wave(&self, mut buffer: WaveInfo) {
         unsafe { ctru_sys::ndspChnWaveBufAdd(self.id, &mut buffer.raw_data) };
     }
 }
@@ -230,7 +230,7 @@ impl<'b> WaveInfo<'b> {
         Self { buffer, raw_data }
     }
 
-    pub fn get_mut_wavebuffer(&mut self) -> &'b mut WaveBuffer {
+    pub fn get_mut_wavebuffer(&'b mut self) -> &'b mut WaveBuffer {
         &mut self.buffer
     }
 }
@@ -246,7 +246,8 @@ impl Drop for Ndsp {
 impl Drop for WaveBuffer {
     fn drop(&mut self) {
         unsafe {
-            ctru_sys::DSP_InvalidateDataCache(self.data.as_ptr().cast(), self.data.len().try_into().unwrap());
+            // Result can't be used in any way, let's just shrug it off
+            let _r = ctru_sys::DSP_InvalidateDataCache(self.data.as_ptr().cast(), self.data.len().try_into().unwrap());
         }
     }
 }

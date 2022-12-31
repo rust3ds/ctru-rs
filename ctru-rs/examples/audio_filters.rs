@@ -51,7 +51,7 @@ fn main() {
     // This line isn't needed since the default NDSP configuration already sets the output mode to `Stereo`
     ndsp.set_output_mode(OutputMode::Stereo);
 
-    let channel_zero = ndsp.channel(0);
+    let channel_zero = ndsp.channel(0).unwrap();
     channel_zero.set_interpolation(InterpolationType::Linear);
     channel_zero.set_sample_rate(SAMPLERATE);
     channel_zero.set_format(NDSP_FORMAT_STEREO_PCM16);
