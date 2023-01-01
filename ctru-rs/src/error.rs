@@ -114,8 +114,8 @@ impl fmt::Display for Error {
             Self::ServiceAlreadyActive => write!(f, "Service already active"),
             Self::OutputAlreadyRedirected => {
                 write!(f, "output streams are already redirected to 3dslink")
-            },
-            Self::InvalidChannel(id) => write!(f, "Audio Channel with id {id} doesn't exist")
+            }
+            Self::InvalidChannel(id) => write!(f, "Audio Channel with id {id} doesn't exist"),
         }
     }
 }

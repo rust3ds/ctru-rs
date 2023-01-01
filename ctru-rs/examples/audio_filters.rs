@@ -1,5 +1,7 @@
 #![feature(allocator_api)]
 
+use std::f32::consts::PI;
+
 use ctru::linear::LinearAllocator;
 use ctru::prelude::*;
 use ctru::services::ndsp::{
@@ -10,15 +12,18 @@ const SAMPLERATE: u32 = 22050;
 const SAMPLESPERBUF: u32 = SAMPLERATE / 30; // 735
 const BYTESPERSAMPLE: u32 = 4;
 
+// Note Frequencies
+const NOTEFREQ: [u32; 7] = [220, 440, 880, 1760, 3520, 7040, 14080];
+
 fn array_size(array: &[u8]) -> usize {
     array.len()
 } // (sizeof(array)/sizeof(array[0]))
 
 // audioBuffer is stereo PCM16
-fn fill_buffer(audioData: &mut Box<[u8], LinearAlloc>, frequency: i32) {
+fn fill_buffer(audioData: &mut Box<[u8], LinearAlloc>, frequency: u32) {
     for i in 0..size {
         // This is a simple sine wave, with a frequency of `frequency` Hz, and an amplitude 30% of maximum.
-        let sample: i16 = 0.3 * 0x7FFF * sin(frequency * (2 * std::f32::PI) * i / SAMPLERATE);
+        let sample: i16 = 0.3 * 0x7FFF * (frequency * (2f32 * PI) * i / SAMPLERATE).sin();
 
         // Stereo samples are interleaved: left and right channels.
         audioData[i] = (sample << 16) | (sample & 0xffff);
@@ -35,10 +40,10 @@ fn main() {
     println!("libctru filtered streamed audio\n");
 
     let audioBuffer = Box::new_in(
-        [0u32; (SAMPLESPERBUF * BYTESPERSAMPLE * 2)],
+        [0u32, (SAMPLESPERBUF * BYTESPERSAMPLE * 2)],
         LinearAllocator,
     );
-    fill_buffer(audioBuffer, notefreq[note]);
+    fill_buffer(audioBuffer, NOTEFREQ[note]);
 
     let audioBuffer1 =
         WaveBuffer::new(audioBuffer, AudioFormat::PCM16Stereo).expect("Couldn't sync DSP cache");
@@ -53,23 +58,17 @@ fn main() {
 
     let channel_zero = ndsp.channel(0).unwrap();
     channel_zero.set_interpolation(InterpolationType::Linear);
-    channel_zero.set_sample_rate(SAMPLERATE);
-    channel_zero.set_format(NDSP_FORMAT_STEREO_PCM16);
+    channel_zero.set_sample_rate(SAMPLERATE as f32);
+    channel_zero.set_format(AudioFormat::PCM16Stereo);
 
     // Output at 100% on the first pair of left and right channels.
 
     let mix = [0f32; 12];
     mix[0] = 1.0;
     mix[1] = 1.0;
-    channel_zero.set_mix(mix);
+    channel_zero.set_mix(&mix);
 
-    // Note Frequencies
-
-    let notefreq = [
-        220, 440, 880, 1760, 3520, 7040, 14080, 7040, 3520, 1760, 880, 440,
-    ];
-
-    let note: i32 = 4;
+    let note: usize = 4;
 
     // Filters
 
@@ -91,13 +90,13 @@ fn main() {
     let mut buf2 = WaveInfo::new(&mut audioBuffer2, false);
 
     unsafe {
-        channel_zero.add_wave_buffer(buf1);
-        channel_zero.add_wave_buffer(buf2);
+        channel_zero.queue_wave(&mut buf1);
+        channel_zero.queue_wave(&mut buf2);
     };
 
     println!("Press up/down to change tone frequency\n");
     println!("Press left/right to change filter\n");
-    println!("\x1b[6;1Hnote = {} Hz        ", notefreq[note]);
+    println!("\x1b[6;1Hnote = {} Hz        ", NOTEFREQ[note]);
     println!("\x1b[7;1Hfilter = {}         ", filter_names[filter]);
 
     while apt.main_loop() {
@@ -109,29 +108,32 @@ fn main() {
         } // break in order to return to hbmenu
 
         if keys_down.contains(KeyPad::KEY_DOWN) {
-            note -= 1;
-            if (note < 0) {
-                note = notefreq.len() - 1;
+            note = note.saturating_sub(1);
+            if note < 0 {
+                note = NOTEFREQ.len() - 1;
             }
-            println!("\x1b[6;1Hnote = {} Hz        ", notefreq[note]);
+            println!("\x1b[6;1Hnote = {} Hz        ", NOTEFREQ[note]);
         } else if keys_down.contains(KeyPad::KEY_UP) {
             note += 1;
-            if (note >= notefreq.len()) {
+            if note >= NOTEFREQ.len() {
                 note = 0;
             }
-            println!("\x1b[6;1Hnote = {} Hz        ", notefreq[note]);
+            println!("\x1b[6;1Hnote = {} Hz        ", NOTEFREQ[note]);
         }
+
+        // Check for upper limit
+        note = std::cmp::max(note, NOTEFREQ.len() - 1);
 
         let update_params = false;
         if keys_down.contains(KeyPad::KEY_LEFT) {
-            filter -= 1;
-            if (filter < 0) {
+            filter = filter.saturating_sub(1);
+            if filter < 0 {
                 filter = filter_names.len() - 1;
             }
             update_params = true;
         } else if keys_down.contains(KeyPad::KEY_LEFT) {
             filter += 1;
-            if (filter >= filter_names.len()) {
+            if filter >= filter_names.len() {
                 filter = 0;
             }
             update_params = true;
@@ -151,11 +153,11 @@ fn main() {
 
         if waveBuf[fillBlock].status == NDSP_WBUF_DONE {
             if fillBlock {
-                fill_buffer(buf1.data_pcm16, notefreq[note]);
-                channel_zero.add_wave_buffer(buf1);
+                fill_buffer(buf1.get_mut_wavebuffer().get_mut_data(), NOTEFREQ[note]);
+                channel_zero.queue_wave(&mut buf1);
             } else {
-                fill_buffer(waveBuf[fillBlock].data_pcm16, notefreq[note]);
-                channel_zero.add_wave_buffer(buf2);
+                fill_buffer(buf2.get_mut_wavebuffer().get_mut_data(), NOTEFREQ[note]);
+                channel_zero.queue_wave(&mut buf2);
             }
             fillBlock = !fillBlock;
         }
