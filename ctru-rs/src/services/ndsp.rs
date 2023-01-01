@@ -132,8 +132,8 @@ impl Channel {
 
     /// Set the channel's volume mix.
     /// Docs about the buffer usage: https://libctru.devkitpro.org/channel_8h.html#a30eb26f1972cc3ec28370263796c0444
-    pub fn set_mix(&self, mix: &mut [f32; 12]) {
-        unsafe { ctru_sys::ndspChnSetMix(self.id, mix.as_mut_ptr()) }
+    pub fn set_mix(&self, mix: &[f32; 12]) {
+        unsafe { ctru_sys::ndspChnSetMix(self.id, mix.as_ptr().cast_mut()) }
     }
 
     /// Set the channel's rate of sampling.
