@@ -5,12 +5,14 @@ use std::f32::consts::PI;
 use ctru::linear::LinearAllocator;
 use ctru::prelude::*;
 use ctru::services::ndsp::{
-    AudioFormat, InterpolationType, Ndsp, OutputMode, WaveBuffer, WaveInfo,
+    wave::{WaveBuffer, WaveInfo},
+    AudioFormat, InterpolationType, Ndsp, OutputMode,
 };
 
-const SAMPLERATE: u32 = 22050;
-const SAMPLESPERBUF: u32 = SAMPLERATE / 30; // 735
-const BYTESPERSAMPLE: u32 = 4;
+const SAMPLE_RATE: u32 = 22050;
+const SAMPLES_PER_BUF: u32 = SAMPLE_RATE / 30; // 735
+const BYTES_PER_SAMPLE: u32 = 4;
+const AUDIO_WAVE_LENGTH: u32 = SAMPLES_PER_BUF * BYTES_PER_SAMPLE * 2;
 
 // Note Frequencies
 const NOTEFREQ: [u32; 7] = [220, 440, 880, 1760, 3520, 7040, 14080];
@@ -20,10 +22,10 @@ fn array_size(array: &[u8]) -> usize {
 } // (sizeof(array)/sizeof(array[0]))
 
 // audioBuffer is stereo PCM16
-fn fill_buffer(audioData: &mut Box<[u8], LinearAlloc>, frequency: u32) {
-    for i in 0..size {
+fn fill_buffer(audioData: &mut Box<[u8], LinearAllocator>, frequency: u32) {
+    for i in 0..audioData.len() {
         // This is a simple sine wave, with a frequency of `frequency` Hz, and an amplitude 30% of maximum.
-        let sample: i16 = 0.3 * 0x7FFF * (frequency * (2f32 * PI) * i / SAMPLERATE).sin();
+        let sample: i16 = 0.3 * 0x7FFF * (frequency * (2f32 * PI) * i / SAMPLE_RATE).sin();
 
         // Stereo samples are interleaved: left and right channels.
         audioData[i] = (sample << 16) | (sample & 0xffff);
@@ -40,7 +42,7 @@ fn main() {
     println!("libctru filtered streamed audio\n");
 
     let audioBuffer = Box::new_in(
-        [0u32, (SAMPLESPERBUF * BYTESPERSAMPLE * 2)],
+        [0u32, AUDIO_WAVE_LENGTH],
         LinearAllocator,
     );
     fill_buffer(audioBuffer, NOTEFREQ[note]);
@@ -58,7 +60,7 @@ fn main() {
 
     let channel_zero = ndsp.channel(0).unwrap();
     channel_zero.set_interpolation(InterpolationType::Linear);
-    channel_zero.set_sample_rate(SAMPLERATE as f32);
+    channel_zero.set_sample_rate(SAMPLE_RATE as f32);
     channel_zero.set_format(AudioFormat::PCM16Stereo);
 
     // Output at 100% on the first pair of left and right channels.
