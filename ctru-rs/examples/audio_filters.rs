@@ -17,10 +17,6 @@ const AUDIO_WAVE_LENGTH: u32 = SAMPLES_PER_BUF * BYTES_PER_SAMPLE * 2;
 // Note Frequencies
 const NOTEFREQ: [u32; 7] = [220, 440, 880, 1760, 3520, 7040, 14080];
 
-fn array_size(array: &[u8]) -> usize {
-    array.len()
-} // (sizeof(array)/sizeof(array[0]))
-
 // audioBuffer is stereo PCM16
 fn fill_buffer(audioData: &mut Box<[u8], LinearAllocator>, frequency: u32) {
     for i in 0..audioData.len() {
