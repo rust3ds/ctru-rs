@@ -43,7 +43,7 @@ fn main() {
         [0u8; AUDIO_WAVE_LENGTH],
         LinearAllocator,
     );
-    fill_buffer(&mut audioBuffer[..], NOTEFREQ[4]);
+    fill_buffer(&mut audioBuffer, NOTEFREQ[4]);
 
     let audioBuffer1 =
         WaveBuffer::new(audioBuffer, AudioFormat::PCM16Stereo).expect("Couldn't sync DSP cache");
