@@ -1,6 +1,7 @@
 use ctru::error::ResultCode;
 use ctru::prelude::*;
-use ctru::services::ir_user::{IrDeviceId, IrUser, IrUserStatusInfo};
+use ctru::services::ir_user::{CirclePadProInputResponse, IrDeviceId, IrUser, IrUserStatusInfo};
+use std::io::Write;
 use time::Duration;
 
 const PACKET_INFO_SIZE: usize = 8;
@@ -63,7 +64,6 @@ fn main() {
         let check_ir_packet = unsafe { ctru_sys::svcWaitSynchronization(recv_event, 0) == 0 };
 
         if check_ir_packet {
-            print_status_info();
             handle_packet(&ir_user, &top_console, &bottom_console);
         }
 
@@ -117,15 +117,17 @@ fn main() {
                         })()
                         .expect("Failed to synchronize on connection status event");
                     }
-                // }
-                // _ => {
+                    // }
+                    // _ => {
                     loop {
                         hid.scan_input();
                         if hid.keys_held().contains(KeyPad::KEY_START) {
                             break 'main_loop;
                         }
 
-                        if let Err(e) = ir_user.start_polling_input(CPP_CONNECTION_POLLING_PERIOD_MS) {
+                        if let Err(e) =
+                            ir_user.start_polling_input(CPP_CONNECTION_POLLING_PERIOD_MS)
+                        {
                             println!("Error: {e:?}");
                         }
                         print_status_info();
@@ -158,45 +160,53 @@ fn main() {
 }
 
 fn handle_packet(ir_user: &IrUser, top_console: &Console, bottom_console: &Console) {
+    // Use a buffer to avoid flickering the screen (write all output at once)
+    let mut output_buffer = Vec::with_capacity(0x1000);
+
     ir_user.process_shared_memory(|ir_mem| {
-        bottom_console.select();
-        println!("\nReceiveBufferInfo:");
+        writeln!(&mut output_buffer, "ReceiveBufferInfo:").unwrap();
         let mut counter = 0;
         for byte in &ir_mem[0x10..0x20] {
-            print!("{byte:02x} ");
+            write!(&mut output_buffer, "{byte:02x} ").unwrap();
             counter += 1;
             if counter % 12 == 0 {
-                println!()
+                writeln!(&mut output_buffer, "").unwrap();
             }
         }
 
-        println!("\nReceiveBuffer:");
+        writeln!(&mut output_buffer, "\nReceiveBuffer:").unwrap();
         counter = 0;
         for byte in &ir_mem[0x20..0x20 + PACKET_BUFFER_SIZE] {
-            print!("{byte:02x} ");
+            write!(&mut output_buffer, "{byte:02x} ").unwrap();
             counter += 1;
             if counter % 12 == 0 {
-                println!()
+                writeln!(&mut output_buffer, "").unwrap();
             }
         }
 
-        println!("\nSendBufferInfo:");
-        counter = 0;
-        for byte in &ir_mem[0x20 + PACKET_BUFFER_SIZE..0x30 + PACKET_BUFFER_SIZE] {
-            print!("{byte:02x} ");
-            counter += 1;
-            if counter % 12 == 0 {
-                println!()
-            }
-        }
-
-        println!("\n(skipping send packet buffer)");
-        top_console.select();
+        writeln!(&mut output_buffer, "").unwrap();
     });
+
+    let mut packets = ir_user.get_packets();
+    let packet_count = packets.len();
+    writeln!(&mut output_buffer, "Packet count: {packet_count}").unwrap();
+    let last_packet = packets.pop().unwrap();
+    writeln!(&mut output_buffer, "Last packet:\n{last_packet:02x?}").unwrap();
+
+    bottom_console.select();
+    bottom_console.clear();
+    std::io::stdout().write_all(&output_buffer).unwrap();
+
+    // Use println in case this fails
+    let cpp_response = CirclePadProInputResponse::try_from(last_packet)
+        .expect("Failed to parse CPP response from IR packet");
+    println!("CPP Response:\n{cpp_response:#02x?}");
+
+    top_console.select();
 
     // Done handling the packet, release it
     ir_user
-        .release_received_data(1)
+        .release_received_data(packet_count as u32)
         .expect("Failed to release ir:USER packet");
 
     if let Err(e) = ir_user.start_polling_input(CPP_POLLING_PERIOD_MS) {

@@ -19,6 +19,8 @@ struct IrUserState {
     service_handle: Handle,
     shared_memory_handle: Handle,
     shared_memory: &'static [u8],
+    recv_buffer_size: usize,
+    recv_packet_count: usize,
     // shared_memory: Box<[u8]>,
 }
 
@@ -31,7 +33,12 @@ const INITIALIZE_IRNOP_SHARED_COMMAND_HEADER: u32 = 0x00180182;
 const RELEASE_RECEIVED_DATA_COMMAND_HEADER: u32 = 0x00190040;
 
 impl IrUser {
-    pub fn init(recv_buffer_size: usize, recv_packet_count: usize, send_buffer_size: usize, send_packet_count: usize) -> crate::Result<Self> {
+    pub fn init(
+        recv_buffer_size: usize,
+        recv_packet_count: usize,
+        send_buffer_size: usize,
+        send_packet_count: usize,
+    ) -> crate::Result<Self> {
         let service_reference = ServiceReference::new(
             &IR_USER_ACTIVE,
             true,
@@ -47,7 +54,8 @@ impl IrUser {
 
                 println!("Getting shared memory pointer");
                 let info_sections_size = 0x30;
-                let minimum_shared_memory_len = info_sections_size + recv_buffer_size + send_buffer_size;
+                let minimum_shared_memory_len =
+                    info_sections_size + recv_buffer_size + send_buffer_size;
                 let shared_memory_len = if minimum_shared_memory_len % 0x1000 != 0 {
                     (minimum_shared_memory_len / 0x1000) * 0x1000 + 0x1000
                 } else {
@@ -96,6 +104,8 @@ impl IrUser {
                     service_handle,
                     shared_memory_handle,
                     shared_memory,
+                    recv_buffer_size,
+                    recv_packet_count,
                 };
                 *IR_USER_STATE.lock().unwrap() = Some(user_state);
 
@@ -147,10 +157,7 @@ impl IrUser {
 
     pub fn disconnect(&self) -> crate::Result<()> {
         println!("Disconnect called");
-        self.send_service_request(
-            vec![DISCONNECT_COMMAND_HEADER],
-            2,
-        )?;
+        self.send_service_request(vec![DISCONNECT_COMMAND_HEADER], 2)?;
 
         println!("Disconnect succeeded");
         Ok(())
@@ -158,7 +165,8 @@ impl IrUser {
 
     pub fn get_connection_status_event(&self) -> crate::Result<Handle> {
         println!("GetConnectionStatusEvent called");
-        let response = self.send_service_request(vec![GET_CONNECTION_STATUS_EVENT_COMMAND_HEADER], 4)?;
+        let response =
+            self.send_service_request(vec![GET_CONNECTION_STATUS_EVENT_COMMAND_HEADER], 4)?;
         let status_event = response[3] as Handle;
 
         println!("GetConnectionStatusEvent succeeded");
@@ -175,7 +183,6 @@ impl IrUser {
     }
 
     pub fn start_polling_input(&self, period_ms: u8) -> crate::Result<()> {
-        println!("SendIrnop (start_polling_input) called");
         let ir_request: [u8; 3] = [1, period_ms, (period_ms + 2) << 2];
         self.send_service_request(
             vec![
@@ -187,29 +194,19 @@ impl IrUser {
             2,
         )?;
 
-        println!("SendIrnop (start_polling_input) succeeded");
         Ok(())
     }
 
     pub fn release_received_data(&self, packet_count: u32) -> crate::Result<()> {
-        println!("ReleaseReceivedData called");
-        self.send_service_request(
-            vec![RELEASE_RECEIVED_DATA_COMMAND_HEADER, packet_count],
-            2
-        )?;
-
-        println!("ReleaseReceivedData succeeded");
+        self.send_service_request(vec![RELEASE_RECEIVED_DATA_COMMAND_HEADER, packet_count], 2)?;
         Ok(())
     }
 
     pub fn process_shared_memory(&self, process_fn: impl FnOnce(&[u8])) {
-        println!("Process shared memory started");
         let shared_mem_guard = IR_USER_STATE.lock().unwrap();
         let shared_mem = shared_mem_guard.as_ref().unwrap();
 
         process_fn(shared_mem.shared_memory);
-
-        println!("Process shared memory succeeded");
     }
 
     pub fn get_status_info(&self) -> IrUserStatusInfo {
@@ -217,8 +214,18 @@ impl IrUser {
         let shared_mem = shared_mem_guard.as_ref().unwrap().shared_memory;
 
         IrUserStatusInfo {
-            recv_err_result: i32::from_ne_bytes([shared_mem[0], shared_mem[1], shared_mem[2], shared_mem[3]]),
-            send_err_result: i32::from_ne_bytes([shared_mem[4], shared_mem[5], shared_mem[6], shared_mem[7]]),
+            recv_err_result: i32::from_ne_bytes([
+                shared_mem[0],
+                shared_mem[1],
+                shared_mem[2],
+                shared_mem[3],
+            ]),
+            send_err_result: i32::from_ne_bytes([
+                shared_mem[4],
+                shared_mem[5],
+                shared_mem[6],
+                shared_mem[7],
+            ]),
             connection_status: shared_mem[8],
             trying_to_connect_status: shared_mem[9],
             connection_role: shared_mem[10],
@@ -228,6 +235,86 @@ impl IrUser {
             unknown_field_2: shared_mem[14],
             unknown_field_3: shared_mem[15],
         }
+    }
+
+    pub fn get_packets(&self) -> Vec<IrUserPacket> {
+        let shared_mem_guard = IR_USER_STATE.lock().unwrap();
+        let user_state = shared_mem_guard.as_ref().unwrap();
+        let shared_mem = user_state.shared_memory;
+
+        let start_index = u32::from_ne_bytes([
+            shared_mem[0x10],
+            shared_mem[0x11],
+            shared_mem[0x12],
+            shared_mem[0x13],
+        ]);
+        // let end_index = u32::from_ne_bytes([
+        //     shared_mem[0x14],
+        //     shared_mem[0x15],
+        //     shared_mem[0x16],
+        //     shared_mem[0x17],
+        // ]);
+        let valid_packet_count = u32::from_ne_bytes([
+            shared_mem[0x18],
+            shared_mem[0x19],
+            shared_mem[0x1a],
+            shared_mem[0x1b],
+        ]);
+
+        (0..valid_packet_count)
+            .map(|i| {
+                let packet_index = (i + start_index) % user_state.recv_packet_count as u32;
+                let packet_info_offset = 0x20 + (packet_index * 8) as usize;
+                let packet_info = &shared_mem[packet_info_offset..packet_info_offset + 8];
+
+                let offset_to_data_buffer = u32::from_ne_bytes([
+                    packet_info[0],
+                    packet_info[1],
+                    packet_info[2],
+                    packet_info[3],
+                ]) as usize;
+                let data_length = u32::from_ne_bytes([
+                    packet_info[4],
+                    packet_info[5],
+                    packet_info[6],
+                    packet_info[7],
+                ]) as usize;
+
+                let packet_info_section_size = (user_state.recv_packet_count * 8);
+                // let data_start_offset = 0x20 + packet_info_section_size + offset_to_data_buffer;
+                // let packet_data_offset = &shared_mem
+                //     [data_start_offset..data_start_offset + data_length];
+                let packet_data = |idx| -> u8 {
+                    shared_mem[0x20
+                        + packet_info_section_size
+                        + (offset_to_data_buffer + idx)
+                            % (user_state.recv_buffer_size - packet_info_section_size)]
+                };
+
+                let (payload_length, payload_offset) = if packet_data(2) & 0x40 != 0 {
+                    // Big payload
+                    (
+                        ((packet_data(2) as usize & 0x3F) << 8) + packet_data(3) as usize,
+                        4,
+                    )
+                } else {
+                    // Small payload
+                    ((packet_data(2) & 0x3F) as usize, 3)
+                };
+
+                assert_eq!(data_length, payload_offset + payload_length + 1);
+
+                IrUserPacket {
+                    magic_number: packet_data(0),
+                    destination_network_id: packet_data(1),
+                    payload_length,
+                    payload: (payload_offset..payload_offset + payload_length)
+                        .map(packet_data)
+                        .collect(),
+                    checksum: packet_data(payload_offset + payload_length),
+                }
+            })
+            .collect()
     }
 
     fn send_service_request(
@@ -321,4 +408,58 @@ pub struct IrUserStatusInfo {
     pub network_id: u8,
     pub unknown_field_2: u8,
     pub unknown_field_3: u8,
+}
+
+#[derive(Debug)]
+pub struct IrUserPacket {
+    pub magic_number: u8,
+    pub destination_network_id: u8,
+    pub payload_length: usize,
+    pub payload: Vec<u8>,
+    pub checksum: u8,
+}
+
+#[derive(Debug)]
+pub struct CirclePadProInputResponse {
+    pub response_id: u8,
+    pub c_stick_x: u16,
+    pub c_stick_y: u16,
+    pub battery_level: u8,
+    pub zl_pressed: bool,
+    pub zr_pressed: bool,
+    pub r_pressed: bool,
+    pub unknown_field: u8,
+}
+
+impl TryFrom<IrUserPacket> for CirclePadProInputResponse {
+    type Error = String;
+
+    fn try_from(packet: IrUserPacket) -> Result<Self, Self::Error> {
+        if packet.payload.len() != 6 {
+            return Err(format!(
+                "Invalid payload length (expected 6 bytes, got {})",
+                packet.payload.len()
+            ));
+        }
+
+        let response_id = packet.payload[0];
+        let c_stick_x = packet.payload[1] as u16 + (((packet.payload[2] & 0x0F) as u16) << 8);
+        let c_stick_y = (((packet.payload[2] & 0xF0) as u16) >> 4) + ((packet.payload[3] as u16) << 4);
+        let battery_level = packet.payload[4] & 0x1F;
+        let zl_pressed = packet.payload[4] & 0x20 == 0;
+        let zr_pressed = packet.payload[4] & 0x40 == 0;
+        let r_pressed = packet.payload[4] & 0x80 == 0;
+        let unknown_field = packet.payload[5];
+
+        Ok(CirclePadProInputResponse {
+            response_id,
+            c_stick_x,
+            c_stick_y,
+            battery_level,
+            zl_pressed,
+            zr_pressed,
+            r_pressed,
+            unknown_field,
+        })
+    }
 }
