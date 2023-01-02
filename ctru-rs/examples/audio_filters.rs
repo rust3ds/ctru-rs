@@ -12,19 +12,21 @@ use ctru::services::ndsp::{
 const SAMPLE_RATE: u32 = 22050;
 const SAMPLES_PER_BUF: u32 = SAMPLE_RATE / 30; // 735
 const BYTES_PER_SAMPLE: u32 = 4;
-const AUDIO_WAVE_LENGTH: u32 = SAMPLES_PER_BUF * BYTES_PER_SAMPLE * 2;
+const AUDIO_WAVE_LENGTH: usize = (SAMPLES_PER_BUF * BYTES_PER_SAMPLE * 2) as usize;
 
 // Note Frequencies
 const NOTEFREQ: [u32; 7] = [220, 440, 880, 1760, 3520, 7040, 14080];
 
 // audioBuffer is stereo PCM16
-fn fill_buffer(audioData: &mut Box<[u8], LinearAllocator>, frequency: u32) {
+fn fill_buffer(audioData: &mut [u8], frequency: u32) {
+	let formatted_data: Vec<i16> = audioData.chunks_exact(2).map(|s| i16::from_le_bytes(s.try_into().unwrap())).collect();
+
     for i in 0..audioData.len() {
         // This is a simple sine wave, with a frequency of `frequency` Hz, and an amplitude 30% of maximum.
-        let sample: i16 = 0.3 * 0x7FFF * (frequency * (2f32 * PI) * i / SAMPLE_RATE).sin();
+        let sample: i16 = (0.3 * i16::MAX as f32 * (frequency as f32 * (2f32 * PI) * (i / SAMPLE_RATE as usize) as f32).sin()) as i16;
 
         // Stereo samples are interleaved: left and right channels.
-        audioData[i] = (sample << 16) | (sample & 0xffff);
+        formatted_data[i] = (sample << 16) | (sample & 0xffff);
     }
 }
 
@@ -38,10 +40,10 @@ fn main() {
     println!("libctru filtered streamed audio\n");
 
     let audioBuffer = Box::new_in(
-        [0u32, AUDIO_WAVE_LENGTH],
+        [0u8; AUDIO_WAVE_LENGTH],
         LinearAllocator,
     );
-    fill_buffer(audioBuffer, NOTEFREQ[note]);
+    fill_buffer(&mut audioBuffer[..], NOTEFREQ[4]);
 
     let audioBuffer1 =
         WaveBuffer::new(audioBuffer, AudioFormat::PCM16Stereo).expect("Couldn't sync DSP cache");
@@ -140,12 +142,12 @@ fn main() {
         if update_params {
             println!("\x1b[7;1Hfilter = {}         ", filter_names[filter]);
             match filter {
-                1 => ndspChnIirBiquadSetParamsLowPassFilter(0, 1760., 0.707),
-                2 => ndspChnIirBiquadSetParamsHighPassFilter(0, 1760., 0.707),
-                3 => ndspChnIirBiquadSetParamsBandPassFilter(0, 1760., 0.707),
-                4 => ndspChnIirBiquadSetParamsNotchFilter(0, 1760., 0.707),
-                5 => ndspChnIirBiquadSetParamsPeakingEqualizer(0, 1760., 0.707, 3.0),
-                _ => ndspChnIirBiquadSetEnable(0, false),
+                1 => channel_zero.iir_biquad_set_params_low_pass_filter(1760., 0.707),
+                2 => channel_zero.iir_biquad_set_params_high_pass_filter(1760., 0.707),
+                3 => channel_zero.iir_biquad_set_params_band_pass_filter(1760., 0.707),
+                4 => channel_zero.iir_biquad_set_params_notch_filter(1760., 0.707),
+                5 => channel_zero.iir_biquad_set_params_peaking_equalizer(1760., 0.707, 3.),
+                _ => channel_zero.iir_biquad_set_enabled(false),
             }
         }
 
