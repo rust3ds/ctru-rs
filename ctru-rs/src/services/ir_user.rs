@@ -22,11 +22,12 @@ struct IrUserState {
     // shared_memory: Box<[u8]>,
 }
 
-const INITIALIZE_IRNOP_SHARED_COMMAND_HEADER: u32 = 0x00180182;
 const REQUIRE_CONNECTION_COMMAND_HEADER: u32 = 0x00060040;
-const GET_CONNECTION_STATUS_EVENT_COMMAND_HEADER: u32 = 0x000C0000;
+const DISCONNECT_COMMAND_HEADER: u32 = 0x00090000;
 const GET_RECEIVE_EVENT_COMMAND_HEADER: u32 = 0x000A0000;
+const GET_CONNECTION_STATUS_EVENT_COMMAND_HEADER: u32 = 0x000C0000;
 const SEND_IR_NOP_COMMAND_HEADER: u32 = 0x000D0042;
+const INITIALIZE_IRNOP_SHARED_COMMAND_HEADER: u32 = 0x00180182;
 const RELEASE_RECEIVED_DATA_COMMAND_HEADER: u32 = 0x00190040;
 
 impl IrUser {
@@ -46,12 +47,6 @@ impl IrUser {
 
                 println!("Getting shared memory pointer");
                 let info_sections_size = 0x30;
-                // let packet_count = 3;
-                // let max_packet_size = 32;
-                // let packet_info_size = 8;
-                // let recv_buffer_len =  recv_packet_count * (packet_info_size + max_packet_size);
-                // let send_buffer_len =  send_packet_count * (packet_info_size + max_packet_size);
-
                 let minimum_shared_memory_len = info_sections_size + recv_buffer_size + send_buffer_size;
                 let shared_memory_len = if minimum_shared_memory_len % 0x1000 != 0 {
                     (minimum_shared_memory_len / 0x1000) * 0x1000 + 0x1000
@@ -150,6 +145,17 @@ impl IrUser {
         Ok(())
     }
 
+    pub fn disconnect(&self) -> crate::Result<()> {
+        println!("Disconnect called");
+        self.send_service_request(
+            vec![DISCONNECT_COMMAND_HEADER],
+            2,
+        )?;
+
+        println!("Disconnect succeeded");
+        Ok(())
+    }
+
     pub fn get_connection_status_event(&self) -> crate::Result<Handle> {
         println!("GetConnectionStatusEvent called");
         let response = self.send_service_request(vec![GET_CONNECTION_STATUS_EVENT_COMMAND_HEADER], 4)?;
@@ -170,7 +176,7 @@ impl IrUser {
 
     pub fn start_polling_input(&self, period_ms: u8) -> crate::Result<()> {
         println!("SendIrnop (start_polling_input) called");
-        let ir_request: [u8; 3] = [1, period_ms, 0];
+        let ir_request: [u8; 3] = [1, period_ms, (period_ms + 2) << 2];
         self.send_service_request(
             vec![
                 SEND_IR_NOP_COMMAND_HEADER,
@@ -305,14 +311,14 @@ impl IrDeviceId {
 
 #[derive(Debug)]
 pub struct IrUserStatusInfo {
-    recv_err_result: ctru_sys::Result,
-    send_err_result: ctru_sys::Result,
-    connection_status: u8,
-    trying_to_connect_status: u8,
-    connection_role: u8,
-    machine_id: u8,
-    unknown_field_1: u8,
-    network_id: u8,
-    unknown_field_2: u8,
-    unknown_field_3: u8,
+    pub recv_err_result: ctru_sys::Result,
+    pub send_err_result: ctru_sys::Result,
+    pub connection_status: u8,
+    pub trying_to_connect_status: u8,
+    pub connection_role: u8,
+    pub machine_id: u8,
+    pub unknown_field_1: u8,
+    pub network_id: u8,
+    pub unknown_field_2: u8,
+    pub unknown_field_3: u8,
 }
