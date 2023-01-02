@@ -18,21 +18,24 @@ const AUDIO_WAVE_LENGTH: usize = (SAMPLES_PER_BUF * BYTES_PER_SAMPLE * 2) as usi
 const NOTEFREQ: [u32; 7] = [220, 440, 880, 1760, 3520, 7040, 14080];
 
 // audioBuffer is stereo PCM16
-fn fill_buffer(audioData: &mut [u8], frequency: u32) {
-	let formatted_data = audioData.chunks_exact_mut(2);
+fn fill_buffer(audio_data: &mut [u8], frequency: u32) {
+    let formatted_data = audio_data.chunks_exact_mut(4);
 
-	let mut i = 0;
-	for chunk in formatted_data {
-		// This is a simple sine wave, with a frequency of `frequency` Hz, and an amplitude 30% of maximum.
-		let sample: i16 = (0.3 * i16::MAX as f32 * (frequency as f32 * (2f32 * PI) * (i as f32 / SAMPLE_RATE as f32)).sin()) as i16;
+    let mut i = 0;
+    for chunk in formatted_data {
+        // This is a simple sine wave, with a frequency of `frequency` Hz, and an amplitude 30% of maximum.
+        let sample: i16 = (0.3
+            * i16::MAX as f32
+            * (frequency as f32 * (2f32 * PI) * (i as f32 / SAMPLE_RATE as f32)).sin())
+            as i16;
 
-		// This operation is safe, since we are writing to a slice of exactly 16 bits
-		let chunk_ptr: &mut i16 = unsafe { std::mem::transmute(chunk.as_mut_ptr()) };
-		// Stereo samples are interleaved: left and right channels.
-		*chunk_ptr = (sample << 16) | (sample & 0xffff);
+        // This operation is safe, since we are writing to a slice of exactly 16 bits
+        let chunk_ptr: &mut u32 = unsafe { std::mem::transmute(chunk.as_mut_ptr()) };
+        // Stereo samples are interleaved: left and right channels.
+        *chunk_ptr = ((sample as u32) << 16) | (sample & 0x7FFF) as u32;
 
-		i += 1;
-	}
+        i += 1;
+    }
 }
 
 fn main() {
@@ -44,14 +47,12 @@ fn main() {
 
     println!("libctru filtered streamed audio\n");
 
-    let mut audioBuffer = Box::new_in(
-        [0u8; AUDIO_WAVE_LENGTH],
-        LinearAllocator,
-    );
-    fill_buffer(&mut audioBuffer[..], NOTEFREQ[4]);
+    let mut audio_data = Box::new_in([0u8; AUDIO_WAVE_LENGTH], LinearAllocator);
+    fill_buffer(&mut audio_data[..], NOTEFREQ[4]);
 
-	let mut audioBuffer1 = WaveBuffer::new(audioBuffer, AudioFormat::PCM16Stereo).expect("Couldn't sync DSP cache");
-    let mut audioBuffer2 = audioBuffer1.clone();
+    let mut audio_buffer1 =
+        WaveBuffer::new(audio_data, AudioFormat::PCM16Stereo).expect("Couldn't sync DSP cache");
+    let mut audio_buffer2 = audio_buffer1.clone();
 
     let mut ndsp = Ndsp::init().expect("Couldn't obtain NDSP controller");
 
@@ -88,17 +89,18 @@ fn main() {
     // We set up two wave buffers and alternate between the two,
     // effectively streaming an infinitely long sine wave.
 
-    let mut bufs: [WaveInfo; 2] = [ WaveInfo::new(&mut audioBuffer1, false), WaveInfo::new(&mut audioBuffer2, false)];
+    let mut wave_info1 = WaveInfo::new(&mut audio_buffer1, false);
+    let mut wave_info2 = WaveInfo::new(&mut audio_buffer2, false);
 
-    channel_zero.queue_wave(&mut bufs[0]);
-	channel_zero.queue_wave(&mut bufs[1]);
+    channel_zero.queue_wave(&mut wave_info1);
+    channel_zero.queue_wave(&mut wave_info2);
 
     println!("Press up/down to change tone frequency\n");
     println!("Press left/right to change filter\n");
     println!("\x1b[6;1Hnote = {} Hz        ", NOTEFREQ[note]);
     println!("\x1b[7;1Hfilter = {}         ", filter_names[filter]);
 
-	let mut fillBlock = false;
+    let mut altern = true; // true is wave_info1, false is wave_info2
 
     while apt.main_loop() {
         hid.scan_input();
@@ -110,9 +112,7 @@ fn main() {
 
         if keys_down.contains(KeyPad::KEY_DOWN) {
             note = note.saturating_sub(1);
-            if note < 0 {
-                note = NOTEFREQ.len() - 1;
-            }
+
             println!("\x1b[6;1Hnote = {} Hz        ", NOTEFREQ[note]);
         } else if keys_down.contains(KeyPad::KEY_UP) {
             note += 1;
@@ -128,9 +128,7 @@ fn main() {
         let mut update_params = false;
         if keys_down.contains(KeyPad::KEY_LEFT) {
             filter = filter.saturating_sub(1);
-            if filter < 0 {
-                filter = filter_names.len() - 1;
-            }
+
             update_params = true;
         } else if keys_down.contains(KeyPad::KEY_LEFT) {
             filter += 1;
@@ -152,12 +150,22 @@ fn main() {
             }
         }
 
-		let status = bufs[fillBlock as usize].get_status();
-        if let WaveStatus::Done = status {
-			fillBlock = !fillBlock;
+		let current: Option<&mut WaveInfo>;
 
-            fill_buffer(bufs[fillBlock as usize].get_mut_wavebuffer().get_mut_data(), NOTEFREQ[note]);
-            channel_zero.queue_wave(&mut bufs[fillBlock as usize]);
+		if altern {
+			current = Some(&mut wave_info1);
+		} else {
+			current = Some(&mut wave_info2);
+		}
+
+		let current = current.unwrap();
+
+        let status = current.get_status();
+        if let WaveStatus::Done = status {
+            altern = !altern;
+
+            fill_buffer(current.get_mut_wavebuffer().get_mut_data(), NOTEFREQ[note]);
+            channel_zero.queue_wave(current);
         }
 
         // Flush and swap framebuffers

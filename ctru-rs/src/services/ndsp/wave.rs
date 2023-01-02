@@ -63,7 +63,7 @@ impl WaveBuffer {
         })
     }
 
-    pub fn get_mut_data(&mut self) -> &mut Box<[u8], LinearAllocator> {
+    pub fn get_mut_data(&mut self) -> &mut [u8] {
         &mut self.data
     }
 
@@ -97,7 +97,7 @@ impl<'b> WaveInfo<'b> {
         Self { buffer, raw_data }
     }
 
-    pub fn get_mut_wavebuffer(&'b mut self) -> &'b mut WaveBuffer {
+    pub fn get_mut_wavebuffer(&mut self) -> &mut WaveBuffer {
         &mut self.buffer
     }
 
