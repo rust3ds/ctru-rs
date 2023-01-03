@@ -15,26 +15,24 @@ const BYTES_PER_SAMPLE: u32 = 4;
 const AUDIO_WAVE_LENGTH: usize = (SAMPLES_PER_BUF * BYTES_PER_SAMPLE * 2) as usize;
 
 // Note Frequencies
-const NOTEFREQ: [u32; 7] = [220, 440, 880, 1760, 3520, 7040, 14080];
+const NOTEFREQ: [f32; 7] = [220., 440., 880., 1760., 3520., 7040., 14080.];
 
 // audioBuffer is stereo PCM16
-fn fill_buffer(audio_data: &mut [u8], frequency: u32) {
-    let formatted_data = audio_data.chunks_exact_mut(4);
+fn fill_buffer(audio_data: &mut [u8], frequency: f32) {
+    let formatted_data = audio_data.chunks_exact_mut(2);
 
-    let mut i = 0;
+    let mut i = 0.;
     for chunk in formatted_data {
         // This is a simple sine wave, with a frequency of `frequency` Hz, and an amplitude 30% of maximum.
-        let sample: i16 = (0.3
-            * i16::MAX as f32
-            * (frequency as f32 * (2f32 * PI) * (i as f32 / SAMPLE_RATE as f32)).sin())
-            as i16;
+        let sample: f32 = (frequency  * (i / SAMPLE_RATE as f32) * 2. * PI).sin();
+		let amplitude = 0.3 * i16::MAX as f32;
 
         // This operation is safe, since we are writing to a slice of exactly 16 bits
-        let chunk_ptr: &mut u32 = unsafe { std::mem::transmute(chunk.as_mut_ptr()) };
+        let chunk_ptr: &mut i16 = unsafe { std::mem::transmute(chunk.as_mut_ptr()) };
         // Stereo samples are interleaved: left and right channels.
-        *chunk_ptr = ((sample as u32) << 16) | (sample & 0x7FFF) as u32;
+        *chunk_ptr = (sample*amplitude) as i16;
 
-        i += 1;
+        i += 1.;
     }
 }
 
@@ -118,7 +116,12 @@ fn main() {
 
         let mut update_params = false;
         if keys_down.intersects(KeyPad::KEY_LEFT) {
-            filter = filter.saturating_sub(1);
+			let wraps;
+            (filter, wraps) = filter.overflowing_sub(1);
+
+			if wraps {
+                filter = filter_names.len() - 1;
+            }
 
             update_params = true;
         } else if keys_down.intersects(KeyPad::KEY_RIGHT) {
@@ -129,12 +132,11 @@ fn main() {
             update_params = true;
         }
 
-		// Check for upper limit
-		note = std::cmp::min(note, NOTEFREQ.len() - 1);
-		filter = std::cmp::min(filter, filter_names.len() - 1);
+        // Check for upper limit
+        note = std::cmp::min(note, NOTEFREQ.len() - 1);
 
-		println!("\x1b[6;1Hnote = {} Hz        ", NOTEFREQ[note]);
-		println!("\x1b[7;1Hfilter = {}         ", filter_names[filter]);
+        println!("\x1b[6;1Hnote = {} Hz        ", NOTEFREQ[note]);
+        println!("\x1b[7;1Hfilter = {}         ", filter_names[filter]);
 
         if update_params {
             match filter {
@@ -147,15 +149,15 @@ fn main() {
             }
         }
 
-		let current: Option<&mut WaveInfo>;
+        let current: Option<&mut WaveInfo>;
 
-		if altern {
-			current = Some(&mut wave_info1);
-		} else {
-			current = Some(&mut wave_info2);
-		}
+        if altern {
+            current = Some(&mut wave_info1);
+        } else {
+            current = Some(&mut wave_info2);
+        }
 
-		let current = current.unwrap();
+        let current = current.unwrap();
 
         let status = current.get_status();
         if let WaveStatus::Done = status {
@@ -172,9 +174,9 @@ fn main() {
         //Wait for VBlank
         gfx.wait_for_vblank();
     }
-	
-	// Ndsp *has* to be dropped before the WaveInfos,
-	// otherwise the status won't be flagged properly and the program will crash.
-	// TODO: find a way to get away with this using implicit functionality (rather than an explict `drop`).
-	drop(ndsp);
+
+    // Ndsp *has* to be dropped before the WaveInfos,
+    // otherwise the status won't be flagged properly and the program will panic.
+    // TODO: Find a way to get away with this using implicitness.
+    drop(ndsp);
 }

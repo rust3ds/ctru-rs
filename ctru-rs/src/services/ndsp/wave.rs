@@ -49,10 +49,8 @@ impl WaveBuffer {
         let nsamples: usize = data.len() / (audio_format.sample_size() as usize);
 
         unsafe {
-            let _r = ctru_sys::DSP_FlushDataCache(
-                data.as_ptr().cast(),
-                data.len().try_into().unwrap(),
-            );
+            let _r =
+                ctru_sys::DSP_FlushDataCache(data.as_ptr().cast(), data.len().try_into().unwrap());
         }
 
         Ok(WaveBuffer {
