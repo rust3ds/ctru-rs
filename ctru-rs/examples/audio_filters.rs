@@ -149,22 +149,23 @@ fn main() {
             }
         }
 
-        let current: Option<&mut WaveInfo>;
+        let current: &mut WaveInfo;
+		let other: &mut WaveInfo;
 
         if altern {
-            current = Some(&mut wave_info1);
+            current = &mut wave_info1;
+			other = &mut wave_info2;
         } else {
-            current = Some(&mut wave_info2);
+            current = &mut wave_info2;
+			other = &mut wave_info1;
         }
-
-        let current = current.unwrap();
 
         let status = current.get_status();
         if let WaveStatus::Done = status {
             altern = !altern;
 
-            fill_buffer(current.get_mut_wavebuffer().get_mut_data(), NOTEFREQ[note]);
-            channel_zero.queue_wave(current);
+            fill_buffer(other.get_mut_wavebuffer().get_mut_data(), NOTEFREQ[note]);
+            channel_zero.queue_wave(other);
         }
 
         // Flush and swap framebuffers
