@@ -110,27 +110,18 @@ fn main() {
             break;
         } // break in order to return to hbmenu
 
-        if keys_down.contains(KeyPad::KEY_DOWN) {
+        if keys_down.intersects(KeyPad::KEY_DOWN) {
             note = note.saturating_sub(1);
-
-            println!("\x1b[6;1Hnote = {} Hz        ", NOTEFREQ[note]);
-        } else if keys_down.contains(KeyPad::KEY_UP) {
+        } else if keys_down.intersects(KeyPad::KEY_UP) {
             note += 1;
-            if note >= NOTEFREQ.len() {
-                note = 0;
-            }
-            println!("\x1b[6;1Hnote = {} Hz        ", NOTEFREQ[note]);
         }
 
-        // Check for upper limit
-        note = std::cmp::max(note, NOTEFREQ.len() - 1);
-
         let mut update_params = false;
-        if keys_down.contains(KeyPad::KEY_LEFT) {
+        if keys_down.intersects(KeyPad::KEY_LEFT) {
             filter = filter.saturating_sub(1);
 
             update_params = true;
-        } else if keys_down.contains(KeyPad::KEY_LEFT) {
+        } else if keys_down.intersects(KeyPad::KEY_RIGHT) {
             filter += 1;
             if filter >= filter_names.len() {
                 filter = 0;
@@ -138,8 +129,14 @@ fn main() {
             update_params = true;
         }
 
+		// Check for upper limit
+		note = std::cmp::min(note, NOTEFREQ.len() - 1);
+		filter = std::cmp::min(filter, filter_names.len() - 1);
+
+		println!("\x1b[6;1Hnote = {} Hz        ", NOTEFREQ[note]);
+		println!("\x1b[7;1Hfilter = {}         ", filter_names[filter]);
+
         if update_params {
-            println!("\x1b[7;1Hfilter = {}         ", filter_names[filter]);
             match filter {
                 1 => channel_zero.iir_biquad_set_params_low_pass_filter(1760., 0.707),
                 2 => channel_zero.iir_biquad_set_params_high_pass_filter(1760., 0.707),
@@ -175,4 +172,9 @@ fn main() {
         //Wait for VBlank
         gfx.wait_for_vblank();
     }
+	
+	// Ndsp *has* to be dropped before the WaveInfos,
+	// otherwise the status won't be flagged properly and the program will crash.
+	// TODO: find a way to get away with this using implicit functionality (rather than an explict `drop`).
+	drop(ndsp);
 }

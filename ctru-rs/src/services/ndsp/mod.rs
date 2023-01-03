@@ -188,6 +188,10 @@ impl Channel {
 
 impl Drop for Ndsp {
     fn drop(&mut self) {
+        for i in 0..24 {
+            self.channel(i).unwrap().clear_queue();
+        }
+
         unsafe {
             ctru_sys::ndspExit();
         }

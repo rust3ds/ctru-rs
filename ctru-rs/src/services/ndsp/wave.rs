@@ -1,5 +1,4 @@
 use super::AudioFormat;
-use crate::error::ResultCode;
 use crate::linear::LinearAllocator;
 
 /// Base struct to represent audio wave data. This requires audio format information.
@@ -50,10 +49,10 @@ impl WaveBuffer {
         let nsamples: usize = data.len() / (audio_format.sample_size() as usize);
 
         unsafe {
-            ResultCode(ctru_sys::DSP_FlushDataCache(
+            let _r = ctru_sys::DSP_FlushDataCache(
                 data.as_ptr().cast(),
                 data.len().try_into().unwrap(),
-            ))?;
+            );
         }
 
         Ok(WaveBuffer {
