@@ -20,9 +20,9 @@ struct IrUserState {
     service_handle: Handle,
     shared_memory_handle: Handle,
     shared_memory: &'static [u8],
+    shared_memory_layout: Layout,
     recv_buffer_size: usize,
     recv_packet_count: usize,
-    // shared_memory: Box<[u8]>,
 }
 
 const REQUIRE_CONNECTION_COMMAND_HEADER: u32 = 0x00060040;
@@ -42,10 +42,9 @@ impl IrUser {
     ) -> crate::Result<Self> {
         let service_reference = ServiceReference::new(
             &IR_USER_ACTIVE,
-            true,
+            false,
             || unsafe {
-                println!("Starting IrUser");
-                println!("Getting ir:USER service handle");
+                // Get the ir:USER service handle
                 let mut service_handle = Handle::default();
                 let service_name = CString::new("ir:USER").unwrap();
                 ResultCode(ctru_sys::srvGetServiceHandle(
@@ -53,7 +52,8 @@ impl IrUser {
                     service_name.as_ptr(),
                 ))?;
 
-                println!("Getting shared memory pointer");
+                // Calculate the shared memory size.
+                // Shared memory length must be page aligned.
                 let info_sections_size = 0x30;
                 let minimum_shared_memory_len =
                     info_sections_size + recv_buffer_size + send_buffer_size;
@@ -63,21 +63,14 @@ impl IrUser {
                     (minimum_shared_memory_len / 0x1000) * 0x1000
                 };
                 assert_eq!(shared_memory_len % 0x1000, 0);
-                // let shared_memory_len = info_sections_size + recv_buffer_size + send_buffer_size;
-                println!("Shared memory size: {shared_memory_len:#x}");
 
-                // let shared_memory_len = info_sections_size + packet_count * (packet_info_size + max_packet_size);
-                // let shared_memory = Box::new([0; 0x1000]);
-                // let shared_memory_ptr = ctru_sys::mappableAlloc(shared_memory_len) as *const u8;
+                // Allocate the shared memory
                 let shared_memory_layout =
                     Layout::from_size_align(shared_memory_len, 0x1000).unwrap();
                 let shared_memory_ptr = std::alloc::alloc_zeroed(shared_memory_layout);
-                println!(
-                    "Using shared memory address: {:#08x}",
-                    shared_memory_ptr as usize
-                );
+                let shared_memory = &*slice_from_raw_parts(shared_memory_ptr, shared_memory_len);
 
-                println!("Marking memory block as shared memory");
+                // Mark the memory as shared
                 let mut shared_memory_handle = Handle::default();
                 ResultCode(ctru_sys::svcCreateMemoryBlock(
                     &mut shared_memory_handle,
@@ -86,9 +79,8 @@ impl IrUser {
                     MEMPERM_READ,
                     MEMPERM_READWRITE,
                 ))?;
-                let shared_memory = &*slice_from_raw_parts(shared_memory_ptr, shared_memory_len);
 
-                println!("Initializing ir:USER service");
+                // Initialize the ir:USER service with the shared memory
                 initialize_irnop_shared(InitializeIrnopSharedParams {
                     ir_user_handle: service_handle,
                     shared_memory_len: shared_memory_len as u32,
@@ -100,43 +92,38 @@ impl IrUser {
                     shared_memory_handle,
                 })?;
 
-                println!("Setting IrUserState in static");
+                // Set up our service state
                 let user_state = IrUserState {
                     service_handle,
                     shared_memory_handle,
                     shared_memory,
+                    shared_memory_layout,
                     recv_buffer_size,
                     recv_packet_count,
                 };
                 *IR_USER_STATE.lock().unwrap() = Some(user_state);
 
-                println!("Done starting IrUser");
                 Ok(())
             },
             || {
-                println!("Close called for IrUser");
+                // Remove our service state from the global location
                 let mut shared_mem_guard = IR_USER_STATE.lock().unwrap();
-                let shared_mem = shared_mem_guard
-                    .take()
-                    .expect("ir:USER shared memory mutex shouldn't be empty");
-                // (|| unsafe {
-                //     // println!("Unmapping the ir:USER shared memory");
-                //     // ResultCode(ctru_sys::svcUnmapMemoryBlock(
-                //     //     shared_mem.shared_memory_handle,
-                //     //     shared_mem.shared_memory.as_ptr() as u32,
-                //     // ))?;
-                //
-                //     println!("Closing memory and service handles");
-                //     // ResultCode(ctru_sys::svcCloseHandle(shared_mem.shared_memory_handle))?;
-                //     ResultCode(ctru_sys::svcCloseHandle(shared_mem.service_handle))?;
-                //
-                //     // println!("Freeing shared memory");
-                //     // ctru_sys::mappableFree(shared_mem.shared_memory.as_ptr() as *mut libc::c_void);
-                //
-                //     Ok(())
-                // })()
-                // .unwrap();
-                println!("Done closing IrUser");
+                let shared_mem = shared_mem_guard.take().unwrap();
+
+                (move || unsafe {
+                    // Close service and memory handles
+                    ResultCode(ctru_sys::svcCloseHandle(shared_mem.service_handle))?;
+                    ResultCode(ctru_sys::svcCloseHandle(shared_mem.shared_memory_handle))?;
+
+                    // Free shared memory
+                    std::alloc::dealloc(
+                        shared_mem.shared_memory.as_ptr() as *mut u8,
+                        shared_mem.shared_memory_layout,
+                    );
+
+                    Ok(())
+                })()
+                .unwrap();
             },
         )?;
 
@@ -146,40 +133,30 @@ impl IrUser {
     }
 
     pub fn require_connection(&self, device_id: IrDeviceId) -> crate::Result<()> {
-        println!("RequireConnection called");
         self.send_service_request(
             vec![REQUIRE_CONNECTION_COMMAND_HEADER, device_id.get_id()],
             2,
         )?;
-
-        println!("RequireConnection succeeded");
         Ok(())
     }
 
     pub fn disconnect(&self) -> crate::Result<()> {
-        println!("Disconnect called");
         self.send_service_request(vec![DISCONNECT_COMMAND_HEADER], 2)?;
-
-        println!("Disconnect succeeded");
         Ok(())
     }
 
     pub fn get_connection_status_event(&self) -> crate::Result<Handle> {
-        println!("GetConnectionStatusEvent called");
         let response =
             self.send_service_request(vec![GET_CONNECTION_STATUS_EVENT_COMMAND_HEADER], 4)?;
         let status_event = response[3] as Handle;
 
-        println!("GetConnectionStatusEvent succeeded");
         Ok(status_event)
     }
 
     pub fn get_recv_event(&self) -> crate::Result<Handle> {
-        println!("GetReceiveEvent called");
         let response = self.send_service_request(vec![GET_RECEIVE_EVENT_COMMAND_HEADER], 4)?;
         let recv_event = response[3] as Handle;
 
-        println!("GetReceiveEvent succeeded");
         Ok(recv_event)
     }
 
@@ -259,12 +236,6 @@ impl IrUser {
             shared_mem[0x12],
             shared_mem[0x13],
         ]);
-        // let end_index = u32::from_ne_bytes([
-        //     shared_mem[0x14],
-        //     shared_mem[0x15],
-        //     shared_mem[0x16],
-        //     shared_mem[0x17],
-        // ]);
         let valid_packet_count = u32::from_ne_bytes([
             shared_mem[0x18],
             shared_mem[0x19],
@@ -292,14 +263,10 @@ impl IrUser {
                 ]) as usize;
 
                 let packet_info_section_size = user_state.recv_packet_count * 8;
-                // let data_start_offset = 0x20 + packet_info_section_size + offset_to_data_buffer;
-                // let packet_data_offset = &shared_mem
-                //     [data_start_offset..data_start_offset + data_length];
                 let packet_data = |idx| -> u8 {
-                    shared_mem[0x20
-                        + packet_info_section_size
-                        + (offset_to_data_buffer + idx)
-                            % (user_state.recv_buffer_size - packet_info_section_size)]
+                    let offset = 0x20 + packet_info_section_size + (offset_to_data_buffer + idx);
+                    let data_buffer_size = (user_state.recv_buffer_size - packet_info_section_size);
+                    shared_mem[offset % data_buffer_size]
                 };
 
                 let (payload_length, payload_offset) = if packet_data(2) & 0x40 != 0 {
@@ -336,6 +303,7 @@ impl IrUser {
         let mut shared_mem_guard = IR_USER_STATE.lock().unwrap();
         let shared_mem = shared_mem_guard.as_mut().unwrap();
 
+        // Set up the request
         let cmd_buffer = unsafe {
             &mut *(slice_from_raw_parts_mut(
                 ctru_sys::getThreadCommandBuffer(),

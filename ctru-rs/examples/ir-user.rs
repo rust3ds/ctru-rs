@@ -68,7 +68,8 @@ fn main() {
                     .expect("Couldn't initialize circle pad pro connection");
 
                 // Wait for the connection to establish
-                if let Err(e) = IrUser::wait_for_event(conn_status_event, Duration::from_millis(100))
+                if let Err(e) =
+                    IrUser::wait_for_event(conn_status_event, Duration::from_millis(100))
                 {
                     if !e.is_timeout() {
                         panic!("Couldn't initialize circle pad pro connection: {e}");
@@ -87,7 +88,8 @@ fn main() {
                     .expect("Failed to disconnect circle pad pro connection");
 
                 // Wait for the disconnect to go through
-                if let Err(e) = IrUser::wait_for_event(conn_status_event, Duration::from_millis(100))
+                if let Err(e) =
+                    IrUser::wait_for_event(conn_status_event, Duration::from_millis(100))
                 {
                     if !e.is_timeout() {
                         panic!("Couldn't initialize circle pad pro connection: {e}");
