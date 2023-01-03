@@ -1,3 +1,5 @@
+use ctru_sys::ndspChnWaveBufClear;
+
 use super::AudioFormat;
 use crate::linear::LinearAllocator;
 
@@ -17,6 +19,7 @@ pub struct WaveInfo<'b> {
     buffer: &'b mut WaveBuffer,
     // Holding the data with the raw format is necessary since `libctru` will access it.
     pub(crate) raw_data: ctru_sys::ndspWaveBuf,
+    played_on_channel: Option<u8>,
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -53,7 +56,7 @@ impl WaveBuffer {
                 ctru_sys::DSP_FlushDataCache(data.as_ptr().cast(), data.len().try_into().unwrap());
         }
 
-        Ok(WaveBuffer {
+        Ok(Self {
             data,
             audio_format,
             nsamples,
@@ -91,7 +94,7 @@ impl<'b> WaveInfo<'b> {
             next: std::ptr::null_mut(),
         };
 
-        Self { buffer, raw_data }
+        Self { buffer, raw_data, played_on_channel: None,}
     }
 
     pub fn get_mut_wavebuffer(&mut self) -> &mut WaveBuffer {
@@ -100,6 +103,10 @@ impl<'b> WaveInfo<'b> {
 
     pub fn get_status(&self) -> WaveStatus {
         self.raw_data.status.try_into().unwrap()
+    }
+
+    pub(crate) fn set_channel(&mut self, id: i32) {
+        self.played_on_channel = Some(id as u8)
     }
 }
 
@@ -131,11 +138,15 @@ impl Drop for WaveBuffer {
 
 impl<'b> Drop for WaveInfo<'b> {
     fn drop(&mut self) {
-        // This was the only way I found I could check for improper drops of WaveInfos.
-        // It should be enough to warn users of the danger.
+        // This was the only way I found I could check for improper drops of `WaveInfos`.
+        // A panic was considered, but it would cause issues with drop order against `Ndsp`.
         match self.get_status() {
             WaveStatus::Free | WaveStatus::Done => (),
-            _ => panic!("WaveInfo struct has been dropped before finishing use. This could cause Undefined Behaviour."),
+            // If the status flag is "unfinished"
+            _ => {
+                // The unwrap is safe, since it must have a value in the case the status is "unfinished".
+                unsafe { ndspChnWaveBufClear(self.played_on_channel.unwrap().into() )};
+            }
         }
     }
 }

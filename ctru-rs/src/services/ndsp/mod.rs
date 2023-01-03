@@ -1,7 +1,11 @@
 pub mod wave;
+use wave::{WaveInfo, WaveStatus};
 
 use crate::error::ResultCode;
-use wave::WaveInfo;
+use crate::services::ServiceReference;
+
+use once_cell::sync::Lazy;
+use std::sync::Mutex;
 
 #[derive(Copy, Clone, Debug)]
 #[repr(u32)]
@@ -35,14 +39,29 @@ pub struct Channel {
     id: i32,
 }
 
+static NDSP_ACTIVE: Lazy<Mutex<usize>> = Lazy::new(|| Mutex::new(0));
+
 #[non_exhaustive]
-pub struct Ndsp(());
+pub struct Ndsp {
+    _service_handler: ServiceReference,
+}
 
 impl Ndsp {
     pub fn init() -> crate::Result<Self> {
-        ResultCode(unsafe { ctru_sys::ndspInit() })?;
+        let _service_handler = ServiceReference::new(
+            &NDSP_ACTIVE,
+            false,
+            || {
+                ResultCode(unsafe { ctru_sys::ndspInit() })?;
 
-        Ok(Self(()))
+                Ok(())
+            },
+            || unsafe {
+                ctru_sys::ndspExit();
+            },
+        )?;
+
+        Ok(Self { _service_handler })
     }
 
     /// Return the representation of the specified channel.
@@ -66,7 +85,7 @@ impl Ndsp {
 
 // All channel operations are thread-safe thanks to `libctru`'s use of thread locks.
 // As such, there is no need to hold channels to ensure correct mutability.
-// With this prospective in mind, this struct looks more like a dummy than an actually functional block.
+// As such, this struct is more of a dummy than an actually functional block.
 impl Channel {
     /// Reset the channel
     pub fn reset(&self) {
@@ -132,15 +151,23 @@ impl Channel {
         unsafe { ctru_sys::ndspChnWaveBufClear(self.id) };
     }
 
-    /// Add a wave buffer to the channel's queue.
-    /// Note: if there are no other buffers in queue, playback for this buffer will start.
+    /// Add a wave buffer to the channel's queue. 
+    /// If there are no other buffers in queue, playback for this buffer will start.
     ///
-    /// # Beware
+    /// # Warning
     ///
     /// `libctru` expects the user to manually keep the info data (in this case [WaveInfo]) alive during playback.
-    /// Furthermore, there are no checks to see if the used memory is still valid. All responsibility of handling this data is left to the user.
-    pub fn queue_wave(&self, buffer: &mut WaveInfo) {
-        unsafe { ctru_sys::ndspChnWaveBufAdd(self.id, &mut buffer.raw_data) };
+    /// To ensure safety, checks within [WaveInfo] will clear the whole channel queue if any queued [WaveInfo] is dropped prematurely.
+    pub fn queue_wave(&self, wave: &mut WaveInfo) {
+        // TODO: Return an error for already queued/used WaveInfos.
+        match wave.get_status() {
+            WaveStatus::Playing | WaveStatus::Queued => return,
+            _ => (),
+        }
+
+        wave.set_channel(self.id);
+
+        unsafe { ctru_sys::ndspChnWaveBufAdd(self.id, &mut wave.raw_data) };
     }
 
     // FILTERS
@@ -190,10 +217,6 @@ impl Drop for Ndsp {
     fn drop(&mut self) {
         for i in 0..24 {
             self.channel(i).unwrap().clear_queue();
-        }
-
-        unsafe {
-            ctru_sys::ndspExit();
         }
     }
 }

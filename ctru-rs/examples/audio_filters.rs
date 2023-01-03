@@ -24,13 +24,13 @@ fn fill_buffer(audio_data: &mut [u8], frequency: f32) {
     let mut i = 0.;
     for chunk in formatted_data {
         // This is a simple sine wave, with a frequency of `frequency` Hz, and an amplitude 30% of maximum.
-        let sample: f32 = (frequency  * (i / SAMPLE_RATE as f32) * 2. * PI).sin();
-		let amplitude = 0.3 * i16::MAX as f32;
+        let sample: f32 = (frequency * (i / SAMPLE_RATE as f32) * 2. * PI).sin();
+        let amplitude = 0.3 * i16::MAX as f32;
 
         // This operation is safe, since we are writing to a slice of exactly 16 bits
         let chunk_ptr: &mut i16 = unsafe { std::mem::transmute(chunk.as_mut_ptr()) };
         // Stereo samples are interleaved: left and right channels.
-        *chunk_ptr = (sample*amplitude) as i16;
+        *chunk_ptr = (sample * amplitude) as i16;
 
         i += 1.;
     }
@@ -116,10 +116,10 @@ fn main() {
 
         let mut update_params = false;
         if keys_down.intersects(KeyPad::KEY_LEFT) {
-			let wraps;
+            let wraps;
             (filter, wraps) = filter.overflowing_sub(1);
 
-			if wraps {
+            if wraps {
                 filter = filter_names.len() - 1;
             }
 
@@ -150,22 +150,19 @@ fn main() {
         }
 
         let current: &mut WaveInfo;
-		let other: &mut WaveInfo;
 
         if altern {
             current = &mut wave_info1;
-			other = &mut wave_info2;
         } else {
             current = &mut wave_info2;
-			other = &mut wave_info1;
         }
 
         let status = current.get_status();
         if let WaveStatus::Done = status {
-            altern = !altern;
+            fill_buffer(current.get_mut_wavebuffer().get_mut_data(), NOTEFREQ[note]);
+            channel_zero.queue_wave(current);
 
-            fill_buffer(other.get_mut_wavebuffer().get_mut_data(), NOTEFREQ[note]);
-            channel_zero.queue_wave(other);
+            altern = !altern;
         }
 
         // Flush and swap framebuffers
@@ -175,9 +172,4 @@ fn main() {
         //Wait for VBlank
         gfx.wait_for_vblank();
     }
-
-    // Ndsp *has* to be dropped before the WaveInfos,
-    // otherwise the status won't be flagged properly and the program will panic.
-    // TODO: Find a way to get away with this using implicitness.
-    drop(ndsp);
 }
