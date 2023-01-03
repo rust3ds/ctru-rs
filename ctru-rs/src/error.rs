@@ -21,7 +21,7 @@ impl Try for ResultCode {
     }
 
     fn branch(self) -> ControlFlow<Self::Residual, Self::Output> {
-        if self.0 < 0 {
+        if self.0 != 0 {
             ControlFlow::Break(self.into())
         } else {
             ControlFlow::Continue(())
