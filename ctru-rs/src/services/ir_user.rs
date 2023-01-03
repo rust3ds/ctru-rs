@@ -11,7 +11,6 @@ use std::time::Duration;
 static IR_USER_ACTIVE: Mutex<usize> = Mutex::new(0);
 static IR_USER_STATE: Mutex<Option<IrUserState>> = Mutex::new(None);
 
-#[non_exhaustive]
 pub struct IrUser {
     _service_reference: ServiceReference,
 }
@@ -264,9 +263,10 @@ impl IrUser {
 
                 let packet_info_section_size = user_state.recv_packet_count * 8;
                 let packet_data = |idx| -> u8 {
-                    let offset = 0x20 + packet_info_section_size + (offset_to_data_buffer + idx);
-                    let data_buffer_size = (user_state.recv_buffer_size - packet_info_section_size);
-                    shared_mem[offset % data_buffer_size]
+                    let header_size = 0x20 + packet_info_section_size;
+                    let data_buffer_offset = offset_to_data_buffer + idx;
+                    let data_buffer_size = user_state.recv_buffer_size - packet_info_section_size;
+                    shared_mem[header_size + data_buffer_offset % data_buffer_size]
                 };
 
                 let (payload_length, payload_offset) = if packet_data(2) & 0x40 != 0 {
@@ -281,6 +281,9 @@ impl IrUser {
                 };
 
                 assert_eq!(data_length, payload_offset + payload_length + 1);
+
+                let magic_number = packet_data(0);
+                assert_eq!(magic_number, 0xA5);
 
                 IrUserPacket {
                     magic_number: packet_data(0),
@@ -400,7 +403,6 @@ pub struct IrUserPacket {
 
 #[derive(Debug)]
 pub struct CirclePadProInputResponse {
-    pub response_id: u8,
     pub c_stick_x: u16,
     pub c_stick_y: u16,
     pub battery_level: u8,
@@ -410,10 +412,10 @@ pub struct CirclePadProInputResponse {
     pub unknown_field: u8,
 }
 
-impl TryFrom<IrUserPacket> for CirclePadProInputResponse {
+impl TryFrom<&IrUserPacket> for CirclePadProInputResponse {
     type Error = String;
 
-    fn try_from(packet: IrUserPacket) -> Result<Self, Self::Error> {
+    fn try_from(packet: &IrUserPacket) -> Result<Self, Self::Error> {
         if packet.payload.len() != 6 {
             return Err(format!(
                 "Invalid payload length (expected 6 bytes, got {})",
@@ -422,6 +424,13 @@ impl TryFrom<IrUserPacket> for CirclePadProInputResponse {
         }
 
         let response_id = packet.payload[0];
+        if response_id != 0x10 {
+            return Err(format!(
+                "Invalid response ID (expected 0x10, got {:#x}",
+                packet.payload[0]
+            ));
+        }
+
         let c_stick_x = packet.payload[1] as u16 + (((packet.payload[2] & 0x0F) as u16) << 8);
         let c_stick_y =
             (((packet.payload[2] & 0xF0) as u16) >> 4) + ((packet.payload[3] as u16) << 4);
@@ -432,7 +441,6 @@ impl TryFrom<IrUserPacket> for CirclePadProInputResponse {
         let unknown_field = packet.payload[5];
 
         Ok(CirclePadProInputResponse {
-            response_id,
             c_stick_x,
             c_stick_y,
             battery_level,

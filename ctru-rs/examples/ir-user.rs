@@ -15,9 +15,12 @@ fn main() {
     let apt = Apt::init().unwrap();
     let hid = Hid::init().unwrap();
     let gfx = Gfx::init().unwrap();
-    let bottom_console = Console::init(gfx.bottom_screen.borrow_mut());
     let top_console = Console::init(gfx.top_screen.borrow_mut());
+    let bottom_console = Console::init(gfx.bottom_screen.borrow_mut());
 
+    println!("Welcome to the ir:USER / Circle Pad Pro Demo");
+
+    println!("Starting up ir:USER service");
     let ir_user = IrUser::init(
         PACKET_BUFFER_SIZE,
         PACKET_COUNT,
@@ -25,12 +28,13 @@ fn main() {
         PACKET_COUNT,
     )
     .expect("Couldn't initialize ir:USER service");
+    println!("ir:USER service initialized\nPress A to connect to the CPP");
 
     let print_status_info = || {
-        bottom_console.select();
-        bottom_console.clear();
-        println!("{:#x?}", ir_user.get_status_info());
         top_console.select();
+        top_console.clear();
+        println!("{:#x?}", ir_user.get_status_info());
+        bottom_console.select();
     };
 
     let conn_status_event = ir_user
@@ -56,6 +60,8 @@ fn main() {
         }
 
         if hid.keys_down().contains(KeyPad::KEY_A) && !is_connected {
+            println!("Attempting to connect to the CPP");
+
             // Connection loop
             loop {
                 hid.scan_input();
@@ -114,7 +120,7 @@ fn main() {
                 print_status_info();
 
                 if recv_event_result.is_ok() {
-                    println!("Got packet from CPP");
+                    println!("Got first packet from CPP");
                     handle_packet(&ir_user, &top_console, &bottom_console);
                     break;
                 }
@@ -136,44 +142,29 @@ fn handle_packet(ir_user: &IrUser, top_console: &Console, bottom_console: &Conso
     writeln!(&mut output_buffer, "{:x?}", ir_user.get_status_info()).unwrap();
 
     ir_user.process_shared_memory(|ir_mem| {
-        writeln!(&mut output_buffer, "ReceiveBufferInfo:").unwrap();
-        let mut counter = 0;
-        for byte in &ir_mem[0x10..0x20] {
-            write!(&mut output_buffer, "{byte:02x} ").unwrap();
-            counter += 1;
-            if counter % 12 == 0 {
-                writeln!(&mut output_buffer).unwrap();
-            }
-        }
+        writeln!(&mut output_buffer, "\nReceiveBufferInfo:").unwrap();
+        write_buffer_as_hex(&ir_mem[0x10..0x20], &mut output_buffer);
 
         writeln!(&mut output_buffer, "\nReceiveBuffer:").unwrap();
-        counter = 0;
-        for byte in &ir_mem[0x20..0x20 + PACKET_BUFFER_SIZE] {
-            write!(&mut output_buffer, "{byte:02x} ").unwrap();
-            counter += 1;
-            if counter % 12 == 0 {
-                writeln!(&mut output_buffer).unwrap();
-            }
-        }
-
+        write_buffer_as_hex(&ir_mem[0x20..0x20 + PACKET_BUFFER_SIZE], &mut output_buffer);
         writeln!(&mut output_buffer).unwrap();
     });
 
-    let mut packets = ir_user.get_packets();
+    let packets = ir_user.get_packets();
     let packet_count = packets.len();
-    writeln!(&mut output_buffer, "Packet count: {packet_count}").unwrap();
-    let last_packet = packets.pop().unwrap();
+    writeln!(&mut output_buffer, "\nPacket count: {packet_count}").unwrap();
+    let last_packet = packets.last().unwrap();
     writeln!(&mut output_buffer, "{last_packet:02x?}").unwrap();
 
     let cpp_response = CirclePadProInputResponse::try_from(last_packet)
         .expect("Failed to parse CPP response from IR packet");
-    writeln!(&mut output_buffer, "{cpp_response:#02x?}").unwrap();
+    writeln!(&mut output_buffer, "\n{cpp_response:#02x?}").unwrap();
 
-    // Write output to bottom screen
-    bottom_console.select();
-    bottom_console.clear();
-    std::io::stdout().write_all(&output_buffer).unwrap();
+    // Write output to top screen
     top_console.select();
+    top_console.clear();
+    std::io::stdout().write_all(&output_buffer).unwrap();
+    bottom_console.select();
 
     // Done handling the packet, release it
     ir_user
@@ -183,5 +174,16 @@ fn handle_packet(ir_user: &IrUser, top_console: &Console, bottom_console: &Conso
     // Remind the CPP that we're still listening
     if let Err(e) = ir_user.start_polling_input(CPP_POLLING_PERIOD_MS) {
         println!("Error: {e:?}");
+    }
+}
+
+fn write_buffer_as_hex(buffer: &[u8], output: &mut Vec<u8>) {
+    let mut counter = 0;
+    for byte in buffer {
+        write!(output, "{byte:02x} ").unwrap();
+        counter += 1;
+        if counter % 16 == 0 {
+            writeln!(output).unwrap();
+        }
     }
 }
