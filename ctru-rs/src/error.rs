@@ -69,6 +69,13 @@ impl Error {
         // Copy out of the error string, since it may be changed by other libc calls later
         Self::Libc(error_str.to_string_lossy().into())
     }
+
+    pub fn is_timeout(&self) -> bool {
+        match *self {
+            Error::Os(code) => R_DESCRIPTION(code) == ctru_sys::RD_TIMEOUT as ctru_sys::Result,
+            _ => false,
+        }
+    }
 }
 
 impl From<ctru_sys::Result> for Error {

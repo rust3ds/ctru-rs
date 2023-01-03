@@ -6,6 +6,7 @@ use std::cmp::max;
 use std::ffi::CString;
 use std::ptr::{slice_from_raw_parts, slice_from_raw_parts_mut};
 use std::sync::Mutex;
+use std::time::Duration;
 
 static IR_USER_ACTIVE: Mutex<usize> = Mutex::new(0);
 static IR_USER_STATE: Mutex<Option<IrUserState>> = Mutex::new(None);
@@ -182,6 +183,16 @@ impl IrUser {
         Ok(recv_event)
     }
 
+    pub fn wait_for_event(event: Handle, timeout: Duration) -> crate::Result<()> {
+        unsafe {
+            ResultCode(ctru_sys::svcWaitSynchronization(
+                event,
+                timeout.as_nanos() as i64,
+            ))?;
+        }
+        Ok(())
+    }
+
     pub fn start_polling_input(&self, period_ms: u8) -> crate::Result<()> {
         let ir_request: [u8; 3] = [1, period_ms, (period_ms + 2) << 2];
         self.send_service_request(
@@ -280,7 +291,7 @@ impl IrUser {
                     packet_info[7],
                 ]) as usize;
 
-                let packet_info_section_size = (user_state.recv_packet_count * 8);
+                let packet_info_section_size = user_state.recv_packet_count * 8;
                 // let data_start_offset = 0x20 + packet_info_section_size + offset_to_data_buffer;
                 // let packet_data_offset = &shared_mem
                 //     [data_start_offset..data_start_offset + data_length];
@@ -444,7 +455,8 @@ impl TryFrom<IrUserPacket> for CirclePadProInputResponse {
 
         let response_id = packet.payload[0];
         let c_stick_x = packet.payload[1] as u16 + (((packet.payload[2] & 0x0F) as u16) << 8);
-        let c_stick_y = (((packet.payload[2] & 0xF0) as u16) >> 4) + ((packet.payload[3] as u16) << 4);
+        let c_stick_y =
+            (((packet.payload[2] & 0xF0) as u16) >> 4) + ((packet.payload[3] as u16) << 4);
         let battery_level = packet.payload[4] & 0x1F;
         let zl_pressed = packet.payload[4] & 0x20 == 0;
         let zr_pressed = packet.payload[4] & 0x40 == 0;
