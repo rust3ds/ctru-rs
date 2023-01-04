@@ -84,7 +84,7 @@ impl<'b> WaveInfo<'b> {
     }
 
     pub fn get_mut_wavebuffer(&mut self) -> &mut WaveBuffer {
-        &mut self.buffer
+        self.buffer
     }
 
     pub fn get_status(&self) -> WaveStatus {
