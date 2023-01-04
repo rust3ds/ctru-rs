@@ -220,11 +220,16 @@ impl AudioFormat {
     /// 16 bit formats return 2 (bytes)
     pub fn sample_size(self) -> u8 {
         match self {
-            AudioFormat::PCM16Mono | AudioFormat::PCM16Stereo => 2,
+            AudioFormat::PCM8Mono | AudioFormat::ADPCMMono => 1,
+            AudioFormat::PCM16Mono | AudioFormat::PCM8Stereo => 2,
+            AudioFormat::PCM16Stereo => 4,
             AudioFormat::SurroundPreprocessed => {
-                panic!("Can't find size for Sourround Preprocessed audio: format is under research")
+                panic!("Can't find sample size for Sourround Preprocessed audio: format is under research")
             }
-            _ => 1,
+            // TODO: Understand what this is.
+            AudioFormat::FrontBypass => {
+                panic!("Can't find sample size for FrontBypass audio")
+            }
         }
     }
 }
