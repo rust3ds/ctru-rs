@@ -93,7 +93,11 @@ impl<'b> WaveInfo<'b> {
             next: std::ptr::null_mut(),
         };
 
-        Self { buffer, raw_data, played_on_channel: None,}
+        Self {
+            buffer,
+            raw_data,
+            played_on_channel: None,
+        }
     }
 
     pub fn get_mut_wavebuffer(&mut self) -> &mut WaveBuffer {
@@ -144,7 +148,7 @@ impl<'b> Drop for WaveInfo<'b> {
             // If the status flag is "unfinished"
             _ => {
                 // The unwrap is safe, since it must have a value in the case the status is "unfinished".
-                unsafe { ndspChnWaveBufClear(self.played_on_channel.unwrap().into() )};
+                unsafe { ndspChnWaveBufClear(self.played_on_channel.unwrap().into()) };
             }
         }
     }

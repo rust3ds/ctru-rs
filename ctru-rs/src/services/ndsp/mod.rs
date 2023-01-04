@@ -151,7 +151,7 @@ impl Channel {
         unsafe { ctru_sys::ndspChnWaveBufClear(self.id) };
     }
 
-    /// Add a wave buffer to the channel's queue. 
+    /// Add a wave buffer to the channel's queue.
     /// If there are no other buffers in queue, playback for this buffer will start.
     ///
     /// # Warning
