@@ -45,13 +45,6 @@ fn main() {
 
     println!("libctru filtered streamed audio\n");
 
-    let mut audio_data = Box::new_in([0u8; AUDIO_WAVE_LENGTH], LinearAllocator);
-    fill_buffer(&mut audio_data[..], NOTEFREQ[4]);
-
-    let mut audio_buffer1 =
-        WaveBuffer::new(audio_data, AudioFormat::PCM16Stereo).expect("Couldn't sync DSP cache");
-    let mut audio_buffer2 = audio_buffer1.clone();
-
     let mut ndsp = Ndsp::init().expect("Couldn't obtain NDSP controller");
 
     // This line isn't needed since the default NDSP configuration already sets the output mode to `Stereo`
@@ -86,6 +79,13 @@ fn main() {
 
     // We set up two wave buffers and alternate between the two,
     // effectively streaming an infinitely long sine wave.
+
+	let mut audio_data1 = Box::new_in([0u8; AUDIO_WAVE_LENGTH], LinearAllocator);
+    fill_buffer(&mut audio_data1[..], NOTEFREQ[4]);
+	let mut audio_data2 = audio_data1.clone();
+
+    let mut audio_buffer1 = WaveBuffer::new(audio_data1, AudioFormat::PCM16Stereo).expect("Couldn't sync DSP cache");
+    let mut audio_buffer2 = WaveBuffer::new(audio_data2, AudioFormat::PCM16Stereo).expect("Couldn't sync DSP cache");
 
     let mut wave_info1 = WaveInfo::new(&mut audio_buffer1, false);
     let mut wave_info2 = WaveInfo::new(&mut audio_buffer2, false);

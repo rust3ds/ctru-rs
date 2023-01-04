@@ -4,7 +4,6 @@ use super::AudioFormat;
 use crate::linear::LinearAllocator;
 
 /// Base struct to represent audio wave data. This requires audio format information.
-#[derive(Debug, Clone)]
 pub struct WaveBuffer {
     /// Buffer data. This data must be allocated on the LINEAR memory.
     data: Box<[u8], LinearAllocator>,
