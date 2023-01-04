@@ -213,6 +213,22 @@ impl Channel {
     }
 }
 
+impl AudioFormat {
+    /// Returns the amount of bytes needed to store one sample
+    /// Eg.
+    /// 8 bit formats return 1 (byte)
+    /// 16 bit formats return 2 (bytes)
+    pub fn sample_size(self) -> u8 {
+        match self {
+            AudioFormat::PCM16Mono | AudioFormat::PCM16Stereo => 2,
+            AudioFormat::SurroundPreprocessed => {
+                panic!("Can't find size for Sourround Preprocessed audio: format is under research")
+            }
+            _ => 1,
+        }
+    }
+}
+
 impl Drop for Ndsp {
     fn drop(&mut self) {
         for i in 0..24 {

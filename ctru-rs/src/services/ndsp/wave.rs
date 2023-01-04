@@ -30,29 +30,12 @@ pub enum WaveStatus {
     Done = ctru_sys::NDSP_WBUF_DONE as u8,
 }
 
-impl AudioFormat {
-    /// Returns the amount of bytes needed to store one sample
-    /// Eg.
-    /// 8 bit formats return 1 (byte)
-    /// 16 bit formats return 2 (bytes)
-    pub fn sample_size(self) -> u8 {
-        match self {
-            AudioFormat::PCM16Mono | AudioFormat::PCM16Stereo => 2,
-            AudioFormat::SurroundPreprocessed => {
-                panic!("Can't find size for Sourround Preprocessed audio: format is under research")
-            }
-            _ => 1,
-        }
-    }
-}
-
 impl WaveBuffer {
     pub fn new(data: Box<[u8], LinearAllocator>, audio_format: AudioFormat) -> crate::Result<Self> {
         let nsamples: usize = data.len() / (audio_format.sample_size() as usize);
 
         unsafe {
-            let _r =
-                ctru_sys::DSP_FlushDataCache(data.as_ptr().cast(), data.len().try_into().unwrap());
+            let _r = ctru_sys::DSP_FlushDataCache(data.as_ptr().cast(), data.len() as u32);
         }
 
         Ok(Self {
@@ -83,7 +66,7 @@ impl<'b> WaveInfo<'b> {
 
         let raw_data = ctru_sys::ndspWaveBuf {
             __bindgen_anon_1: address, // Buffer data virtual address
-            nsamples: buffer.nsamples.try_into().unwrap(),
+            nsamples: buffer.get_sample_amount() as u32,
             adpcm_data: std::ptr::null_mut(),
             offset: 0,
             looping,

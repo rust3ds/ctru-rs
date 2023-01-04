@@ -9,10 +9,10 @@ use ctru::services::ndsp::{
     AudioFormat, InterpolationType, Ndsp, OutputMode,
 };
 
-const SAMPLE_RATE: u32 = 22050;
-const SAMPLES_PER_BUF: u32 = SAMPLE_RATE / 30; // 735
-const BYTES_PER_SAMPLE: u32 = 4;
-const AUDIO_WAVE_LENGTH: usize = (SAMPLES_PER_BUF * BYTES_PER_SAMPLE * 2) as usize;
+const SAMPLE_RATE: usize = 22050;
+const SAMPLES_PER_BUF: usize = SAMPLE_RATE / 30; // 735
+const BYTES_PER_SAMPLE: usize = 2;
+const AUDIO_WAVE_LENGTH: usize = SAMPLES_PER_BUF * BYTES_PER_SAMPLE;
 
 // Note Frequencies
 const NOTEFREQ: [f32; 7] = [220., 440., 880., 1760., 3520., 7040., 14080.];
@@ -24,7 +24,7 @@ fn fill_buffer(audio_data: &mut [u8], frequency: f32) {
     let mut i = 0.;
     for chunk in formatted_data {
         // This is a simple sine wave, with a frequency of `frequency` Hz, and an amplitude 30% of maximum.
-        let sample: f32 = (frequency * (i / SAMPLE_RATE as f32) * 2. * PI).sin();
+        let sample: f32 = (frequency / 30. * (i / SAMPLES_PER_BUF as f32) * 2. * PI).sin();
         let amplitude = 0.3 * i16::MAX as f32;
 
         // This operation is safe, since we are writing to a slice of exactly 16 bits
@@ -42,8 +42,6 @@ fn main() {
     let hid = Hid::init().expect("Couldn't obtain HID controller");
     let apt = Apt::init().expect("Couldn't obtain APT controller");
     let _console = Console::init(gfx.top_screen.borrow_mut());
-
-    println!("libctru filtered streamed audio\n");
 
     let mut ndsp = Ndsp::init().expect("Couldn't obtain NDSP controller");
 
@@ -75,11 +73,10 @@ fn main() {
         "Peaking",
     ];
 
-    let mut filter = 0;
+    let mut filter: usize = 0;
 
     // We set up two wave buffers and alternate between the two,
     // effectively streaming an infinitely long sine wave.
-
     let mut audio_data1 = Box::new_in([0u8; AUDIO_WAVE_LENGTH], LinearAllocator);
     fill_buffer(&mut audio_data1[..], NOTEFREQ[4]);
     let mut audio_data2 = audio_data1.clone();
@@ -95,10 +92,10 @@ fn main() {
     channel_zero.queue_wave(&mut wave_info1);
     channel_zero.queue_wave(&mut wave_info2);
 
-    println!("Press up/down to change tone frequency\n");
-    println!("Press left/right to change filter\n");
-    println!("\x1b[6;1Hnote = {} Hz        ", NOTEFREQ[note]);
-    println!("\x1b[7;1Hfilter = {}         ", filter_names[filter]);
+    println!("\x1b[1;1HPress up/down to change tone frequency");
+    println!("\x1b[2;1HPress left/right to change filter");
+    println!("\x1b[4;1Hnote = {} Hz        ", NOTEFREQ[note]);
+    println!("\x1b[5;1Hfilter = {}         ", filter_names[filter]);
 
     let mut altern = true; // true is wave_info1, false is wave_info2
 
@@ -137,8 +134,8 @@ fn main() {
         // Check for upper limit
         note = std::cmp::min(note, NOTEFREQ.len() - 1);
 
-        println!("\x1b[6;1Hnote = {} Hz        ", NOTEFREQ[note]);
-        println!("\x1b[7;1Hfilter = {}         ", filter_names[filter]);
+        println!("\x1b[4;1Hnote = {} Hz        ", NOTEFREQ[note]);
+        println!("\x1b[5;1Hfilter = {}         ", filter_names[filter]);
 
         if update_params {
             match filter {
