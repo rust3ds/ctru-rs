@@ -118,7 +118,6 @@ pub enum Side {
 /// provides helper functions and utilities for software rendering.
 ///
 /// The service exits when this struct is dropped.
-#[non_exhaustive]
 pub struct Gfx {
     pub top_screen: RefCell<TopScreen>,
     pub bottom_screen: RefCell<BottomScreen>,

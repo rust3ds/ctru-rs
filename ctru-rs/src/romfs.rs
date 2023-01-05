@@ -16,7 +16,6 @@ use std::sync::Mutex;
 
 use crate::services::ServiceReference;
 
-#[non_exhaustive]
 pub struct RomFS {
     _service_handler: ServiceReference,
 }

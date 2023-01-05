@@ -8,7 +8,6 @@ use crate::Error;
 
 /// Soc service. Initializing this service will enable the use of network sockets and utilities
 /// such as those found in `std::net`. The service will be closed when this struct is is dropped.
-#[non_exhaustive]
 pub struct Soc {
     _service_handler: ServiceReference,
     sock_3dslink: libc::c_int,
