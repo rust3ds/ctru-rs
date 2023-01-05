@@ -1,5 +1,6 @@
 use crate::error::ResultCode;
 use crate::services::ServiceReference;
+use crate::Error;
 use ctru_sys::{Handle, MEMPERM_READ, MEMPERM_READWRITE};
 use std::alloc::Layout;
 use std::cmp::max;
@@ -11,10 +12,13 @@ use std::time::Duration;
 static IR_USER_ACTIVE: Mutex<usize> = Mutex::new(0);
 static IR_USER_STATE: Mutex<Option<IrUserState>> = Mutex::new(None);
 
+/// The "ir:USER" service. This service is used to talk to IR devices such as
+/// the Circle Pad Pro.
 pub struct IrUser {
     _service_reference: ServiceReference,
 }
 
+// We need to hold on to some extra service state, hence this struct.
 struct IrUserState {
     service_handle: Handle,
     shared_memory_handle: Handle,
@@ -24,6 +28,7 @@ struct IrUserState {
     recv_packet_count: usize,
 }
 
+// ir:USER syscall command headers
 const REQUIRE_CONNECTION_COMMAND_HEADER: u32 = 0x00060040;
 const DISCONNECT_COMMAND_HEADER: u32 = 0x00090000;
 const GET_RECEIVE_EVENT_COMMAND_HEADER: u32 = 0x000A0000;
@@ -32,7 +37,18 @@ const SEND_IR_NOP_COMMAND_HEADER: u32 = 0x000D0042;
 const INITIALIZE_IRNOP_SHARED_COMMAND_HEADER: u32 = 0x00180182;
 const RELEASE_RECEIVED_DATA_COMMAND_HEADER: u32 = 0x00190040;
 
+// Misc constants
+const SHARED_MEM_INFO_SECTIONS_SIZE: usize = 0x30;
+const SHARED_MEM_RECV_BUFFER_OFFSET: usize = 0x20;
+const PAGE_SIZE: usize = 0x1000;
+const IR_BITRATE: u32 = 4;
+const PACKET_INFO_SIZE: u32 = 8;
+const CIRCLE_PAD_PRO_INPUT_RESPONSE_PACKET_ID: u8 = 0x10;
+
 impl IrUser {
+    /// Initialize the ir:USER service. The provided buffer sizes and packet
+    /// counts are used to calculate the size of shared memory used by the
+    /// service.
     pub fn init(
         recv_buffer_size: usize,
         recv_packet_count: usize,
@@ -53,19 +69,13 @@ impl IrUser {
 
                 // Calculate the shared memory size.
                 // Shared memory length must be page aligned.
-                let info_sections_size = 0x30;
                 let minimum_shared_memory_len =
-                    info_sections_size + recv_buffer_size + send_buffer_size;
-                let shared_memory_len = if minimum_shared_memory_len % 0x1000 != 0 {
-                    (minimum_shared_memory_len / 0x1000) * 0x1000 + 0x1000
-                } else {
-                    (minimum_shared_memory_len / 0x1000) * 0x1000
-                };
-                assert_eq!(shared_memory_len % 0x1000, 0);
+                    SHARED_MEM_INFO_SECTIONS_SIZE + recv_buffer_size + send_buffer_size;
+                let shared_memory_len = round_up(minimum_shared_memory_len, PAGE_SIZE);
 
                 // Allocate the shared memory
                 let shared_memory_layout =
-                    Layout::from_size_align(shared_memory_len, 0x1000).unwrap();
+                    Layout::from_size_align(shared_memory_len, PAGE_SIZE).unwrap();
                 let shared_memory_ptr = std::alloc::alloc_zeroed(shared_memory_layout);
                 let shared_memory = &*slice_from_raw_parts(shared_memory_ptr, shared_memory_len);
 
@@ -87,7 +97,7 @@ impl IrUser {
                     recv_packet_count: recv_packet_count as u32,
                     send_packet_buffer_len: send_buffer_size as u32,
                     send_packet_count: send_packet_count as u32,
-                    bit_rate: 4,
+                    bit_rate: IR_BITRATE,
                     shared_memory_handle,
                 })?;
 
@@ -131,6 +141,7 @@ impl IrUser {
         })
     }
 
+    /// Try to connect to the device with the provided ID.
     pub fn require_connection(&self, device_id: IrDeviceId) -> crate::Result<()> {
         self.send_service_request(
             vec![REQUIRE_CONNECTION_COMMAND_HEADER, device_id.get_id()],
@@ -139,11 +150,13 @@ impl IrUser {
         Ok(())
     }
 
+    /// Close the current IR connection.
     pub fn disconnect(&self) -> crate::Result<()> {
         self.send_service_request(vec![DISCONNECT_COMMAND_HEADER], 2)?;
         Ok(())
     }
 
+    /// Get an event handle that activates on connection status changes.
     pub fn get_connection_status_event(&self) -> crate::Result<Handle> {
         let response =
             self.send_service_request(vec![GET_CONNECTION_STATUS_EVENT_COMMAND_HEADER], 4)?;
@@ -152,6 +165,7 @@ impl IrUser {
         Ok(status_event)
     }
 
+    /// Get an event handle that activates when a packet is received.
     pub fn get_recv_event(&self) -> crate::Result<Handle> {
         let response = self.send_service_request(vec![GET_RECEIVE_EVENT_COMMAND_HEADER], 4)?;
         let recv_event = response[3] as Handle;
@@ -159,6 +173,8 @@ impl IrUser {
         Ok(recv_event)
     }
 
+    /// Wait for an event to fire. If the timeout is reached, an error is returned. You can use
+    /// [`Error::is_timeout`] to check if the error is due to a timeout.
     pub fn wait_for_event(event: Handle, timeout: Duration) -> crate::Result<()> {
         unsafe {
             ResultCode(ctru_sys::svcWaitSynchronization(
@@ -169,7 +185,11 @@ impl IrUser {
         Ok(())
     }
 
-    pub fn start_polling_input(&self, period_ms: u8) -> crate::Result<()> {
+    /// Circle Pad Pro specific request.
+    ///
+    /// This will send a packet to the CPP requesting it to send back packets
+    /// with the current device input values.
+    pub fn request_input_polling(&self, period_ms: u8) -> crate::Result<()> {
         let ir_request: [u8; 3] = [1, period_ms, (period_ms + 2) << 2];
         self.send_service_request(
             vec![
@@ -184,11 +204,14 @@ impl IrUser {
         Ok(())
     }
 
+    /// Mark the last `packet_count` packets as processed, so their memory in
+    /// the receive buffer can be reused.
     pub fn release_received_data(&self, packet_count: u32) -> crate::Result<()> {
         self.send_service_request(vec![RELEASE_RECEIVED_DATA_COMMAND_HEADER, packet_count], 2)?;
         Ok(())
     }
 
+    /// This will let you directly read the ir:USER shared memory via a callback.
     pub fn process_shared_memory(&self, process_fn: impl FnOnce(&[u8])) {
         let shared_mem_guard = IR_USER_STATE.lock().unwrap();
         let shared_mem = shared_mem_guard.as_ref().unwrap();
@@ -196,6 +219,7 @@ impl IrUser {
         process_fn(shared_mem.shared_memory);
     }
 
+    /// Read and parse the ir:USER service status data from shared memory.
     pub fn get_status_info(&self) -> IrUserStatusInfo {
         let shared_mem_guard = IR_USER_STATE.lock().unwrap();
         let shared_mem = shared_mem_guard.as_ref().unwrap().shared_memory;
@@ -224,11 +248,13 @@ impl IrUser {
         }
     }
 
+    /// Read and parse the current packets received from the IR device.
     pub fn get_packets(&self) -> Vec<IrUserPacket> {
         let shared_mem_guard = IR_USER_STATE.lock().unwrap();
         let user_state = shared_mem_guard.as_ref().unwrap();
         let shared_mem = user_state.shared_memory;
 
+        // Find where the packets are, and how many
         let start_index = u32::from_ne_bytes([
             shared_mem[0x10],
             shared_mem[0x11],
@@ -242,11 +268,15 @@ impl IrUser {
             shared_mem[0x1b],
         ]);
 
+        // Parse the packets
         (0..valid_packet_count)
             .map(|i| {
+                // Get the packet info
                 let packet_index = (i + start_index) % user_state.recv_packet_count as u32;
-                let packet_info_offset = 0x20 + (packet_index * 8) as usize;
-                let packet_info = &shared_mem[packet_info_offset..packet_info_offset + 8];
+                let packet_info_offset =
+                    SHARED_MEM_RECV_BUFFER_OFFSET + (packet_index * PACKET_INFO_SIZE) as usize;
+                let packet_info =
+                    &shared_mem[packet_info_offset..packet_info_offset + PACKET_INFO_SIZE];
 
                 let offset_to_data_buffer = u32::from_ne_bytes([
                     packet_info[0],
@@ -261,14 +291,17 @@ impl IrUser {
                     packet_info[7],
                 ]) as usize;
 
-                let packet_info_section_size = user_state.recv_packet_count * 8;
+                // Find the packet data. The packet data may wrap around the buffer end, so
+                // `packet_data` is a function from packet byte offset to value.
+                let packet_info_section_size = user_state.recv_packet_count * PACKET_INFO_SIZE;
+                let header_size = SHARED_MEM_RECV_BUFFER_OFFSET + packet_info_section_size;
+                let data_buffer_size = user_state.recv_buffer_size - packet_info_section_size;
                 let packet_data = |idx| -> u8 {
-                    let header_size = 0x20 + packet_info_section_size;
                     let data_buffer_offset = offset_to_data_buffer + idx;
-                    let data_buffer_size = user_state.recv_buffer_size - packet_info_section_size;
                     shared_mem[header_size + data_buffer_offset % data_buffer_size]
                 };
 
+                // Find out how long the payload is (payload length is variable-length encoded)
                 let (payload_length, payload_offset) = if packet_data(2) & 0x40 != 0 {
                     // Big payload
                     (
@@ -280,8 +313,10 @@ impl IrUser {
                     ((packet_data(2) & 0x3F) as usize, 3)
                 };
 
+                // Check our payload length math against what the packet info contains
                 assert_eq!(data_length, payload_offset + payload_length + 1);
 
+                // IR packets start with a magic number, so double check it
                 let magic_number = packet_data(0);
                 assert_eq!(magic_number, 0xA5);
 
@@ -298,6 +333,7 @@ impl IrUser {
             .collect()
     }
 
+    /// Internal helper for calling ir:USER service methods.
     fn send_service_request(
         &self,
         mut request: Vec<u32>,
@@ -331,6 +367,15 @@ impl IrUser {
     }
 }
 
+// Internal helper for rounding up a value to a multiple of another value.
+fn round_up(value: usize, multiple: usize) -> usize {
+    if value % multiple != 0 {
+        (value / multiple) * multiple + multiple
+    } else {
+        (value / multiple) * multiple
+    }
+}
+
 struct InitializeIrnopSharedParams {
     ir_user_handle: Handle,
     shared_memory_len: u32,
@@ -342,6 +387,7 @@ struct InitializeIrnopSharedParams {
     shared_memory_handle: Handle,
 }
 
+/// Internal helper for initializing the ir:USER service
 unsafe fn initialize_irnop_shared(params: InitializeIrnopSharedParams) -> crate::Result<()> {
     let cmd_buffer = &mut *(slice_from_raw_parts_mut(ctru_sys::getThreadCommandBuffer(), 9));
     cmd_buffer[0] = INITIALIZE_IRNOP_SHARED_COMMAND_HEADER;
@@ -363,6 +409,8 @@ unsafe fn initialize_irnop_shared(params: InitializeIrnopSharedParams) -> crate:
     Ok(())
 }
 
+/// An enum which represents the different IR devices the 3DS can connect to via
+/// the ir:USER service.
 pub enum IrDeviceId {
     CirclePadPro,
     // Pretty sure no other IDs are recognized, but just in case
@@ -370,6 +418,7 @@ pub enum IrDeviceId {
 }
 
 impl IrDeviceId {
+    /// Get the ID of the device.
     pub fn get_id(&self) -> u32 {
         match *self {
             IrDeviceId::CirclePadPro => 1,
@@ -378,6 +427,7 @@ impl IrDeviceId {
     }
 }
 
+/// This struct holds a parsed copy of the ir:USER service status (from shared memory).
 #[derive(Debug)]
 pub struct IrUserStatusInfo {
     pub recv_err_result: ctru_sys::Result,
@@ -392,6 +442,7 @@ pub struct IrUserStatusInfo {
     pub unknown_field_3: u8,
 }
 
+/// A packet of data sent/received to/from the IR device.
 #[derive(Debug)]
 pub struct IrUserPacket {
     pub magic_number: u8,
@@ -401,6 +452,7 @@ pub struct IrUserPacket {
     pub checksum: u8,
 }
 
+/// Circle Pad Pro response packet holding the current device input signals and status.
 #[derive(Debug)]
 pub struct CirclePadProInputResponse {
     pub c_stick_x: u16,
@@ -424,7 +476,7 @@ impl TryFrom<&IrUserPacket> for CirclePadProInputResponse {
         }
 
         let response_id = packet.payload[0];
-        if response_id != 0x10 {
+        if response_id != CIRCLE_PAD_PRO_INPUT_RESPONSE_PACKET_ID {
             return Err(format!(
                 "Invalid response ID (expected 0x10, got {:#x}",
                 packet.payload[0]

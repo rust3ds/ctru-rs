@@ -1,3 +1,5 @@
+//! A demo of using the ir:USER service to connect to the Circle Pad Pro.
+
 use ctru::prelude::*;
 use ctru::services::ir_user::{CirclePadProInputResponse, IrDeviceId, IrUser};
 use std::io::Write;
@@ -37,6 +39,7 @@ fn main() {
         bottom_console.select();
     };
 
+    // Get event handles
     let conn_status_event = ir_user
         .get_connection_status_event()
         .expect("Couldn't get ir:USER connection status event");
@@ -49,6 +52,7 @@ fn main() {
     'main_loop: while apt.main_loop() {
         hid.scan_input();
 
+        // Check if we need to exit
         if hid.keys_held().contains(KeyPad::KEY_START) {
             break;
         }
@@ -59,6 +63,7 @@ fn main() {
             handle_packet(&ir_user, &top_console, &bottom_console);
         }
 
+        // Check if we should start the connection
         if hid.keys_down().contains(KeyPad::KEY_A) && !is_connected {
             println!("Attempting to connect to the CPP");
 
@@ -69,6 +74,7 @@ fn main() {
                     break 'main_loop;
                 }
 
+                // Start the connection process
                 ir_user
                     .require_connection(IrDeviceId::CirclePadPro)
                     .expect("Couldn't initialize circle pad pro connection");
@@ -83,12 +89,12 @@ fn main() {
                 }
 
                 print_status_info();
-                let status_info = ir_user.get_status_info();
-                if status_info.connection_status == 2 {
+                if ir_user.get_status_info().connection_status == 2 {
                     println!("Connected!");
                     break;
                 }
 
+                // If not connected (ex. timeout), disconnect so we can retry
                 ir_user
                     .disconnect()
                     .expect("Failed to disconnect circle pad pro connection");
@@ -110,11 +116,13 @@ fn main() {
                     break 'main_loop;
                 }
 
-                if let Err(e) = ir_user.start_polling_input(CPP_CONNECTION_POLLING_PERIOD_MS) {
+                // Send a request for input to the CPP
+                if let Err(e) = ir_user.request_input_polling(CPP_CONNECTION_POLLING_PERIOD_MS) {
                     println!("Error: {e:?}");
                 }
                 print_status_info();
 
+                // Wait for the response
                 let recv_event_result =
                     IrUser::wait_for_event(recv_event, Duration::from_millis(100));
                 print_status_info();
@@ -124,6 +132,8 @@ fn main() {
                     handle_packet(&ir_user, &top_console, &bottom_console);
                     break;
                 }
+
+                // We didn't get a response in time, so loop and retry
             }
 
             is_connected = true;
@@ -172,7 +182,7 @@ fn handle_packet(ir_user: &IrUser, top_console: &Console, bottom_console: &Conso
         .expect("Failed to release ir:USER packet");
 
     // Remind the CPP that we're still listening
-    if let Err(e) = ir_user.start_polling_input(CPP_POLLING_PERIOD_MS) {
+    if let Err(e) = ir_user.request_input_polling(CPP_POLLING_PERIOD_MS) {
         println!("Error: {e:?}");
     }
 }
