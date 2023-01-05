@@ -173,9 +173,7 @@ impl Channel {
     }
 
     pub fn iir_biquad_set_params_high_pass_filter(&self, cut_off_freq: f32, quality: f32) {
-        unsafe {
-            ctru_sys::ndspChnIirBiquadSetParamsHighPassFilter(self.0, cut_off_freq, quality)
-        };
+        unsafe { ctru_sys::ndspChnIirBiquadSetParamsHighPassFilter(self.0, cut_off_freq, quality) };
     }
 
     pub fn iir_biquad_set_params_low_pass_filter(&self, cut_off_freq: f32, quality: f32) {
@@ -197,12 +195,7 @@ impl Channel {
         gain: f32,
     ) {
         unsafe {
-            ctru_sys::ndspChnIirBiquadSetParamsPeakingEqualizer(
-                self.0,
-                central_freq,
-                quality,
-                gain,
-            )
+            ctru_sys::ndspChnIirBiquadSetParamsPeakingEqualizer(self.0, central_freq, quality, gain)
         };
     }
 }
