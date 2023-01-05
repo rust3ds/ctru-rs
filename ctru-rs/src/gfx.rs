@@ -1,6 +1,5 @@
 //! LCD screens manipulation helper
 
-use once_cell::sync::Lazy;
 use std::cell::{Ref, RefCell, RefMut};
 use std::marker::PhantomData;
 use std::sync::Mutex;
@@ -126,7 +125,7 @@ pub struct Gfx {
     _service_handler: ServiceReference,
 }
 
-static GFX_ACTIVE: Lazy<Mutex<usize>> = Lazy::new(|| Mutex::new(0));
+static GFX_ACTIVE: Mutex<usize> = Mutex::new(0);
 
 impl Gfx {
     /// Initialize the Gfx module with the chosen framebuffer formats for the top and bottom

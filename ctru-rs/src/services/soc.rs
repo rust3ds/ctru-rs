@@ -1,5 +1,4 @@
 use libc::memalign;
-use once_cell::sync::Lazy;
 use std::net::Ipv4Addr;
 use std::sync::Mutex;
 
@@ -15,7 +14,7 @@ pub struct Soc {
     sock_3dslink: libc::c_int,
 }
 
-static SOC_ACTIVE: Lazy<Mutex<usize>> = Lazy::new(|| Mutex::new(0));
+static SOC_ACTIVE: Mutex<usize> = Mutex::new(0);
 
 impl Soc {
     /// Initialize the Soc service with a default buffer size of 0x100000 bytes

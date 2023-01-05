@@ -20,7 +20,6 @@ pthread-3ds = { git = "https://github.com/rust3ds/pthread-3ds.git" }
 libc = "0.2.121"
 bitflags = "1.0.0"
 widestring = "0.2.2"
-once_cell = "1.10.0"
 
 [build-dependencies]
 toml = "0.5"

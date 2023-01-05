@@ -4,7 +4,6 @@ use wave::{WaveInfo, WaveStatus};
 use crate::error::ResultCode;
 use crate::services::ServiceReference;
 
-use once_cell::sync::Lazy;
 use std::sync::Mutex;
 
 #[derive(Copy, Clone, Debug)]
@@ -39,7 +38,7 @@ pub struct Channel {
     id: i32,
 }
 
-static NDSP_ACTIVE: Lazy<Mutex<usize>> = Lazy::new(|| Mutex::new(0));
+static NDSP_ACTIVE: Mutex<usize> = Mutex::new(0);
 
 #[non_exhaustive]
 pub struct Ndsp {
