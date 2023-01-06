@@ -163,10 +163,7 @@ fn main() {
 
         let status = current.get_status();
         if let WaveStatus::Done = status {
-            fill_buffer(
-                current.get_mut_wavebuffer().get_mut_data(),
-                NOTEFREQ[note],
-            );
+            fill_buffer(current.get_mut_wavebuffer().get_mut_data(), NOTEFREQ[note]);
 
             channel_zero.queue_wave(current);
 
