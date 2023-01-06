@@ -22,19 +22,16 @@ const NOTEFREQ: [f32; 7] = [220., 440., 880., 1760., 3520., 7040., 14080.];
 fn fill_buffer(audio_data: &mut [u8], frequency: f32) {
     let formatted_data = audio_data.chunks_exact_mut(4);
 
-    let mut i: usize = 0;
-    for chunk in formatted_data {
+    for (i, chunk) in formatted_data.enumerate() {
         // This is a simple sine wave, with a frequency of `frequency` Hz, and an amplitude 30% of maximum.
         let sample: f32 = (frequency * (i as f32 / SAMPLE_RATE as f32) * 2. * PI).sin();
         let amplitude = 0.3 * i16::MAX as f32;
 
         // This operation is safe, since we are writing to a slice of exactly 32 bits
-        let chunk_ptr: &mut [i16; 2] = unsafe { std::mem::transmute(chunk.as_mut_ptr()) };
+        let chunk_ptr: &mut [i16; 2] = unsafe { &mut *(chunk.as_mut_ptr() as *mut [i16; 2]) };
         // Stereo samples are interleaved: left and right channels.
         chunk_ptr[0] = (sample * amplitude) as i16;
         chunk_ptr[1] = (sample * amplitude) as i16;
-
-        i += 1;
     }
 }
 
@@ -153,13 +150,11 @@ fn main() {
             }
         }
 
-        let current: &mut WaveInfo;
-
-        if altern {
-            current = &mut wave_info1;
+        let current: &mut WaveInfo = if altern {
+            &mut wave_info1
         } else {
-            current = &mut wave_info2;
-        }
+            &mut wave_info2
+        };
 
         let status = current.get_status();
         if let WaveStatus::Done = status {
