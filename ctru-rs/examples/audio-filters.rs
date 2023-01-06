@@ -10,7 +10,7 @@ use ctru::services::ndsp::{
 };
 
 const SAMPLE_RATE: usize = 22050;
-const SAMPLES_PER_BUF: usize = SAMPLE_RATE / 30; // 735
+const SAMPLES_PER_BUF: usize = SAMPLE_RATE / 10; // 2205
 const BYTES_PER_SAMPLE: usize = 4;
 const AUDIO_WAVE_LENGTH: usize = SAMPLES_PER_BUF * BYTES_PER_SAMPLE;
 
@@ -19,13 +19,13 @@ const NOTEFREQ: [f32; 7] = [220., 440., 880., 1760., 3520., 7040., 14080.];
 
 // audioBuffer is Stereo PCM16
 // As such, a sample is made up of 2 "Mono" samples (2 * i16 = u32), one for each channel (left and right)
-fn fill_buffer(audio_data: &mut [u8], frequency: f32, offset: &mut usize) {
+fn fill_buffer(audio_data: &mut [u8], frequency: f32) {
     let formatted_data = audio_data.chunks_exact_mut(4);
 
     let mut i: usize = 0;
     for chunk in formatted_data {
         // This is a simple sine wave, with a frequency of `frequency` Hz, and an amplitude 30% of maximum.
-        let sample: f32 = (frequency * ((i + *offset) as f32 / SAMPLE_RATE as f32) * 2. * PI).sin();
+        let sample: f32 = (frequency * (i as f32 / SAMPLE_RATE as f32) * 2. * PI).sin();
         let amplitude = 0.3 * i16::MAX as f32;
 
         // This operation is safe, since we are writing to a slice of exactly 32 bits
@@ -36,9 +36,6 @@ fn fill_buffer(audio_data: &mut [u8], frequency: f32, offset: &mut usize) {
 
         i += 1;
     }
-
-    // Adds the SAMPLES_PER_BUF length back to the offset
-    *offset += i;
 }
 
 fn main() {
@@ -82,13 +79,12 @@ fn main() {
 
     // We set up two wave buffers and alternate between the two,
     // effectively streaming an infinitely long sine wave.
-    let mut offset: usize = 0;
 
     let mut audio_data1 = Box::new_in([0u8; AUDIO_WAVE_LENGTH], LinearAllocator);
-    fill_buffer(&mut audio_data1[..], NOTEFREQ[4], &mut offset);
+    fill_buffer(&mut audio_data1[..], NOTEFREQ[4]);
 
     let mut audio_data2 = Box::new_in([0u8; AUDIO_WAVE_LENGTH], LinearAllocator);
-    fill_buffer(&mut audio_data2[..], NOTEFREQ[4], &mut offset);
+    fill_buffer(&mut audio_data2[..], NOTEFREQ[4]);
 
     let mut audio_buffer1 =
         WaveBuffer::new(audio_data1, AudioFormat::PCM16Stereo).expect("Couldn't sync DSP cache");
@@ -170,8 +166,8 @@ fn main() {
             fill_buffer(
                 current.get_mut_wavebuffer().get_mut_data(),
                 NOTEFREQ[note],
-                &mut offset,
             );
+
             channel_zero.queue_wave(current);
 
             altern = !altern;
