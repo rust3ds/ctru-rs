@@ -4,7 +4,7 @@ extern crate test;
 
 use std::io;
 
-use test::{ColorConfig, Options, OutputFormat, RunIgnored, TestDescAndFn, TestFn, TestOpts};
+use test::{ColorConfig, OutputFormat, TestDescAndFn, TestFn, TestOpts};
 
 use crate::console::Console;
 use crate::gfx::Gfx;
@@ -25,34 +25,18 @@ pub(crate) fn run(tests: &[&TestDescAndFn]) {
     top_screen.set_wide_mode(true);
     let _console = Console::init(top_screen);
 
-    // TODO: it would be nice to have a way of specifying argv to make these
-    // configurable at runtime, but I can't figure out how to do it easily,
-    //  so for now, just hardcode everything.
     let opts = TestOpts {
-        list: false,
-        filters: Vec::new(),
-        filter_exact: false,
-        // Forking is not supported
         force_run_in_process: true,
-        exclude_should_panic: false,
-        run_ignored: RunIgnored::No,
         run_tests: true,
-        // Don't run benchmarks. We may want to create a separate runner for them in the future
-        bench_benchmarks: false,
-        logfile: None,
-        nocapture: false,
         // TODO: color doesn't work because of TERM/TERMINFO.
         // With RomFS we might be able to fake this out nicely...
         color: ColorConfig::AutoColor,
         format: OutputFormat::Pretty,
-        shuffle: false,
-        shuffle_seed: None,
-        test_threads: None,
-        skip: Vec::new(),
-        time_options: None,
-        options: Options::new(),
+        // Hopefully this interface is more stable vs specifying individual options,
+        // and parsing the empty list of args should always work, I think.
+        // TODO Ideally we could pass actual std::env::args() here too
+        ..test::test::parse_opts(&[]).unwrap().unwrap()
     };
-
     // Use the default test implementation with our hardcoded options
     let _success = run_static_tests(&opts, tests).unwrap();
 

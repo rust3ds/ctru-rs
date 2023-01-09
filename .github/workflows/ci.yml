@@ -27,6 +27,13 @@ jobs:
     runs-on: ubuntu-latest
     container: devkitpro/devkitarm
     steps:
+      # https://github.com/nektos/act/issues/917#issuecomment-1074421318
+      - if: ${{ env.ACT }}
+        name: Hack container for local development
+        run: |
+            curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+            sudo apt-get install -y nodejs
+
       - name: Checkout branch
         uses: actions/checkout@v2
 
@@ -56,9 +63,10 @@ jobs:
 
       - name: Cargo check
         run: cargo 3ds clippy --color=always --workspace --verbose --all-targets
-        env:
-          RUSTFLAGS:
-            --deny=warnings
+        # --deny=warnings would be nice, but can easily break CI for new clippy
+        # lints getting added. I'd also like to use Github's "inline warnings"
+        # feature, but https://github.com/actions/runner/issues/2341 means we
+        # can't have both that *and* colored output.
 
   # TODO: it would be nice to actually build 3dsx for examples/tests, etc.
   # and run it somehow, but exactly how remains to be seen.
