@@ -6,7 +6,7 @@ fn main() {
 
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-env-changed=DEVKITPRO");
-    println!("cargo:rustc-link-search=native={}/libctru/lib", dkp_path);
+    println!("cargo:rustc-link-search=native={dkp_path}/libctru/lib");
     println!(
         "cargo:rustc-link-lib=static={}",
         match profile.as_str() {
