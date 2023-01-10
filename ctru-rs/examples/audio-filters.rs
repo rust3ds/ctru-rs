@@ -17,21 +17,20 @@ const AUDIO_WAVE_LENGTH: usize = SAMPLES_PER_BUF * BYTES_PER_SAMPLE;
 // Note Frequencies
 const NOTEFREQ: [f32; 7] = [220., 440., 880., 1760., 3520., 7040., 14080.];
 
-// audioBuffer is Stereo PCM16
+// The audio format is Stereo PCM16
 // As such, a sample is made up of 2 "Mono" samples (2 * i16 = u32), one for each channel (left and right)
 fn fill_buffer(audio_data: &mut [u8], frequency: f32) {
-    let formatted_data = audio_data.chunks_exact_mut(4);
+    let formatted_data = bytemuck::cast_slice_mut::<_, [i16; 2]>(audio_data);
 
-    for (i, chunk) in formatted_data.enumerate() {
+    for (i, chunk) in formatted_data.iter_mut().enumerate() {
         // This is a simple sine wave, with a frequency of `frequency` Hz, and an amplitude 30% of maximum.
         let sample: f32 = (frequency * (i as f32 / SAMPLE_RATE as f32) * 2. * PI).sin();
         let amplitude = 0.3 * i16::MAX as f32;
 
-        // This operation is safe, since we are writing to a slice of exactly 32 bits
-        let chunk_ptr: &mut [i16; 2] = unsafe { &mut *(chunk.as_mut_ptr() as *mut [i16; 2]) };
+        let result = (sample * amplitude) as i16;
+
         // Stereo samples are interleaved: left and right channels.
-        chunk_ptr[0] = (sample * amplitude) as i16;
-        chunk_ptr[1] = (sample * amplitude) as i16;
+        *chunk = [result, result];
     }
 }
 
