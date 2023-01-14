@@ -1,6 +1,5 @@
 use crate::error::ResultCode;
 use crate::services::ServiceReference;
-use crate::Error;
 use ctru_sys::{Handle, MEMPERM_READ, MEMPERM_READWRITE};
 use std::alloc::Layout;
 use std::cmp::max;
@@ -42,7 +41,7 @@ const SHARED_MEM_INFO_SECTIONS_SIZE: usize = 0x30;
 const SHARED_MEM_RECV_BUFFER_OFFSET: usize = 0x20;
 const PAGE_SIZE: usize = 0x1000;
 const IR_BITRATE: u32 = 4;
-const PACKET_INFO_SIZE: u32 = 8;
+const PACKET_INFO_SIZE: usize = 8;
 const CIRCLE_PAD_PRO_INPUT_RESPONSE_PACKET_ID: u8 = 0x10;
 
 impl IrUser {
@@ -269,12 +268,12 @@ impl IrUser {
         ]);
 
         // Parse the packets
-        (0..valid_packet_count)
+        (0..valid_packet_count as usize)
             .map(|i| {
                 // Get the packet info
-                let packet_index = (i + start_index) % user_state.recv_packet_count as u32;
+                let packet_index = (i + start_index as usize) % user_state.recv_packet_count;
                 let packet_info_offset =
-                    SHARED_MEM_RECV_BUFFER_OFFSET + (packet_index * PACKET_INFO_SIZE) as usize;
+                    SHARED_MEM_RECV_BUFFER_OFFSET + (packet_index * PACKET_INFO_SIZE);
                 let packet_info =
                     &shared_mem[packet_info_offset..packet_info_offset + PACKET_INFO_SIZE];
 
