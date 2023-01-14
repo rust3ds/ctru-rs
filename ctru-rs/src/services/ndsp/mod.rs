@@ -6,6 +6,8 @@ use crate::services::ServiceReference;
 
 use std::sync::Mutex;
 
+const NUMBER_OF_CHANNELS: u8 = 24;
+
 #[derive(Copy, Clone, Debug)]
 #[repr(u32)]
 pub enum OutputMode {
@@ -64,7 +66,7 @@ impl Ndsp {
     ///
     /// An error will be returned if the channel id is not between 0 and 23.
     pub fn channel(&self, id: u8) -> crate::Result<Channel> {
-        if id > 23 {
+        if id >= NUMBER_OF_CHANNELS as u8 {
             return Err(crate::Error::InvalidChannel(id.into()));
         }
 
@@ -216,7 +218,7 @@ impl AudioFormat {
 
 impl Drop for Ndsp {
     fn drop(&mut self) {
-        for i in 0..24 {
+        for i in 0..NUMBER_OF_CHANNELS {
             self.channel(i).unwrap().clear_queue();
         }
     }

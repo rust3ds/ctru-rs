@@ -41,23 +41,6 @@ fn main() {
     let apt = Apt::init().expect("Couldn't obtain APT controller");
     let _console = Console::init(gfx.top_screen.borrow_mut());
 
-    let mut ndsp = Ndsp::init().expect("Couldn't obtain NDSP controller");
-
-    // This line isn't needed since the default NDSP configuration already sets the output mode to `Stereo`
-    ndsp.set_output_mode(OutputMode::Stereo);
-
-    let channel_zero = ndsp.channel(0).unwrap();
-    channel_zero.set_interpolation(InterpolationType::Linear);
-    channel_zero.set_sample_rate(SAMPLE_RATE as f32);
-    channel_zero.set_format(AudioFormat::PCM16Stereo);
-
-    // Output at 100% on the first pair of left and right channels.
-
-    let mut mix: [f32; 12] = [0f32; 12];
-    mix[0] = 1.0;
-    mix[1] = 1.0;
-    channel_zero.set_mix(&mix);
-
     let mut note: usize = 4;
 
     // Filters
@@ -77,13 +60,29 @@ fn main() {
     // effectively streaming an infinitely long sine wave.
 
     let mut audio_data1 = Box::new_in([0u8; AUDIO_WAVE_LENGTH], LinearAllocator);
-    fill_buffer(&mut audio_data1[..], NOTEFREQ[4]);
+    fill_buffer(audio_data1.as_mut_slice(), NOTEFREQ[4]);
 
-    let mut audio_data2 = Box::new_in([0u8; AUDIO_WAVE_LENGTH], LinearAllocator);
-    fill_buffer(&mut audio_data2[..], NOTEFREQ[4]);
+    let audio_data2 = audio_data1.clone();
 
     let mut wave_info1 = WaveInfo::new(audio_data1, AudioFormat::PCM16Stereo, false);
     let mut wave_info2 = WaveInfo::new(audio_data2, AudioFormat::PCM16Stereo, false);
+
+    let mut ndsp = Ndsp::init().expect("Couldn't obtain NDSP controller");
+
+    // This line isn't needed since the default NDSP configuration already sets the output mode to `Stereo`
+    ndsp.set_output_mode(OutputMode::Stereo);
+
+    let channel_zero = ndsp.channel(0).unwrap();
+    channel_zero.set_interpolation(InterpolationType::Linear);
+    channel_zero.set_sample_rate(SAMPLE_RATE as f32);
+    channel_zero.set_format(AudioFormat::PCM16Stereo);
+
+    // Output at 100% on the first pair of left and right channels.
+
+    let mut mix: [f32; 12] = [0f32; 12];
+    mix[0] = 1.0;
+    mix[1] = 1.0;
+    channel_zero.set_mix(&mix);
 
     channel_zero.queue_wave(&mut wave_info1);
     channel_zero.queue_wave(&mut wave_info2);
@@ -106,7 +105,7 @@ fn main() {
         if keys_down.intersects(KeyPad::KEY_DOWN) {
             note = note.saturating_sub(1);
         } else if keys_down.intersects(KeyPad::KEY_UP) {
-            note += 1;
+            note = std::cmp::min(note + 1, NOTEFREQ.len() - 1);;
         }
 
         let mut update_params = false;
@@ -126,9 +125,6 @@ fn main() {
             }
             update_params = true;
         }
-
-        // Check for upper limit
-        note = std::cmp::min(note, NOTEFREQ.len() - 1);
 
         println!("\x1b[4;1Hnote = {} Hz        ", NOTEFREQ[note]);
         println!("\x1b[5;1Hfilter = {}         ", filter_names[filter]);
@@ -152,7 +148,7 @@ fn main() {
 
         let status = current.get_status();
         if let WaveStatus::Done = status {
-            fill_buffer(current.get_mut_buffer(), NOTEFREQ[note]);
+            fill_buffer(current.get_buffer_mut(), NOTEFREQ[note]);
 
             channel_zero.queue_wave(current);
 

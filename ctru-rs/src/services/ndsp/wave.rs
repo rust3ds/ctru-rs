@@ -26,8 +26,10 @@ impl WaveInfo {
         audio_format: AudioFormat,
         looping: bool,
     ) -> Self {
-        let nsamples: usize = buffer.len() / (audio_format.sample_size() as usize);
+        let sample_count: usize = buffer.len() / (audio_format.sample_size() as usize);
 
+        // Signal to the DSP processor the buffer's RAM sector.
+        // This step may seem delicate, but testing reports failure most of the time, while still having no repercussions on the resulting audio.
         unsafe {
             let _r = ctru_sys::DSP_FlushDataCache(buffer.as_ptr().cast(), buffer.len() as u32);
         }
@@ -38,7 +40,7 @@ impl WaveInfo {
 
         let raw_data = ctru_sys::ndspWaveBuf {
             __bindgen_anon_1: address, // Buffer data virtual address
-            nsamples: nsamples as u32,
+            nsamples: sample_count as u32,
             adpcm_data: std::ptr::null_mut(),
             offset: 0,
             looping,
@@ -56,7 +58,11 @@ impl WaveInfo {
         }
     }
 
-    pub fn get_mut_buffer(&mut self) -> &mut [u8] {
+    pub fn get_buffer(&self) -> &[u8] {
+        &self.buffer
+    }
+
+    pub fn get_buffer_mut(&mut self) -> &mut [u8] {
         &mut self.buffer
     }
 
@@ -64,7 +70,7 @@ impl WaveInfo {
         self.raw_data.status.try_into().unwrap()
     }
 
-    pub fn get_sample_amount(&self) -> u32 {
+    pub fn get_sample_count(&self) -> u32 {
         self.raw_data.nsamples
     }
 
@@ -78,7 +84,7 @@ impl WaveInfo {
 }
 
 impl TryFrom<u8> for WaveStatus {
-    type Error = String;
+    type Error = &'static str;
 
     fn try_from(value: u8) -> Result<Self, Self::Error> {
         match value {
@@ -86,7 +92,7 @@ impl TryFrom<u8> for WaveStatus {
             1 => Ok(Self::Queued),
             2 => Ok(Self::Playing),
             3 => Ok(Self::Done),
-            _ => Err(String::from("Invalid WaveInfo Status code")),
+            _ => Err("Invalid WaveInfo Status code"),
         }
     }
 }
@@ -105,7 +111,8 @@ impl Drop for WaveInfo {
         }
 
         unsafe {
-            // Result can't be used in any way, let's just shrug it off
+            // Flag the buffer's RAM sector as unused
+            // This step has no real effect in normal applications and is skipped even by devkitPRO's own examples.
             let _r = ctru_sys::DSP_InvalidateDataCache(
                 self.buffer.as_ptr().cast(),
                 self.buffer.len().try_into().unwrap(),
