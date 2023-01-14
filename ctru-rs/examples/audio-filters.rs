@@ -5,7 +5,7 @@ use std::f32::consts::PI;
 use ctru::linear::LinearAllocator;
 use ctru::prelude::*;
 use ctru::services::ndsp::{
-    wave::{WaveBuffer, WaveInfo, WaveStatus},
+    wave::{WaveInfo, WaveStatus},
     AudioFormat, InterpolationType, Ndsp, OutputMode,
 };
 
@@ -82,13 +82,8 @@ fn main() {
     let mut audio_data2 = Box::new_in([0u8; AUDIO_WAVE_LENGTH], LinearAllocator);
     fill_buffer(&mut audio_data2[..], NOTEFREQ[4]);
 
-    let mut audio_buffer1 =
-        WaveBuffer::new(audio_data1, AudioFormat::PCM16Stereo).expect("Couldn't sync DSP cache");
-    let mut audio_buffer2 =
-        WaveBuffer::new(audio_data2, AudioFormat::PCM16Stereo).expect("Couldn't sync DSP cache");
-
-    let mut wave_info1 = WaveInfo::new(&mut audio_buffer1, false);
-    let mut wave_info2 = WaveInfo::new(&mut audio_buffer2, false);
+    let mut wave_info1 = WaveInfo::new(audio_data1, AudioFormat::PCM16Stereo, false);
+    let mut wave_info2 = WaveInfo::new(audio_data2, AudioFormat::PCM16Stereo, false);
 
     channel_zero.queue_wave(&mut wave_info1);
     channel_zero.queue_wave(&mut wave_info2);
@@ -157,7 +152,7 @@ fn main() {
 
         let status = current.get_status();
         if let WaveStatus::Done = status {
-            fill_buffer(current.get_mut_wavebuffer().get_mut_data(), NOTEFREQ[note]);
+            fill_buffer(current.get_mut_buffer(), NOTEFREQ[note]);
 
             channel_zero.queue_wave(current);
 
