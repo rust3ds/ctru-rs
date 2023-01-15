@@ -111,6 +111,11 @@ impl Channel {
         unsafe { ctru_sys::ndspChnIsPaused(self.0.into()) }
     }
 
+    // Returns the channel's id
+    pub fn get_id(&self) -> u8 {
+        self.0
+    }
+
     /// Returns the channel's current sample's position.
     pub fn get_sample_position(&self) -> u32 {
         unsafe { ctru_sys::ndspChnGetSamplePos(self.0.into()) }
@@ -179,7 +184,17 @@ impl Channel {
 
     // FILTERS
 
-    // TODO: Add Mono filters (and maybe setup the filter functions in a better way)
+    pub fn iir_mono_set_enabled(&self, enable: bool) {
+        unsafe { ctru_sys::ndspChnIirMonoSetEnable(self.0.into(), enable) };
+    }
+
+    pub fn iir_mono_set_params_high_pass_filter(&self, cut_off_freq: f32) {
+        unsafe { ctru_sys::ndspChnIirMonoSetParamsHighPassFilter(self.0.into(), cut_off_freq) };
+    }
+
+    pub fn iir_mono_set_params_low_pass_filter(&self, cut_off_freq: f32) {
+        unsafe { ctru_sys::ndspChnIirMonoSetParamsLowPassFilter(self.0.into(), cut_off_freq) };
+    }
 
     pub fn iir_biquad_set_enabled(&self, enable: bool) {
         unsafe { ctru_sys::ndspChnIirBiquadSetEnable(self.0.into(), enable) };
