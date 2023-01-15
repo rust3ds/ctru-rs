@@ -78,8 +78,8 @@ impl WaveInfo {
         self.audio_format
     }
 
-    pub(crate) fn set_channel(&mut self, id: i32) {
-        self.played_on_channel = Some(id as u8)
+    pub(crate) fn set_channel(&mut self, id: u8) {
+        self.played_on_channel = Some(id)
     }
 }
 

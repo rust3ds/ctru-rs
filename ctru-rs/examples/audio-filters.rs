@@ -84,8 +84,8 @@ fn main() {
     mix[1] = 1.0;
     channel_zero.set_mix(&mix);
 
-    channel_zero.queue_wave(&mut wave_info1);
-    channel_zero.queue_wave(&mut wave_info2);
+    channel_zero.queue_wave(&mut wave_info1).unwrap();
+    channel_zero.queue_wave(&mut wave_info2).unwrap();
 
     println!("\x1b[1;1HPress up/down to change tone frequency");
     println!("\x1b[2;1HPress left/right to change filter");
@@ -105,7 +105,7 @@ fn main() {
         if keys_down.intersects(KeyPad::KEY_DOWN) {
             note = note.saturating_sub(1);
         } else if keys_down.intersects(KeyPad::KEY_UP) {
-            note = std::cmp::min(note + 1, NOTEFREQ.len() - 1);;
+            note = std::cmp::min(note + 1, NOTEFREQ.len() - 1);
         }
 
         let mut update_params = false;
@@ -150,7 +150,7 @@ fn main() {
         if let WaveStatus::Done = status {
             fill_buffer(current.get_buffer_mut(), NOTEFREQ[note]);
 
-            channel_zero.queue_wave(current);
+            channel_zero.queue_wave(current).unwrap();
 
             altern = !altern;
         }

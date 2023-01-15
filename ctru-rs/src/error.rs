@@ -51,7 +51,6 @@ pub enum Error {
     Libc(String),
     ServiceAlreadyActive,
     OutputAlreadyRedirected,
-    InvalidChannel(i32),
 }
 
 impl Error {
@@ -98,7 +97,6 @@ impl fmt::Debug for Error {
             Self::Libc(err) => f.debug_tuple("Libc").field(err).finish(),
             Self::ServiceAlreadyActive => f.debug_tuple("ServiceAlreadyActive").finish(),
             Self::OutputAlreadyRedirected => f.debug_tuple("OutputAlreadyRedirected").finish(),
-            Self::InvalidChannel(id) => f.debug_tuple("InvalidChannel").field(id).finish(),
         }
     }
 }
@@ -115,7 +113,6 @@ impl fmt::Display for Error {
             Self::OutputAlreadyRedirected => {
                 write!(f, "output streams are already redirected to 3dslink")
             }
-            Self::InvalidChannel(id) => write!(f, "Audio Channel with id {id} doesn't exist"),
         }
     }
 }
