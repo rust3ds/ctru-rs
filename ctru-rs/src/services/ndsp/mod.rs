@@ -4,6 +4,7 @@ use wave::{WaveInfo, WaveStatus};
 use crate::error::ResultCode;
 use crate::services::ServiceReference;
 
+use std::cell::{RefCell, RefMut};
 use std::error;
 use std::fmt;
 use std::sync::Mutex;
@@ -37,16 +38,21 @@ pub enum InterpolationType {
 
 #[derive(Copy, Clone, Debug)]
 pub enum NdspError {
-    InvalidChannel(u8),    // channel id
-    WaveAlreadyQueued(u8), // channel id
+    InvalidChannel(u8),      // channel id
+    ChannelAlreadyInUse(u8), // channel id
+    WaveAlreadyQueued(u8),   // channel id
 }
 
-pub struct Channel(u8);
+pub struct Channel<'ndsp> {
+    id: u8,
+    _rf: RefMut<'ndsp, ()>, // we don't need to hold any data
+}
 
 static NDSP_ACTIVE: Mutex<usize> = Mutex::new(0);
 
 pub struct Ndsp {
     _service_handler: ServiceReference,
+    channel_flags: [RefCell<()>; 24],
 }
 
 impl Ndsp {
@@ -64,7 +70,10 @@ impl Ndsp {
             },
         )?;
 
-        Ok(Self { _service_handler })
+        Ok(Self {
+            _service_handler,
+            channel_flags: Default::default(),
+        })
     }
 
     /// Return the representation of the specified channel.
@@ -73,10 +82,17 @@ impl Ndsp {
     ///
     /// An error will be returned if the channel id is not between 0 and 23.
     pub fn channel(&self, id: u8) -> std::result::Result<Channel, NdspError> {
-        if id >= NUMBER_OF_CHANNELS {
-            Err(NdspError::InvalidChannel(id))
-        } else {
-            Ok(Channel(id))
+        let in_bounds = self.channel_flags.get(id as usize);
+
+        match in_bounds {
+            Some(ref_cell) => {
+                let flag = ref_cell.try_borrow_mut();
+                match flag {
+                    Ok(_rf) => Ok(Channel { id, _rf }),
+                    Err(_) => Err(NdspError::ChannelAlreadyInUse(id)),
+                }
+            }
+            None => Err(NdspError::InvalidChannel(id)),
         }
     }
 
@@ -86,70 +102,67 @@ impl Ndsp {
     }
 }
 
-// All channel operations are thread-safe thanks to `libctru`'s use of thread locks.
-// As such, there is no need to hold channels to ensure correct mutability.
-// As such, this struct is more of a dummy than an actually functional block.
-impl Channel {
+impl Channel<'_> {
     /// Reset the channel
     pub fn reset(&self) {
-        unsafe { ctru_sys::ndspChnReset(self.0.into()) };
+        unsafe { ctru_sys::ndspChnReset(self.id.into()) };
     }
 
     /// Initialize the channel's parameters
     pub fn init_parameters(&self) {
-        unsafe { ctru_sys::ndspChnInitParams(self.0.into()) };
+        unsafe { ctru_sys::ndspChnInitParams(self.id.into()) };
     }
 
     /// Returns whether the channel is playing any audio.
     pub fn is_playing(&self) -> bool {
-        unsafe { ctru_sys::ndspChnIsPlaying(self.0.into()) }
+        unsafe { ctru_sys::ndspChnIsPlaying(self.id.into()) }
     }
 
     /// Returns whether the channel's playback is currently paused.
     pub fn is_paused(&self) -> bool {
-        unsafe { ctru_sys::ndspChnIsPaused(self.0.into()) }
+        unsafe { ctru_sys::ndspChnIsPaused(self.id.into()) }
     }
 
     // Returns the channel's id
     pub fn get_id(&self) -> u8 {
-        self.0
+        self.id
     }
 
     /// Returns the channel's current sample's position.
     pub fn get_sample_position(&self) -> u32 {
-        unsafe { ctru_sys::ndspChnGetSamplePos(self.0.into()) }
+        unsafe { ctru_sys::ndspChnGetSamplePos(self.id.into()) }
     }
 
     /// Returns the channel's current wave sequence's id.
     pub fn get_wave_sequence_id(&self) -> u16 {
-        unsafe { ctru_sys::ndspChnGetWaveBufSeq(self.0.into()) }
+        unsafe { ctru_sys::ndspChnGetWaveBufSeq(self.id.into()) }
     }
 
     /// Pause or un-pause the channel's playback.
     pub fn set_paused(&self, state: bool) {
-        unsafe { ctru_sys::ndspChnSetPaused(self.0.into(), state) };
+        unsafe { ctru_sys::ndspChnSetPaused(self.id.into(), state) };
     }
 
     /// Set the channel's output format.
     /// Change this setting based on the used sample's format.
     pub fn set_format(&self, format: AudioFormat) {
-        unsafe { ctru_sys::ndspChnSetFormat(self.0.into(), format as u16) };
+        unsafe { ctru_sys::ndspChnSetFormat(self.id.into(), format as u16) };
     }
 
     /// Set the channel's interpolation mode.
     pub fn set_interpolation(&self, interp_type: InterpolationType) {
-        unsafe { ctru_sys::ndspChnSetInterp(self.0.into(), interp_type as u32) };
+        unsafe { ctru_sys::ndspChnSetInterp(self.id.into(), interp_type as u32) };
     }
 
     /// Set the channel's volume mix.
     /// Docs about the buffer usage: https://libctru.devkitpro.org/channel_8h.html#a30eb26f1972cc3ec28370263796c0444
     pub fn set_mix(&self, mix: &[f32; 12]) {
-        unsafe { ctru_sys::ndspChnSetMix(self.0.into(), mix.as_ptr().cast_mut()) }
+        unsafe { ctru_sys::ndspChnSetMix(self.id.into(), mix.as_ptr().cast_mut()) }
     }
 
     /// Set the channel's rate of sampling.
     pub fn set_sample_rate(&self, rate: f32) {
-        unsafe { ctru_sys::ndspChnSetRate(self.0.into(), rate) };
+        unsafe { ctru_sys::ndspChnSetRate(self.id.into(), rate) };
     }
 
     // `ndspChnSetAdpcmCoefs` isn't wrapped on purpose.
@@ -158,7 +171,7 @@ impl Channel {
 
     /// Clear the wave buffer queue and stop playback.
     pub fn clear_queue(&self) {
-        unsafe { ctru_sys::ndspChnWaveBufClear(self.0.into()) };
+        unsafe { ctru_sys::ndspChnWaveBufClear(self.id.into()) };
     }
 
     /// Add a wave buffer to the channel's queue.
@@ -171,14 +184,14 @@ impl Channel {
     pub fn queue_wave(&self, wave: &mut WaveInfo) -> std::result::Result<(), NdspError> {
         match wave.get_status() {
             WaveStatus::Playing | WaveStatus::Queued => {
-                return Err(NdspError::WaveAlreadyQueued(self.0))
+                return Err(NdspError::WaveAlreadyQueued(self.id))
             }
             _ => (),
         }
 
-        wave.set_channel(self.0);
+        wave.set_channel(self.id);
 
-        unsafe { ctru_sys::ndspChnWaveBufAdd(self.0.into(), &mut wave.raw_data) };
+        unsafe { ctru_sys::ndspChnWaveBufAdd(self.id.into(), &mut wave.raw_data) };
 
         Ok(())
     }
@@ -186,42 +199,42 @@ impl Channel {
     // FILTERS
 
     pub fn iir_mono_set_enabled(&self, enable: bool) {
-        unsafe { ctru_sys::ndspChnIirMonoSetEnable(self.0.into(), enable) };
+        unsafe { ctru_sys::ndspChnIirMonoSetEnable(self.id.into(), enable) };
     }
 
     pub fn iir_mono_set_params_high_pass_filter(&self, cut_off_freq: f32) {
-        unsafe { ctru_sys::ndspChnIirMonoSetParamsHighPassFilter(self.0.into(), cut_off_freq) };
+        unsafe { ctru_sys::ndspChnIirMonoSetParamsHighPassFilter(self.id.into(), cut_off_freq) };
     }
 
     pub fn iir_mono_set_params_low_pass_filter(&self, cut_off_freq: f32) {
-        unsafe { ctru_sys::ndspChnIirMonoSetParamsLowPassFilter(self.0.into(), cut_off_freq) };
+        unsafe { ctru_sys::ndspChnIirMonoSetParamsLowPassFilter(self.id.into(), cut_off_freq) };
     }
 
     pub fn iir_biquad_set_enabled(&self, enable: bool) {
-        unsafe { ctru_sys::ndspChnIirBiquadSetEnable(self.0.into(), enable) };
+        unsafe { ctru_sys::ndspChnIirBiquadSetEnable(self.id.into(), enable) };
     }
 
     pub fn iir_biquad_set_params_high_pass_filter(&self, cut_off_freq: f32, quality: f32) {
         unsafe {
-            ctru_sys::ndspChnIirBiquadSetParamsHighPassFilter(self.0.into(), cut_off_freq, quality)
+            ctru_sys::ndspChnIirBiquadSetParamsHighPassFilter(self.id.into(), cut_off_freq, quality)
         };
     }
 
     pub fn iir_biquad_set_params_low_pass_filter(&self, cut_off_freq: f32, quality: f32) {
         unsafe {
-            ctru_sys::ndspChnIirBiquadSetParamsLowPassFilter(self.0.into(), cut_off_freq, quality)
+            ctru_sys::ndspChnIirBiquadSetParamsLowPassFilter(self.id.into(), cut_off_freq, quality)
         };
     }
 
     pub fn iir_biquad_set_params_notch_filter(&self, notch_freq: f32, quality: f32) {
         unsafe {
-            ctru_sys::ndspChnIirBiquadSetParamsNotchFilter(self.0.into(), notch_freq, quality)
+            ctru_sys::ndspChnIirBiquadSetParamsNotchFilter(self.id.into(), notch_freq, quality)
         };
     }
 
     pub fn iir_biquad_set_params_band_pass_filter(&self, mid_freq: f32, quality: f32) {
         unsafe {
-            ctru_sys::ndspChnIirBiquadSetParamsBandPassFilter(self.0.into(), mid_freq, quality)
+            ctru_sys::ndspChnIirBiquadSetParamsBandPassFilter(self.id.into(), mid_freq, quality)
         };
     }
 
@@ -233,7 +246,7 @@ impl Channel {
     ) {
         unsafe {
             ctru_sys::ndspChnIirBiquadSetParamsPeakingEqualizer(
-                self.0.into(),
+                self.id.into(),
                 central_freq,
                 quality,
                 gain,
@@ -260,6 +273,7 @@ impl fmt::Display for NdspError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Self::InvalidChannel(id) => write!(f, "Audio Channel with id {id} doesn't exist. Valid channels have an id between 0 and 23."),
+            Self::ChannelAlreadyInUse(id) => write!(f, "Audio Channel with id {id} is already being used. Drop the other instance if you want to use it here."),
             Self::WaveAlreadyQueued(id) => write!(f, "The selected WaveInfo is already playing on channel {id}.")
         }
     }
@@ -268,6 +282,12 @@ impl fmt::Display for NdspError {
 impl error::Error for NdspError {
     fn description(&self) -> &str {
         "Error caused within the NDSP service wrapper"
+    }
+}
+
+impl<'ndsp> Drop for Channel<'ndsp> {
+    fn drop(&mut self) {
+        self.reset();
     }
 }
 
