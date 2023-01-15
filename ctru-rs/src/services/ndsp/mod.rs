@@ -52,7 +52,7 @@ static NDSP_ACTIVE: Mutex<usize> = Mutex::new(0);
 
 pub struct Ndsp {
     _service_handler: ServiceReference,
-    channel_flags: [RefCell<()>; 24],
+    channel_flags: [RefCell<()>; NUMBER_OF_CHANNELS],
 }
 
 impl Ndsp {
