@@ -23,7 +23,6 @@ pub enum OutputMode {
 pub enum AudioFormat {
     PCM8Mono = ctru_sys::NDSP_FORMAT_MONO_PCM8,
     PCM16Mono = ctru_sys::NDSP_FORMAT_MONO_PCM16,
-    ADPCMMono = ctru_sys::NDSP_FORMAT_MONO_ADPCM,
     PCM8Stereo = ctru_sys::NDSP_FORMAT_STEREO_PCM8,
     PCM16Stereo = ctru_sys::NDSP_FORMAT_STEREO_PCM16,
 }
@@ -153,7 +152,9 @@ impl Channel {
         unsafe { ctru_sys::ndspChnSetRate(self.0.into(), rate) };
     }
 
-    // TODO: find a way to wrap `ndspChnSetAdpcmCoefs`
+    // `ndspChnSetAdpcmCoefs` isn't wrapped on purpose.
+    // DSPADPCM is a proprietary format used by Nintendo, unavailable by "normal" means.
+    // We suggest using other wave formats when developing homebrew applications.
 
     /// Clear the wave buffer queue and stop playback.
     pub fn clear_queue(&self) {
@@ -248,7 +249,7 @@ impl AudioFormat {
     /// 16 bit formats return 2 (bytes)
     pub fn sample_size(self) -> u8 {
         match self {
-            AudioFormat::PCM8Mono | AudioFormat::ADPCMMono => 1,
+            AudioFormat::PCM8Mono => 1,
             AudioFormat::PCM16Mono | AudioFormat::PCM8Stereo => 2,
             AudioFormat::PCM16Stereo => 4,
         }
