@@ -35,8 +35,17 @@ pub trait Screen: private::Sealed {
     /// Note that the pointer of the framebuffer returned by this function can
     /// change after each call to this function if double buffering is enabled.
     fn get_raw_framebuffer(&mut self) -> RawFrameBuffer {
-        let side = self.side();
-        RawFrameBuffer::for_screen_side(self, side)
+        let mut width = 0;
+        let mut height = 0;
+        let ptr = unsafe {
+            ctru_sys::gfxGetFramebuffer(self.as_raw(), self.side().into(), &mut width, &mut height)
+        };
+        RawFrameBuffer {
+            ptr,
+            width,
+            height,
+            screen: PhantomData,
+        }
     }
 
     /// Sets whether to use double buffering. Enabled by default.
@@ -58,7 +67,6 @@ pub trait Screen: private::Sealed {
     }
 }
 
-#[non_exhaustive]
 /// The top screen. Mutable access to this struct is required to write to the top
 /// screen's frame buffer. To enable 3D mode, it can be converted into a [`TopScreen3D`].
 pub struct TopScreen {
@@ -182,41 +190,19 @@ impl Gfx {
     }
 }
 
-impl<'screen> RawFrameBuffer<'screen> {
-    fn for_screen_side(screen: &'screen mut (impl Screen + ?Sized), side: Side) -> Self {
-        let mut width = 0;
-        let mut height = 0;
-        let ptr = unsafe {
-            ctru_sys::gfxGetFramebuffer(screen.as_raw(), side.into(), &mut width, &mut height)
-        };
-        Self {
-            ptr,
-            width,
-            height,
-            screen: PhantomData,
-        }
-    }
-}
-
 impl TopScreen3D<'_> {
-    /// Immutably borrow the left side of the screen.
-    pub fn left(&self) -> Ref<dyn Screen> {
-        Ref::map(self.screen.borrow(), |screen| &screen.left)
+    /// Immutably borrow the two sides of the screen as `(left, right)`.
+    pub fn split(&self) -> (Ref<dyn Screen>, Ref<dyn Screen>) {
+        Ref::map_split(self.screen.borrow(), |screen| {
+            (&screen.left as _, &screen.right as _)
+        })
     }
 
-    /// Mutably borrow the left side of the screen.
-    pub fn left_mut(&self) -> RefMut<dyn Screen> {
-        RefMut::map(self.screen.borrow_mut(), |screen| &mut screen.left)
-    }
-
-    /// Immutably borrow the right side of the screen.
-    pub fn right(&self) -> Ref<dyn Screen> {
-        Ref::map(self.screen.borrow(), |screen| &screen.right)
-    }
-
-    /// Mutably borrow the right side of the screen.
-    pub fn right_mut(&self) -> RefMut<dyn Screen> {
-        RefMut::map(self.screen.borrow_mut(), |screen| &mut screen.right)
+    /// Mutably borrow the two sides of the screen as `(left, right)`.
+    pub fn split_mut(&self) -> (RefMut<dyn Screen>, RefMut<dyn Screen>) {
+        RefMut::map_split(self.screen.borrow_mut(), |screen| {
+            (&mut screen.left as _, &mut screen.right as _)
+        })
     }
 }
 

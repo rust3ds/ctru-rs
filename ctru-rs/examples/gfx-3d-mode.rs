@@ -1,4 +1,4 @@
-use ctru::gfx::TopScreen3D;
+use ctru::gfx::{Screen, Side, TopScreen3D};
 use ctru::prelude::*;
 
 /// See `graphics-bitmap.rs` for details on how the image is generated.
@@ -16,24 +16,14 @@ fn main() {
     let apt = Apt::init().expect("Couldn't obtain APT controller");
     let _console = Console::init(gfx.bottom_screen.borrow_mut());
 
-    println!("Press Start to exit.\nPress A to switch which side is drawn to.");
+    println!("Press Start to exit.\nPress A to switch sides (be sure to have 3D mode enabled).");
+
+    gfx.top_screen.borrow_mut().set_double_buffering(true);
 
     let top_screen = TopScreen3D::from(&gfx.top_screen);
+    let (mut left, mut right) = top_screen.split_mut();
 
-    // TODO set double buffering for top screen
-
-    let mut left = top_screen.left_mut();
-    let left_buf = left.get_raw_framebuffer();
-    let mut right = top_screen.right_mut();
-    let right_buf = right.get_raw_framebuffer();
-
-    // We assume the image is the correct size already, so we ignore width + height.
-    let mut buf = left_buf.ptr;
-
-    // Copy the image into the left-side frame buffer
-    unsafe {
-        buf.copy_from(IMAGE.as_ptr(), IMAGE.len());
-    }
+    let mut current_side = Side::Left;
 
     // Main loop
     while apt.main_loop() {
@@ -44,22 +34,30 @@ fn main() {
             break;
         }
 
+        let left_buf = left.get_raw_framebuffer();
+        let right_buf = right.get_raw_framebuffer();
+
+        // Clear both buffers every time, in case the user switches sides this loop
+        unsafe {
+            left_buf.ptr.copy_from(ZERO.as_ptr(), ZERO.len());
+            right_buf.ptr.copy_from(ZERO.as_ptr(), ZERO.len());
+        }
+
         if hid.keys_down().contains(KeyPad::KEY_A) {
-            // Clear the side we just drew to by zeroing it out
-            unsafe {
-                buf.copy_from(ZERO.as_ptr(), ZERO.len());
-            }
-
-            // flip which buffer we're writing to, and redraw the image
-            buf = if buf == left_buf.ptr {
-                right_buf.ptr
-            } else {
-                left_buf.ptr
+            // flip which buffer we're writing to
+            current_side = match current_side {
+                Side::Left => Side::Right,
+                Side::Right => Side::Left,
             };
+        }
 
-            unsafe {
-                buf.copy_from(IMAGE.as_ptr(), IMAGE.len());
-            }
+        let buf = match current_side {
+            Side::Left => left_buf.ptr,
+            Side::Right => right_buf.ptr,
+        };
+
+        unsafe {
+            buf.copy_from(IMAGE.as_ptr(), IMAGE.len());
         }
 
         // Flush and swap framebuffers
