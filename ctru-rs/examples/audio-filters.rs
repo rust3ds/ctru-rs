@@ -54,7 +54,7 @@ fn main() {
         "Peaking",
     ];
 
-    let mut filter: usize = 0;
+    let mut filter: i32 = 0;
 
     // We set up two wave buffers and alternate between the two,
     // effectively streaming an infinitely long sine wave.
@@ -90,7 +90,7 @@ fn main() {
     println!("\x1b[1;1HPress up/down to change tone frequency");
     println!("\x1b[2;1HPress left/right to change filter");
     println!("\x1b[4;1Hnote = {} Hz        ", NOTEFREQ[note]);
-    println!("\x1b[5;1Hfilter = {}         ", filter_names[filter]);
+    println!("\x1b[5;1Hfilter = {}         ", filter_names[filter as usize]);
 
     let mut altern = true; // true is wave_info1, false is wave_info2
 
@@ -110,24 +110,19 @@ fn main() {
 
         let mut update_params = false;
         if keys_down.intersects(KeyPad::KEY_LEFT) {
-            let wraps;
-            (filter, wraps) = filter.overflowing_sub(1);
-
-            if wraps {
-                filter = filter_names.len() - 1;
-            }
+            filter -= 1;
+            filter = filter.rem_euclid(filter_names.len() as _);
 
             update_params = true;
         } else if keys_down.intersects(KeyPad::KEY_RIGHT) {
             filter += 1;
-            if filter >= filter_names.len() {
-                filter = 0;
-            }
+            filter = filter.rem_euclid(filter_names.len() as _);
+
             update_params = true;
         }
 
         println!("\x1b[4;1Hnote = {} Hz        ", NOTEFREQ[note]);
-        println!("\x1b[5;1Hfilter = {}         ", filter_names[filter]);
+        println!("\x1b[5;1Hfilter = {}         ", filter_names[filter as usize]);
 
         if update_params {
             match filter {
