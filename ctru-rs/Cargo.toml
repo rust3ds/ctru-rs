@@ -5,6 +5,7 @@ license = "https://en.wikipedia.org/wiki/Zlib_License"
 name = "ctru-rs"
 version = "0.7.1"
 edition = "2021"
+rust-version = "1.64"
 
 [lib]
 crate-type = ["rlib"]
