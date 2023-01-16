@@ -1,8 +1,8 @@
 //! System services used to handle system-specific functionalities.
-//! 
+//!
 //! Most of the 3DS console's functionalities (when writing homebrew) are locked behind services,
 //! which need to be initialized before accessing any particular feature.
-//! 
+//!
 //! Some include: button input, audio playback, graphics rendering, built-in cameras, etc.
 
 pub mod apt;

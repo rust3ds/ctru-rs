@@ -53,7 +53,7 @@ pub struct Channel<'ndsp> {
 static NDSP_ACTIVE: Mutex<usize> = Mutex::new(0);
 
 /// Handler of the DSP service and DSP processor.
-/// 
+///
 /// This is the main struct to handle audio playback using the 3DS' speakers and headphone jack.
 /// Only one "instance" of this struct can exist at a time.
 pub struct Ndsp {
@@ -63,9 +63,9 @@ pub struct Ndsp {
 
 impl Ndsp {
     /// Initialize the DSP service and audio units.
-    /// 
+    ///
     /// # Errors
-    /// 
+    ///
     /// This function will return an error if an instance of the `Ndsp` struct already exists
     /// or if there are any issues during initialization.
     pub fn init() -> crate::Result<Self> {
