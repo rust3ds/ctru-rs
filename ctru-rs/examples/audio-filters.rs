@@ -90,7 +90,10 @@ fn main() {
     println!("\x1b[1;1HPress up/down to change tone frequency");
     println!("\x1b[2;1HPress left/right to change filter");
     println!("\x1b[4;1Hnote = {} Hz        ", NOTEFREQ[note]);
-    println!("\x1b[5;1Hfilter = {}         ", filter_names[filter as usize]);
+    println!(
+        "\x1b[5;1Hfilter = {}         ",
+        filter_names[filter as usize]
+    );
 
     let mut altern = true; // true is wave_info1, false is wave_info2
 
@@ -122,7 +125,10 @@ fn main() {
         }
 
         println!("\x1b[4;1Hnote = {} Hz        ", NOTEFREQ[note]);
-        println!("\x1b[5;1Hfilter = {}         ", filter_names[filter as usize]);
+        println!(
+            "\x1b[5;1Hfilter = {}         ",
+            filter_names[filter as usize]
+        );
 
         if update_params {
             match filter {
