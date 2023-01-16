@@ -1,3 +1,5 @@
+//! NDSP (Audio) service
+
 pub mod wave;
 use wave::{WaveInfo, WaveStatus};
 
@@ -50,12 +52,22 @@ pub struct Channel<'ndsp> {
 
 static NDSP_ACTIVE: Mutex<usize> = Mutex::new(0);
 
+/// Handler of the DSP service and DSP processor.
+/// 
+/// This is the main struct to handle audio playback using the 3DS' speakers and headphone jack.
+/// Only one "instance" of this struct can exist at a time.
 pub struct Ndsp {
     _service_handler: ServiceReference,
     channel_flags: [RefCell<()>; NUMBER_OF_CHANNELS as usize],
 }
 
 impl Ndsp {
+    /// Initialize the DSP service and audio units.
+    /// 
+    /// # Errors
+    /// 
+    /// This function will return an error if an instance of the `Ndsp` struct already exists
+    /// or if there are any issues during initialization.
     pub fn init() -> crate::Result<Self> {
         let _service_handler = ServiceReference::new(
             &NDSP_ACTIVE,
@@ -76,11 +88,11 @@ impl Ndsp {
         })
     }
 
-    /// Return the representation of the specified channel.
+    /// Return a representation of the specified channel.
     ///
     /// # Errors
     ///
-    /// An error will be returned if the channel id is not between 0 and 23.
+    /// An error will be returned if the channel id is not between 0 and 23 or if the specified channel is already being used.
     pub fn channel(&self, id: u8) -> std::result::Result<Channel, NdspError> {
         let in_bounds = self.channel_flags.get(id as usize);
 
@@ -155,7 +167,7 @@ impl Channel<'_> {
     }
 
     /// Set the channel's volume mix.
-    /// Docs about the buffer usage: https://libctru.devkitpro.org/channel_8h.html#a30eb26f1972cc3ec28370263796c0444
+    /// Docs about the buffer usage: <https://libctru.devkitpro.org/channel_8h.html#a30eb26f1972cc3ec28370263796c0444>
     pub fn set_mix(&self, mix: &[f32; 12]) {
         unsafe { ctru_sys::ndspChnSetMix(self.id.into(), mix.as_ptr().cast_mut()) }
     }
@@ -195,9 +207,11 @@ impl Channel<'_> {
 
         Ok(())
     }
+}
 
-    // FILTERS
-
+/// Functions to handle audio filtering.
+/// Refer to [libctru](https://libctru.devkitpro.org/channel_8h.html#a1da3b363c2edfd318c92276b527daae6) for more info.
+impl Channel<'_> {
     pub fn iir_mono_set_enabled(&self, enable: bool) {
         unsafe { ctru_sys::ndspChnIirMonoSetEnable(self.id.into(), enable) };
     }
