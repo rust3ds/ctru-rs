@@ -293,11 +293,7 @@ impl fmt::Display for NdspError {
     }
 }
 
-impl error::Error for NdspError {
-    fn description(&self) -> &str {
-        "Error caused within the NDSP service wrapper"
-    }
-}
+impl error::Error for NdspError {}
 
 impl<'ndsp> Drop for Channel<'ndsp> {
     fn drop(&mut self) {
