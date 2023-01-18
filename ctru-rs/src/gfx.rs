@@ -1,7 +1,7 @@
 //! LCD screens manipulation helper
 
 use once_cell::sync::Lazy;
-use std::cell::RefCell;
+use std::cell::{Ref, RefCell, RefMut};
 use std::marker::PhantomData;
 use std::sync::Mutex;
 
@@ -9,10 +9,44 @@ use crate::error::Result;
 use crate::services::gspgpu::{self, FramebufferFormat};
 use crate::services::ServiceReference;
 
-/// Trait implemented by TopScreen and BottomScreen for common methods
-pub trait Screen {
-    /// Returns the libctru value for the Screen kind
+mod private {
+    use super::{BottomScreen, TopScreen, TopScreenLeft, TopScreenRight};
+
+    pub trait Sealed {}
+
+    impl Sealed for TopScreen {}
+    impl Sealed for TopScreenLeft {}
+    impl Sealed for TopScreenRight {}
+    impl Sealed for BottomScreen {}
+}
+
+/// This trait is implemented by the screen structs for working with frame buffers and
+/// drawing to the screens. Graphics-related code can be made generic over this
+/// trait to work with any of the given screens.
+pub trait Screen: private::Sealed {
+    /// Returns the `libctru` value for the Screen kind.
     fn as_raw(&self) -> ctru_sys::gfxScreen_t;
+
+    /// Returns the Screen side (left or right).
+    fn side(&self) -> Side;
+
+    /// Returns a [`RawFrameBuffer`] for the screen.
+    ///
+    /// Note that the pointer of the framebuffer returned by this function can
+    /// change after each call to this function if double buffering is enabled.
+    fn get_raw_framebuffer(&mut self) -> RawFrameBuffer {
+        let mut width = 0;
+        let mut height = 0;
+        let ptr = unsafe {
+            ctru_sys::gfxGetFramebuffer(self.as_raw(), self.side().into(), &mut width, &mut height)
+        };
+        RawFrameBuffer {
+            ptr,
+            width,
+            height,
+            screen: PhantomData,
+        }
+    }
 
     /// Sets whether to use double buffering. Enabled by default.
     ///
@@ -33,10 +67,26 @@ pub trait Screen {
     }
 }
 
-#[non_exhaustive]
-pub struct TopScreen;
+/// The top screen. Mutable access to this struct is required to write to the top
+/// screen's frame buffer. To enable 3D mode, it can be converted into a [`TopScreen3D`].
+pub struct TopScreen {
+    left: TopScreenLeft,
+    right: TopScreenRight,
+}
+
+/// A helper container for both sides of the top screen. Once the [`TopScreen`] is
+/// converted into this, 3D mode will be enabled until this struct is dropped.
+pub struct TopScreen3D<'top_screen> {
+    screen: &'top_screen RefCell<TopScreen>,
+}
+
+struct TopScreenLeft;
+
+struct TopScreenRight;
 
 #[non_exhaustive]
+/// The bottom screen. Mutable access to this struct is required to write to the
+/// bottom screen's frame buffer.
 pub struct BottomScreen;
 
 /// Representation of a framebuffer for one [`Side`] of the top screen, or the
@@ -88,7 +138,7 @@ impl Gfx {
         bottom_fb_fmt: FramebufferFormat,
         use_vram_buffers: bool,
     ) -> Result<Self> {
-        let _service_handler = ServiceReference::new(
+        let handler = ServiceReference::new(
             &GFX_ACTIVE,
             false,
             || unsafe {
@@ -100,14 +150,15 @@ impl Gfx {
         )?;
 
         Ok(Self {
-            top_screen: RefCell::new(TopScreen),
+            top_screen: RefCell::new(TopScreen::new()),
             bottom_screen: RefCell::new(BottomScreen),
-            _service_handler,
+            _service_handler: handler,
         })
     }
 
-    /// Creates a new Gfx instance with default init values
-    /// It's the same as calling: `Gfx::with_formats(FramebufferFormat::Bgr8, FramebufferFormat::Bgr8, false)
+    /// Creates a new [Gfx] instance with default init values
+    /// It's the same as calling:
+    /// `Gfx::with_formats(FramebufferFormat::Bgr8, FramebufferFormat::Bgr8, false)`
     pub fn init() -> Result<Self> {
         Gfx::with_formats(FramebufferFormat::Bgr8, FramebufferFormat::Bgr8, false)
     }
@@ -139,65 +190,88 @@ impl Gfx {
     }
 }
 
+impl TopScreen3D<'_> {
+    /// Immutably borrow the two sides of the screen as `(left, right)`.
+    pub fn split(&self) -> (Ref<dyn Screen>, Ref<dyn Screen>) {
+        Ref::map_split(self.screen.borrow(), |screen| {
+            (&screen.left as _, &screen.right as _)
+        })
+    }
+
+    /// Mutably borrow the two sides of the screen as `(left, right)`.
+    pub fn split_mut(&self) -> (RefMut<dyn Screen>, RefMut<dyn Screen>) {
+        RefMut::map_split(self.screen.borrow_mut(), |screen| {
+            (&mut screen.left as _, &mut screen.right as _)
+        })
+    }
+}
+
+impl<'top_screen> From<&'top_screen RefCell<TopScreen>> for TopScreen3D<'top_screen> {
+    fn from(top_screen: &'top_screen RefCell<TopScreen>) -> Self {
+        unsafe {
+            ctru_sys::gfxSet3D(true);
+        }
+
+        TopScreen3D { screen: top_screen }
+    }
+}
+
+impl Drop for TopScreen3D<'_> {
+    fn drop(&mut self) {
+        unsafe {
+            ctru_sys::gfxSet3D(false);
+        }
+    }
+}
+
 impl TopScreen {
-    /// Enable or disable the 3D stereoscopic effect
-    pub fn set_3d_enabled(&mut self, enabled: bool) {
-        unsafe {
-            ctru_sys::gfxSet3D(enabled);
+    fn new() -> Self {
+        Self {
+            left: TopScreenLeft,
+            right: TopScreenRight,
         }
     }
 
-    /// Enable or disable the wide screen mode (top screen).
-    /// This only works when 3D is disabled.
-    pub fn set_wide_mode(&mut self, enabled: bool) {
+    /// Enable or disable wide mode on the top screen.
+    pub fn set_wide_mode(&mut self, enable: bool) {
         unsafe {
-            ctru_sys::gfxSetWide(enabled);
+            ctru_sys::gfxSetWide(enable);
         }
     }
 
-    /// Get the status of wide screen mode.
+    /// Returns whether or not wide mode is enabled on the top screen.
     pub fn get_wide_mode(&self) -> bool {
         unsafe { ctru_sys::gfxIsWide() }
-    }
-
-    /// Returns a [`RawFrameBuffer`] for the given [`Side`] of the top screen.
-    ///
-    /// Note that the pointer of the framebuffer returned by this function can
-    /// change after each call to this function if double buffering is enabled.
-    pub fn get_raw_framebuffer(&mut self, side: Side) -> RawFrameBuffer {
-        RawFrameBuffer::for_screen_side(self, side)
-    }
-}
-
-impl BottomScreen {
-    /// Returns a [`RawFrameBuffer`] for the bottom screen.
-    ///
-    /// Note that the pointer of the framebuffer returned by this function can
-    /// change after each call to this function if double buffering is enabled.
-    pub fn get_raw_framebuffer(&mut self) -> RawFrameBuffer {
-        RawFrameBuffer::for_screen_side(self, Side::Left)
-    }
-}
-
-impl<'screen> RawFrameBuffer<'screen> {
-    fn for_screen_side(screen: &'screen mut dyn Screen, side: Side) -> Self {
-        let mut width = 0;
-        let mut height = 0;
-        let ptr = unsafe {
-            ctru_sys::gfxGetFramebuffer(screen.as_raw(), side.into(), &mut width, &mut height)
-        };
-        Self {
-            ptr,
-            width,
-            height,
-            screen: PhantomData,
-        }
     }
 }
 
 impl Screen for TopScreen {
     fn as_raw(&self) -> ctru_sys::gfxScreen_t {
+        self.left.as_raw()
+    }
+
+    fn side(&self) -> Side {
+        self.left.side()
+    }
+}
+
+impl Screen for TopScreenLeft {
+    fn as_raw(&self) -> ctru_sys::gfxScreen_t {
         ctru_sys::GFX_TOP
+    }
+
+    fn side(&self) -> Side {
+        Side::Left
+    }
+}
+
+impl Screen for TopScreenRight {
+    fn as_raw(&self) -> ctru_sys::gfxScreen_t {
+        ctru_sys::GFX_TOP
+    }
+
+    fn side(&self) -> Side {
+        Side::Right
     }
 }
 
@@ -205,14 +279,17 @@ impl Screen for BottomScreen {
     fn as_raw(&self) -> ctru_sys::gfxScreen_t {
         ctru_sys::GFX_BOTTOM
     }
+
+    fn side(&self) -> Side {
+        Side::Left
+    }
 }
 
 impl From<Side> for ctru_sys::gfx3dSide_t {
     fn from(s: Side) -> ctru_sys::gfx3dSide_t {
-        use self::Side::*;
         match s {
-            Left => ctru_sys::GFX_LEFT,
-            Right => ctru_sys::GFX_RIGHT,
+            Side::Left => ctru_sys::GFX_LEFT,
+            Side::Right => ctru_sys::GFX_RIGHT,
         }
     }
 }
@@ -225,6 +302,6 @@ mod tests {
     #[test]
     fn gfx_duplicate() {
         // We don't need to build a `Gfx` because the test runner has one already
-        assert!(matches!(Gfx::init(), Err(Error::ServiceAlreadyActive)))
+        assert!(matches!(Gfx::init(), Err(Error::ServiceAlreadyActive)));
     }
 }
