@@ -40,9 +40,10 @@ pub enum InterpolationType {
 
 #[derive(Copy, Clone, Debug)]
 pub enum NdspError {
-    InvalidChannel(u8),      // channel id
-    ChannelAlreadyInUse(u8), // channel id
-    WaveAlreadyQueued(u8),   // channel id
+    InvalidChannel(u8),               // channel id
+    ChannelAlreadyInUse(u8),          // channel id
+    WaveAlreadyQueued(u8),            // channel id
+    SampleCountOutOfBounds(u32, u32), // amount requested, maximum amount
 }
 
 pub struct Channel<'ndsp> {
@@ -288,7 +289,8 @@ impl fmt::Display for NdspError {
         match self {
             Self::InvalidChannel(id) => write!(f, "Audio Channel with id {id} doesn't exist. Valid channels have an id between 0 and 23."),
             Self::ChannelAlreadyInUse(id) => write!(f, "Audio Channel with id {id} is already being used. Drop the other instance if you want to use it here."),
-            Self::WaveAlreadyQueued(id) => write!(f, "The selected WaveInfo is already playing on channel {id}.")
+            Self::WaveAlreadyQueued(id) => write!(f, "The selected WaveInfo is already playing on channel {id}."),
+            Self::SampleCountOutOfBounds(samples_requested, max_samples) => write!(f, "The sample count requested is too big. Requested amount was {samples_requested} while the maximum sample count is {max_samples}."),
         }
     }
 }

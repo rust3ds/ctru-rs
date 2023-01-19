@@ -1,4 +1,4 @@
-use super::AudioFormat;
+use super::{AudioFormat, NdspError};
 use crate::linear::LinearAllocator;
 
 /// Informational struct holding the raw audio data and playback info. This corresponds to [ctru_sys::ndspWaveBuf]
@@ -80,6 +80,42 @@ impl WaveInfo {
 
     pub(crate) fn set_channel(&mut self, id: u8) {
         self.played_on_channel = Some(id)
+    }
+
+    /// Set the amount of samples to be read.
+    /// This function doesn't resize the internal buffer.
+    ///
+    /// # Note
+    ///
+    /// Operations of this kind are particularly usefulto allocate memory pools
+    /// for VBR (Variable BitRate) Formats, like OGG Vorbis.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the sample size exceeds the buffer's capacity
+    /// or if the WaveInfo is currently queued.
+    pub fn set_sample_count(&mut self, sample_count: u32) -> Result<(), NdspError> {
+        match self.get_status() {
+            WaveStatus::Playing | WaveStatus::Queued => {
+                return Err(NdspError::WaveAlreadyQueued(
+                    self.played_on_channel.unwrap(),
+                ));
+            }
+            _ => (),
+        }
+
+        let max_count: usize = self.buffer.len() / (self.audio_format.sample_size() as usize);
+
+        if sample_count > max_count as u32 {
+            return Err(NdspError::SampleCountOutOfBounds(
+                sample_count,
+                max_count as u32,
+            ));
+        }
+
+        self.raw_data.nsamples = sample_count;
+
+        Ok(())
     }
 }
 
