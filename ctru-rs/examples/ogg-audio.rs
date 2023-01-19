@@ -131,5 +131,8 @@ fn main() {
         // Flush and swap framebuffers
         gfx.flush_buffers();
         gfx.swap_buffers();
+
+        // We don't vsync here because that would slow down the sample's decoding.
+        // Audio code is supposed to run on a different thread in normal applications.
     }
 }
