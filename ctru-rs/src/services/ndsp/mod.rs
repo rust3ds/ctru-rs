@@ -172,11 +172,11 @@ impl Channel<'_> {
     }
 
     /// Set the channel's volume mix.
-    /// 
+    ///
     /// # Notes
-    /// 
+    ///
     /// The buffer's format is read as:
-    /// 
+    ///
     /// Index 0: Front left volume <br>
     /// Index 1: Front right volume <br>
     /// Index 2: Back left volume <br>
@@ -210,9 +210,7 @@ impl Channel<'_> {
     /// To ensure safety, checks within [WaveInfo] will clear the whole channel queue if any queued [WaveInfo] is dropped prematurely.
     pub fn queue_wave(&self, wave: &mut WaveInfo) -> std::result::Result<(), NdspError> {
         match wave.get_status() {
-            WaveStatus::Playing | WaveStatus::Queued => {
-                return Err(NdspError::WaveBusy(self.id))
-            }
+            WaveStatus::Playing | WaveStatus::Queued => return Err(NdspError::WaveBusy(self.id)),
             _ => (),
         }
 
@@ -234,18 +232,18 @@ impl Channel<'_> {
     }
 
     /// Sets the monopole to be a high pass filter.
-    /// 
+    ///
     /// # Notes
-    /// 
+    ///
     /// This is a lower quality filter than the Biquad alternative.
     pub fn iir_mono_set_params_high_pass_filter(&self, cut_off_freq: f32) {
         unsafe { ctru_sys::ndspChnIirMonoSetParamsHighPassFilter(self.id.into(), cut_off_freq) };
     }
 
     /// Sets the monopole to be a low pass filter.
-    /// 
+    ///
     /// # Notes
-    /// 
+    ///
     /// This is a lower quality filter than the Biquad alternative.
     pub fn iir_mono_set_params_low_pass_filter(&self, cut_off_freq: f32) {
         unsafe { ctru_sys::ndspChnIirMonoSetParamsLowPassFilter(self.id.into(), cut_off_freq) };

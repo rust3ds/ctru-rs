@@ -97,9 +97,7 @@ impl WaveInfo {
     pub fn set_sample_count(&mut self, sample_count: u32) -> Result<(), NdspError> {
         match self.get_status() {
             WaveStatus::Playing | WaveStatus::Queued => {
-                return Err(NdspError::WaveBusy(
-                    self.played_on_channel.unwrap(),
-                ));
+                return Err(NdspError::WaveBusy(self.played_on_channel.unwrap()));
             }
             _ => (),
         }
