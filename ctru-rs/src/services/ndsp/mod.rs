@@ -40,10 +40,14 @@ pub enum InterpolationType {
 
 #[derive(Copy, Clone, Debug)]
 pub enum NdspError {
-    InvalidChannel(u8),               // channel id
-    ChannelAlreadyInUse(u8),          // channel id
-    WaveAlreadyQueued(u8),            // channel id
-    SampleCountOutOfBounds(u32, u32), // amount requested, maximum amount
+    /// Channel ID
+    InvalidChannel(u8),
+    /// Channel ID
+    ChannelAlreadyInUse(u8),
+    /// Channel ID
+    WaveBusy(u8),
+    /// Sample amount requested, Max sample amount
+    SampleCountOutOfBounds(u32, u32),
 }
 
 pub struct Channel<'ndsp> {
@@ -93,7 +97,7 @@ impl Ndsp {
     ///
     /// # Errors
     ///
-    /// An error will be returned if the channel id is not between 0 and 23 or if the specified channel is already being used.
+    /// An error will be returned if the channel ID is not between 0 and 23 or if the specified channel is already being used.
     pub fn channel(&self, id: u8) -> std::result::Result<Channel, NdspError> {
         let in_bounds = self.channel_flags.get(id as usize);
 
@@ -168,7 +172,17 @@ impl Channel<'_> {
     }
 
     /// Set the channel's volume mix.
-    /// Docs about the buffer usage: <https://libctru.devkitpro.org/channel_8h.html#a30eb26f1972cc3ec28370263796c0444>
+    /// 
+    /// # Notes
+    /// 
+    /// The buffer's format is read as:
+    /// 
+    /// Index 0: Front left volume <br>
+    /// Index 1: Front right volume <br>
+    /// Index 2: Back left volume <br>
+    /// Index 3: Back right volume <br>
+    /// Index 4..7: Same as 0..3 but for auxiliary output 0 <br>
+    /// Index 8..11: Same as 0..3 but for auxiliary output 1 <br>
     pub fn set_mix(&self, mix: &[f32; 12]) {
         unsafe { ctru_sys::ndspChnSetMix(self.id.into(), mix.as_ptr().cast_mut()) }
     }
@@ -197,7 +211,7 @@ impl Channel<'_> {
     pub fn queue_wave(&self, wave: &mut WaveInfo) -> std::result::Result<(), NdspError> {
         match wave.get_status() {
             WaveStatus::Playing | WaveStatus::Queued => {
-                return Err(NdspError::WaveAlreadyQueued(self.id))
+                return Err(NdspError::WaveBusy(self.id))
             }
             _ => (),
         }
@@ -211,48 +225,66 @@ impl Channel<'_> {
 }
 
 /// Functions to handle audio filtering.
+///
 /// Refer to [libctru](https://libctru.devkitpro.org/channel_8h.html#a1da3b363c2edfd318c92276b527daae6) for more info.
 impl Channel<'_> {
+    /// Enables/disables monopole filters.
     pub fn iir_mono_set_enabled(&self, enable: bool) {
         unsafe { ctru_sys::ndspChnIirMonoSetEnable(self.id.into(), enable) };
     }
 
+    /// Sets the monopole to be a high pass filter.
+    /// 
+    /// # Notes
+    /// 
+    /// This is a lower quality filter than the Biquad alternative.
     pub fn iir_mono_set_params_high_pass_filter(&self, cut_off_freq: f32) {
         unsafe { ctru_sys::ndspChnIirMonoSetParamsHighPassFilter(self.id.into(), cut_off_freq) };
     }
 
+    /// Sets the monopole to be a low pass filter.
+    /// 
+    /// # Notes
+    /// 
+    /// This is a lower quality filter than the Biquad alternative.
     pub fn iir_mono_set_params_low_pass_filter(&self, cut_off_freq: f32) {
         unsafe { ctru_sys::ndspChnIirMonoSetParamsLowPassFilter(self.id.into(), cut_off_freq) };
     }
 
+    /// Enables/disables biquad filters.
     pub fn iir_biquad_set_enabled(&self, enable: bool) {
         unsafe { ctru_sys::ndspChnIirBiquadSetEnable(self.id.into(), enable) };
     }
 
+    /// Sets the biquad to be a high pass filter.
     pub fn iir_biquad_set_params_high_pass_filter(&self, cut_off_freq: f32, quality: f32) {
         unsafe {
             ctru_sys::ndspChnIirBiquadSetParamsHighPassFilter(self.id.into(), cut_off_freq, quality)
         };
     }
 
+    /// Sets the biquad to be a low pass filter.
     pub fn iir_biquad_set_params_low_pass_filter(&self, cut_off_freq: f32, quality: f32) {
         unsafe {
             ctru_sys::ndspChnIirBiquadSetParamsLowPassFilter(self.id.into(), cut_off_freq, quality)
         };
     }
 
+    /// Sets the biquad to be a notch filter.
     pub fn iir_biquad_set_params_notch_filter(&self, notch_freq: f32, quality: f32) {
         unsafe {
             ctru_sys::ndspChnIirBiquadSetParamsNotchFilter(self.id.into(), notch_freq, quality)
         };
     }
 
+    /// Sets the biquad to be a band pass filter.
     pub fn iir_biquad_set_params_band_pass_filter(&self, mid_freq: f32, quality: f32) {
         unsafe {
             ctru_sys::ndspChnIirBiquadSetParamsBandPassFilter(self.id.into(), mid_freq, quality)
         };
     }
 
+    /// Sets the biquad to be a peaking equalizer.
     pub fn iir_biquad_set_params_peaking_equalizer(
         &self,
         central_freq: f32,
@@ -287,9 +319,9 @@ impl AudioFormat {
 impl fmt::Display for NdspError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Self::InvalidChannel(id) => write!(f, "Audio Channel with id {id} doesn't exist. Valid channels have an id between 0 and 23."),
-            Self::ChannelAlreadyInUse(id) => write!(f, "Audio Channel with id {id} is already being used. Drop the other instance if you want to use it here."),
-            Self::WaveAlreadyQueued(id) => write!(f, "The selected WaveInfo is already playing on channel {id}."),
+            Self::InvalidChannel(id) => write!(f, "Audio Channel with ID {id} doesn't exist. Valid channels have an ID between 0 and 23."),
+            Self::ChannelAlreadyInUse(id) => write!(f, "Audio Channel with ID {id} is already being used. Drop the other instance if you want to use it here."),
+            Self::WaveBusy(id) => write!(f, "The selected WaveInfo is busy playing on channel {id}."),
             Self::SampleCountOutOfBounds(samples_requested, max_samples) => write!(f, "The sample count requested is too big. Requested amount was {samples_requested} while the maximum sample count is {max_samples}."),
         }
     }
