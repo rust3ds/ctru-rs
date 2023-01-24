@@ -13,6 +13,7 @@ pub struct WaveInfo {
 
 #[derive(Copy, Clone, Debug)]
 #[repr(u8)]
+/// Enum representing the playback status of a [WaveInfo].
 pub enum WaveStatus {
     Free = ctru_sys::NDSP_WBUF_FREE as u8,
     Queued = ctru_sys::NDSP_WBUF_QUEUED as u8,
@@ -21,6 +22,7 @@ pub enum WaveStatus {
 }
 
 impl WaveInfo {
+    /// Build a new playable wave object from a raw buffer on LINEAR memory and a some info.
     pub fn new(
         buffer: Box<[u8], LinearAllocator>,
         audio_format: AudioFormat,
@@ -58,26 +60,49 @@ impl WaveInfo {
         }
     }
 
+    /// Return a slice to the audio data (on the LINEAR memory).
     pub fn get_buffer(&self) -> &[u8] {
         &self.buffer
     }
 
-    pub fn get_buffer_mut(&mut self) -> &mut [u8] {
-        &mut self.buffer
+    /// Return a mutable slice to the audio data (on the LINEAR memory).
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the [WaveInfo] is currently busy,
+    /// with the id to the channel in which it's queued.
+    pub fn get_buffer_mut(&mut self) -> Result<&mut [u8], NdspError> {
+        match self.get_status() {
+            WaveStatus::Playing | WaveStatus::Queued => {
+                return Err(NdspError::WaveBusy(self.played_on_channel.unwrap()));
+            }
+
+            _ => Ok(&mut self.buffer),
+        }
     }
 
+    /// Return this wave's playback status.
     pub fn get_status(&self) -> WaveStatus {
         self.raw_data.status.try_into().unwrap()
     }
 
+    /// Get the amounts of samples *read* by the NDSP process.
+    ///
+    /// # Notes
+    ///
+    /// This value varies depending on [Self::set_sample_count].
     pub fn get_sample_count(&self) -> u32 {
         self.raw_data.nsamples
     }
 
+    /// Get the format of the audio data.
     pub fn get_format(&self) -> AudioFormat {
         self.audio_format
     }
 
+    // Set the internal flag for the id of the channel playing this wave.
+    //
+    // Internal Use Only.
     pub(crate) fn set_channel(&mut self, id: u8) {
         self.played_on_channel = Some(id)
     }
@@ -87,7 +112,7 @@ impl WaveInfo {
     ///
     /// # Note
     ///
-    /// Operations of this kind are particularly usefulto allocate memory pools
+    /// Operations of this kind are particularly useful to allocate memory pools
     /// for VBR (Variable BitRate) Formats, like OGG Vorbis.
     ///
     /// # Errors
