@@ -74,9 +74,8 @@ impl WaveInfo {
     pub fn get_buffer_mut(&mut self) -> Result<&mut [u8], NdspError> {
         match self.get_status() {
             WaveStatus::Playing | WaveStatus::Queued => {
-                return Err(NdspError::WaveBusy(self.played_on_channel.unwrap()));
+                Err(NdspError::WaveBusy(self.played_on_channel.unwrap()))
             }
-
             _ => Ok(&mut self.buffer),
         }
     }
