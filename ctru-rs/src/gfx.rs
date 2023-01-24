@@ -1,6 +1,5 @@
 //! LCD screens manipulation helper
 
-use once_cell::sync::Lazy;
 use std::cell::{Ref, RefCell, RefMut};
 use std::marker::PhantomData;
 use std::sync::Mutex;
@@ -119,14 +118,13 @@ pub enum Side {
 /// provides helper functions and utilities for software rendering.
 ///
 /// The service exits when this struct is dropped.
-#[non_exhaustive]
 pub struct Gfx {
     pub top_screen: RefCell<TopScreen>,
     pub bottom_screen: RefCell<BottomScreen>,
     _service_handler: ServiceReference,
 }
 
-static GFX_ACTIVE: Lazy<Mutex<usize>> = Lazy::new(|| Mutex::new(0));
+static GFX_ACTIVE: Mutex<usize> = Mutex::new(0);
 
 impl Gfx {
     /// Initialize the Gfx module with the chosen framebuffer formats for the top and bottom
