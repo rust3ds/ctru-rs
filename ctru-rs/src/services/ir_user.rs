@@ -6,7 +6,6 @@ use std::cmp::max;
 use std::ffi::CString;
 use std::ptr::{slice_from_raw_parts, slice_from_raw_parts_mut};
 use std::sync::Mutex;
-use std::time::Duration;
 
 static IR_USER_ACTIVE: Mutex<usize> = Mutex::new(0);
 static IR_USER_STATE: Mutex<Option<IrUserState>> = Mutex::new(None);
@@ -170,18 +169,6 @@ impl IrUser {
         let recv_event = response[3] as Handle;
 
         Ok(recv_event)
-    }
-
-    /// Wait for an event to fire. If the timeout is reached, an error is returned. You can use
-    /// [`Error::is_timeout`] to check if the error is due to a timeout.
-    pub fn wait_for_event(event: Handle, timeout: Duration) -> crate::Result<()> {
-        unsafe {
-            ResultCode(ctru_sys::svcWaitSynchronization(
-                event,
-                timeout.as_nanos() as i64,
-            ))?;
-        }
-        Ok(())
     }
 
     /// Circle Pad Pro specific request.
