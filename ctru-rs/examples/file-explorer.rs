@@ -32,8 +32,9 @@ struct FileExplorer<'a> {
 
 impl<'a> FileExplorer<'a> {
     fn init(apt: &'a Apt, hid: &'a Hid, gfx: &'a Gfx) -> Self {
-        gfx.top_screen.borrow_mut().set_wide_mode(true);
-        let console = Console::init(gfx.top_screen.borrow_mut());
+        let mut top_screen = gfx.top_screen.borrow_mut();
+        top_screen.set_wide_mode(true);
+        let console = Console::init(top_screen);
 
         FileExplorer {
             apt,

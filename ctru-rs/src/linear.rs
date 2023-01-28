@@ -17,6 +17,7 @@ use std::ptr::NonNull;
 
 /// [`std::alloc::Allocator`] struct for LINEAR memory
 /// To use this struct the main crate must activate the `allocator_api` unstable feature.
+#[derive(Copy, Clone, Default, Debug)]
 pub struct LinearAllocator;
 
 impl LinearAllocator {

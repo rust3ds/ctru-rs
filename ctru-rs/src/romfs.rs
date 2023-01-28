@@ -11,18 +11,16 @@
 //! ```
 
 use crate::error::ResultCode;
-use once_cell::sync::Lazy;
 use std::ffi::CStr;
 use std::sync::Mutex;
 
 use crate::services::ServiceReference;
 
-#[non_exhaustive]
 pub struct RomFS {
     _service_handler: ServiceReference,
 }
 
-static ROMFS_ACTIVE: Lazy<Mutex<usize>> = Lazy::new(|| Mutex::new(0));
+static ROMFS_ACTIVE: Mutex<usize> = Mutex::new(0);
 
 impl RomFS {
     pub fn init() -> crate::Result<Self> {

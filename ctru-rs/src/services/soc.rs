@@ -1,5 +1,4 @@
 use libc::memalign;
-use once_cell::sync::Lazy;
 use std::net::Ipv4Addr;
 use std::sync::Mutex;
 
@@ -9,13 +8,12 @@ use crate::Error;
 
 /// Soc service. Initializing this service will enable the use of network sockets and utilities
 /// such as those found in `std::net`. The service will be closed when this struct is is dropped.
-#[non_exhaustive]
 pub struct Soc {
     _service_handler: ServiceReference,
     sock_3dslink: libc::c_int,
 }
 
-static SOC_ACTIVE: Lazy<Mutex<usize>> = Lazy::new(|| Mutex::new(0));
+static SOC_ACTIVE: Mutex<usize> = Mutex::new(0);
 
 impl Soc {
     /// Initialize the Soc service with a default buffer size of 0x100000 bytes

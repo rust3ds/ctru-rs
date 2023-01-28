@@ -124,11 +124,7 @@ impl fmt::Display for Error {
     }
 }
 
-impl error::Error for Error {
-    fn description(&self) -> &str {
-        "error originating from a libctru function"
-    }
-}
+impl error::Error for Error {}
 
 fn result_code_level_str(result: ctru_sys::Result) -> Cow<'static, str> {
     use ctru_sys::{
