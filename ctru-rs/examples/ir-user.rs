@@ -2,7 +2,7 @@
 
 use ctru::prelude::*;
 use ctru::services::ir_user::{CirclePadProInputResponse, IrDeviceId, IrUser};
-use ctru::services::srv;
+use ctru::services::srv::HandleExt;
 use ctru_sys::Handle;
 use std::io::Write;
 use std::time::Duration;
@@ -40,8 +40,10 @@ fn main() {
         }
 
         // Check if we've received a packet from the circle pad pro
-        let packet_received =
-            srv::wait_for_event(demo.receive_packet_event, Duration::ZERO).is_ok();
+        let packet_received = demo
+            .receive_packet_event
+            .wait_for_event(Duration::ZERO)
+            .is_ok();
         if packet_received {
             demo.handle_packets();
         }
@@ -128,8 +130,9 @@ impl<'screen> CirclePadProDemo<'screen> {
                 .expect("Couldn't initialize circle pad pro connection");
 
             // Wait for the connection to establish
-            if let Err(e) =
-                srv::wait_for_event(self.connection_status_event, Duration::from_millis(100))
+            if let Err(e) = self
+                .connection_status_event
+                .wait_for_event(Duration::from_millis(100))
             {
                 if !e.is_timeout() {
                     panic!("Couldn't initialize circle pad pro connection: {e}");
@@ -148,8 +151,9 @@ impl<'screen> CirclePadProDemo<'screen> {
                 .expect("Failed to disconnect circle pad pro connection");
 
             // Wait for the disconnect to go through
-            if let Err(e) =
-                srv::wait_for_event(self.connection_status_event, Duration::from_millis(100))
+            if let Err(e) = self
+                .connection_status_event
+                .wait_for_event(Duration::from_millis(100))
             {
                 if !e.is_timeout() {
                     panic!("Couldn't initialize circle pad pro connection: {e}");
@@ -174,8 +178,9 @@ impl<'screen> CirclePadProDemo<'screen> {
             self.print_status_info();
 
             // Wait for the response
-            let recv_event_result =
-                srv::wait_for_event(self.receive_packet_event, Duration::from_millis(100));
+            let recv_event_result = self
+                .receive_packet_event
+                .wait_for_event(Duration::from_millis(100));
             self.print_status_info();
 
             if recv_event_result.is_ok() {

@@ -7,14 +7,21 @@ use crate::error::ResultCode;
 use ctru_sys::Handle;
 use std::time::Duration;
 
-/// Wait for an event to fire. If the timeout is reached, an error is returned. You can use
-/// [`Error::is_timeout`] to check if the error is due to a timeout.
-pub fn wait_for_event(event: Handle, timeout: Duration) -> crate::Result<()> {
-    unsafe {
-        ResultCode(ctru_sys::svcWaitSynchronization(
-            event,
-            timeout.as_nanos() as i64,
-        ))?;
+/// Extension trait for [Handle]
+pub trait HandleExt {
+    /// Wait for an event to fire. If the timeout is reached, an error is returned. You can use
+    /// [`Error::is_timeout`] to check if the error is due to a timeout.
+    fn wait_for_event(self, timeout: Duration) -> crate::Result<()>;
+}
+
+impl HandleExt for Handle {
+    fn wait_for_event(self, timeout: Duration) -> crate::Result<()> {
+        unsafe {
+            ResultCode(ctru_sys::svcWaitSynchronization(
+                self,
+                timeout.as_nanos() as i64,
+            ))?;
+        }
+        Ok(())
     }
-    Ok(())
 }
