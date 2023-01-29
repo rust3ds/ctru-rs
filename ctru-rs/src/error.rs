@@ -101,13 +101,17 @@ impl fmt::Debug for Error {
     }
 }
 
-// TODO: Expand libctru result code into human-readable error message. These should be useful:
-// https://www.3dbrew.org/wiki/Error_codes
-// https://github.com/devkitPro/libctru/blob/master/libctru/include/3ds/result.h
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            &Self::Os(err) => write!(f, "libctru result code: 0x{err:08X}"),
+            &Self::Os(err) => write!(
+                f,
+                "libctru result code 0x{err:08X}: [{} {}] {}: {}",
+                result_code_level_str(err),
+                result_code_module_str(err),
+                result_code_summary_str(err),
+                result_code_description_str(err)
+            ),
             Self::Libc(err) => write!(f, "{err}"),
             Self::ServiceAlreadyActive => write!(f, "Service already active"),
             Self::OutputAlreadyRedirected => {
@@ -135,7 +139,7 @@ fn result_code_level_str(result: ctru_sys::Result) -> Cow<'static, str> {
         RL_PERMANENT => "permanent",
         RL_TEMPORARY => "temporary",
         RL_STATUS => "status",
-        code => return Cow::Owned(format!("(unknown: {code:#x})")),
+        code => return Cow::Owned(format!("(unknown level: {code:#x})")),
     })
 }
 
@@ -160,7 +164,7 @@ fn result_code_summary_str(result: ctru_sys::Result) -> Cow<'static, str> {
         RS_STATUSCHANGED => "status_changed",
         RS_INTERNAL => "internal",
         RS_INVALIDRESVAL => "invalid_res_val",
-        code => return Cow::Owned(format!("(unknown: {code:#x})")),
+        code => return Cow::Owned(format!("(unknown summary: {code:#x})")),
     })
 }
 
@@ -200,7 +204,7 @@ fn result_code_description_str(result: ctru_sys::Result) -> Cow<'static, str> {
         RD_NOT_AUTHORIZED => "not_authorized",
         RD_TOO_LARGE => "too_large",
         RD_INVALID_SELECTION => "invalid_selection",
-        code => return Cow::Owned(format!("(unknown: {code:#x})")),
+        code => return Cow::Owned(format!("(unknown description: {code:#x})")),
     })
 }
 
@@ -317,6 +321,6 @@ fn result_code_module_str(result: ctru_sys::Result) -> Cow<'static, str> {
         RM_NFP => "nfp",
         RM_APPLICATION => "application",
         RM_INVALIDRESVAL => "invalid_res_val",
-        code => return Cow::Owned(format!("(unknown: {code:#x})")),
+        code => return Cow::Owned(format!("(unknown module: {code:#x})")),
     })
 }
