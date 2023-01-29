@@ -439,7 +439,7 @@ pub struct IrUserPacket {
 }
 
 /// Circle Pad Pro response packet holding the current device input signals and status.
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct CirclePadProInputResponse {
     pub c_stick_x: u16,
     pub c_stick_y: u16,
