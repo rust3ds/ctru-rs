@@ -17,15 +17,18 @@ const CPP_POLLING_PERIOD_MS: u8 = 0x32;
 fn main() {
     ctru::init();
     let apt = Apt::init().unwrap();
-    let hid = Hid::init().unwrap();
     let gfx = Gfx::init().unwrap();
     let top_console = Console::init(gfx.top_screen.borrow_mut());
     let bottom_console = Console::init(gfx.bottom_screen.borrow_mut());
-
     let demo = CirclePadProDemo::new(top_console, bottom_console);
     demo.print_status_info();
 
-    println!("Press A to connect to the CPP");
+    // Initialize HID after ir:USER because libctru also initializes ir:rst,
+    // which is mutually exclusive with ir:USER. Initializing HID before ir:USER
+    // on New 3DS causes ir:USER to not work.
+    let hid = Hid::init().unwrap();
+
+    println!("Press A to connect to the CPP, or Start to exit");
 
     let mut is_connected = false;
     while apt.main_loop() {
