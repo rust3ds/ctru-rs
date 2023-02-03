@@ -13,7 +13,7 @@ name = "ctru"
 
 [dependencies]
 cfg-if = "1.0"
-ctru-sys = { path = "../ctru-sys", version = "0.4" }
+ctru-sys = { git = "https://github.com/rust3ds/ctru-rs.git", version = "0.4" }
 const-zero = "0.1.0"
 linker-fix-3ds = { git = "https://github.com/rust3ds/rust-linker-fix-3ds.git" }
 pthread-3ds = { git = "https://github.com/rust3ds/pthread-3ds.git" }
