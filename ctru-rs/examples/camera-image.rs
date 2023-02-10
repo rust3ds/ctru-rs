@@ -1,16 +1,15 @@
-use ctru::console::Console;
-use ctru::gfx::{Gfx, Screen};
+use ctru::gfx::Screen;
+use ctru::prelude::*;
 use ctru::services::cam::{Cam, CamOutputFormat, CamShutterSoundType, CamSize, Camera};
-use ctru::services::hid::KeyPad;
-use ctru::services::{Apt, Hid};
+use ctru::services::gspgpu::FramebufferFormat;
+
 use std::time::Duration;
 
 const WIDTH: usize = 400;
 const HEIGHT: usize = 240;
 
-// The screen size is the width and height multiplied by 2 and
-// then multiplied by 2 again for 3D images
-const BUF_SIZE: usize = WIDTH * HEIGHT * 2 * 2;
+// The screen size is the width and height multiplied by 2 (RGB565 store pixels in 2 bytes)
+const BUF_SIZE: usize = WIDTH * HEIGHT * 2;
 
 const WAIT_TIMEOUT: Duration = Duration::from_micros(300);
 
@@ -22,8 +21,10 @@ fn main() {
     let gfx = Gfx::init().expect("Failed to initialize GFX service.");
 
     gfx.top_screen.borrow_mut().set_double_buffering(true);
+    gfx.top_screen
+        .borrow_mut()
+        .set_framebuffer_format(FramebufferFormat::Rgb565);
     gfx.bottom_screen.borrow_mut().set_double_buffering(false);
-
     let _console = Console::init(gfx.bottom_screen.borrow_mut());
 
     let mut keys_down;
@@ -54,7 +55,9 @@ fn main() {
             .set_trimming(false)
             .expect("Failed to disable trimming");
     }
-    let mut buf = vec![0u8; BUF_SIZE];
+    let mut buf = vec![128u8; BUF_SIZE / 2];
+    let mut lol = vec![255u8; BUF_SIZE / 2];
+    buf.append(&mut lol);
 
     println!("\nPress R to take a new picture");
     println!("Press Start to exit to Homebrew Launcher");
@@ -83,7 +86,7 @@ fn main() {
                 .expect("Failed to take picture");
         }
 
-        let img = convert_image_to_rgb8(&buf, 0, 0, WIDTH, HEIGHT);
+        let img = rotate_image(&buf, WIDTH, HEIGHT);
 
         unsafe {
             gfx.top_screen
@@ -99,39 +102,28 @@ fn main() {
     }
 }
 
-// The available camera output formats are both using u16 values.
-// To write to the frame buffer with the default RGB8 format,
-// the values must be converted.
-//
-// Alternatively, the frame buffer format could be set to RGB565 as well
-// but the image would need to be rotated 90 degrees.
-fn convert_image_to_rgb8(img: &[u8], x: usize, y: usize, width: usize, height: usize) -> Vec<u8> {
-    let mut rgb8 = vec![0u8; img.len()];
+// The 3DS' screens are 2 vertical LCD panels rotated by 90 degrees.
+// As such, we'll need to write a "vertical" image to the framebuffer to have it displayed properly.
+// This functions handles the rotation of an horizontal image to a vertical one.
+fn rotate_image(img: &[u8], width: usize, height: usize) -> Vec<u8> {
+    let mut res = vec![0u8; img.len()];
     for j in 0..height {
         for i in 0..width {
             // Y-coordinate of where to draw in the frame buffer
-            let draw_y = y + height - j;
+            // Height must be esclusive of the upper end (otherwise, we'd be writing to the pixel one column to the right when having j=0)
+            let draw_y = (height - 1) - j;
             // X-coordinate of where to draw in the frame buffer
-            let draw_x = x + i;
-            // Initial index of where to draw in the frame buffer based on y and x coordinates
-            let draw_index = (draw_y + draw_x * height) * 3;
+            let draw_x = i;
 
             // Index of the pixel to draw within the image buffer
-            let index = (j * width + i) * 2;
-            // Pixels in the image are 2 bytes because of the RGB565 format.
-            let pixel = u16::from_ne_bytes(img[index..index + 2].try_into().unwrap());
-            // b value from the pixel
-            let b = (((pixel >> 11) & 0x1F) << 3) as u8;
-            // g value from the pixel
-            let g = (((pixel >> 5) & 0x3F) << 2) as u8;
-            // r value from the pixel
-            let r = ((pixel & 0x1F) << 3) as u8;
+            let read_index = (j * width + i) * 2;
 
-            // set the r, g, and b values to the calculated index within the frame buffer
-            rgb8[draw_index] = r;
-            rgb8[draw_index + 1] = g;
-            rgb8[draw_index + 2] = b;
+            // Initial index of where to draw in the frame buffer based on y and x coordinates
+            let draw_index = (draw_x * height + draw_y) * 2; // This 2 stands for the number of bytes per pixel (16 bits)
+
+            res[draw_index] = img[read_index];
+            res[draw_index + 1] = img[read_index + 1];
         }
     }
-    rgb8
+    res
 }
