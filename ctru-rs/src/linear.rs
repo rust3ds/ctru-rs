@@ -29,8 +29,7 @@ impl LinearAllocator {
 
 unsafe impl Allocator for LinearAllocator {
     fn allocate(&self, layout: Layout) -> Result<NonNull<[u8]>, AllocError> {
-        let pointer =
-            unsafe { ctru_sys::linearMemAlign(layout.size(), layout.align()) };
+        let pointer = unsafe { ctru_sys::linearMemAlign(layout.size(), layout.align()) };
 
         NonNull::new(pointer.cast())
             .map(|ptr| NonNull::slice_from_raw_parts(ptr, layout.size()))
