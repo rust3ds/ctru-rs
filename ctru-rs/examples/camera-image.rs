@@ -9,7 +9,7 @@ const WIDTH: usize = 400;
 const HEIGHT: usize = 240;
 
 // The screen size is the width and height multiplied by 2 (RGB565 store pixels in 2 bytes)
-const BUF_SIZE: usize = WIDTH * HEIGHT * 2;
+// const BUF_SIZE: usize = WIDTH * HEIGHT * 2;
 
 const WAIT_TIMEOUT: Duration = Duration::from_micros(300);
 
@@ -55,9 +55,8 @@ fn main() {
             .set_trimming(false)
             .expect("Failed to disable trimming");
     }
-    let mut buf = vec![128u8; BUF_SIZE / 2];
-    let mut lol = vec![255u8; BUF_SIZE / 2];
-    buf.append(&mut lol);
+
+    let mut buf;
 
     println!("\nPress R to take a new picture");
     println!("Press Start to exit to Homebrew Launcher");
@@ -72,8 +71,6 @@ fn main() {
 
         if keys_down.contains(KeyPad::KEY_R) {
             println!("Capturing new image");
-            cam.play_shutter_sound(CamShutterSoundType::NORMAL)
-                .expect("Failed to play shutter sound");
 
             let camera = &mut cam.outer_right_cam;
 
@@ -84,21 +81,24 @@ fn main() {
                     WAIT_TIMEOUT,
                 )
                 .expect("Failed to take picture");
+
+            cam.play_shutter_sound(CamShutterSoundType::NORMAL)
+                .expect("Failed to play shutter sound");
+
+            let img = rotate_image(&buf, WIDTH, HEIGHT);
+
+            unsafe {
+                gfx.top_screen
+                    .borrow_mut()
+                    .get_raw_framebuffer()
+                    .ptr
+                    .copy_from(img.as_ptr(), img.len());
+            }
+
+            gfx.flush_buffers();
+            gfx.swap_buffers();
+            gfx.wait_for_vblank();
         }
-
-        let img = rotate_image(&buf, WIDTH, HEIGHT);
-
-        unsafe {
-            gfx.top_screen
-                .borrow_mut()
-                .get_raw_framebuffer()
-                .ptr
-                .copy_from(img.as_ptr(), img.len());
-        }
-
-        gfx.flush_buffers();
-        gfx.swap_buffers();
-        gfx.wait_for_vblank();
     }
 }
 

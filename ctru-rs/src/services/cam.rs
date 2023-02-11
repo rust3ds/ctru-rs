@@ -731,7 +731,7 @@ pub trait Camera {
             Ok::<u32, i32>(buf_size)
         }?;
 
-        let screen_size = u32::from(width) * u32::from(width) * 2;
+        let screen_size = u32::from(width) * u32::from(height) * 2;
 
         let mut buf = vec![0u8; usize::try_from(screen_size).unwrap()];
 
