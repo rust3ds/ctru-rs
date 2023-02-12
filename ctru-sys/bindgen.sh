@@ -11,9 +11,9 @@ bindgen "$DEVKITPRO/libctru/include/3ds.h" \
     --ctypes-prefix "::libc" \
     --no-prepend-enum-name \
     --generate "functions,types,vars" \
-    --blacklist-type "u(8|16|32|64)" \
-    --blacklist-type "__builtin_va_list" \
-    --blacklist-type "__va_list" \
+    --blocklist-type "u(8|16|32|64)" \
+    --blocklist-type "__builtin_va_list" \
+    --blocklist-type "__va_list" \
     --opaque-type "MiiData" \
     --with-derive-default \
     -- \
