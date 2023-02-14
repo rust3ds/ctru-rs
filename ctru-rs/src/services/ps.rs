@@ -5,6 +5,7 @@
 //! See also <https://www.3dbrew.org/wiki/Process_Services>
 
 use crate::error::ResultCode;
+use crate::Result;
 
 #[repr(u32)]
 pub enum AESAlgorithm {
@@ -30,23 +31,44 @@ pub enum AESKeyType {
     Keyslot39Nfc,
 }
 
-pub fn local_friend_code_seed() -> crate::Result<u64> {
-    let mut seed: u64 = 0;
+pub struct Ps(());
 
-    ResultCode(unsafe { ctru_sys::PS_GetLocalFriendCodeSeed(&mut seed) })?;
-    Ok(seed)
+impl Ps {
+    pub fn new() -> Result<Self> {
+        unsafe {
+            ResultCode(ctru_sys::psInit())?;
+            Ok(Ps(()))
+        }
+    }
+
+    pub fn local_friend_code_seed(&self) -> crate::Result<u64> {
+        let mut seed: u64 = 0;
+
+        ResultCode(unsafe { ctru_sys::PS_GetLocalFriendCodeSeed(&mut seed) })?;
+        Ok(seed)
+    }
+
+    pub fn device_id(&self) -> crate::Result<u32> {
+        let mut id: u32 = 0;
+
+        ResultCode(unsafe { ctru_sys::PS_GetDeviceId(&mut id) })?;
+        Ok(id)
+    }
+
+    pub fn generate_random_bytes(&self, out: &mut [u8]) -> crate::Result<()> {
+        ResultCode(unsafe {
+            ctru_sys::PS_GenerateRandomBytes(out as *mut _ as *mut _, out.len())
+        })?;
+        Ok(())
+    }
 }
 
-pub fn device_id() -> crate::Result<u32> {
-    let mut id: u32 = 0;
-
-    ResultCode(unsafe { ctru_sys::PS_GetDeviceId(&mut id) })?;
-    Ok(id)
-}
-
-pub fn generate_random_bytes(out: &mut [u8]) -> crate::Result<()> {
-    ResultCode(unsafe { ctru_sys::PS_GenerateRandomBytes(out as *mut _ as *mut _, out.len()) })?;
-    Ok(())
+impl Drop for Ps {
+    fn drop(&mut self) {
+        unsafe {
+            ctru_sys::psExit();
+        }
+    }
 }
 
 #[cfg(test)]
