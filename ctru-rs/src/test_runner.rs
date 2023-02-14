@@ -15,8 +15,6 @@ use crate::services::Apt;
 /// runs all tests in series, "failing" on the first one to panic (really, the
 /// panic is just treated the same as any normal application panic).
 pub(crate) fn run(tests: &[&TestDescAndFn]) {
-    crate::init();
-
     let gfx = Gfx::init().unwrap();
     let hid = Hid::init().unwrap();
     let apt = Apt::init().unwrap();

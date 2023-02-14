@@ -6,8 +6,8 @@ use std::os::horizon::thread::BuilderExt;
 use std::time::Duration;
 
 fn main() {
-    // Initialize services
-    ctru::init();
+    ctru::use_panic_handler();
+
     let apt = Apt::init().unwrap();
     let hid = Hid::init().unwrap();
     let gfx = Gfx::init().unwrap();

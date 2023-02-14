@@ -13,7 +13,8 @@ use futures::StreamExt;
 use std::os::horizon::thread::BuilderExt;
 
 fn main() {
-    ctru::init();
+    ctru::use_panic_handler();
+
     let gfx = Gfx::init().expect("Couldn't obtain GFX controller");
     let hid = Hid::init().expect("Couldn't obtain HID controller");
     let apt = Apt::init().expect("Couldn't obtain APT controller");

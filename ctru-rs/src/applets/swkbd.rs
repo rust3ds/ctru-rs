@@ -3,7 +3,6 @@ use ctru_sys::{
     self, swkbdInit, swkbdInputText, swkbdSetButton, swkbdSetFeatures, swkbdSetHintText, SwkbdState,
 };
 use libc;
-use std::convert::TryInto;
 use std::iter::once;
 use std::str;
 
@@ -130,7 +129,7 @@ impl Swkbd {
             match swkbdInputText(
                 self.state.as_mut(),
                 buf.as_mut_ptr(),
-                buf.len().try_into().unwrap(),
+                buf.len(),
             ) {
                 ctru_sys::SWKBD_BUTTON_NONE => Err(self.parse_swkbd_error()),
                 ctru_sys::SWKBD_BUTTON_LEFT => Ok(Button::Left),

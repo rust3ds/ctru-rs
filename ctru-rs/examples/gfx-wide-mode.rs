@@ -1,7 +1,8 @@
 use ctru::prelude::*;
 
 fn main() {
-    ctru::init();
+    ctru::use_panic_handler();
+
     let apt = Apt::init().unwrap();
     let hid = Hid::init().unwrap();
     let gfx = Gfx::init().unwrap();
