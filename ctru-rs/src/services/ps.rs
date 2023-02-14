@@ -1,7 +1,6 @@
 //! Process Services (PS) module. This is used for miscellaneous utility tasks, but
 //! is particularly important because it is used to generate random data, which
 //! is required for common things like [`HashMap`](std::collections::HashMap).
-//! That's why this is the only service initialised automatically.
 //! See also <https://www.3dbrew.org/wiki/Process_Services>
 
 use crate::error::ResultCode;
