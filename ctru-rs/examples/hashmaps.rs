@@ -1,12 +1,13 @@
 use ctru::prelude::*;
 
 fn main() {
+    ctru::use_panic_handler();
+
     // Initialize services
     //
     // HashMaps generate hashes thanks to the 3DS' cryptografically secure generator.
     // This generator is only active when activating the `PS` service.
-    // This service is automatically initialized in `ctru::init`
-    ctru::init();
+    // This service is automatically initialized.
     let apt = Apt::init().unwrap();
     let hid = Hid::init().unwrap();
     let gfx = Gfx::init().unwrap();

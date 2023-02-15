@@ -15,7 +15,8 @@ use ctru::prelude::*;
 static IMAGE: &[u8] = include_bytes!("assets/ferris.rgb");
 
 fn main() {
-    ctru::init();
+    ctru::use_panic_handler();
+
     let gfx = Gfx::init().expect("Couldn't obtain GFX controller");
     let hid = Hid::init().expect("Couldn't obtain HID controller");
     let apt = Apt::init().expect("Couldn't obtain APT controller");

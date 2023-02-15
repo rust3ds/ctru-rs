@@ -1,7 +1,7 @@
 use ctru::prelude::*;
 
 fn main() {
-    ctru::init();
+    ctru::use_panic_handler();
 
     let gfx = Gfx::init().expect("Couldn't obtain GFX controller");
     let hid = Hid::init().expect("Couldn't obtain HID controller");

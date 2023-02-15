@@ -5,7 +5,8 @@ use std::net::{Shutdown, TcpListener};
 use std::time::Duration;
 
 fn main() {
-    ctru::init();
+    ctru::use_panic_handler();
+
     let gfx = Gfx::init().unwrap();
     let _console = Console::init(gfx.top_screen.borrow_mut());
     let hid = Hid::init().unwrap();

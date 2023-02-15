@@ -3,7 +3,6 @@ use ctru_sys::{
     self, swkbdInit, swkbdInputText, swkbdSetButton, swkbdSetFeatures, swkbdSetHintText, SwkbdState,
 };
 use libc;
-use std::convert::TryInto;
 use std::iter::once;
 use std::str;
 
@@ -127,11 +126,7 @@ impl Swkbd {
     /// the output will be truncated but should still be well-formed UTF-8
     pub fn get_bytes(&mut self, buf: &mut [u8]) -> Result<Button, Error> {
         unsafe {
-            match swkbdInputText(
-                self.state.as_mut(),
-                buf.as_mut_ptr(),
-                buf.len().try_into().unwrap(),
-            ) {
+            match swkbdInputText(self.state.as_mut(), buf.as_mut_ptr(), buf.len()) {
                 ctru_sys::SWKBD_BUTTON_NONE => Err(self.parse_swkbd_error()),
                 ctru_sys::SWKBD_BUTTON_LEFT => Ok(Button::Left),
                 ctru_sys::SWKBD_BUTTON_MIDDLE => Ok(Button::Middle),

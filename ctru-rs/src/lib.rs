@@ -7,40 +7,25 @@
 #![feature(nonnull_slice_from_raw_parts)]
 #![test_runner(test_runner::run)]
 
-extern "C" fn services_deinit() {
-    unsafe {
-        ctru_sys::psExit();
-    }
-}
+// Nothing is imported from these crates but their inclusion here assures correct linking of the missing implementations.
+extern crate linker_fix_3ds;
+extern crate pthread_3ds;
 
 #[no_mangle]
 #[cfg(feature = "big-stack")]
 static __stacksize__: usize = 2 * 1024 * 1024; // 2MB
 
-/// Call this somewhere to force Rust to link some required crates
-/// This is also a setup for some crate integration only available at runtime
+/// Activate ´ctru-rs´' default panic handler.
 ///
-/// See <https://github.com/rust-lang/rust/issues/47384>
-pub fn init() {
-    linker_fix_3ds::init();
-    pthread_3ds::init();
-
+/// With this implementation, the main thread will stop and try to print debug info to an available [console::Console].
+/// In case it fails to find an active [console::Console], the program will just exit.
+///
+/// # Notes
+///
+/// When ´test´ is enabled, this function won't do anything, as it should be overridden by the ´test´ environment.
+pub fn use_panic_handler() {
     #[cfg(not(test))]
     panic_hook_setup();
-
-    // Initialize the PS service for random data generation
-    unsafe {
-        let ps_ret = ctru_sys::psInit();
-        if ctru_sys::R_FAILED(ps_ret) {
-            panic!(
-                "Failed to initialize random data generation: {:?}",
-                Error::from(ps_ret)
-            )
-        }
-
-        // Setup the deconstruction at the program's end
-        libc::atexit(services_deinit);
-    }
 }
 
 #[cfg(not(test))]

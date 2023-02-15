@@ -15,7 +15,7 @@ const BUF_SIZE: usize = WIDTH * HEIGHT * 2 * 2;
 const WAIT_TIMEOUT: Duration = Duration::from_micros(300);
 
 fn main() {
-    ctru::init();
+    ctru::use_panic_handler();
 
     let apt = Apt::init().expect("Failed to initialize Apt service.");
     let hid = Hid::init().expect("Failed to initialize Hid service.");
