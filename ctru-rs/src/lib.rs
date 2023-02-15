@@ -7,12 +7,9 @@
 #![feature(nonnull_slice_from_raw_parts)]
 #![test_runner(test_runner::run)]
 
-// These functions are imported to assure ´cargo´ we need to link the crates.
-// These don't need to run to link the functions properly!
-#[allow(unused_imports)]
-use linker_fix_3ds::init as link_init;
-#[allow(unused_imports)]
-use pthread_3ds::init as pthread_init;
+// Nothing is imported from these crates but their inclusion here assures correct linking of the missing implementations.
+extern crate linker_fix_3ds;
+extern crate pthread_3ds;
 
 #[no_mangle]
 #[cfg(feature = "big-stack")]
