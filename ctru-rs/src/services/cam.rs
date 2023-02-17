@@ -776,7 +776,7 @@ pub trait Camera {
             ));
 
             // We close everything first, then we check for possible errors
-            ResultCode(ctru_sys::svcCloseHandle(receive_event));
+            let _ = ctru_sys::svcCloseHandle(receive_event); // We wouldn't return the error even if there was one, so no use of ResultCode is needed
             ResultCode(ctru_sys::CAMU_StopCapture(self.port_as_raw()))?;
             ResultCode(ctru_sys::CAMU_Activate(ctru_sys::SELECT_NONE))?;
 
