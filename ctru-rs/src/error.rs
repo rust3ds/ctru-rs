@@ -21,7 +21,11 @@ impl Try for ResultCode {
     }
 
     fn branch(self) -> ControlFlow<Self::Residual, Self::Output> {
-        if self.0 < 0 {
+        // Wait timeouts aren't counted as "failures" in libctru, but an unfinished task means unsafety for us.
+        // Luckily all summary cases are for system failures (except RS_SUCCESS).
+        // I don't know if there are any cases in libctru where a Result holds a "failing" summary but a "success" code, so we'll just check for both.
+        if ctru_sys::R_FAILED(self.0) || ctru_sys::R_SUMMARY(self.0) != ctru_sys::RS_SUCCESS as i32
+        {
             ControlFlow::Break(self.into())
         } else {
             ControlFlow::Continue(())

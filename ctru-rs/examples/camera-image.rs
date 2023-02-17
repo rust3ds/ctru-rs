@@ -9,9 +9,9 @@ const WIDTH: usize = 400;
 const HEIGHT: usize = 240;
 
 // The screen size is the width and height multiplied by 2 (RGB565 store pixels in 2 bytes)
-// const BUF_SIZE: usize = WIDTH * HEIGHT * 2;
+const BUF_SIZE: usize = WIDTH * HEIGHT * 2;
 
-const WAIT_TIMEOUT: Duration = Duration::from_micros(300);
+const WAIT_TIMEOUT: Duration = Duration::from_millis(300);
 
 fn main() {
     ctru::use_panic_handler();
@@ -56,7 +56,7 @@ fn main() {
             .expect("Failed to disable trimming");
     }
 
-    let mut buf;
+    let mut buf = vec![0; BUF_SIZE];
 
     println!("\nPress R to take a new picture");
     println!("Press Start to exit to Homebrew Launcher");
@@ -74,8 +74,9 @@ fn main() {
 
             let camera = &mut cam.outer_right_cam;
 
-            buf = camera
+            camera
                 .take_picture(
+                    &mut buf,
                     WIDTH.try_into().unwrap(),
                     HEIGHT.try_into().unwrap(),
                     WAIT_TIMEOUT,
@@ -85,15 +86,12 @@ fn main() {
             cam.play_shutter_sound(CamShutterSoundType::NORMAL)
                 .expect("Failed to play shutter sound");
 
-            let img = rotate_image(&buf, WIDTH, HEIGHT);
-
-            unsafe {
-                gfx.top_screen
-                    .borrow_mut()
-                    .get_raw_framebuffer()
-                    .ptr
-                    .copy_from(img.as_ptr(), img.len());
-            }
+            rotate_image_to_screen(
+                &buf,
+                gfx.top_screen.borrow_mut().get_raw_framebuffer().ptr,
+                WIDTH,
+                HEIGHT,
+            );
 
             gfx.flush_buffers();
             gfx.swap_buffers();
@@ -104,9 +102,8 @@ fn main() {
 
 // The 3DS' screens are 2 vertical LCD panels rotated by 90 degrees.
 // As such, we'll need to write a "vertical" image to the framebuffer to have it displayed properly.
-// This functions handles the rotation of an horizontal image to a vertical one.
-fn rotate_image(img: &[u8], width: usize, height: usize) -> Vec<u8> {
-    let mut res = vec![0u8; img.len()];
+// This functions rotates an horizontal image by 90 degrees to the right.
+fn rotate_image_to_screen(src: &[u8], framebuf: *mut u8, width: usize, height: usize) {
     for j in 0..height {
         for i in 0..width {
             // Y-coordinate of where to draw in the frame buffer
@@ -121,9 +118,11 @@ fn rotate_image(img: &[u8], width: usize, height: usize) -> Vec<u8> {
             // Initial index of where to draw in the frame buffer based on y and x coordinates
             let draw_index = (draw_x * height + draw_y) * 2; // This 2 stands for the number of bytes per pixel (16 bits)
 
-            res[draw_index] = img[read_index];
-            res[draw_index + 1] = img[read_index + 1];
+            unsafe {
+                let pixel_pointer = framebuf.offset(draw_index as isize);
+                *pixel_pointer = src[read_index];
+                *pixel_pointer.offset(1) = src[read_index + 1];
+            }
         }
     }
-    res
 }

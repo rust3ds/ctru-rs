@@ -704,11 +704,15 @@ pub trait Camera {
         }
     }
 
-    /// Requests the camera to take a picture and returns a vector containing the image bytes.
+    /// Requests the camera to take a picture and write it in a buffer.
     ///
     /// # Errors
     ///
     /// This will error if the camera is busy or if the timeout duration is reached.
+    ///
+    /// # Panics
+    ///
+    /// This function will panic if `buffer.len() < (width * height * 2)`.
     ///
     /// # Arguments
     ///
@@ -717,10 +721,11 @@ pub trait Camera {
     /// * `timeout` - Duration to wait for the image
     fn take_picture(
         &mut self,
+        buffer: &mut [u8],
         width: u16,
         height: u16,
         timeout: Duration,
-    ) -> crate::Result<Vec<u8>> {
+    ) -> crate::Result<()> {
         let transfer_unit = unsafe {
             let mut buf_size = 0;
             ResultCode(ctru_sys::CAMU_GetMaxBytes(
@@ -731,10 +736,6 @@ pub trait Camera {
             Ok::<u32, i32>(buf_size)
         }?;
 
-        let screen_size = u32::from(width) * u32::from(height) * 2;
-
-        let mut buf = vec![0u8; usize::try_from(screen_size).unwrap()];
-
         unsafe {
             ResultCode(ctru_sys::CAMU_SetTransferBytes(
                 self.port_as_raw(),
@@ -743,6 +744,11 @@ pub trait Camera {
                 height as i16,
             ))?;
         };
+
+        let screen_size = u32::from(width) * u32::from(height) * 2;
+        if buffer.len() < screen_size as usize {
+            panic!("Provided buffer's length is shorter than the desired width and height matrix.")
+        }
 
         unsafe {
             ResultCode(ctru_sys::CAMU_Activate(self.camera_as_raw()))?;
@@ -754,7 +760,7 @@ pub trait Camera {
             let mut completion_handle: Handle = 0;
             ResultCode(ctru_sys::CAMU_SetReceiving(
                 &mut completion_handle,
-                buf.as_mut_ptr() as *mut ::libc::c_void,
+                buffer.as_mut_ptr() as *mut ::libc::c_void,
                 self.port_as_raw(),
                 screen_size,
                 transfer_unit.try_into().unwrap(),
@@ -763,16 +769,21 @@ pub trait Camera {
         }?;
 
         unsafe {
-            ResultCode(ctru_sys::svcWaitSynchronization(
+            // Panicking without closing an SVC handle causes an ARM exception, we have to handle it carefully (TODO: SVC module)
+            let wait_result = ResultCode(ctru_sys::svcWaitSynchronization(
                 receive_event,
                 timeout.as_nanos().try_into().unwrap(),
-            ))?;
+            ));
+
+            // We close everything first, then we check for possible errors
+            ResultCode(ctru_sys::svcCloseHandle(receive_event));
             ResultCode(ctru_sys::CAMU_StopCapture(self.port_as_raw()))?;
-            ResultCode(ctru_sys::svcCloseHandle(receive_event))?;
             ResultCode(ctru_sys::CAMU_Activate(ctru_sys::SELECT_NONE))?;
+
+            wait_result?;
         };
 
-        Ok(buf)
+        Ok(())
     }
 }
 
