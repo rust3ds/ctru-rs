@@ -56,7 +56,7 @@ fn main() {
             .expect("Failed to disable trimming");
     }
 
-    let mut buf = vec![0; BUF_SIZE];
+    let mut buf = vec![0u8; BUF_SIZE];
 
     println!("\nPress R to take a new picture");
     println!("Press Start to exit to Homebrew Launcher");
