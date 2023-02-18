@@ -3,7 +3,7 @@
 //! The CAM service provides access to the cameras. Cameras can return 2D images
 //! in the form of byte vectors which can be used for display or other usages.
 
-use crate::error::ResultCode;
+use crate::error::{Error, ResultCode};
 use crate::services::gspgpu::FramebufferFormat;
 use bitflags::bitflags;
 use ctru_sys::Handle;
@@ -710,10 +710,6 @@ pub trait Camera {
     ///
     /// This will error if the camera is busy or if the timeout duration is reached.
     ///
-    /// # Panics
-    ///
-    /// This function will panic if `buffer.len() < (width * height * 2)`.
-    ///
     /// # Arguments
     ///
     /// * `width` - Width of the desired image
@@ -745,9 +741,9 @@ pub trait Camera {
             ))?;
         };
 
-        let screen_size = u32::from(width) * u32::from(height) * 2;
+        let screen_size: usize = usize::from(width) * usize::from(height) * 2;
         if buffer.len() < screen_size as usize {
-            panic!("Provided buffer's length is shorter than the desired width and height matrix.")
+            return Err(Error::BufferTooShort(buffer.len(), screen_size))
         }
 
         unsafe {
@@ -760,9 +756,9 @@ pub trait Camera {
             let mut completion_handle: Handle = 0;
             ResultCode(ctru_sys::CAMU_SetReceiving(
                 &mut completion_handle,
-                buffer.as_mut_ptr() as *mut ::libc::c_void,
+                buffer.as_mut_ptr().cast(),
                 self.port_as_raw(),
-                screen_size,
+                screen_size as u32,
                 transfer_unit.try_into().unwrap(),
             ))?;
             Ok::<Handle, i32>(completion_handle)

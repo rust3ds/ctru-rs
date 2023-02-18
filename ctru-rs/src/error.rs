@@ -55,6 +55,8 @@ pub enum Error {
     Libc(String),
     ServiceAlreadyActive,
     OutputAlreadyRedirected,
+    /// The first member is the length of the buffer provided by the user, the second parameter is the size of the requested data (in bytes).
+    BufferTooShort(usize, usize),
 }
 
 impl Error {
@@ -101,6 +103,7 @@ impl fmt::Debug for Error {
             Self::Libc(err) => f.debug_tuple("Libc").field(err).finish(),
             Self::ServiceAlreadyActive => f.debug_tuple("ServiceAlreadyActive").finish(),
             Self::OutputAlreadyRedirected => f.debug_tuple("OutputAlreadyRedirected").finish(),
+            Self::BufferTooShort(provided, wanted) => f.debug_tuple("BufferTooShort").field(provided).field(wanted).finish(),
         }
     }
 }
@@ -110,7 +113,7 @@ impl fmt::Display for Error {
         match self {
             &Self::Os(err) => write!(
                 f,
-                "libctru result code 0x{err:08X}: [{} {}] {}: {}",
+                "Libctru result code 0x{err:08X}: [{} {}] {}: {}",
                 result_code_level_str(err),
                 result_code_module_str(err),
                 result_code_summary_str(err),
@@ -119,8 +122,9 @@ impl fmt::Display for Error {
             Self::Libc(err) => write!(f, "{err}"),
             Self::ServiceAlreadyActive => write!(f, "Service already active"),
             Self::OutputAlreadyRedirected => {
-                write!(f, "output streams are already redirected to 3dslink")
+                write!(f, "Output streams are already redirected to 3dslink")
             }
+            Self::BufferTooShort(provided, wanted) => write!(f, "The provided buffer's length is too short (length = {provided}) to hold the wanted data (size = {wanted})")
         }
     }
 }
