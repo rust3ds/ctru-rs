@@ -742,8 +742,8 @@ pub trait Camera {
         };
 
         let screen_size: usize = usize::from(width) * usize::from(height) * 2;
-        if buffer.len() < screen_size as usize {
-            return Err(Error::BufferTooShort(buffer.len(), screen_size))
+        if buffer.len() < screen_size {
+            return Err(Error::BufferTooShort(buffer.len(), screen_size));
         }
 
         unsafe {

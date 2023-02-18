@@ -103,7 +103,11 @@ impl fmt::Debug for Error {
             Self::Libc(err) => f.debug_tuple("Libc").field(err).finish(),
             Self::ServiceAlreadyActive => f.debug_tuple("ServiceAlreadyActive").finish(),
             Self::OutputAlreadyRedirected => f.debug_tuple("OutputAlreadyRedirected").finish(),
-            Self::BufferTooShort(provided, wanted) => f.debug_tuple("BufferTooShort").field(provided).field(wanted).finish(),
+            Self::BufferTooShort(provided, wanted) => f
+                .debug_tuple("BufferTooShort")
+                .field(provided)
+                .field(wanted)
+                .finish(),
         }
     }
 }
