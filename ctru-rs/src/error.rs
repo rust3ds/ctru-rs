@@ -104,9 +104,9 @@ impl fmt::Debug for Error {
             Self::ServiceAlreadyActive => f.debug_tuple("ServiceAlreadyActive").finish(),
             Self::OutputAlreadyRedirected => f.debug_tuple("OutputAlreadyRedirected").finish(),
             Self::BufferTooShort(provided, wanted) => f
-                .debug_tuple("BufferTooShort")
-                .field(provided)
-                .field(wanted)
+                .debug_struct("BufferTooShort")
+                .field("provided", provided)
+                .field("wanted", wanted)
                 .finish(),
         }
     }
@@ -117,18 +117,18 @@ impl fmt::Display for Error {
         match self {
             &Self::Os(err) => write!(
                 f,
-                "Libctru result code 0x{err:08X}: [{} {}] {}: {}",
+                "libctru result code 0x{err:08X}: [{} {}] {}: {}",
                 result_code_level_str(err),
                 result_code_module_str(err),
                 result_code_summary_str(err),
                 result_code_description_str(err)
             ),
             Self::Libc(err) => write!(f, "{err}"),
-            Self::ServiceAlreadyActive => write!(f, "Service already active"),
+            Self::ServiceAlreadyActive => write!(f, "service already active"),
             Self::OutputAlreadyRedirected => {
-                write!(f, "Output streams are already redirected to 3dslink")
+                write!(f, "output streams are already redirected to 3dslink")
             }
-            Self::BufferTooShort(provided, wanted) => write!(f, "The provided buffer's length is too short (length = {provided}) to hold the wanted data (size = {wanted})")
+            Self::BufferTooShort(provided, wanted) => write!(f, "the provided buffer's length is too short (length = {provided}) to hold the wanted data (size = {wanted})")
         }
     }
 }

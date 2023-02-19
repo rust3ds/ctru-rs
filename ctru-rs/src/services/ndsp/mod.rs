@@ -317,10 +317,10 @@ impl AudioFormat {
 impl fmt::Display for NdspError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Self::InvalidChannel(id) => write!(f, "Audio Channel with ID {id} doesn't exist. Valid channels have an ID between 0 and 23."),
-            Self::ChannelAlreadyInUse(id) => write!(f, "Audio Channel with ID {id} is already being used. Drop the other instance if you want to use it here."),
-            Self::WaveBusy(id) => write!(f, "The selected WaveInfo is busy playing on channel {id}."),
-            Self::SampleCountOutOfBounds(samples_requested, max_samples) => write!(f, "The sample count requested is too big. Requested amount was {samples_requested} while the maximum sample count is {max_samples}."),
+            Self::InvalidChannel(id) => write!(f, "audio Channel with ID {id} doesn't exist. Valid channels have an ID between 0 and 23"),
+            Self::ChannelAlreadyInUse(id) => write!(f, "audio Channel with ID {id} is already being used. Drop the other instance if you want to use it here"),
+            Self::WaveBusy(id) => write!(f, "the selected WaveInfo is busy playing on channel {id}"),
+            Self::SampleCountOutOfBounds(samples_requested, max_samples) => write!(f, "the sample count requested is too big (requested = {samples_requested}, maximum = {max_samples})"),
         }
     }
 }
