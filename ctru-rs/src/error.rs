@@ -55,8 +55,12 @@ pub enum Error {
     Libc(String),
     ServiceAlreadyActive,
     OutputAlreadyRedirected,
-    /// The first member is the length of the buffer provided by the user, the second parameter is the size of the requested data (in bytes).
-    BufferTooShort(usize, usize),
+    BufferTooShort {
+        /// Length of the buffer provided by the user.
+        provided: usize,
+        /// Size of the requested data (in bytes).
+        wanted: usize,
+    },
 }
 
 impl Error {
@@ -103,7 +107,7 @@ impl fmt::Debug for Error {
             Self::Libc(err) => f.debug_tuple("Libc").field(err).finish(),
             Self::ServiceAlreadyActive => f.debug_tuple("ServiceAlreadyActive").finish(),
             Self::OutputAlreadyRedirected => f.debug_tuple("OutputAlreadyRedirected").finish(),
-            Self::BufferTooShort(provided, wanted) => f
+            Self::BufferTooShort { provided, wanted } => f
                 .debug_struct("BufferTooShort")
                 .field("provided", provided)
                 .field("wanted", wanted)
@@ -128,7 +132,7 @@ impl fmt::Display for Error {
             Self::OutputAlreadyRedirected => {
                 write!(f, "output streams are already redirected to 3dslink")
             }
-            Self::BufferTooShort(provided, wanted) => write!(f, "the provided buffer's length is too short (length = {provided}) to hold the wanted data (size = {wanted})")
+            Self::BufferTooShort{provided, wanted} => write!(f, "the provided buffer's length is too short (length = {provided}) to hold the wanted data (size = {wanted})")
         }
     }
 }
