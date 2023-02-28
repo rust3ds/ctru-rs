@@ -5,8 +5,8 @@
 //!
 //! Some include: button input, audio playback, graphics rendering, built-in cameras, etc.
 
-pub mod apt;
 pub mod am;
+pub mod apt;
 pub mod cam;
 pub mod cfgu;
 pub mod fs;

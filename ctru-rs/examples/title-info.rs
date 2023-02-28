@@ -11,10 +11,14 @@ fn main() {
     let am = Am::init().expect("Couldn't obtain AM controller");
     let _console = Console::init(gfx.top_screen.borrow_mut());
 
-    let title_count = am.get_title_count(FsMediaType::Sd).expect("Failed to get title count");
+    let title_count = am
+        .get_title_count(FsMediaType::Sd)
+        .expect("Failed to get title count");
     println!("This 3DS has {title_count} titles on its SD Card:");
 
-    let title_list = am.get_title_list(FsMediaType::Sd).expect("Failed to get title list");
+    let title_list = am
+        .get_title_list(FsMediaType::Sd)
+        .expect("Failed to get title list");
     for id in title_list {
         println!("{id:x}");
     }
