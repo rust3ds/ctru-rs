@@ -24,12 +24,14 @@ impl Am {
             let count = self.get_title_count(mediatype)?;
             let mut buf = Vec::with_capacity(count as usize);
             let mut read_amount = 0;
+
             ResultCode(ctru_sys::AM_GetTitleList(
                 &mut read_amount,
                 mediatype as u32,
                 count,
                 buf.as_mut_ptr(),
             ))?;
+
             buf.set_len(read_amount as usize);
             Ok(buf)
         }
