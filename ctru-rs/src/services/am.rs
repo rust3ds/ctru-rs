@@ -1,5 +1,7 @@
 use crate::error::ResultCode;
 use crate::services::fs::FsMediaType;
+use std::marker::PhantomData;
+use std::mem::MaybeUninit;
 
 #[derive(Copy, Clone, Debug)]
 #[repr(C)]
@@ -29,6 +31,46 @@ impl TitleInfo {
     }
 }
 
+pub struct Title<'a> {
+    id: u64,
+    mediatype: FsMediaType,
+    _am: PhantomData<&'a Am>,
+}
+
+impl<'a> Title<'a> {
+    pub fn id(&self) -> u64 {
+        self.id
+    }
+
+    pub fn get_product_code(&self) -> crate::Result<String> {
+        let mut buf: [u8; 16] = [0; 16];
+
+        unsafe {
+            ResultCode(ctru_sys::AM_GetTitleProductCode(
+                self.mediatype as u32,
+                self.id,
+                buf.as_mut_ptr(),
+            ))?;
+        }
+        Ok(String::from_utf8_lossy(&buf).to_string())
+    }
+
+    pub fn get_title_info(&self) -> crate::Result<TitleInfo> {
+        let mut info = MaybeUninit::zeroed();
+
+        unsafe {
+            ResultCode(ctru_sys::AM_GetTitleInfo(
+                self.mediatype as u32,
+                1,
+                &mut self.id.clone(),
+                info.as_mut_ptr() as _,
+            ))?;
+
+            Ok(info.assume_init())
+        }
+    }
+}
+
 pub struct Am(());
 
 impl Am {
@@ -47,7 +89,7 @@ impl Am {
         }
     }
 
-    pub fn get_title_list(&self, mediatype: FsMediaType) -> crate::Result<Vec<u64>> {
+    pub fn get_title_list(&self, mediatype: FsMediaType) -> crate::Result<Vec<Title>> {
         let count = self.get_title_count(mediatype)?;
         let mut buf = Vec::with_capacity(count as usize);
         let mut read_amount = 0;
@@ -61,26 +103,14 @@ impl Am {
 
             buf.set_len(read_amount as usize);
         }
-        Ok(buf)
-    }
-
-    pub fn get_title_info(
-        &self,
-        mediatype: FsMediaType,
-        id_list: &mut [u64],
-    ) -> crate::Result<Vec<TitleInfo>> {
-        let mut info = Vec::with_capacity(id_list.len());
-        unsafe {
-            ResultCode(ctru_sys::AM_GetTitleInfo(
-                mediatype as u32,
-                id_list.len() as u32,
-                id_list.as_mut_ptr(),
-                info.as_mut_ptr() as _,
-            ))?;
-
-            info.set_len(id_list.len());
-        }
-        Ok(info)
+        Ok(buf
+            .into_iter()
+            .map(|id| Title {
+                id,
+                mediatype,
+                _am: PhantomData,
+            })
+            .collect())
     }
 }
 

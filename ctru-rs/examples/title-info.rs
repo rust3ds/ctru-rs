@@ -59,18 +59,18 @@ fn main() {
         }
 
         if refresh {
-            let mut selected_title = 0;
+            let mut selected_title = cur_list.iter().skip(offset).next().unwrap();
             // Clear top screen and write title ids to it
             top_screen.select();
             print!("\x1b[2J");
 
             // Top screen seems to have only 30 rows
-            for (i, id) in cur_list.iter().skip(offset).take(29).enumerate() {
+            for (i, title) in cur_list.iter().skip(offset).take(29).enumerate() {
                 if i == 0 {
-                    selected_title = *id;
-                    println!("=> {id:x}");
+                    selected_title = title;
+                    println!("=> {:x}", title.id());
                 } else {
-                    println!("   {id:x}");
+                    println!("   {:x}", title.id());
                 }
             }
 
@@ -79,20 +79,18 @@ fn main() {
             println!("\x1b[2J");
             // Move cursor to top left
             println!("\x1b[1;1");
-            let media = if use_nand {
-                FsMediaType::Nand
-            } else {
-                FsMediaType::Sd
-            };
-            match am.get_title_info(media, &mut [selected_title]) {
+
+            match selected_title.get_title_info() {
                 Ok(info) => {
-                    // Vec returned by Am::get_title_info always has same length as inputed slice
-                    let info = info[0];
                     println!("Size: {} KB", info.size_bytes() / 1024);
                     println!("Version: 0x{:x}", info.version());
                     println!("Type: 0x{:x}", info.type_());
                 }
                 Err(e) => println!("Failed to get title info: {}", e),
+            }
+            match selected_title.get_product_code() {
+                Ok(code) => println!("Product code: \"{code}\""),
+                Err(e) => println!("Failed to get product code: {}", e),
             }
 
             println!("\x1b[26;0HPress START to exit");
