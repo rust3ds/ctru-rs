@@ -78,7 +78,7 @@ impl Am {
 
     pub fn get_title_list(&self, mediatype: FsMediaType) -> crate::Result<Vec<Title>> {
         let count = self.get_title_count(mediatype)?;
-        let mut buf = Vec::with_capacity(count as usize);
+        let mut buf = vec![0; count as usize];
         let mut read_amount = 0;
         unsafe {
             ResultCode(ctru_sys::AM_GetTitleList(
@@ -87,8 +87,6 @@ impl Am {
                 count,
                 buf.as_mut_ptr(),
             ))?;
-
-            buf.set_len(read_amount as usize);
         }
         Ok(buf
             .into_iter()
