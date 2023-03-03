@@ -4,30 +4,17 @@ use std::marker::PhantomData;
 use std::mem::MaybeUninit;
 
 #[derive(Copy, Clone, Debug)]
-#[repr(C)]
-pub struct TitleInfo {
-    id: u64,
-    size: u64,
-    version: u16,
-    pad: u16,
-    type_: u32,
-}
-
-// Make sure TitleInfo is correct size
-const _TITLEINFO_SIZE_CHECK: [u8; 0x18] = [0; std::mem::size_of::<TitleInfo>()];
-
+#[repr(transparent)]
+pub struct TitleInfo(ctru_sys::AM_TitleEntry);
 impl TitleInfo {
     pub fn id(&self) -> u64 {
-        self.id
+        self.0.titleID
     }
     pub fn size_bytes(&self) -> u64 {
-        self.size
+        self.0.size
     }
     pub fn version(&self) -> u16 {
-        self.version
-    }
-    pub fn type_(&self) -> u32 {
-        self.type_
+        self.0.version
     }
 }
 

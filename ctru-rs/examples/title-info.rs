@@ -84,7 +84,6 @@ fn main() {
                 Ok(info) => {
                     println!("Size: {} KB", info.size_bytes() / 1024);
                     println!("Version: 0x{:x}", info.version());
-                    println!("Type: 0x{:x}", info.type_());
                 }
                 Err(e) => println!("Failed to get title info: {}", e),
             }
