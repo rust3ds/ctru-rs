@@ -74,7 +74,7 @@ impl<'a> Title<'a> {
         let archive_path_data: [u32; 4] = [
             self.low_u32(),
             self.high_u32(),
-            self.media_type() as u32,
+            self.mediatype as u32,
             0x0,
         ];
         let smdh_path_data: [u32; 5] = [0x0, 0x0, 0x2, u32::from_le_bytes(*b"icon"), 0x0];
