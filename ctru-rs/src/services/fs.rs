@@ -44,6 +44,14 @@ bitflags! {
 }
 
 #[derive(Copy, Clone, Debug)]
+#[repr(u32)]
+pub enum FsMediaType {
+    Nand = ctru_sys::MEDIATYPE_NAND,
+    Sd = ctru_sys::MEDIATYPE_SD,
+    GameCard = ctru_sys::MEDIATYPE_GAME_CARD,
+}
+
+#[derive(Copy, Clone, Debug)]
 pub enum PathType {
     Invalid,
     Empty,
