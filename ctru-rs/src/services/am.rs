@@ -71,12 +71,8 @@ impl<'a> Title<'a> {
 
     pub fn get_smdh(&self) -> crate::Result<Smdh> {
         // i have no idea how to make this look better
-        let archive_path_data: [u32; 4] = [
-            self.low_u32(),
-            self.high_u32(),
-            self.mediatype as u32,
-            0x0,
-        ];
+        let archive_path_data: [u32; 4] =
+            [self.low_u32(), self.high_u32(), self.mediatype as u32, 0x0];
         let smdh_path_data: [u32; 5] = [0x0, 0x0, 0x2, u32::from_le_bytes(*b"icon"), 0x0];
 
         let archive_path = ctru_sys::FS_Path {
