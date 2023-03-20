@@ -27,9 +27,6 @@ fn main() {
             println!("cargo:rustc-env=LIBCTRU_MAJOR={maj}");
             println!("cargo:rustc-env=LIBCTRU_MINOR={min}");
             println!("cargo:rustc-env=LIBCTRU_PATCH={patch}");
-
-            // It would be nice if we could rerun-if-changed on libctru itself,
-            // maybe we can write a file to OUT_DIR and check that file?
         }
         Err(err) => println!("cargo:warning=failed to check libctru version: {err}"),
     }
@@ -50,7 +47,7 @@ fn parse_version(version: &str) -> Result<(String, String, String), &str> {
 fn check_libctru_version() -> Result<(String, String, String), Box<dyn Error>> {
     let pacman = which::which("dkp-pacman").or_else(|_| which::which("pacman"))?;
 
-    let Output { stdout, .. } = Command::new(pacman)
+    let Output { stdout, .. } = Command::new(&pacman)
         .args(["--query", "libctru"])
         .stderr(Stdio::inherit())
         .output()?;
@@ -59,26 +56,33 @@ fn check_libctru_version() -> Result<(String, String, String), Box<dyn Error>> {
 
     let (_pkg, lib_version) = output_str
         .split_once(char::is_whitespace)
-        .ok_or("unexpected output format")?;
+        .ok_or("unexpected pacman output format")?;
+
+    let lib_version = lib_version.trim();
 
     let cargo_pkg_version = env::var("CARGO_PKG_VERSION").unwrap();
     let (_, crate_built_version) = cargo_pkg_version
         .split_once('+')
         .expect("crate version should have '+' delimeter");
 
-    let (lib_major, lib_minor, lib_patch) = parse_version(lib_version)?;
-    let (crate_supported_major, crate_supported_minor, _crate_supported_patch) =
-        parse_version(crate_built_version)?;
-
-    // TODO: does == comparison make sense, or should we use >= or something?
-    if crate_supported_major != lib_major || crate_supported_minor != lib_minor {
-        // TODO: should this be a panic (i.e. induce build failure)? Maybe only for major version?
-
+    if lib_version != crate_built_version {
         return Err(format!(
-            "libctru version is {lib_major}.{lib_minor}.{lib_patch}, \
-            but this crate only supports {crate_supported_major}.{crate_supported_minor}.x"
+            "libctru version is {lib_version} but this crate was built for {crate_built_version}"
         ))?;
     }
 
+    let Output { stdout, .. } = Command::new(pacman)
+        .args(["--query", "--list", "libctru"])
+        .stderr(Stdio::inherit())
+        .output()?;
+
+    for line in String::from_utf8_lossy(&stdout).split('\n') {
+        let Some((_pkg, file)) = line.split_once(char::is_whitespace)
+        else { continue };
+
+        println!("cargo:rerun-if-changed={file}");
+    }
+
+    let (lib_major, lib_minor, lib_patch) = parse_version(lib_version)?;
     Ok((lib_major, lib_minor, lib_patch))
 }

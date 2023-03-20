@@ -5,8 +5,24 @@ A Rust wrapper library for smealum's [ctrulib](https://github.com/smealum/ctruli
 ## Structure
 
 This repository is organized as follows:
-* `ctru-rs`: Safe, idiomatic wrapper around `ctru-sys`.
-* `ctru-sys`: Low-level, unsafe bindings to ctrulib
+
+* `ctru-rs`: Safe, idiomatic wrapper around `ctru-sys`
+
+* `ctru-sys`: Low-level, unsafe bindings to ctrulib.
+
+  This crate's version changes according to the version of `libctru`
+  used to generate the bindings, with the following convention:
+
+  * `libctru` version `X.Y.Z-W`
+  * `ctru-sys` version `XY.Z.P+X.Y.Z-W`
+
+  where `P` is usually 0 but may be incremented for fixes in e.g.
+  binding generation, `libc` dependency bump, etc.
+
+  It may be possible to build this crate against a different version of `libctru`,
+  but you may encounter linker errors or ABI issues. A build-time Cargo warning
+  (displayed when built with `-vv`) will be issued if the build script detects
+  a mismatch or is unable to check the installed `libctru` version.
 
 ## License
 
@@ -37,3 +53,4 @@ applies to every file in the tree, unless otherwise noted.
 Rust is primarily distributed under the terms of both the MIT license and the Apache License (Version 2.0), with portions covered by various BSD-like licenses.
 
 See [LICENSE-APACHE](https://github.com/rust-lang/rust/blob/master/LICENSE-APACHE), [LICENSE-MIT](https://github.com/rust-lang/rust/blob/master/LICENSE-MIT), and [COPYRIGHT](https://github.com/rust-lang/rust/blob/master/COPYRIGHT) for details.
+
