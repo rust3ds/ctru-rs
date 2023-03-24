@@ -6,7 +6,7 @@ echo "Determining libctru version..."
 pacman=dkp-pacman
 if ! command -v $pacman &>/dev/null; then
     pacman=pacman
-    if ! command -q $pacman &>/dev/null; then
+    if ! command -v $pacman &>/dev/null; then
         echo >&2 "ERROR: Unable to automatically determine libctru version!"
         exit 1
     fi
