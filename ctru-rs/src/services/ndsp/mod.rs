@@ -1,12 +1,13 @@
 //! NDSP (Audio) service
 
 pub mod wave;
-use wave::{WaveInfo, WaveStatus};
+use wave::{Wave, WaveStatus};
 
 use crate::error::ResultCode;
 use crate::services::ServiceReference;
 
 use std::cell::{RefCell, RefMut};
+use std::default::Default;
 use std::error;
 use std::fmt;
 use std::sync::Mutex;
@@ -30,6 +31,18 @@ pub enum AudioFormat {
     PCM16Stereo = ctru_sys::NDSP_FORMAT_STEREO_PCM16,
 }
 
+/// Representation of volume mix for a channel.
+/// Each member is made up of 2 values, the first is for the "left" channel, while the second is for the "right" channel.
+#[derive(Copy, Clone, Debug)]
+pub struct AudioMix {
+    pub front: (f32, f32),
+    pub back: (f32, f32),
+    pub aux1_front: (f32, f32),
+    pub aux1_back: (f32, f32),
+    pub aux2_front: (f32, f32),
+    pub aux2_back: (f32, f32),
+}
+
 #[derive(Copy, Clone, Debug)]
 #[repr(u32)]
 pub enum InterpolationType {
@@ -47,7 +60,7 @@ pub enum NdspError {
     /// Channel ID
     WaveBusy(u8),
     /// Sample amount requested, Max sample amount
-    SampleCountOutOfBounds(u32, u32),
+    SampleCountOutOfBounds(usize, usize),
 }
 
 pub struct Channel<'ndsp> {
@@ -141,17 +154,19 @@ impl Channel<'_> {
     }
 
     // Returns the channel's id
-    pub fn get_id(&self) -> u8 {
+    pub fn id(&self) -> u8 {
         self.id
     }
 
-    /// Returns the channel's current sample's position.
-    pub fn get_sample_position(&self) -> u32 {
-        unsafe { ctru_sys::ndspChnGetSamplePos(self.id.into()) }
+    /// Returns the index of the currently played sample.
+    ///
+    /// Because of how fast this value changes, it should only be used as a rough estimate of the current progress.
+    pub fn sample_position(&self) -> usize {
+        (unsafe { ctru_sys::ndspChnGetSamplePos(self.id.into()) }) as usize
     }
 
     /// Returns the channel's current wave sequence's id.
-    pub fn get_wave_sequence_id(&self) -> u16 {
+    pub fn wave_sequence_id(&self) -> u16 {
         unsafe { ctru_sys::ndspChnGetWaveBufSeq(self.id.into()) }
     }
 
@@ -172,19 +187,8 @@ impl Channel<'_> {
     }
 
     /// Set the channel's volume mix.
-    ///
-    /// # Notes
-    ///
-    /// The buffer's format is read as:
-    ///
-    /// Index 0: Front left volume <br>
-    /// Index 1: Front right volume <br>
-    /// Index 2: Back left volume <br>
-    /// Index 3: Back right volume <br>
-    /// Index 4..7: Same as 0..3 but for auxiliary output 0 <br>
-    /// Index 8..11: Same as 0..3 but for auxiliary output 1 <br>
-    pub fn set_mix(&self, mix: &[f32; 12]) {
-        unsafe { ctru_sys::ndspChnSetMix(self.id.into(), mix.as_ptr().cast_mut()) }
+    pub fn set_mix(&self, mix: &AudioMix) {
+        unsafe { ctru_sys::ndspChnSetMix(self.id.into(), mix.to_raw().as_mut_ptr()) }
     }
 
     /// Set the channel's rate of sampling.
@@ -206,10 +210,10 @@ impl Channel<'_> {
     ///
     /// # Warning
     ///
-    /// `libctru` expects the user to manually keep the info data (in this case [WaveInfo]) alive during playback.
-    /// To ensure safety, checks within [WaveInfo] will clear the whole channel queue if any queued [WaveInfo] is dropped prematurely.
-    pub fn queue_wave(&self, wave: &mut WaveInfo) -> std::result::Result<(), NdspError> {
-        match wave.get_status() {
+    /// `libctru` expects the user to manually keep the info data (in this case [Wave]) alive during playback.
+    /// To ensure safety, checks within [Wave] will clear the whole channel queue if any queued [Wave] is dropped prematurely.
+    pub fn queue_wave(&self, wave: &mut Wave) -> std::result::Result<(), NdspError> {
+        match wave.status() {
             WaveStatus::Playing | WaveStatus::Queued => return Err(NdspError::WaveBusy(self.id)),
             _ => (),
         }
@@ -302,14 +306,70 @@ impl Channel<'_> {
 
 impl AudioFormat {
     /// Returns the amount of bytes needed to store one sample
+    ///
     /// Eg.
-    /// 8 bit formats return 1 (byte)
-    /// 16 bit formats return 2 (bytes)
-    pub fn sample_size(self) -> u8 {
+    /// 8 bit mono formats return 1 (byte)
+    /// 16 bit stereo (dual-channel) formats return 4 (bytes)
+    pub const fn size(self) -> usize {
         match self {
-            AudioFormat::PCM8Mono => 1,
-            AudioFormat::PCM16Mono | AudioFormat::PCM8Stereo => 2,
-            AudioFormat::PCM16Stereo => 4,
+            Self::PCM8Mono => 1,
+            Self::PCM16Mono | Self::PCM8Stereo => 2,
+            Self::PCM16Stereo => 4,
+        }
+    }
+}
+
+impl AudioMix {
+    pub fn zeroed() -> Self {
+        Self {
+            front: (0., 0.),
+            back: (0., 0.),
+            aux1_front: (0., 0.),
+            aux1_back: (0., 0.),
+            aux2_front: (0., 0.),
+            aux2_back: (0., 0.),
+        }
+    }
+
+    pub fn from_raw(data: [f32; 12]) -> Self {
+        Self {
+            front: (data[0], data[1]),
+            back: (data[2], data[3]),
+            aux1_front: (data[4], data[5]),
+            aux1_back: (data[6], data[7]),
+            aux2_front: (data[8], data[9]),
+            aux2_back: (data[10], data[11]),
+        }
+    }
+
+    pub fn to_raw(&self) -> [f32; 12] {
+        [
+            self.front.0,
+            self.front.1,
+            self.back.0,
+            self.back.1,
+            self.aux1_front.0,
+            self.aux1_front.1,
+            self.aux1_back.0,
+            self.aux1_back.1,
+            self.aux2_front.0,
+            self.aux2_front.1,
+            self.aux2_back.0,
+            self.aux2_back.1,
+        ]
+    }
+}
+
+/// Returns an [AudioMix] object with front left and front right volumes set to max, and all other volumes set to 0.
+impl Default for AudioMix {
+    fn default() -> Self {
+        Self {
+            front: (1., 1.),
+            back: (0., 0.),
+            aux1_front: (0., 0.),
+            aux1_back: (0., 0.),
+            aux2_front: (0., 0.),
+            aux2_back: (0., 0.),
         }
     }
 }
@@ -319,7 +379,7 @@ impl fmt::Display for NdspError {
         match self {
             Self::InvalidChannel(id) => write!(f, "audio Channel with ID {id} doesn't exist. Valid channels have an ID between 0 and 23"),
             Self::ChannelAlreadyInUse(id) => write!(f, "audio Channel with ID {id} is already being used. Drop the other instance if you want to use it here"),
-            Self::WaveBusy(id) => write!(f, "the selected WaveInfo is busy playing on channel {id}"),
+            Self::WaveBusy(id) => write!(f, "the selected Wave is busy playing on channel {id}"),
             Self::SampleCountOutOfBounds(samples_requested, max_samples) => write!(f, "the sample count requested is too big (requested = {samples_requested}, maximum = {max_samples})"),
         }
     }
@@ -327,16 +387,10 @@ impl fmt::Display for NdspError {
 
 impl error::Error for NdspError {}
 
-impl<'ndsp> Drop for Channel<'ndsp> {
-    fn drop(&mut self) {
-        self.reset();
-    }
-}
-
 impl Drop for Ndsp {
     fn drop(&mut self) {
         for i in 0..NUMBER_OF_CHANNELS {
-            self.channel(i).unwrap().clear_queue();
+            self.channel(i).unwrap().reset();
         }
     }
 }

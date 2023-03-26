@@ -5,13 +5,13 @@ use std::f32::consts::PI;
 use ctru::linear::LinearAllocator;
 use ctru::prelude::*;
 use ctru::services::ndsp::{
-    wave::{WaveInfo, WaveStatus},
-    AudioFormat, InterpolationType, Ndsp, OutputMode,
+    wave::{Wave, WaveStatus},
+    AudioFormat, AudioMix, InterpolationType, Ndsp, OutputMode,
 };
 
 const SAMPLE_RATE: usize = 22050;
 const SAMPLES_PER_BUF: usize = SAMPLE_RATE / 10; // 2205
-const BYTES_PER_SAMPLE: usize = 4;
+const BYTES_PER_SAMPLE: usize = AudioFormat::PCM16Stereo.size();
 const AUDIO_WAVE_LENGTH: usize = SAMPLES_PER_BUF * BYTES_PER_SAMPLE;
 
 // Note Frequencies
@@ -65,8 +65,8 @@ fn main() {
 
     let audio_data2 = audio_data1.clone();
 
-    let mut wave_info1 = WaveInfo::new(audio_data1, AudioFormat::PCM16Stereo, false);
-    let mut wave_info2 = WaveInfo::new(audio_data2, AudioFormat::PCM16Stereo, false);
+    let mut wave_info1 = Wave::new(audio_data1, AudioFormat::PCM16Stereo, false);
+    let mut wave_info2 = Wave::new(audio_data2, AudioFormat::PCM16Stereo, false);
 
     let mut ndsp = Ndsp::init().expect("Couldn't obtain NDSP controller");
 
@@ -79,10 +79,7 @@ fn main() {
     channel_zero.set_format(AudioFormat::PCM16Stereo);
 
     // Output at 100% on the first pair of left and right channels.
-
-    let mut mix: [f32; 12] = [0f32; 12];
-    mix[0] = 1.0;
-    mix[1] = 1.0;
+    let mix = AudioMix::default();
     channel_zero.set_mix(&mix);
 
     channel_zero.queue_wave(&mut wave_info1).unwrap();
@@ -142,13 +139,13 @@ fn main() {
             }
         }
 
-        let current: &mut WaveInfo = if altern {
+        let current: &mut Wave = if altern {
             &mut wave_info1
         } else {
             &mut wave_info2
         };
 
-        let status = current.get_status();
+        let status = current.status();
         if let WaveStatus::Done = status {
             fill_buffer(current.get_buffer_mut().unwrap(), NOTEFREQ[note]);
 
