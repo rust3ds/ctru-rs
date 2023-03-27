@@ -35,7 +35,7 @@ pub enum AudioFormat {
 /// Each member is made up of 2 values, the first is for the "left" channel, while the second is for the "right" channel.
 #[derive(Copy, Clone, Debug)]
 pub struct AudioMix {
-    raw: [f32;12]
+    raw: [f32; 12],
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -317,9 +317,7 @@ impl AudioFormat {
 impl AudioMix {
     /// Creates a new [AudioMix] with all volumes set to 0.
     pub fn zeroed() -> Self {
-        Self {
-            raw: [0.;12],
-        }
+        Self { raw: [0.; 12] }
     }
 
     /// Returns a reference to the raw data.
@@ -347,10 +345,10 @@ impl AudioMix {
         if id > 1 {
             panic!("invalid auxiliary output device index")
         }
-    
+
         let index = 4 + id * 4;
 
-        &self.raw[index..index+2]
+        &self.raw[index..index + 2]
     }
 
     /// Returns a reference to the "back" volume mix (left and right channel) for the specified auxiliary output device.
@@ -358,10 +356,10 @@ impl AudioMix {
         if id > 1 {
             panic!("invalid auxiliary output device index")
         }
-    
+
         let index = 6 + id * 4;
 
-        &self.raw[index..index+2]
+        &self.raw[index..index + 2]
     }
 
     /// Returns a mutable reference to the "front" volume mix (left and right channel).
@@ -379,10 +377,10 @@ impl AudioMix {
         if id > 1 {
             panic!("invalid auxiliary output device index")
         }
-    
+
         let index = 4 + id * 4;
 
-        &mut self.raw[index..index+2]
+        &mut self.raw[index..index + 2]
     }
 
     /// Returns a mutable reference to the "back" volume mix (left and right channel) for the specified auxiliary output device.
@@ -390,10 +388,10 @@ impl AudioMix {
         if id > 1 {
             panic!("invalid auxiliary output device index")
         }
-    
+
         let index = 6 + id * 4;
 
-        &mut self.raw[index..index+2]
+        &mut self.raw[index..index + 2]
     }
 }
 
@@ -409,9 +407,7 @@ impl Default for AudioMix {
 
 impl From<[f32; 12]> for AudioMix {
     fn from(value: [f32; 12]) -> Self {
-        Self {
-            raw: value,
-        }
+        Self { raw: value }
     }
 }
 
