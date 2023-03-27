@@ -32,7 +32,6 @@ pub enum AudioFormat {
 }
 
 /// Representation of volume mix for a channel.
-/// Each member is made up of 2 values, the first is for the "left" channel, while the second is for the "right" channel.
 #[derive(Copy, Clone, Debug)]
 pub struct AudioMix {
     raw: [f32; 12],
