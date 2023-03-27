@@ -35,12 +35,7 @@ pub enum AudioFormat {
 /// Each member is made up of 2 values, the first is for the "left" channel, while the second is for the "right" channel.
 #[derive(Copy, Clone, Debug)]
 pub struct AudioMix {
-    pub front: (f32, f32),
-    pub back: (f32, f32),
-    pub aux1_front: (f32, f32),
-    pub aux1_back: (f32, f32),
-    pub aux2_front: (f32, f32),
-    pub aux2_back: (f32, f32),
+    raw: [f32;12]
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -188,7 +183,7 @@ impl Channel<'_> {
 
     /// Set the channel's volume mix.
     pub fn set_mix(&self, mix: &AudioMix) {
-        unsafe { ctru_sys::ndspChnSetMix(self.id.into(), mix.to_raw().as_mut_ptr()) }
+        unsafe { ctru_sys::ndspChnSetMix(self.id.into(), mix.as_raw().as_ptr().cast_mut()) }
     }
 
     /// Set the channel's rate of sampling.
@@ -320,56 +315,102 @@ impl AudioFormat {
 }
 
 impl AudioMix {
+    /// Creates a new [AudioMix] with all volumes set to 0.
     pub fn zeroed() -> Self {
         Self {
-            front: (0., 0.),
-            back: (0., 0.),
-            aux1_front: (0., 0.),
-            aux1_back: (0., 0.),
-            aux2_front: (0., 0.),
-            aux2_back: (0., 0.),
+            raw: [0.;12],
         }
     }
 
-    pub fn from_raw(data: [f32; 12]) -> Self {
-        Self {
-            front: (data[0], data[1]),
-            back: (data[2], data[3]),
-            aux1_front: (data[4], data[5]),
-            aux1_back: (data[6], data[7]),
-            aux2_front: (data[8], data[9]),
-            aux2_back: (data[10], data[11]),
-        }
+    /// Returns a reference to the raw data.
+    pub fn as_raw(&self) -> &[f32; 12] {
+        &self.raw
     }
 
-    pub fn to_raw(&self) -> [f32; 12] {
-        [
-            self.front.0,
-            self.front.1,
-            self.back.0,
-            self.back.1,
-            self.aux1_front.0,
-            self.aux1_front.1,
-            self.aux1_back.0,
-            self.aux1_back.1,
-            self.aux2_front.0,
-            self.aux2_front.1,
-            self.aux2_back.0,
-            self.aux2_back.1,
-        ]
+    /// Returns a mutable reference to the raw data.
+    pub fn as_raw_mut(&mut self) -> &mut [f32; 12] {
+        &mut self.raw
+    }
+
+    /// Returns a reference to the "front" volume mix (left and right channel).
+    pub fn front(&self) -> &[f32] {
+        &self.raw[..2]
+    }
+
+    /// Returns a reference to the "back" volume mix (left and right channel).
+    pub fn back(&self) -> &[f32] {
+        &self.raw[2..4]
+    }
+
+    /// Returns a reference to the "front" volume mix (left and right channel) for the specified auxiliary output device.
+    pub fn aux_front(&self, id: usize) -> &[f32] {
+        if id > 1 {
+            panic!("invalid auxiliary output device index")
+        }
+    
+        let index = 4 + id * 4;
+
+        &self.raw[index..index+2]
+    }
+
+    /// Returns a reference to the "back" volume mix (left and right channel) for the specified auxiliary output device.
+    pub fn aux_back(&self, id: usize) -> &[f32] {
+        if id > 1 {
+            panic!("invalid auxiliary output device index")
+        }
+    
+        let index = 6 + id * 4;
+
+        &self.raw[index..index+2]
+    }
+
+    /// Returns a mutable reference to the "front" volume mix (left and right channel).
+    pub fn front_mut(&mut self) -> &mut [f32] {
+        &mut self.raw[..2]
+    }
+
+    /// Returns a mutable reference to the "back" volume mix (left and right channel).
+    pub fn back_mut(&mut self) -> &mut [f32] {
+        &mut self.raw[2..4]
+    }
+
+    /// Returns a mutable reference to the "front" volume mix (left and right channel) for the specified auxiliary output device.
+    pub fn aux_front_mut(&mut self, id: usize) -> &mut [f32] {
+        if id > 1 {
+            panic!("invalid auxiliary output device index")
+        }
+    
+        let index = 4 + id * 4;
+
+        &mut self.raw[index..index+2]
+    }
+
+    /// Returns a mutable reference to the "back" volume mix (left and right channel) for the specified auxiliary output device.
+    pub fn aux_back_mut(&mut self, id: usize) -> &mut [f32] {
+        if id > 1 {
+            panic!("invalid auxiliary output device index")
+        }
+    
+        let index = 6 + id * 4;
+
+        &mut self.raw[index..index+2]
     }
 }
 
-/// Returns an [AudioMix] object with front left and front right volumes set to max, and all other volumes set to 0.
+/// Returns an [AudioMix] object with "front left" and "front right" volumes set to max, and all other volumes set to 0.
 impl Default for AudioMix {
     fn default() -> Self {
+        let mut mix = AudioMix::zeroed();
+        mix.front_mut().fill(1.);
+
+        mix
+    }
+}
+
+impl From<[f32; 12]> for AudioMix {
+    fn from(value: [f32; 12]) -> Self {
         Self {
-            front: (1., 1.),
-            back: (0., 0.),
-            aux1_front: (0., 0.),
-            aux1_back: (0., 0.),
-            aux2_front: (0., 0.),
-            aux2_back: (0., 0.),
+            raw: value,
         }
     }
 }
