@@ -76,25 +76,3 @@ fn make_owned_test(test: &&TestDescAndFn) -> TestDescAndFn {
         _ => panic!("non-static tests passed to test::test_main_static"),
     }
 }
-
-/// The following functions are stubs needed to link the test library,
-/// but do nothing because we don't actually need them for the runner to work.
-mod link_fix {
-    #[no_mangle]
-    extern "C" fn execvp(
-        _argc: *const libc::c_char,
-        _argv: *mut *const libc::c_char,
-    ) -> libc::c_int {
-        -1
-    }
-
-    #[no_mangle]
-    extern "C" fn pipe(_fildes: *mut libc::c_int) -> libc::c_int {
-        -1
-    }
-
-    #[no_mangle]
-    extern "C" fn sigemptyset(_arg1: *mut libc::sigset_t) -> ::libc::c_int {
-        -1
-    }
-}
