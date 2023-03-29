@@ -65,11 +65,11 @@ fn main() {
         hid.scan_input();
         keys_down = hid.keys_down();
 
-        if keys_down.contains(KeyPad::KEY_START) {
+        if keys_down.contains(KeyPad::START) {
             break;
         }
 
-        if keys_down.contains(KeyPad::KEY_R) {
+        if keys_down.contains(KeyPad::R) {
             println!("Capturing new image");
 
             let camera = &mut cam.outer_right_cam;

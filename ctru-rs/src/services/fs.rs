@@ -1,7 +1,7 @@
 //! Filesystem service
 //!
 //! This module contains basic methods to manipulate the contents of the 3DS's filesystem.
-//! Only the SD card is currently supported.
+//! Only the SD card is currently supported. You should prefer using `std::fs`.
 
 use bitflags::bitflags;
 use std::ffi::OsString;
@@ -52,38 +52,40 @@ pub enum FsMediaType {
 }
 
 #[derive(Copy, Clone, Debug)]
+#[repr(u32)]
 pub enum PathType {
-    Invalid,
-    Empty,
-    Binary,
-    ASCII,
-    UTF16,
+    Invalid = ctru_sys::PATH_INVALID,
+    Empty = ctru_sys::PATH_EMPTY,
+    Binary = ctru_sys::PATH_BINARY,
+    ASCII = ctru_sys::PATH_ASCII,
+    UTF16 = ctru_sys::PATH_UTF16,
 }
 
 #[derive(Copy, Clone, Debug)]
+#[repr(u32)]
 pub enum ArchiveID {
-    RomFS,
-    Savedata,
-    Extdata,
-    SharedExtdata,
-    SystemSavedata,
-    Sdmc,
-    SdmcWriteOnly,
-    BossExtdata,
-    CardSpiFS,
-    ExtDataAndBossExtdata,
-    SystemSaveData2,
-    NandRW,
-    NandRO,
-    NandROWriteAccess,
-    SaveDataAndContent,
-    SaveDataAndContent2,
-    NandCtrFS,
-    TwlPhoto,
-    NandTwlFS,
-    GameCardSavedata,
-    UserSavedata,
-    DemoSavedata,
+    RomFS = ctru_sys::ARCHIVE_ROMFS,
+    Savedata = ctru_sys::ARCHIVE_ROMFS,
+    Extdata = ctru_sys::ARCHIVE_ROMFS,
+    SharedExtdata = ctru_sys::ARCHIVE_ROMFS,
+    SystemSavedata = ctru_sys::ARCHIVE_ROMFS,
+    Sdmc = ctru_sys::ARCHIVE_ROMFS,
+    SdmcWriteOnly = ctru_sys::ARCHIVE_ROMFS,
+    BossExtdata = ctru_sys::ARCHIVE_ROMFS,
+    CardSpiFS = ctru_sys::ARCHIVE_ROMFS,
+    ExtDataAndBossExtdata = ctru_sys::ARCHIVE_ROMFS,
+    SystemSaveData2 = ctru_sys::ARCHIVE_ROMFS,
+    NandRW = ctru_sys::ARCHIVE_ROMFS,
+    NandRO = ctru_sys::ARCHIVE_ROMFS,
+    NandROWriteAccess = ctru_sys::ARCHIVE_ROMFS,
+    SaveDataAndContent = ctru_sys::ARCHIVE_ROMFS,
+    SaveDataAndContent2 = ctru_sys::ARCHIVE_ROMFS,
+    NandCtrFS = ctru_sys::ARCHIVE_ROMFS,
+    TwlPhoto = ctru_sys::ARCHIVE_ROMFS,
+    NandTwlFS = ctru_sys::ARCHIVE_ROMFS,
+    GameCardSavedata = ctru_sys::ARCHIVE_ROMFS,
+    UserSavedata = ctru_sys::ARCHIVE_ROMFS,
+    DemoSavedata = ctru_sys::ARCHIVE_ROMFS,
 }
 
 /// Represents the filesystem service. No file IO can be performed

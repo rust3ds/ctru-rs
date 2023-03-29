@@ -18,7 +18,7 @@ fn main() {
 
         hid.scan_input();
 
-        if hid.keys_down().contains(KeyPad::KEY_A) {
+        if hid.keys_down().contains(KeyPad::A) {
             // Prepares a software keyboard with two buttons: One to cancel input and one
             // to accept it. You can also use `Swkbd::init()` to launch the keyboard in different
             // configurations.
@@ -37,7 +37,7 @@ fn main() {
             }
         }
 
-        if hid.keys_down().contains(KeyPad::KEY_START) {
+        if hid.keys_down().contains(KeyPad::START) {
             break;
         }
     }

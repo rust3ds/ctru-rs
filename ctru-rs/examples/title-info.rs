@@ -35,10 +35,10 @@ fn main() {
         //Scan all the inputs. This should be done once for each frame
         hid.scan_input();
 
-        if hid.keys_down().contains(KeyPad::KEY_START) {
+        if hid.keys_down().contains(KeyPad::START) {
             break;
         }
-        if hid.keys_down().contains(KeyPad::KEY_SELECT) {
+        if hid.keys_down().contains(KeyPad::SELECT) {
             refresh = true;
             offset = 0;
             use_nand = !use_nand;
@@ -46,12 +46,12 @@ fn main() {
 
         let cur_list = if use_nand { &nand_list } else { &sd_list };
 
-        if hid.keys_down().intersects(KeyPad::KEY_DOWN) {
+        if hid.keys_down().intersects(KeyPad::DOWN) {
             if offset + 1 < cur_list.len() {
                 offset = offset + 1;
                 refresh = true;
             }
-        } else if hid.keys_down().intersects(KeyPad::KEY_UP) {
+        } else if hid.keys_down().intersects(KeyPad::UP) {
             if offset > 0 {
                 offset = offset - 1;
                 refresh = true;

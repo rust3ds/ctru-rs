@@ -33,7 +33,7 @@ fn main() {
         //Scan all the inputs. This should be done once for each frame
         hid.scan_input();
 
-        if hid.keys_down().contains(KeyPad::KEY_START) {
+        if hid.keys_down().contains(KeyPad::START) {
             break;
         }
         // Flush and swap framebuffers

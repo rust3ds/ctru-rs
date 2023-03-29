@@ -56,15 +56,15 @@ impl<'a> FileExplorer<'a> {
             self.hid.scan_input();
             let input = self.hid.keys_down();
 
-            if input.contains(KeyPad::KEY_START) {
+            if input.contains(KeyPad::START) {
                 break;
-            } else if input.contains(KeyPad::KEY_B) && self.path.components().count() > 1 {
+            } else if input.contains(KeyPad::B) && self.path.components().count() > 1 {
                 self.path.pop();
                 self.console.clear();
                 self.print_menu();
-            } else if input.contains(KeyPad::KEY_A) {
+            } else if input.contains(KeyPad::A) {
                 self.get_input_and_run(Self::set_next_path);
-            } else if input.contains(KeyPad::KEY_X) {
+            } else if input.contains(KeyPad::X) {
                 self.get_input_and_run(Self::set_exact_path);
             }
 
@@ -147,11 +147,11 @@ impl<'a> FileExplorer<'a> {
             self.hid.scan_input();
             let input = self.hid.keys_down();
 
-            if input.contains(KeyPad::KEY_A) {
+            if input.contains(KeyPad::A) {
                 break;
             }
 
-            if input.contains(KeyPad::KEY_START) {
+            if input.contains(KeyPad::START) {
                 self.running = false;
                 return;
             }

@@ -31,7 +31,7 @@ fn main() {
         //Scan all the inputs. This should be done once for each frame
         hid.scan_input();
 
-        if hid.keys_down().contains(KeyPad::KEY_START) {
+        if hid.keys_down().contains(KeyPad::START) {
             break;
         }
 
@@ -44,7 +44,7 @@ fn main() {
             right_buf.ptr.copy_from(ZERO.as_ptr(), ZERO.len());
         }
 
-        if hid.keys_down().contains(KeyPad::KEY_A) {
+        if hid.keys_down().contains(KeyPad::A) {
             // flip which buffer we're writing to
             current_side = match current_side {
                 Side::Left => Side::Right,

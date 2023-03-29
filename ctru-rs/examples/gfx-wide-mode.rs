@@ -13,11 +13,11 @@ fn main() {
     while apt.main_loop() {
         hid.scan_input();
 
-        if hid.keys_down().contains(KeyPad::KEY_START) {
+        if hid.keys_down().contains(KeyPad::START) {
             break;
         }
 
-        if hid.keys_down().contains(KeyPad::KEY_A) {
+        if hid.keys_down().contains(KeyPad::A) {
             drop(console);
 
             let wide_mode = gfx.top_screen.borrow().get_wide_mode();
