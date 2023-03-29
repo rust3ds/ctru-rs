@@ -329,68 +329,92 @@ impl AudioMix {
         &mut self.raw
     }
 
-    /// Returns a reference to the "front" volume mix (left and right channel).
-    pub fn front(&self) -> &[f32] {
-        &self.raw[..2]
+    /// Returns the values set for the "front" volume mix (left and right channel).
+    pub fn front(&self) -> (f32, f32) {
+        (self.raw[0], self.raw[1])
     }
 
-    /// Returns a reference to the "back" volume mix (left and right channel).
-    pub fn back(&self) -> &[f32] {
-        &self.raw[2..4]
+    /// Returns the values set for the "back" volume mix (left and right channel).
+    pub fn back(&self) -> (f32, f32) {
+        (self.raw[2], self.raw[3])
     }
 
-    /// Returns a reference to the "front" volume mix (left and right channel) for the specified auxiliary output device.
-    pub fn aux_front(&self, id: usize) -> &[f32] {
+    /// Returns the values set for the "front" volume mix (left and right channel) for the specified auxiliary output device (either 0 or 1).
+    pub fn aux_front(&self, id: usize) -> (f32, f32) {
         if id > 1 {
             panic!("invalid auxiliary output device index")
         }
 
         let index = 4 + id * 4;
 
-        &self.raw[index..index + 2]
+        (self.raw[index], self.raw[index + 1])
     }
 
-    /// Returns a reference to the "back" volume mix (left and right channel) for the specified auxiliary output device.
-    pub fn aux_back(&self, id: usize) -> &[f32] {
+    /// Returns the values set for the "back" volume mix (left and right channel) for the specified auxiliary output device (either 0 or 1).
+    pub fn aux_back(&self, id: usize) -> (f32, f32) {
         if id > 1 {
             panic!("invalid auxiliary output device index")
         }
 
         let index = 6 + id * 4;
 
-        &self.raw[index..index + 2]
+        (self.raw[index], self.raw[index + 1])
     }
 
-    /// Returns a mutable reference to the "front" volume mix (left and right channel).
-    pub fn front_mut(&mut self) -> &mut [f32] {
-        &mut self.raw[..2]
+    /// Sets the values for the "front" volume mix (left and right channel).
+    ///
+    /// # Notes
+    ///
+    /// [Channel] will normalize the mix values to be within 0 and 1.
+    /// However, an [AudioMix] instance with larger/smaller values is valid.
+    pub fn set_front(&mut self, left: f32, right: f32) {
+        self.raw[0] = left;
+        self.raw[1] = right;
     }
 
-    /// Returns a mutable reference to the "back" volume mix (left and right channel).
-    pub fn back_mut(&mut self) -> &mut [f32] {
-        &mut self.raw[2..4]
+    /// Sets the values for the "back" volume mix (left and right channel).
+    ///
+    /// # Notes
+    ///
+    /// [Channel] will normalize the mix values to be within 0 and 1.
+    /// However, an [AudioMix] instance with larger/smaller values is valid.
+    pub fn set_back(&mut self, left: f32, right: f32) {
+        self.raw[2] = left;
+        self.raw[3] = right;
     }
 
-    /// Returns a mutable reference to the "front" volume mix (left and right channel) for the specified auxiliary output device.
-    pub fn aux_front_mut(&mut self, id: usize) -> &mut [f32] {
+    /// Sets the values for the "front" volume mix (left and right channel) for the specified auxiliary output device (either 0 or 1).
+    ///
+    /// # Notes
+    ///
+    /// [Channel] will normalize the mix values to be within 0 and 1.
+    /// However, an [AudioMix] instance with larger/smaller values is valid.
+    pub fn set_aux_front(&mut self, left: f32, right: f32, id: usize) {
         if id > 1 {
             panic!("invalid auxiliary output device index")
         }
 
         let index = 4 + id * 4;
 
-        &mut self.raw[index..index + 2]
+        self.raw[index] = left;
+        self.raw[index + 1] = right;
     }
 
-    /// Returns a mutable reference to the "back" volume mix (left and right channel) for the specified auxiliary output device.
-    pub fn aux_back_mut(&mut self, id: usize) -> &mut [f32] {
+    /// Sets the values for the "back" volume mix (left and right channel) for the specified auxiliary output device (either 0 or 1).
+    ///
+    /// # Notes
+    ///
+    /// [Channel] will normalize the mix values to be within 0 and 1.
+    /// However, an [AudioMix] instance with larger/smaller values is valid.
+    pub fn set_aux_back(&mut self, left: f32, right: f32, id: usize) {
         if id > 1 {
             panic!("invalid auxiliary output device index")
         }
 
         let index = 6 + id * 4;
 
-        &mut self.raw[index..index + 2]
+        self.raw[index] = left;
+        self.raw[index + 1] = right;
     }
 }
 
@@ -398,7 +422,7 @@ impl AudioMix {
 impl Default for AudioMix {
     fn default() -> Self {
         let mut mix = AudioMix::zeroed();
-        mix.front_mut().fill(1.);
+        mix.set_front(1.0, 1.0);
 
         mix
     }
