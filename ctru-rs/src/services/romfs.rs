@@ -1,3 +1,5 @@
+//! Read-Only Memory FileSystem
+//!
 //! This module only gets compiled if the configured RomFS directory is found and the `romfs`
 //! feature is enabled.
 //!

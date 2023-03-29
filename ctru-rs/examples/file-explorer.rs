@@ -16,7 +16,7 @@ fn main() {
     let gfx = Gfx::init().unwrap();
 
     #[cfg(all(feature = "romfs", romfs_exists))]
-    let _romfs = ctru::romfs::RomFS::init().unwrap();
+    let _romfs = ctru::services::romfs::RomFS::init().unwrap();
 
     FileExplorer::init(&apt, &hid, &gfx).run();
 }

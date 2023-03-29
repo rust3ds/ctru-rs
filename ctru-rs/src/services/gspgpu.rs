@@ -3,29 +3,31 @@
 use std::convert::From;
 
 #[derive(Copy, Clone, Debug)]
+#[repr(u32)]
 pub enum Event {
-    Psc0,
-    Psc1,
-    VBlank0,
-    VBlank1,
-    PPF,
-    P3D,
-    DMA,
+    Psc0 = ctru_sys::GSPGPU_EVENT_PSC0,
+    Psc1 = ctru_sys::GSPGPU_EVENT_PSC1,
+    VBlank0 = ctru_sys::GSPGPU_EVENT_VBlank0,
+    VBlank1 = ctru_sys::GSPGPU_EVENT_VBlank1,
+    PPF = ctru_sys::GSPGPU_EVENT_PPF,
+    P3D = ctru_sys::GSPGPU_EVENT_P3D,
+    DMA = ctru_sys::GSPGPU_EVENT_DMA,
 }
 
-/// The different framebuffer formats supported by the 3DS
+/// Framebuffer formats supported by the 3DS
 #[derive(Copy, Clone, Debug)]
+#[repr(u32)]
 pub enum FramebufferFormat {
     /// RGBA8. 4 bytes per pixel
-    Rgba8,
+    Rgba8 = ctru_sys::GSP_RGBA8_OES,
     /// BGR8. 3 bytes per pixel
-    Bgr8,
+    Bgr8 = ctru_sys::GSP_BGR8_OES,
     /// RGB565. 2 bytes per pixel
-    Rgb565,
+    Rgb565 = ctru_sys::GSP_RGB565_OES,
     /// RGB5A1. 2 bytes per pixel
-    Rgb5A1,
+    Rgb5A1 = ctru_sys::GSP_RGB5_A1_OES,
     /// RGBA4. 2 bytes per pixel
-    Rgba4,
+    Rgba4 = ctru_sys::GSP_RGBA4_OES,
 }
 
 impl FramebufferFormat {

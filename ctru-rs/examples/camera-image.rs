@@ -1,6 +1,6 @@
-use ctru::gfx::Screen;
 use ctru::prelude::*;
 use ctru::services::cam::{Cam, CamOutputFormat, CamShutterSoundType, CamSize, Camera};
+use ctru::services::gfx::Screen;
 use ctru::services::gspgpu::FramebufferFormat;
 
 use std::time::Duration;

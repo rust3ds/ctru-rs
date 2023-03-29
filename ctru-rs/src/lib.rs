@@ -62,30 +62,10 @@ fn panic_hook_setup() {
 pub mod applets;
 pub mod console;
 pub mod error;
-pub mod gfx;
 pub mod linear;
 pub mod mii;
 pub mod prelude;
 pub mod services;
-
-cfg_if::cfg_if! {
-    if #[cfg(all(feature = "romfs", romfs_exists))] {
-        pub mod romfs;
-    } else {
-        pub mod romfs {
-            //! The RomFS folder has not been detected and/or the `romfs` feature has not been enabled.
-            //!
-            //! Configure the path in Cargo.toml (the default path is "romfs"). Paths are relative to the
-            //! `CARGO_MANIFEST_DIR` environment variable, which is the directory containing the manifest of
-            //! your package.
-            //!
-            //! ```toml
-            //! [package.metadata.cargo-3ds]
-            //! romfs_dir = "romfs"
-            //! ```
-        }
-    }
-}
 
 #[cfg(test)]
 mod test_runner;

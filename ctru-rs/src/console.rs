@@ -3,7 +3,7 @@ use std::default::Default;
 
 use ctru_sys::{consoleClear, consoleInit, consoleSelect, consoleSetWindow, PrintConsole};
 
-use crate::gfx::Screen;
+use crate::services::gfx::Screen;
 
 static mut EMPTY_CONSOLE: PrintConsole = unsafe { const_zero::const_zero!(PrintConsole) };
 

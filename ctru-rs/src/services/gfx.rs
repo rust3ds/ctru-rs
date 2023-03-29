@@ -57,7 +57,7 @@ pub trait Screen: private::Sealed {
 
     /// Gets the framebuffer format
     fn get_framebuffer_format(&self) -> FramebufferFormat {
-        unsafe { ctru_sys::gfxGetScreenFormat(self.as_raw()).into() }
+        unsafe { ctru_sys::gfxGetScreenFormat(self.as_raw()) }.into()
     }
 
     /// Change the framebuffer format
