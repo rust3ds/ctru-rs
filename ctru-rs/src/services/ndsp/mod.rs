@@ -418,7 +418,7 @@ impl AudioMix {
     }
 }
 
-/// Returns an [AudioMix] object with "front left" and "front right" volumes set to max, and all other volumes set to 0.
+/// Returns an [AudioMix] object with "front left" and "front right" volumes set to 100%, and all other volumes set to 0%.
 impl Default for AudioMix {
     fn default() -> Self {
         let mut mix = AudioMix::zeroed();
