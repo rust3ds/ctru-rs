@@ -21,7 +21,7 @@ pub struct Cam {
 }
 
 /// Flag to pass to [Camera::flip_image]
-#[derive(Default)]
+#[derive(Copy, Clone, Debug)]
 #[repr(u32)]
 pub enum FlipMode {
     None = ctru_sys::FLIP_NONE,
@@ -31,20 +31,24 @@ pub enum FlipMode {
 }
 
 /// Flag to pass to [Camera::set_view_size]
+#[derive(Copy, Clone, Debug)]
 #[repr(u32)]
-pub enum PictureSize {
+pub enum ViewSize {
+    TopLCD = ctru_sys::SIZE_CTR_TOP_LCD,
+    /// Equivalent to QVga
+    BottomLCD = ctru_sys::SIZE_CTR_BOTTOM_LCD,
     Vga = ctru_sys::SIZE_VGA,
-    QVga = ctru_sys::SIZE_QVGA,
     QQVga = ctru_sys::SIZE_QQVGA,
     Cif = ctru_sys::SIZE_CIF,
     QCif = ctru_sys::SIZE_QCIF,
+    /// Nintendo DS Screen
     DS = ctru_sys::SIZE_DS_LCD,
+    /// Nintendo DS Screen x4
     DSX4 = ctru_sys::SIZE_DS_LCDx4,
-    TopLCD = ctru_sys::SIZE_CTR_TOP_LCD,
-    BottomLCD = ctru_sys::SIZE_CTR_BOTTOM_LCD,
 }
 
 /// Flag to pass to [Camera::set_frame_rate]
+#[derive(Copy, Clone, Debug)]
 #[repr(u32)]
 pub enum FrameRate {
     Fps15 = ctru_sys::FRAME_RATE_15,
@@ -64,25 +68,25 @@ pub enum FrameRate {
 
 /// Flag to pass to [Camera::set_white_balance] or
 /// [Camera::set_white_balance_without_base_up]
+#[derive(Copy, Clone, Debug)]
 #[repr(u32)]
 pub enum WhiteBalance {
+    /// Normal
     Auto = ctru_sys::WHITE_BALANCE_AUTO,
+    /// Tungsten
     Type3200K = ctru_sys::WHITE_BALANCE_3200K,
+    /// Fluorescent Light
     Type4150K = ctru_sys::WHITE_BALANCE_4150K,
+    /// Daylight
     Type5200K = ctru_sys::WHITE_BALANCE_5200K,
+    /// Cloudy/Horizon
     Type6000K = ctru_sys::WHITE_BALANCE_6000K,
+    ///Shade
     Type7000K = ctru_sys::WHITE_BALANCE_7000K,
-
-    Normal = ctru_sys::WHITE_BALANCE_NORMAL,
-    Tungsten = ctru_sys::WHITE_BALANCE_TUNGSTEN,
-    FluorescentLight = ctru_sys::WHITE_BALANCE_WHITE_FLUORESCENT_LIGHT,
-    Daylight = ctru_sys::WHITE_BALANCE_DAYLIGHT,
-    Cloudy = ctru_sys::WHITE_BALANCE_CLOUDY,
-    Horizon = ctru_sys::WHITE_BALANCE_HORIZON,
-    Shade = ctru_sys::WHITE_BALANCE_SHADE,
 }
 
 /// Flag to pass to [Camera::set_photo_mode]
+#[derive(Copy, Clone, Debug)]
 #[repr(u32)]
 pub enum PhotoMode {
     Normal = ctru_sys::PHOTO_MODE_NORMAL,
@@ -93,6 +97,7 @@ pub enum PhotoMode {
 }
 
 /// Flag to pass to [Camera::set_effect]
+#[derive(Copy, Clone, Debug)]
 #[repr(u32)]
 pub enum Effect {
     None = ctru_sys::EFFECT_NONE,
@@ -104,26 +109,16 @@ pub enum Effect {
 }
 
 /// Flag to pass to [Camera::set_contrast]
+#[derive(Copy, Clone, Debug)]
 #[repr(u32)]
 pub enum Contrast {
-    Pattern01 = ctru_sys::CONTRAST_PATTERN_01,
-    Pattern02 = ctru_sys::CONTRAST_PATTERN_02,
-    Pattern03 = ctru_sys::CONTRAST_PATTERN_03,
-    Pattern04 = ctru_sys::CONTRAST_PATTERN_04,
-    Pattern05 = ctru_sys::CONTRAST_PATTERN_05,
-    Pattern06 = ctru_sys::CONTRAST_PATTERN_06,
-    Pattern07 = ctru_sys::CONTRAST_PATTERN_07,
-    Pattern08 = ctru_sys::CONTRAST_PATTERN_08,
-    Pattern09 = ctru_sys::CONTRAST_PATTERN_09,
-    Pattern10 = ctru_sys::CONTRAST_PATTERN_10,
-    Pattern11 = ctru_sys::CONTRAST_PATTERN_11,
-
     Low = ctru_sys::CONTRAST_LOW,
     Normal = ctru_sys::CONTRAST_NORMAL,
     High = ctru_sys::CONTRAST_HIGH,
 }
 
 /// Flag to pass to [Camera::set_lens_correction]
+#[derive(Copy, Clone, Debug)]
 #[repr(u32)]
 pub enum LensCorrection {
     Off = ctru_sys::LENS_CORRECTION_DARK,
@@ -132,6 +127,7 @@ pub enum LensCorrection {
 }
 
 /// Flag to pass to [Camera::set_output_format]
+#[derive(Copy, Clone, Debug)]
 #[repr(u32)]
 pub enum OutputFormat {
     Yuv422 = ctru_sys::OUTPUT_YUV_422,
@@ -139,6 +135,7 @@ pub enum OutputFormat {
 }
 
 /// Flag to pass to [Cam::play_shutter_sound]
+#[derive(Copy, Clone, Debug)]
 #[repr(u32)]
 pub enum ShutterSound {
     Normal = ctru_sys::SHUTTER_SOUND_TYPE_NORMAL,
@@ -151,7 +148,7 @@ impl TryFrom<FramebufferFormat> for OutputFormat {
 
     fn try_from(value: FramebufferFormat) -> Result<Self, Self::Error> {
         match value {
-            FramebufferFormat::Rgb565 => Ok(OutputFormat::RGB_565),
+            FramebufferFormat::Rgb565 => Ok(OutputFormat::Rgb565),
             _ => Err(()),
         }
     }
@@ -169,19 +166,19 @@ impl TryFrom<OutputFormat> for FramebufferFormat {
 }
 
 /// Struct containing coordinates passed to [Camera::set_trimming_params].
-pub struct CamTrimmingParams {
+pub struct TrimmingParams {
     x_start: i16,
     y_start: i16,
     x_end: i16,
     y_end: i16,
 }
 
-impl CamTrimmingParams {
+impl TrimmingParams {
     /// Creates a new [CamTrimmingParams] and guarantees the start coordinates are less than or
     /// equal to the end coordinates.
     ///
     /// `x_start <= x_end && y_start <= y_end`
-    pub fn new(x_start: i16, y_start: i16, x_end: i16, y_end: i16) -> CamTrimmingParams {
+    pub fn new(x_start: i16, y_start: i16, x_end: i16, y_end: i16) -> TrimmingParams {
         assert!(x_start <= x_end && y_start <= y_end);
         Self {
             x_start,
@@ -312,8 +309,8 @@ pub trait Camera {
         }
     }
 
-    /// Sets trimming parameters based on coordinates specified inside a [CamTrimmingParams]
-    fn set_trimming_params(&mut self, params: CamTrimmingParams) -> crate::Result<()> {
+    /// Sets trimming parameters based on coordinates specified inside a [TrimmingParams]
+    fn set_trimming_params(&mut self, params: TrimmingParams) -> crate::Result<()> {
         unsafe {
             ResultCode(ctru_sys::CAMU_SetTrimmingParams(
                 self.port_as_raw(),
@@ -326,8 +323,8 @@ pub trait Camera {
         }
     }
 
-    /// Returns the set [CamTrimmingParams] from the camera
-    fn get_trimming_params(&self) -> crate::Result<CamTrimmingParams> {
+    /// Returns the [TrimmingParams] set
+    fn get_trimming_params(&self) -> crate::Result<TrimmingParams> {
         unsafe {
             let mut x_start = 0;
             let mut y_start = 0;
@@ -341,7 +338,7 @@ pub trait Camera {
                 self.port_as_raw(),
             ))?;
 
-            Ok(CamTrimmingParams {
+            Ok(TrimmingParams {
                 x_start,
                 y_start,
                 x_end,
@@ -380,27 +377,27 @@ pub trait Camera {
         }
     }
 
-    /// Sets the white balance mod of the camera based on the passed [CamWhiteBalance] argument
-    fn set_white_balance(&mut self, white_balance: CamWhiteBalance) -> crate::Result<()> {
+    /// Sets the white balance mod of the camera based on the passed [WhiteBalance] argument
+    fn set_white_balance(&mut self, white_balance: WhiteBalance) -> crate::Result<()> {
         unsafe {
             ResultCode(ctru_sys::CAMU_SetWhiteBalance(
                 self.camera_as_raw(),
-                white_balance.bits(),
+                white_balance as u32,
             ))?;
             Ok(())
         }
     }
 
-    /// Sets the white balance mode of the camera based on the passed [CamWhiteBalance] argument
+    /// Sets the white balance mode of the camera based on the passed [WhiteBalance] argument
     // TODO: Explain base up
     fn set_white_balance_without_base_up(
         &mut self,
-        white_balance: CamWhiteBalance,
+        white_balance: WhiteBalance,
     ) -> crate::Result<()> {
         unsafe {
             ResultCode(ctru_sys::CAMU_SetWhiteBalanceWithoutBaseUp(
                 self.camera_as_raw(),
-                white_balance.bits(),
+                white_balance as u32,
             ))?;
             Ok(())
         }
@@ -460,12 +457,12 @@ pub trait Camera {
         }
     }
 
-    /// Sets the flip direction of the camera's image based on the passed [CamFlip] argument
-    fn flip_image(&mut self, flip: CamFlip) -> crate::Result<()> {
+    /// Sets the flip direction of the camera's image based on the passed [FlipMode] argument
+    fn flip_image(&mut self, flip: FlipMode) -> crate::Result<()> {
         unsafe {
             ResultCode(ctru_sys::CAMU_FlipImage(
                 self.camera_as_raw(),
-                flip.bits(),
+                flip as u32,
                 ctru_sys::CONTEXT_A,
             ))?;
             Ok(())
@@ -506,82 +503,82 @@ pub trait Camera {
         }
     }
 
-    /// Sets the view size of the camera based on the passed [CamSize] argument.
-    fn set_view_size(&mut self, size: CamSize) -> crate::Result<()> {
+    /// Sets the view size of the camera based on the passed [ViewSize] argument.
+    fn set_view_size(&mut self, size: ViewSize) -> crate::Result<()> {
         unsafe {
             ResultCode(ctru_sys::CAMU_SetSize(
                 self.camera_as_raw(),
-                size.bits(),
+                size as u32,
                 ctru_sys::CONTEXT_A,
             ))?;
             Ok(())
         }
     }
 
-    /// Sets the frame rate of the camera based on the passed [CamFrameRate] argument.
-    fn set_frame_rate(&mut self, frame_rate: CamFrameRate) -> crate::Result<()> {
+    /// Sets the frame rate of the camera based on the passed [FrameRate] argument.
+    fn set_frame_rate(&mut self, frame_rate: FrameRate) -> crate::Result<()> {
         unsafe {
             ResultCode(ctru_sys::CAMU_SetFrameRate(
                 self.camera_as_raw(),
-                frame_rate.bits(),
+                frame_rate as u32,
             ))?;
             Ok(())
         }
     }
 
-    /// Sets the photo mode of the camera based on the passed [CamPhotoMode] argument.
-    fn set_photo_mode(&mut self, photo_mode: CamPhotoMode) -> crate::Result<()> {
+    /// Sets the photo mode of the camera based on the passed [PhotoMode] argument.
+    fn set_photo_mode(&mut self, photo_mode: PhotoMode) -> crate::Result<()> {
         unsafe {
             ResultCode(ctru_sys::CAMU_SetPhotoMode(
                 self.camera_as_raw(),
-                photo_mode.bits(),
+                photo_mode as u32,
             ))?;
             Ok(())
         }
     }
 
-    /// Sets the effect of the camera based on the passed [CamEffect] argument.
+    /// Sets the effect of the camera based on the passed [Effect] argument.
     ///
     /// Multiple effects can be set at once by combining the bitflags of [CamEffect]
-    fn set_effect(&mut self, effect: CamEffect) -> crate::Result<()> {
+    fn set_effect(&mut self, effect: Effect) -> crate::Result<()> {
         unsafe {
             ResultCode(ctru_sys::CAMU_SetEffect(
                 self.camera_as_raw(),
-                effect.bits(),
+                effect as u32,
                 ctru_sys::CONTEXT_A,
             ))?;
             Ok(())
         }
     }
 
-    /// Sets the contrast of the camera based on the passed [CamContrast] argument.
-    fn set_contrast(&mut self, contrast: CamContrast) -> crate::Result<()> {
+    /// Sets the contrast of the camera based on the passed [Contrast] argument.
+    fn set_contrast(&mut self, contrast: Contrast) -> crate::Result<()> {
         unsafe {
             ResultCode(ctru_sys::CAMU_SetContrast(
                 self.camera_as_raw(),
-                contrast.bits(),
+                contrast as u32,
             ))?;
             Ok(())
         }
     }
 
-    /// Sets the lens correction of the camera based on the passed [CamLensCorrection] argument.
-    fn set_lens_correction(&mut self, lens_correction: CamLensCorrection) -> crate::Result<()> {
+    /// Sets the lens correction of the camera based on the passed [LensCorrection] argument.
+    fn set_lens_correction(&mut self, lens_correction: LensCorrection) -> crate::Result<()> {
         unsafe {
             ResultCode(ctru_sys::CAMU_SetLensCorrection(
                 self.camera_as_raw(),
-                lens_correction.bits(),
+                lens_correction as u32,
             ))?;
             Ok(())
         }
     }
 
-    /// Sets the output format of the camera based on the passed [CamOutputFormat] argument.
-    fn set_output_format(&mut self, format: CamOutputFormat) -> crate::Result<()> {
+    /// Sets the output format of the camera based on the passed [OutputFormat] argument.
+    fn set_output_format(&mut self, format: OutputFormat) -> crate::Result<()> {
         unsafe {
             ResultCode(ctru_sys::CAMU_SetOutputFormat(
                 self.camera_as_raw(),
-                format.bits(),
+                format as u32,
                 ctru_sys::CONTEXT_A,
             ))?;
             Ok(())
@@ -785,7 +782,7 @@ impl Cam {
     /// Plays the specified sound based on the [ShutterSound] argument
     pub fn play_shutter_sound(&self, sound: ShutterSound) -> crate::Result<()> {
         unsafe {
-            ResultCode(ctru_sys::CAMU_PlayShutterSound(sound.bits()))?;
+            ResultCode(ctru_sys::CAMU_PlayShutterSound(sound as u32))?;
             Ok(())
         }
     }
