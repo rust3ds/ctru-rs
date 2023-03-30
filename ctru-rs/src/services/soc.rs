@@ -9,7 +9,7 @@ use crate::services::ServiceReference;
 use crate::Error;
 
 /// Network socket service
-/// 
+///
 /// Initializing this service will enable the use of network sockets and utilities
 /// such as those found in `std::net`. The service will close once this struct gets dropped.
 pub struct Soc {
