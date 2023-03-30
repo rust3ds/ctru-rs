@@ -1,5 +1,5 @@
 use ctru::prelude::*;
-use ctru::services::cam::{Cam, CamOutputFormat, CamShutterSoundType, CamSize, Camera};
+use ctru::services::cam::{Cam, OutputFormat, ShutterSound, ViewSize, Camera};
 use ctru::services::gfx::Screen;
 use ctru::services::gspgpu::FramebufferFormat;
 
@@ -37,10 +37,10 @@ fn main() {
         let camera = &mut cam.outer_right_cam;
 
         camera
-            .set_view_size(CamSize::CTR_TOP_LCD)
+            .set_view_size(ViewSize::TopLCD)
             .expect("Failed to set camera size");
         camera
-            .set_output_format(CamOutputFormat::RGB_565)
+            .set_output_format(OutputFormat::Rgb565)
             .expect("Failed to set camera output format");
         camera
             .set_noise_filter(true)
@@ -83,7 +83,7 @@ fn main() {
                 )
                 .expect("Failed to take picture");
 
-            cam.play_shutter_sound(CamShutterSoundType::NORMAL)
+            cam.play_shutter_sound(ShutterSound::Normal)
                 .expect("Failed to play shutter sound");
 
             rotate_image_to_screen(
