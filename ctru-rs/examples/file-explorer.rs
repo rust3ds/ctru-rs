@@ -162,16 +162,17 @@ impl<'a> FileExplorer<'a> {
 
     fn get_input_and_run(&mut self, action: impl FnOnce(&mut Self, String)) {
         let mut keyboard = Swkbd::default();
+        let mut new_path_str = String::new();
 
-        match keyboard.write_to_string() {
-            Ok((path, Button::Right)) => {
+        match keyboard.write_to_string(&mut new_path_str) {
+            Ok(Button::Right) => {
                 // Clicked "OK"
-                action(self, path);
+                action(self, new_path_str);
             }
-            Ok((_, Button::Left)) => {
+            Ok(Button::Left) => {
                 // Clicked "Cancel"
             }
-            Ok((_, Button::Middle)) => {
+            Ok(Button::Middle) => {
                 // This button wasn't shown
                 unreachable!()
             }
