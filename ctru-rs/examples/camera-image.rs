@@ -1,5 +1,5 @@
 use ctru::prelude::*;
-use ctru::services::cam::{Cam, OutputFormat, ShutterSound, ViewSize, Camera};
+use ctru::services::cam::{Cam, Camera, OutputFormat, ShutterSound, ViewSize};
 use ctru::services::gfx::Screen;
 use ctru::services::gspgpu::FramebufferFormat;
 
