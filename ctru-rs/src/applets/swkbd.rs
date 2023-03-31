@@ -101,24 +101,24 @@ impl Swkbd {
     ///
     /// The text received from the keyboard will be truncated if it is greater than 2048 bytes
     /// in length.
-    pub fn write_to_string(&mut self, buf: &mut String) -> Result<Button, Error> {
+    pub fn write_to_string(&mut self) -> Result<(String, Button), Error> {
         // Unfortunately the libctru API doesn't really provide a way to get the exact length
         // of the string that it receieves from the software keyboard. Instead it expects you
         // to pass in a buffer and hope that it's big enough to fit the entire string, so
         // you have to set some upper limit on the potential size of the user's input.
         const MAX_BYTES: usize = 2048;
-        let mut tmp = [0u8; MAX_BYTES];
+        let mut tmp = vec![0u8; MAX_BYTES];
         let button = self.write_bytes(&mut tmp)?;
 
         // libctru does, however, seem to ensure that the buffer will always contain a properly
         // terminated UTF-8 sequence even if the input has to be truncated, so these operations
         // should be safe.
         let len = unsafe { libc::strlen(tmp.as_ptr()) };
-        let utf8 = unsafe { str::from_utf8_unchecked(&tmp[..len]) };
+        tmp.truncate(len);
 
-        // Copy the input into the user's `String`
-        *buf += utf8;
-        Ok(button)
+        let res = unsafe { String::from_utf8_unchecked(tmp) };
+
+        Ok((res, button))
     }
 
     /// Fills the provided buffer with a UTF-8 encoded, NUL-terminated sequence of bytes from

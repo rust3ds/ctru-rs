@@ -24,15 +24,12 @@ fn main() {
             // configurations.
             let mut keyboard = Swkbd::default();
 
-            // String used to store text received from the keyboard
-            let mut text = String::new();
-
             // Raise the software keyboard. You can perform different actions depending on which
             // software button the user pressed
-            match keyboard.write_to_string(&mut text) {
-                Ok(Button::Right) => println!("You entered: {text}"),
-                Ok(Button::Left) => println!("Cancelled"),
-                Ok(Button::Middle) => println!("How did you even press this?"),
+            match keyboard.write_to_string() {
+                Ok((text, Button::Right)) => println!("You entered: {text}"),
+                Ok((_, Button::Left)) => println!("Cancelled"),
+                Ok((_, Button::Middle)) => println!("How did you even press this?"),
                 Err(_) => println!("Oh noes, an error happened!"),
             }
         }
