@@ -2,7 +2,6 @@ use bitflags::bitflags;
 use ctru_sys::{
     self, swkbdInit, swkbdInputText, swkbdSetButton, swkbdSetFeatures, swkbdSetHintText, SwkbdState,
 };
-use libc;
 use std::iter::once;
 use std::str;
 
@@ -101,24 +100,21 @@ impl Swkbd {
     ///
     /// The text received from the keyboard will be truncated if it is greater than 2048 bytes
     /// in length.
-    pub fn get_utf8(&mut self, buf: &mut String) -> Result<Button, Error> {
+    pub fn write_to_string(&mut self) -> Result<(String, Button), Error> {
         // Unfortunately the libctru API doesn't really provide a way to get the exact length
         // of the string that it receieves from the software keyboard. Instead it expects you
         // to pass in a buffer and hope that it's big enough to fit the entire string, so
         // you have to set some upper limit on the potential size of the user's input.
         const MAX_BYTES: usize = 2048;
-        let mut tmp = [0u8; MAX_BYTES];
-        let button = self.get_bytes(&mut tmp)?;
+        let mut buf = vec![0u8; MAX_BYTES];
+        let button = self.write_bytes(&mut buf)?;
 
         // libctru does, however, seem to ensure that the buffer will always contain a properly
-        // terminated UTF-8 sequence even if the input has to be truncated, so these operations
+        // terminated UTF-8 sequence even if the input has to be truncated, so this operation
         // should be safe.
-        let len = unsafe { libc::strlen(tmp.as_ptr()) };
-        let utf8 = unsafe { str::from_utf8_unchecked(&tmp[..len]) };
+        let res = String::from_utf8(buf).unwrap();
 
-        // Copy the input into the user's `String`
-        *buf += utf8;
-        Ok(button)
+        Ok((res, button))
     }
 
     /// Fills the provided buffer with a UTF-8 encoded, NUL-terminated sequence of bytes from
@@ -126,7 +122,7 @@ impl Swkbd {
     ///
     /// If the buffer is too small to contain the entire sequence received from the keyboard,
     /// the output will be truncated but should still be well-formed UTF-8.
-    pub fn get_bytes(&mut self, buf: &mut [u8]) -> Result<Button, Error> {
+    pub fn write_bytes(&mut self, buf: &mut [u8]) -> Result<Button, Error> {
         unsafe {
             match swkbdInputText(self.state.as_mut(), buf.as_mut_ptr(), buf.len()) {
                 ctru_sys::SWKBD_BUTTON_NONE => Err(self.parse_swkbd_error()),
