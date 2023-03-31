@@ -74,15 +74,15 @@ pub enum WhiteBalance {
     /// Normal
     Auto = ctru_sys::WHITE_BALANCE_AUTO,
     /// Tungsten
-    Type3200K = ctru_sys::WHITE_BALANCE_3200K,
+    Temp3200K = ctru_sys::WHITE_BALANCE_3200K,
     /// Fluorescent Light
-    Type4150K = ctru_sys::WHITE_BALANCE_4150K,
+    Temp4150K = ctru_sys::WHITE_BALANCE_4150K,
     /// Daylight
-    Type5200K = ctru_sys::WHITE_BALANCE_5200K,
+    Temp5200K = ctru_sys::WHITE_BALANCE_5200K,
     /// Cloudy/Horizon
-    Type6000K = ctru_sys::WHITE_BALANCE_6000K,
+    Temp6000K = ctru_sys::WHITE_BALANCE_6000K,
     ///Shade
-    Type7000K = ctru_sys::WHITE_BALANCE_7000K,
+    Temp7000K = ctru_sys::WHITE_BALANCE_7000K,
 }
 
 /// Flag to pass to [Camera::set_photo_mode]
@@ -92,7 +92,7 @@ pub enum PhotoMode {
     Normal = ctru_sys::PHOTO_MODE_NORMAL,
     Portrait = ctru_sys::PHOTO_MODE_PORTRAIT,
     Landscape = ctru_sys::PHOTO_MODE_LANDSCAPE,
-    Nightview = ctru_sys::PHOTO_MODE_NIGHTVIEW,
+    NightView = ctru_sys::PHOTO_MODE_NIGHTVIEW,
     Letter = ctru_sys::PHOTO_MODE_LETTER,
 }
 
@@ -112,8 +112,11 @@ pub enum Effect {
 #[derive(Copy, Clone, Debug)]
 #[repr(u32)]
 pub enum Contrast {
+    /// OFF
     Low = ctru_sys::CONTRAST_LOW,
+    /// Brightness ratio: 70
     Normal = ctru_sys::CONTRAST_NORMAL,
+    /// Brightness ratio: 90
     High = ctru_sys::CONTRAST_HIGH,
 }
 
@@ -280,7 +283,7 @@ pub trait Camera {
 
     /// Returns the maximum amount of transfer bytes based on the view size, trimming, and other
     /// modifications set to the camera
-    fn transfer_bytes(&self) -> crate::Result<u32> {
+    fn transfer_byte_count(&self) -> crate::Result<u32> {
         unsafe {
             let mut transfer_bytes = 0;
             ResultCode(ctru_sys::CAMU_GetTransferBytes(
