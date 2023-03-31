@@ -31,7 +31,7 @@ fn main() {
     bottom_screen.set_double_buffering(false);
 
     // We assume the image is the correct size already, so we drop width + height.
-    let frame_buffer = bottom_screen.get_raw_framebuffer();
+    let frame_buffer = bottom_screen.raw_framebuffer();
 
     // Copy the image into the frame buffer
     unsafe {

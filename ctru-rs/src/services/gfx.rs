@@ -33,7 +33,7 @@ pub trait Screen: private::Sealed {
     ///
     /// Note that the pointer of the framebuffer returned by this function can
     /// change after each call to this function if double buffering is enabled.
-    fn get_raw_framebuffer(&mut self) -> RawFrameBuffer {
+    fn raw_framebuffer(&mut self) -> RawFrameBuffer {
         let mut width = 0;
         let mut height = 0;
         let ptr = unsafe {
@@ -56,7 +56,7 @@ pub trait Screen: private::Sealed {
     }
 
     /// Gets the framebuffer format
-    fn get_framebuffer_format(&self) -> FramebufferFormat {
+    fn framebuffer_format(&self) -> FramebufferFormat {
         unsafe { ctru_sys::gfxGetScreenFormat(self.as_raw()) }.into()
     }
 
@@ -238,7 +238,7 @@ impl TopScreen {
     }
 
     /// Returns whether or not wide mode is enabled on the top screen.
-    pub fn get_wide_mode(&self) -> bool {
+    pub fn is_wide(&self) -> bool {
         unsafe { ctru_sys::gfxIsWide() }
     }
 }

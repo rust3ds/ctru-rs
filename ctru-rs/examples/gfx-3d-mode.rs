@@ -35,8 +35,8 @@ fn main() {
             break;
         }
 
-        let left_buf = left.get_raw_framebuffer();
-        let right_buf = right.get_raw_framebuffer();
+        let left_buf = left.raw_framebuffer();
+        let right_buf = right.raw_framebuffer();
 
         // Clear both buffers every time, in case the user switches sides this loop
         unsafe {

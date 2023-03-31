@@ -29,7 +29,7 @@ impl<'a> Title<'a> {
         self.id
     }
 
-    pub fn get_product_code(&self) -> crate::Result<String> {
+    pub fn product_code(&self) -> crate::Result<String> {
         let mut buf: [u8; 16] = [0; 16];
 
         unsafe {
@@ -42,7 +42,7 @@ impl<'a> Title<'a> {
         Ok(String::from_utf8_lossy(&buf).to_string())
     }
 
-    pub fn get_title_info(&self) -> crate::Result<TitleInfo> {
+    pub fn title_info(&self) -> crate::Result<TitleInfo> {
         let mut info = MaybeUninit::zeroed();
 
         unsafe {
@@ -68,7 +68,7 @@ impl Am {
         }
     }
 
-    pub fn get_title_count(&self, mediatype: FsMediaType) -> crate::Result<u32> {
+    pub fn title_count(&self, mediatype: FsMediaType) -> crate::Result<u32> {
         unsafe {
             let mut count = 0;
             ResultCode(ctru_sys::AM_GetTitleCount(mediatype.into(), &mut count))?;
@@ -76,8 +76,8 @@ impl Am {
         }
     }
 
-    pub fn get_title_list(&self, mediatype: FsMediaType) -> crate::Result<Vec<Title>> {
-        let count = self.get_title_count(mediatype)?;
+    pub fn title_list(&self, mediatype: FsMediaType) -> crate::Result<Vec<Title>> {
+        let count = self.title_count(mediatype)?;
         let mut buf = vec![0; count as usize];
         let mut read_amount = 0;
         unsafe {

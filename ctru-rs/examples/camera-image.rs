@@ -88,7 +88,7 @@ fn main() {
 
             rotate_image_to_screen(
                 &buf,
-                gfx.top_screen.borrow_mut().get_raw_framebuffer().ptr,
+                gfx.top_screen.borrow_mut().raw_framebuffer().ptr,
                 WIDTH,
                 HEIGHT,
             );

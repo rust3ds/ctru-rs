@@ -13,17 +13,17 @@ fn main() {
     let bottom_screen = Console::init(gfx.bottom_screen.borrow_mut());
 
     let sd_count = am
-        .get_title_count(FsMediaType::Sd)
+        .title_count(FsMediaType::Sd)
         .expect("Failed to get sd title count");
     let sd_list = am
-        .get_title_list(FsMediaType::Sd)
+        .title_list(FsMediaType::Sd)
         .expect("Failed to get sd title list");
 
     let nand_count = am
-        .get_title_count(FsMediaType::Nand)
+        .title_count(FsMediaType::Nand)
         .expect("Failed to get nand title count");
     let nand_list = am
-        .get_title_list(FsMediaType::Nand)
+        .title_list(FsMediaType::Nand)
         .expect("Failed to get nand title list");
 
     let mut offset = 0;
@@ -80,14 +80,14 @@ fn main() {
             // Move cursor to top left
             println!("\x1b[1;1");
 
-            match selected_title.get_title_info() {
+            match selected_title.title_info() {
                 Ok(info) => {
                     println!("Size: {} KB", info.size_bytes() / 1024);
                     println!("Version: 0x{:x}", info.version());
                 }
                 Err(e) => println!("Failed to get title info: {}", e),
             }
-            match selected_title.get_product_code() {
+            match selected_title.product_code() {
                 Ok(code) => println!("Product code: \"{code}\""),
                 Err(e) => println!("Failed to get product code: {}", e),
             }

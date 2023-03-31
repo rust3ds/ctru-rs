@@ -329,7 +329,7 @@ impl Archive {
     /// Retrieves an Archive's [`ArchiveID`]
     ///
     /// [`ArchiveID`]: enum.ArchiveID.html
-    pub fn get_id(&self) -> ArchiveID {
+    pub fn id(&self) -> ArchiveID {
         self.id
     }
 }
@@ -589,7 +589,7 @@ impl OpenOptions {
     ///
     /// [`Archive`]: struct.Archive.html
     pub fn open<P: AsRef<Path>>(&self, path: P) -> IoResult<File> {
-        self._open(path.as_ref(), self.get_open_flags())
+        self._open(path.as_ref(), self.open_flags())
     }
 
     fn _open(&self, path: &Path, flags: FsOpen) -> IoResult<File> {
@@ -628,7 +628,7 @@ impl OpenOptions {
         }
     }
 
-    fn get_open_flags(&self) -> FsOpen {
+    fn open_flags(&self) -> FsOpen {
         match (self.read, self.write || self.append, self.create) {
             (true, false, false) => FsOpen::FS_OPEN_READ,
             (false, true, false) => FsOpen::FS_OPEN_WRITE,

@@ -280,7 +280,7 @@ pub trait Camera {
 
     /// Returns the maximum amount of transfer bytes based on the view size, trimming, and other
     /// modifications set to the camera
-    fn get_transfer_bytes(&self) -> crate::Result<u32> {
+    fn transfer_bytes(&self) -> crate::Result<u32> {
         unsafe {
             let mut transfer_bytes = 0;
             ResultCode(ctru_sys::CAMU_GetTransferBytes(
@@ -324,7 +324,7 @@ pub trait Camera {
     }
 
     /// Returns the [TrimmingParams] set
-    fn get_trimming_params(&self) -> crate::Result<TrimmingParams> {
+    fn trimming_params(&self) -> crate::Result<TrimmingParams> {
         unsafe {
             let mut x_start = 0;
             let mut y_start = 0;
@@ -660,7 +660,7 @@ pub trait Camera {
     }
 
     /// Returns the current [ImageQualityCalibrationData] for the camera
-    fn get_image_quality_calibration_data(&self) -> crate::Result<ImageQualityCalibrationData> {
+    fn image_quality_calibration_data(&self) -> crate::Result<ImageQualityCalibrationData> {
         unsafe {
             let mut data = ImageQualityCalibrationData::default();
             ResultCode(ctru_sys::CAMU_GetImageQualityCalibrationData(&mut data.0))?;
