@@ -163,7 +163,7 @@ impl<'a> FileExplorer<'a> {
     fn get_input_and_run(&mut self, action: impl FnOnce(&mut Self, String)) {
         let mut keyboard = Swkbd::default();
 
-        match keyboard.write_to_string() {
+        match keyboard.get_string(2048) {
             Ok((path, Button::Right)) => {
                 // Clicked "OK"
                 action(self, path);

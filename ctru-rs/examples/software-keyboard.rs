@@ -26,7 +26,7 @@ fn main() {
 
             // Raise the software keyboard. You can perform different actions depending on which
             // software button the user pressed
-            match keyboard.write_to_string() {
+            match keyboard.get_string(2048) {
                 Ok((text, Button::Right)) => println!("You entered: {text}"),
                 Ok((_, Button::Left)) => println!("Cancelled"),
                 Ok((_, Button::Middle)) => println!("How did you even press this?"),
