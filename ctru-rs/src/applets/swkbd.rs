@@ -74,7 +74,7 @@ bitflags! {
         const ALLOW_POWER       = ctru_sys::SWKBD_ALLOW_POWER;
         const DEFAULT_QWERTY    = ctru_sys::SWKBD_DEFAULT_QWERTY;
     }
-    
+
     /// Keyboard input filtering flags
     pub struct Filters: u32 {
         const DIGITS    = ctru_sys::SWKBD_FILTER_DIGITS;
