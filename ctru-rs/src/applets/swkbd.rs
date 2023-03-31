@@ -64,19 +64,17 @@ pub enum ValidInput {
 bitflags! {
     /// Keyboard feature flags
     pub struct Features: u32 {
-        const ParentalPin      = ctru_sys::SWKBD_PARENTAL;
-        const DarkenTopScreen  = ctru_sys::SWKBD_DARKEN_TOP_SCREEN;
-        const PredictiveInput  = ctru_sys::SWKBD_PREDICTIVE_INPUT;
-        const Multiline        = ctru_sys::SWKBD_MULTILINE;
-        const FixedWidth       = ctru_sys::SWKBD_FIXED_WIDTH;
-        const AllowHome        = ctru_sys::SWKBD_ALLOW_HOME;
-        const AllowReset       = ctru_sys::SWKBD_ALLOW_RESET;
-        const AllowPower       = ctru_sys::SWKBD_ALLOW_POWER;
-        const DefaultQwerty    = ctru_sys::SWKBD_DEFAULT_QWERTY;
+        const PARENTAL_PIN      = ctru_sys::SWKBD_PARENTAL;
+        const DARKEN_TOP_SCREEN  = ctru_sys::SWKBD_DARKEN_TOP_SCREEN;
+        const PREDICTIVE_INPUT  = ctru_sys::SWKBD_PREDICTIVE_INPUT;
+        const MULTILINE        = ctru_sys::SWKBD_MULTILINE;
+        const FIXED_WIDTH       = ctru_sys::SWKBD_FIXED_WIDTH;
+        const ALLOW_HOME        = ctru_sys::SWKBD_ALLOW_HOME;
+        const ALLOW_RESET       = ctru_sys::SWKBD_ALLOW_RESET;
+        const ALLOW_POWER       = ctru_sys::SWKBD_ALLOW_POWER;
+        const DEFAULT_QWERTY    = ctru_sys::SWKBD_DEFAULT_QWERTY;
     }
-}
-
-bitflags! {
+    
     /// Keyboard input filtering flags
     pub struct Filters: u32 {
         const DIGITS    = ctru_sys::SWKBD_FILTER_DIGITS;
