@@ -15,6 +15,46 @@ extern crate pthread_3ds;
 #[cfg(feature = "big-stack")]
 static __stacksize__: usize = 2 * 1024 * 1024; // 2MB
 
+macro_rules! from_type_to_u8 {
+    ($from_type:ty) => {
+        impl From<$from_type> for u8 {
+            fn from(v: $from_type) -> Self {
+                v as u8
+            }
+        }
+    };
+}
+
+macro_rules! from_type_to_u16 {
+    ($from_type:ty) => {
+        impl From<$from_type> for u16 {
+            fn from(v: $from_type) -> Self {
+                v as u16
+            }
+        }
+    };
+}
+
+macro_rules! from_type_to_u32 {
+    ($from_type:ty) => {
+        impl From<$from_type> for u32 {
+            fn from(v: $from_type) -> Self {
+                v as u32
+            }
+        }
+    };
+}
+
+macro_rules! from_type_to_i32 {
+    ($from_type:ty) => {
+        impl From<$from_type> for i32 {
+            fn from(v: $from_type) -> Self {
+                v as i32
+            }
+        }
+    };
+}
+
 /// Activate the default panic handler.
 ///
 /// With this implementation, the main thread will stop and try to print debug info to an available [console::Console].

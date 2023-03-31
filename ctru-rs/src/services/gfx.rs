@@ -283,14 +283,7 @@ impl Screen for BottomScreen {
     }
 }
 
-impl From<Side> for ctru_sys::gfx3dSide_t {
-    fn from(s: Side) -> ctru_sys::gfx3dSide_t {
-        match s {
-            Side::Left => ctru_sys::GFX_LEFT,
-            Side::Right => ctru_sys::GFX_RIGHT,
-        }
-    }
-}
+from_type_to_u32!(Side);
 
 #[cfg(test)]
 mod tests {

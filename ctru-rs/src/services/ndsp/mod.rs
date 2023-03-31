@@ -115,7 +115,7 @@ impl Ndsp {
 
     /// Set the audio output mode. Defaults to `OutputMode::Stereo`.
     pub fn set_output_mode(&mut self, mode: OutputMode) {
-        unsafe { ctru_sys::ndspSetOutputMode(mode as u32) };
+        unsafe { ctru_sys::ndspSetOutputMode(mode.into()) };
     }
 }
 
@@ -163,12 +163,12 @@ impl Channel<'_> {
     /// Set the channel's output format.
     /// Change this setting based on the used sample's format.
     pub fn set_format(&self, format: AudioFormat) {
-        unsafe { ctru_sys::ndspChnSetFormat(self.id.into(), format as u16) };
+        unsafe { ctru_sys::ndspChnSetFormat(self.id.into(), format.into()) };
     }
 
     /// Set the channel's interpolation mode.
     pub fn set_interpolation(&self, interp_type: InterpolationType) {
-        unsafe { ctru_sys::ndspChnSetInterp(self.id.into(), interp_type as u32) };
+        unsafe { ctru_sys::ndspChnSetInterp(self.id.into(), interp_type.into()) };
     }
 
     /// Set the channel's volume mix.
@@ -340,3 +340,7 @@ impl Drop for Ndsp {
         }
     }
 }
+
+from_type_to_u32!(InterpolationType);
+from_type_to_u32!(OutputMode);
+from_type_to_u16!(AudioFormat);

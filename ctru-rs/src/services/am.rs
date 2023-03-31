@@ -34,7 +34,7 @@ impl<'a> Title<'a> {
 
         unsafe {
             ResultCode(ctru_sys::AM_GetTitleProductCode(
-                self.mediatype as u32,
+                self.mediatype.into(),
                 self.id,
                 buf.as_mut_ptr(),
             ))?;
@@ -47,7 +47,7 @@ impl<'a> Title<'a> {
 
         unsafe {
             ResultCode(ctru_sys::AM_GetTitleInfo(
-                self.mediatype as u32,
+                self.mediatype.into(),
                 1,
                 &mut self.id.clone(),
                 info.as_mut_ptr() as _,
@@ -71,7 +71,7 @@ impl Am {
     pub fn get_title_count(&self, mediatype: FsMediaType) -> crate::Result<u32> {
         unsafe {
             let mut count = 0;
-            ResultCode(ctru_sys::AM_GetTitleCount(mediatype as u32, &mut count))?;
+            ResultCode(ctru_sys::AM_GetTitleCount(mediatype.into(), &mut count))?;
             Ok(count)
         }
     }
@@ -83,7 +83,7 @@ impl Am {
         unsafe {
             ResultCode(ctru_sys::AM_GetTitleList(
                 &mut read_amount,
-                mediatype as u32,
+                mediatype.into(),
                 count,
                 buf.as_mut_ptr(),
             ))?;

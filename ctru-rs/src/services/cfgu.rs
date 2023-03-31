@@ -115,16 +115,6 @@ impl Drop for Cfgu {
     }
 }
 
-macro_rules! from_type_to_u8 {
-    ($from_type:ty) => {
-        impl From<$from_type> for u8 {
-            fn from(v: $from_type) -> Self {
-                v as u8
-            }
-        }
-    };
-}
-
 from_type_to_u8!(Region);
 from_type_to_u8!(Language);
 from_type_to_u8!(SystemModel);

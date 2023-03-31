@@ -213,26 +213,7 @@ impl Default for Swkbd {
     }
 }
 
-impl From<Kind> for u32 {
-    fn from(value: Kind) -> Self {
-        value as u32
-    }
-}
-
-impl From<Button> for u32 {
-    fn from(value: Button) -> Self {
-        value as u32
-    }
-}
-
-impl From<Error> for u32 {
-    fn from(value: Error) -> Self {
-        value as u32
-    }
-}
-
-impl From<ValidInput> for i32 {
-    fn from(value: ValidInput) -> Self {
-        value as i32
-    }
-}
+from_type_to_u32!(Kind);
+from_type_to_u32!(Button);
+from_type_to_u32!(Error);
+from_type_to_i32!(ValidInput);

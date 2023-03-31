@@ -70,6 +70,9 @@ impl Drop for Ps {
     }
 }
 
+from_type_to_u32!(AESAlgorithm);
+from_type_to_u32!(AESKeyType);
+
 #[cfg(test)]
 mod tests {
     use std::collections::HashMap;

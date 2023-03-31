@@ -382,7 +382,7 @@ pub trait Camera {
         unsafe {
             ResultCode(ctru_sys::CAMU_SetWhiteBalance(
                 self.camera_as_raw(),
-                white_balance as u32,
+                white_balance.into(),
             ))?;
             Ok(())
         }
@@ -397,7 +397,7 @@ pub trait Camera {
         unsafe {
             ResultCode(ctru_sys::CAMU_SetWhiteBalanceWithoutBaseUp(
                 self.camera_as_raw(),
-                white_balance as u32,
+                white_balance.into(),
             ))?;
             Ok(())
         }
@@ -462,7 +462,7 @@ pub trait Camera {
         unsafe {
             ResultCode(ctru_sys::CAMU_FlipImage(
                 self.camera_as_raw(),
-                flip as u32,
+                flip.into(),
                 ctru_sys::CONTEXT_A,
             ))?;
             Ok(())
@@ -508,7 +508,7 @@ pub trait Camera {
         unsafe {
             ResultCode(ctru_sys::CAMU_SetSize(
                 self.camera_as_raw(),
-                size as u32,
+                size.into(),
                 ctru_sys::CONTEXT_A,
             ))?;
             Ok(())
@@ -520,7 +520,7 @@ pub trait Camera {
         unsafe {
             ResultCode(ctru_sys::CAMU_SetFrameRate(
                 self.camera_as_raw(),
-                frame_rate as u32,
+                frame_rate.into(),
             ))?;
             Ok(())
         }
@@ -531,7 +531,7 @@ pub trait Camera {
         unsafe {
             ResultCode(ctru_sys::CAMU_SetPhotoMode(
                 self.camera_as_raw(),
-                photo_mode as u32,
+                photo_mode.into(),
             ))?;
             Ok(())
         }
@@ -544,7 +544,7 @@ pub trait Camera {
         unsafe {
             ResultCode(ctru_sys::CAMU_SetEffect(
                 self.camera_as_raw(),
-                effect as u32,
+                effect.into(),
                 ctru_sys::CONTEXT_A,
             ))?;
             Ok(())
@@ -556,7 +556,7 @@ pub trait Camera {
         unsafe {
             ResultCode(ctru_sys::CAMU_SetContrast(
                 self.camera_as_raw(),
-                contrast as u32,
+                contrast.into(),
             ))?;
             Ok(())
         }
@@ -567,7 +567,7 @@ pub trait Camera {
         unsafe {
             ResultCode(ctru_sys::CAMU_SetLensCorrection(
                 self.camera_as_raw(),
-                lens_correction as u32,
+                lens_correction.into(),
             ))?;
             Ok(())
         }
@@ -578,7 +578,7 @@ pub trait Camera {
         unsafe {
             ResultCode(ctru_sys::CAMU_SetOutputFormat(
                 self.camera_as_raw(),
-                format as u32,
+                format.into(),
                 ctru_sys::CONTEXT_A,
             ))?;
             Ok(())
@@ -782,7 +782,7 @@ impl Cam {
     /// Plays the specified sound based on the [ShutterSound] argument
     pub fn play_shutter_sound(&self, sound: ShutterSound) -> crate::Result<()> {
         unsafe {
-            ResultCode(ctru_sys::CAMU_PlayShutterSound(sound as u32))?;
+            ResultCode(ctru_sys::CAMU_PlayShutterSound(sound.into()))?;
             Ok(())
         }
     }
@@ -793,3 +793,14 @@ impl Drop for Cam {
         unsafe { ctru_sys::camExit() };
     }
 }
+
+from_type_to_u32!(FlipMode);
+from_type_to_u32!(ViewSize);
+from_type_to_u32!(FrameRate);
+from_type_to_u32!(WhiteBalance);
+from_type_to_u32!(PhotoMode);
+from_type_to_u32!(Effect);
+from_type_to_u32!(Contrast);
+from_type_to_u32!(LensCorrection);
+from_type_to_u32!(OutputFormat);
+from_type_to_u32!(ShutterSound);

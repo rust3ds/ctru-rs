@@ -1018,45 +1018,6 @@ impl Drop for Dir {
     }
 }
 
-impl From<PathType> for ctru_sys::FS_PathType {
-    fn from(p: PathType) -> Self {
-        use self::PathType::*;
-        match p {
-            Invalid => ctru_sys::PATH_INVALID,
-            Empty => ctru_sys::PATH_EMPTY,
-            Binary => ctru_sys::PATH_BINARY,
-            ASCII => ctru_sys::PATH_ASCII,
-            UTF16 => ctru_sys::PATH_UTF16,
-        }
-    }
-}
-
-impl From<ArchiveID> for ctru_sys::FS_ArchiveID {
-    fn from(a: ArchiveID) -> Self {
-        use self::ArchiveID::*;
-        match a {
-            RomFS => ctru_sys::ARCHIVE_ROMFS,
-            Savedata => ctru_sys::ARCHIVE_SAVEDATA,
-            Extdata => ctru_sys::ARCHIVE_EXTDATA,
-            SharedExtdata => ctru_sys::ARCHIVE_SHARED_EXTDATA,
-            SystemSavedata => ctru_sys::ARCHIVE_SYSTEM_SAVEDATA,
-            Sdmc => ctru_sys::ARCHIVE_SDMC,
-            SdmcWriteOnly => ctru_sys::ARCHIVE_SDMC_WRITE_ONLY,
-            BossExtdata => ctru_sys::ARCHIVE_BOSS_EXTDATA,
-            CardSpiFS => ctru_sys::ARCHIVE_CARD_SPIFS,
-            ExtDataAndBossExtdata => ctru_sys::ARCHIVE_EXTDATA_AND_BOSS_EXTDATA,
-            SystemSaveData2 => ctru_sys::ARCHIVE_SYSTEM_SAVEDATA2,
-            NandRW => ctru_sys::ARCHIVE_NAND_RW,
-            NandRO => ctru_sys::ARCHIVE_NAND_RO,
-            NandROWriteAccess => ctru_sys::ARCHIVE_NAND_RO_WRITE_ACCESS,
-            SaveDataAndContent => ctru_sys::ARCHIVE_SAVEDATA_AND_CONTENT,
-            SaveDataAndContent2 => ctru_sys::ARCHIVE_SAVEDATA_AND_CONTENT2,
-            NandCtrFS => ctru_sys::ARCHIVE_NAND_CTR_FS,
-            TwlPhoto => ctru_sys::ARCHIVE_TWL_PHOTO,
-            NandTwlFS => ctru_sys::ARCHIVE_NAND_TWL_FS,
-            GameCardSavedata => ctru_sys::ARCHIVE_GAMECARD_SAVEDATA,
-            UserSavedata => ctru_sys::ARCHIVE_USER_SAVEDATA,
-            DemoSavedata => ctru_sys::ARCHIVE_DEMO_SAVEDATA,
-        }
-    }
-}
+from_type_to_u32!(FsMediaType);
+from_type_to_u32!(PathType);
+from_type_to_u32!(ArchiveID);
