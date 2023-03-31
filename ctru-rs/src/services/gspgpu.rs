@@ -65,5 +65,5 @@ impl From<ctru_sys::GSPGPU_FramebufferFormat> for FramebufferFormat {
     }
 }
 
-from_type_to_u32!(FramebufferFormat);
-from_type_to_u32!(Event);
+from_impl!(FramebufferFormat, ctru_sys::GSPGPU_FramebufferFormat);
+from_impl!(Event, ctru_sys::GSPGPU_Event);

@@ -70,8 +70,8 @@ impl Drop for Ps {
     }
 }
 
-from_type_to_u32!(AESAlgorithm);
-from_type_to_u32!(AESKeyType);
+from_impl!(AESAlgorithm, ctru_sys::PS_AESAlgorithm);
+from_impl!(AESKeyType, ctru_sys::PS_AESKeyType);
 
 #[cfg(test)]
 mod tests {

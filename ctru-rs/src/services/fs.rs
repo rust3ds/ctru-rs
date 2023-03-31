@@ -1018,6 +1018,6 @@ impl Drop for Dir {
     }
 }
 
-from_type_to_u32!(FsMediaType);
-from_type_to_u32!(PathType);
-from_type_to_u32!(ArchiveID);
+from_impl!(FsMediaType, ctru_sys::FS_MediaType);
+from_impl!(PathType, ctru_sys::FS_PathType);
+from_impl!(ArchiveID, ctru_sys::FS_ArchiveID);

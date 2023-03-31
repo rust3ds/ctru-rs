@@ -115,9 +115,9 @@ impl Drop for Cfgu {
     }
 }
 
-from_type_to_u8!(Region);
-from_type_to_u8!(Language);
-from_type_to_u8!(SystemModel);
+from_impl!(Region, u8);
+from_impl!(Language, u8);
+from_impl!(SystemModel, u8);
 
 impl TryFrom<u8> for Region {
     type Error = ();

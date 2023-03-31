@@ -213,7 +213,7 @@ impl Default for Swkbd {
     }
 }
 
-from_type_to_u32!(Kind);
-from_type_to_u32!(Button);
-from_type_to_u32!(Error);
-from_type_to_i32!(ValidInput);
+from_impl!(Kind, ctru_sys::SwkbdType);
+from_impl!(Button, ctru_sys::SwkbdButton);
+from_impl!(Error, ctru_sys::SwkbdResult);
+from_impl!(ValidInput, i32);

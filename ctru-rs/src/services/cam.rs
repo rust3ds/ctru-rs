@@ -794,13 +794,13 @@ impl Drop for Cam {
     }
 }
 
-from_type_to_u32!(FlipMode);
-from_type_to_u32!(ViewSize);
-from_type_to_u32!(FrameRate);
-from_type_to_u32!(WhiteBalance);
-from_type_to_u32!(PhotoMode);
-from_type_to_u32!(Effect);
-from_type_to_u32!(Contrast);
-from_type_to_u32!(LensCorrection);
-from_type_to_u32!(OutputFormat);
-from_type_to_u32!(ShutterSound);
+from_impl!(FlipMode, ctru_sys::CAMU_Flip);
+from_impl!(ViewSize, ctru_sys::CAMU_Size);
+from_impl!(FrameRate, ctru_sys::CAMU_FrameRate);
+from_impl!(WhiteBalance, ctru_sys::CAMU_WhiteBalance);
+from_impl!(PhotoMode, ctru_sys::CAMU_PhotoMode);
+from_impl!(Effect, ctru_sys::CAMU_Effect);
+from_impl!(Contrast, ctru_sys::CAMU_Contrast);
+from_impl!(LensCorrection, ctru_sys::CAMU_LensCorrection);
+from_impl!(OutputFormat, ctru_sys::CAMU_OutputFormat);
+from_impl!(ShutterSound, ctru_sys::CAMU_ShutterSoundType);

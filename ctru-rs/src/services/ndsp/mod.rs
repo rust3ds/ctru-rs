@@ -341,6 +341,6 @@ impl Drop for Ndsp {
     }
 }
 
-from_type_to_u32!(InterpolationType);
-from_type_to_u32!(OutputMode);
-from_type_to_u16!(AudioFormat);
+from_impl!(InterpolationType, ctru_sys::ndspInterpType);
+from_impl!(OutputMode, ctru_sys::ndspOutputMode);
+from_impl!(AudioFormat, u16);

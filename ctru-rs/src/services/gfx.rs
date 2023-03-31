@@ -104,14 +104,15 @@ pub struct RawFrameBuffer<'screen> {
 }
 
 #[derive(Copy, Clone, Debug)]
+#[repr(u32)]
 /// Side of top screen framebuffer
 ///
 /// The top screen of the 3DS can have two separate sets of framebuffers to support its 3D functionality
 pub enum Side {
     /// The left framebuffer. This framebuffer is also the one used when 3D is disabled
-    Left,
+    Left = ctru_sys::GFX_LEFT,
     /// The right framebuffer
-    Right,
+    Right = ctru_sys::GFX_RIGHT,
 }
 
 /// A handle to libctru's gfx module. This module is a wrapper around the GSPGPU service that
@@ -283,7 +284,7 @@ impl Screen for BottomScreen {
     }
 }
 
-from_type_to_u32!(Side);
+from_impl!(Side, ctru_sys::gfx3dSide_t);
 
 #[cfg(test)]
 mod tests {
