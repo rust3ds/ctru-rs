@@ -1700,10 +1700,10 @@ pub struct MemInfo {
     #[doc = "Size."]
     #[doc = ""]
     pub size: u32_,
-    #[doc = "Memory permissions. See [`MemPerm`]"]
+    #[doc = "Memory permissions. See  [`MemPerm`]"]
     #[doc = ""]
     pub perm: u32_,
-    #[doc = "Memory state. See [`MemState`]"]
+    #[doc = "Memory state. See  [`MemState`]"]
     #[doc = ""]
     pub state: u32_,
 }
@@ -1792,7 +1792,7 @@ pub const RESLIMIT_SEMAPHORE: ResourceLimitType = 5;
 #[doc = ""]
 
 pub const RESLIMIT_TIMER: ResourceLimitType = 6;
-#[doc = "Number of shared memory objects, see [`svcCreateMemoryBlock`]"]
+#[doc = "Number of shared memory objects, see  [`svcCreateMemoryBlock`]"]
 #[doc = ""]
 
 pub const RESLIMIT_SHAREDMEMORY: ResourceLimitType = 7;
@@ -1844,11 +1844,11 @@ pub const DMACFG_SRC_IS_DEVICE: _bindgen_ty_5 = 1;
 #[doc = ""]
 
 pub const DMACFG_DST_IS_DEVICE: _bindgen_ty_5 = 2;
-#[doc = "Make [`svcStartInterProcessDma`] wait for the channel to be unlocked."]
+#[doc = "Make  [`svcStartInterProcessDma`] wait for the channel to be unlocked."]
 #[doc = ""]
 
 pub const DMACFG_WAIT_AVAILABLE: _bindgen_ty_5 = 4;
-#[doc = "Keep the channel locked after the transfer. Required for [`svcRestartDma`]"]
+#[doc = "Keep the channel locked after the transfer. Required for  [`svcRestartDma`]"]
 #[doc = ""]
 
 pub const DMACFG_KEEP_LOCKED: _bindgen_ty_5 = 8;
@@ -1860,7 +1860,7 @@ pub const DMACFG_USE_SRC_CONFIG: _bindgen_ty_5 = 64;
 #[doc = ""]
 
 pub const DMACFG_USE_DST_CONFIG: _bindgen_ty_5 = 128;
-#[doc = "Configuration flags for [`DmaConfig`]"]
+#[doc = "Configuration flags for  [`DmaConfig`]"]
 #[doc = ""]
 
 pub type _bindgen_ty_5 = ::libc::c_uint;
@@ -1872,7 +1872,7 @@ pub const DMARST_UNLOCK: _bindgen_ty_6 = 1;
 #[doc = ""]
 
 pub const DMARST_RESUME_DEVICE: _bindgen_ty_6 = 2;
-#[doc = "Configuration flags for [`svcRestartDma`]"]
+#[doc = "Configuration flags for  [`svcRestartDma`]"]
 #[doc = ""]
 
 pub type _bindgen_ty_6 = ::libc::c_uint;
@@ -1900,7 +1900,7 @@ pub struct DmaDeviceConfig {
     #[doc = ""]
     pub transferStride: s16,
 }
-#[doc = "Configuration stucture for [`svcStartInterProcessDma`]"]
+#[doc = "Configuration stucture for  [`svcStartInterProcessDma`]"]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
@@ -1915,10 +1915,10 @@ pub struct DmaConfig {
     #[doc = ""]
     pub flags: u8_,
     pub _padding: u8_,
-    #[doc = "Source device configuration, read if [`DMACFG_SRC_IS_DEVICE`] and/or [`DMACFG_USE_SRC_CONFIG`] are set."]
+    #[doc = "Source device configuration, read if  [`DMACFG_SRC_IS_DEVICE`] and/or  [`DMACFG_USE_SRC_CONFIG`] are set."]
     #[doc = ""]
     pub srcCfg: DmaDeviceConfig,
-    #[doc = "Destination device configuration, read if [`DMACFG_SRC_IS_DEVICE`] and/or [`DMACFG_USE_SRC_CONFIG`] are set."]
+    #[doc = "Destination device configuration, read if  [`DMACFG_SRC_IS_DEVICE`] and/or  [`DMACFG_USE_SRC_CONFIG`] are set."]
     #[doc = ""]
     pub dstCfg: DmaDeviceConfig,
 }
@@ -1958,7 +1958,7 @@ pub const PERFCOUNTEROP_SET_EVENT: PerfCounterOperation = 7;
 #[doc = ""]
 
 pub const PERFCOUNTEROP_SET_VIRTUAL_COUNTER_ENABLED: PerfCounterOperation = 8;
-#[doc = "Operations for [`svcControlPerformanceCounter`]"]
+#[doc = "Operations for  [`svcControlPerformanceCounter`]"]
 #[doc = ""]
 
 pub type PerfCounterOperation = ::libc::c_uint;
@@ -2090,11 +2090,11 @@ pub struct AttachProcessEvent {
 #[doc = ""]
 
 pub const EXITPROCESS_EVENT_EXIT: ExitProcessEventReason = 0;
-#[doc = "Process has been terminated by [`svcTerminateProcess`]"]
+#[doc = "Process has been terminated by  [`svcTerminateProcess`]"]
 #[doc = ""]
 
 pub const EXITPROCESS_EVENT_TERMINATE: ExitProcessEventReason = 1;
-#[doc = "Process has been terminated by [`svcTerminateDebugProcess`]"]
+#[doc = "Process has been terminated by  [`svcTerminateDebugProcess`]"]
 #[doc = ""]
 
 pub const EXITPROCESS_EVENT_DEBUG_TERMINATE: ExitProcessEventReason = 2;
@@ -2107,7 +2107,7 @@ pub type ExitProcessEventReason = ::libc::c_uint;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct ExitProcessEvent {
-    #[doc = "Reason for exiting. See [`ExitProcessEventReason`]"]
+    #[doc = "Reason for exiting. See  [`ExitProcessEventReason`]"]
     #[doc = ""]
     pub reason: ExitProcessEventReason,
 }
@@ -2147,7 +2147,7 @@ pub const EXITTHREAD_EVENT_TERMINATE: ExitThreadEventReason = 1;
 #[doc = ""]
 
 pub const EXITTHREAD_EVENT_EXIT_PROCESS: ExitThreadEventReason = 2;
-#[doc = "Process has been terminated by [`svcTerminateProcess`]"]
+#[doc = "Process has been terminated by  [`svcTerminateProcess`]"]
 #[doc = ""]
 
 pub const EXITTHREAD_EVENT_TERMINATE_PROCESS: ExitThreadEventReason = 3;
@@ -2160,7 +2160,7 @@ pub type ExitThreadEventReason = ::libc::c_uint;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct ExitThreadEvent {
-    #[doc = "Reason for exiting. See [`ExitThreadEventReason`]"]
+    #[doc = "Reason for exiting. See  [`ExitThreadEventReason`]"]
     #[doc = ""]
     pub reason: ExitThreadEventReason,
 }
@@ -2246,7 +2246,7 @@ pub struct FaultExceptionEvent {
     #[doc = ""]
     pub fault_information: u32_,
 }
-#[doc = "See [`SVC_STOP_POINT`]"]
+#[doc = "See  [`SVC_STOP_POINT`]"]
 #[doc = ""]
 
 pub const STOPPOINT_SVC_FF: StopPointType = 0;
@@ -2267,7 +2267,7 @@ pub type StopPointType = ::libc::c_uint;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct StopPointExceptionEvent {
-    #[doc = "Stop point type, see [`StopPointType`]"]
+    #[doc = "Stop point type, see  [`StopPointType`]"]
     #[doc = ""]
     pub type_: StopPointType,
     #[doc = "FAR for Watchpoints, otherwise 0."]
@@ -2283,12 +2283,12 @@ impl Default for StopPointExceptionEvent {
         }
     }
 }
-#[doc = "Event relating to [`svcBreak`]"]
+#[doc = "Event relating to  [`svcBreak`]"]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct UserBreakExceptionEvent {
-    #[doc = "User break type, see [`UserBreakType`]"]
+    #[doc = "User break type, see  [`UserBreakType`]"]
     #[doc = ""]
     pub type_: UserBreakType,
     #[doc = "For LOAD_RO and UNLOAD_RO."]
@@ -2307,12 +2307,12 @@ impl Default for UserBreakExceptionEvent {
         }
     }
 }
-#[doc = "Event relating to [`svcBreakDebugProcess`]"]
+#[doc = "Event relating to  [`svcBreakDebugProcess`]"]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct DebuggerBreakExceptionEvent {
-    #[doc = "IDs of the attached process's threads that were running on each core at the time of the [`svcBreakDebugProcess`] call, or -1 (only the first 2 values are meaningful on O3DS)."]
+    #[doc = "IDs of the attached process's threads that were running on each core at the time of the  [`svcBreakDebugProcess`] call, or -1 (only the first 2 values are meaningful on O3DS)."]
     #[doc = ""]
     pub thread_ids: [s32; 4usize],
 }
@@ -2321,7 +2321,7 @@ pub struct DebuggerBreakExceptionEvent {
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ExceptionEvent {
-    #[doc = "Type of event. See [`ExceptionEventType`]"]
+    #[doc = "Type of event. See  [`ExceptionEventType`]"]
     #[doc = ""]
     pub type_: ExceptionEventType,
     #[doc = "Address of the exception."]
@@ -2407,10 +2407,10 @@ pub struct MapEvent {
     #[doc = "Mapped size."]
     #[doc = ""]
     pub mapped_size: u32_,
-    #[doc = "Memory permissions. See [`MemPerm`]"]
+    #[doc = "Memory permissions. See  [`MemPerm`]"]
     #[doc = ""]
     pub memperm: MemPerm,
-    #[doc = "Memory state. See [`MemState`]"]
+    #[doc = "Memory state. See  [`MemState`]"]
     #[doc = ""]
     pub memstate: MemState,
 }
@@ -2484,13 +2484,13 @@ pub type DebugEventType = ::libc::c_uint;
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct DebugEventInfo {
-    #[doc = "Type of event. See [`DebugEventType`]"]
+    #[doc = "Type of event. See  [`DebugEventType`]"]
     #[doc = ""]
     pub type_: DebugEventType,
     #[doc = "ID of the thread."]
     #[doc = ""]
     pub thread_id: u32_,
-    #[doc = "Flags. Bit0 means that [`svcContinueDebugEvent`] needs to be called for this event (except for EXIT PROCESS events, where this flag is disregarded)."]
+    #[doc = "Flags. Bit0 means that  [`svcContinueDebugEvent`] needs to be called for this event (except for EXIT PROCESS events, where this flag is disregarded)."]
     #[doc = ""]
     pub flags: u32_,
     #[doc = "Always 0."]
@@ -2547,27 +2547,27 @@ impl Default for DebugEventInfo {
         }
     }
 }
-#[doc = "Inhibit user-defined CPU exception handlers (including watchpoints and breakpoints, regardless of any [`svcKernelSetState`] call)."]
+#[doc = "Inhibit user-defined CPU exception handlers (including watchpoints and breakpoints, regardless of any  [`svcKernelSetState`] call)."]
 #[doc = ""]
 
 pub const DBG_INHIBIT_USER_CPU_EXCEPTION_HANDLERS: DebugFlags = 1;
-#[doc = "Signal fault exception events. See [`FaultExceptionEvent`]"]
+#[doc = "Signal fault exception events. See  [`FaultExceptionEvent`]"]
 #[doc = ""]
 
 pub const DBG_SIGNAL_FAULT_EXCEPTION_EVENTS: DebugFlags = 2;
-#[doc = "Signal schedule in/out events. See [`ScheduleInOutEvent`]"]
+#[doc = "Signal schedule in/out events. See  [`ScheduleInOutEvent`]"]
 #[doc = ""]
 
 pub const DBG_SIGNAL_SCHEDULE_EVENTS: DebugFlags = 4;
-#[doc = "Signal syscall in/out events. See [`SyscallInOutEvent`]"]
+#[doc = "Signal syscall in/out events. See  [`SyscallInOutEvent`]"]
 #[doc = ""]
 
 pub const DBG_SIGNAL_SYSCALL_EVENTS: DebugFlags = 8;
-#[doc = "Signal map events. See [`MapEvent`]"]
+#[doc = "Signal map events. See  [`MapEvent`]"]
 #[doc = ""]
 
 pub const DBG_SIGNAL_MAP_EVENTS: DebugFlags = 16;
-#[doc = "Debug flags for an attached process, set by [`svcContinueDebugEvent`]"]
+#[doc = "Debug flags for an attached process, set by  [`svcContinueDebugEvent`]"]
 #[doc = ""]
 
 pub type DebugFlags = ::libc::c_uint;
@@ -2618,7 +2618,7 @@ pub const THREADCONTEXT_CONTROL_FPU_REGS: ThreadContextControlFlags = 12;
 #[doc = ""]
 
 pub const THREADCONTEXT_CONTROL_ALL: ThreadContextControlFlags = 15;
-#[doc = "Control flags for [`svcGetDebugThreadContext`] and [`svcSetDebugThreadContext`]"]
+#[doc = "Control flags for  [`svcGetDebugThreadContext`] and  [`svcSetDebugThreadContext`]"]
 #[doc = ""]
 
 pub type ThreadContextControlFlags = ::libc::c_uint;
@@ -2638,7 +2638,7 @@ pub const DBGTHREAD_PARAMETER_CPU_IDEAL: DebugThreadParameter = 2;
 #[doc = ""]
 
 pub const DBGTHREAD_PARAMETER_CPU_CREATOR: DebugThreadParameter = 3;
-#[doc = "Thread parameter field for [`svcGetDebugThreadParameter`]"]
+#[doc = "Thread parameter field for  [`svcGetDebugThreadParameter`]"]
 #[doc = ""]
 
 pub type DebugThreadParameter = ::libc::c_uint;
@@ -2952,7 +2952,7 @@ extern "C" {
     pub fn svcOpenThread(thread: *mut Handle, process: Handle, threadId: u32_) -> Result;
 }
 extern "C" {
-    #[doc = "Exits the current thread.\n\n This will trigger a state change and hence release all [`svcWaitSynchronization`] operations.\n It means that you can join a thread by calling ``` svcWaitSynchronization(threadHandle,yourtimeout); ```"]
+    #[doc = "Exits the current thread.\n\n This will trigger a state change and hence release all [`svcWaitSynchronization`] operations.\n It means that you can join a thread by calling ``` svcWaitSynchronization(threadHandle,yourtimeout);"]
     #[doc = ""]
     pub fn svcExitThread() -> !;
 }
@@ -3749,22 +3749,22 @@ pub struct ExHeader_CodeSetInfo {
     #[doc = "Title name"]
     #[doc = ""]
     pub name: [::libc::c_char; 8usize],
-    #[doc = "System info flags, see [`ExHeader_SystemInfoFlags`]"]
+    #[doc = "System info flags, see  [`ExHeader_SystemInfoFlags`]"]
     #[doc = ""]
     pub flags: ExHeader_SystemInfoFlags,
-    #[doc = ".text section info, see [`ExHeader_CodeSectionInfo`]"]
+    #[doc = ".text section info, see  [`ExHeader_CodeSectionInfo`]"]
     #[doc = ""]
     pub text: ExHeader_CodeSectionInfo,
     #[doc = "Stack size"]
     #[doc = ""]
     pub stack_size: u32_,
-    #[doc = ".rodata section info, see [`ExHeader_CodeSectionInfo`]"]
+    #[doc = ".rodata section info, see  [`ExHeader_CodeSectionInfo`]"]
     #[doc = ""]
     pub rodata: ExHeader_CodeSectionInfo,
     #[doc = "Reserved"]
     #[doc = ""]
     pub reserved: u32_,
-    #[doc = ".data section info, see [`ExHeader_CodeSectionInfo`]"]
+    #[doc = ".data section info, see  [`ExHeader_CodeSectionInfo`]"]
     #[doc = ""]
     pub data: ExHeader_CodeSectionInfo,
     #[doc = ".bss section size"]
@@ -3800,13 +3800,13 @@ impl Default for ExHeader_SystemInfo {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct ExHeader_SystemControlInfo {
-    #[doc = "Code set info, see [`ExHeader_CodeSetInfo`]"]
+    #[doc = "Code set info, see  [`ExHeader_CodeSetInfo`]"]
     #[doc = ""]
     pub codeset_info: ExHeader_CodeSetInfo,
     #[doc = "Title IDs of the titles that this program depends on"]
     #[doc = ""]
     pub dependencies: [u64_; 48usize],
-    #[doc = "System info, see [`ExHeader_SystemInfo`]"]
+    #[doc = "System info, see  [`ExHeader_SystemInfo`]"]
     #[doc = ""]
     pub system_info: ExHeader_SystemInfo,
 }
@@ -4064,13 +4064,13 @@ pub struct ExHeader_Arm11SystemLocalCapabilities {
     #[doc = "Title ID"]
     #[doc = ""]
     pub title_id: u64_,
-    #[doc = "Core info, see [`ExHeader_Arm11CoreInfo`]"]
+    #[doc = "Core info, see  [`ExHeader_Arm11CoreInfo`]"]
     #[doc = ""]
     pub core_info: ExHeader_Arm11CoreInfo,
     #[doc = "Resource limit descriptors, only \"CpuTime\" (first byte) sems to be used"]
     #[doc = ""]
     pub reslimits: [u16_; 16usize],
-    #[doc = "Storage info, see [`ExHeader_Arm11StorageInfo`]"]
+    #[doc = "Storage info, see  [`ExHeader_Arm11StorageInfo`]"]
     #[doc = ""]
     pub storage_info: ExHeader_Arm11StorageInfo,
     #[doc = "List of the services the title has access to. Limited to 32 prior to system version 9.3"]
@@ -4079,7 +4079,7 @@ pub struct ExHeader_Arm11SystemLocalCapabilities {
     #[doc = "Reserved"]
     #[doc = ""]
     pub reserved: [u8_; 15usize],
-    #[doc = "Resource limit category, see [`ExHeader_Arm11SystemLocalCapabilities`]"]
+    #[doc = "Resource limit category, see  [`ExHeader_Arm11SystemLocalCapabilities`]"]
     #[doc = ""]
     pub reslimit_category: ResourceLimitCategory,
 }
@@ -4121,13 +4121,13 @@ pub struct ExHeader_Arm9AccessControl {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct ExHeader_AccessControlInfo {
-    #[doc = "ARM11 system-local capabilities, see [`ExHeader_Arm11SystemLocalCapabilities`]"]
+    #[doc = "ARM11 system-local capabilities, see  [`ExHeader_Arm11SystemLocalCapabilities`]"]
     #[doc = ""]
     pub local_caps: ExHeader_Arm11SystemLocalCapabilities,
-    #[doc = "ARM11 kernel capabilities, see [`ExHeader_Arm11SystemLocalCapabilities`]"]
+    #[doc = "ARM11 kernel capabilities, see  [`ExHeader_Arm11SystemLocalCapabilities`]"]
     #[doc = ""]
     pub kernel_caps: ExHeader_Arm11KernelCapabilities,
-    #[doc = "ARM9 access control, see [`ExHeader_Arm9AccessControl`]"]
+    #[doc = "ARM9 access control, see  [`ExHeader_Arm9AccessControl`]"]
     #[doc = ""]
     pub access_control: ExHeader_Arm9AccessControl,
 }
@@ -4145,10 +4145,10 @@ impl Default for ExHeader_AccessControlInfo {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct ExHeader_Info {
-    #[doc = "System control info, see [`ExHeader_SystemControlInfo`]"]
+    #[doc = "System control info, see  [`ExHeader_SystemControlInfo`]"]
     #[doc = ""]
     pub sci: ExHeader_SystemControlInfo,
-    #[doc = "Access control info, see [`ExHeader_AccessControlInfo`]"]
+    #[doc = "Access control info, see  [`ExHeader_AccessControlInfo`]"]
     #[doc = ""]
     pub aci: ExHeader_AccessControlInfo,
 }
@@ -4172,7 +4172,7 @@ pub struct ExHeader_AccessDescriptor {
     #[doc = "The modulus used for the above signature, with 65537 as public exponent"]
     #[doc = ""]
     pub ncchModulus: [u8_; 256usize],
-    #[doc = "This is compared for equality with the first ACI by Process9, see [`ExHeader_AccessControlInfo`]"]
+    #[doc = "This is compared for equality with the first ACI by Process9, see  [`ExHeader_AccessControlInfo`]"]
     #[doc = ""]
     pub acli: ExHeader_AccessControlInfo,
 }
@@ -4190,10 +4190,10 @@ impl Default for ExHeader_AccessDescriptor {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct ExHeader {
-    #[doc = "Main extended header data, see [`ExHeader_Info`]"]
+    #[doc = "Main extended header data, see  [`ExHeader_Info`]"]
     #[doc = ""]
     pub info: ExHeader_Info,
-    #[doc = "Access descriptor, see [`ExHeader_AccessDescriptor`]"]
+    #[doc = "Access descriptor, see  [`ExHeader_AccessDescriptor`]"]
     #[doc = ""]
     pub access_descriptor: ExHeader_AccessDescriptor,
 }
@@ -4513,19 +4513,19 @@ extern "C" {
 }
 extern "C" {
     #[must_use]
-    #[doc = "Throws (and logs) a system error with the given Result code.\n @param[in] failure Result code to throw.\n\n This calls [`ERRF_Throw`] with error type [`ERRF_ERRTYPE_GENERIC`] and fills in the required data.\n\n This function \\em does fill in the address where this function was called from."]
+    #[doc = "Throws (and logs) a system error with the given Result code.\n @param[in] failure Result code to throw.\n\n This calls [`ERRF_Throw`] with error type [`ERRF_ERRTYPE_GENERIC`] and fills in the required data.\n\n This function *does* fill in the address where this function was called from."]
     #[doc = ""]
     pub fn ERRF_ThrowResult(failure: Result) -> Result;
 }
 extern "C" {
     #[must_use]
-    #[doc = "Logs a system error with the given Result code.\n @param[in] failure Result code to log.\n\n Similar to [`ERRF_Throw`] except that it does not display anything on the screen,\n nor does it force the system to reboot.\n\n This function \\em does fill in the address where this function was called from."]
+    #[doc = "Logs a system error with the given Result code.\n @param[in] failure Result code to log.\n\n Similar to [`ERRF_Throw`] except that it does not display anything on the screen,\n nor does it force the system to reboot.\n\n This function *does* fill in the address where this function was called from."]
     #[doc = ""]
     pub fn ERRF_LogResult(failure: Result) -> Result;
 }
 extern "C" {
     #[must_use]
-    #[doc = "Throws a system error with the given Result code and message.\n @param[in] failure Result code to throw.\n @param[in] message The message to display.\n\n This calls [`ERRF_Throw`] with error type [`ERRF_ERRTYPE_FAILURE`] and fills in the required data.\n\n This function does \\em not fill in the address where this function was called from because it\n would not be displayed."]
+    #[doc = "Throws a system error with the given Result code and message.\n @param[in] failure Result code to throw.\n @param[in] message The message to display.\n\n This calls [`ERRF_Throw`] with error type [`ERRF_ERRTYPE_FAILURE`] and fills in the required data.\n\n This function does *not* fill in the address where this function was called from because it\n would not be displayed."]
     #[doc = ""]
     pub fn ERRF_ThrowResultWithMessage(failure: Result, message: *const ::libc::c_char) -> Result;
 }
@@ -4576,7 +4576,7 @@ pub struct osTimeRef_s {
     #[doc = "System ticks elapsed since boot when this structure was last updated"]
     #[doc = ""]
     pub value_tick: u64_,
-    #[doc = "System clock frequency in Hz adjusted using RTC measurements (usually around [`SYSCLOCK_ARM11)`]"]
+    #[doc = "System clock frequency in Hz adjusted using RTC measurements (usually around  [`SYSCLOCK_ARM11)`]"]
     #[doc = ""]
     pub sysclock_hz: s64,
     #[doc = "Measured time drift of the system clock (according to the RTC) in milliseconds since the last update"]
@@ -4767,13 +4767,13 @@ pub struct LightSemaphore {
 }
 extern "C" {
     #[must_use]
-    #[doc = "Function used to implement user-mode synchronization primitives.\n @param addr Pointer to a signed 32-bit value whose address will be used to identify waiting threads.\n @param type Type of action to be performed by the arbiter\n @param value Number of threads to signal if using [`ARBITRATION_SIGNAL`] or the value used for comparison.\n\n This will perform an arbitration based on #type. The comparisons are done between #value and the value at the address #addr.\n\n ``` s32 val=0;\n // Does *nothing* since val >= 0\n syncArbitrateAddress(&val,ARBITRATION_WAIT_IF_LESS_THAN,0);\n ``` @note Usage of this function entails an implicit Data Memory Barrier (dmb)."]
+    #[doc = "Function used to implement user-mode synchronization primitives.\n @param addr Pointer to a signed 32-bit value whose address will be used to identify waiting threads.\n @param type Type of action to be performed by the arbiter\n @param value Number of threads to signal if using [`ARBITRATION_SIGNAL`] or the value used for comparison.\n\n This will perform an arbitration based on #type. The comparisons are done between #value and the value at the address #addr.\n\n ``` s32 val=0;\n // Does *nothing* since val >= 0\n syncArbitrateAddress(&val,ARBITRATION_WAIT_IF_LESS_THAN,0);\n *@note* Usage of this function entails an implicit Data Memory Barrier (dmb)."]
     #[doc = ""]
     pub fn syncArbitrateAddress(addr: *mut s32, type_: ArbitrationType, value: s32) -> Result;
 }
 extern "C" {
     #[must_use]
-    #[doc = "Function used to implement user-mode synchronization primitives (with timeout).\n @param addr Pointer to a signed 32-bit value whose address will be used to identify waiting threads.\n @param type Type of action to be performed by the arbiter (must use [`ARBITRATION_WAIT_IF_LESS_THAN_TIMEOUT`] or [`ARBITRATION_DECREMENT_AND_WAIT_IF_LESS_THAN_TIMEOUT)\n`] @param value Number of threads to signal if using [`ARBITRATION_SIGNAL`] or the value used for comparison.\n\n This will perform an arbitration based on #type. The comparisons are done between #value and the value at the address #addr.\n\n ``` s32 val=0;\n // Thread will wait for a signal or wake up after 10000000 nanoseconds because val < 1.\n syncArbitrateAddressWithTimeout(&val,ARBITRATION_WAIT_IF_LESS_THAN_TIMEOUT,1,10000000LL);\n ``` @note Usage of this function entails an implicit Data Memory Barrier (dmb)."]
+    #[doc = "Function used to implement user-mode synchronization primitives (with timeout).\n @param addr Pointer to a signed 32-bit value whose address will be used to identify waiting threads.\n @param type Type of action to be performed by the arbiter (must use [`ARBITRATION_WAIT_IF_LESS_THAN_TIMEOUT`] or [`ARBITRATION_DECREMENT_AND_WAIT_IF_LESS_THAN_TIMEOUT)\n`] @param value Number of threads to signal if using [`ARBITRATION_SIGNAL`] or the value used for comparison.\n\n This will perform an arbitration based on #type. The comparisons are done between #value and the value at the address #addr.\n\n ``` s32 val=0;\n // Thread will wait for a signal or wake up after 10000000 nanoseconds because val < 1.\n syncArbitrateAddressWithTimeout(&val,ARBITRATION_WAIT_IF_LESS_THAN_TIMEOUT,1,10000000LL);\n *@note* Usage of this function entails an implicit Data Memory Barrier (dmb)."]
     #[doc = ""]
     pub fn syncArbitrateAddressWithTimeout(
         addr: *mut s32,
@@ -5310,7 +5310,7 @@ pub const GFX_RIGHT: gfx3dSide_t = 1;
 
 pub type gfx3dSide_t = ::libc::c_uint;
 extern "C" {
-    #[doc = "Initializes the LCD framebuffers with default parameters\n This is equivalent to calling: ``` gfxInit(GSP_BGR8_OES,GSP_BGR8_OES,false); ```"]
+    #[doc = "Initializes the LCD framebuffers with default parameters\n This is equivalent to calling: ``` gfxInit(GSP_BGR8_OES,GSP_BGR8_OES,false);"]
     #[doc = ""]
     pub fn gfxInitDefault();
 }
@@ -5389,12 +5389,12 @@ extern "C" {
     pub fn gfxConfigScreen(scr: gfxScreen_t, immediate: bool);
 }
 extern "C" {
-    #[doc = "Updates the configuration of both screens.\n @note This function is equivalent to: ``` gfxScreenSwapBuffers(GFX_TOP,true); gfxScreenSwapBuffers(GFX_BOTTOM,true); ```"]
+    #[doc = "Updates the configuration of both screens.\n @note This function is equivalent to: ``` gfxScreenSwapBuffers(GFX_TOP,true); gfxScreenSwapBuffers(GFX_BOTTOM,true);"]
     #[doc = ""]
     pub fn gfxSwapBuffers();
 }
 extern "C" {
-    #[doc = "Same as [`gfxSwapBuffers`] (formerly different)."]
+    #[doc = "Same as  [`gfxSwapBuffers`] (formerly different)."]
     #[doc = ""]
     pub fn gfxSwapBuffersGpu();
 }
@@ -5428,7 +5428,7 @@ impl Default for ConsoleFont {
         }
     }
 }
-#[doc = "Console structure used to store the state of a console render context.\n\n Default values from consoleGetDefault();\n ``` PrintConsole defaultConsole =\n {\n \t//Font:\n \t{\n \t\t(u8*)default_font_bin, //font gfx\n \t\t0, //first ascii character in the set\n \t\t128, //number of characters in the font set\n\t},\n\t0,0, //cursorX cursorY\n\t0,0, //prevcursorX prevcursorY\n\t40, //console width\n\t30, //console height\n\t0, //window x\n\t0, //window y\n\t32, //window width\n\t24, //window height\n\t3, //tab size\n\t0, //font character offset\n\t0, //print callback\n\tfalse //console initialized\n };\n ```"]
+#[doc = "Console structure used to store the state of a console render context.\n\n Default values from consoleGetDefault();\n ``` PrintConsole defaultConsole =\n {\n \t//Font:\n \t{\n \t\t(u8*)default_font_bin, //font gfx\n \t\t0, //first ascii character in the set\n \t\t128, //number of characters in the font set\n\t},\n\t0,0, //cursorX cursorY\n\t0,0, //prevcursorX prevcursorY\n\t40, //console width\n\t30, //console height\n\t0, //window x\n\t0, //window y\n\t32, //window width\n\t24, //window height\n\t3, //tab size\n\t0, //font character offset\n\t0, //print callback\n\tfalse //console initialized\n };\n"]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -5947,52 +5947,52 @@ extern "C" {
     ) -> bool;
 }
 extern "C" {
-    #[doc = "Convert a UTF-8 sequence into a UTF-32 codepoint\n\n @param[out] out Output codepoint\n @param[in] in Input sequence\n\n @returns number of input code units consumed\n @returns -1 for error"]
+    #[doc = "Convert a UTF-8 sequence into a UTF-32 codepoint\n\n  @param[out] out Output codepoint\n  @param[in]  in  Input sequence\n\n  @returns number of input code units consumed\n  @returns -1 for error"]
     #[doc = ""]
     pub fn decode_utf8(out: *mut u32, in_: *const u8) -> isize;
 }
 extern "C" {
-    #[doc = "Convert a UTF-16 sequence into a UTF-32 codepoint\n\n @param[out] out Output codepoint\n @param[in] in Input sequence\n\n @returns number of input code units consumed\n @returns -1 for error"]
+    #[doc = "Convert a UTF-16 sequence into a UTF-32 codepoint\n\n  @param[out] out Output codepoint\n  @param[in]  in  Input sequence\n\n  @returns number of input code units consumed\n  @returns -1 for error"]
     #[doc = ""]
     pub fn decode_utf16(out: *mut u32, in_: *const u16) -> isize;
 }
 extern "C" {
-    #[doc = "Convert a UTF-32 codepoint into a UTF-8 sequence\n\n @param[out] out Output sequence\n @param[in] in Input codepoint\n\n @returns number of output code units produced\n @returns -1 for error\n\n @note \\a out must be able to store 4 code units"]
+    #[doc = "Convert a UTF-32 codepoint into a UTF-8 sequence\n\n  @param[out] out Output sequence\n  @param[in]  in  Input codepoint\n\n  @returns number of output code units produced\n  @returns -1 for error\n\n  @note  *out* must be able to store 4 code units"]
     #[doc = ""]
     pub fn encode_utf8(out: *mut u8, in_: u32) -> isize;
 }
 extern "C" {
-    #[doc = "Convert a UTF-32 codepoint into a UTF-16 sequence\n\n @param[out] out Output sequence\n @param[in] in Input codepoint\n\n @returns number of output code units produced\n @returns -1 for error\n\n @note \\a out must be able to store 2 code units"]
+    #[doc = "Convert a UTF-32 codepoint into a UTF-16 sequence\n\n  @param[out] out Output sequence\n  @param[in]  in  Input codepoint\n\n  @returns number of output code units produced\n  @returns -1 for error\n\n  @note  *out* must be able to store 2 code units"]
     #[doc = ""]
     pub fn encode_utf16(out: *mut u16, in_: u32) -> isize;
 }
 extern "C" {
-    #[doc = "Convert a UTF-8 sequence into a UTF-16 sequence\n\n Fills the output buffer up to \\a len code units.\n Returns the number of code units that the input would produce;\n if it returns greater than \\a len, the output has been\n truncated.\n\n @param[out] out Output sequence\n @param[in] in Input sequence (null-terminated)\n @param[in] len Output length\n\n @returns number of output code units produced\n @returns -1 for error\n\n @note \\a out is not null-terminated"]
+    #[doc = "Convert a UTF-8 sequence into a UTF-16 sequence\n\n  Fills the output buffer up to  *len* code units.\n  Returns the number of code units that the input would produce;\n  if it returns greater than  *len,* the output has been\n  truncated.\n\n  @param[out] out Output sequence\n  @param[in]  in  Input sequence (null-terminated)\n  @param[in]  len Output length\n\n  @returns number of output code units produced\n  @returns -1 for error\n\n  @note  *out* is not null-terminated"]
     #[doc = ""]
     pub fn utf8_to_utf16(out: *mut u16, in_: *const u8, len: usize) -> isize;
 }
 extern "C" {
-    #[doc = "Convert a UTF-8 sequence into a UTF-32 sequence\n\n Fills the output buffer up to \\a len code units.\n Returns the number of code units that the input would produce;\n if it returns greater than \\a len, the output has been\n truncated.\n\n @param[out] out Output sequence\n @param[in] in Input sequence (null-terminated)\n @param[in] len Output length\n\n @returns number of output code units produced\n @returns -1 for error\n\n @note \\a out is not null-terminated"]
+    #[doc = "Convert a UTF-8 sequence into a UTF-32 sequence\n\n  Fills the output buffer up to  *len* code units.\n  Returns the number of code units that the input would produce;\n  if it returns greater than  *len,* the output has been\n  truncated.\n\n  @param[out] out Output sequence\n  @param[in]  in  Input sequence (null-terminated)\n  @param[in]  len Output length\n\n  @returns number of output code units produced\n  @returns -1 for error\n\n  @note  *out* is not null-terminated"]
     #[doc = ""]
     pub fn utf8_to_utf32(out: *mut u32, in_: *const u8, len: usize) -> isize;
 }
 extern "C" {
-    #[doc = "Convert a UTF-16 sequence into a UTF-8 sequence\n\n Fills the output buffer up to \\a len code units.\n Returns the number of code units that the input would produce;\n if it returns greater than \\a len, the output has been\n truncated.\n\n @param[out] out Output sequence\n @param[in] in Input sequence (null-terminated)\n @param[in] len Output length\n\n @returns number of output code units produced\n @returns -1 for error\n\n @note \\a out is not null-terminated"]
+    #[doc = "Convert a UTF-16 sequence into a UTF-8 sequence\n\n  Fills the output buffer up to  *len* code units.\n  Returns the number of code units that the input would produce;\n  if it returns greater than  *len,* the output has been\n  truncated.\n\n  @param[out] out Output sequence\n  @param[in]  in  Input sequence (null-terminated)\n  @param[in]  len Output length\n\n  @returns number of output code units produced\n  @returns -1 for error\n\n  @note  *out* is not null-terminated"]
     #[doc = ""]
     pub fn utf16_to_utf8(out: *mut u8, in_: *const u16, len: usize) -> isize;
 }
 extern "C" {
-    #[doc = "Convert a UTF-16 sequence into a UTF-32 sequence\n\n Fills the output buffer up to \\a len code units.\n Returns the number of code units that the input would produce;\n if it returns greater than \\a len, the output has been\n truncated.\n\n @param[out] out Output sequence\n @param[in] in Input sequence (null-terminated)\n @param[in] len Output length\n\n @returns number of output code units produced\n @returns -1 for error\n\n @note \\a out is not null-terminated"]
+    #[doc = "Convert a UTF-16 sequence into a UTF-32 sequence\n\n  Fills the output buffer up to  *len* code units.\n  Returns the number of code units that the input would produce;\n  if it returns greater than  *len,* the output has been\n  truncated.\n\n  @param[out] out Output sequence\n  @param[in]  in  Input sequence (null-terminated)\n  @param[in]  len Output length\n\n  @returns number of output code units produced\n  @returns -1 for error\n\n  @note  *out* is not null-terminated"]
     #[doc = ""]
     pub fn utf16_to_utf32(out: *mut u32, in_: *const u16, len: usize) -> isize;
 }
 extern "C" {
-    #[doc = "Convert a UTF-32 sequence into a UTF-8 sequence\n\n Fills the output buffer up to \\a len code units.\n Returns the number of code units that the input would produce;\n if it returns greater than \\a len, the output has been\n truncated.\n\n @param[out] out Output sequence\n @param[in] in Input sequence (null-terminated)\n @param[in] len Output length\n\n @returns number of output code units produced\n @returns -1 for error\n\n @note \\a out is not null-terminated"]
+    #[doc = "Convert a UTF-32 sequence into a UTF-8 sequence\n\n  Fills the output buffer up to  *len* code units.\n  Returns the number of code units that the input would produce;\n  if it returns greater than  *len,* the output has been\n  truncated.\n\n  @param[out] out Output sequence\n  @param[in]  in  Input sequence (null-terminated)\n  @param[in]  len Output length\n\n  @returns number of output code units produced\n  @returns -1 for error\n\n  @note  *out* is not null-terminated"]
     #[doc = ""]
     pub fn utf32_to_utf8(out: *mut u8, in_: *const u32, len: usize) -> isize;
 }
 extern "C" {
-    #[doc = "Convert a UTF-32 sequence into a UTF-16 sequence\n\n @param[out] out Output sequence\n @param[in] in Input sequence (null-terminated)\n @param[in] len Output length\n\n @returns number of output code units produced\n @returns -1 for error\n\n @note \\a out is not null-terminated"]
+    #[doc = "Convert a UTF-32 sequence into a UTF-16 sequence\n\n  @param[out] out Output sequence\n  @param[in]  in  Input sequence (null-terminated)\n  @param[in]  len Output length\n\n  @returns number of output code units produced\n  @returns -1 for error\n\n  @note  *out* is not null-terminated"]
     #[doc = ""]
     pub fn utf32_to_utf16(out: *mut u16, in_: *const u32, len: usize) -> isize;
 }
@@ -8863,7 +8863,7 @@ extern "C" {
     pub fn aptShouldJumpToHome() -> bool;
 }
 extern "C" {
-    #[doc = "Returns true if there is an incoming HOME button press rejected by the policy set by [`aptSetHomeAllowed`] (use this to show a \"no HOME allowed\" icon)."]
+    #[doc = "Returns true if there is an incoming HOME button press rejected by the policy set by  [`aptSetHomeAllowed`] (use this to show a \"no HOME allowed\" icon)."]
     #[doc = ""]
     pub fn aptCheckHomePressRejected() -> bool;
 }
@@ -9448,7 +9448,7 @@ pub const INPUT_YUV422_BATCH: Y2RU_InputFormat = 4;
 #[doc = ""]
 
 pub type Y2RU_InputFormat = ::libc::c_uint;
-#[doc = "32-bit RGBA8888. The alpha component is the 8-bit value set by [`Y2RU_SetAlpha`]"]
+#[doc = "32-bit RGBA8888. The alpha component is the 8-bit value set by  [`Y2RU_SetAlpha`]"]
 #[doc = ""]
 
 pub const OUTPUT_RGB_32: Y2RU_OutputFormat = 0;
@@ -9456,7 +9456,7 @@ pub const OUTPUT_RGB_32: Y2RU_OutputFormat = 0;
 #[doc = ""]
 
 pub const OUTPUT_RGB_24: Y2RU_OutputFormat = 1;
-#[doc = "16-bit RGBA5551. The alpha bit is the 7th bit of the alpha value set by [`Y2RU_SetAlpha`]"]
+#[doc = "16-bit RGBA5551. The alpha bit is the 7th bit of the alpha value set by  [`Y2RU_SetAlpha`]"]
 #[doc = ""]
 
 pub const OUTPUT_RGB_16_555: Y2RU_OutputFormat = 2;
@@ -9500,7 +9500,7 @@ pub const BLOCK_8_BY_8: Y2RU_BlockAlignment = 1;
 #[doc = ""]
 
 pub type Y2RU_BlockAlignment = ::libc::c_uint;
-#[doc = "Coefficients of the YUV->RGB conversion formula.\n\n A set of coefficients configuring the RGB to YUV conversion. Coefficients 0-4 are unsigned 2.8\n fixed pointer numbers representing entries on the conversion matrix, while coefficient 5-7 are\n signed 11.5 fixed point numbers added as offsets to the RGB result.\n\n The overall conversion process formula is:\n ``` R = trunc((rgb_Y * Y + r_V * V) + 0.75 + r_offset)\n G = trunc((rgb_Y * Y - g_U * U - g_V * V) + 0.75 + g_offset)\n B = trunc((rgb_Y * Y + b_U * U ) + 0.75 + b_offset)\n ```"]
+#[doc = "Coefficients of the YUV->RGB conversion formula.\n\n A set of coefficients configuring the RGB to YUV conversion. Coefficients 0-4 are unsigned 2.8\n fixed pointer numbers representing entries on the conversion matrix, while coefficient 5-7 are\n signed 11.5 fixed point numbers added as offsets to the RGB result.\n\n The overall conversion process formula is:\n ``` R = trunc((rgb_Y * Y + r_V * V) + 0.75 + r_offset)\n G = trunc((rgb_Y * Y - g_U * U - g_V * V) + 0.75 + g_offset)\n B = trunc((rgb_Y * Y + b_U * U ) + 0.75 + b_offset)\n"]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
@@ -9558,10 +9558,10 @@ pub type Y2RU_StandardCoefficient = ::libc::c_uint;
 pub struct Y2RU_ConversionParams {
     pub _bitfield_align_1: [u8; 0],
     pub _bitfield_1: __BindgenBitfieldUnit<[u8; 4usize]>,
-    #[doc = "Value passed to [`Y2RU_SetInputLineWidth`]"]
+    #[doc = "Value passed to  [`Y2RU_SetInputLineWidth`]"]
     #[doc = ""]
     pub input_line_width: s16,
-    #[doc = "Value passed to [`Y2RU_SetInputLines`]"]
+    #[doc = "Value passed to  [`Y2RU_SetInputLines`]"]
     #[doc = ""]
     pub input_lines: s16,
     pub _bitfield_align_2: [u8; 0],
@@ -9569,7 +9569,7 @@ pub struct Y2RU_ConversionParams {
     #[doc = "Unused."]
     #[doc = ""]
     pub unused: u8_,
-    #[doc = "Value passed to [`Y2RU_SetAlpha`]"]
+    #[doc = "Value passed to  [`Y2RU_SetAlpha`]"]
     #[doc = ""]
     pub alpha: u16_,
 }
@@ -9890,7 +9890,7 @@ extern "C" {
 }
 extern "C" {
     #[must_use]
-    #[doc = "Gets an handle to the end of conversion event.\n @param end_event Pointer to the event handle to be set to the end of conversion event. It isn't necessary to create or close this handle.\n\n To enable this event you have to use ``` ``` The event will be triggered when the corresponding interrupt is fired.\n\n @note It is recommended to use a timeout when waiting on this event, as it sometimes (but rarely) isn't triggered."]
+    #[doc = "Gets an handle to the end of conversion event.\n @param end_event Pointer to the event handle to be set to the end of conversion event. It isn't necessary to create or close this handle.\n\n To enable this event you have to use ``` *The* event will be triggered when the corresponding interrupt is fired.\n\n @note It is recommended to use a timeout when waiting on this event, as it sometimes (but rarely) isn't triggered."]
     #[doc = ""]
     pub fn Y2RU_GetTransferEndEvent(end_event: *mut Handle) -> Result;
 }
@@ -10129,31 +10129,31 @@ pub const FLIP_REVERSE: CAMU_Flip = 3;
 #[doc = ""]
 
 pub type CAMU_Flip = ::libc::c_uint;
-#[doc = "VGA size. (640x480)"]
+#[doc = "VGA size.         (640x480)"]
 #[doc = ""]
 
 pub const SIZE_VGA: CAMU_Size = 0;
-#[doc = "QVGA size. (320x240)"]
+#[doc = "QVGA size.        (320x240)"]
 #[doc = ""]
 
 pub const SIZE_QVGA: CAMU_Size = 1;
-#[doc = "QQVGA size. (160x120)"]
+#[doc = "QQVGA size.       (160x120)"]
 #[doc = ""]
 
 pub const SIZE_QQVGA: CAMU_Size = 2;
-#[doc = "CIF size. (352x288)"]
+#[doc = "CIF size.         (352x288)"]
 #[doc = ""]
 
 pub const SIZE_CIF: CAMU_Size = 3;
-#[doc = "QCIF size. (176x144)"]
+#[doc = "QCIF size.        (176x144)"]
 #[doc = ""]
 
 pub const SIZE_QCIF: CAMU_Size = 4;
-#[doc = "DS LCD size. (256x192)"]
+#[doc = "DS LCD size.      (256x192)"]
 #[doc = ""]
 
 pub const SIZE_DS_LCD: CAMU_Size = 5;
-#[doc = "DS LCD x4 size. (512x384)"]
+#[doc = "DS LCD x4 size.   (512x384)"]
 #[doc = ""]
 
 pub const SIZE_DS_LCDx4: CAMU_Size = 6;
@@ -10356,7 +10356,7 @@ pub const CONTRAST_PATTERN_10: CAMU_Contrast = 9;
 #[doc = ""]
 
 pub const CONTRAST_PATTERN_11: CAMU_Contrast = 10;
-#[doc = "Low contrast. (5)"]
+#[doc = "Low contrast.    (5)"]
 #[doc = ""]
 
 pub const CONTRAST_LOW: CAMU_Contrast = 4;
@@ -10364,7 +10364,7 @@ pub const CONTRAST_LOW: CAMU_Contrast = 4;
 #[doc = ""]
 
 pub const CONTRAST_NORMAL: CAMU_Contrast = 5;
-#[doc = "High contrast. (7)"]
+#[doc = "High contrast.   (7)"]
 #[doc = ""]
 
 pub const CONTRAST_HIGH: CAMU_Contrast = 6;
@@ -10384,7 +10384,7 @@ pub const LENS_CORRECTION_ON_70: CAMU_LensCorrection = 1;
 #[doc = ""]
 
 pub const LENS_CORRECTION_ON_90: CAMU_LensCorrection = 2;
-#[doc = "Dark lens correction. (OFF)"]
+#[doc = "Dark lens correction.   (OFF)"]
 #[doc = ""]
 
 pub const LENS_CORRECTION_DARK: CAMU_LensCorrection = 0;
@@ -16072,7 +16072,7 @@ pub struct NIM_TitleConfig {
     #[doc = "Age for the HOME Menu parental controls"]
     #[doc = ""]
     pub ratingAge: u8_,
-    #[doc = "Media type, see [`FS_MediaType`] enum"]
+    #[doc = "Media type, see  [`FS_MediaType`] enum"]
     #[doc = ""]
     pub mediaType: u8_,
     #[doc = "Padding"]
@@ -16784,11 +16784,11 @@ pub struct PtmSleepConfig {
 #[doc = ""]
 
 pub const PTMNOTIFID_SLEEP_REQUESTED: _bindgen_ty_27 = 257;
-#[doc = "The sleep request has been denied by [`PTMSYSM_ReplyToSleepQuery(true)`] (no ack required)."]
+#[doc = "The sleep request has been denied by  [`PTMSYSM_ReplyToSleepQuery(true)`] (no ack required)."]
 #[doc = ""]
 
 pub const PTMNOTIFID_SLEEP_DENIED: _bindgen_ty_27 = 258;
-#[doc = "The sleep request has been allowed by [`PTMSYSM_ReplyToSleepQuery(false)`] (ack = 1)."]
+#[doc = "The sleep request has been allowed by  [`PTMSYSM_ReplyToSleepQuery(false)`] (ack = 1)."]
 #[doc = ""]
 
 pub const PTMNOTIFID_SLEEP_ALLOWED: _bindgen_ty_27 = 259;
@@ -17012,10 +17012,10 @@ pub struct PXIDEV_SPIBuffer {
     #[doc = "Data size."]
     #[doc = ""]
     pub size: u32_,
-    #[doc = "Transfer options. See [`pxiDevMakeTransferOption`]"]
+    #[doc = "Transfer options. See  [`pxiDevMakeTransferOption`]"]
     #[doc = ""]
     pub transferOption: u8_,
-    #[doc = "Wait operation. See [`pxiDevMakeWaitOperation`]"]
+    #[doc = "Wait operation. See  [`pxiDevMakeWaitOperation`]"]
     #[doc = ""]
     pub waitOperation: u64_,
 }
@@ -17862,11 +17862,11 @@ pub struct ip_mreq {
 #[doc = ""]
 
 pub const NETOPT_MAC_ADDRESS: NetworkOpt = 4100;
-#[doc = "The ARP table [`SOCU_ARPTableEntry`]"]
+#[doc = "The ARP table  [`SOCU_ARPTableEntry`]"]
 #[doc = ""]
 
 pub const NETOPT_ARP_TABLE: NetworkOpt = 12290;
-#[doc = "The current IP setup [`SOCU_IPInfo`]"]
+#[doc = "The current IP setup  [`SOCU_IPInfo`]"]
 #[doc = ""]
 
 pub const NETOPT_IP_INFO: NetworkOpt = 16387;
@@ -17874,7 +17874,7 @@ pub const NETOPT_IP_INFO: NetworkOpt = 16387;
 #[doc = ""]
 
 pub const NETOPT_IP_MTU: NetworkOpt = 16388;
-#[doc = "The routing table [`SOCU_RoutingTableEntry`]"]
+#[doc = "The routing table  [`SOCU_RoutingTableEntry`]"]
 #[doc = ""]
 
 pub const NETOPT_ROUTING_TABLE: NetworkOpt = 16390;
@@ -17882,7 +17882,7 @@ pub const NETOPT_ROUTING_TABLE: NetworkOpt = 16390;
 #[doc = ""]
 
 pub const NETOPT_UDP_NUMBER: NetworkOpt = 32770;
-#[doc = "The table of opened UDP sockets [`SOCU_UDPTableEntry`]"]
+#[doc = "The table of opened UDP sockets  [`SOCU_UDPTableEntry`]"]
 #[doc = ""]
 
 pub const NETOPT_UDP_TABLE: NetworkOpt = 32771;
@@ -17890,11 +17890,11 @@ pub const NETOPT_UDP_TABLE: NetworkOpt = 32771;
 #[doc = ""]
 
 pub const NETOPT_TCP_NUMBER: NetworkOpt = 36866;
-#[doc = "The table of opened TCP sockets [`SOCU_TCPTableEntry`]"]
+#[doc = "The table of opened TCP sockets  [`SOCU_TCPTableEntry`]"]
 #[doc = ""]
 
 pub const NETOPT_TCP_TABLE: NetworkOpt = 36867;
-#[doc = "The table of the DNS servers [`SOCU_DNSTableEntry`] -- Returns a buffer of size 336 but only 2 entries are set ?"]
+#[doc = "The table of the DNS servers  [`SOCU_DNSTableEntry`] -- Returns a buffer of size 336 but only 2 entries are set ?"]
 #[doc = ""]
 
 pub const NETOPT_DNS_TABLE: NetworkOpt = 45059;
@@ -17902,11 +17902,11 @@ pub const NETOPT_DNS_TABLE: NetworkOpt = 45059;
 #[doc = ""]
 
 pub const NETOPT_DHCP_LEASE_TIME: NetworkOpt = 49153;
-#[doc = "Options to be used with [`SOCU_GetNetworkOpt`]"]
+#[doc = "Options to be used with  [`SOCU_GetNetworkOpt`]"]
 #[doc = ""]
 
 pub type NetworkOpt = ::libc::c_uint;
-#[doc = "One entry of the ARP table retrieved by using [`SOCU_GetNetworkOpt`] and [`NETOPT_ARP_TABLE`]"]
+#[doc = "One entry of the ARP table retrieved by using  [`SOCU_GetNetworkOpt`] and  [`NETOPT_ARP_TABLE`]"]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
@@ -17920,7 +17920,7 @@ pub struct SOCU_ARPTableEntry {
     pub mac: [u8_; 6usize],
     pub padding: [u8_; 2usize],
 }
-#[doc = "Structure returned by [`SOCU_GetNetworkOpt`] when using [`NETOPT_IP_INFO`]"]
+#[doc = "Structure returned by  [`SOCU_GetNetworkOpt`] when using  [`NETOPT_IP_INFO`]"]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
@@ -17935,7 +17935,7 @@ pub struct SOCU_IPInfo {
     #[doc = ""]
     pub broadcast: in_addr,
 }
-#[doc = "One entry of the routing table retrieved by using [`SOCU_GetNetworkOpt`] and [`NETOPT_ROUTING_TABLE`]"]
+#[doc = "One entry of the routing table retrieved by using  [`SOCU_GetNetworkOpt`] and  [`NETOPT_ROUTING_TABLE`]"]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
@@ -17949,14 +17949,14 @@ pub struct SOCU_RoutingTableEntry {
     #[doc = "Gateway address to reach the network"]
     #[doc = ""]
     pub gateway: in_addr,
-    #[doc = "Linux netstat flags [`ROUTING_FLAG_G`]"]
+    #[doc = "Linux netstat flags  [`ROUTING_FLAG_G`]"]
     #[doc = ""]
     pub flags: u32_,
     #[doc = "number of milliseconds since 1st Jan 1900 00:00."]
     #[doc = ""]
     pub time: u64_,
 }
-#[doc = "One entry of the UDP sockets table retrieved by using [`SOCU_GetNetworkOpt`] and [`NETOPT_UDP_TABLE`]"]
+#[doc = "One entry of the UDP sockets table retrieved by using  [`SOCU_GetNetworkOpt`] and  [`NETOPT_UDP_TABLE`]"]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
@@ -17968,7 +17968,7 @@ pub struct SOCU_UDPTableEntry {
     #[doc = ""]
     pub remote: sockaddr_storage,
 }
-#[doc = "One entry of the TCP sockets table retrieved by using [`SOCU_GetNetworkOpt`] and [`NETOPT_TCP_TABLE`]"]
+#[doc = "One entry of the TCP sockets table retrieved by using  [`SOCU_GetNetworkOpt`] and  [`NETOPT_TCP_TABLE`]"]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
@@ -17983,7 +17983,7 @@ pub struct SOCU_TCPTableEntry {
     #[doc = ""]
     pub remote: sockaddr_storage,
 }
-#[doc = "One entry of the DNS servers table retrieved by using [`SOCU_GetNetworkOpt`] and [`NETOPT_DNS_TABLE`]"]
+#[doc = "One entry of the DNS servers table retrieved by using  [`SOCU_GetNetworkOpt`] and  [`NETOPT_DNS_TABLE`]"]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
@@ -20711,7 +20711,7 @@ impl Default for DVLP_s {
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct DVLE_constEntry_s {
-    #[doc = "Constant type. See [`DVLE_constantType`]"]
+    #[doc = "Constant type. See  [`DVLE_constantType`]"]
     #[doc = ""]
     pub type_: u16_,
     #[doc = "Constant ID."]
@@ -20726,7 +20726,7 @@ pub struct DVLE_constEntry_s {
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct DVLE_outEntry_s {
-    #[doc = "Output type. See [`DVLE_outputAttribute_t`]"]
+    #[doc = "Output type. See  [`DVLE_outputAttribute_t`]"]
     #[doc = ""]
     pub type_: u16_,
     #[doc = "Output register ID."]
@@ -21356,15 +21356,15 @@ pub const NDSP_ENCODING_ADPCM: _bindgen_ty_30 = 2;
 #[doc = ""]
 
 pub type _bindgen_ty_30 = ::libc::c_uint;
-#[doc = "Buffer contains Mono PCM8."]
+#[doc = "Buffer contains Mono   PCM8."]
 #[doc = ""]
 
 pub const NDSP_FORMAT_MONO_PCM8: _bindgen_ty_31 = 1;
-#[doc = "Buffer contains Mono PCM16."]
+#[doc = "Buffer contains Mono   PCM16."]
 #[doc = ""]
 
 pub const NDSP_FORMAT_MONO_PCM16: _bindgen_ty_31 = 5;
-#[doc = "Buffer contains Mono ADPCM."]
+#[doc = "Buffer contains Mono   ADPCM."]
 #[doc = ""]
 
 pub const NDSP_FORMAT_MONO_ADPCM: _bindgen_ty_31 = 9;
@@ -22188,7 +22188,7 @@ pub struct MiiSelectorConf {
     #[doc = "@private"]
     #[doc = ""]
     pub _unk0x8D: [u8_; 3usize],
-    #[doc = "Index of the initially selected Mii. If\n[`MiiSelectorConf.show_guest_page`] is\nset, this is the index of a Guest Mii,\notherwise that of a user Mii."]
+    #[doc = "Index of the initially selected Mii. If\n [`MiiSelectorConf.show_guest_page`] is\nset, this is the index of a Guest Mii,\notherwise that of a user Mii."]
     #[doc = ""]
     pub initial_index: u32_,
     #[doc = "Each byte set to a nonzero value\nenables its corresponding Guest\nMii to be enabled for selection."]
@@ -22200,7 +22200,7 @@ pub struct MiiSelectorConf {
     #[doc = "@private"]
     #[doc = ""]
     pub _unk0xFE: u16_,
-    #[doc = "Will be set to [`MIISELECTOR_MAGIC`] before launching the\napplet."]
+    #[doc = "Will be set to  [`MIISELECTOR_MAGIC`] before launching the\napplet."]
     #[doc = ""]
     pub magic: u32_,
 }
@@ -22232,7 +22232,7 @@ pub struct MiiSelectorReturn {
     #[doc = "@private"]
     #[doc = ""]
     pub _pad0x68: u16_,
-    #[doc = "Checksum of the returned Mii data.\nStored as a big-endian value; use\n[`miiSelectorChecksumIsValid`] to\nverify."]
+    #[doc = "Checksum of the returned Mii data.\nStored as a big-endian value; use\n [`miiSelectorChecksumIsValid`] to\nverify."]
     #[doc = ""]
     pub checksum: u16_,
     #[doc = "Localized name of a Guest Mii,\nif one was selected (UTF16-LE\nstring). Zeroed otherwise."]

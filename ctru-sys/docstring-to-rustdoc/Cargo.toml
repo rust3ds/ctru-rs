@@ -4,4 +4,4 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-doxygen-rs = { git = "https://github.com/Techie-Pi/doxygen-rs.git", version = "0.2.2", rev = "573f483ad63ab4662650961998d3ed093a703983" }
+doxygen-rs = "0.3.1"
