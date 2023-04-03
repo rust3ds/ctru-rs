@@ -37,6 +37,12 @@ jobs:
         with:
           toolchain: ${{ matrix.toolchain }}
 
+      - name: Hide duplicate warnings from lint job
+        if: ${{ matrix.toolchain == 'nightly' }}
+        run: |
+          echo "::remove-matcher owner=clippy::"
+          echo "::remove-matcher owner=rustfmt::"
+
       - name: Check formatting
         run: cargo fmt --all --verbose -- --check
 
@@ -63,6 +69,9 @@ jobs:
       - uses: ./.github/actions/setup
         with:
           toolchain: ${{ matrix.toolchain }}
+
+      - name: Hide duplicated warnings from lint job
+        run: echo "::remove-matcher owner=clippy::"
 
       - name: Build doc tests
         run: cargo 3ds test --doc --verbose
