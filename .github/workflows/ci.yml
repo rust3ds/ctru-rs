@@ -27,6 +27,9 @@ jobs:
     runs-on: ubuntu-latest
     container: devkitpro/devkitarm
     steps:
+      - name: Checkout branch
+        uses: actions/checkout@v2
+
       - uses: ./.github/actions/setup
         with:
           toolchain: ${{ matrix.toolchain }}
@@ -51,6 +54,9 @@ jobs:
     runs-on: ubuntu-latest
     container: devkitpro/devkitarm
     steps:
+      - name: Checkout branch
+        uses: actions/checkout@v2
+
       - uses: ./.github/actions/setup
         with:
           toolchain: ${{ matrix.toolchain }}

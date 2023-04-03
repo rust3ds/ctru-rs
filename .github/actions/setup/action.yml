@@ -18,16 +18,13 @@ runs:
           curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
           sudo apt-get install -y nodejs
 
-    - name: Checkout branch
-      uses: actions/checkout@v2
-
     - name: Setup default Rust toolchain
       # Use this helper action so we get matcher support
       # https://github.com/actions-rust-lang/setup-rust-toolchain/pull/15
       uses: actions-rust-lang/setup-rust-toolchain@v1
       with:
         components: clippy, rustfmt, rust-src
-        toolchain: ${{ matrix.toolchain }}
+        toolchain: ${{ inputs.toolchain }}
 
     - name: Install build tools for host
       shell: bash
