@@ -12,6 +12,8 @@ on:
 env:
   # https://blog.rust-lang.org/2022/06/22/sparse-registry-testing.html
   CARGO_UNSTABLE_SPARSE_REGISTRY: "true"
+  # actions-rust-lang/setup-rust-toolchain sets some default RUSTFLAGS
+  RUSTFLAGS: ""
 
 jobs:
   lint:
@@ -22,6 +24,7 @@ jobs:
           - nightly-2023-01-13
           # Check for breakage on latest nightly
           - nightly
+
     # But if latest nightly fails, allow the workflow to continue
     continue-on-error: ${{ matrix.toolchain == 'nightly' }}
     runs-on: ubuntu-latest
