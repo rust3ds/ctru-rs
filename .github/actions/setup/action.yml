@@ -41,3 +41,8 @@ runs:
         args: >-
           --git https://github.com/rust3ds/cargo-3ds
           --rev 5a06e64307499ffe681453e7d88d7ee986054eb7
+
+    - name: Set PATH to include devkitARM
+      shell: bash
+      # For some reason devkitARM/bin is not part of the default PATH in the container
+      run: echo "${DEVKITARM}/bin" >> $GITHUB_PATH
