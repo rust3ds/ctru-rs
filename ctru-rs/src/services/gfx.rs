@@ -33,7 +33,7 @@ pub trait Screen: private::Sealed {
     ///
     /// Note that the pointer of the framebuffer returned by this function can
     /// change after each call to this function if double buffering is enabled.
-    fn get_raw_framebuffer(&mut self) -> RawFrameBuffer {
+    fn raw_framebuffer(&mut self) -> RawFrameBuffer {
         let mut width = 0;
         let mut height = 0;
         let ptr = unsafe {
@@ -56,8 +56,8 @@ pub trait Screen: private::Sealed {
     }
 
     /// Gets the framebuffer format
-    fn get_framebuffer_format(&self) -> FramebufferFormat {
-        unsafe { ctru_sys::gfxGetScreenFormat(self.as_raw()).into() }
+    fn framebuffer_format(&self) -> FramebufferFormat {
+        unsafe { ctru_sys::gfxGetScreenFormat(self.as_raw()) }.into()
     }
 
     /// Change the framebuffer format
@@ -104,14 +104,15 @@ pub struct RawFrameBuffer<'screen> {
 }
 
 #[derive(Copy, Clone, Debug)]
+#[repr(u32)]
 /// Side of top screen framebuffer
 ///
 /// The top screen of the 3DS can have two separate sets of framebuffers to support its 3D functionality
 pub enum Side {
     /// The left framebuffer. This framebuffer is also the one used when 3D is disabled
-    Left,
+    Left = ctru_sys::GFX_LEFT,
     /// The right framebuffer
-    Right,
+    Right = ctru_sys::GFX_RIGHT,
 }
 
 /// A handle to libctru's gfx module. This module is a wrapper around the GSPGPU service that
@@ -238,7 +239,7 @@ impl TopScreen {
     }
 
     /// Returns whether or not wide mode is enabled on the top screen.
-    pub fn get_wide_mode(&self) -> bool {
+    pub fn is_wide(&self) -> bool {
         unsafe { ctru_sys::gfxIsWide() }
     }
 }
@@ -283,14 +284,7 @@ impl Screen for BottomScreen {
     }
 }
 
-impl From<Side> for ctru_sys::gfx3dSide_t {
-    fn from(s: Side) -> ctru_sys::gfx3dSide_t {
-        match s {
-            Side::Left => ctru_sys::GFX_LEFT,
-            Side::Right => ctru_sys::GFX_RIGHT,
-        }
-    }
-}
+from_impl!(Side, ctru_sys::gfx3dSide_t);
 
 #[cfg(test)]
 mod tests {

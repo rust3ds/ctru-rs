@@ -19,68 +19,70 @@ pub struct Swkbd {
 /// Western is a text keyboard without japanese symbols (only applies to JPN systems). For other
 /// systems it's the same as a Normal keyboard.
 #[derive(Copy, Clone, Debug)]
+#[repr(u32)]
 pub enum Kind {
-    Normal,
-    Qwerty,
-    Numpad,
-    Western,
+    Normal = ctru_sys::SWKBD_TYPE_NORMAL,
+    Qwerty = ctru_sys::SWKBD_TYPE_QWERTY,
+    Numpad = ctru_sys::SWKBD_TYPE_NUMPAD,
+    Western = ctru_sys::SWKBD_TYPE_WESTERN,
 }
 
 /// Represents which button the user pressed to close the software keyboard.
 #[derive(Copy, Clone, Debug)]
+#[repr(u32)]
 pub enum Button {
-    Left,
-    Middle,
-    Right,
+    Left = ctru_sys::SWKBD_BUTTON_LEFT,
+    Middle = ctru_sys::SWKBD_BUTTON_MIDDLE,
+    Right = ctru_sys::SWKBD_BUTTON_RIGHT,
 }
 
 /// Error type for the software keyboard.
 #[derive(Copy, Clone, Debug)]
+#[repr(i32)]
 pub enum Error {
-    InvalidInput,
-    OutOfMem,
-    HomePressed,
-    ResetPressed,
-    PowerPressed,
-    ParentalOk,
-    ParentalFail,
-    BannedInput,
+    InvalidInput = ctru_sys::SWKBD_INVALID_INPUT,
+    OutOfMem = ctru_sys::SWKBD_OUTOFMEM,
+    HomePressed = ctru_sys::SWKBD_HOMEPRESSED,
+    ResetPressed = ctru_sys::SWKBD_RESETPRESSED,
+    PowerPressed = ctru_sys::SWKBD_POWERPRESSED,
+    ParentalOk = ctru_sys::SWKBD_PARENTAL_OK,
+    ParentalFail = ctru_sys::SWKBD_PARENTAL_FAIL,
+    BannedInput = ctru_sys::SWKBD_BANNED_INPUT,
 }
 
 /// Restrictions on keyboard input
 #[derive(Copy, Clone, Debug)]
+#[repr(u32)]
 pub enum ValidInput {
-    Anything,
-    NotEmpty,
-    NotEmptyNotBlank,
-    NotBlank,
-    FixedLen,
+    Anything = ctru_sys::SWKBD_ANYTHING,
+    NotEmpty = ctru_sys::SWKBD_NOTEMPTY,
+    NotEmptyNotBlank = ctru_sys::SWKBD_NOTEMPTY_NOTBLANK,
+    NotBlank = ctru_sys::SWKBD_NOTBLANK,
+    FixedLen = ctru_sys::SWKBD_FIXEDLEN,
 }
 
 bitflags! {
     /// Keyboard feature flags
     pub struct Features: u32 {
-        const PARENTAL_PIN      = 1 << 0;
-        const DARKEN_TOP_SCREEN = 1 << 1;
-        const PREDICTIVE_INPUT  = 1 << 2;
-        const MULTILINE         = 1 << 3;
-        const FIXED_WIDTH       = 1 << 4;
-        const ALLOW_HOME        = 1 << 5;
-        const ALLOW_RESET       = 1 << 6;
-        const ALLOW_POWER       = 1 << 7;
-        const DEFAULT_QWERTY    = 1 << 8;
+        const PARENTAL_PIN      = ctru_sys::SWKBD_PARENTAL;
+        const DARKEN_TOP_SCREEN  = ctru_sys::SWKBD_DARKEN_TOP_SCREEN;
+        const PREDICTIVE_INPUT  = ctru_sys::SWKBD_PREDICTIVE_INPUT;
+        const MULTILINE        = ctru_sys::SWKBD_MULTILINE;
+        const FIXED_WIDTH       = ctru_sys::SWKBD_FIXED_WIDTH;
+        const ALLOW_HOME        = ctru_sys::SWKBD_ALLOW_HOME;
+        const ALLOW_RESET       = ctru_sys::SWKBD_ALLOW_RESET;
+        const ALLOW_POWER       = ctru_sys::SWKBD_ALLOW_POWER;
+        const DEFAULT_QWERTY    = ctru_sys::SWKBD_DEFAULT_QWERTY;
     }
-}
 
-bitflags! {
     /// Keyboard input filtering flags
     pub struct Filters: u32 {
-        const DIGITS    = 1 << 0;
-        const AT        = 1 << 1;
-        const PERCENT   = 1 << 2;
-        const BACKSLASH = 1 << 3;
-        const PROFANITY = 1 << 4;
-        const CALLBACK  = 1 << 5;
+        const DIGITS    = ctru_sys::SWKBD_FILTER_DIGITS;
+        const AT        = ctru_sys::SWKBD_FILTER_AT;
+        const PERCENT   = ctru_sys::SWKBD_FILTER_PERCENT;
+        const BACKSLASH = ctru_sys::SWKBD_FILTER_BACKSLASH;
+        const PROFANITY = ctru_sys::SWKBD_FILTER_PROFANITY;
+        const CALLBACK  = ctru_sys::SWKBD_FILTER_CALLBACK;
     }
 }
 
@@ -90,41 +92,39 @@ impl Swkbd {
     pub fn init(keyboard_type: Kind, num_buttons: i32) -> Self {
         unsafe {
             let mut state = Box::<SwkbdState>::default();
-            swkbdInit(state.as_mut(), keyboard_type as u32, num_buttons, -1);
+            swkbdInit(state.as_mut(), keyboard_type.into(), num_buttons, -1);
             Swkbd { state }
         }
     }
 
     /// Gets input from this keyboard and appends it to the provided string.
     ///
-    /// The text received from the keyboard will be truncated if it is greater than 2048 bytes
-    /// in length.
-    pub fn get_utf8(&mut self, buf: &mut String) -> Result<Button, Error> {
+    /// The text received from the keyboard will be truncated if it is longer than `max_bytes`.
+    pub fn get_string(&mut self, max_bytes: usize) -> Result<(String, Button), Error> {
         // Unfortunately the libctru API doesn't really provide a way to get the exact length
         // of the string that it receieves from the software keyboard. Instead it expects you
         // to pass in a buffer and hope that it's big enough to fit the entire string, so
         // you have to set some upper limit on the potential size of the user's input.
-        const MAX_BYTES: usize = 2048;
-        let mut tmp = [0u8; MAX_BYTES];
-        let button = self.get_bytes(&mut tmp)?;
+        let mut tmp = vec![0u8; max_bytes];
+        let button = self.write_exact(&mut tmp)?;
 
         // libctru does, however, seem to ensure that the buffer will always contain a properly
         // terminated UTF-8 sequence even if the input has to be truncated, so these operations
         // should be safe.
         let len = unsafe { libc::strlen(tmp.as_ptr()) };
-        let utf8 = unsafe { str::from_utf8_unchecked(&tmp[..len]) };
+        tmp.truncate(len);
 
-        // Copy the input into the user's `String`
-        *buf += utf8;
-        Ok(button)
+        let res = unsafe { String::from_utf8_unchecked(tmp) };
+
+        Ok((res, button))
     }
 
     /// Fills the provided buffer with a UTF-8 encoded, NUL-terminated sequence of bytes from
     /// this software keyboard.
     ///
     /// If the buffer is too small to contain the entire sequence received from the keyboard,
-    /// the output will be truncated but should still be well-formed UTF-8
-    pub fn get_bytes(&mut self, buf: &mut [u8]) -> Result<Button, Error> {
+    /// the output will be truncated but should still be well-formed UTF-8.
+    pub fn write_exact(&mut self, buf: &mut [u8]) -> Result<Button, Error> {
         unsafe {
             match swkbdInputText(self.state.as_mut(), buf.as_mut_ptr(), buf.len()) {
                 ctru_sys::SWKBD_BUTTON_NONE => Err(self.parse_swkbd_error()),
@@ -143,7 +143,7 @@ impl Swkbd {
 
     /// Configures input validation for this keyboard
     pub fn set_validation(&mut self, validation: ValidInput, filters: Filters) {
-        self.state.valid_input = validation as i32;
+        self.state.valid_input = validation.into();
         self.state.filter_flags = filters.bits;
     }
 
@@ -173,7 +173,7 @@ impl Swkbd {
             let nul_terminated: String = text.chars().chain(once('\0')).collect();
             swkbdSetButton(
                 self.state.as_mut(),
-                button as u32,
+                button.into(),
                 nul_terminated.as_ptr(),
                 submit,
             );
@@ -210,3 +210,8 @@ impl Default for Swkbd {
         Swkbd::init(Kind::Normal, 2)
     }
 }
+
+from_impl!(Kind, ctru_sys::SwkbdType);
+from_impl!(Button, ctru_sys::SwkbdButton);
+from_impl!(Error, ctru_sys::SwkbdResult);
+from_impl!(ValidInput, i32);

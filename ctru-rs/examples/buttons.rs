@@ -42,19 +42,19 @@ fn main() {
             // You can also use the .bits() method to do direct comparisons on
             // the underlying bits
 
-            if keys.contains(KeyPad::KEY_A) {
+            if keys.contains(KeyPad::A) {
                 println!("You held A!");
             }
-            if keys.bits() & KeyPad::KEY_B.bits() != 0 {
+            if keys.bits() & KeyPad::B.bits() != 0 {
                 println!("You held B!");
             }
-            if keys.contains(KeyPad::KEY_X | KeyPad::KEY_Y) {
+            if keys.contains(KeyPad::X | KeyPad::Y) {
                 println!("You held X and Y!");
             }
-            if keys.intersects(KeyPad::KEY_L | KeyPad::KEY_R | KeyPad::KEY_ZL | KeyPad::KEY_ZR) {
+            if keys.intersects(KeyPad::L | KeyPad::R | KeyPad::ZL | KeyPad::ZR) {
                 println!("You held a shoulder button!");
             }
-            if keys.intersects(KeyPad::KEY_START) {
+            if keys.intersects(KeyPad::START) {
                 println!("See ya!");
                 break;
             }

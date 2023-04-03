@@ -67,7 +67,7 @@ impl Cfgu {
     }
 
     /// Gets system region from secure info
-    pub fn get_region(&self) -> crate::Result<Region> {
+    pub fn region(&self) -> crate::Result<Region> {
         let mut region: u8 = 0;
 
         ResultCode(unsafe { ctru_sys::CFGU_SecureInfoGetRegion(&mut region) })?;
@@ -75,7 +75,7 @@ impl Cfgu {
     }
 
     /// Gets system's model
-    pub fn get_model(&self) -> crate::Result<SystemModel> {
+    pub fn model(&self) -> crate::Result<SystemModel> {
         let mut model: u8 = 0;
 
         ResultCode(unsafe { ctru_sys::CFGU_GetSystemModel(&mut model) })?;
@@ -83,7 +83,7 @@ impl Cfgu {
     }
 
     /// Gets system's language
-    pub fn get_language(&self) -> crate::Result<Language> {
+    pub fn language(&self) -> crate::Result<Language> {
         let mut language: u8 = 0;
 
         ResultCode(unsafe { ctru_sys::CFGU_GetSystemLanguage(&mut language) })?;
@@ -115,19 +115,9 @@ impl Drop for Cfgu {
     }
 }
 
-macro_rules! from_type_to_u8 {
-    ($from_type:ty) => {
-        impl From<$from_type> for u8 {
-            fn from(v: $from_type) -> Self {
-                v as u8
-            }
-        }
-    };
-}
-
-from_type_to_u8!(Region);
-from_type_to_u8!(Language);
-from_type_to_u8!(SystemModel);
+from_impl!(Region, u8);
+from_impl!(Language, u8);
+from_impl!(SystemModel, u8);
 
 impl TryFrom<u8> for Region {
     type Error = ();

@@ -61,7 +61,7 @@ fn main() {
         }
 
         hid.scan_input();
-        if hid.keys_down().contains(KeyPad::KEY_START) {
+        if hid.keys_down().contains(KeyPad::START) {
             break;
         };
     }

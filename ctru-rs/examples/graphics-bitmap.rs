@@ -1,5 +1,5 @@
-use ctru::gfx::Screen as _;
 use ctru::prelude::*;
+use ctru::services::gfx::Screen;
 
 /// Ferris image taken from <https://rustacean.net> and scaled down to 320x240px.
 /// To regenerate the data, you will need to install `imagemagick` and run this
@@ -31,7 +31,7 @@ fn main() {
     bottom_screen.set_double_buffering(false);
 
     // We assume the image is the correct size already, so we drop width + height.
-    let frame_buffer = bottom_screen.get_raw_framebuffer();
+    let frame_buffer = bottom_screen.raw_framebuffer();
 
     // Copy the image into the frame buffer
     unsafe {
@@ -43,7 +43,7 @@ fn main() {
         //Scan all the inputs. This should be done once for each frame
         hid.scan_input();
 
-        if hid.keys_down().contains(KeyPad::KEY_START) {
+        if hid.keys_down().contains(KeyPad::START) {
             break;
         }
 

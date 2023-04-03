@@ -13,17 +13,17 @@ fn main() {
     let bottom_screen = Console::init(gfx.bottom_screen.borrow_mut());
 
     let sd_count = am
-        .get_title_count(FsMediaType::Sd)
+        .title_count(FsMediaType::Sd)
         .expect("Failed to get sd title count");
     let sd_list = am
-        .get_title_list(FsMediaType::Sd)
+        .title_list(FsMediaType::Sd)
         .expect("Failed to get sd title list");
 
     let nand_count = am
-        .get_title_count(FsMediaType::Nand)
+        .title_count(FsMediaType::Nand)
         .expect("Failed to get nand title count");
     let nand_list = am
-        .get_title_list(FsMediaType::Nand)
+        .title_list(FsMediaType::Nand)
         .expect("Failed to get nand title list");
 
     let mut offset = 0;
@@ -35,10 +35,10 @@ fn main() {
         //Scan all the inputs. This should be done once for each frame
         hid.scan_input();
 
-        if hid.keys_down().contains(KeyPad::KEY_START) {
+        if hid.keys_down().contains(KeyPad::START) {
             break;
         }
-        if hid.keys_down().contains(KeyPad::KEY_SELECT) {
+        if hid.keys_down().contains(KeyPad::SELECT) {
             refresh = true;
             offset = 0;
             use_nand = !use_nand;
@@ -46,12 +46,12 @@ fn main() {
 
         let cur_list = if use_nand { &nand_list } else { &sd_list };
 
-        if hid.keys_down().intersects(KeyPad::KEY_DOWN) {
+        if hid.keys_down().intersects(KeyPad::DOWN) {
             if offset + 1 < cur_list.len() {
                 offset = offset + 1;
                 refresh = true;
             }
-        } else if hid.keys_down().intersects(KeyPad::KEY_UP) {
+        } else if hid.keys_down().intersects(KeyPad::UP) {
             if offset > 0 {
                 offset = offset - 1;
                 refresh = true;
@@ -80,14 +80,14 @@ fn main() {
             // Move cursor to top left
             println!("\x1b[1;1");
 
-            match selected_title.get_title_info() {
+            match selected_title.title_info() {
                 Ok(info) => {
                     println!("Size: {} KB", info.size_bytes() / 1024);
                     println!("Version: 0x{:x}", info.version());
                 }
                 Err(e) => println!("Failed to get title info: {}", e),
             }
-            match selected_title.get_product_code() {
+            match selected_title.product_code() {
                 Ok(code) => println!("Product code: \"{code}\""),
                 Err(e) => println!("Failed to get product code: {}", e),
             }

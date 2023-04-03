@@ -1,7 +1,7 @@
 //! Filesystem service
 //!
 //! This module contains basic methods to manipulate the contents of the 3DS's filesystem.
-//! Only the SD card is currently supported.
+//! Only the SD card is currently supported. You should prefer using `std::fs`.
 
 use bitflags::bitflags;
 use std::ffi::OsString;
@@ -52,38 +52,40 @@ pub enum FsMediaType {
 }
 
 #[derive(Copy, Clone, Debug)]
+#[repr(u32)]
 pub enum PathType {
-    Invalid,
-    Empty,
-    Binary,
-    ASCII,
-    UTF16,
+    Invalid = ctru_sys::PATH_INVALID,
+    Empty = ctru_sys::PATH_EMPTY,
+    Binary = ctru_sys::PATH_BINARY,
+    ASCII = ctru_sys::PATH_ASCII,
+    UTF16 = ctru_sys::PATH_UTF16,
 }
 
 #[derive(Copy, Clone, Debug)]
+#[repr(u32)]
 pub enum ArchiveID {
-    RomFS,
-    Savedata,
-    Extdata,
-    SharedExtdata,
-    SystemSavedata,
-    Sdmc,
-    SdmcWriteOnly,
-    BossExtdata,
-    CardSpiFS,
-    ExtDataAndBossExtdata,
-    SystemSaveData2,
-    NandRW,
-    NandRO,
-    NandROWriteAccess,
-    SaveDataAndContent,
-    SaveDataAndContent2,
-    NandCtrFS,
-    TwlPhoto,
-    NandTwlFS,
-    GameCardSavedata,
-    UserSavedata,
-    DemoSavedata,
+    RomFS = ctru_sys::ARCHIVE_ROMFS,
+    Savedata = ctru_sys::ARCHIVE_SAVEDATA,
+    Extdata = ctru_sys::ARCHIVE_EXTDATA,
+    SharedExtdata = ctru_sys::ARCHIVE_SHARED_EXTDATA,
+    SystemSavedata = ctru_sys::ARCHIVE_SYSTEM_SAVEDATA,
+    Sdmc = ctru_sys::ARCHIVE_SDMC,
+    SdmcWriteOnly = ctru_sys::ARCHIVE_SDMC_WRITE_ONLY,
+    BossExtdata = ctru_sys::ARCHIVE_BOSS_EXTDATA,
+    CardSpiFS = ctru_sys::ARCHIVE_CARD_SPIFS,
+    ExtDataAndBossExtdata = ctru_sys::ARCHIVE_EXTDATA_AND_BOSS_EXTDATA,
+    SystemSaveData2 = ctru_sys::ARCHIVE_SYSTEM_SAVEDATA2,
+    NandRW = ctru_sys::ARCHIVE_NAND_RW,
+    NandRO = ctru_sys::ARCHIVE_NAND_RO,
+    NandROWriteAccess = ctru_sys::ARCHIVE_NAND_RO_WRITE_ACCESS,
+    SaveDataAndContent = ctru_sys::ARCHIVE_SAVEDATA_AND_CONTENT,
+    SaveDataAndContent2 = ctru_sys::ARCHIVE_SAVEDATA_AND_CONTENT2,
+    NandCtrFS = ctru_sys::ARCHIVE_NAND_CTR_FS,
+    TwlPhoto = ctru_sys::ARCHIVE_TWL_PHOTO,
+    NandTwlFS = ctru_sys::ARCHIVE_NAND_TWL_FS,
+    GameCardSavedata = ctru_sys::ARCHIVE_GAMECARD_SAVEDATA,
+    UserSavedata = ctru_sys::ARCHIVE_USER_SAVEDATA,
+    DemoSavedata = ctru_sys::ARCHIVE_DEMO_SAVEDATA,
 }
 
 /// Represents the filesystem service. No file IO can be performed
@@ -327,7 +329,7 @@ impl Archive {
     /// Retrieves an Archive's [`ArchiveID`]
     ///
     /// [`ArchiveID`]: enum.ArchiveID.html
-    pub fn get_id(&self) -> ArchiveID {
+    pub fn id(&self) -> ArchiveID {
         self.id
     }
 }
@@ -587,7 +589,7 @@ impl OpenOptions {
     ///
     /// [`Archive`]: struct.Archive.html
     pub fn open<P: AsRef<Path>>(&self, path: P) -> IoResult<File> {
-        self._open(path.as_ref(), self.get_open_flags())
+        self._open(path.as_ref(), self.open_flags())
     }
 
     fn _open(&self, path: &Path, flags: FsOpen) -> IoResult<File> {
@@ -626,7 +628,7 @@ impl OpenOptions {
         }
     }
 
-    fn get_open_flags(&self) -> FsOpen {
+    fn open_flags(&self) -> FsOpen {
         match (self.read, self.write || self.append, self.create) {
             (true, false, false) => FsOpen::FS_OPEN_READ,
             (false, true, false) => FsOpen::FS_OPEN_WRITE,
@@ -1016,45 +1018,6 @@ impl Drop for Dir {
     }
 }
 
-impl From<PathType> for ctru_sys::FS_PathType {
-    fn from(p: PathType) -> Self {
-        use self::PathType::*;
-        match p {
-            Invalid => ctru_sys::PATH_INVALID,
-            Empty => ctru_sys::PATH_EMPTY,
-            Binary => ctru_sys::PATH_BINARY,
-            ASCII => ctru_sys::PATH_ASCII,
-            UTF16 => ctru_sys::PATH_UTF16,
-        }
-    }
-}
-
-impl From<ArchiveID> for ctru_sys::FS_ArchiveID {
-    fn from(a: ArchiveID) -> Self {
-        use self::ArchiveID::*;
-        match a {
-            RomFS => ctru_sys::ARCHIVE_ROMFS,
-            Savedata => ctru_sys::ARCHIVE_SAVEDATA,
-            Extdata => ctru_sys::ARCHIVE_EXTDATA,
-            SharedExtdata => ctru_sys::ARCHIVE_SHARED_EXTDATA,
-            SystemSavedata => ctru_sys::ARCHIVE_SYSTEM_SAVEDATA,
-            Sdmc => ctru_sys::ARCHIVE_SDMC,
-            SdmcWriteOnly => ctru_sys::ARCHIVE_SDMC_WRITE_ONLY,
-            BossExtdata => ctru_sys::ARCHIVE_BOSS_EXTDATA,
-            CardSpiFS => ctru_sys::ARCHIVE_CARD_SPIFS,
-            ExtDataAndBossExtdata => ctru_sys::ARCHIVE_EXTDATA_AND_BOSS_EXTDATA,
-            SystemSaveData2 => ctru_sys::ARCHIVE_SYSTEM_SAVEDATA2,
-            NandRW => ctru_sys::ARCHIVE_NAND_RW,
-            NandRO => ctru_sys::ARCHIVE_NAND_RO,
-            NandROWriteAccess => ctru_sys::ARCHIVE_NAND_RO_WRITE_ACCESS,
-            SaveDataAndContent => ctru_sys::ARCHIVE_SAVEDATA_AND_CONTENT,
-            SaveDataAndContent2 => ctru_sys::ARCHIVE_SAVEDATA_AND_CONTENT2,
-            NandCtrFS => ctru_sys::ARCHIVE_NAND_CTR_FS,
-            TwlPhoto => ctru_sys::ARCHIVE_TWL_PHOTO,
-            NandTwlFS => ctru_sys::ARCHIVE_NAND_TWL_FS,
-            GameCardSavedata => ctru_sys::ARCHIVE_GAMECARD_SAVEDATA,
-            UserSavedata => ctru_sys::ARCHIVE_USER_SAVEDATA,
-            DemoSavedata => ctru_sys::ARCHIVE_DEMO_SAVEDATA,
-        }
-    }
-}
+from_impl!(FsMediaType, ctru_sys::FS_MediaType);
+from_impl!(PathType, ctru_sys::FS_PathType);
+from_impl!(ArchiveID, ctru_sys::FS_ArchiveID);

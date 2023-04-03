@@ -10,16 +10,16 @@ fn main() {
     let cfgu = Cfgu::init().expect("Couldn't obtain CFGU controller");
     let _console = Console::init(gfx.top_screen.borrow_mut());
 
-    println!("\x1b[0;0HRegion: {:?}", cfgu.get_region().unwrap());
-    println!("\x1b[10;0HLanguage: {:?}", cfgu.get_language().unwrap());
-    println!("\x1b[20;0HModel: {:?}", cfgu.get_model().unwrap());
+    println!("\x1b[0;0HRegion: {:?}", cfgu.region().unwrap());
+    println!("\x1b[10;0HLanguage: {:?}", cfgu.language().unwrap());
+    println!("\x1b[20;0HModel: {:?}", cfgu.model().unwrap());
 
     // Main loop
     while apt.main_loop() {
         //Scan all the inputs. This should be done once for each frame
         hid.scan_input();
 
-        if hid.keys_down().contains(KeyPad::KEY_START) {
+        if hid.keys_down().contains(KeyPad::START) {
             break;
         }
         // Flush and swap framebuffers

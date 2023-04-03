@@ -16,7 +16,7 @@ fn main() {
     let gfx = Gfx::init().unwrap();
 
     #[cfg(all(feature = "romfs", romfs_exists))]
-    let _romfs = ctru::romfs::RomFS::init().unwrap();
+    let _romfs = ctru::services::romfs::RomFS::init().unwrap();
 
     FileExplorer::init(&apt, &hid, &gfx).run();
 }
@@ -56,15 +56,15 @@ impl<'a> FileExplorer<'a> {
             self.hid.scan_input();
             let input = self.hid.keys_down();
 
-            if input.contains(KeyPad::KEY_START) {
+            if input.contains(KeyPad::START) {
                 break;
-            } else if input.contains(KeyPad::KEY_B) && self.path.components().count() > 1 {
+            } else if input.contains(KeyPad::B) && self.path.components().count() > 1 {
                 self.path.pop();
                 self.console.clear();
                 self.print_menu();
-            } else if input.contains(KeyPad::KEY_A) {
+            } else if input.contains(KeyPad::A) {
                 self.get_input_and_run(Self::set_next_path);
-            } else if input.contains(KeyPad::KEY_X) {
+            } else if input.contains(KeyPad::X) {
                 self.get_input_and_run(Self::set_exact_path);
             }
 
@@ -147,11 +147,11 @@ impl<'a> FileExplorer<'a> {
             self.hid.scan_input();
             let input = self.hid.keys_down();
 
-            if input.contains(KeyPad::KEY_A) {
+            if input.contains(KeyPad::A) {
                 break;
             }
 
-            if input.contains(KeyPad::KEY_START) {
+            if input.contains(KeyPad::START) {
                 self.running = false;
                 return;
             }
@@ -162,17 +162,16 @@ impl<'a> FileExplorer<'a> {
 
     fn get_input_and_run(&mut self, action: impl FnOnce(&mut Self, String)) {
         let mut keyboard = Swkbd::default();
-        let mut new_path_str = String::new();
 
-        match keyboard.get_utf8(&mut new_path_str) {
-            Ok(Button::Right) => {
+        match keyboard.get_string(2048) {
+            Ok((path, Button::Right)) => {
                 // Clicked "OK"
-                action(self, new_path_str);
+                action(self, path);
             }
-            Ok(Button::Left) => {
+            Ok((_, Button::Left)) => {
                 // Clicked "Cancel"
             }
-            Ok(Button::Middle) => {
+            Ok((_, Button::Middle)) => {
                 // This button wasn't shown
                 unreachable!()
             }

@@ -8,26 +8,26 @@ use crate::Result;
 
 #[repr(u32)]
 pub enum AESAlgorithm {
-    CbcEnc,
-    CbcDec,
-    CtrEnc,
-    CtrDec,
-    CcmEnc,
-    CcmDec,
+    CbcEnc = ctru_sys::PS_ALGORITHM_CBC_ENC,
+    CbcDec = ctru_sys::PS_ALGORITHM_CBC_DEC,
+    CtrEnc = ctru_sys::PS_ALGORITHM_CTR_ENC,
+    CtrDec = ctru_sys::PS_ALGORITHM_CTR_DEC,
+    CcmEnc = ctru_sys::PS_ALGORITHM_CCM_ENC,
+    CcmDec = ctru_sys::PS_ALGORITHM_CCM_DEC,
 }
 
 #[repr(u32)]
 pub enum AESKeyType {
-    Keyslot0D,
-    Keyslot2D,
-    Keyslot31,
-    Keyslot38,
-    Keyslot32,
-    Keyslot39Dlp,
-    Keyslot2E,
-    KeyslotInvalid,
-    Keyslot36,
-    Keyslot39Nfc,
+    Keyslot0D = ctru_sys::PS_KEYSLOT_0D,
+    Keyslot2D = ctru_sys::PS_KEYSLOT_2D,
+    Keyslot2E = ctru_sys::PS_KEYSLOT_2E,
+    Keyslot31 = ctru_sys::PS_KEYSLOT_31,
+    Keyslot32 = ctru_sys::PS_KEYSLOT_32,
+    Keyslot36 = ctru_sys::PS_KEYSLOT_36,
+    Keyslot38 = ctru_sys::PS_KEYSLOT_38,
+    Keyslot39Dlp = ctru_sys::PS_KEYSLOT_39_DLP,
+    Keyslot39Nfc = ctru_sys::PS_KEYSLOT_39_NFC,
+    KeyslotInvalid = ctru_sys::PS_KEYSLOT_INVALID,
 }
 
 pub struct Ps(());
@@ -69,6 +69,9 @@ impl Drop for Ps {
         }
     }
 }
+
+from_impl!(AESAlgorithm, ctru_sys::PS_AESAlgorithm);
+from_impl!(AESKeyType, ctru_sys::PS_AESKeyType);
 
 #[cfg(test)]
 mod tests {

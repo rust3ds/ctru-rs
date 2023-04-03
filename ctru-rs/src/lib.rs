@@ -15,10 +15,20 @@ extern crate pthread_3ds;
 #[cfg(feature = "big-stack")]
 static __stacksize__: usize = 2 * 1024 * 1024; // 2MB
 
-/// Activate ´ctru-rs´' default panic handler.
+macro_rules! from_impl {
+    ($from_type:ty, $into_type:ty) => {
+        impl From<$from_type> for $into_type {
+            fn from(v: $from_type) -> Self {
+                v as $into_type
+            }
+        }
+    };
+}
+
+/// Activate the default panic handler.
 ///
 /// With this implementation, the main thread will stop and try to print debug info to an available [console::Console].
-/// In case it fails to find an active [console::Console], the program will just exit.
+/// In case it fails to find an active [console::Console] the program will just exit.
 ///
 /// # Notes
 ///
@@ -48,7 +58,7 @@ fn panic_hook_setup() {
                 Ok(hid) => loop {
                     hid.scan_input();
                     let keys = hid.keys_down();
-                    if keys.contains(KeyPad::KEY_SELECT) {
+                    if keys.contains(KeyPad::SELECT) {
                         break;
                     }
                 },
@@ -62,30 +72,10 @@ fn panic_hook_setup() {
 pub mod applets;
 pub mod console;
 pub mod error;
-pub mod gfx;
 pub mod linear;
 pub mod mii;
 pub mod prelude;
 pub mod services;
-
-cfg_if::cfg_if! {
-    if #[cfg(all(feature = "romfs", romfs_exists))] {
-        pub mod romfs;
-    } else {
-        pub mod romfs {
-            //! The RomFS folder has not been detected and/or the `romfs` feature has not been enabled.
-            //!
-            //! Configure the path in Cargo.toml (the default path is "romfs"). Paths are relative to the
-            //! `CARGO_MANIFEST_DIR` environment variable, which is the directory containing the manifest of
-            //! your package.
-            //!
-            //! ```toml
-            //! [package.metadata.cargo-3ds]
-            //! romfs_dir = "romfs"
-            //! ```
-        }
-    }
-}
 
 #[cfg(test)]
 mod test_runner;

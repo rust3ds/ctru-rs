@@ -6,10 +6,7 @@ use std::io;
 
 use test::{ColorConfig, OutputFormat, TestDescAndFn, TestFn, TestOpts};
 
-use crate::console::Console;
-use crate::gfx::Gfx;
-use crate::services::hid::{Hid, KeyPad};
-use crate::services::Apt;
+use crate::prelude::*;
 
 /// A custom runner to be used with `#[test_runner]`. This simple implementation
 /// runs all tests in series, "failing" on the first one to panic (really, the
@@ -47,7 +44,7 @@ pub(crate) fn run(tests: &[&TestDescAndFn]) {
         gfx.wait_for_vblank();
 
         hid.scan_input();
-        if hid.keys_down().contains(KeyPad::KEY_START) {
+        if hid.keys_down().contains(KeyPad::START) {
             break;
         }
     }

@@ -1,3 +1,5 @@
+//! Network Socket
+
 use libc::memalign;
 use std::net::Ipv4Addr;
 use std::sync::Mutex;
@@ -6,8 +8,10 @@ use crate::error::ResultCode;
 use crate::services::ServiceReference;
 use crate::Error;
 
-/// Soc service. Initializing this service will enable the use of network sockets and utilities
-/// such as those found in `std::net`. The service will be closed when this struct is is dropped.
+/// Network socket service
+///
+/// Initializing this service will enable the use of network sockets and utilities
+/// such as those found in `std::net`. The service will close once this struct gets dropped.
 pub struct Soc {
     _service_handler: ServiceReference,
     sock_3dslink: libc::c_int,

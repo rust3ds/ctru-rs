@@ -99,23 +99,23 @@ fn main() {
         hid.scan_input();
         let keys_down = hid.keys_down();
 
-        if keys_down.contains(KeyPad::KEY_START) {
+        if keys_down.contains(KeyPad::START) {
             break;
         } // break in order to return to hbmenu
 
-        if keys_down.intersects(KeyPad::KEY_DOWN) {
+        if keys_down.intersects(KeyPad::DOWN) {
             note = note.saturating_sub(1);
-        } else if keys_down.intersects(KeyPad::KEY_UP) {
+        } else if keys_down.intersects(KeyPad::UP) {
             note = std::cmp::min(note + 1, NOTEFREQ.len() - 1);
         }
 
         let mut update_params = false;
-        if keys_down.intersects(KeyPad::KEY_LEFT) {
+        if keys_down.intersects(KeyPad::LEFT) {
             filter -= 1;
             filter = filter.rem_euclid(filter_names.len() as _);
 
             update_params = true;
-        } else if keys_down.intersects(KeyPad::KEY_RIGHT) {
+        } else if keys_down.intersects(KeyPad::RIGHT) {
             filter += 1;
             filter = filter.rem_euclid(filter_names.len() as _);
 

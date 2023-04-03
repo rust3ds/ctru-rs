@@ -13,7 +13,7 @@ fn main() {
         // This never fails as `ctru-rs` examples inherit all of the `ctru` features,
         // but it might if a normal user application wasn't setup correctly
         if #[cfg(all(feature = "romfs", romfs_exists))] {
-            let _romfs = ctru::romfs::RomFS::init().unwrap();
+            let _romfs = ctru::services::romfs::RomFS::init().unwrap();
 
             let f = std::fs::read_to_string("romfs:/test-file.txt").unwrap();
             println!("Contents of test-file.txt: \n{f}\n");
@@ -33,7 +33,7 @@ fn main() {
         //Scan all the inputs. This should be done once for each frame
         hid.scan_input();
 
-        if hid.keys_down().contains(KeyPad::KEY_START) {
+        if hid.keys_down().contains(KeyPad::START) {
             break;
         }
         // Flush and swap framebuffers

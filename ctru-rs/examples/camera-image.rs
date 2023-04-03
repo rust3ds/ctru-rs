@@ -1,6 +1,6 @@
-use ctru::gfx::Screen;
 use ctru::prelude::*;
-use ctru::services::cam::{Cam, CamOutputFormat, CamShutterSoundType, CamSize, Camera};
+use ctru::services::cam::{Cam, Camera, OutputFormat, ShutterSound, ViewSize};
+use ctru::services::gfx::Screen;
 use ctru::services::gspgpu::FramebufferFormat;
 
 use std::time::Duration;
@@ -37,10 +37,10 @@ fn main() {
         let camera = &mut cam.outer_right_cam;
 
         camera
-            .set_view_size(CamSize::CTR_TOP_LCD)
+            .set_view_size(ViewSize::TopLCD)
             .expect("Failed to set camera size");
         camera
-            .set_output_format(CamOutputFormat::RGB_565)
+            .set_output_format(OutputFormat::Rgb565)
             .expect("Failed to set camera output format");
         camera
             .set_noise_filter(true)
@@ -65,11 +65,11 @@ fn main() {
         hid.scan_input();
         keys_down = hid.keys_down();
 
-        if keys_down.contains(KeyPad::KEY_START) {
+        if keys_down.contains(KeyPad::START) {
             break;
         }
 
-        if keys_down.contains(KeyPad::KEY_R) {
+        if keys_down.contains(KeyPad::R) {
             println!("Capturing new image");
 
             let camera = &mut cam.outer_right_cam;
@@ -83,12 +83,12 @@ fn main() {
                 )
                 .expect("Failed to take picture");
 
-            cam.play_shutter_sound(CamShutterSoundType::NORMAL)
+            cam.play_shutter_sound(ShutterSound::Normal)
                 .expect("Failed to play shutter sound");
 
             rotate_image_to_screen(
                 &buf,
-                gfx.top_screen.borrow_mut().get_raw_framebuffer().ptr,
+                gfx.top_screen.borrow_mut().raw_framebuffer().ptr,
                 WIDTH,
                 HEIGHT,
             );
