@@ -1,5 +1,6 @@
 [workspace]
 members = ["ctru-rs", "ctru-sys", "ctru-sys/bindgen-ctru-sys"]
+default-members = ["ctru-rs", "ctru-sys"]
 
 [patch.'https://github.com/rust3ds/ctru-rs']
 # Make sure all dependencies use the local ctru-sys package
