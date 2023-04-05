@@ -1,3 +1,5 @@
+Copyright (C) Rust 3DS Project authors, 2015-2016
+
 As with the original ctrulib, this library is licensed under zlib. This
 applies to every file in the tree, unless otherwise noted.
 
