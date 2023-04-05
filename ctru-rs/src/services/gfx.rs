@@ -163,21 +163,21 @@ impl Gfx {
     }
 
     /// Flushes the current framebuffers
-    pub fn flush_buffers(&self) {
+    pub fn flush_buffers(&mut self) {
         unsafe { ctru_sys::gfxFlushBuffers() };
     }
 
     /// Swaps the framebuffers and sets the gsp state
     ///
     /// Use this function when working with software rendering
-    pub fn swap_buffers(&self) {
+    pub fn swap_buffers(&mut self) {
         unsafe { ctru_sys::gfxSwapBuffers() };
     }
 
     /// Swaps the framebuffers without manipulating the gsp state
     ///
     /// Use this function when working with GPU rendering
-    pub fn swap_buffers_gpu(&self) {
+    pub fn swap_buffers_gpu(&mut self) {
         unsafe { ctru_sys::gfxSwapBuffersGpu() };
     }
 

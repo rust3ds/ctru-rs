@@ -354,7 +354,7 @@ pub trait Camera {
     /// The new width will be `trim_width / 2` to the left and right of the center.
     /// The new height will be `trim_height / 2` above and below the center.
     fn set_trimming_params_center(
-        &self,
+        &mut self,
         trim_width: i16,
         trim_height: i16,
         cam_width: i16,
