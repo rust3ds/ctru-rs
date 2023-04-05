@@ -1,5 +1,5 @@
 [package]
-authors = ["Ronald Kinard <furyhunter600@gmail.com>"]
+authors = [ "Rust3DS Org", "Ronald Kinard <furyhunter600@gmail.com>" ]
 description = "A safe wrapper around smealum's ctrulib."
 license = "Zlib"
 name = "ctru-rs"
