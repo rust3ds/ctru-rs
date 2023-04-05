@@ -38,7 +38,7 @@ fn main() {
     ctru::use_panic_handler();
 
     let gfx = Gfx::init().expect("Couldn't obtain GFX controller");
-    let hid = Hid::init().expect("Couldn't obtain HID controller");
+    let mut hid = Hid::init().expect("Couldn't obtain HID controller");
     let apt = Apt::init().expect("Couldn't obtain APT controller");
     let _console = Console::init(gfx.top_screen.borrow_mut());
 
@@ -73,7 +73,7 @@ fn main() {
     // This line isn't needed since the default NDSP configuration already sets the output mode to `Stereo`
     ndsp.set_output_mode(OutputMode::Stereo);
 
-    let channel_zero = ndsp.channel(0).unwrap();
+    let mut channel_zero = ndsp.channel(0).unwrap();
     channel_zero.set_interpolation(InterpolationType::Linear);
     channel_zero.set_sample_rate(SAMPLE_RATE as f32);
     channel_zero.set_format(AudioFormat::PCM16Stereo);

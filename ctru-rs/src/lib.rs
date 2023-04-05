@@ -55,7 +55,7 @@ fn panic_hook_setup() {
             println!("\nPress SELECT to exit the software");
 
             match Hid::init() {
-                Ok(hid) => loop {
+                Ok(mut hid) => loop {
                     hid.scan_input();
                     let keys = hid.keys_down();
                     if keys.contains(KeyPad::SELECT) {

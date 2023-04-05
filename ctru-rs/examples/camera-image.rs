@@ -17,7 +17,7 @@ fn main() {
     ctru::use_panic_handler();
 
     let apt = Apt::init().expect("Failed to initialize Apt service.");
-    let hid = Hid::init().expect("Failed to initialize Hid service.");
+    let mut hid = Hid::init().expect("Failed to initialize Hid service.");
     let gfx = Gfx::init().expect("Failed to initialize GFX service.");
 
     gfx.top_screen.borrow_mut().set_double_buffering(true);

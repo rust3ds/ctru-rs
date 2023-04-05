@@ -5,7 +5,7 @@ fn main() {
     ctru::use_panic_handler();
 
     let apt = Apt::init().unwrap();
-    let hid = Hid::init().unwrap();
+    let mut hid = Hid::init().unwrap();
     let gfx = Gfx::init().unwrap();
     let _console = Console::init(gfx.top_screen.borrow_mut());
 

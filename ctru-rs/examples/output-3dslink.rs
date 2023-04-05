@@ -14,7 +14,7 @@ fn main() {
     ctru::use_panic_handler();
 
     let gfx = Gfx::init().expect("Couldn't obtain GFX controller");
-    let hid = Hid::init().expect("Couldn't obtain HID controller");
+    let mut hid = Hid::init().expect("Couldn't obtain HID controller");
     let apt = Apt::init().expect("Couldn't obtain APT controller");
 
     let mut soc = Soc::init().expect("Couldn't obtain SOC controller");
