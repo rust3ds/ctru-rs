@@ -14,7 +14,7 @@ use std::sync::Mutex;
 
 const NUMBER_OF_CHANNELS: u8 = 24;
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum OutputMode {
     Mono = ctru_sys::NDSP_OUTPUT_MONO,
@@ -22,7 +22,7 @@ pub enum OutputMode {
     Surround = ctru_sys::NDSP_OUTPUT_SURROUND,
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum AudioFormat {
     PCM8Mono = ctru_sys::NDSP_FORMAT_MONO_PCM8,
@@ -32,12 +32,12 @@ pub enum AudioFormat {
 }
 
 /// Representation of volume mix for a channel.
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub struct AudioMix {
     raw: [f32; 12],
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum InterpolationType {
     Polyphase = ctru_sys::NDSP_INTERP_POLYPHASE,
@@ -45,7 +45,7 @@ pub enum InterpolationType {
     None = ctru_sys::NDSP_INTERP_NONE,
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum NdspError {
     /// Channel ID
     InvalidChannel(u8),

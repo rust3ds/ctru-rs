@@ -55,6 +55,23 @@ pub trait Screen: private::Sealed {
         unsafe { ctru_sys::gfxSetDoubleBuffering(self.as_raw(), enabled) }
     }
 
+    /// Swaps the video buffers.
+    /// 
+    /// This should be used even if double buffering is disabled.
+    fn flush_buffer(&mut self) {
+        let framebuffer = self.raw_framebuffer();
+
+        // Flush the data array. `self.raw_framebuffer` should get the correct parameters for all kinds of screens
+        unsafe { ctru_sys::GSPGPU_FlushDataCache(framebuffer.ptr.cast(), (framebuffer.height * framebuffer.width).into()) };
+    }
+
+    /// Swaps the video buffers.
+    /// 
+    /// This should be used even if double buffering is disabled.
+    fn swap_buffers(&mut self) {
+        unsafe { ctru_sys::gfxScreenSwapBuffers(self.side().into(), true) };
+    }
+
     /// Gets the framebuffer format
     fn framebuffer_format(&self) -> FramebufferFormat {
         unsafe { ctru_sys::gfxGetScreenFormat(self.as_raw()) }.into()
@@ -103,7 +120,7 @@ pub struct RawFrameBuffer<'screen> {
     screen: PhantomData<&'screen mut dyn Screen>,
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 /// Side of top screen framebuffer
 ///
@@ -128,6 +145,13 @@ pub struct Gfx {
 static GFX_ACTIVE: Mutex<usize> = Mutex::new(0);
 
 impl Gfx {
+    /// Creates a new [Gfx] instance with default init values
+    /// It's the same as calling:
+    /// `Gfx::with_formats(FramebufferFormat::Bgr8, FramebufferFormat::Bgr8, false)`
+    pub fn new() -> Result<Self> {
+        Gfx::with_formats(FramebufferFormat::Bgr8, FramebufferFormat::Bgr8, false)
+    }
+
     /// Initialize the Gfx module with the chosen framebuffer formats for the top and bottom
     /// screens
     ///
@@ -153,32 +177,6 @@ impl Gfx {
             bottom_screen: RefCell::new(BottomScreen),
             _service_handler: handler,
         })
-    }
-
-    /// Creates a new [Gfx] instance with default init values
-    /// It's the same as calling:
-    /// `Gfx::with_formats(FramebufferFormat::Bgr8, FramebufferFormat::Bgr8, false)`
-    pub fn new() -> Result<Self> {
-        Gfx::with_formats(FramebufferFormat::Bgr8, FramebufferFormat::Bgr8, false)
-    }
-
-    /// Flushes the current framebuffers
-    pub fn flush_buffers(&self) {
-        unsafe { ctru_sys::gfxFlushBuffers() };
-    }
-
-    /// Swaps the framebuffers and sets the gsp state
-    ///
-    /// Use this function when working with software rendering
-    pub fn swap_buffers(&self) {
-        unsafe { ctru_sys::gfxSwapBuffers() };
-    }
-
-    /// Swaps the framebuffers without manipulating the gsp state
-    ///
-    /// Use this function when working with GPU rendering
-    pub fn swap_buffers_gpu(&self) {
-        unsafe { ctru_sys::gfxSwapBuffersGpu() };
     }
 
     /// Waits for the vertical blank interrupt

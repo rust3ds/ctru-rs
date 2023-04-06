@@ -68,8 +68,6 @@ fn main() {
             frame_count = 0;
         }
 
-        gfx.flush_buffers();
-        gfx.swap_buffers();
         gfx.wait_for_vblank();
     }
 }

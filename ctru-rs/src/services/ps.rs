@@ -6,6 +6,7 @@
 use crate::error::ResultCode;
 use crate::Result;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u32)]
 pub enum AESAlgorithm {
     CbcEnc = ctru_sys::PS_ALGORITHM_CBC_ENC,
@@ -16,6 +17,7 @@ pub enum AESAlgorithm {
     CcmDec = ctru_sys::PS_ALGORITHM_CCM_DEC,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u32)]
 pub enum AESKeyType {
     Keyslot0D = ctru_sys::PS_KEYSLOT_0D,
@@ -56,7 +58,7 @@ impl Ps {
 
     pub fn generate_random_bytes(&self, out: &mut [u8]) -> crate::Result<()> {
         ResultCode(unsafe {
-            ctru_sys::PS_GenerateRandomBytes(out as *mut _ as *mut _, out.len())
+            ctru_sys::PS_GenerateRandomBytes(out.as_mut_ptr().cast(), out.len())
         })?;
         Ok(())
     }

@@ -21,7 +21,7 @@ pub struct Cam {
 }
 
 /// Flag to pass to [Camera::flip_image]
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum FlipMode {
     None = ctru_sys::FLIP_NONE,
@@ -31,7 +31,7 @@ pub enum FlipMode {
 }
 
 /// Flag to pass to [Camera::set_view_size]
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum ViewSize {
     TopLCD = ctru_sys::SIZE_CTR_TOP_LCD,
@@ -48,7 +48,7 @@ pub enum ViewSize {
 }
 
 /// Flag to pass to [Camera::set_frame_rate]
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum FrameRate {
     Fps15 = ctru_sys::FRAME_RATE_15,
@@ -68,7 +68,7 @@ pub enum FrameRate {
 
 /// Flag to pass to [Camera::set_white_balance] or
 /// [Camera::set_white_balance_without_base_up]
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum WhiteBalance {
     /// Normal
@@ -86,7 +86,7 @@ pub enum WhiteBalance {
 }
 
 /// Flag to pass to [Camera::set_photo_mode]
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum PhotoMode {
     Normal = ctru_sys::PHOTO_MODE_NORMAL,
@@ -97,7 +97,7 @@ pub enum PhotoMode {
 }
 
 /// Flag to pass to [Camera::set_effect]
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum Effect {
     None = ctru_sys::EFFECT_NONE,
@@ -109,7 +109,7 @@ pub enum Effect {
 }
 
 /// Flag to pass to [Camera::set_contrast]
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum Contrast {
     /// OFF
@@ -121,7 +121,7 @@ pub enum Contrast {
 }
 
 /// Flag to pass to [Camera::set_lens_correction]
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum LensCorrection {
     Off = ctru_sys::LENS_CORRECTION_DARK,
@@ -130,7 +130,7 @@ pub enum LensCorrection {
 }
 
 /// Flag to pass to [Camera::set_output_format]
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum OutputFormat {
     Yuv422 = ctru_sys::OUTPUT_YUV_422,
@@ -138,7 +138,7 @@ pub enum OutputFormat {
 }
 
 /// Flag to pass to [Cam::play_shutter_sound]
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum ShutterSound {
     Normal = ctru_sys::SHUTTER_SOUND_TYPE_NORMAL,
@@ -169,6 +169,7 @@ impl TryFrom<OutputFormat> for FramebufferFormat {
 }
 
 /// Struct containing coordinates passed to [Camera::set_trimming_params].
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct TrimmingParams {
     x_start: i16,
     y_start: i16,
@@ -193,11 +194,11 @@ impl TrimmingParams {
 }
 
 /// Represents data used by the camera to calibrate image quality
-#[derive(Default)]
+#[derive(Default, Clone, Copy, Debug)]
 pub struct ImageQualityCalibrationData(pub ctru_sys::CAMU_ImageQualityCalibrationData);
 
 /// Represents data used by the camera to calibrate image quality when using both outward cameras
-#[derive(Default)]
+#[derive(Default, Clone, Copy, Debug)]
 pub struct StereoCameraCalibrationData(pub ctru_sys::CAMU_StereoCameraCalibrationData);
 
 /// Represents the camera on the inside of the 3DS

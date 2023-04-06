@@ -61,10 +61,6 @@ fn main() {
             buf.copy_from(IMAGE.as_ptr(), IMAGE.len());
         }
 
-        // Flush and swap framebuffers
-        gfx.flush_buffers();
-        gfx.swap_buffers();
-
         //Wait for VBlank
         gfx.wait_for_vblank();
     }

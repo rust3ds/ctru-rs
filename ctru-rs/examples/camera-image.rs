@@ -20,11 +20,10 @@ fn main() {
     let mut hid = Hid::new().expect("Failed to initialize Hid service.");
     let gfx = Gfx::new().expect("Failed to initialize GFX service.");
 
-    gfx.top_screen.borrow_mut().set_double_buffering(true);
-    gfx.top_screen
-        .borrow_mut()
-        .set_framebuffer_format(FramebufferFormat::Rgb565);
-    gfx.bottom_screen.borrow_mut().set_double_buffering(false);
+    let mut top_screen = gfx.top_screen.borrow_mut();
+    top_screen.set_double_buffering(true);
+    top_screen.set_framebuffer_format(FramebufferFormat::Rgb565);
+    
     let _console = Console::new(gfx.bottom_screen.borrow_mut());
 
     let mut keys_down;
@@ -88,13 +87,15 @@ fn main() {
 
             rotate_image_to_screen(
                 &buf,
-                gfx.top_screen.borrow_mut().raw_framebuffer().ptr,
+                top_screen.raw_framebuffer().ptr,
                 WIDTH,
                 HEIGHT,
             );
 
-            gfx.flush_buffers();
-            gfx.swap_buffers();
+            // We will only flush the "camera" screen, since the other screen is handled by `Console`
+            top_screen.flush_buffer();
+            top_screen.swap_buffers();
+
             gfx.wait_for_vblank();
         }
     }

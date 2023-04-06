@@ -154,10 +154,6 @@ fn main() {
             altern = !altern;
         }
 
-        // Flush and swap framebuffers
-        gfx.flush_buffers();
-        gfx.swap_buffers();
-
         //Wait for VBlank
         gfx.wait_for_vblank();
     }

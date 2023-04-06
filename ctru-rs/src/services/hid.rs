@@ -8,7 +8,6 @@ use crate::error::ResultCode;
 bitflags::bitflags! {
     /// A set of flags corresponding to the button and directional pad
     /// inputs on the 3DS
-    #[derive(Default)]
     pub struct KeyPad: u32 {
         const A             = ctru_sys::KEY_A;
         const B             = ctru_sys::KEY_B;
@@ -48,9 +47,11 @@ bitflags::bitflags! {
 pub struct Hid(());
 
 /// Represents user input to the touchscreen.
+#[derive(Debug, Clone, Copy)]
 pub struct TouchPosition(ctru_sys::touchPosition);
 
 /// Represents the current position of the 3DS circle pad.
+#[derive(Debug, Clone, Copy)]
 pub struct CirclePosition(ctru_sys::circlePosition);
 
 /// Initializes the HID service.

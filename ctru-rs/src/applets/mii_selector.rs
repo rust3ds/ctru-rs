@@ -8,14 +8,14 @@ use std::ffi::CString;
 
 /// Index of a Mii used to configure some parameters of the Mii Selector
 /// Can be either a single index, or _all_ Miis
-#[derive(Debug, Clone)]
-pub enum MiiConfigIndex {
+#[derive(Debug, Clone, Copy, Eq, PartialEq)]
+pub enum MiiIndex {
     Index(u32),
     All,
 }
 
 /// The type of a Mii with their respective data
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub enum MiiType {
     Guest { index: u32, name: String },
     User,
@@ -54,7 +54,7 @@ pub struct MiiSelector {
 /// Return value from a MiiSelector's launch
 #[non_exhaustive]
 #[derive(Clone, Debug)]
-pub struct MiiSelectorReturn {
+pub struct SelectionResult {
     pub mii_data: MiiData,
     pub is_mii_selected: bool,
     pub mii_type: MiiType,
@@ -62,7 +62,7 @@ pub struct MiiSelectorReturn {
 
 /// Error type for the Mii selector
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
-pub enum MiiLaunchError {
+pub enum LaunchError {
     InvalidChecksum,
 }
 
@@ -94,40 +94,40 @@ impl MiiSelector {
     }
 
     /// Whitelist a guest Mii
-    pub fn whitelist_guest_mii(&mut self, mii_index: MiiConfigIndex) {
+    pub fn whitelist_guest_mii(&mut self, mii_index: MiiIndex) {
         let index = match mii_index {
-            MiiConfigIndex::Index(i) => i,
-            MiiConfigIndex::All => ctru_sys::MIISELECTOR_GUESTMII_SLOTS,
+            MiiIndex::Index(i) => i,
+            MiiIndex::All => ctru_sys::MIISELECTOR_GUESTMII_SLOTS,
         };
 
         unsafe { ctru_sys::miiSelectorWhitelistGuestMii(self.config.as_mut(), index) }
     }
 
     /// Blacklist a guest Mii
-    pub fn blacklist_guest_mii(&mut self, mii_index: MiiConfigIndex) {
+    pub fn blacklist_guest_mii(&mut self, mii_index: MiiIndex) {
         let index = match mii_index {
-            MiiConfigIndex::Index(i) => i,
-            MiiConfigIndex::All => ctru_sys::MIISELECTOR_GUESTMII_SLOTS,
+            MiiIndex::Index(i) => i,
+            MiiIndex::All => ctru_sys::MIISELECTOR_GUESTMII_SLOTS,
         };
 
         unsafe { ctru_sys::miiSelectorBlacklistGuestMii(self.config.as_mut(), index) }
     }
 
     /// Whitelist a user Mii
-    pub fn whitelist_user_mii(&mut self, mii_index: MiiConfigIndex) {
+    pub fn whitelist_user_mii(&mut self, mii_index: MiiIndex) {
         let index = match mii_index {
-            MiiConfigIndex::Index(i) => i,
-            MiiConfigIndex::All => ctru_sys::MIISELECTOR_USERMII_SLOTS,
+            MiiIndex::Index(i) => i,
+            MiiIndex::All => ctru_sys::MIISELECTOR_USERMII_SLOTS,
         };
 
         unsafe { ctru_sys::miiSelectorWhitelistUserMii(self.config.as_mut(), index) }
     }
 
     /// Blacklist a user Mii
-    pub fn blacklist_user_mii(&mut self, mii_index: MiiConfigIndex) {
+    pub fn blacklist_user_mii(&mut self, mii_index: MiiIndex) {
         let index = match mii_index {
-            MiiConfigIndex::Index(i) => i,
-            MiiConfigIndex::All => ctru_sys::MIISELECTOR_USERMII_SLOTS,
+            MiiIndex::Index(i) => i,
+            MiiIndex::All => ctru_sys::MIISELECTOR_USERMII_SLOTS,
         };
 
         unsafe { ctru_sys::miiSelectorBlacklistUserMii(self.config.as_mut(), index) }
@@ -143,24 +143,24 @@ impl MiiSelector {
 
     /// Launch the Mii Selector.
     /// Returns an error when the checksum of the Mii is invalid.
-    pub fn launch(&mut self) -> Result<MiiSelectorReturn, MiiLaunchError> {
+    pub fn launch(&mut self) -> Result<SelectionResult, LaunchError> {
         let mut return_val = Box::<ctru_sys::MiiSelectorReturn>::default();
         unsafe { ctru_sys::miiSelectorLaunch(self.config.as_mut(), return_val.as_mut()) }
 
         if unsafe { ctru_sys::miiSelectorChecksumIsValid(return_val.as_mut()) } {
             Ok((*return_val).into())
         } else {
-            Err(MiiLaunchError::InvalidChecksum)
+            Err(LaunchError::InvalidChecksum)
         }
     }
 }
 
-impl From<ctru_sys::MiiSelectorReturn> for MiiSelectorReturn {
+impl From<ctru_sys::MiiSelectorReturn> for SelectionResult {
     fn from(ret: ctru_sys::MiiSelectorReturn) -> Self {
         let raw_mii_data = ret.mii;
         let mut guest_mii_name = ret.guest_mii_name;
 
-        MiiSelectorReturn {
+        SelectionResult {
             mii_data: raw_mii_data.into(),
             is_mii_selected: ret.no_mii_selected == 0,
             mii_type: if ret.guest_mii_index != 0xFFFFFFFF {
@@ -179,7 +179,7 @@ impl From<ctru_sys::MiiSelectorReturn> for MiiSelectorReturn {
     }
 }
 
-impl From<u32> for MiiConfigIndex {
+impl From<u32> for MiiIndex {
     fn from(v: u32) -> Self {
         Self::Index(v)
     }

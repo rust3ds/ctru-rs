@@ -27,8 +27,6 @@ fn main() {
     println!("\x1b[29;16HPress Start to exit");
 
     while apt.main_loop() {
-        gfx.flush_buffers();
-        gfx.swap_buffers();
         gfx.wait_for_vblank();
 
         hid.scan_input();
