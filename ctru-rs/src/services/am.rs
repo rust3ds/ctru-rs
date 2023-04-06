@@ -6,6 +6,7 @@ use std::mem::MaybeUninit;
 #[derive(Copy, Clone, Debug)]
 #[repr(transparent)]
 pub struct TitleInfo(ctru_sys::AM_TitleEntry);
+
 impl TitleInfo {
     pub fn id(&self) -> u64 {
         self.0.titleID

@@ -68,8 +68,6 @@ impl<'a> FileExplorer<'a> {
                 self.get_input_and_run(Self::set_exact_path);
             }
 
-            self.gfx.flush_buffers();
-            self.gfx.swap_buffers();
             self.gfx.wait_for_vblank();
         }
     }

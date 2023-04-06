@@ -48,8 +48,8 @@ fn main() {
         }
 
         // Flush and swap framebuffers
-        gfx.flush_buffers();
-        gfx.swap_buffers();
+        bottom_screen.flush_buffer();
+        bottom_screen.swap_buffers();
 
         //Wait for VBlank
         gfx.wait_for_vblank();

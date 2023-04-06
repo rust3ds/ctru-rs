@@ -63,8 +63,6 @@ fn main() {
             break;
         }
 
-        gfx.flush_buffers();
-        gfx.swap_buffers();
         gfx.wait_for_vblank();
     }
 }

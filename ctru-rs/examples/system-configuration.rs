@@ -22,9 +22,6 @@ fn main() {
         if hid.keys_down().contains(KeyPad::START) {
             break;
         }
-        // Flush and swap framebuffers
-        gfx.flush_buffers();
-        gfx.swap_buffers();
 
         //Wait for VBlank
         gfx.wait_for_vblank();

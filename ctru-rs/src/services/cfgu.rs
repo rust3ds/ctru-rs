@@ -4,7 +4,7 @@
 
 use crate::error::ResultCode;
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum Region {
     Japan = ctru_sys::CFG_REGION_JPN,
@@ -16,7 +16,7 @@ pub enum Region {
     Taiwan = ctru_sys::CFG_REGION_TWN,
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum Language {
     Japanese = ctru_sys::CFG_LANGUAGE_JP,
@@ -33,7 +33,7 @@ pub enum Language {
     TraditionalChinese = ctru_sys::CFG_LANGUAGE_TW,
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum SystemModel {
     Model3DS = ctru_sys::CFG_MODEL_3DS,

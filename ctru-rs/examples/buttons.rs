@@ -63,9 +63,6 @@ fn main() {
         // Save our current key presses for the next frame
         old_keys = keys;
 
-        // Flush and swap framebuffers
-        gfx.flush_buffers();
-        gfx.swap_buffers();
         gfx.wait_for_vblank();
     }
 }

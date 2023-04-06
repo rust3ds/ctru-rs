@@ -7,6 +7,7 @@ use std::iter::once;
 use std::str;
 
 /// An instance of the software keyboard.
+#[derive(Clone)]
 pub struct Swkbd {
     state: Box<SwkbdState>,
 }
@@ -18,7 +19,7 @@ pub struct Swkbd {
 /// Numpad is a number pad.
 /// Western is a text keyboard without japanese symbols (only applies to JPN systems). For other
 /// systems it's the same as a Normal keyboard.
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum Kind {
     Normal = ctru_sys::SWKBD_TYPE_NORMAL,
@@ -28,7 +29,7 @@ pub enum Kind {
 }
 
 /// Represents which button the user pressed to close the software keyboard.
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum Button {
     Left = ctru_sys::SWKBD_BUTTON_LEFT,
@@ -37,7 +38,7 @@ pub enum Button {
 }
 
 /// Error type for the software keyboard.
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(i32)]
 pub enum Error {
     InvalidInput = ctru_sys::SWKBD_INVALID_INPUT,
@@ -51,7 +52,7 @@ pub enum Error {
 }
 
 /// Restrictions on keyboard input
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum ValidInput {
     Anything = ctru_sys::SWKBD_ANYTHING,

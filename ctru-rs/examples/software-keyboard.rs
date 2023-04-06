@@ -12,8 +12,6 @@ fn main() {
     println!("Press A to enter some text or press Start to quit");
 
     while apt.main_loop() {
-        gfx.flush_buffers();
-        gfx.swap_buffers();
         gfx.wait_for_vblank();
 
         hid.scan_input();

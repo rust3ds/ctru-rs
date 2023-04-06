@@ -36,10 +36,6 @@ fn main() {
         println!("\x1b[1;1H{hours:0>2}:{minutes:0>2}:{seconds:0>2}");
         println!("{weekday} {month} {day} {year}");
 
-        // Flush and swap framebuffers
-        gfx.flush_buffers();
-        gfx.swap_buffers();
-
         //Wait for VBlank
         gfx.wait_for_vblank();
     }

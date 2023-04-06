@@ -23,17 +23,13 @@ bitflags! {
         const FS_OPEN_WRITE  = 2;
         const FS_OPEN_CREATE = 4;
     }
-}
 
-bitflags! {
     #[derive(Default)]
     struct FsWrite: u32 {
         const FS_WRITE_FLUSH       =   1;
         const FS_WRITE_UPDATE_TIME = 256;
     }
-}
-
-bitflags! {
+    
     #[derive(Default)]
     struct FsAttribute: u32 {
         const FS_ATTRIBUTE_DIRECTORY =        1;
@@ -43,7 +39,7 @@ bitflags! {
     }
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum FsMediaType {
     Nand = ctru_sys::MEDIATYPE_NAND,
@@ -51,7 +47,7 @@ pub enum FsMediaType {
     GameCard = ctru_sys::MEDIATYPE_GAME_CARD,
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum PathType {
     Invalid = ctru_sys::PATH_INVALID,
@@ -61,7 +57,7 @@ pub enum PathType {
     UTF16 = ctru_sys::PATH_UTF16,
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum ArchiveID {
     RomFS = ctru_sys::ARCHIVE_ROMFS,
@@ -234,7 +230,7 @@ pub struct Metadata {
 ///             .open("foo.txt")
 ///             .unwrap();
 /// ```
-#[derive(Clone, Default)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct OpenOptions {
     read: bool,
     write: bool,
