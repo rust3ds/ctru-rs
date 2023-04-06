@@ -8,7 +8,7 @@ pub struct SslC(());
 
 impl SslC {
     /// Initialize the service
-    pub fn init() -> crate::Result<Self> {
+    pub fn new() -> crate::Result<Self> {
         unsafe {
             ResultCode(ctru_sys::sslcInit(0))?;
             Ok(SslC(()))

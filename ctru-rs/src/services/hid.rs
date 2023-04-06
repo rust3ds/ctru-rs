@@ -61,7 +61,7 @@ pub struct CirclePosition(ctru_sys::circlePosition);
 /// Since this service requires no special or elevated permissions, errors are
 /// rare in practice.
 impl Hid {
-    pub fn init() -> crate::Result<Hid> {
+    pub fn new() -> crate::Result<Hid> {
         unsafe {
             ResultCode(ctru_sys::hidInit())?;
             Ok(Hid(()))

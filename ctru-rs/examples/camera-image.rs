@@ -16,22 +16,22 @@ const WAIT_TIMEOUT: Duration = Duration::from_millis(300);
 fn main() {
     ctru::use_panic_handler();
 
-    let apt = Apt::init().expect("Failed to initialize Apt service.");
-    let mut hid = Hid::init().expect("Failed to initialize Hid service.");
-    let gfx = Gfx::init().expect("Failed to initialize GFX service.");
+    let apt = Apt::new().expect("Failed to initialize Apt service.");
+    let mut hid = Hid::new().expect("Failed to initialize Hid service.");
+    let gfx = Gfx::new().expect("Failed to initialize GFX service.");
 
     gfx.top_screen.borrow_mut().set_double_buffering(true);
     gfx.top_screen
         .borrow_mut()
         .set_framebuffer_format(FramebufferFormat::Rgb565);
     gfx.bottom_screen.borrow_mut().set_double_buffering(false);
-    let _console = Console::init(gfx.bottom_screen.borrow_mut());
+    let _console = Console::new(gfx.bottom_screen.borrow_mut());
 
     let mut keys_down;
 
     println!("Initializing camera");
 
-    let mut cam = Cam::init().expect("Failed to initialize CAM service.");
+    let mut cam = Cam::new().expect("Failed to initialize CAM service.");
 
     {
         let camera = &mut cam.outer_right_cam;

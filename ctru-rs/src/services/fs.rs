@@ -103,7 +103,7 @@ pub struct Fs(());
 /// ```no_run
 /// use ctru::services::fs::Fs;
 ///
-/// let mut fs =  Fs::init().unwrap();
+/// let fs = Fs::new().unwrap();
 /// let sdmc_archive = fs.sdmc().unwrap();
 /// ```
 pub struct Archive {
@@ -129,8 +129,8 @@ pub struct Archive {
 /// use std::io::prelude::*;
 /// use ctru::services::fs::{Fs, File};
 ///
-/// let mut fs =  Fs::init()?;
-/// let mut sdmc = fs.sdmc()?;
+/// let fs = Fs::new()?;
+/// let sdmc = fs.sdmc()?;
 ///
 /// let mut file = File::create(&mut sdmc, "/foo.txt")?;
 /// file.write_all(b"Hello, world!")?;
@@ -148,8 +148,8 @@ pub struct Archive {
 /// use std::io::prelude::*;
 /// use ctru::services::fs::{Fs, File};
 ///
-/// let mut fs =  Fs::init()?;
-/// let mut sdmc = fs.sdmc()?;
+/// let fs = Fs::new()?;
+/// let sdmc = fs.sdmc()?;
 ///
 /// let mut file = File::open(&sdmc, "/foo.txt")?;
 /// let mut contents = String::new();
@@ -171,8 +171,8 @@ pub struct Archive {
 /// use std::io::prelude::*;
 /// use ctru::services::fs::{Fs, File};
 ///
-/// let mut fs =  Fs::init()?;
-/// let mut sdmc = fs.sdmc()?;
+/// let fs = Fs::new()?;
+/// let sdmc = fs.sdmc()?;
 ///
 /// let file = File::open(&sdmc, "/foo.txt")?;
 /// let mut buf_reader = BufReader::new(file);
@@ -227,8 +227,8 @@ pub struct Metadata {
 /// ```no_run
 /// use ctru::services::fs::{Fs, OpenOptions};
 ///
-/// let mut fs =  Fs::init().unwrap();
-/// let mut sdmc_archive = fs.sdmc().unwrap();
+/// let fs = Fs::new().unwrap();
+/// let sdmc_archive = fs.sdmc().unwrap();
 /// let file = OpenOptions::new()
 ///             .read(true)
 ///             .archive(&sdmc_archive)
@@ -242,8 +242,8 @@ pub struct Metadata {
 /// ```no_run
 /// use ctru::services::fs::{Fs, OpenOptions};
 ///
-/// let mut fs =  Fs::init().unwrap();
-/// let mut sdmc_archive = fs.sdmc().unwrap();
+/// let fs = Fs::new().unwrap();
+/// let sdmc_archive = fs.sdmc().unwrap();
 /// let file = OpenOptions::new()
 ///             .read(true)
 ///             .write(true)
@@ -316,7 +316,7 @@ impl Fs {
     /// ctrulib services are reference counted, so this function may be called
     /// as many times as desired and the service will not exit until all
     /// instances of Fs drop out of scope.
-    pub fn init() -> crate::Result<Fs> {
+    pub fn new() -> crate::Result<Fs> {
         unsafe {
             let r = ctru_sys::fsInit();
             if r < 0 {
@@ -369,8 +369,8 @@ impl File {
     /// ```no_run
     /// use ctru::services::fs::{Fs, File};
     ///
-    /// let mut fs =  Fs::init().unwrap();
-    /// let mut sdmc_archive = fs.sdmc().unwrap();
+    /// let fs = Fs::new().unwrap();
+    /// let sdmc_archive = fs.sdmc().unwrap();
     /// let mut f = File::open(&sdmc_archive, "/foo.txt").unwrap();
     /// ```
     pub fn open<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<File> {
@@ -398,9 +398,9 @@ impl File {
     /// ```no_run
     /// use ctru::services::fs::{Fs, File};
     ///
-    /// let mut fs =  Fs::init().unwrap();
-    /// let mut sdmc_archive = fs.sdmc().unwrap();
-    /// let mut f = File::create(&mut sdmc_archive, "/foo.txt").unwrap();
+    /// let fs = Fs::new().unwrap();
+    /// let sdmc_archive = fs.sdmc().unwrap();
+    /// let mut f = File::create(&sdmc_archive, "/foo.txt").unwrap();
     /// ```
     pub fn create<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<File> {
         OpenOptions::new()

@@ -8,10 +8,10 @@ use std::time::Duration;
 fn main() {
     ctru::use_panic_handler();
 
-    let apt = Apt::init().unwrap();
-    let mut hid = Hid::init().unwrap();
-    let gfx = Gfx::init().unwrap();
-    let _console = Console::init(gfx.top_screen.borrow_mut());
+    let apt = Apt::new().unwrap();
+    let mut hid = Hid::new().unwrap();
+    let gfx = Gfx::new().unwrap();
+    let _console = Console::new(gfx.top_screen.borrow_mut());
 
     let prio = std::os::horizon::thread::current_priority();
     println!("Main thread prio: {}\n", prio);

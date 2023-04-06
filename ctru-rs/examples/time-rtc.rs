@@ -3,11 +3,11 @@ use ctru::prelude::*;
 fn main() {
     ctru::use_panic_handler();
 
-    let gfx = Gfx::init().expect("Couldn't obtain GFX controller");
-    let mut hid = Hid::init().expect("Couldn't obtain HID controller");
-    let apt = Apt::init().expect("Couldn't obtain APT controller");
+    let gfx = Gfx::new().expect("Couldn't obtain GFX controller");
+    let mut hid = Hid::new().expect("Couldn't obtain HID controller");
+    let apt = Apt::new().expect("Couldn't obtain APT controller");
 
-    let _console = Console::init(gfx.top_screen.borrow_mut());
+    let _console = Console::new(gfx.top_screen.borrow_mut());
 
     print!("\x1b[30;16HPress Start to exit.");
 

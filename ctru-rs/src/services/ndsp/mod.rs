@@ -80,7 +80,7 @@ impl Ndsp {
     ///
     /// This function will return an error if an instance of the `Ndsp` struct already exists
     /// or if there are any issues during initialization.
-    pub fn init() -> crate::Result<Self> {
+    pub fn new() -> crate::Result<Self> {
         let _service_handler = ServiceReference::new(
             &NDSP_ACTIVE,
             false,

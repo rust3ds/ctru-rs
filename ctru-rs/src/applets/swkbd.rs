@@ -89,7 +89,7 @@ bitflags! {
 impl Swkbd {
     /// Initializes a software keyboard of the specified type and the chosen number of buttons
     /// (from 1-3).
-    pub fn init(keyboard_type: Kind, num_buttons: i32) -> Self {
+    pub fn new(keyboard_type: Kind, num_buttons: i32) -> Self {
         unsafe {
             let mut state = Box::<SwkbdState>::default();
             swkbdInit(state.as_mut(), keyboard_type.into(), num_buttons, -1);
@@ -207,7 +207,7 @@ impl Swkbd {
 
 impl Default for Swkbd {
     fn default() -> Self {
-        Swkbd::init(Kind::Normal, 2)
+        Swkbd::new(Kind::Normal, 2)
     }
 }
 

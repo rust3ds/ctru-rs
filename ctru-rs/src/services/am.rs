@@ -61,7 +61,7 @@ impl<'a> Title<'a> {
 pub struct Am(());
 
 impl Am {
-    pub fn init() -> crate::Result<Am> {
+    pub fn new() -> crate::Result<Am> {
         unsafe {
             ResultCode(ctru_sys::amInit())?;
             Ok(Am(()))

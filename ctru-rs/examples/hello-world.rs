@@ -5,10 +5,10 @@ use std::io::BufWriter;
 fn main() {
     ctru::use_panic_handler();
 
-    let gfx = Gfx::init().expect("Couldn't obtain GFX controller");
-    let mut hid = Hid::init().expect("Couldn't obtain HID controller");
-    let apt = Apt::init().expect("Couldn't obtain APT controller");
-    let _console = Console::init(gfx.top_screen.borrow_mut());
+    let gfx = Gfx::new().expect("Couldn't obtain GFX controller");
+    let mut hid = Hid::new().expect("Couldn't obtain HID controller");
+    let apt = Apt::new().expect("Couldn't obtain APT controller");
+    let _console = Console::new(gfx.top_screen.borrow_mut());
 
     let out = b"Hello fellow Rustaceans, I'm on the Nintendo 3DS!";
     let width = 24;

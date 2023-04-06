@@ -41,7 +41,7 @@ bitflags! {
 /// ```
 /// use ctru::applets::mii_selector::MiiSelector;
 ///
-/// let mut mii_selector = MiiSelector::init();
+/// let mut mii_selector = MiiSelector::new();
 /// mii_selector.set_title("Example Mii selector");
 ///
 /// let result = mii_selector.launch().unwrap();
@@ -68,7 +68,7 @@ pub enum MiiLaunchError {
 
 impl MiiSelector {
     /// Initializes a Mii Selector
-    pub fn init() -> Self {
+    pub fn new() -> Self {
         let mut config = Box::<ctru_sys::MiiSelectorConf>::default();
         unsafe {
             ctru_sys::miiSelectorInit(config.as_mut());
