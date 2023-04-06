@@ -99,7 +99,7 @@ pub struct Fs(());
 /// ```no_run
 /// use ctru::services::fs::Fs;
 ///
-/// let mut fs =  Fs::init().unwrap();
+/// let mut fs =  Fs::new().unwrap();
 /// let sdmc_archive = fs.sdmc().unwrap();
 /// ```
 pub struct Archive {
@@ -125,13 +125,8 @@ pub struct Archive {
 /// use std::io::prelude::*;
 /// use ctru::services::fs::{Fs, File};
 ///
-/// let mut fs =  Fs::init()?;
+/// let mut fs =  Fs::new()?;
 /// let mut sdmc = fs.sdmc()?;
-///
-/// let mut file = File::create(&mut sdmc, "/foo.txt")?;
-/// file.write_all(b"Hello, world!")?;
-/// #
-/// # Ok(())
 /// # }
 /// ```
 ///
@@ -144,7 +139,7 @@ pub struct Archive {
 /// use std::io::prelude::*;
 /// use ctru::services::fs::{Fs, File};
 ///
-/// let mut fs =  Fs::init()?;
+/// let mut fs =  Fs::new()?;
 /// let mut sdmc = fs.sdmc()?;
 ///
 /// let mut file = File::open(&sdmc, "/foo.txt")?;
@@ -167,7 +162,7 @@ pub struct Archive {
 /// use std::io::prelude::*;
 /// use ctru::services::fs::{Fs, File};
 ///
-/// let mut fs =  Fs::init()?;
+/// let mut fs =  Fs::new()?;
 /// let mut sdmc = fs.sdmc()?;
 ///
 /// let file = File::open(&sdmc, "/foo.txt")?;
@@ -223,7 +218,7 @@ pub struct Metadata {
 /// ```no_run
 /// use ctru::services::fs::{Fs, OpenOptions};
 ///
-/// let mut fs =  Fs::init().unwrap();
+/// let mut fs =  Fs::new().unwrap();
 /// let mut sdmc_archive = fs.sdmc().unwrap();
 /// let file = OpenOptions::new()
 ///             .read(true)
@@ -238,7 +233,7 @@ pub struct Metadata {
 /// ```no_run
 /// use ctru::services::fs::{Fs, OpenOptions};
 ///
-/// let mut fs =  Fs::init().unwrap();
+/// let mut fs =  Fs::new().unwrap();
 /// let mut sdmc_archive = fs.sdmc().unwrap();
 /// let file = OpenOptions::new()
 ///             .read(true)
@@ -365,7 +360,7 @@ impl File {
     /// ```no_run
     /// use ctru::services::fs::{Fs, File};
     ///
-    /// let mut fs =  Fs::init().unwrap();
+    /// let mut fs =  Fs::new().unwrap();
     /// let mut sdmc_archive = fs.sdmc().unwrap();
     /// let mut f = File::open(&sdmc_archive, "/foo.txt").unwrap();
     /// ```
@@ -394,7 +389,7 @@ impl File {
     /// ```no_run
     /// use ctru::services::fs::{Fs, File};
     ///
-    /// let mut fs =  Fs::init().unwrap();
+    /// let mut fs =  Fs::new().unwrap();
     /// let mut sdmc_archive = fs.sdmc().unwrap();
     /// let mut f = File::create(&mut sdmc_archive, "/foo.txt").unwrap();
     /// ```
