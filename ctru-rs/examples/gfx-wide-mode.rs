@@ -26,7 +26,7 @@ fn main() {
             console = Console::new(gfx.top_screen.borrow_mut());
             println!("Press A to enable/disable wide screen mode.");
         }
-        
+
         gfx.wait_for_vblank();
     }
 }

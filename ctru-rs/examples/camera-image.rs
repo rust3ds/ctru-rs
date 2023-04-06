@@ -23,7 +23,7 @@ fn main() {
     let mut top_screen = gfx.top_screen.borrow_mut();
     top_screen.set_double_buffering(true);
     top_screen.set_framebuffer_format(FramebufferFormat::Rgb565);
-    
+
     let _console = Console::new(gfx.bottom_screen.borrow_mut());
 
     let mut keys_down;
@@ -85,12 +85,7 @@ fn main() {
             cam.play_shutter_sound(ShutterSound::Normal)
                 .expect("Failed to play shutter sound");
 
-            rotate_image_to_screen(
-                &buf,
-                top_screen.raw_framebuffer().ptr,
-                WIDTH,
-                HEIGHT,
-            );
+            rotate_image_to_screen(&buf, top_screen.raw_framebuffer().ptr, WIDTH, HEIGHT);
 
             // We will only flush the "camera" screen, since the other screen is handled by `Console`
             top_screen.flush_buffer();
