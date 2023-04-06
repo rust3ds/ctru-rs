@@ -13,7 +13,7 @@ use crate::prelude::*;
 /// panic is just treated the same as any normal application panic).
 pub(crate) fn run(tests: &[&TestDescAndFn]) {
     let gfx = Gfx::init().unwrap();
-    let hid = Hid::init().unwrap();
+    let mut hid = Hid::init().unwrap();
     let apt = Apt::init().unwrap();
 
     let mut top_screen = gfx.top_screen.borrow_mut();
