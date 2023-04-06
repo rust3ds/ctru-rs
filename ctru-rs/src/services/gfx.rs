@@ -131,7 +131,7 @@ impl Gfx {
     /// Initialize the Gfx module with the chosen framebuffer formats for the top and bottom
     /// screens
     ///
-    /// Use `Gfx::init()` instead of this function to initialize the module with default parameters
+    /// Use `Gfx::new()` instead of this function to initialize the module with default parameters
     pub fn with_formats(
         top_fb_fmt: FramebufferFormat,
         bottom_fb_fmt: FramebufferFormat,
@@ -158,7 +158,7 @@ impl Gfx {
     /// Creates a new [Gfx] instance with default init values
     /// It's the same as calling:
     /// `Gfx::with_formats(FramebufferFormat::Bgr8, FramebufferFormat::Bgr8, false)`
-    pub fn init() -> Result<Self> {
+    pub fn new() -> Result<Self> {
         Gfx::with_formats(FramebufferFormat::Bgr8, FramebufferFormat::Bgr8, false)
     }
 
@@ -294,6 +294,6 @@ mod tests {
     #[test]
     fn gfx_duplicate() {
         // We don't need to build a `Gfx` because the test runner has one already
-        assert!(matches!(Gfx::init(), Err(Error::ServiceAlreadyActive)));
+        assert!(matches!(Gfx::new(), Err(Error::ServiceAlreadyActive)));
     }
 }

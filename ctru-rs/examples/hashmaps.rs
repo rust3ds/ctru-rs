@@ -8,10 +8,10 @@ fn main() {
     // HashMaps generate hashes thanks to the 3DS' cryptografically secure generator.
     // This generator is only active when activating the `PS` service.
     // This service is automatically initialized.
-    let apt = Apt::init().unwrap();
-    let mut hid = Hid::init().unwrap();
-    let gfx = Gfx::init().unwrap();
-    let _console = Console::init(gfx.top_screen.borrow_mut());
+    let apt = Apt::new().unwrap();
+    let mut hid = Hid::new().unwrap();
+    let gfx = Gfx::new().unwrap();
+    let _console = Console::new(gfx.top_screen.borrow_mut());
 
     let mut map = std::collections::HashMap::new();
     map.insert("A Key!", 102);

@@ -12,10 +12,10 @@ static ZERO: &[u8] = &[0; IMAGE.len()];
 fn main() {
     ctru::use_panic_handler();
 
-    let gfx = Gfx::init().expect("Couldn't obtain GFX controller");
-    let mut hid = Hid::init().expect("Couldn't obtain HID controller");
-    let apt = Apt::init().expect("Couldn't obtain APT controller");
-    let _console = Console::init(gfx.bottom_screen.borrow_mut());
+    let gfx = Gfx::new().expect("Couldn't obtain GFX controller");
+    let mut hid = Hid::new().expect("Couldn't obtain HID controller");
+    let apt = Apt::new().expect("Couldn't obtain APT controller");
+    let _console = Console::new(gfx.bottom_screen.borrow_mut());
 
     println!("Press Start to exit.\nPress A to switch sides (be sure to have 3D mode enabled).");
 

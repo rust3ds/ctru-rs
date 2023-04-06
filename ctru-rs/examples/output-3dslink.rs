@@ -13,11 +13,11 @@ use ctru::prelude::*;
 fn main() {
     ctru::use_panic_handler();
 
-    let gfx = Gfx::init().expect("Couldn't obtain GFX controller");
-    let mut hid = Hid::init().expect("Couldn't obtain HID controller");
-    let apt = Apt::init().expect("Couldn't obtain APT controller");
+    let gfx = Gfx::new().expect("Couldn't obtain GFX controller");
+    let mut hid = Hid::new().expect("Couldn't obtain HID controller");
+    let apt = Apt::new().expect("Couldn't obtain APT controller");
 
-    let mut soc = Soc::init().expect("Couldn't obtain SOC controller");
+    let mut soc = Soc::new().expect("Couldn't obtain SOC controller");
 
     soc.redirect_to_3dslink(true, true)
         .expect("unable to redirect stdout/err to 3dslink server");

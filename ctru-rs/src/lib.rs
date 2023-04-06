@@ -54,7 +54,7 @@ fn panic_hook_setup() {
         if main_thread == std::thread::current().id() && console::Console::exists() {
             println!("\nPress SELECT to exit the software");
 
-            match Hid::init() {
+            match Hid::new() {
                 Ok(mut hid) => loop {
                     hid.scan_input();
                     let keys = hid.keys_down();

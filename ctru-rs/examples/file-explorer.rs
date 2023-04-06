@@ -11,14 +11,14 @@ use std::path::{Path, PathBuf};
 fn main() {
     ctru::use_panic_handler();
 
-    let apt = Apt::init().unwrap();
-    let mut hid = Hid::init().unwrap();
-    let gfx = Gfx::init().unwrap();
+    let apt = Apt::new().unwrap();
+    let mut hid = Hid::new().unwrap();
+    let gfx = Gfx::new().unwrap();
 
     #[cfg(all(feature = "romfs", romfs_exists))]
-    let _romfs = ctru::services::romfs::RomFS::init().unwrap();
+    let _romfs = ctru::services::romfs::RomFS::new().unwrap();
 
-    FileExplorer::init(&apt, &mut hid, &gfx).run();
+    FileExplorer::new(&apt, &mut hid, &gfx).run();
 }
 
 struct FileExplorer<'a> {
@@ -32,10 +32,10 @@ struct FileExplorer<'a> {
 }
 
 impl<'a> FileExplorer<'a> {
-    fn init(apt: &'a Apt, hid: &'a mut Hid, gfx: &'a Gfx) -> Self {
+    fn new(apt: &'a Apt, hid: &'a mut Hid, gfx: &'a Gfx) -> Self {
         let mut top_screen = gfx.top_screen.borrow_mut();
         top_screen.set_wide_mode(true);
-        let console = Console::init(top_screen);
+        let console = Console::new(top_screen);
 
         FileExplorer {
             apt,

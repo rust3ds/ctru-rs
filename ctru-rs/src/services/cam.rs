@@ -770,7 +770,7 @@ impl Cam {
     /// This function will return an error if the service was unable to be initialized.
     /// Since this service requires no special or elevated permissions, errors are
     /// rare in practice.
-    pub fn init() -> crate::Result<Cam> {
+    pub fn new() -> crate::Result<Cam> {
         unsafe {
             ResultCode(ctru_sys::camInit())?;
             Ok(Cam {

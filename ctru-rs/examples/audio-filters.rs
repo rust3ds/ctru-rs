@@ -37,10 +37,10 @@ fn fill_buffer(audio_data: &mut [u8], frequency: f32) {
 fn main() {
     ctru::use_panic_handler();
 
-    let gfx = Gfx::init().expect("Couldn't obtain GFX controller");
-    let mut hid = Hid::init().expect("Couldn't obtain HID controller");
-    let apt = Apt::init().expect("Couldn't obtain APT controller");
-    let _console = Console::init(gfx.top_screen.borrow_mut());
+    let gfx = Gfx::new().expect("Couldn't obtain GFX controller");
+    let mut hid = Hid::new().expect("Couldn't obtain HID controller");
+    let apt = Apt::new().expect("Couldn't obtain APT controller");
+    let _console = Console::new(gfx.top_screen.borrow_mut());
 
     let mut note: usize = 4;
 
@@ -68,7 +68,7 @@ fn main() {
     let mut wave_info1 = Wave::new(audio_data1, AudioFormat::PCM16Stereo, false);
     let mut wave_info2 = Wave::new(audio_data2, AudioFormat::PCM16Stereo, false);
 
-    let mut ndsp = Ndsp::init().expect("Couldn't obtain NDSP controller");
+    let mut ndsp = Ndsp::new().expect("Couldn't obtain NDSP controller");
 
     // This line isn't needed since the default NDSP configuration already sets the output mode to `Stereo`
     ndsp.set_output_mode(OutputMode::Stereo);

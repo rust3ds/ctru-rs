@@ -25,7 +25,7 @@ pub struct RomFS {
 static ROMFS_ACTIVE: Mutex<usize> = Mutex::new(0);
 
 impl RomFS {
-    pub fn init() -> crate::Result<Self> {
+    pub fn new() -> crate::Result<Self> {
         let _service_handler = ServiceReference::new(
             &ROMFS_ACTIVE,
             true,
@@ -50,7 +50,7 @@ mod tests {
 
     #[test]
     fn romfs_counter() {
-        let _romfs = RomFS::init().unwrap();
+        let _romfs = RomFS::new().unwrap();
         let value = *ROMFS_ACTIVE.lock().unwrap();
 
         assert_eq!(value, 1);

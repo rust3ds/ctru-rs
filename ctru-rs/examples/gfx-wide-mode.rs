@@ -3,10 +3,10 @@ use ctru::prelude::*;
 fn main() {
     ctru::use_panic_handler();
 
-    let apt = Apt::init().unwrap();
-    let mut hid = Hid::init().unwrap();
-    let gfx = Gfx::init().unwrap();
-    let mut console = Console::init(gfx.top_screen.borrow_mut());
+    let apt = Apt::new().unwrap();
+    let mut hid = Hid::new().unwrap();
+    let gfx = Gfx::new().unwrap();
+    let mut console = Console::new(gfx.top_screen.borrow_mut());
 
     println!("Press A to enable/disable wide screen mode.");
 
@@ -23,7 +23,7 @@ fn main() {
             let wide_mode = gfx.top_screen.borrow().is_wide();
             gfx.top_screen.borrow_mut().set_wide_mode(!wide_mode);
 
-            console = Console::init(gfx.top_screen.borrow_mut());
+            console = Console::new(gfx.top_screen.borrow_mut());
             println!("Press A to enable/disable wide screen mode.");
         }
 
