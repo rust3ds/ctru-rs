@@ -56,17 +56,22 @@ pub trait Screen: private::Sealed {
     }
 
     /// Swaps the video buffers.
-    /// 
+    ///
     /// This should be used even if double buffering is disabled.
     fn flush_buffer(&mut self) {
         let framebuffer = self.raw_framebuffer();
 
         // Flush the data array. `self.raw_framebuffer` should get the correct parameters for all kinds of screens
-        unsafe { ctru_sys::GSPGPU_FlushDataCache(framebuffer.ptr.cast(), (framebuffer.height * framebuffer.width) as u32) };
+        unsafe {
+            ctru_sys::GSPGPU_FlushDataCache(
+                framebuffer.ptr.cast(),
+                (framebuffer.height * framebuffer.width) as u32,
+            )
+        };
     }
 
     /// Swaps the video buffers.
-    /// 
+    ///
     /// This should be used even if double buffering is disabled.
     fn swap_buffers(&mut self) {
         unsafe { ctru_sys::gfxScreenSwapBuffers(self.side().into(), true) };

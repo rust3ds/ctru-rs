@@ -29,7 +29,7 @@ bitflags! {
         const FS_WRITE_FLUSH       =   1;
         const FS_WRITE_UPDATE_TIME = 256;
     }
-    
+
     #[derive(Default)]
     struct FsAttribute: u32 {
         const FS_ATTRIBUTE_DIRECTORY =        1;

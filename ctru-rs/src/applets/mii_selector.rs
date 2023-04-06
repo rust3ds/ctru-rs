@@ -155,6 +155,12 @@ impl MiiSelector {
     }
 }
 
+impl Default for MiiSelector {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl From<ctru_sys::MiiSelectorReturn> for SelectionResult {
     fn from(ret: ctru_sys::MiiSelectorReturn) -> Self {
         let raw_mii_data = ret.mii;
