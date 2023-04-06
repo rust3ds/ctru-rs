@@ -34,15 +34,15 @@ pub trait Screen: private::Sealed {
     /// Note that the pointer of the framebuffer returned by this function can
     /// change after each call to this function if double buffering is enabled.
     fn raw_framebuffer(&mut self) -> RawFrameBuffer {
-        let mut width = 0;
-        let mut height = 0;
+        let mut width: u16 = 0;
+        let mut height: u16 = 0;
         let ptr = unsafe {
             ctru_sys::gfxGetFramebuffer(self.as_raw(), self.side().into(), &mut width, &mut height)
         };
         RawFrameBuffer {
             ptr,
-            width,
-            height,
+            width: width.into(),
+            height: height.into(),
             screen: PhantomData,
         }
     }
@@ -62,7 +62,7 @@ pub trait Screen: private::Sealed {
         let framebuffer = self.raw_framebuffer();
 
         // Flush the data array. `self.raw_framebuffer` should get the correct parameters for all kinds of screens
-        unsafe { ctru_sys::GSPGPU_FlushDataCache(framebuffer.ptr.cast(), (framebuffer.height * framebuffer.width).into()) };
+        unsafe { ctru_sys::GSPGPU_FlushDataCache(framebuffer.ptr.cast(), (framebuffer.height * framebuffer.width) as u32) };
     }
 
     /// Swaps the video buffers.
@@ -113,9 +113,9 @@ pub struct RawFrameBuffer<'screen> {
     /// Pointer to graphics data to be rendered.
     pub ptr: *mut u8,
     /// The width of the framebuffer in pixels.
-    pub width: u16,
+    pub width: usize,
     /// The height of the framebuffer in pixels.
-    pub height: u16,
+    pub height: usize,
     /// Keep a mutable reference to the Screen for which this framebuffer is tied.
     screen: PhantomData<&'screen mut dyn Screen>,
 }
