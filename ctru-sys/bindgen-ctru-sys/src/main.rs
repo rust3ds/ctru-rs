@@ -47,9 +47,8 @@ fn main() {
             "-march=armv6k",
             "-mtune=mpcore",
             "-mfpu=vfp",
-            "-DARM11 ",
-            "-D_3DS ",
-            "-D__3DS__ ",
+            "-DARM11",
+            "-D__3DS__",
         ])
         .parse_callbacks(Box::new(CustomCallbacks))
         .generate()
