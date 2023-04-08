@@ -154,9 +154,9 @@ impl<T> ::core::cmp::PartialEq for __BindgenUnionField<T> {
 }
 impl<T> ::core::cmp::Eq for __BindgenUnionField<T> {}
 pub const _NEWLIB_VERSION_H__: u32 = 1;
-pub const _NEWLIB_VERSION: &[u8; 6usize] = b"4.2.0\0";
+pub const _NEWLIB_VERSION: &[u8; 6usize] = b"4.3.0\0";
 pub const __NEWLIB__: u32 = 4;
-pub const __NEWLIB_MINOR__: u32 = 2;
+pub const __NEWLIB_MINOR__: u32 = 3;
 pub const __NEWLIB_PATCHLEVEL__: u32 = 0;
 pub const _DEFAULT_SOURCE: u32 = 1;
 pub const _POSIX_SOURCE: u32 = 1;
@@ -174,6 +174,11 @@ pub const __XSI_VISIBLE: u32 = 0;
 pub const __SSP_FORTIFY_LEVEL: u32 = 0;
 pub const _POSIX_MONOTONIC_CLOCK: u32 = 200112;
 pub const _POSIX_TIMERS: u32 = 1;
+pub const _POSIX_THREADS: u32 = 1;
+pub const _POSIX_SEMAPHORES: u32 = 1;
+pub const _POSIX_BARRIERS: u32 = 200112;
+pub const _POSIX_READER_WRITER_LOCKS: u32 = 200112;
+pub const _UNIX98_THREAD_MUTEX_ATTRIBUTES: u32 = 1;
 pub const __have_longlong64: u32 = 1;
 pub const __have_long32: u32 = 1;
 pub const ___int8_t_defined: u32 = 1;
@@ -249,20 +254,20 @@ pub const OS_FCRAM_VADDR: u32 = 805306368;
 pub const OS_FCRAM_PADDR: u32 = 536870912;
 pub const OS_FCRAM_SIZE: u32 = 268435456;
 pub const __NEWLIB_H__: u32 = 1;
+pub const _ATEXIT_DYNAMIC_ALLOC: u32 = 1;
+pub const _FSEEK_OPTIMIZATION: u32 = 1;
+pub const _FVWRITE_IN_STREAMIO: u32 = 1;
+pub const _HAVE_CC_INHIBIT_LOOP_TO_LIBCALL: u32 = 1;
+pub const _HAVE_INITFINI_ARRAY: u32 = 1;
+pub const _HAVE_LONG_DOUBLE: u32 = 1;
+pub const _LDBL_EQ_DBL: u32 = 1;
+pub const _MB_CAPABLE: u32 = 1;
+pub const _MB_LEN_MAX: u32 = 8;
+pub const _REENT_CHECK_VERIFY: u32 = 1;
+pub const _UNBUF_STREAM_OPT: u32 = 1;
 pub const _WANT_IO_C99_FORMATS: u32 = 1;
 pub const _WANT_IO_LONG_LONG: u32 = 1;
 pub const _WANT_IO_POS_ARGS: u32 = 1;
-pub const _REENT_CHECK_VERIFY: u32 = 1;
-pub const _MB_CAPABLE: u32 = 1;
-pub const _MB_LEN_MAX: u32 = 8;
-pub const HAVE_INITFINI_ARRAY: u32 = 1;
-pub const _ATEXIT_DYNAMIC_ALLOC: u32 = 1;
-pub const _HAVE_LONG_DOUBLE: u32 = 1;
-pub const _HAVE_CC_INHIBIT_LOOP_TO_LIBCALL: u32 = 1;
-pub const _LDBL_EQ_DBL: u32 = 1;
-pub const _FVWRITE_IN_STREAMIO: u32 = 1;
-pub const _FSEEK_OPTIMIZATION: u32 = 1;
-pub const _UNBUF_STREAM_OPT: u32 = 1;
 pub const _WANT_USE_GDTOA: u32 = 1;
 pub const __OBSOLETE_MATH_DEFAULT: u32 = 0;
 pub const __OBSOLETE_MATH: u32 = 0;
@@ -286,7 +291,6 @@ pub const CONSOLE_FG_CUSTOM: u32 = 512;
 pub const CONSOLE_BG_CUSTOM: u32 = 1024;
 pub const __GNUCLIKE_ASM: u32 = 3;
 pub const __GNUCLIKE___TYPEOF: u32 = 1;
-pub const __GNUCLIKE___OFFSETOF: u32 = 1;
 pub const __GNUCLIKE___SECTION: u32 = 1;
 pub const __GNUCLIKE_CTOR_SECTION_HANDLING: u32 = 1;
 pub const __GNUCLIKE_BUILTIN_CONSTANT_P: u32 = 1;
@@ -324,6 +328,10 @@ pub const PTHREAD_INHERIT_SCHED: u32 = 1;
 pub const PTHREAD_EXPLICIT_SCHED: u32 = 2;
 pub const PTHREAD_CREATE_DETACHED: u32 = 0;
 pub const PTHREAD_CREATE_JOINABLE: u32 = 1;
+pub const PTHREAD_MUTEX_NORMAL: u32 = 0;
+pub const PTHREAD_MUTEX_RECURSIVE: u32 = 1;
+pub const PTHREAD_MUTEX_ERRORCHECK: u32 = 2;
+pub const PTHREAD_MUTEX_DEFAULT: u32 = 3;
 pub const CSND_NUM_CHANNELS: u32 = 32;
 pub const FRIEND_SCREEN_NAME_SIZE: u32 = 11;
 pub const FRIEND_COMMENT_SIZE: u32 = 33;
@@ -359,7 +367,6 @@ pub const _RAND48_ADD: u32 = 11;
 pub const _REENT_EMERGENCY_SIZE: u32 = 25;
 pub const _REENT_ASCTIME_SIZE: u32 = 26;
 pub const _REENT_SIGNAL_SIZE: u32 = 24;
-pub const _N_LISTS: u32 = 30;
 pub const _CLOCKS_PER_SEC_: u32 = 100;
 pub const CLOCKS_PER_SEC: u32 = 100;
 pub const CLK_TCK: u32 = 100;
@@ -2206,12 +2213,13 @@ pub type DebugThreadParameter = ::libc::c_uint;
 #[doc = " Information on address space for process. All sizes are in pages (0x1000 bytes)"]
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
-pub struct CodeSetInfo {
+pub struct CodeSetHeader {
     #[doc = "< ASCII name of codeset"]
     pub name: [u8_; 8usize],
-    pub unk1: u16_,
-    pub unk2: u16_,
-    pub unk3: u32_,
+    #[doc = "< Version field of codeset (unused)"]
+    pub version: u16_,
+    #[doc = "< Padding"]
+    pub padding: [u16_; 3usize],
     #[doc = "< .text start address"]
     pub text_addr: u32_,
     #[doc = "< .text number of pages"]
@@ -2230,7 +2238,8 @@ pub struct CodeSetInfo {
     pub ro_size_total: u32_,
     #[doc = "< total pages for .data, .bss (aligned)"]
     pub rw_size_total: u32_,
-    pub unk4: u32_,
+    #[doc = "< Padding"]
+    pub padding2: u32_,
     #[doc = "< Program ID"]
     pub program_id: u64_,
 }
@@ -2393,23 +2402,23 @@ extern "C" {
 }
 extern "C" {
     #[must_use]
-    #[doc = " Sets up virtual address space for a new process\n # Arguments\n\n* `out` (direction out) - Pointer to output the code set handle to.\n * `info` - Description for setting up the addresses\n * `code_ptr` - Pointer to .text in shared memory\n * `ro_ptr` - Pointer to .rodata in shared memory\n * `data_ptr` - Pointer to .data in shared memory"]
+    #[doc = " Sets up virtual address space for a new process.\n # Arguments\n\n* `out` (direction out) - Pointer to output the codeset handle to.\n * `info` - Codeset header, contains process name, titleId and segment info.\n * `textSegmentLma` - Address of executable segment in caller's address space.\n * `roSegmentLma` - Address of read-only segment in caller's address space.\n * `dataSegmentLma` - Address of read-write segment in caller's address space.\n > **Note:** On success, the provided segments are unmapped from the caller's address space."]
     pub fn svcCreateCodeSet(
         out: *mut Handle,
-        info: *const CodeSetInfo,
-        code_ptr: *mut ::libc::c_void,
-        ro_ptr: *mut ::libc::c_void,
-        data_ptr: *mut ::libc::c_void,
+        info: *const CodeSetHeader,
+        textSegmentLma: u32_,
+        roSegmentLma: u32_,
+        dataSegmentLma: u32_,
     ) -> Result;
 }
 extern "C" {
     #[must_use]
-    #[doc = " Sets up virtual address space for a new process\n # Arguments\n\n* `out` (direction out) - Pointer to output the process handle to.\n * `codeset` - Codeset created for this process\n * `arm11kernelcaps` - ARM11 Kernel Capabilities from exheader\n * `arm11kernelcaps_num` - Number of kernel capabilities"]
+    #[doc = " Create a new process.\n # Arguments\n\n* `out` (direction out) - Pointer to output the process handle to.\n * `codeset` - Codeset created for this process.\n * `arm11KernelCaps` - Arm11 Kernel Capabilities from exheader.\n * `numArm11KernelCaps` - Number of kernel capabilities."]
     pub fn svcCreateProcess(
         out: *mut Handle,
         codeset: Handle,
-        arm11kernelcaps: *const u32_,
-        arm11kernelcaps_num: u32_,
+        arm11KernelCaps: *const u32_,
+        numArm11KernelCaps: s32,
     ) -> Result;
 }
 extern "C" {
@@ -3602,18 +3611,18 @@ extern "C" {
     #[doc = " Checks whether a port is registered.\n # Arguments\n\n* `registeredOut` - Pointer to output the registration status to.\n * `name` - Name of the port to check."]
     pub fn srvIsPortRegistered(registeredOut: *mut bool, name: *const ::libc::c_char) -> Result;
 }
-#[doc = "< For generic errors. Shows miscellaneous info."]
+#[doc = "< Generic fatal error. Shows miscellaneous info, including the address of the caller"]
 pub const ERRF_ERRTYPE_GENERIC: ERRF_ErrType = 0;
-#[doc = "< Same output as generic, but informs the user that \"the System Memory has been damaged\"."]
-pub const ERRF_ERRTYPE_MEM_CORRUPT: ERRF_ErrType = 1;
-#[doc = "< Displays the \"The Game Card was removed.\" message."]
+#[doc = "< Damaged NAND (CC_ERROR after reading CSR)"]
+pub const ERRF_ERRTYPE_NAND_DAMAGED: ERRF_ErrType = 1;
+#[doc = "< Game content storage medium (cartridge and/or SD card) ejected. Not logged"]
 pub const ERRF_ERRTYPE_CARD_REMOVED: ERRF_ErrType = 2;
-#[doc = "< For exceptions, or more specifically 'crashes'. union data should be exception_data."]
+#[doc = "< CPU or VFP exception"]
 pub const ERRF_ERRTYPE_EXCEPTION: ERRF_ErrType = 3;
-#[doc = "< For general failure. Shows a message. union data should have a string set in failure_mesg"]
+#[doc = "< Fatal error with a message instead of the caller's address"]
 pub const ERRF_ERRTYPE_FAILURE: ERRF_ErrType = 4;
-#[doc = "< Outputs logs to NAND in some cases."]
-pub const ERRF_ERRTYPE_LOGGED: ERRF_ErrType = 5;
+#[doc = "< Log-level failure. Does not display the exception and does not force the system to reboot"]
+pub const ERRF_ERRTYPE_LOG_ONLY: ERRF_ErrType = 5;
 #[doc = " Types of errors that can be thrown by err:f."]
 pub type ERRF_ErrType = ::libc::c_uint;
 #[doc = "< Prefetch Abort"]
@@ -3679,11 +3688,11 @@ pub struct ERRF_FatalErrInfo {
     pub resCode: u32_,
     #[doc = "< PC address at exception"]
     pub pcAddr: u32_,
-    #[doc = "< Process ID."]
+    #[doc = "< Process ID of the caller"]
     pub procId: u32_,
-    #[doc = "< Title ID."]
+    #[doc = "< Title ID of the caller"]
     pub titleId: u64_,
-    #[doc = "< Application Title ID."]
+    #[doc = "< Title ID of the running application"]
     pub appTitleId: u64_,
     #[doc = "< The different types of data for errors."]
     pub data: ERRF_FatalErrInfo__bindgen_ty_1,
@@ -3729,18 +3738,28 @@ extern "C" {
 }
 extern "C" {
     #[must_use]
-    #[doc = " Throws a system error and possibly results in ErrDisp triggering.\n # Arguments\n\n* `error` (direction in) - Error to throw.\n\n After performing this, the system may panic and need to be rebooted. Extra information will be displayed on the\n top screen with a developer console or the proper patches in a CFW applied.\n\n The error may not be shown and execution aborted until errfExit(void) is called.\n\n You may wish to use ERRF_ThrowResult() or ERRF_ThrowResultWithMessage() instead of\n constructing the ERRF_FatalErrInfo struct yourself."]
+    #[doc = " Throws a system error and possibly logs it.\n # Arguments\n\n* `error` (direction in) - Error to throw.\n\n ErrDisp may convert the error info to ERRF_ERRTYPE_NAND_DAMAGED or ERRF_ERRTYPE_CARD_REMOVED\n depending on the error code.\n\n Except with ERRF_ERRTYPE_LOG_ONLY, the system will panic and will need to be rebooted.\n Fatal error information will also be logged into a file, unless the type either ERRF_ERRTYPE_NAND_DAMAGED\n or ERRF_ERRTYPE_CARD_REMOVED.\n\n No error will be shown if the system is asleep.\n\n On retail units with vanilla firmware, no detailed information will be displayed on screen.\n\n You may wish to use ERRF_ThrowResult() or ERRF_ThrowResultWithMessage() instead of\n constructing the ERRF_FatalErrInfo struct yourself."]
     pub fn ERRF_Throw(error: *const ERRF_FatalErrInfo) -> Result;
 }
 extern "C" {
     #[must_use]
-    #[doc = " Throws a system error with the given Result code.\n # Arguments\n\n* `failure` (direction in) - Result code to throw.\n\n This calls ERRF_Throw() with error type ERRF_ERRTYPE_GENERIC and fills in the required data.\n\n This function _does_ fill in the address where this function was called from.\n\n See https://3dbrew.org/wiki/ERR:Throw#Generic for expected top screen output\n on development units/patched ErrDisp."]
+    #[doc = " Throws (and logs) a system error with the given Result code.\n # Arguments\n\n* `failure` (direction in) - Result code to throw.\n\n This calls ERRF_Throw with error type ERRF_ERRTYPE_GENERIC and fills in the required data.\n\n This function _does_ fill in the address where this function was called from."]
     pub fn ERRF_ThrowResult(failure: Result) -> Result;
 }
 extern "C" {
     #[must_use]
-    #[doc = " Throws a system error with the given Result code and message.\n # Arguments\n\n* `failure` (direction in) - Result code to throw.\n * `message` (direction in) - The message to display.\n\n This calls ERRF_Throw() with error type ERRF_ERRTYPE_FAILURE and fills in the required data.\n\n This function does _not_ fill in the address where this function was called from because it\n would not be displayed.\n\n The message is only displayed on development units/patched ErrDisp.\n\n See https://3dbrew.org/wiki/ERR:Throw#Result_Failure for expected top screen output\n on development units/patched ErrDisp."]
+    #[doc = " Logs a system error with the given Result code.\n # Arguments\n\n* `failure` (direction in) - Result code to log.\n\n Similar to ERRF_Throw, except that it does not display anything on the screen,\n nor does it force the system to reboot.\n\n This function _does_ fill in the address where this function was called from."]
+    pub fn ERRF_LogResult(failure: Result) -> Result;
+}
+extern "C" {
+    #[must_use]
+    #[doc = " Throws a system error with the given Result code and message.\n # Arguments\n\n* `failure` (direction in) - Result code to throw.\n * `message` (direction in) - The message to display.\n\n This calls ERRF_Throw with error type ERRF_ERRTYPE_FAILURE and fills in the required data.\n\n This function does _not_ fill in the address where this function was called from because it\n would not be displayed."]
     pub fn ERRF_ThrowResultWithMessage(failure: Result, message: *const ::libc::c_char) -> Result;
+}
+extern "C" {
+    #[must_use]
+    #[doc = " Specify an additional user string to use for error reporting.\n # Arguments\n\n* `user_string` (direction in) - User string (up to 256 bytes, not including NUL byte)"]
+    pub fn ERRF_SetUserString(user_string: *const ::libc::c_char) -> Result;
 }
 extern "C" {
     #[doc = " Handles an exception using ErrDisp.\n # Arguments\n\n* `excep` - Exception information\n * `regs` - CPU registers\n\n You might want to clear ENVINFO's bit0 to be able to see any debugging information.\n [`threadOnException`]"]
@@ -3882,18 +3901,7 @@ pub struct __lock_t {
     pub counter: u32,
 }
 pub type _LOCK_RECURSIVE_T = __lock_t;
-extern "C" {
-    pub fn __libc_lock_init(lock: *mut _LOCK_T);
-}
-extern "C" {
-    pub fn __libc_lock_init_recursive(lock: *mut _LOCK_RECURSIVE_T);
-}
-extern "C" {
-    pub fn __libc_lock_close(lock: *mut _LOCK_T);
-}
-extern "C" {
-    pub fn __libc_lock_close_recursive(lock: *mut _LOCK_RECURSIVE_T);
-}
+pub type _COND_T = u32;
 extern "C" {
     pub fn __libc_lock_acquire(lock: *mut _LOCK_T);
 }
@@ -3911,6 +3919,26 @@ extern "C" {
 }
 extern "C" {
     pub fn __libc_lock_try_acquire_recursive(lock: *mut _LOCK_RECURSIVE_T) -> ::libc::c_int;
+}
+extern "C" {
+    pub fn __libc_cond_signal(cond: *mut _COND_T) -> ::libc::c_int;
+}
+extern "C" {
+    pub fn __libc_cond_broadcast(cond: *mut _COND_T) -> ::libc::c_int;
+}
+extern "C" {
+    pub fn __libc_cond_wait(
+        cond: *mut _COND_T,
+        lock: *mut _LOCK_T,
+        timeout_ns: u64,
+    ) -> ::libc::c_int;
+}
+extern "C" {
+    pub fn __libc_cond_wait_recursive(
+        cond: *mut _COND_T,
+        lock: *mut _LOCK_RECURSIVE_T,
+        timeout_ns: u64,
+    ) -> ::libc::c_int;
 }
 #[doc = " A light lock."]
 pub type LightLock = _LOCK_T;
@@ -4623,6 +4651,7 @@ pub type _iconv_t = *mut ::libc::c_void;
 pub type __clock_t = ::libc::c_ulong;
 pub type __time_t = __int_least64_t;
 pub type __clockid_t = ::libc::c_ulong;
+pub type __daddr_t = ::libc::c_long;
 pub type __timer_t = ::libc::c_ulong;
 pub type __sa_family_t = __uint8_t;
 pub type __socklen_t = __uint32_t;
@@ -4644,6 +4673,12 @@ pub struct timeval {
 pub struct timespec {
     pub tv_sec: time_t,
     pub tv_nsec: ::libc::c_long,
+}
+extern "C" {
+    pub fn timespec2nsec(ts: *const timespec) -> __uint64_t;
+}
+extern "C" {
+    pub fn abstimespec2nsec(clock_id: __clockid_t, ts: *const timespec) -> __uint64_t;
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
@@ -4691,7 +4726,7 @@ pub type ulong = ::libc::c_ulong;
 pub type blkcnt_t = __blkcnt_t;
 pub type blksize_t = __blksize_t;
 pub type clock_t = ::libc::c_ulong;
-pub type daddr_t = ::libc::c_long;
+pub type daddr_t = __daddr_t;
 pub type caddr_t = *mut ::libc::c_char;
 pub type fsblkcnt_t = __fsblkcnt_t;
 pub type fsfilcnt_t = __fsfilcnt_t;
@@ -4714,16 +4749,17 @@ pub type sbintime_t = __int64_t;
 pub struct sched_param {
     pub sched_priority: ::libc::c_int,
 }
-pub type pthread_t = __uint32_t;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct __pthread_t {
+    _unused: [u8; 0],
+}
+pub type pthread_t = *mut __pthread_t;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct pthread_attr_t {
-    pub is_initialized: ::libc::c_int,
     pub stackaddr: *mut ::libc::c_void,
     pub stacksize: ::libc::c_int,
-    pub contentionscope: ::libc::c_int,
-    pub inheritsched: ::libc::c_int,
-    pub schedpolicy: ::libc::c_int,
     pub schedparam: sched_param,
     pub detachstate: ::libc::c_int,
 }
@@ -4736,27 +4772,119 @@ impl Default for pthread_attr_t {
         }
     }
 }
-pub type pthread_mutex_t = __uint32_t;
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct pthread_mutex_t {
+    pub type_: ::libc::c_int,
+    pub __bindgen_anon_1: pthread_mutex_t__bindgen_ty_1,
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub union pthread_mutex_t__bindgen_ty_1 {
+    pub normal: _LOCK_T,
+    pub recursive: _LOCK_RECURSIVE_T,
+}
+impl Default for pthread_mutex_t__bindgen_ty_1 {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl Default for pthread_mutex_t {
+    fn default() -> Self {
+        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct pthread_mutexattr_t {
-    pub is_initialized: ::libc::c_int,
-    pub recursive: ::libc::c_int,
+    pub type_: ::libc::c_int,
 }
-pub type pthread_cond_t = __uint32_t;
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct pthread_cond_t {
+    pub clock_id: clockid_t,
+    pub cond: _COND_T,
+}
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct pthread_condattr_t {
-    pub is_initialized: ::libc::c_int,
-    pub clock: clock_t,
+    pub clock_id: clockid_t,
 }
 pub type pthread_key_t = __uint32_t;
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct pthread_once_t {
-    pub is_initialized: ::libc::c_int,
-    pub init_executed: ::libc::c_int,
+    pub status: ::libc::c_int,
 }
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct pthread_barrier_t {
+    pub lock: _LOCK_T,
+    pub cond: _COND_T,
+    pub reload: ::libc::c_uint,
+    pub counter: ::libc::c_uint,
+    pub cycle: ::libc::c_uint,
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct pthread_barrierattr_t {}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct pthread_rwlock_t {
+    pub lock: _LOCK_T,
+    pub cond_r: _COND_T,
+    pub cond_w: _COND_T,
+    pub _bitfield_align_1: [u32; 0],
+    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 4usize]>,
+}
+impl pthread_rwlock_t {
+    #[inline]
+    pub fn cnt_r(&self) -> u32 {
+        unsafe { ::core::mem::transmute(self._bitfield_1.get(0usize, 30u8) as u32) }
+    }
+    #[inline]
+    pub fn set_cnt_r(&mut self, val: u32) {
+        unsafe {
+            let val: u32 = ::core::mem::transmute(val);
+            self._bitfield_1.set(0usize, 30u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn cnt_w(&self) -> u32 {
+        unsafe { ::core::mem::transmute(self._bitfield_1.get(30usize, 2u8) as u32) }
+    }
+    #[inline]
+    pub fn set_cnt_w(&mut self, val: u32) {
+        unsafe {
+            let val: u32 = ::core::mem::transmute(val);
+            self._bitfield_1.set(30usize, 2u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn new_bitfield_1(cnt_r: u32, cnt_w: u32) -> __BindgenBitfieldUnit<[u8; 4usize]> {
+        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 4usize]> = Default::default();
+        __bindgen_bitfield_unit.set(0usize, 30u8, {
+            let cnt_r: u32 = unsafe { ::core::mem::transmute(cnt_r) };
+            cnt_r as u64
+        });
+        __bindgen_bitfield_unit.set(30usize, 2u8, {
+            let cnt_w: u32 = unsafe { ::core::mem::transmute(cnt_w) };
+            cnt_w as u64
+        });
+        __bindgen_bitfield_unit
+    }
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct pthread_rwlockattr_t {}
 #[doc = "< Dummy compression"]
 pub const DECOMPRESS_DUMMY: decompressType = 0;
 #[doc = "< LZSS/LZ10 compression"]
@@ -7183,8 +7311,20 @@ extern "C" {
     pub fn aptSetChainloader(programID: u64_, mediatype: u8_);
 }
 extern "C" {
+    #[doc = " Configures the chainloader to launch the previous application."]
+    pub fn aptSetChainloaderToCaller();
+}
+extern "C" {
     #[doc = " Configures the chainloader to relaunch the current application (i.e. soft-reset)"]
     pub fn aptSetChainloaderToSelf();
+}
+extern "C" {
+    #[doc = " Sets the \"deliver arg\" and HMAC for the chainloader, which will\n        be passed to the target 3DS/DS(i) application. The meaning of each\n        parameter varies on a per-application basis.\n # Arguments\n\n* `deliverArg` - Deliver arg to pass to the target application.\n * `deliverArgSize` - Size of the deliver arg, maximum 0x300 bytes.\n * `hmac` - HMAC buffer, 32 bytes. Use NULL to pass an all-zero dummy HMAC."]
+    pub fn aptSetChainloaderArgs(
+        deliverArg: *const ::libc::c_void,
+        deliverArgSize: usize,
+        hmac: *const ::libc::c_void,
+    );
 }
 extern "C" {
     #[must_use]
@@ -7468,9 +7608,9 @@ extern "C" {
     #[must_use]
     #[doc = " Receives the deliver (launch) argument\n # Arguments\n\n* `param` - Parameter buffer.\n * `paramSize` - Size of parameter buffer.\n * `hmac` - HMAC buffer (should be 0x20 bytes long).\n * `sender` - Pointer to output the sender's AppID to.\n * `received` - Pointer to output whether an argument was received to."]
     pub fn APT_ReceiveDeliverArg(
-        param: *const ::libc::c_void,
+        param: *mut ::libc::c_void,
         paramSize: usize,
-        hmac: *const ::libc::c_void,
+        hmac: *mut ::libc::c_void,
         sender: *mut u64_,
         received: *mut bool,
     ) -> Result;
@@ -13282,6 +13422,16 @@ extern "C" {
 }
 extern "C" {
     #[must_use]
+    #[doc = " Gets an event which is signaled once a send finishes.\n # Arguments\n\n* `out` - Pointer to write the event handle to."]
+    pub fn IRU_GetSendFinishedEvent(out: *mut Handle) -> Result;
+}
+extern "C" {
+    #[must_use]
+    #[doc = " Gets an event which is signaled once a receive finishes.\n # Arguments\n\n* `out` - Pointer to write the event handle to."]
+    pub fn IRU_GetRecvFinishedEvent(out: *mut Handle) -> Result;
+}
+extern "C" {
+    #[must_use]
     #[doc = " Initializes NS."]
     pub fn nsInit() -> Result;
 }
@@ -14057,6 +14207,9 @@ impl Default for __sFILE {
     }
 }
 pub type __FILE = __sFILE;
+extern "C" {
+    pub static mut __sf: [__FILE; 3usize];
+}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct _glue {
@@ -14072,6 +14225,9 @@ impl Default for _glue {
             s.assume_init()
         }
     }
+}
+extern "C" {
+    pub static mut __sglue: _glue;
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
@@ -14089,9 +14245,7 @@ pub struct _reent {
     pub _stderr: *mut __FILE,
     pub _inc: ::libc::c_int,
     pub _emergency: [::libc::c_char; 25usize],
-    pub _unspecified_locale_info: ::libc::c_int,
     pub _locale: *mut __locale_t,
-    pub __sdidinit: ::libc::c_int,
     pub __cleanup: ::core::option::Option<unsafe extern "C" fn(arg1: *mut _reent)>,
     pub _result: *mut _Bigint,
     pub _result_k: ::libc::c_int,
@@ -14100,23 +14254,17 @@ pub struct _reent {
     pub _cvtlen: ::libc::c_int,
     pub _cvtbuf: *mut ::libc::c_char,
     pub _new: _reent__bindgen_ty_1,
-    pub _atexit: *mut _atexit,
-    pub _atexit0: _atexit,
     pub _sig_func: *mut ::core::option::Option<unsafe extern "C" fn(arg1: ::libc::c_int)>,
-    pub __sglue: _glue,
-    pub __sf: [__FILE; 3usize],
     pub deviceData: *mut ::libc::c_void,
 }
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub union _reent__bindgen_ty_1 {
     pub _reent: _reent__bindgen_ty_1__bindgen_ty_1,
-    pub _unused: _reent__bindgen_ty_1__bindgen_ty_2,
 }
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct _reent__bindgen_ty_1__bindgen_ty_1 {
-    pub _unused_rand: ::libc::c_uint,
     pub _strtok_last: *mut ::libc::c_char,
     pub _asctime_buf: [::libc::c_char; 26usize],
     pub _localtime_buf: __tm,
@@ -14137,21 +14285,6 @@ pub struct _reent__bindgen_ty_1__bindgen_ty_1 {
     pub _h_errno: ::libc::c_int,
 }
 impl Default for _reent__bindgen_ty_1__bindgen_ty_1 {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct _reent__bindgen_ty_1__bindgen_ty_2 {
-    pub _nextf: [*mut ::libc::c_uchar; 30usize],
-    pub _nmalloc: [::libc::c_uint; 30usize],
-}
-impl Default for _reent__bindgen_ty_1__bindgen_ty_2 {
     fn default() -> Self {
         let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
         unsafe {
@@ -14182,13 +14315,28 @@ extern "C" {
     pub static mut _impure_ptr: *mut _reent;
 }
 extern "C" {
-    pub static _global_impure_ptr: *mut _reent;
+    pub static mut _impure_data: _reent;
+}
+extern "C" {
+    pub static mut __atexit: *mut _atexit;
+}
+extern "C" {
+    pub static mut __atexit0: _atexit;
+}
+extern "C" {
+    pub static mut __stdio_exit_handler: ::core::option::Option<unsafe extern "C" fn()>;
 }
 extern "C" {
     pub fn _reclaim_reent(arg1: *mut _reent);
 }
 extern "C" {
-    pub fn __getreent() -> *mut _reent;
+    pub fn _fwalk_sglue(
+        arg1: *mut _reent,
+        arg2: ::core::option::Option<
+            unsafe extern "C" fn(arg1: *mut _reent, arg2: *mut __FILE) -> ::libc::c_int,
+        >,
+        arg3: *mut _glue,
+    ) -> ::libc::c_int;
 }
 pub type locale_t = *mut __locale_t;
 #[repr(C)]
@@ -14293,6 +14441,8 @@ pub struct sigevent {
     pub sigev_notify: ::libc::c_int,
     pub sigev_signo: ::libc::c_int,
     pub sigev_value: sigval,
+    pub sigev_notify_function: ::core::option::Option<unsafe extern "C" fn(arg1: sigval)>,
+    pub sigev_notify_attributes: *mut pthread_attr_t,
 }
 impl Default for sigevent {
     fn default() -> Self {
@@ -15570,6 +15720,10 @@ extern "C" {
     pub fn mcuHwcExit();
 }
 extern "C" {
+    #[doc = " Gets the current mcuHwc session handle.\n # Returns\n\nA pointer to the current mcuHwc session handle."]
+    pub fn mcuHwcGetSessionHandle() -> *mut Handle;
+}
+extern "C" {
     #[must_use]
     #[doc = " Reads data from an i2c device3 register\n # Arguments\n\n* `reg` - Register number. See https://www.3dbrew.org/wiki/I2C_Registers#Device_3 for more info\n * `data` - Pointer to write the data to.\n * `size` - Size of data to be read"]
     pub fn MCUHWC_ReadRegister(reg: u8_, data: *mut ::libc::c_void, size: u32_) -> Result;
@@ -15618,6 +15772,80 @@ extern "C" {
     #[must_use]
     #[doc = " Gets the minor MCU firmware version\n # Arguments\n\n* `out` - Pointer to write the minor firmware version to."]
     pub fn MCUHWC_GetFwVerLow(out: *mut u8_) -> Result;
+}
+#[doc = "< Primary I2S line, used by DSP/Mic (configurable)/GBA sound controller."]
+pub const CODEC_I2S_LINE_1: CodecI2sLine = 0;
+#[doc = "< Secondary I2S line, used by CSND hardware."]
+pub const CODEC_I2S_LINE_2: CodecI2sLine = 1;
+#[doc = " I2S line enumeration"]
+pub type CodecI2sLine = ::libc::c_uint;
+extern "C" {
+    #[must_use]
+    #[doc = " Initializes CDCCHK."]
+    pub fn cdcChkInit() -> Result;
+}
+extern "C" {
+    #[doc = " Exits CDCCHK."]
+    pub fn cdcChkExit();
+}
+extern "C" {
+    #[doc = " Gets a pointer to the current cdc:CHK session handle.\n # Returns\n\nA pointer to the current cdc:CHK session handle."]
+    pub fn cdcChkGetSessionHandle() -> *mut Handle;
+}
+extern "C" {
+    #[must_use]
+    #[doc = " Reads multiple registers from the CODEC, using the old\n SPI hardware interface and a 4MHz baudrate.\n # Arguments\n\n* `pageId` - CODEC Page ID.\n * `initialRegAddr` - Address of the CODEC register to start with.\n * `outData` (direction out) - Where to write the read data to.\n * `size` - Number of registers to read (bytes to read, max. 64)."]
+    pub fn CDCCHK_ReadRegisters1(
+        pageId: u8_,
+        initialRegAddr: u8_,
+        outData: *mut ::libc::c_void,
+        size: usize,
+    ) -> Result;
+}
+extern "C" {
+    #[must_use]
+    #[doc = " Reads multiple registers from the CODEC, using the new\n SPI hardware interface and a 16MHz baudrate.\n # Arguments\n\n* `pageId` - CODEC Page ID.\n * `initialRegAddr` - Address of the CODEC register to start with.\n * `outData` (direction out) - Where to read the data to.\n * `size` - Number of registers to read (bytes to read, max. 64)."]
+    pub fn CDCCHK_ReadRegisters2(
+        pageId: u8_,
+        initialRegAddr: u8_,
+        outData: *mut ::libc::c_void,
+        size: usize,
+    ) -> Result;
+}
+extern "C" {
+    #[must_use]
+    #[doc = " Writes multiple registers to the CODEC, using the old\n SPI hardware interface and a 4MHz baudrate.\n # Arguments\n\n* `pageId` - CODEC Page ID.\n * `initialRegAddr` - Address of the CODEC register to start with.\n * `data` - Where to read the data to write from.\n * `size` - Number of registers to write (bytes to read, max. 64)."]
+    pub fn CDCCHK_WriteRegisters1(
+        pageId: u8_,
+        initialRegAddr: u8_,
+        data: *const ::libc::c_void,
+        size: usize,
+    ) -> Result;
+}
+extern "C" {
+    #[must_use]
+    #[doc = " Writes multiple registers to the CODEC, using the new\n SPI hardware interface and a 16MHz baudrate.\n # Arguments\n\n* `pageId` - CODEC Page ID.\n * `initialRegAddr` - Address of the CODEC register to start with.\n * `data` - Where to read the data to write from.\n * `size` - Number of registers to write (bytes to read, max. 64)."]
+    pub fn CDCCHK_WriteRegisters2(
+        pageId: u8_,
+        initialRegAddr: u8_,
+        data: *const ::libc::c_void,
+        size: usize,
+    ) -> Result;
+}
+extern "C" {
+    #[must_use]
+    #[doc = " Reads a single register from the NTR PMIC.\n # Arguments\n\n* `outData` (direction out) - Where to read the data to (1 byte).\n * `regAddr` - Register address.\n > **Note:** The NTR PMIC is emulated by the CODEC hardware and sends\n IRQs to the MCU when relevant."]
+    pub fn CDCCHK_ReadNtrPmicRegister(outData: *mut u8_, regAddr: u8_) -> Result;
+}
+extern "C" {
+    #[must_use]
+    #[doc = " Writes a single register from the NTR PMIC.\n # Arguments\n\n* `regAddr` - Register address.\n * `data` - Data to write (1 byte).\n > **Note:** The NTR PMIC is emulated by the CODEC hardware and sends\n IRQs to the MCU when relevant."]
+    pub fn CDCCHK_WriteNtrPmicRegister(regAddr: u8_, data: u8_) -> Result;
+}
+extern "C" {
+    #[must_use]
+    #[doc = " Sets the DAC volume level for the specified I2S line.\n # Arguments\n\n* `i2sLine` - I2S line to set the volume for.\n * `volume` - Volume level (-128 to 0)."]
+    pub fn CDCCHK_SetI2sVolume(i2sLine: CodecI2sLine, volume: s8) -> Result;
 }
 #[doc = "< 8-bit Red + 8-bit Green + 8-bit Blue + 8-bit Alpha"]
 pub const GX_TRANSFER_FMT_RGBA8: GX_TRANSFER_FORMAT = 0;
@@ -16857,16 +17085,32 @@ extern "C" {
     pub fn ndspSetMasterVol(volume: f32);
 }
 extern "C" {
+    #[doc = " Gets the master volume.\n # Returns\n\nThe master volume."]
+    pub fn ndspGetMasterVol() -> f32;
+}
+extern "C" {
     #[doc = " Sets the output mode.\n # Arguments\n\n* `mode` - Output mode to set. Defaults to NDSP_OUTPUT_STEREO."]
     pub fn ndspSetOutputMode(mode: ndspOutputMode);
+}
+extern "C" {
+    #[doc = " Gets the output mode.\n # Returns\n\nThe output mode."]
+    pub fn ndspGetOutputMode() -> ndspOutputMode;
 }
 extern "C" {
     #[doc = " Sets the clipping mode.\n # Arguments\n\n* `mode` - Clipping mode to set. Defaults to NDSP_CLIP_SOFT."]
     pub fn ndspSetClippingMode(mode: ndspClippingMode);
 }
 extern "C" {
+    #[doc = " Gets the clipping mode.\n # Returns\n\nThe clipping mode."]
+    pub fn ndspGetClippingMode() -> ndspClippingMode;
+}
+extern "C" {
     #[doc = " Sets the output count.\n # Arguments\n\n* `count` - Output count to set. Defaults to 2."]
     pub fn ndspSetOutputCount(count: ::libc::c_int);
+}
+extern "C" {
+    #[doc = " Gets the output count.\n # Returns\n\nThe output count."]
+    pub fn ndspGetOutputCount() -> ::libc::c_int;
 }
 extern "C" {
     #[doc = " Sets the wave buffer to capture audio to.\n # Arguments\n\n* `capture` - Wave buffer to capture to."]
@@ -16881,24 +17125,48 @@ extern "C" {
     pub fn ndspSurroundSetDepth(depth: u16_);
 }
 extern "C" {
+    #[doc = " Gets the surround sound depth.\n # Returns\n\nThe surround sound depth."]
+    pub fn ndspSurroundGetDepth() -> u16_;
+}
+extern "C" {
     #[doc = " Sets the surround sound position.\n # Arguments\n\n* `pos` - Position to set. Defaults to NDSP_SPKPOS_SQUARE."]
     pub fn ndspSurroundSetPos(pos: ndspSpeakerPos);
+}
+extern "C" {
+    #[doc = " Gets the surround sound position.\n # Returns\n\nThe surround sound speaker position."]
+    pub fn ndspSurroundGetPos() -> ndspSpeakerPos;
 }
 extern "C" {
     #[doc = " Sets the surround sound rear ratio.\n # Arguments\n\n* `ratio` - Rear ratio to set. Defaults to 0x8000."]
     pub fn ndspSurroundSetRearRatio(ratio: u16_);
 }
 extern "C" {
+    #[doc = " Gets the surround sound rear ratio.\n # Returns\n\nThe rear ratio."]
+    pub fn ndspSurroundGetRearRatio() -> u16_;
+}
+extern "C" {
     #[doc = "Auxiliary output\n# **\n* Configures whether an auxiliary output is enabled.\n* # Arguments\n\n* `id` - ID of the auxiliary output.\n* * `enable` - Whether to enable the auxiliary output.\n*/"]
     pub fn ndspAuxSetEnable(id: ::libc::c_int, enable: bool);
+}
+extern "C" {
+    #[doc = " Gets whether auxiliary output is enabled.\n # Arguments\n\n* `id` - ID of the auxiliary output.\n # Returns\n\nWhether auxiliary output is enabled."]
+    pub fn ndspAuxIsEnabled(id: ::libc::c_int) -> bool;
 }
 extern "C" {
     #[doc = " Configures whether an auxiliary output should use front bypass.\n # Arguments\n\n* `id` - ID of the auxiliary output.\n * `bypass` - Whether to use front bypass."]
     pub fn ndspAuxSetFrontBypass(id: ::libc::c_int, bypass: bool);
 }
 extern "C" {
+    #[doc = " Gets whether auxiliary output front bypass is enabled.\n # Arguments\n\n* `id` - ID of the auxiliary output.\n # Returns\n\nWhether auxiliary output front bypass is enabled."]
+    pub fn ndspAuxGetFrontBypass(id: ::libc::c_int) -> bool;
+}
+extern "C" {
     #[doc = " Sets the volume of an auxiliary output.\n # Arguments\n\n* `id` - ID of the auxiliary output.\n * `volume` - Volume to set."]
     pub fn ndspAuxSetVolume(id: ::libc::c_int, volume: f32);
+}
+extern "C" {
+    #[doc = " Gets the volume of an auxiliary output.\n # Arguments\n\n* `id` - ID of the auxiliary output.\n # Returns\n\nVolume of the auxiliary output."]
+    pub fn ndspAuxGetVolume(id: ::libc::c_int) -> f32;
 }
 extern "C" {
     #[doc = " Sets the callback of an auxiliary output.\n # Arguments\n\n* `id` - ID of the auxiliary output.\n * `callback` - Callback to set.\n * `data` - User-defined data to pass to the callback."]
@@ -16979,16 +17247,32 @@ extern "C" {
     pub fn ndspChnSetFormat(id: ::libc::c_int, format: u16_);
 }
 extern "C" {
+    #[doc = " Gets the format of a channel.\n # Arguments\n\n* `id` - ID of the channel (0..23).\n # Returns\n\nThe format of the channel."]
+    pub fn ndspChnGetFormat(id: ::libc::c_int) -> u16_;
+}
+extern "C" {
     #[doc = " Sets the interpolation type of a channel.\n # Arguments\n\n* `id` - ID of the channel (0..23).\n * `type` - Interpolation type to use."]
     pub fn ndspChnSetInterp(id: ::libc::c_int, type_: ndspInterpType);
+}
+extern "C" {
+    #[doc = " Gets the interpolation type of a channel.\n # Arguments\n\n* `id` - ID of the channel (0..23).\n # Returns\n\nThe interpolation type of the channel."]
+    pub fn ndspChnGetInterp(id: ::libc::c_int) -> ndspInterpType;
 }
 extern "C" {
     #[doc = " Sets the sample rate of a channel.\n # Arguments\n\n* `id` - ID of the channel (0..23).\n * `rate` - Sample rate to use."]
     pub fn ndspChnSetRate(id: ::libc::c_int, rate: f32);
 }
 extern "C" {
+    #[doc = " Gets the sample rate of a channel.\n # Arguments\n\n* `id` - ID of the channel (0..23).\n # Returns\n\nThe sample rate of the channel."]
+    pub fn ndspChnGetRate(id: ::libc::c_int) -> f32;
+}
+extern "C" {
     #[doc = " Sets the mix parameters (volumes) of a channel.\n # Arguments\n\n* `id` - ID of the channel (0..23).\n * `mix` - Mix parameters to use. Working hypothesis:\n   - 0: Front left volume.\n   - 1: Front right volume.\n   - 2: Back left volume:\n   - 3: Back right volume:\n   - 4..7: Same as 0..3, but for auxiliary output 0.\n   - 8..11: Same as 0..3, but for auxiliary output 1."]
     pub fn ndspChnSetMix(id: ::libc::c_int, mix: *mut f32);
+}
+extern "C" {
+    #[doc = " Gets the mix parameters (volumes) of a channel.\n # Arguments\n\n* `id` - ID of the channel (0..23)\n * `mix` - Mix parameters to write out to. See ndspChnSetMix."]
+    pub fn ndspChnGetMix(id: ::libc::c_int, mix: *mut f32);
 }
 extern "C" {
     #[doc = " Sets the DSPADPCM coefficients of a channel.\n # Arguments\n\n* `id` - ID of the channel (0..23).\n * `coefs` - DSPADPCM coefficients to use."]
