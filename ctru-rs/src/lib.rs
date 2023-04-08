@@ -8,8 +8,8 @@
 #![test_runner(test_runner::run)]
 
 // Nothing is imported from these crates but their inclusion here assures correct linking of the missing implementations.
-extern crate linker_fix_3ds;
 extern crate pthread_3ds;
+extern crate shim_3ds;
 
 #[no_mangle]
 #[cfg(feature = "big-stack")]
@@ -55,7 +55,7 @@ fn panic_hook_setup() {
             println!("\nPress SELECT to exit the software");
 
             match Hid::init() {
-                Ok(hid) => loop {
+                Ok(mut hid) => loop {
                     hid.scan_input();
                     let keys = hid.keys_down();
                     if keys.contains(KeyPad::SELECT) {

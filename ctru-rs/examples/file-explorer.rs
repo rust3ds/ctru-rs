@@ -12,18 +12,18 @@ fn main() {
     ctru::use_panic_handler();
 
     let apt = Apt::init().unwrap();
-    let hid = Hid::init().unwrap();
+    let mut hid = Hid::init().unwrap();
     let gfx = Gfx::init().unwrap();
 
     #[cfg(all(feature = "romfs", romfs_exists))]
     let _romfs = ctru::services::romfs::RomFS::init().unwrap();
 
-    FileExplorer::init(&apt, &hid, &gfx).run();
+    FileExplorer::init(&apt, &mut hid, &gfx).run();
 }
 
 struct FileExplorer<'a> {
     apt: &'a Apt,
-    hid: &'a Hid,
+    hid: &'a mut Hid,
     gfx: &'a Gfx,
     console: Console<'a>,
     path: PathBuf,
@@ -32,7 +32,7 @@ struct FileExplorer<'a> {
 }
 
 impl<'a> FileExplorer<'a> {
-    fn init(apt: &'a Apt, hid: &'a Hid, gfx: &'a Gfx) -> Self {
+    fn init(apt: &'a Apt, hid: &'a mut Hid, gfx: &'a Gfx) -> Self {
         let mut top_screen = gfx.top_screen.borrow_mut();
         top_screen.set_wide_mode(true);
         let console = Console::init(top_screen);

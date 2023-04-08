@@ -310,7 +310,7 @@ impl Fs {
     }
 
     /// Returns a handle to the SDMC (memory card) Archive.
-    pub fn sdmc(&self) -> crate::Result<Archive> {
+    pub fn sdmc(&mut self) -> crate::Result<Archive> {
         unsafe {
             let mut handle = 0;
             let id = ArchiveID::Sdmc;
@@ -384,7 +384,7 @@ impl File {
     /// let sdmc_archive = fs.sdmc().unwrap();
     /// let mut f = File::create(&sdmc_archive, "/foo.txt").unwrap();
     /// ```
-    pub fn create<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<File> {
+    pub fn create<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<File> {
         OpenOptions::new()
             .write(true)
             .create(true)
@@ -588,11 +588,11 @@ impl OpenOptions {
     /// * Invalid combinations of open options.
     ///
     /// [`Archive`]: struct.Archive.html
-    pub fn open<P: AsRef<Path>>(&self, path: P) -> IoResult<File> {
+    pub fn open<P: AsRef<Path>>(&mut self, path: P) -> IoResult<File> {
         self._open(path.as_ref(), self.open_flags())
     }
 
-    fn _open(&self, path: &Path, flags: FsOpen) -> IoResult<File> {
+    fn _open(&mut self, path: &Path, flags: FsOpen) -> IoResult<File> {
         unsafe {
             let mut file_handle = 0;
             let path = to_utf16(path);
@@ -706,7 +706,7 @@ impl<'a> DirEntry<'a> {
 /// but is not limited to just these cases:
 ///
 /// * User lacks permissions to create directory at `path`
-pub fn create_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
+pub fn create_dir<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<()> {
     unsafe {
         let path = to_utf16(path.as_ref());
         let fs_path = ctru_sys::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
@@ -732,7 +732,7 @@ pub fn create_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
 ///
 /// * If any directory in the path specified by `path` does not already exist
 ///   and it could not be created otherwise.
-pub fn create_dir_all<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
+pub fn create_dir_all<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<()> {
     let path = path.as_ref();
     let mut dir = PathBuf::new();
     let mut result = Ok(());
@@ -768,7 +768,7 @@ pub fn metadata<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<Metadata> {
 ///
 /// * The user lacks permissions to remove the directory at the provided path.
 /// * The directory isn't empty.
-pub fn remove_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
+pub fn remove_dir<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<()> {
     unsafe {
         let path = to_utf16(path.as_ref());
         let fs_path = ctru_sys::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
@@ -786,7 +786,7 @@ pub fn remove_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
 /// # Errors
 ///
 /// see `file::remove_file` and `fs::remove_dir`
-pub fn remove_dir_all<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
+pub fn remove_dir_all<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<()> {
     unsafe {
         let path = to_utf16(path.as_ref());
         let fs_path = ctru_sys::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
@@ -838,7 +838,7 @@ pub fn read_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<ReadDir> {
 ///
 /// * path points to a directory.
 /// * The user lacks permissions to remove the file.
-pub fn remove_file<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
+pub fn remove_file<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<()> {
     unsafe {
         let path = to_utf16(path.as_ref());
         let fs_path = ctru_sys::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
@@ -861,7 +861,7 @@ pub fn remove_file<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
 ///
 /// * from does not exist.
 /// * The user lacks permissions to view contents.
-pub fn rename<P, Q>(arch: &Archive, from: P, to: Q) -> IoResult<()>
+pub fn rename<P, Q>(arch: &mut Archive, from: P, to: Q) -> IoResult<()>
 where
     P: AsRef<Path>,
     Q: AsRef<Path>,
