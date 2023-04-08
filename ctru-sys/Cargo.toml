@@ -1,6 +1,6 @@
 [package]
 name = "ctru-sys"
-version = "21.2.0+2.1.2-1"
+version = "22.0.0+2.2.0"
 authors = [ "Rust3DS Org", "Ronald Kinard <furyhunter600@gmail.com>" ]
 license = "Zlib"
 links = "ctru"
