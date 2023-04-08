@@ -34,7 +34,9 @@ cfg_if::cfg_if! {
             //! [package.metadata.cargo-3ds]
             //! romfs_dir = "romfs"
             //! ```
-
+            
+            // If the feature is set, but no "romfs" directory was found: send an error during compilation.
+            #[cfg(feature = "romfs")]
             compile_error!("romfs feature is enabled but no romfs found!");
         }
     }
