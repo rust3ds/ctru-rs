@@ -55,7 +55,7 @@ pub trait Screen: private::Sealed {
         unsafe { ctru_sys::gfxSetDoubleBuffering(self.as_raw(), enabled) }
     }
 
-    /// Swaps the video buffers.
+    /// Flushes the video buffer for this screen.
     ///
     /// This should be used even if double buffering is disabled.
     fn flush_buffer(&mut self) {
