@@ -13,10 +13,10 @@ bitflags::bitflags! {
         const B             = ctru_sys::KEY_B;
         const SELECT        = ctru_sys::KEY_SELECT;
         const START         = ctru_sys::KEY_START;
-        const DRIGHT        = ctru_sys::KEY_DRIGHT;
-        const DLEFT         = ctru_sys::KEY_DLEFT;
-        const DUP           = ctru_sys::KEY_DUP;
-        const DDOWN         = ctru_sys::KEY_DDOWN;
+        const DPAD_RIGHT        = ctru_sys::KEY_DRIGHT;
+        const DPAD_LEFT         = ctru_sys::KEY_DLEFT;
+        const DPAD_UP           = ctru_sys::KEY_DUP;
+        const DPAD_DOWN         = ctru_sys::KEY_DDOWN;
         const R             = ctru_sys::KEY_R;
         const L             = ctru_sys::KEY_L;
         const X             = ctru_sys::KEY_X;
@@ -33,10 +33,10 @@ bitflags::bitflags! {
         const CPAD_UP       = ctru_sys::KEY_CPAD_UP;
         const CPAD_DOWN     = ctru_sys::KEY_CPAD_DOWN;
         // Convenience catch-all for the dpad and cpad
-        const UP    = KeyPad::DUP.bits()    | KeyPad::CPAD_UP.bits();
-        const DOWN  = KeyPad::DDOWN.bits()  | KeyPad::CPAD_DOWN.bits();
-        const LEFT  = KeyPad::DLEFT.bits()  | KeyPad::CPAD_LEFT.bits();
-        const RIGHT = KeyPad::DRIGHT.bits() | KeyPad::CPAD_RIGHT.bits();
+        const UP    = KeyPad::DPAD_UP.bits()    | KeyPad::CPAD_UP.bits();
+        const DOWN  = KeyPad::DPAD_DOWN.bits()  | KeyPad::CPAD_DOWN.bits();
+        const LEFT  = KeyPad::DPAD_LEFT.bits()  | KeyPad::CPAD_LEFT.bits();
+        const RIGHT = KeyPad::DPAD_RIGHT.bits() | KeyPad::CPAD_RIGHT.bits();
     }
 }
 
