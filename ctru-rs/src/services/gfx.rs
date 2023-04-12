@@ -112,18 +112,13 @@ impl Swap for BottomScreen {
 }
 
 pub trait Flush: private::Sealed {
-    /// Flushes the video buffer for this screen.
-    fn flush_buffer(&mut self);
+    /// Flushes the video buffer(s) for this screen. Note that you must still call
+    /// [`Swap::swap_buffers`] after this method for the buffer contents to be displayed.
+    fn flush_buffers(&mut self);
 }
 
-trait FlushableScreen: Screen {}
-impl FlushableScreen for TopScreen {}
-impl FlushableScreen for BottomScreen {}
-impl FlushableScreen for TopScreenLeft {}
-impl FlushableScreen for TopScreenRight {}
-
-impl<S: FlushableScreen> Flush for S {
-    fn flush_buffer(&mut self) {
+impl<S: Screen> Flush for S {
+    fn flush_buffers(&mut self) {
         let framebuffer = self.raw_framebuffer();
 
         // Flush the data array. `self.raw_framebuffer` should get the correct parameters for all kinds of screens
@@ -133,6 +128,16 @@ impl<S: FlushableScreen> Flush for S {
                 (framebuffer.height * framebuffer.width) as u32,
             )
         };
+    }
+}
+
+impl Flush for TopScreen3D<'_> {
+    /// Unlike most other implementations of [`Flush`], this flushes the buffers for both
+    /// the left and right sides of the top screen.
+    fn flush_buffers(&mut self) {
+        let (mut left, mut right) = self.split_mut();
+        left.flush_buffers();
+        right.flush_buffers();
     }
 }
 
@@ -247,13 +252,6 @@ impl TopScreen3D<'_> {
         RefMut::map_split(self.screen.borrow_mut(), |screen| {
             (&mut screen.left as _, &mut screen.right as _)
         })
-    }
-
-    /// Convenient helper to flush the buffers for both the left and right sides of the screen.
-    pub fn flush_buffers(&mut self) {
-        let (mut left, mut right) = self.split_mut();
-        left.flush_buffer();
-        right.flush_buffer();
     }
 }
 

@@ -48,7 +48,7 @@ fn main() {
         }
 
         // Flush and swap framebuffers
-        bottom_screen.flush_buffer();
+        bottom_screen.flush_buffers();
         bottom_screen.swap_buffers();
 
         //Wait for VBlank

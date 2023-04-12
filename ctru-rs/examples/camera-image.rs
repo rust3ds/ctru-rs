@@ -88,7 +88,7 @@ fn main() {
             rotate_image_to_screen(&buf, top_screen.raw_framebuffer().ptr, WIDTH, HEIGHT);
 
             // We will only flush the "camera" screen, since the other screen is handled by `Console`
-            top_screen.flush_buffer();
+            top_screen.flush_buffers();
             top_screen.swap_buffers();
 
             gfx.wait_for_vblank();
