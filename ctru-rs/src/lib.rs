@@ -8,8 +8,8 @@
 #![test_runner(test_runner::run)]
 
 // Nothing is imported from these crates but their inclusion here assures correct linking of the missing implementations.
-extern crate linker_fix_3ds;
 extern crate pthread_3ds;
+extern crate shim_3ds;
 
 #[no_mangle]
 #[cfg(feature = "big-stack")]

@@ -9,11 +9,12 @@ use crate::services::gspgpu::{self, FramebufferFormat};
 use crate::services::ServiceReference;
 
 mod private {
-    use super::{BottomScreen, TopScreen, TopScreenLeft, TopScreenRight};
+    use super::{BottomScreen, TopScreen, TopScreen3D, TopScreenLeft, TopScreenRight};
 
     pub trait Sealed {}
 
     impl Sealed for TopScreen {}
+    impl Sealed for TopScreen3D<'_> {}
     impl Sealed for TopScreenLeft {}
     impl Sealed for TopScreenRight {}
     impl Sealed for BottomScreen {}
@@ -55,28 +56,6 @@ pub trait Screen: private::Sealed {
         unsafe { ctru_sys::gfxSetDoubleBuffering(self.as_raw(), enabled) }
     }
 
-    /// Swaps the video buffers.
-    ///
-    /// This should be used even if double buffering is disabled.
-    fn flush_buffer(&mut self) {
-        let framebuffer = self.raw_framebuffer();
-
-        // Flush the data array. `self.raw_framebuffer` should get the correct parameters for all kinds of screens
-        unsafe {
-            ctru_sys::GSPGPU_FlushDataCache(
-                framebuffer.ptr.cast(),
-                (framebuffer.height * framebuffer.width) as u32,
-            )
-        };
-    }
-
-    /// Swaps the video buffers.
-    ///
-    /// This should be used even if double buffering is disabled.
-    fn swap_buffers(&mut self) {
-        unsafe { ctru_sys::gfxScreenSwapBuffers(self.side().into(), true) };
-    }
-
     /// Gets the framebuffer format
     fn framebuffer_format(&self) -> FramebufferFormat {
         unsafe { ctru_sys::gfxGetScreenFormat(self.as_raw()) }.into()
@@ -101,13 +80,77 @@ pub struct TopScreen3D<'top_screen> {
     screen: &'top_screen RefCell<TopScreen>,
 }
 
-struct TopScreenLeft;
+pub trait Swap: private::Sealed {
+    fn swap_buffers(&mut self);
+}
 
-struct TopScreenRight;
+trait SwappableScreen: Screen {}
+impl SwappableScreen for TopScreen {}
+impl SwappableScreen for BottomScreen {}
 
+impl<S: SwappableScreen> Swap for S {
+    fn swap_buffers(&mut self) {
+        unsafe {
+            ctru_sys::gfxScreenSwapBuffers(self.side().into(), false);
+        }
+    }
+}
+
+pub trait Flush: private::Sealed {
+    fn flush_buffer(&mut self);
+}
+
+trait FlushableScreen: Screen {}
+impl FlushableScreen for TopScreen {}
+impl FlushableScreen for BottomScreen {}
+impl FlushableScreen for TopScreenLeft {}
+impl FlushableScreen for TopScreenRight {}
+
+impl<S: FlushableScreen> Flush for S {
+    fn flush_buffer(&mut self) {
+        let framebuffer = self.raw_framebuffer();
+
+        // Flush the data array. `self.raw_framebuffer` should get the correct parameters for all kinds of screens
+        unsafe {
+            ctru_sys::GSPGPU_FlushDataCache(
+                framebuffer.ptr.cast(),
+                (framebuffer.height * framebuffer.width) as u32,
+            )
+        };
+    }
+}
+
+impl Swap for TopScreen3D<'_> {
+    fn swap_buffers(&mut self) {
+        unsafe {
+            ctru_sys::gfxScreenSwapBuffers(Side::Left.into(), true);
+        }
+    }
+}
+
+impl TopScreen3D<'_> {
+    /// Flush the buffers for both the left and right sides of the screen.
+    pub fn flush_buffers(&mut self) {
+        let (mut left, mut right) = self.split_mut();
+        left.flush_buffer();
+        right.flush_buffer();
+    }
+}
+
+/// The left side of the top screen, when using 3D mode.
+#[derive(Debug)]
 #[non_exhaustive]
+pub struct TopScreenLeft;
+
+/// The right side of the top screen, when using 3D mode.
+#[derive(Debug)]
+#[non_exhaustive]
+pub struct TopScreenRight;
+
 /// The bottom screen. Mutable access to this struct is required to write to the
 /// bottom screen's frame buffer.
+#[derive(Debug)]
+#[non_exhaustive]
 pub struct BottomScreen;
 
 /// Representation of a framebuffer for one [`Side`] of the top screen, or the
@@ -194,14 +237,14 @@ impl Gfx {
 
 impl TopScreen3D<'_> {
     /// Immutably borrow the two sides of the screen as `(left, right)`.
-    pub fn split(&self) -> (Ref<dyn Screen>, Ref<dyn Screen>) {
+    pub fn split(&self) -> (Ref<TopScreenLeft>, Ref<TopScreenRight>) {
         Ref::map_split(self.screen.borrow(), |screen| {
             (&screen.left as _, &screen.right as _)
         })
     }
 
     /// Mutably borrow the two sides of the screen as `(left, right)`.
-    pub fn split_mut(&self) -> (RefMut<dyn Screen>, RefMut<dyn Screen>) {
+    pub fn split_mut(&self) -> (RefMut<TopScreenLeft>, RefMut<TopScreenRight>) {
         RefMut::map_split(self.screen.borrow_mut(), |screen| {
             (&mut screen.left as _, &mut screen.right as _)
         })

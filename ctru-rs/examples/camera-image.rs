@@ -1,6 +1,6 @@
 use ctru::prelude::*;
 use ctru::services::cam::{Cam, Camera, OutputFormat, ShutterSound, ViewSize};
-use ctru::services::gfx::Screen;
+use ctru::services::gfx::{Flush, Screen, Swap};
 use ctru::services::gspgpu::FramebufferFormat;
 
 use std::time::Duration;

@@ -1,5 +1,5 @@
 use ctru::prelude::*;
-use ctru::services::gfx::{Screen, Side, TopScreen3D};
+use ctru::services::gfx::{Screen, Side, Swap, TopScreen3D};
 
 /// See `graphics-bitmap.rs` for details on how the image is generated.
 ///
@@ -21,8 +21,7 @@ fn main() {
 
     gfx.top_screen.borrow_mut().set_double_buffering(true);
 
-    let top_screen = TopScreen3D::from(&gfx.top_screen);
-    let (mut left, mut right) = top_screen.split_mut();
+    let mut top_screen = TopScreen3D::from(&gfx.top_screen);
 
     let mut current_side = Side::Left;
 
@@ -34,6 +33,8 @@ fn main() {
         if hid.keys_down().contains(KeyPad::START) {
             break;
         }
+
+        let (mut left, mut right) = top_screen.split_mut();
 
         let left_buf = left.raw_framebuffer();
         let right_buf = right.raw_framebuffer();
@@ -61,8 +62,11 @@ fn main() {
             buf.copy_from(IMAGE.as_ptr(), IMAGE.len());
         }
 
-        left.flush_buffer();
-        left.swap_buffers();
+        drop(left);
+        drop(right);
+
+        top_screen.flush_buffers();
+        top_screen.swap_buffers();
 
         //Wait for VBlank
         gfx.wait_for_vblank();
