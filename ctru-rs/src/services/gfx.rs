@@ -56,8 +56,6 @@ pub trait Screen: private::Sealed {
     }
 
     /// Flushes the video buffer for this screen.
-    ///
-    /// This should be used even if double buffering is disabled.
     fn flush_buffer(&mut self) {
         let framebuffer = self.raw_framebuffer();
 
