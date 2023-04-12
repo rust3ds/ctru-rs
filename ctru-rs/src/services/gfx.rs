@@ -89,6 +89,9 @@ impl SwappableScreen for TopScreen {}
 impl SwappableScreen for BottomScreen {}
 
 impl<S: SwappableScreen> Swap for S {
+    /// Swaps the video buffers.
+    ///
+    /// This should be used even if double buffering is disabled.
     fn swap_buffers(&mut self) {
         unsafe {
             ctru_sys::gfxScreenSwapBuffers(self.side().into(), false);
@@ -97,6 +100,7 @@ impl<S: SwappableScreen> Swap for S {
 }
 
 pub trait Flush: private::Sealed {
+    /// Flushes the video buffer for this screen.
     fn flush_buffer(&mut self);
 }
 

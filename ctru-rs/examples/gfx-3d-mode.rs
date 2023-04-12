@@ -1,5 +1,5 @@
 use ctru::prelude::*;
-use ctru::services::gfx::{Screen, Side, Swap, TopScreen3D};
+use ctru::services::gfx::{Flush, Screen, Side, Swap, TopScreen3D};
 
 /// See `graphics-bitmap.rs` for details on how the image is generated.
 ///
