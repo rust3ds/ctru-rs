@@ -81,20 +81,32 @@ pub struct TopScreen3D<'top_screen> {
 }
 
 pub trait Swap: private::Sealed {
-    fn swap_buffers(&mut self);
-}
-
-trait SwappableScreen: Screen {}
-impl SwappableScreen for TopScreen {}
-impl SwappableScreen for BottomScreen {}
-
-impl<S: SwappableScreen> Swap for S {
     /// Swaps the video buffers.
     ///
     /// This should be used even if double buffering is disabled.
+    fn swap_buffers(&mut self);
+}
+
+impl Swap for TopScreen3D<'_> {
     fn swap_buffers(&mut self) {
         unsafe {
-            ctru_sys::gfxScreenSwapBuffers(self.side().into(), false);
+            ctru_sys::gfxScreenSwapBuffers(ctru_sys::GFX_TOP, true);
+        }
+    }
+}
+
+impl Swap for TopScreen {
+    fn swap_buffers(&mut self) {
+        unsafe {
+            ctru_sys::gfxScreenSwapBuffers(ctru_sys::GFX_TOP, false);
+        }
+    }
+}
+
+impl Swap for BottomScreen {
+    fn swap_buffers(&mut self) {
+        unsafe {
+            ctru_sys::gfxScreenSwapBuffers(ctru_sys::GFX_BOTTOM, false);
         }
     }
 }
@@ -121,23 +133,6 @@ impl<S: FlushableScreen> Flush for S {
                 (framebuffer.height * framebuffer.width) as u32,
             )
         };
-    }
-}
-
-impl Swap for TopScreen3D<'_> {
-    fn swap_buffers(&mut self) {
-        unsafe {
-            ctru_sys::gfxScreenSwapBuffers(Side::Left.into(), true);
-        }
-    }
-}
-
-impl TopScreen3D<'_> {
-    /// Flush the buffers for both the left and right sides of the screen.
-    pub fn flush_buffers(&mut self) {
-        let (mut left, mut right) = self.split_mut();
-        left.flush_buffer();
-        right.flush_buffer();
     }
 }
 
@@ -253,6 +248,13 @@ impl TopScreen3D<'_> {
             (&mut screen.left as _, &mut screen.right as _)
         })
     }
+
+    /// Convenient helper to flush the buffers for both the left and right sides of the screen.
+    pub fn flush_buffers(&mut self) {
+        let (mut left, mut right) = self.split_mut();
+        left.flush_buffer();
+        right.flush_buffer();
+    }
 }
 
 impl<'top_screen> From<&'top_screen RefCell<TopScreen>> for TopScreen3D<'top_screen> {
@@ -296,7 +298,7 @@ impl TopScreen {
 
 impl Screen for TopScreen {
     fn as_raw(&self) -> ctru_sys::gfxScreen_t {
-        self.left.as_raw()
+        ctru_sys::GFX_TOP
     }
 
     fn side(&self) -> Side {

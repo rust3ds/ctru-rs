@@ -62,8 +62,7 @@ fn main() {
             buf.copy_from(IMAGE.as_ptr(), IMAGE.len());
         }
 
-        drop(left);
-        drop(right);
+        drop((left, right));
 
         top_screen.flush_buffers();
         top_screen.swap_buffers();
