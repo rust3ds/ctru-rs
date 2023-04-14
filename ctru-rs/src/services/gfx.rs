@@ -50,18 +50,21 @@ pub trait Screen: private::Sealed {
 
     /// Sets whether to use double buffering. Enabled by default.
     ///
-    /// Note that even when double buffering is disabled, one should still use the `swap_buffers`
-    /// method on each frame to keep the gsp configuration up to date
+    /// [`Swap::swap_buffers`] must be called after this function for the configuration
+    /// change to take effect.
     fn set_double_buffering(&mut self, enabled: bool) {
         unsafe { ctru_sys::gfxSetDoubleBuffering(self.as_raw(), enabled) }
     }
 
-    /// Gets the framebuffer format
+    /// Gets the framebuffer format.
     fn framebuffer_format(&self) -> FramebufferFormat {
         unsafe { ctru_sys::gfxGetScreenFormat(self.as_raw()) }.into()
     }
 
-    /// Change the framebuffer format
+    /// Change the framebuffer format.
+    ///
+    /// [`Swap::swap_buffers`] must be called after this method for the configuration
+    /// change to take effect.
     fn set_framebuffer_format(&mut self, fmt: FramebufferFormat) {
         unsafe { ctru_sys::gfxSetScreenFormat(self.as_raw(), fmt.into()) }
     }
@@ -76,14 +79,25 @@ pub struct TopScreen {
 
 /// A helper container for both sides of the top screen. Once the [`TopScreen`] is
 /// converted into this, 3D mode will be enabled until this struct is dropped.
-pub struct TopScreen3D<'top_screen> {
-    screen: &'top_screen RefCell<TopScreen>,
+pub struct TopScreen3D<'screen> {
+    screen: &'screen RefCell<TopScreen>,
 }
 
+/// A screen that can have its frame buffers swapped, if double buffering is enabled.
+///
+/// This trait applies to all [`Screen`]s that have swappable frame buffers.
 pub trait Swap: private::Sealed {
     /// Swaps the video buffers.
     ///
-    /// This should be used even if double buffering is disabled.
+    /// If double buffering is disabled, "swapping" the buffers has the side effect
+    /// of committing any configuration changes to the buffers (e.g. [`set_wide_mode`],
+    /// [`set_framebuffer_format`], [`set_double_buffering`]).
+    ///
+    /// This should be called once per frame at most.
+    ///
+    /// [`set_wide_mode`]: TopScreen::set_wide_mode
+    /// [`set_framebuffer_format`]: Screen::set_framebuffer_format
+    /// [`set_double_buffering`]: Screen::set_double_buffering
     fn swap_buffers(&mut self);
 }
 
@@ -111,6 +125,8 @@ impl Swap for BottomScreen {
     }
 }
 
+/// A screen with buffers that can be flushed. This trait applies to any [`Screen`]
+/// that has data written to its frame buffer.
 pub trait Flush: private::Sealed {
     /// Flushes the video buffer(s) for this screen. Note that you must still call
     /// [`Swap::swap_buffers`] after this method for the buffer contents to be displayed.
@@ -242,21 +258,19 @@ impl Gfx {
 impl TopScreen3D<'_> {
     /// Immutably borrow the two sides of the screen as `(left, right)`.
     pub fn split(&self) -> (Ref<TopScreenLeft>, Ref<TopScreenRight>) {
-        Ref::map_split(self.screen.borrow(), |screen| {
-            (&screen.left as _, &screen.right as _)
-        })
+        Ref::map_split(self.screen.borrow(), |screen| (&screen.left, &screen.right))
     }
 
     /// Mutably borrow the two sides of the screen as `(left, right)`.
     pub fn split_mut(&self) -> (RefMut<TopScreenLeft>, RefMut<TopScreenRight>) {
         RefMut::map_split(self.screen.borrow_mut(), |screen| {
-            (&mut screen.left as _, &mut screen.right as _)
+            (&mut screen.left, &mut screen.right)
         })
     }
 }
 
-impl<'top_screen> From<&'top_screen RefCell<TopScreen>> for TopScreen3D<'top_screen> {
-    fn from(top_screen: &'top_screen RefCell<TopScreen>) -> Self {
+impl<'screen> From<&'screen RefCell<TopScreen>> for TopScreen3D<'screen> {
+    fn from(top_screen: &'screen RefCell<TopScreen>) -> Self {
         unsafe {
             ctru_sys::gfxSet3D(true);
         }
@@ -282,6 +296,9 @@ impl TopScreen {
     }
 
     /// Enable or disable wide mode on the top screen.
+    ///
+    /// [`Swap::swap_buffers`] must be called after this method for the configuration
+    /// to take effect.
     pub fn set_wide_mode(&mut self, enable: bool) {
         unsafe {
             ctru_sys::gfxSetWide(enable);
@@ -294,9 +311,11 @@ impl TopScreen {
     }
 }
 
+// When 3D mode is disabled, only the left side is used, so this Screen impl
+// just forwards everything to the TopScreenLeft.
 impl Screen for TopScreen {
     fn as_raw(&self) -> ctru_sys::gfxScreen_t {
-        ctru_sys::GFX_TOP
+        self.left.as_raw()
     }
 
     fn side(&self) -> Side {
