@@ -14,7 +14,7 @@ impl Apt {
         unsafe { ctru_sys::aptMainLoop() }
     }
 
-    pub fn set_app_cpu_time_limit(&self, percent: u32) -> crate::Result<()> {
+    pub fn set_app_cpu_time_limit(&mut self, percent: u32) -> crate::Result<()> {
         unsafe {
             ResultCode(ctru_sys::APT_SetAppCpuTimeLimit(percent))?;
             Ok(())

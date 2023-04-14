@@ -9,7 +9,7 @@ fn main() {
 
     let gfx = Gfx::init().unwrap();
     let _console = Console::init(gfx.top_screen.borrow_mut());
-    let hid = Hid::init().unwrap();
+    let mut hid = Hid::init().unwrap();
     let apt = Apt::init().unwrap();
 
     println!("\nlibctru sockets demo\n");

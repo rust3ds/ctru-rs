@@ -71,7 +71,7 @@ impl Hid {
     /// Scans the HID service for all user input occurring on the current
     /// frame. This function should be called on every frame when polling
     /// for user input.
-    pub fn scan_input(&self) {
+    pub fn scan_input(&mut self) {
         unsafe { ctru_sys::hidScanInput() };
     }
 

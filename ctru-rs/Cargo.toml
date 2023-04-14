@@ -1,5 +1,5 @@
 [package]
-authors = ["Ronald Kinard <furyhunter600@gmail.com>"]
+authors = [ "Rust3DS Org", "Ronald Kinard <furyhunter600@gmail.com>" ]
 description = "A safe wrapper around smealum's ctrulib."
 license = "Zlib"
 name = "ctru-rs"
@@ -15,7 +15,7 @@ name = "ctru"
 cfg-if = "1.0"
 ctru-sys = { path = "../ctru-sys", version = "21.2" }
 const-zero = "0.1.0"
-linker-fix-3ds = { git = "https://github.com/rust3ds/rust-linker-fix-3ds.git" }
+shim-3ds = { git = "https://github.com/rust3ds/shim-3ds.git" }
 pthread-3ds = { git = "https://github.com/rust3ds/pthread-3ds.git" }
 libc = "0.2.121"
 bitflags = "1.0.0"
