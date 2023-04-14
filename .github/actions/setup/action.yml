@@ -36,11 +36,9 @@ runs:
         command: install
         # TODO: this should probably just be a released version from crates.io
         # once cargo-3ds gets published somewhere...
-        #
-        # also switch to master hash once feature/doctests gets merged
         args: >-
           --git https://github.com/rust3ds/cargo-3ds
-          --rev 5a06e64307499ffe681453e7d88d7ee986054eb7
+          --rev 78a652fdfb01e2614a792d1a56b10c980ee1dae9
 
     - name: Set PATH to include devkitARM
       shell: bash
