@@ -103,7 +103,7 @@ pub struct Fs(());
 /// ```no_run
 /// use ctru::services::fs::Fs;
 ///
-/// let fs = Fs::init().unwrap();
+/// let mut fs =  Fs::init().unwrap();
 /// let sdmc_archive = fs.sdmc().unwrap();
 /// ```
 pub struct Archive {
@@ -123,47 +123,65 @@ pub struct Archive {
 /// Create a new file and write bytes to it:
 ///
 /// ```no_run
+/// # use std::error::Error;
+/// # fn main() -> Result<(), Box<dyn Error>> {
+/// #
 /// use std::io::prelude::*;
 /// use ctru::services::fs::{Fs, File};
 ///
-/// let fs = Fs::init()?;
-/// let sdmc = fs.sdmc()?;
+/// let mut fs =  Fs::init()?;
+/// let mut sdmc = fs.sdmc()?;
 ///
-/// let mut file = File::create(&sdmc, "/foo.txt")?;
+/// let mut file = File::create(&mut sdmc, "/foo.txt")?;
 /// file.write_all(b"Hello, world!")?;
+/// #
+/// # Ok(())
+/// # }
 /// ```
 ///
 /// Read the contents of a file into a `String`::
 ///
 /// ```no_run
+/// # use std::error::Error;
+/// # fn main() -> Result<(), Box<dyn Error>> {
+/// #
 /// use std::io::prelude::*;
 /// use ctru::services::fs::{Fs, File};
 ///
-/// let fs = Fs::init()?;
-/// let sdmc = fs.sdmc()?;
+/// let mut fs =  Fs::init()?;
+/// let mut sdmc = fs.sdmc()?;
 ///
 /// let mut file = File::open(&sdmc, "/foo.txt")?;
 /// let mut contents = String::new();
 /// file.read_to_string(&mut contents)?;
 /// assert_eq!(contents, "Hello, world!");
+/// #
+/// # Ok(())
+/// # }
 /// ```
 ///
 /// It can be more efficient to read the contents of a file with a buffered
 /// `Read`er. This can be accomplished with `BufReader<R>`:
 ///
 /// ```no_run
+/// # use std::error::Error;
+/// # fn main() -> Result<(), Box<dyn Error>> {
+/// #
 /// use std::io::BufReader;
 /// use std::io::prelude::*;
 /// use ctru::services::fs::{Fs, File};
 ///
-/// let fs = Fs::init()?;
-/// let sdmc = fs.sdmc()?;
+/// let mut fs =  Fs::init()?;
+/// let mut sdmc = fs.sdmc()?;
 ///
 /// let file = File::open(&sdmc, "/foo.txt")?;
 /// let mut buf_reader = BufReader::new(file);
 /// let mut contents = String::new();
 /// buf_reader.read_to_string(&mut contents)?;
 /// assert_eq!(contents, "Hello, world!");
+/// #
+/// # Ok(())
+/// # }
 /// ```
 pub struct File {
     handle: u32,
@@ -209,8 +227,8 @@ pub struct Metadata {
 /// ```no_run
 /// use ctru::services::fs::{Fs, OpenOptions};
 ///
-/// let fs = Fs::init().unwrap();
-/// let sdmc_archive = fs.sdmc().unwrap();
+/// let mut fs =  Fs::init().unwrap();
+/// let mut sdmc_archive = fs.sdmc().unwrap();
 /// let file = OpenOptions::new()
 ///             .read(true)
 ///             .archive(&sdmc_archive)
@@ -224,8 +242,8 @@ pub struct Metadata {
 /// ```no_run
 /// use ctru::services::fs::{Fs, OpenOptions};
 ///
-/// let fs = Fs::init().unwrap();
-/// let sdmc_archive = fs.sdmc().unwrap();
+/// let mut fs =  Fs::init().unwrap();
+/// let mut sdmc_archive = fs.sdmc().unwrap();
 /// let file = OpenOptions::new()
 ///             .read(true)
 ///             .write(true)
@@ -351,8 +369,8 @@ impl File {
     /// ```no_run
     /// use ctru::services::fs::{Fs, File};
     ///
-    /// let fs = Fs::init().unwrap();
-    /// let sdmc_archive = fs.sdmc().unwrap();
+    /// let mut fs =  Fs::init().unwrap();
+    /// let mut sdmc_archive = fs.sdmc().unwrap();
     /// let mut f = File::open(&sdmc_archive, "/foo.txt").unwrap();
     /// ```
     pub fn open<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<File> {
@@ -380,9 +398,9 @@ impl File {
     /// ```no_run
     /// use ctru::services::fs::{Fs, File};
     ///
-    /// let fs = Fs::init().unwrap();
-    /// let sdmc_archive = fs.sdmc().unwrap();
-    /// let mut f = File::create(&sdmc_archive, "/foo.txt").unwrap();
+    /// let mut fs =  Fs::init().unwrap();
+    /// let mut sdmc_archive = fs.sdmc().unwrap();
+    /// let mut f = File::create(&mut sdmc_archive, "/foo.txt").unwrap();
     /// ```
     pub fn create<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<File> {
         OpenOptions::new()
