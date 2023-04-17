@@ -127,6 +127,8 @@ pub struct Archive {
 ///
 /// let mut fs = Fs::new()?;
 /// let mut sdmc = fs.sdmc()?;
+/// #
+/// # Ok(())
 /// # }
 /// ```
 ///
