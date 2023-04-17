@@ -99,7 +99,7 @@ pub struct Fs(());
 /// ```no_run
 /// use ctru::services::fs::Fs;
 ///
-/// let mut fs =  Fs::new().unwrap();
+/// let mut fs = Fs::new().unwrap();
 /// let sdmc_archive = fs.sdmc().unwrap();
 /// ```
 pub struct Archive {
@@ -125,7 +125,7 @@ pub struct Archive {
 /// use std::io::prelude::*;
 /// use ctru::services::fs::{Fs, File};
 ///
-/// let mut fs =  Fs::new()?;
+/// let mut fs = Fs::new()?;
 /// let mut sdmc = fs.sdmc()?;
 /// # }
 /// ```
@@ -139,7 +139,7 @@ pub struct Archive {
 /// use std::io::prelude::*;
 /// use ctru::services::fs::{Fs, File};
 ///
-/// let mut fs =  Fs::new()?;
+/// let mut fs = Fs::new()?;
 /// let mut sdmc = fs.sdmc()?;
 ///
 /// let mut file = File::open(&sdmc, "/foo.txt")?;
@@ -162,7 +162,7 @@ pub struct Archive {
 /// use std::io::prelude::*;
 /// use ctru::services::fs::{Fs, File};
 ///
-/// let mut fs =  Fs::new()?;
+/// let mut fs = Fs::new()?;
 /// let mut sdmc = fs.sdmc()?;
 ///
 /// let file = File::open(&sdmc, "/foo.txt")?;
@@ -218,7 +218,7 @@ pub struct Metadata {
 /// ```no_run
 /// use ctru::services::fs::{Fs, OpenOptions};
 ///
-/// let mut fs =  Fs::new().unwrap();
+/// let mut fs = Fs::new().unwrap();
 /// let mut sdmc_archive = fs.sdmc().unwrap();
 /// let file = OpenOptions::new()
 ///             .read(true)
@@ -233,7 +233,7 @@ pub struct Metadata {
 /// ```no_run
 /// use ctru::services::fs::{Fs, OpenOptions};
 ///
-/// let mut fs =  Fs::new().unwrap();
+/// let mut fs = Fs::new().unwrap();
 /// let mut sdmc_archive = fs.sdmc().unwrap();
 /// let file = OpenOptions::new()
 ///             .read(true)
