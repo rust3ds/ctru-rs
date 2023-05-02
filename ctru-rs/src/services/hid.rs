@@ -46,14 +46,6 @@ bitflags::bitflags! {
 /// This service requires no special permissions to use.
 pub struct Hid(());
 
-/// Represents user input to the touchscreen.
-#[derive(Debug, Clone, Copy)]
-pub struct TouchPosition(ctru_sys::touchPosition);
-
-/// Represents the current position of the 3DS circle pad.
-#[derive(Debug, Clone, Copy)]
-pub struct CirclePosition(ctru_sys::circlePosition);
-
 /// Initializes the HID service.
 ///
 /// # Errors
@@ -102,47 +94,33 @@ impl Hid {
             KeyPad::from_bits_truncate(keys)
         }
     }
-}
 
-impl Default for TouchPosition {
-    fn default() -> Self {
-        TouchPosition(ctru_sys::touchPosition { px: 0, py: 0 })
-    }
-}
+    /// Returns the current touch position in pixels (x, y).
+    ///
+    /// # Notes
+    ///
+    /// (0, 0) represents the top left corner of the screen.
+    pub fn touch_position(&mut self) -> (u16, u16) {
+        let mut res = ctru_sys::touchPosition { px: 0, py: 0 };
 
-impl TouchPosition {
-    /// Create a new TouchPosition instance.
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    /// Returns the current touch position in pixels.
-    pub fn get(&mut self) -> (u16, u16) {
         unsafe {
-            ctru_sys::hidTouchRead(&mut self.0);
+            ctru_sys::hidTouchRead(&mut res);
         }
-        (self.0.px, self.0.py)
-    }
-}
-
-impl Default for CirclePosition {
-    fn default() -> Self {
-        CirclePosition(ctru_sys::circlePosition { dx: 0, dy: 0 })
-    }
-}
-
-impl CirclePosition {
-    /// Create a new CirclePosition instance.
-    pub fn new() -> Self {
-        Self::default()
+        (res.px, res.py)
     }
 
-    /// Returns the current circle pad position in (x, y) form.
-    pub fn get(&mut self) -> (i16, i16) {
+    /// Returns the current circle pad position in relative (x, y).
+    ///
+    /// # Notes
+    ///
+    /// (0, 0) represents the center of the circle pad.
+    pub fn circlepad_position(&mut self) -> (i16, i16) {
+        let mut res = ctru_sys::circlePosition { dx: 0, dy: 0 };
+
         unsafe {
-            ctru_sys::hidCircleRead(&mut self.0);
+            ctru_sys::hidCircleRead(&mut res);
         }
-        (self.0.dx, self.0.dy)
+        (res.dx, res.dy)
     }
 }
 
