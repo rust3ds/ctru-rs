@@ -5,12 +5,12 @@ use ctru::services::fs::FsMediaType;
 fn main() {
     ctru::use_panic_handler();
 
-    let gfx = Gfx::init().expect("Couldn't obtain GFX controller");
-    let mut hid = Hid::init().expect("Couldn't obtain HID controller");
-    let apt = Apt::init().expect("Couldn't obtain APT controller");
-    let am = Am::init().expect("Couldn't obtain AM controller");
-    let top_screen = Console::init(gfx.top_screen.borrow_mut());
-    let bottom_screen = Console::init(gfx.bottom_screen.borrow_mut());
+    let gfx = Gfx::new().expect("Couldn't obtain GFX controller");
+    let mut hid = Hid::new().expect("Couldn't obtain HID controller");
+    let apt = Apt::new().expect("Couldn't obtain APT controller");
+    let am = Am::new().expect("Couldn't obtain AM controller");
+    let top_screen = Console::new(gfx.top_screen.borrow_mut());
+    let bottom_screen = Console::new(gfx.bottom_screen.borrow_mut());
 
     let sd_count = am
         .title_count(FsMediaType::Sd)
@@ -105,10 +105,6 @@ fn main() {
 
             refresh = false;
         }
-
-        // Flush and swap framebuffers
-        gfx.flush_buffers();
-        gfx.swap_buffers();
 
         //Wait for VBlank
         gfx.wait_for_vblank();

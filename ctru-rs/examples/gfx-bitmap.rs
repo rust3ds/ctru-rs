@@ -22,21 +22,20 @@ fn main() {
     let apt = Apt::new().expect("Couldn't obtain APT controller");
     let _console = Console::new(gfx.top_screen.borrow_mut());
 
-    println!("\x1b[21;16HPress Start to exit.");
+    println!("\x1b[21;4HPress Start to exit, or A to flip the image.");
 
     let mut bottom_screen = gfx.bottom_screen.borrow_mut();
 
     // We don't need double buffering in this example.
     // In this way we can draw our image only once on screen.
     bottom_screen.set_double_buffering(false);
+    // Swapping buffers commits the change from the line above.
+    bottom_screen.swap_buffers();
 
-    // We assume the image is the correct size already, so we drop width + height.
-    let frame_buffer = bottom_screen.raw_framebuffer();
+    // 3 bytes per pixel, we just want to reverse the pixels but not individual bytes
+    let flipped_image: Vec<_> = IMAGE.chunks(3).rev().flatten().copied().collect();
 
-    // Copy the image into the frame buffer
-    unsafe {
-        frame_buffer.ptr.copy_from(IMAGE.as_ptr(), IMAGE.len());
-    }
+    let mut image_bytes = IMAGE;
 
     // Main loop
     while apt.main_loop() {
@@ -47,9 +46,27 @@ fn main() {
             break;
         }
 
-        // Flush and swap framebuffers
+        // We assume the image is the correct size already, so we drop width + height.
+        let frame_buffer = bottom_screen.raw_framebuffer();
+
+        if hid.keys_down().contains(KeyPad::A) {
+            image_bytes = if std::ptr::eq(image_bytes, IMAGE) {
+                &flipped_image[..]
+            } else {
+                IMAGE
+            };
+        }
+
+        // this copies more than necessary (once per frame) but it's fine...
+        unsafe {
+            frame_buffer
+                .ptr
+                .copy_from(image_bytes.as_ptr(), image_bytes.len());
+        }
+
+        // Flush framebuffers. Since we're not using double buffering,
+        // this will render the pixels immediately
         bottom_screen.flush_buffers();
-        bottom_screen.swap_buffers();
 
         //Wait for VBlank
         gfx.wait_for_vblank();

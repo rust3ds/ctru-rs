@@ -8,16 +8,15 @@ use crate::error::ResultCode;
 bitflags::bitflags! {
     /// A set of flags corresponding to the button and directional pad
     /// inputs on the 3DS
-    #[derive(Default)]
     pub struct KeyPad: u32 {
         const A             = ctru_sys::KEY_A;
         const B             = ctru_sys::KEY_B;
         const SELECT        = ctru_sys::KEY_SELECT;
         const START         = ctru_sys::KEY_START;
-        const DRIGHT        = ctru_sys::KEY_DRIGHT;
-        const DLEFT         = ctru_sys::KEY_DLEFT;
-        const DUP           = ctru_sys::KEY_DUP;
-        const DDOWN         = ctru_sys::KEY_DDOWN;
+        const DPAD_RIGHT        = ctru_sys::KEY_DRIGHT;
+        const DPAD_LEFT         = ctru_sys::KEY_DLEFT;
+        const DPAD_UP           = ctru_sys::KEY_DUP;
+        const DPAD_DOWN         = ctru_sys::KEY_DDOWN;
         const R             = ctru_sys::KEY_R;
         const L             = ctru_sys::KEY_L;
         const X             = ctru_sys::KEY_X;
@@ -34,10 +33,10 @@ bitflags::bitflags! {
         const CPAD_UP       = ctru_sys::KEY_CPAD_UP;
         const CPAD_DOWN     = ctru_sys::KEY_CPAD_DOWN;
         // Convenience catch-all for the dpad and cpad
-        const UP    = KeyPad::DUP.bits()    | KeyPad::CPAD_UP.bits();
-        const DOWN  = KeyPad::DDOWN.bits()  | KeyPad::CPAD_DOWN.bits();
-        const LEFT  = KeyPad::DLEFT.bits()  | KeyPad::CPAD_LEFT.bits();
-        const RIGHT = KeyPad::DRIGHT.bits() | KeyPad::CPAD_RIGHT.bits();
+        const UP    = KeyPad::DPAD_UP.bits()    | KeyPad::CPAD_UP.bits();
+        const DOWN  = KeyPad::DPAD_DOWN.bits()  | KeyPad::CPAD_DOWN.bits();
+        const LEFT  = KeyPad::DPAD_LEFT.bits()  | KeyPad::CPAD_LEFT.bits();
+        const RIGHT = KeyPad::DPAD_RIGHT.bits() | KeyPad::CPAD_RIGHT.bits();
     }
 }
 
@@ -47,12 +46,6 @@ bitflags::bitflags! {
 /// This service requires no special permissions to use.
 pub struct Hid(());
 
-/// Represents user input to the touchscreen.
-pub struct TouchPosition(ctru_sys::touchPosition);
-
-/// Represents the current position of the 3DS circle pad.
-pub struct CirclePosition(ctru_sys::circlePosition);
-
 /// Initializes the HID service.
 ///
 /// # Errors
@@ -61,7 +54,7 @@ pub struct CirclePosition(ctru_sys::circlePosition);
 /// Since this service requires no special or elevated permissions, errors are
 /// rare in practice.
 impl Hid {
-    pub fn init() -> crate::Result<Hid> {
+    pub fn new() -> crate::Result<Hid> {
         unsafe {
             ResultCode(ctru_sys::hidInit())?;
             Ok(Hid(()))
@@ -101,47 +94,33 @@ impl Hid {
             KeyPad::from_bits_truncate(keys)
         }
     }
-}
 
-impl Default for TouchPosition {
-    fn default() -> Self {
-        TouchPosition(ctru_sys::touchPosition { px: 0, py: 0 })
-    }
-}
+    /// Returns the current touch position in pixels (x, y).
+    ///
+    /// # Notes
+    ///
+    /// (0, 0) represents the top left corner of the screen.
+    pub fn touch_position(&mut self) -> (u16, u16) {
+        let mut res = ctru_sys::touchPosition { px: 0, py: 0 };
 
-impl TouchPosition {
-    /// Create a new TouchPosition instance.
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    /// Returns the current touch position in pixels.
-    pub fn get(&mut self) -> (u16, u16) {
         unsafe {
-            ctru_sys::hidTouchRead(&mut self.0);
+            ctru_sys::hidTouchRead(&mut res);
         }
-        (self.0.px, self.0.py)
-    }
-}
-
-impl Default for CirclePosition {
-    fn default() -> Self {
-        CirclePosition(ctru_sys::circlePosition { dx: 0, dy: 0 })
-    }
-}
-
-impl CirclePosition {
-    /// Create a new CirclePosition instance.
-    pub fn new() -> Self {
-        Self::default()
+        (res.px, res.py)
     }
 
-    /// Returns the current circle pad position in (x, y) form.
-    pub fn get(&mut self) -> (i16, i16) {
+    /// Returns the current circle pad position in relative (x, y).
+    ///
+    /// # Notes
+    ///
+    /// (0, 0) represents the center of the circle pad.
+    pub fn circlepad_position(&mut self) -> (i16, i16) {
+        let mut res = ctru_sys::circlePosition { dx: 0, dy: 0 };
+
         unsafe {
-            ctru_sys::hidCircleRead(&mut self.0);
+            ctru_sys::hidCircleRead(&mut res);
         }
-        (self.0.dx, self.0.dy)
+        (res.dx, res.dy)
     }
 }
 

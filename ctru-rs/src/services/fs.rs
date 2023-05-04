@@ -23,17 +23,13 @@ bitflags! {
         const FS_OPEN_WRITE  = 2;
         const FS_OPEN_CREATE = 4;
     }
-}
 
-bitflags! {
     #[derive(Default)]
     struct FsWrite: u32 {
         const FS_WRITE_FLUSH       =   1;
         const FS_WRITE_UPDATE_TIME = 256;
     }
-}
 
-bitflags! {
     #[derive(Default)]
     struct FsAttribute: u32 {
         const FS_ATTRIBUTE_DIRECTORY =        1;
@@ -43,7 +39,7 @@ bitflags! {
     }
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum FsMediaType {
     Nand = ctru_sys::MEDIATYPE_NAND,
@@ -51,7 +47,7 @@ pub enum FsMediaType {
     GameCard = ctru_sys::MEDIATYPE_GAME_CARD,
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum PathType {
     Invalid = ctru_sys::PATH_INVALID,
@@ -61,7 +57,7 @@ pub enum PathType {
     UTF16 = ctru_sys::PATH_UTF16,
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum ArchiveID {
     RomFS = ctru_sys::ARCHIVE_ROMFS,
@@ -103,7 +99,7 @@ pub struct Fs(());
 /// ```no_run
 /// use ctru::services::fs::Fs;
 ///
-/// let mut fs =  Fs::init().unwrap();
+/// let mut fs = Fs::new().unwrap();
 /// let sdmc_archive = fs.sdmc().unwrap();
 /// ```
 pub struct Archive {
@@ -129,11 +125,8 @@ pub struct Archive {
 /// use std::io::prelude::*;
 /// use ctru::services::fs::{Fs, File};
 ///
-/// let mut fs =  Fs::init()?;
+/// let mut fs = Fs::new()?;
 /// let mut sdmc = fs.sdmc()?;
-///
-/// let mut file = File::create(&mut sdmc, "/foo.txt")?;
-/// file.write_all(b"Hello, world!")?;
 /// #
 /// # Ok(())
 /// # }
@@ -148,7 +141,7 @@ pub struct Archive {
 /// use std::io::prelude::*;
 /// use ctru::services::fs::{Fs, File};
 ///
-/// let mut fs =  Fs::init()?;
+/// let mut fs = Fs::new()?;
 /// let mut sdmc = fs.sdmc()?;
 ///
 /// let mut file = File::open(&sdmc, "/foo.txt")?;
@@ -171,7 +164,7 @@ pub struct Archive {
 /// use std::io::prelude::*;
 /// use ctru::services::fs::{Fs, File};
 ///
-/// let mut fs =  Fs::init()?;
+/// let mut fs = Fs::new()?;
 /// let mut sdmc = fs.sdmc()?;
 ///
 /// let file = File::open(&sdmc, "/foo.txt")?;
@@ -227,7 +220,7 @@ pub struct Metadata {
 /// ```no_run
 /// use ctru::services::fs::{Fs, OpenOptions};
 ///
-/// let mut fs =  Fs::init().unwrap();
+/// let mut fs = Fs::new().unwrap();
 /// let mut sdmc_archive = fs.sdmc().unwrap();
 /// let file = OpenOptions::new()
 ///             .read(true)
@@ -242,7 +235,7 @@ pub struct Metadata {
 /// ```no_run
 /// use ctru::services::fs::{Fs, OpenOptions};
 ///
-/// let mut fs =  Fs::init().unwrap();
+/// let mut fs = Fs::new().unwrap();
 /// let mut sdmc_archive = fs.sdmc().unwrap();
 /// let file = OpenOptions::new()
 ///             .read(true)
@@ -252,7 +245,7 @@ pub struct Metadata {
 ///             .open("foo.txt")
 ///             .unwrap();
 /// ```
-#[derive(Clone, Default)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct OpenOptions {
     read: bool,
     write: bool,
@@ -316,7 +309,7 @@ impl Fs {
     /// ctrulib services are reference counted, so this function may be called
     /// as many times as desired and the service will not exit until all
     /// instances of Fs drop out of scope.
-    pub fn init() -> crate::Result<Fs> {
+    pub fn new() -> crate::Result<Fs> {
         unsafe {
             let r = ctru_sys::fsInit();
             if r < 0 {
@@ -369,7 +362,7 @@ impl File {
     /// ```no_run
     /// use ctru::services::fs::{Fs, File};
     ///
-    /// let mut fs =  Fs::init().unwrap();
+    /// let mut fs =  Fs::new().unwrap();
     /// let mut sdmc_archive = fs.sdmc().unwrap();
     /// let mut f = File::open(&sdmc_archive, "/foo.txt").unwrap();
     /// ```
@@ -398,7 +391,7 @@ impl File {
     /// ```no_run
     /// use ctru::services::fs::{Fs, File};
     ///
-    /// let mut fs =  Fs::init().unwrap();
+    /// let mut fs =  Fs::new().unwrap();
     /// let mut sdmc_archive = fs.sdmc().unwrap();
     /// let mut f = File::create(&mut sdmc_archive, "/foo.txt").unwrap();
     /// ```

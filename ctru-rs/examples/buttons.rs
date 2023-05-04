@@ -3,10 +3,10 @@ use ctru::prelude::*;
 fn main() {
     ctru::use_panic_handler();
 
-    let apt = Apt::init().unwrap();
-    let mut hid = Hid::init().unwrap();
-    let gfx = Gfx::init().unwrap();
-    let console = Console::init(gfx.top_screen.borrow_mut());
+    let apt = Apt::new().unwrap();
+    let mut hid = Hid::new().unwrap();
+    let gfx = Gfx::new().unwrap();
+    let console = Console::new(gfx.top_screen.borrow_mut());
 
     println!("Hi there! Try pressing a button");
     println!("\x1b[29;16HPress Start to exit");
@@ -63,9 +63,6 @@ fn main() {
         // Save our current key presses for the next frame
         old_keys = keys;
 
-        // Flush and swap framebuffers
-        gfx.flush_buffers();
-        gfx.swap_buffers();
         gfx.wait_for_vblank();
     }
 }

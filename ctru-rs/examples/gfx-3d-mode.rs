@@ -1,5 +1,5 @@
 use ctru::prelude::*;
-use ctru::services::gfx::{Screen, Side, TopScreen3D};
+use ctru::services::gfx::{Flush, Screen, Side, Swap, TopScreen3D};
 
 /// See `graphics-bitmap.rs` for details on how the image is generated.
 ///
@@ -12,17 +12,16 @@ static ZERO: &[u8] = &[0; IMAGE.len()];
 fn main() {
     ctru::use_panic_handler();
 
-    let gfx = Gfx::init().expect("Couldn't obtain GFX controller");
-    let mut hid = Hid::init().expect("Couldn't obtain HID controller");
-    let apt = Apt::init().expect("Couldn't obtain APT controller");
-    let _console = Console::init(gfx.bottom_screen.borrow_mut());
+    let gfx = Gfx::new().expect("Couldn't obtain GFX controller");
+    let mut hid = Hid::new().expect("Couldn't obtain HID controller");
+    let apt = Apt::new().expect("Couldn't obtain APT controller");
+    let _console = Console::new(gfx.bottom_screen.borrow_mut());
 
     println!("Press Start to exit.\nPress A to switch sides (be sure to have 3D mode enabled).");
 
     gfx.top_screen.borrow_mut().set_double_buffering(true);
 
-    let top_screen = TopScreen3D::from(&gfx.top_screen);
-    let (mut left, mut right) = top_screen.split_mut();
+    let mut top_screen = TopScreen3D::from(&gfx.top_screen);
 
     let mut current_side = Side::Left;
 
@@ -34,6 +33,8 @@ fn main() {
         if hid.keys_down().contains(KeyPad::START) {
             break;
         }
+
+        let (mut left, mut right) = top_screen.split_mut();
 
         let left_buf = left.raw_framebuffer();
         let right_buf = right.raw_framebuffer();
@@ -61,9 +62,10 @@ fn main() {
             buf.copy_from(IMAGE.as_ptr(), IMAGE.len());
         }
 
-        // Flush and swap framebuffers
-        gfx.flush_buffers();
-        gfx.swap_buffers();
+        drop((left, right));
+
+        top_screen.flush_buffers();
+        top_screen.swap_buffers();
 
         //Wait for VBlank
         gfx.wait_for_vblank();

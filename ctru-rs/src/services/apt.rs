@@ -3,7 +3,7 @@ use crate::error::ResultCode;
 pub struct Apt(());
 
 impl Apt {
-    pub fn init() -> crate::Result<Apt> {
+    pub fn new() -> crate::Result<Apt> {
         unsafe {
             ResultCode(ctru_sys::aptInit())?;
             Ok(Apt(()))

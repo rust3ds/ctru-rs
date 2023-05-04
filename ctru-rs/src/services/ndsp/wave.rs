@@ -11,7 +11,7 @@ pub struct Wave {
     played_on_channel: Option<u8>,
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u8)]
 /// Enum representing the playback status of a [Wave].
 pub enum WaveStatus {

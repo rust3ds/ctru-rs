@@ -16,7 +16,11 @@ impl<'screen> Console<'screen> {
     /// Initialize a console on the chosen screen, overwriting whatever was on the screen
     /// previously (including other consoles). The new console is automatically selected for
     /// printing.
-    pub fn init(screen: RefMut<'screen, dyn Screen>) -> Self {
+    ///
+    /// # Notes
+    ///
+    /// [Console] automatically takes care of flushing and swapping buffers for its screen when printing.
+    pub fn new(screen: RefMut<'screen, dyn Screen>) -> Self {
         let mut context = Box::<PrintConsole>::default();
 
         unsafe { consoleInit(screen.as_raw(), context.as_mut()) };

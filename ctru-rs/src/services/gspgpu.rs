@@ -1,6 +1,6 @@
 //! GSPGPU service
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum Event {
     Psc0 = ctru_sys::GSPGPU_EVENT_PSC0,
@@ -13,7 +13,7 @@ pub enum Event {
 }
 
 /// Framebuffer formats supported by the 3DS
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum FramebufferFormat {
     /// RGBA8. 4 bytes per pixel

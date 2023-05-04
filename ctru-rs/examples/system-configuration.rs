@@ -4,11 +4,11 @@ use ctru::services::cfgu::Cfgu;
 fn main() {
     ctru::use_panic_handler();
 
-    let gfx = Gfx::init().expect("Couldn't obtain GFX controller");
-    let mut hid = Hid::init().expect("Couldn't obtain HID controller");
-    let apt = Apt::init().expect("Couldn't obtain APT controller");
-    let cfgu = Cfgu::init().expect("Couldn't obtain CFGU controller");
-    let _console = Console::init(gfx.top_screen.borrow_mut());
+    let gfx = Gfx::new().expect("Couldn't obtain GFX controller");
+    let mut hid = Hid::new().expect("Couldn't obtain HID controller");
+    let apt = Apt::new().expect("Couldn't obtain APT controller");
+    let cfgu = Cfgu::new().expect("Couldn't obtain CFGU controller");
+    let _console = Console::new(gfx.top_screen.borrow_mut());
 
     println!("\x1b[0;0HRegion: {:?}", cfgu.region().unwrap());
     println!("\x1b[10;0HLanguage: {:?}", cfgu.language().unwrap());
@@ -22,9 +22,6 @@ fn main() {
         if hid.keys_down().contains(KeyPad::START) {
             break;
         }
-        // Flush and swap framebuffers
-        gfx.flush_buffers();
-        gfx.swap_buffers();
 
         //Wait for VBlank
         gfx.wait_for_vblank();

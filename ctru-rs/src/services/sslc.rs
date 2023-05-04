@@ -8,21 +8,10 @@ pub struct SslC(());
 
 impl SslC {
     /// Initialize the service
-    pub fn init() -> crate::Result<Self> {
+    pub fn new() -> crate::Result<Self> {
         unsafe {
             ResultCode(ctru_sys::sslcInit(0))?;
             Ok(SslC(()))
-        }
-    }
-
-    /// Fill `buf` with `buf.len()` random bytes
-    pub fn generate_random_data(&self, buf: &mut [u8]) -> crate::Result<()> {
-        unsafe {
-            ResultCode(ctru_sys::sslcGenerateRandomData(
-                buf.as_ptr() as _,
-                buf.len() as u32,
-            ))?;
-            Ok(())
         }
     }
 }

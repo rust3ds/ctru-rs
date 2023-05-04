@@ -1,6 +1,6 @@
 use ctru::prelude::*;
 use ctru::services::cam::{Cam, Camera, OutputFormat, ShutterSound, ViewSize};
-use ctru::services::gfx::Screen;
+use ctru::services::gfx::{Flush, Screen, Swap};
 use ctru::services::gspgpu::FramebufferFormat;
 
 use std::time::Duration;
@@ -16,22 +16,21 @@ const WAIT_TIMEOUT: Duration = Duration::from_millis(300);
 fn main() {
     ctru::use_panic_handler();
 
-    let apt = Apt::init().expect("Failed to initialize Apt service.");
-    let mut hid = Hid::init().expect("Failed to initialize Hid service.");
-    let gfx = Gfx::init().expect("Failed to initialize GFX service.");
+    let apt = Apt::new().expect("Failed to initialize Apt service.");
+    let mut hid = Hid::new().expect("Failed to initialize Hid service.");
+    let gfx = Gfx::new().expect("Failed to initialize GFX service.");
 
-    gfx.top_screen.borrow_mut().set_double_buffering(true);
-    gfx.top_screen
-        .borrow_mut()
-        .set_framebuffer_format(FramebufferFormat::Rgb565);
-    gfx.bottom_screen.borrow_mut().set_double_buffering(false);
-    let _console = Console::init(gfx.bottom_screen.borrow_mut());
+    let mut top_screen = gfx.top_screen.borrow_mut();
+    top_screen.set_double_buffering(true);
+    top_screen.set_framebuffer_format(FramebufferFormat::Rgb565);
+
+    let _console = Console::new(gfx.bottom_screen.borrow_mut());
 
     let mut keys_down;
 
     println!("Initializing camera");
 
-    let mut cam = Cam::init().expect("Failed to initialize CAM service.");
+    let mut cam = Cam::new().expect("Failed to initialize CAM service.");
 
     {
         let camera = &mut cam.outer_right_cam;
@@ -86,15 +85,12 @@ fn main() {
             cam.play_shutter_sound(ShutterSound::Normal)
                 .expect("Failed to play shutter sound");
 
-            rotate_image_to_screen(
-                &buf,
-                gfx.top_screen.borrow_mut().raw_framebuffer().ptr,
-                WIDTH,
-                HEIGHT,
-            );
+            rotate_image_to_screen(&buf, top_screen.raw_framebuffer().ptr, WIDTH, HEIGHT);
 
-            gfx.flush_buffers();
-            gfx.swap_buffers();
+            // We will only flush the "camera" screen, since the other screen is handled by `Console`
+            top_screen.flush_buffers();
+            top_screen.swap_buffers();
+
             gfx.wait_for_vblank();
         }
     }

@@ -4,12 +4,12 @@ use ctru::prelude::*;
 fn main() {
     ctru::use_panic_handler();
 
-    let gfx = Gfx::init().expect("Couldn't obtain GFX controller");
-    let mut hid = Hid::init().expect("Couldn't obtain HID controller");
-    let apt = Apt::init().expect("Couldn't obtain APT controller");
-    let _console = Console::init(gfx.top_screen.borrow_mut());
+    let gfx = Gfx::new().expect("Couldn't obtain GFX controller");
+    let mut hid = Hid::new().expect("Couldn't obtain HID controller");
+    let apt = Apt::new().expect("Couldn't obtain APT controller");
+    let _console = Console::new(gfx.top_screen.borrow_mut());
 
-    let mut mii_selector = MiiSelector::init();
+    let mut mii_selector = MiiSelector::new();
     mii_selector.set_initial_index(3);
     mii_selector.blacklist_user_mii(0.into());
     mii_selector.set_title("Great Mii Selector!");
@@ -33,9 +33,6 @@ fn main() {
         if hid.keys_down().contains(KeyPad::START) {
             break;
         }
-        // Flush and swap framebuffers
-        gfx.flush_buffers();
-        gfx.swap_buffers();
 
         //Wait for VBlank
         gfx.wait_for_vblank();

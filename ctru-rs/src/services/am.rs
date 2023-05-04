@@ -6,6 +6,7 @@ use std::mem::MaybeUninit;
 #[derive(Copy, Clone, Debug)]
 #[repr(transparent)]
 pub struct TitleInfo(ctru_sys::AM_TitleEntry);
+
 impl TitleInfo {
     pub fn id(&self) -> u64 {
         self.0.titleID
@@ -61,7 +62,7 @@ impl<'a> Title<'a> {
 pub struct Am(());
 
 impl Am {
-    pub fn init() -> crate::Result<Am> {
+    pub fn new() -> crate::Result<Am> {
         unsafe {
             ResultCode(ctru_sys::amInit())?;
             Ok(Am(()))

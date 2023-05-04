@@ -7,6 +7,7 @@ use std::iter::once;
 use std::str;
 
 /// An instance of the software keyboard.
+#[derive(Clone)]
 pub struct Swkbd {
     state: Box<SwkbdState>,
 }
@@ -18,7 +19,7 @@ pub struct Swkbd {
 /// Numpad is a number pad.
 /// Western is a text keyboard without japanese symbols (only applies to JPN systems). For other
 /// systems it's the same as a Normal keyboard.
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum Kind {
     Normal = ctru_sys::SWKBD_TYPE_NORMAL,
@@ -28,7 +29,7 @@ pub enum Kind {
 }
 
 /// Represents which button the user pressed to close the software keyboard.
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum Button {
     Left = ctru_sys::SWKBD_BUTTON_LEFT,
@@ -37,7 +38,7 @@ pub enum Button {
 }
 
 /// Error type for the software keyboard.
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(i32)]
 pub enum Error {
     InvalidInput = ctru_sys::SWKBD_INVALID_INPUT,
@@ -51,7 +52,7 @@ pub enum Error {
 }
 
 /// Restrictions on keyboard input
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum ValidInput {
     Anything = ctru_sys::SWKBD_ANYTHING,
@@ -89,7 +90,7 @@ bitflags! {
 impl Swkbd {
     /// Initializes a software keyboard of the specified type and the chosen number of buttons
     /// (from 1-3).
-    pub fn init(keyboard_type: Kind, num_buttons: i32) -> Self {
+    pub fn new(keyboard_type: Kind, num_buttons: i32) -> Self {
         unsafe {
             let mut state = Box::<SwkbdState>::default();
             swkbdInit(state.as_mut(), keyboard_type.into(), num_buttons, -1);
@@ -207,7 +208,7 @@ impl Swkbd {
 
 impl Default for Swkbd {
     fn default() -> Self {
-        Swkbd::init(Kind::Normal, 2)
+        Swkbd::new(Kind::Normal, 2)
     }
 }
 

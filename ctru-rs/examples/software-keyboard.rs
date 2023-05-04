@@ -4,23 +4,21 @@ use ctru::prelude::*;
 fn main() {
     ctru::use_panic_handler();
 
-    let apt = Apt::init().unwrap();
-    let mut hid = Hid::init().unwrap();
-    let gfx = Gfx::init().unwrap();
-    let _console = Console::init(gfx.top_screen.borrow_mut());
+    let apt = Apt::new().unwrap();
+    let mut hid = Hid::new().unwrap();
+    let gfx = Gfx::new().unwrap();
+    let _console = Console::new(gfx.top_screen.borrow_mut());
 
     println!("Press A to enter some text or press Start to quit");
 
     while apt.main_loop() {
-        gfx.flush_buffers();
-        gfx.swap_buffers();
         gfx.wait_for_vblank();
 
         hid.scan_input();
 
         if hid.keys_down().contains(KeyPad::A) {
             // Prepares a software keyboard with two buttons: One to cancel input and one
-            // to accept it. You can also use `Swkbd::init()` to launch the keyboard in different
+            // to accept it. You can also use `Swkbd::new()` to launch the keyboard in different
             // configurations.
             let mut keyboard = Swkbd::default();
 

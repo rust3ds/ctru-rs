@@ -25,7 +25,7 @@ impl Soc {
     /// # Errors
     ///
     /// This function will return an error if the `Soc` service is already initialized
-    pub fn init() -> crate::Result<Self> {
+    pub fn new() -> crate::Result<Self> {
         Self::init_with_buffer_size(0x100000)
     }
 
@@ -107,8 +107,8 @@ mod tests {
 
     #[test]
     fn soc_duplicate() {
-        let _soc = Soc::init().unwrap();
+        let _soc = Soc::new().unwrap();
 
-        assert!(matches!(Soc::init(), Err(Error::ServiceAlreadyActive)))
+        assert!(matches!(Soc::new(), Err(Error::ServiceAlreadyActive)))
     }
 }
