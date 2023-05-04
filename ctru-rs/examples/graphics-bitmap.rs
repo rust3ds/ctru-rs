@@ -1,5 +1,5 @@
 use ctru::prelude::*;
-use ctru::services::gfx::Screen;
+use ctru::services::gfx::{Flush, Screen, Swap};
 
 /// Ferris image taken from <https://rustacean.net> and scaled down to 320x240px.
 /// To regenerate the data, you will need to install `imagemagick` and run this
@@ -48,7 +48,7 @@ fn main() {
         }
 
         // Flush and swap framebuffers
-        bottom_screen.flush_buffer();
+        bottom_screen.flush_buffers();
         bottom_screen.swap_buffers();
 
         //Wait for VBlank
