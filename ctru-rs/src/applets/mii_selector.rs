@@ -9,7 +9,7 @@ use std::ffi::CString;
 /// Index of a Mii used to configure some parameters of the Mii Selector
 /// Can be either a single index, or _all_ Miis
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
-pub enum MiiIndex {
+pub enum Index {
     Index(u32),
     All,
 }
@@ -94,40 +94,40 @@ impl MiiSelector {
     }
 
     /// Whitelist a guest Mii
-    pub fn whitelist_guest_mii(&mut self, mii_index: MiiIndex) {
+    pub fn whitelist_guest_mii(&mut self, mii_index: Index) {
         let index = match mii_index {
-            MiiIndex::Index(i) => i,
-            MiiIndex::All => ctru_sys::MIISELECTOR_GUESTMII_SLOTS,
+            Index::Index(i) => i,
+            Index::All => ctru_sys::MIISELECTOR_GUESTMII_SLOTS,
         };
 
         unsafe { ctru_sys::miiSelectorWhitelistGuestMii(self.config.as_mut(), index) }
     }
 
     /// Blacklist a guest Mii
-    pub fn blacklist_guest_mii(&mut self, mii_index: MiiIndex) {
+    pub fn blacklist_guest_mii(&mut self, mii_index: Index) {
         let index = match mii_index {
-            MiiIndex::Index(i) => i,
-            MiiIndex::All => ctru_sys::MIISELECTOR_GUESTMII_SLOTS,
+            Index::Index(i) => i,
+            Index::All => ctru_sys::MIISELECTOR_GUESTMII_SLOTS,
         };
 
         unsafe { ctru_sys::miiSelectorBlacklistGuestMii(self.config.as_mut(), index) }
     }
 
     /// Whitelist a user Mii
-    pub fn whitelist_user_mii(&mut self, mii_index: MiiIndex) {
+    pub fn whitelist_user_mii(&mut self, mii_index: Index) {
         let index = match mii_index {
-            MiiIndex::Index(i) => i,
-            MiiIndex::All => ctru_sys::MIISELECTOR_USERMII_SLOTS,
+            Index::Index(i) => i,
+            Index::All => ctru_sys::MIISELECTOR_USERMII_SLOTS,
         };
 
         unsafe { ctru_sys::miiSelectorWhitelistUserMii(self.config.as_mut(), index) }
     }
 
     /// Blacklist a user Mii
-    pub fn blacklist_user_mii(&mut self, mii_index: MiiIndex) {
+    pub fn blacklist_user_mii(&mut self, mii_index: Index) {
         let index = match mii_index {
-            MiiIndex::Index(i) => i,
-            MiiIndex::All => ctru_sys::MIISELECTOR_USERMII_SLOTS,
+            Index::Index(i) => i,
+            Index::All => ctru_sys::MIISELECTOR_USERMII_SLOTS,
         };
 
         unsafe { ctru_sys::miiSelectorBlacklistUserMii(self.config.as_mut(), index) }
@@ -185,7 +185,7 @@ impl From<ctru_sys::MiiSelectorReturn> for SelectionResult {
     }
 }
 
-impl From<u32> for MiiIndex {
+impl From<u32> for Index {
     fn from(v: u32) -> Self {
         Self::Index(v)
     }

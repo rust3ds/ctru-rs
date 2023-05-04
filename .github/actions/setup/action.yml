@@ -1,0 +1,46 @@
+name: Setup
+description: Set up CI environment for Rust + 3DS development
+
+inputs:
+  toolchain:
+    description: The Rust toolchain to use for the steps
+    required: true
+    default: nightly
+
+runs:
+  using: composite
+  steps:
+    # https://github.com/nektos/act/issues/917#issuecomment-1074421318
+    - if: ${{ env.ACT }}
+      shell: bash
+      name: Hack container for local development
+      run: |
+          curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+          sudo apt-get install -y nodejs
+
+    - name: Setup default Rust toolchain
+      # Use this helper action so we get matcher support
+      # https://github.com/actions-rust-lang/setup-rust-toolchain/pull/15
+      uses: actions-rust-lang/setup-rust-toolchain@v1
+      with:
+        components: clippy, rustfmt, rust-src
+        toolchain: ${{ inputs.toolchain }}
+
+    - name: Install build tools for host
+      shell: bash
+      run: sudo apt-get update && sudo apt-get install -y build-essential
+
+    - name: Install cargo-3ds
+      uses: actions-rs/cargo@v1
+      with:
+        command: install
+        # TODO: this should probably just be a released version from crates.io
+        # once cargo-3ds gets published somewhere...
+        args: >-
+          --git https://github.com/rust3ds/cargo-3ds
+          --rev 78a652fdfb01e2614a792d1a56b10c980ee1dae9
+
+    - name: Set PATH to include devkitARM
+      shell: bash
+      # For some reason devkitARM/bin is not part of the default PATH in the container
+      run: echo "${DEVKITARM}/bin" >> $GITHUB_PATH

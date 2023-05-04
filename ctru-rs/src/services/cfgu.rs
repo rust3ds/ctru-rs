@@ -36,12 +36,12 @@ pub enum Language {
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum SystemModel {
-    N3DS = ctru_sys::CFG_MODEL_3DS,
-    N3DSXL = ctru_sys::CFG_MODEL_3DSXL,
-    NewN3DS = ctru_sys::CFG_MODEL_N3DS,
-    N2DS = ctru_sys::CFG_MODEL_2DS,
-    NewN3DSXL = ctru_sys::CFG_MODEL_N3DSXL,
-    NewN2DSXL = ctru_sys::CFG_MODEL_N2DSXL,
+    Old3DS = ctru_sys::CFG_MODEL_3DS,
+    Old3DSXL = ctru_sys::CFG_MODEL_3DSXL,
+    New3DS = ctru_sys::CFG_MODEL_N3DS,
+    Old2DS = ctru_sys::CFG_MODEL_2DS,
+    New3DSXL = ctru_sys::CFG_MODEL_N3DSXL,
+    New2DSXL = ctru_sys::CFG_MODEL_N2DSXL,
 }
 
 /// Represents the configuration service. No actions can be performed
@@ -163,12 +163,12 @@ impl TryFrom<u8> for SystemModel {
 
     fn try_from(value: u8) -> Result<Self, Self::Error> {
         match value as u32 {
-            ctru_sys::CFG_MODEL_3DS => Ok(SystemModel::N3DS),
-            ctru_sys::CFG_MODEL_3DSXL => Ok(SystemModel::N3DSXL),
-            ctru_sys::CFG_MODEL_N3DS => Ok(SystemModel::NewN3DS),
-            ctru_sys::CFG_MODEL_2DS => Ok(SystemModel::N2DS),
-            ctru_sys::CFG_MODEL_N3DSXL => Ok(SystemModel::NewN3DSXL),
-            ctru_sys::CFG_MODEL_N2DSXL => Ok(SystemModel::NewN2DSXL),
+            ctru_sys::CFG_MODEL_3DS => Ok(SystemModel::Old3DS),
+            ctru_sys::CFG_MODEL_3DSXL => Ok(SystemModel::Old3DSXL),
+            ctru_sys::CFG_MODEL_N3DS => Ok(SystemModel::New3DS),
+            ctru_sys::CFG_MODEL_2DS => Ok(SystemModel::Old2DS),
+            ctru_sys::CFG_MODEL_N3DSXL => Ok(SystemModel::New3DSXL),
+            ctru_sys::CFG_MODEL_N2DSXL => Ok(SystemModel::New2DSXL),
             _ => Err(()),
         }
     }
