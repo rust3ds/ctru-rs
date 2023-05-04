@@ -220,13 +220,13 @@ pub struct Metadata {
 /// ```no_run
 /// use ctru::services::fs::{Fs, OpenOptions};
 ///
-<<<<<<< HEAD
-/// let fs = Fs::new().unwrap();
-/// let sdmc_archive = fs.sdmc().unwrap();
-=======
 /// let mut fs = Fs::new().unwrap();
+/// let mut sdmc_archive = fs.sdmc().unwrap();
+/// let file = OpenOptions::new()
+///             .read(true)
 ///             .archive(&sdmc_archive)
 ///             .open("foo.txt")
+///             .unwrap();
 /// ```
 ///
 /// Opening a file for both reading and writing, as well as creating it if it
@@ -235,13 +235,8 @@ pub struct Metadata {
 /// ```no_run
 /// use ctru::services::fs::{Fs, OpenOptions};
 ///
-<<<<<<< HEAD
-/// let fs = Fs::new().unwrap();
-/// let sdmc_archive = fs.sdmc().unwrap();
-=======
 /// let mut fs = Fs::new().unwrap();
 /// let mut sdmc_archive = fs.sdmc().unwrap();
->>>>>>> improve/api
 /// let file = OpenOptions::new()
 ///             .read(true)
 ///             .write(true)
@@ -367,13 +362,8 @@ impl File {
     /// ```no_run
     /// use ctru::services::fs::{Fs, File};
     ///
-<<<<<<< HEAD
-    /// let fs = Fs::new().unwrap();
-    /// let sdmc_archive = fs.sdmc().unwrap();
-=======
     /// let mut fs =  Fs::new().unwrap();
     /// let mut sdmc_archive = fs.sdmc().unwrap();
->>>>>>> improve/api
     /// let mut f = File::open(&sdmc_archive, "/foo.txt").unwrap();
     /// ```
     pub fn open<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<File> {
@@ -401,15 +391,9 @@ impl File {
     /// ```no_run
     /// use ctru::services::fs::{Fs, File};
     ///
-<<<<<<< HEAD
-    /// let fs = Fs::new().unwrap();
-    /// let sdmc_archive = fs.sdmc().unwrap();
-    /// let mut f = File::create(&sdmc_archive, "/foo.txt").unwrap();
-=======
     /// let mut fs =  Fs::new().unwrap();
     /// let mut sdmc_archive = fs.sdmc().unwrap();
     /// let mut f = File::create(&mut sdmc_archive, "/foo.txt").unwrap();
->>>>>>> improve/api
     /// ```
     pub fn create<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<File> {
         OpenOptions::new()
