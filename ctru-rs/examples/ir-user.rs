@@ -15,18 +15,18 @@ const CPP_CONNECTION_POLLING_PERIOD_MS: u8 = 0x08;
 const CPP_POLLING_PERIOD_MS: u8 = 0x32;
 
 fn main() {
-    ctru::init();
-    let apt = Apt::init().unwrap();
-    let gfx = Gfx::init().unwrap();
-    let top_console = Console::init(gfx.top_screen.borrow_mut());
-    let bottom_console = Console::init(gfx.bottom_screen.borrow_mut());
+    ctru::use_panic_handler();
+    let apt = Apt::new().unwrap();
+    let gfx = Gfx::new().unwrap();
+    let top_console = Console::new(gfx.top_screen.borrow_mut());
+    let bottom_console = Console::new(gfx.bottom_screen.borrow_mut());
     let demo = CirclePadProDemo::new(top_console, bottom_console);
     demo.print_status_info();
 
     // Initialize HID after ir:USER because libctru also initializes ir:rst,
     // which is mutually exclusive with ir:USER. Initializing HID before ir:USER
     // on New 3DS causes ir:USER to not work.
-    let hid = Hid::init().unwrap();
+    let mut hid = Hid::new().unwrap();
 
     println!("Press A to connect to the CPP, or Start to exit");
 
@@ -35,7 +35,7 @@ fn main() {
         hid.scan_input();
 
         // Check if we need to exit
-        if hid.keys_held().contains(KeyPad::KEY_START) {
+        if hid.keys_held().contains(KeyPad::START) {
             break;
         }
 
@@ -49,17 +49,15 @@ fn main() {
         }
 
         // Check if we should start the connection
-        if hid.keys_down().contains(KeyPad::KEY_A) && !is_connected {
+        if hid.keys_down().contains(KeyPad::A) && !is_connected {
             println!("Attempting to connect to the CPP");
 
-            match demo.connect_to_cpp(&hid) {
+            match demo.connect_to_cpp(&mut hid) {
                 ConnectionResult::Connected => is_connected = true,
                 ConnectionResult::Canceled => break,
             }
         }
 
-        gfx.flush_buffers();
-        gfx.swap_buffers();
         gfx.wait_for_vblank();
     }
 }
@@ -116,11 +114,11 @@ impl<'screen> CirclePadProDemo<'screen> {
         self.bottom_console.select();
     }
 
-    fn connect_to_cpp(&self, hid: &Hid) -> ConnectionResult {
+    fn connect_to_cpp(&self, hid: &mut Hid) -> ConnectionResult {
         // Connection loop
         loop {
             hid.scan_input();
-            if hid.keys_held().contains(KeyPad::KEY_START) {
+            if hid.keys_held().contains(KeyPad::START) {
                 return ConnectionResult::Canceled;
             }
 
@@ -164,7 +162,7 @@ impl<'screen> CirclePadProDemo<'screen> {
         // Sending first packet retry loop
         loop {
             hid.scan_input();
-            if hid.keys_held().contains(KeyPad::KEY_START) {
+            if hid.keys_held().contains(KeyPad::START) {
                 return ConnectionResult::Canceled;
             }
 
