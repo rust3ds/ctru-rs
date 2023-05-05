@@ -6,24 +6,19 @@ use std::io;
 
 use test::{ColorConfig, OutputFormat, TestDescAndFn, TestFn, TestOpts};
 
-use crate::console::Console;
-use crate::gfx::Gfx;
-use crate::services::hid::{Hid, KeyPad};
-use crate::services::Apt;
+use crate::prelude::*;
 
 /// A custom runner to be used with `#[test_runner]`. This simple implementation
 /// runs all tests in series, "failing" on the first one to panic (really, the
 /// panic is just treated the same as any normal application panic).
 pub(crate) fn run(tests: &[&TestDescAndFn]) {
-    crate::init();
-
-    let gfx = Gfx::init().unwrap();
-    let hid = Hid::init().unwrap();
-    let apt = Apt::init().unwrap();
+    let gfx = Gfx::new().unwrap();
+    let mut hid = Hid::new().unwrap();
+    let apt = Apt::new().unwrap();
 
     let mut top_screen = gfx.top_screen.borrow_mut();
     top_screen.set_wide_mode(true);
-    let _console = Console::init(top_screen);
+    let _console = Console::new(top_screen);
 
     let opts = TestOpts {
         force_run_in_process: true,
@@ -44,12 +39,10 @@ pub(crate) fn run(tests: &[&TestDescAndFn]) {
     println!("Press START to exit.");
 
     while apt.main_loop() {
-        gfx.flush_buffers();
-        gfx.swap_buffers();
         gfx.wait_for_vblank();
 
         hid.scan_input();
-        if hid.keys_down().contains(KeyPad::KEY_START) {
+        if hid.keys_down().contains(KeyPad::START) {
             break;
         }
     }
@@ -76,27 +69,5 @@ fn make_owned_test(test: &&TestDescAndFn) -> TestDescAndFn {
             desc: test.desc.clone(),
         },
         _ => panic!("non-static tests passed to test::test_main_static"),
-    }
-}
-
-/// The following functions are stubs needed to link the test library,
-/// but do nothing because we don't actually need them for the runner to work.
-mod link_fix {
-    #[no_mangle]
-    extern "C" fn execvp(
-        _argc: *const libc::c_char,
-        _argv: *mut *const libc::c_char,
-    ) -> libc::c_int {
-        -1
-    }
-
-    #[no_mangle]
-    extern "C" fn pipe(_fildes: *mut libc::c_int) -> libc::c_int {
-        -1
-    }
-
-    #[no_mangle]
-    extern "C" fn sigemptyset(_arg1: *mut libc::sigset_t) -> ::libc::c_int {
-        -1
     }
 }

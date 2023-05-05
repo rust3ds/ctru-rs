@@ -9,20 +9,21 @@ use std::os::horizon::fs::MetadataExt;
 use std::path::{Path, PathBuf};
 
 fn main() {
-    ctru::init();
-    let apt = Apt::init().unwrap();
-    let hid = Hid::init().unwrap();
-    let gfx = Gfx::init().unwrap();
+    ctru::use_panic_handler();
+
+    let apt = Apt::new().unwrap();
+    let mut hid = Hid::new().unwrap();
+    let gfx = Gfx::new().unwrap();
 
     #[cfg(all(feature = "romfs", romfs_exists))]
-    let _romfs = ctru::romfs::RomFS::init().unwrap();
+    let _romfs = ctru::services::romfs::RomFS::new().unwrap();
 
-    FileExplorer::init(&apt, &hid, &gfx).run();
+    FileExplorer::new(&apt, &mut hid, &gfx).run();
 }
 
 struct FileExplorer<'a> {
     apt: &'a Apt,
-    hid: &'a Hid,
+    hid: &'a mut Hid,
     gfx: &'a Gfx,
     console: Console<'a>,
     path: PathBuf,
@@ -31,10 +32,10 @@ struct FileExplorer<'a> {
 }
 
 impl<'a> FileExplorer<'a> {
-    fn init(apt: &'a Apt, hid: &'a Hid, gfx: &'a Gfx) -> Self {
+    fn new(apt: &'a Apt, hid: &'a mut Hid, gfx: &'a Gfx) -> Self {
         let mut top_screen = gfx.top_screen.borrow_mut();
         top_screen.set_wide_mode(true);
-        let console = Console::init(top_screen);
+        let console = Console::new(top_screen);
 
         FileExplorer {
             apt,
@@ -55,20 +56,18 @@ impl<'a> FileExplorer<'a> {
             self.hid.scan_input();
             let input = self.hid.keys_down();
 
-            if input.contains(KeyPad::KEY_START) {
+            if input.contains(KeyPad::START) {
                 break;
-            } else if input.contains(KeyPad::KEY_B) && self.path.components().count() > 1 {
+            } else if input.contains(KeyPad::B) && self.path.components().count() > 1 {
                 self.path.pop();
                 self.console.clear();
                 self.print_menu();
-            } else if input.contains(KeyPad::KEY_A) {
+            } else if input.contains(KeyPad::A) {
                 self.get_input_and_run(Self::set_next_path);
-            } else if input.contains(KeyPad::KEY_X) {
+            } else if input.contains(KeyPad::X) {
                 self.get_input_and_run(Self::set_exact_path);
             }
 
-            self.gfx.flush_buffers();
-            self.gfx.swap_buffers();
             self.gfx.wait_for_vblank();
         }
     }
@@ -146,11 +145,11 @@ impl<'a> FileExplorer<'a> {
             self.hid.scan_input();
             let input = self.hid.keys_down();
 
-            if input.contains(KeyPad::KEY_A) {
+            if input.contains(KeyPad::A) {
                 break;
             }
 
-            if input.contains(KeyPad::KEY_START) {
+            if input.contains(KeyPad::START) {
                 self.running = false;
                 return;
             }
@@ -161,17 +160,16 @@ impl<'a> FileExplorer<'a> {
 
     fn get_input_and_run(&mut self, action: impl FnOnce(&mut Self, String)) {
         let mut keyboard = Swkbd::default();
-        let mut new_path_str = String::new();
 
-        match keyboard.get_utf8(&mut new_path_str) {
-            Ok(Button::Right) => {
+        match keyboard.get_string(2048) {
+            Ok((path, Button::Right)) => {
                 // Clicked "OK"
-                action(self, new_path_str);
+                action(self, path);
             }
-            Ok(Button::Left) => {
+            Ok((_, Button::Left)) => {
                 // Clicked "Cancel"
             }
-            Ok(Button::Middle) => {
+            Ok((_, Button::Middle)) => {
                 // This button wasn't shown
                 unreachable!()
             }

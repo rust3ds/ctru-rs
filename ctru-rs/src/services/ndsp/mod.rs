@@ -1,19 +1,20 @@
 //! NDSP (Audio) service
 
 pub mod wave;
-use wave::{WaveInfo, WaveStatus};
+use wave::{Wave, WaveStatus};
 
 use crate::error::ResultCode;
 use crate::services::ServiceReference;
 
 use std::cell::{RefCell, RefMut};
+use std::default::Default;
 use std::error;
 use std::fmt;
 use std::sync::Mutex;
 
 const NUMBER_OF_CHANNELS: u8 = 24;
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum OutputMode {
     Mono = ctru_sys::NDSP_OUTPUT_MONO,
@@ -21,7 +22,7 @@ pub enum OutputMode {
     Surround = ctru_sys::NDSP_OUTPUT_SURROUND,
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum AudioFormat {
     PCM8Mono = ctru_sys::NDSP_FORMAT_MONO_PCM8,
@@ -30,7 +31,13 @@ pub enum AudioFormat {
     PCM16Stereo = ctru_sys::NDSP_FORMAT_STEREO_PCM16,
 }
 
-#[derive(Copy, Clone, Debug)]
+/// Representation of volume mix for a channel.
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub struct AudioMix {
+    raw: [f32; 12],
+}
+
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum InterpolationType {
     Polyphase = ctru_sys::NDSP_INTERP_POLYPHASE,
@@ -38,7 +45,7 @@ pub enum InterpolationType {
     None = ctru_sys::NDSP_INTERP_NONE,
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum NdspError {
     /// Channel ID
     InvalidChannel(u8),
@@ -47,7 +54,7 @@ pub enum NdspError {
     /// Channel ID
     WaveBusy(u8),
     /// Sample amount requested, Max sample amount
-    SampleCountOutOfBounds(u32, u32),
+    SampleCountOutOfBounds(usize, usize),
 }
 
 pub struct Channel<'ndsp> {
@@ -73,7 +80,7 @@ impl Ndsp {
     ///
     /// This function will return an error if an instance of the `Ndsp` struct already exists
     /// or if there are any issues during initialization.
-    pub fn init() -> crate::Result<Self> {
+    pub fn new() -> crate::Result<Self> {
         let _service_handler = ServiceReference::new(
             &NDSP_ACTIVE,
             false,
@@ -115,13 +122,13 @@ impl Ndsp {
 
     /// Set the audio output mode. Defaults to `OutputMode::Stereo`.
     pub fn set_output_mode(&mut self, mode: OutputMode) {
-        unsafe { ctru_sys::ndspSetOutputMode(mode as u32) };
+        unsafe { ctru_sys::ndspSetOutputMode(mode.into()) };
     }
 }
 
 impl Channel<'_> {
     /// Reset the channel
-    pub fn reset(&self) {
+    pub fn reset(&mut self) {
         unsafe { ctru_sys::ndspChnReset(self.id.into()) };
     }
 
@@ -141,54 +148,45 @@ impl Channel<'_> {
     }
 
     // Returns the channel's id
-    pub fn get_id(&self) -> u8 {
+    pub fn id(&self) -> u8 {
         self.id
     }
 
-    /// Returns the channel's current sample's position.
-    pub fn get_sample_position(&self) -> u32 {
-        unsafe { ctru_sys::ndspChnGetSamplePos(self.id.into()) }
+    /// Returns the index of the currently played sample.
+    ///
+    /// Because of how fast this value changes, it should only be used as a rough estimate of the current progress.
+    pub fn sample_position(&self) -> usize {
+        (unsafe { ctru_sys::ndspChnGetSamplePos(self.id.into()) }) as usize
     }
 
     /// Returns the channel's current wave sequence's id.
-    pub fn get_wave_sequence_id(&self) -> u16 {
+    pub fn wave_sequence_id(&self) -> u16 {
         unsafe { ctru_sys::ndspChnGetWaveBufSeq(self.id.into()) }
     }
 
     /// Pause or un-pause the channel's playback.
-    pub fn set_paused(&self, state: bool) {
+    pub fn set_paused(&mut self, state: bool) {
         unsafe { ctru_sys::ndspChnSetPaused(self.id.into(), state) };
     }
 
     /// Set the channel's output format.
     /// Change this setting based on the used sample's format.
-    pub fn set_format(&self, format: AudioFormat) {
-        unsafe { ctru_sys::ndspChnSetFormat(self.id.into(), format as u16) };
+    pub fn set_format(&mut self, format: AudioFormat) {
+        unsafe { ctru_sys::ndspChnSetFormat(self.id.into(), format.into()) };
     }
 
     /// Set the channel's interpolation mode.
-    pub fn set_interpolation(&self, interp_type: InterpolationType) {
-        unsafe { ctru_sys::ndspChnSetInterp(self.id.into(), interp_type as u32) };
+    pub fn set_interpolation(&mut self, interp_type: InterpolationType) {
+        unsafe { ctru_sys::ndspChnSetInterp(self.id.into(), interp_type.into()) };
     }
 
     /// Set the channel's volume mix.
-    ///
-    /// # Notes
-    ///
-    /// The buffer's format is read as:
-    ///
-    /// Index 0: Front left volume <br>
-    /// Index 1: Front right volume <br>
-    /// Index 2: Back left volume <br>
-    /// Index 3: Back right volume <br>
-    /// Index 4..7: Same as 0..3 but for auxiliary output 0 <br>
-    /// Index 8..11: Same as 0..3 but for auxiliary output 1 <br>
-    pub fn set_mix(&self, mix: &[f32; 12]) {
-        unsafe { ctru_sys::ndspChnSetMix(self.id.into(), mix.as_ptr().cast_mut()) }
+    pub fn set_mix(&mut self, mix: &AudioMix) {
+        unsafe { ctru_sys::ndspChnSetMix(self.id.into(), mix.as_raw().as_ptr().cast_mut()) }
     }
 
     /// Set the channel's rate of sampling.
-    pub fn set_sample_rate(&self, rate: f32) {
+    pub fn set_sample_rate(&mut self, rate: f32) {
         unsafe { ctru_sys::ndspChnSetRate(self.id.into(), rate) };
     }
 
@@ -197,7 +195,7 @@ impl Channel<'_> {
     // We suggest using other wave formats when developing homebrew applications.
 
     /// Clear the wave buffer queue and stop playback.
-    pub fn clear_queue(&self) {
+    pub fn clear_queue(&mut self) {
         unsafe { ctru_sys::ndspChnWaveBufClear(self.id.into()) };
     }
 
@@ -206,10 +204,10 @@ impl Channel<'_> {
     ///
     /// # Warning
     ///
-    /// `libctru` expects the user to manually keep the info data (in this case [WaveInfo]) alive during playback.
-    /// To ensure safety, checks within [WaveInfo] will clear the whole channel queue if any queued [WaveInfo] is dropped prematurely.
-    pub fn queue_wave(&self, wave: &mut WaveInfo) -> std::result::Result<(), NdspError> {
-        match wave.get_status() {
+    /// `libctru` expects the user to manually keep the info data (in this case [Wave]) alive during playback.
+    /// To ensure safety, checks within [Wave] will clear the whole channel queue if any queued [Wave] is dropped prematurely.
+    pub fn queue_wave(&mut self, wave: &mut Wave) -> std::result::Result<(), NdspError> {
+        match wave.status() {
             WaveStatus::Playing | WaveStatus::Queued => return Err(NdspError::WaveBusy(self.id)),
             _ => (),
         }
@@ -227,7 +225,7 @@ impl Channel<'_> {
 /// Refer to [libctru](https://libctru.devkitpro.org/channel_8h.html#a1da3b363c2edfd318c92276b527daae6) for more info.
 impl Channel<'_> {
     /// Enables/disables monopole filters.
-    pub fn iir_mono_set_enabled(&self, enable: bool) {
+    pub fn iir_mono_set_enabled(&mut self, enable: bool) {
         unsafe { ctru_sys::ndspChnIirMonoSetEnable(self.id.into(), enable) };
     }
 
@@ -236,7 +234,7 @@ impl Channel<'_> {
     /// # Notes
     ///
     /// This is a lower quality filter than the Biquad alternative.
-    pub fn iir_mono_set_params_high_pass_filter(&self, cut_off_freq: f32) {
+    pub fn iir_mono_set_params_high_pass_filter(&mut self, cut_off_freq: f32) {
         unsafe { ctru_sys::ndspChnIirMonoSetParamsHighPassFilter(self.id.into(), cut_off_freq) };
     }
 
@@ -245,38 +243,38 @@ impl Channel<'_> {
     /// # Notes
     ///
     /// This is a lower quality filter than the Biquad alternative.
-    pub fn iir_mono_set_params_low_pass_filter(&self, cut_off_freq: f32) {
+    pub fn iir_mono_set_params_low_pass_filter(&mut self, cut_off_freq: f32) {
         unsafe { ctru_sys::ndspChnIirMonoSetParamsLowPassFilter(self.id.into(), cut_off_freq) };
     }
 
     /// Enables/disables biquad filters.
-    pub fn iir_biquad_set_enabled(&self, enable: bool) {
+    pub fn iir_biquad_set_enabled(&mut self, enable: bool) {
         unsafe { ctru_sys::ndspChnIirBiquadSetEnable(self.id.into(), enable) };
     }
 
     /// Sets the biquad to be a high pass filter.
-    pub fn iir_biquad_set_params_high_pass_filter(&self, cut_off_freq: f32, quality: f32) {
+    pub fn iir_biquad_set_params_high_pass_filter(&mut self, cut_off_freq: f32, quality: f32) {
         unsafe {
             ctru_sys::ndspChnIirBiquadSetParamsHighPassFilter(self.id.into(), cut_off_freq, quality)
         };
     }
 
     /// Sets the biquad to be a low pass filter.
-    pub fn iir_biquad_set_params_low_pass_filter(&self, cut_off_freq: f32, quality: f32) {
+    pub fn iir_biquad_set_params_low_pass_filter(&mut self, cut_off_freq: f32, quality: f32) {
         unsafe {
             ctru_sys::ndspChnIirBiquadSetParamsLowPassFilter(self.id.into(), cut_off_freq, quality)
         };
     }
 
     /// Sets the biquad to be a notch filter.
-    pub fn iir_biquad_set_params_notch_filter(&self, notch_freq: f32, quality: f32) {
+    pub fn iir_biquad_set_params_notch_filter(&mut self, notch_freq: f32, quality: f32) {
         unsafe {
             ctru_sys::ndspChnIirBiquadSetParamsNotchFilter(self.id.into(), notch_freq, quality)
         };
     }
 
     /// Sets the biquad to be a band pass filter.
-    pub fn iir_biquad_set_params_band_pass_filter(&self, mid_freq: f32, quality: f32) {
+    pub fn iir_biquad_set_params_band_pass_filter(&mut self, mid_freq: f32, quality: f32) {
         unsafe {
             ctru_sys::ndspChnIirBiquadSetParamsBandPassFilter(self.id.into(), mid_freq, quality)
         };
@@ -284,7 +282,7 @@ impl Channel<'_> {
 
     /// Sets the biquad to be a peaking equalizer.
     pub fn iir_biquad_set_params_peaking_equalizer(
-        &self,
+        &mut self,
         central_freq: f32,
         quality: f32,
         gain: f32,
@@ -302,41 +300,161 @@ impl Channel<'_> {
 
 impl AudioFormat {
     /// Returns the amount of bytes needed to store one sample
+    ///
     /// Eg.
-    /// 8 bit formats return 1 (byte)
-    /// 16 bit formats return 2 (bytes)
-    pub fn sample_size(self) -> u8 {
+    /// 8 bit mono formats return 1 (byte)
+    /// 16 bit stereo (dual-channel) formats return 4 (bytes)
+    pub const fn size(self) -> usize {
         match self {
-            AudioFormat::PCM8Mono => 1,
-            AudioFormat::PCM16Mono | AudioFormat::PCM8Stereo => 2,
-            AudioFormat::PCM16Stereo => 4,
+            Self::PCM8Mono => 1,
+            Self::PCM16Mono | Self::PCM8Stereo => 2,
+            Self::PCM16Stereo => 4,
         }
+    }
+}
+
+impl AudioMix {
+    /// Creates a new [AudioMix] with all volumes set to 0.
+    pub fn zeroed() -> Self {
+        Self { raw: [0.; 12] }
+    }
+
+    /// Returns a reference to the raw data.
+    pub fn as_raw(&self) -> &[f32; 12] {
+        &self.raw
+    }
+
+    /// Returns a mutable reference to the raw data.
+    pub fn as_raw_mut(&mut self) -> &mut [f32; 12] {
+        &mut self.raw
+    }
+
+    /// Returns the values set for the "front" volume mix (left and right channel).
+    pub fn front(&self) -> (f32, f32) {
+        (self.raw[0], self.raw[1])
+    }
+
+    /// Returns the values set for the "back" volume mix (left and right channel).
+    pub fn back(&self) -> (f32, f32) {
+        (self.raw[2], self.raw[3])
+    }
+
+    /// Returns the values set for the "front" volume mix (left and right channel) for the specified auxiliary output device (either 0 or 1).
+    pub fn aux_front(&self, id: usize) -> (f32, f32) {
+        if id > 1 {
+            panic!("invalid auxiliary output device index")
+        }
+
+        let index = 4 + id * 4;
+
+        (self.raw[index], self.raw[index + 1])
+    }
+
+    /// Returns the values set for the "back" volume mix (left and right channel) for the specified auxiliary output device (either 0 or 1).
+    pub fn aux_back(&self, id: usize) -> (f32, f32) {
+        if id > 1 {
+            panic!("invalid auxiliary output device index")
+        }
+
+        let index = 6 + id * 4;
+
+        (self.raw[index], self.raw[index + 1])
+    }
+
+    /// Sets the values for the "front" volume mix (left and right channel).
+    ///
+    /// # Notes
+    ///
+    /// [Channel] will normalize the mix values to be within 0 and 1.
+    /// However, an [AudioMix] instance with larger/smaller values is valid.
+    pub fn set_front(&mut self, left: f32, right: f32) {
+        self.raw[0] = left;
+        self.raw[1] = right;
+    }
+
+    /// Sets the values for the "back" volume mix (left and right channel).
+    ///
+    /// # Notes
+    ///
+    /// [Channel] will normalize the mix values to be within 0 and 1.
+    /// However, an [AudioMix] instance with larger/smaller values is valid.
+    pub fn set_back(&mut self, left: f32, right: f32) {
+        self.raw[2] = left;
+        self.raw[3] = right;
+    }
+
+    /// Sets the values for the "front" volume mix (left and right channel) for the specified auxiliary output device (either 0 or 1).
+    ///
+    /// # Notes
+    ///
+    /// [Channel] will normalize the mix values to be within 0 and 1.
+    /// However, an [AudioMix] instance with larger/smaller values is valid.
+    pub fn set_aux_front(&mut self, left: f32, right: f32, id: usize) {
+        if id > 1 {
+            panic!("invalid auxiliary output device index")
+        }
+
+        let index = 4 + id * 4;
+
+        self.raw[index] = left;
+        self.raw[index + 1] = right;
+    }
+
+    /// Sets the values for the "back" volume mix (left and right channel) for the specified auxiliary output device (either 0 or 1).
+    ///
+    /// # Notes
+    ///
+    /// [Channel] will normalize the mix values to be within 0 and 1.
+    /// However, an [AudioMix] instance with larger/smaller values is valid.
+    pub fn set_aux_back(&mut self, left: f32, right: f32, id: usize) {
+        if id > 1 {
+            panic!("invalid auxiliary output device index")
+        }
+
+        let index = 6 + id * 4;
+
+        self.raw[index] = left;
+        self.raw[index + 1] = right;
+    }
+}
+
+/// Returns an [AudioMix] object with "front left" and "front right" volumes set to 100%, and all other volumes set to 0%.
+impl Default for AudioMix {
+    fn default() -> Self {
+        let mut mix = AudioMix::zeroed();
+        mix.set_front(1.0, 1.0);
+
+        mix
+    }
+}
+
+impl From<[f32; 12]> for AudioMix {
+    fn from(value: [f32; 12]) -> Self {
+        Self { raw: value }
     }
 }
 
 impl fmt::Display for NdspError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Self::InvalidChannel(id) => write!(f, "Audio Channel with ID {id} doesn't exist. Valid channels have an ID between 0 and 23."),
-            Self::ChannelAlreadyInUse(id) => write!(f, "Audio Channel with ID {id} is already being used. Drop the other instance if you want to use it here."),
-            Self::WaveBusy(id) => write!(f, "The selected WaveInfo is busy playing on channel {id}."),
-            Self::SampleCountOutOfBounds(samples_requested, max_samples) => write!(f, "The sample count requested is too big. Requested amount was {samples_requested} while the maximum sample count is {max_samples}."),
+            Self::InvalidChannel(id) => write!(f, "audio Channel with ID {id} doesn't exist. Valid channels have an ID between 0 and 23"),
+            Self::ChannelAlreadyInUse(id) => write!(f, "audio Channel with ID {id} is already being used. Drop the other instance if you want to use it here"),
+            Self::WaveBusy(id) => write!(f, "the selected Wave is busy playing on channel {id}"),
+            Self::SampleCountOutOfBounds(samples_requested, max_samples) => write!(f, "the sample count requested is too big (requested = {samples_requested}, maximum = {max_samples})"),
         }
     }
 }
 
 impl error::Error for NdspError {}
 
-impl<'ndsp> Drop for Channel<'ndsp> {
-    fn drop(&mut self) {
-        self.reset();
-    }
-}
-
 impl Drop for Ndsp {
     fn drop(&mut self) {
         for i in 0..NUMBER_OF_CHANNELS {
-            self.channel(i).unwrap().clear_queue();
+            self.channel(i).unwrap().reset();
         }
     }
 }
+
+from_impl!(InterpolationType, ctru_sys::ndspInterpType);
+from_impl!(OutputMode, ctru_sys::ndspOutputMode);
+from_impl!(AudioFormat, u16);

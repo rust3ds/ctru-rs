@@ -5,15 +5,16 @@ use std::net::{Shutdown, TcpListener};
 use std::time::Duration;
 
 fn main() {
-    ctru::init();
-    let gfx = Gfx::init().unwrap();
-    let _console = Console::init(gfx.top_screen.borrow_mut());
-    let hid = Hid::init().unwrap();
-    let apt = Apt::init().unwrap();
+    ctru::use_panic_handler();
+
+    let gfx = Gfx::new().unwrap();
+    let _console = Console::new(gfx.top_screen.borrow_mut());
+    let mut hid = Hid::new().unwrap();
+    let apt = Apt::new().unwrap();
 
     println!("\nlibctru sockets demo\n");
 
-    let soc = Soc::init().unwrap();
+    let soc = Soc::new().unwrap();
 
     let server = TcpListener::bind("0.0.0.0:80").unwrap();
     server.set_nonblocking(true).unwrap();
@@ -60,7 +61,7 @@ fn main() {
         }
 
         hid.scan_input();
-        if hid.keys_down().contains(KeyPad::KEY_START) {
+        if hid.keys_down().contains(KeyPad::START) {
             break;
         };
     }

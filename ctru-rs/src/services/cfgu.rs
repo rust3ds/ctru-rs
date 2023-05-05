@@ -4,7 +4,7 @@
 
 use crate::error::ResultCode;
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum Region {
     Japan = ctru_sys::CFG_REGION_JPN,
@@ -16,7 +16,7 @@ pub enum Region {
     Taiwan = ctru_sys::CFG_REGION_TWN,
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum Language {
     Japanese = ctru_sys::CFG_LANGUAGE_JP,
@@ -33,15 +33,15 @@ pub enum Language {
     TraditionalChinese = ctru_sys::CFG_LANGUAGE_TW,
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum SystemModel {
-    Model3DS = ctru_sys::CFG_MODEL_3DS,
-    Model3DSXL = ctru_sys::CFG_MODEL_3DSXL,
-    ModelNew3DS = ctru_sys::CFG_MODEL_N3DS,
-    Model2DS = ctru_sys::CFG_MODEL_2DS,
-    ModelNew3DSXL = ctru_sys::CFG_MODEL_N3DSXL,
-    ModelNew2DSXL = ctru_sys::CFG_MODEL_N2DSXL,
+    Old3DS = ctru_sys::CFG_MODEL_3DS,
+    Old3DSXL = ctru_sys::CFG_MODEL_3DSXL,
+    New3DS = ctru_sys::CFG_MODEL_N3DS,
+    Old2DS = ctru_sys::CFG_MODEL_2DS,
+    New3DSXL = ctru_sys::CFG_MODEL_N3DSXL,
+    New2DSXL = ctru_sys::CFG_MODEL_N2DSXL,
 }
 
 /// Represents the configuration service. No actions can be performed
@@ -61,13 +61,13 @@ impl Cfgu {
     /// ctrulib services are reference counted, so this function may be called
     /// as many times as desired and the service will not exit until all
     /// instances of Cfgu drop out of scope.
-    pub fn init() -> crate::Result<Cfgu> {
+    pub fn new() -> crate::Result<Cfgu> {
         ResultCode(unsafe { ctru_sys::cfguInit() })?;
         Ok(Cfgu(()))
     }
 
     /// Gets system region from secure info
-    pub fn get_region(&self) -> crate::Result<Region> {
+    pub fn region(&self) -> crate::Result<Region> {
         let mut region: u8 = 0;
 
         ResultCode(unsafe { ctru_sys::CFGU_SecureInfoGetRegion(&mut region) })?;
@@ -75,7 +75,7 @@ impl Cfgu {
     }
 
     /// Gets system's model
-    pub fn get_model(&self) -> crate::Result<SystemModel> {
+    pub fn model(&self) -> crate::Result<SystemModel> {
         let mut model: u8 = 0;
 
         ResultCode(unsafe { ctru_sys::CFGU_GetSystemModel(&mut model) })?;
@@ -83,7 +83,7 @@ impl Cfgu {
     }
 
     /// Gets system's language
-    pub fn get_language(&self) -> crate::Result<Language> {
+    pub fn language(&self) -> crate::Result<Language> {
         let mut language: u8 = 0;
 
         ResultCode(unsafe { ctru_sys::CFGU_GetSystemLanguage(&mut language) })?;
@@ -115,19 +115,9 @@ impl Drop for Cfgu {
     }
 }
 
-macro_rules! from_type_to_u8 {
-    ($from_type:ty) => {
-        impl From<$from_type> for u8 {
-            fn from(v: $from_type) -> Self {
-                v as u8
-            }
-        }
-    };
-}
-
-from_type_to_u8!(Region);
-from_type_to_u8!(Language);
-from_type_to_u8!(SystemModel);
+from_impl!(Region, u8);
+from_impl!(Language, u8);
+from_impl!(SystemModel, u8);
 
 impl TryFrom<u8> for Region {
     type Error = ();
@@ -173,12 +163,12 @@ impl TryFrom<u8> for SystemModel {
 
     fn try_from(value: u8) -> Result<Self, Self::Error> {
         match value as u32 {
-            ctru_sys::CFG_MODEL_3DS => Ok(SystemModel::Model3DS),
-            ctru_sys::CFG_MODEL_3DSXL => Ok(SystemModel::Model3DSXL),
-            ctru_sys::CFG_MODEL_N3DS => Ok(SystemModel::ModelNew3DS),
-            ctru_sys::CFG_MODEL_2DS => Ok(SystemModel::Model2DS),
-            ctru_sys::CFG_MODEL_N3DSXL => Ok(SystemModel::ModelNew3DSXL),
-            ctru_sys::CFG_MODEL_N2DSXL => Ok(SystemModel::ModelNew2DSXL),
+            ctru_sys::CFG_MODEL_3DS => Ok(SystemModel::Old3DS),
+            ctru_sys::CFG_MODEL_3DSXL => Ok(SystemModel::Old3DSXL),
+            ctru_sys::CFG_MODEL_N3DS => Ok(SystemModel::New3DS),
+            ctru_sys::CFG_MODEL_2DS => Ok(SystemModel::Old2DS),
+            ctru_sys::CFG_MODEL_N3DSXL => Ok(SystemModel::New3DSXL),
+            ctru_sys::CFG_MODEL_N2DSXL => Ok(SystemModel::New2DSXL),
             _ => Err(()),
         }
     }

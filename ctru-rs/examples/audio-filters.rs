@@ -5,13 +5,13 @@ use std::f32::consts::PI;
 use ctru::linear::LinearAllocator;
 use ctru::prelude::*;
 use ctru::services::ndsp::{
-    wave::{WaveInfo, WaveStatus},
-    AudioFormat, InterpolationType, Ndsp, OutputMode,
+    wave::{Wave, WaveStatus},
+    AudioFormat, AudioMix, InterpolationType, Ndsp, OutputMode,
 };
 
 const SAMPLE_RATE: usize = 22050;
 const SAMPLES_PER_BUF: usize = SAMPLE_RATE / 10; // 2205
-const BYTES_PER_SAMPLE: usize = 4;
+const BYTES_PER_SAMPLE: usize = AudioFormat::PCM16Stereo.size();
 const AUDIO_WAVE_LENGTH: usize = SAMPLES_PER_BUF * BYTES_PER_SAMPLE;
 
 // Note Frequencies
@@ -35,11 +35,12 @@ fn fill_buffer(audio_data: &mut [u8], frequency: f32) {
 }
 
 fn main() {
-    ctru::init();
-    let gfx = Gfx::init().expect("Couldn't obtain GFX controller");
-    let hid = Hid::init().expect("Couldn't obtain HID controller");
-    let apt = Apt::init().expect("Couldn't obtain APT controller");
-    let _console = Console::init(gfx.top_screen.borrow_mut());
+    ctru::use_panic_handler();
+
+    let gfx = Gfx::new().expect("Couldn't obtain GFX controller");
+    let mut hid = Hid::new().expect("Couldn't obtain HID controller");
+    let apt = Apt::new().expect("Couldn't obtain APT controller");
+    let _console = Console::new(gfx.top_screen.borrow_mut());
 
     let mut note: usize = 4;
 
@@ -64,24 +65,21 @@ fn main() {
 
     let audio_data2 = audio_data1.clone();
 
-    let mut wave_info1 = WaveInfo::new(audio_data1, AudioFormat::PCM16Stereo, false);
-    let mut wave_info2 = WaveInfo::new(audio_data2, AudioFormat::PCM16Stereo, false);
+    let mut wave_info1 = Wave::new(audio_data1, AudioFormat::PCM16Stereo, false);
+    let mut wave_info2 = Wave::new(audio_data2, AudioFormat::PCM16Stereo, false);
 
-    let mut ndsp = Ndsp::init().expect("Couldn't obtain NDSP controller");
+    let mut ndsp = Ndsp::new().expect("Couldn't obtain NDSP controller");
 
     // This line isn't needed since the default NDSP configuration already sets the output mode to `Stereo`
     ndsp.set_output_mode(OutputMode::Stereo);
 
-    let channel_zero = ndsp.channel(0).unwrap();
+    let mut channel_zero = ndsp.channel(0).unwrap();
     channel_zero.set_interpolation(InterpolationType::Linear);
     channel_zero.set_sample_rate(SAMPLE_RATE as f32);
     channel_zero.set_format(AudioFormat::PCM16Stereo);
 
     // Output at 100% on the first pair of left and right channels.
-
-    let mut mix: [f32; 12] = [0f32; 12];
-    mix[0] = 1.0;
-    mix[1] = 1.0;
+    let mix = AudioMix::default();
     channel_zero.set_mix(&mix);
 
     channel_zero.queue_wave(&mut wave_info1).unwrap();
@@ -101,23 +99,23 @@ fn main() {
         hid.scan_input();
         let keys_down = hid.keys_down();
 
-        if keys_down.contains(KeyPad::KEY_START) {
+        if keys_down.contains(KeyPad::START) {
             break;
         } // break in order to return to hbmenu
 
-        if keys_down.intersects(KeyPad::KEY_DOWN) {
+        if keys_down.intersects(KeyPad::DOWN) {
             note = note.saturating_sub(1);
-        } else if keys_down.intersects(KeyPad::KEY_UP) {
+        } else if keys_down.intersects(KeyPad::UP) {
             note = std::cmp::min(note + 1, NOTEFREQ.len() - 1);
         }
 
         let mut update_params = false;
-        if keys_down.intersects(KeyPad::KEY_LEFT) {
+        if keys_down.intersects(KeyPad::LEFT) {
             filter -= 1;
             filter = filter.rem_euclid(filter_names.len() as _);
 
             update_params = true;
-        } else if keys_down.intersects(KeyPad::KEY_RIGHT) {
+        } else if keys_down.intersects(KeyPad::RIGHT) {
             filter += 1;
             filter = filter.rem_euclid(filter_names.len() as _);
 
@@ -141,13 +139,13 @@ fn main() {
             }
         }
 
-        let current: &mut WaveInfo = if altern {
+        let current: &mut Wave = if altern {
             &mut wave_info1
         } else {
             &mut wave_info2
         };
 
-        let status = current.get_status();
+        let status = current.status();
         if let WaveStatus::Done = status {
             fill_buffer(current.get_buffer_mut().unwrap(), NOTEFREQ[note]);
 
@@ -155,10 +153,6 @@ fn main() {
 
             altern = !altern;
         }
-
-        // Flush and swap framebuffers
-        gfx.flush_buffers();
-        gfx.swap_buffers();
 
         //Wait for VBlank
         gfx.wait_for_vblank();

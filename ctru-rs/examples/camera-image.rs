@@ -1,45 +1,45 @@
-use ctru::console::Console;
-use ctru::gfx::{Gfx, Screen};
-use ctru::services::cam::{Cam, CamOutputFormat, CamShutterSoundType, CamSize, Camera};
-use ctru::services::hid::KeyPad;
-use ctru::services::{Apt, Hid};
+use ctru::prelude::*;
+use ctru::services::cam::{Cam, Camera, OutputFormat, ShutterSound, ViewSize};
+use ctru::services::gfx::{Flush, Screen, Swap};
+use ctru::services::gspgpu::FramebufferFormat;
+
 use std::time::Duration;
 
 const WIDTH: usize = 400;
 const HEIGHT: usize = 240;
 
-// The screen size is the width and height multiplied by 2 and
-// then multiplied by 2 again for 3D images
-const BUF_SIZE: usize = WIDTH * HEIGHT * 2 * 2;
+// The screen size is the width and height multiplied by 2 (RGB565 store pixels in 2 bytes)
+const BUF_SIZE: usize = WIDTH * HEIGHT * 2;
 
-const WAIT_TIMEOUT: Duration = Duration::from_micros(300);
+const WAIT_TIMEOUT: Duration = Duration::from_millis(300);
 
 fn main() {
-    ctru::init();
+    ctru::use_panic_handler();
 
-    let apt = Apt::init().expect("Failed to initialize Apt service.");
-    let hid = Hid::init().expect("Failed to initialize Hid service.");
-    let gfx = Gfx::init().expect("Failed to initialize GFX service.");
+    let apt = Apt::new().expect("Failed to initialize Apt service.");
+    let mut hid = Hid::new().expect("Failed to initialize Hid service.");
+    let gfx = Gfx::new().expect("Failed to initialize GFX service.");
 
-    gfx.top_screen.borrow_mut().set_double_buffering(true);
-    gfx.bottom_screen.borrow_mut().set_double_buffering(false);
+    let mut top_screen = gfx.top_screen.borrow_mut();
+    top_screen.set_double_buffering(true);
+    top_screen.set_framebuffer_format(FramebufferFormat::Rgb565);
 
-    let _console = Console::init(gfx.bottom_screen.borrow_mut());
+    let _console = Console::new(gfx.bottom_screen.borrow_mut());
 
     let mut keys_down;
 
     println!("Initializing camera");
 
-    let mut cam = Cam::init().expect("Failed to initialize CAM service.");
+    let mut cam = Cam::new().expect("Failed to initialize CAM service.");
 
     {
         let camera = &mut cam.outer_right_cam;
 
         camera
-            .set_view_size(CamSize::CTR_TOP_LCD)
+            .set_view_size(ViewSize::TopLCD)
             .expect("Failed to set camera size");
         camera
-            .set_output_format(CamOutputFormat::RGB_565)
+            .set_output_format(OutputFormat::Rgb565)
             .expect("Failed to set camera output format");
         camera
             .set_noise_filter(true)
@@ -54,6 +54,7 @@ fn main() {
             .set_trimming(false)
             .expect("Failed to disable trimming");
     }
+
     let mut buf = vec![0u8; BUF_SIZE];
 
     println!("\nPress R to take a new picture");
@@ -63,75 +64,62 @@ fn main() {
         hid.scan_input();
         keys_down = hid.keys_down();
 
-        if keys_down.contains(KeyPad::KEY_START) {
+        if keys_down.contains(KeyPad::START) {
             break;
         }
 
-        if keys_down.contains(KeyPad::KEY_R) {
+        if keys_down.contains(KeyPad::R) {
             println!("Capturing new image");
-            cam.play_shutter_sound(CamShutterSoundType::NORMAL)
-                .expect("Failed to play shutter sound");
 
             let camera = &mut cam.outer_right_cam;
 
-            buf = camera
+            camera
                 .take_picture(
+                    &mut buf,
                     WIDTH.try_into().unwrap(),
                     HEIGHT.try_into().unwrap(),
                     WAIT_TIMEOUT,
                 )
                 .expect("Failed to take picture");
+
+            cam.play_shutter_sound(ShutterSound::Normal)
+                .expect("Failed to play shutter sound");
+
+            rotate_image_to_screen(&buf, top_screen.raw_framebuffer().ptr, WIDTH, HEIGHT);
+
+            // We will only flush the "camera" screen, since the other screen is handled by `Console`
+            top_screen.flush_buffers();
+            top_screen.swap_buffers();
+
+            gfx.wait_for_vblank();
         }
-
-        let img = convert_image_to_rgb8(&buf, 0, 0, WIDTH, HEIGHT);
-
-        unsafe {
-            gfx.top_screen
-                .borrow_mut()
-                .get_raw_framebuffer()
-                .ptr
-                .copy_from(img.as_ptr(), img.len());
-        }
-
-        gfx.flush_buffers();
-        gfx.swap_buffers();
-        gfx.wait_for_vblank();
     }
 }
 
-// The available camera output formats are both using u16 values.
-// To write to the frame buffer with the default RGB8 format,
-// the values must be converted.
-//
-// Alternatively, the frame buffer format could be set to RGB565 as well
-// but the image would need to be rotated 90 degrees.
-fn convert_image_to_rgb8(img: &[u8], x: usize, y: usize, width: usize, height: usize) -> Vec<u8> {
-    let mut rgb8 = vec![0u8; img.len()];
+// The 3DS' screens are 2 vertical LCD panels rotated by 90 degrees.
+// As such, we'll need to write a "vertical" image to the framebuffer to have it displayed properly.
+// This functions rotates an horizontal image by 90 degrees to the right.
+fn rotate_image_to_screen(src: &[u8], framebuf: *mut u8, width: usize, height: usize) {
     for j in 0..height {
         for i in 0..width {
             // Y-coordinate of where to draw in the frame buffer
-            let draw_y = y + height - j;
+            // Height must be esclusive of the upper end (otherwise, we'd be writing to the pixel one column to the right when having j=0)
+            let draw_y = (height - 1) - j;
             // X-coordinate of where to draw in the frame buffer
-            let draw_x = x + i;
-            // Initial index of where to draw in the frame buffer based on y and x coordinates
-            let draw_index = (draw_y + draw_x * height) * 3;
+            let draw_x = i;
 
             // Index of the pixel to draw within the image buffer
-            let index = (j * width + i) * 2;
-            // Pixels in the image are 2 bytes because of the RGB565 format.
-            let pixel = u16::from_ne_bytes(img[index..index + 2].try_into().unwrap());
-            // b value from the pixel
-            let b = (((pixel >> 11) & 0x1F) << 3) as u8;
-            // g value from the pixel
-            let g = (((pixel >> 5) & 0x3F) << 2) as u8;
-            // r value from the pixel
-            let r = ((pixel & 0x1F) << 3) as u8;
+            let read_index = (j * width + i) * 2;
 
-            // set the r, g, and b values to the calculated index within the frame buffer
-            rgb8[draw_index] = r;
-            rgb8[draw_index + 1] = g;
-            rgb8[draw_index + 2] = b;
+            // Initial index of where to draw in the frame buffer based on y and x coordinates
+            let draw_index = (draw_x * height + draw_y) * 2; // This 2 stands for the number of bytes per pixel (16 bits)
+
+            unsafe {
+                // We'll work with pointers since the frambuffer is a raw pointer regardless.
+                // The offsets are completely safe as long as the width and height are correct.
+                let pixel_pointer = framebuf.offset(draw_index as isize);
+                pixel_pointer.copy_from(src.as_ptr().offset(read_index as isize), 2);
+            }
         }
     }
-    rgb8
 }

@@ -5,35 +5,29 @@ A Rust wrapper library for smealum's [ctrulib](https://github.com/smealum/ctruli
 ## Structure
 
 This repository is organized as follows:
-* `ctru-rs`: Safe, idiomatic wrapper around `ctru-sys`.
-* `ctru-sys`: Low-level, unsafe bindings to ctrulib
 
-## License
+* `ctru-rs`: Safe, idiomatic wrapper around `ctru-sys`
 
-Copyright (C) Rust 3DS Project authors, 2015-2016
+* `ctru-sys`: Low-level, unsafe bindings to ctrulib.
 
-See AUTHORS.md.
+  This crate's version changes according to the version of `libctru`
+  used to generate the bindings, with the following convention:
 
-As with the original ctrulib, this library is licensed under zlib. This
-applies to every file in the tree, unless otherwise noted.
+  * `libctru` version `X.Y.Z-W`
+  * `ctru-sys` version `XY.Z.P+X.Y.Z-W`
 
-    This software is provided 'as-is', without any express or implied
-    warranty.  In no event will the authors be held liable for any
-    damages arising from the use of this software.
+  where `P` is usually 0 but may be incremented for fixes in e.g.
+  binding generation, `libc` dependency bump, etc.
 
-    Permission is granted to anyone to use this software for any
-    purpose, including commercial applications, and to alter it and
-    redistribute it freely, subject to the following restrictions:
+  It may be possible to build this crate against a different version of `libctru`,
+  but you may encounter linker errors or ABI issues. A build-time Cargo warning
+  (displayed when built with `-vv`) will be issued if the build script detects
+  a mismatch or is unable to check the installed `libctru` version.
 
-    1. The origin of this software must not be misrepresented; you
-       must not claim that you wrote the original software. If you use
-       this software in a product, an acknowledgment in the product
-       documentation would be appreciated but is not required.
-    2. Altered source versions must be plainly marked as such, and
-       must not be misrepresented as being the original software.
-    3. This notice may not be removed or altered from any source
-       distribution.
+## Original version
 
-Rust is primarily distributed under the terms of both the MIT license and the Apache License (Version 2.0), with portions covered by various BSD-like licenses.
+This project is based on the efforts the original authors:
+ * [Eidolon](https://github.com/HybridEidolon)
+ * [FenrirWolf](https://github.com/FenrirWolf)
 
-See [LICENSE-APACHE](https://github.com/rust-lang/rust/blob/master/LICENSE-APACHE), [LICENSE-MIT](https://github.com/rust-lang/rust/blob/master/LICENSE-MIT), and [COPYRIGHT](https://github.com/rust-lang/rust/blob/master/COPYRIGHT) for details.
+The old version is archived [here](https://github.com/rust3ds/ctru-rs-old).

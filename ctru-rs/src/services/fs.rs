@@ -1,7 +1,7 @@
 //! Filesystem service
 //!
 //! This module contains basic methods to manipulate the contents of the 3DS's filesystem.
-//! Only the SD card is currently supported.
+//! Only the SD card is currently supported. You should prefer using `std::fs`.
 
 use bitflags::bitflags;
 use std::ffi::OsString;
@@ -23,17 +23,13 @@ bitflags! {
         const FS_OPEN_WRITE  = 2;
         const FS_OPEN_CREATE = 4;
     }
-}
 
-bitflags! {
     #[derive(Default)]
     struct FsWrite: u32 {
         const FS_WRITE_FLUSH       =   1;
         const FS_WRITE_UPDATE_TIME = 256;
     }
-}
 
-bitflags! {
     #[derive(Default)]
     struct FsAttribute: u32 {
         const FS_ATTRIBUTE_DIRECTORY =        1;
@@ -43,39 +39,49 @@ bitflags! {
     }
 }
 
-#[derive(Copy, Clone, Debug)]
-pub enum PathType {
-    Invalid,
-    Empty,
-    Binary,
-    ASCII,
-    UTF16,
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[repr(u32)]
+pub enum FsMediaType {
+    Nand = ctru_sys::MEDIATYPE_NAND,
+    Sd = ctru_sys::MEDIATYPE_SD,
+    GameCard = ctru_sys::MEDIATYPE_GAME_CARD,
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[repr(u32)]
+pub enum PathType {
+    Invalid = ctru_sys::PATH_INVALID,
+    Empty = ctru_sys::PATH_EMPTY,
+    Binary = ctru_sys::PATH_BINARY,
+    ASCII = ctru_sys::PATH_ASCII,
+    UTF16 = ctru_sys::PATH_UTF16,
+}
+
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[repr(u32)]
 pub enum ArchiveID {
-    RomFS,
-    Savedata,
-    Extdata,
-    SharedExtdata,
-    SystemSavedata,
-    Sdmc,
-    SdmcWriteOnly,
-    BossExtdata,
-    CardSpiFS,
-    ExtDataAndBossExtdata,
-    SystemSaveData2,
-    NandRW,
-    NandRO,
-    NandROWriteAccess,
-    SaveDataAndContent,
-    SaveDataAndContent2,
-    NandCtrFS,
-    TwlPhoto,
-    NandTwlFS,
-    GameCardSavedata,
-    UserSavedata,
-    DemoSavedata,
+    RomFS = ctru_sys::ARCHIVE_ROMFS,
+    Savedata = ctru_sys::ARCHIVE_SAVEDATA,
+    Extdata = ctru_sys::ARCHIVE_EXTDATA,
+    SharedExtdata = ctru_sys::ARCHIVE_SHARED_EXTDATA,
+    SystemSavedata = ctru_sys::ARCHIVE_SYSTEM_SAVEDATA,
+    Sdmc = ctru_sys::ARCHIVE_SDMC,
+    SdmcWriteOnly = ctru_sys::ARCHIVE_SDMC_WRITE_ONLY,
+    BossExtdata = ctru_sys::ARCHIVE_BOSS_EXTDATA,
+    CardSpiFS = ctru_sys::ARCHIVE_CARD_SPIFS,
+    ExtDataAndBossExtdata = ctru_sys::ARCHIVE_EXTDATA_AND_BOSS_EXTDATA,
+    SystemSaveData2 = ctru_sys::ARCHIVE_SYSTEM_SAVEDATA2,
+    NandRW = ctru_sys::ARCHIVE_NAND_RW,
+    NandRO = ctru_sys::ARCHIVE_NAND_RO,
+    NandROWriteAccess = ctru_sys::ARCHIVE_NAND_RO_WRITE_ACCESS,
+    SaveDataAndContent = ctru_sys::ARCHIVE_SAVEDATA_AND_CONTENT,
+    SaveDataAndContent2 = ctru_sys::ARCHIVE_SAVEDATA_AND_CONTENT2,
+    NandCtrFS = ctru_sys::ARCHIVE_NAND_CTR_FS,
+    TwlPhoto = ctru_sys::ARCHIVE_TWL_PHOTO,
+    NandTwlFS = ctru_sys::ARCHIVE_NAND_TWL_FS,
+    GameCardSavedata = ctru_sys::ARCHIVE_GAMECARD_SAVEDATA,
+    UserSavedata = ctru_sys::ARCHIVE_USER_SAVEDATA,
+    DemoSavedata = ctru_sys::ARCHIVE_DEMO_SAVEDATA,
 }
 
 /// Represents the filesystem service. No file IO can be performed
@@ -93,7 +99,7 @@ pub struct Fs(());
 /// ```no_run
 /// use ctru::services::fs::Fs;
 ///
-/// let fs = Fs::init().unwrap();
+/// let mut fs = Fs::new().unwrap();
 /// let sdmc_archive = fs.sdmc().unwrap();
 /// ```
 pub struct Archive {
@@ -113,47 +119,62 @@ pub struct Archive {
 /// Create a new file and write bytes to it:
 ///
 /// ```no_run
+/// # use std::error::Error;
+/// # fn main() -> Result<(), Box<dyn Error>> {
+/// #
 /// use std::io::prelude::*;
 /// use ctru::services::fs::{Fs, File};
 ///
-/// let fs = Fs::init()?;
-/// let sdmc = fs.sdmc()?;
-///
-/// let mut file = File::create(&sdmc, "/foo.txt")?;
-/// file.write_all(b"Hello, world!")?;
+/// let mut fs = Fs::new()?;
+/// let mut sdmc = fs.sdmc()?;
+/// #
+/// # Ok(())
+/// # }
 /// ```
 ///
 /// Read the contents of a file into a `String`::
 ///
 /// ```no_run
+/// # use std::error::Error;
+/// # fn main() -> Result<(), Box<dyn Error>> {
+/// #
 /// use std::io::prelude::*;
 /// use ctru::services::fs::{Fs, File};
 ///
-/// let fs = Fs::init()?;
-/// let sdmc = fs.sdmc()?;
+/// let mut fs = Fs::new()?;
+/// let mut sdmc = fs.sdmc()?;
 ///
 /// let mut file = File::open(&sdmc, "/foo.txt")?;
 /// let mut contents = String::new();
 /// file.read_to_string(&mut contents)?;
 /// assert_eq!(contents, "Hello, world!");
+/// #
+/// # Ok(())
+/// # }
 /// ```
 ///
 /// It can be more efficient to read the contents of a file with a buffered
 /// `Read`er. This can be accomplished with `BufReader<R>`:
 ///
 /// ```no_run
+/// # use std::error::Error;
+/// # fn main() -> Result<(), Box<dyn Error>> {
+/// #
 /// use std::io::BufReader;
 /// use std::io::prelude::*;
 /// use ctru::services::fs::{Fs, File};
 ///
-/// let fs = Fs::init()?;
-/// let sdmc = fs.sdmc()?;
+/// let mut fs = Fs::new()?;
+/// let mut sdmc = fs.sdmc()?;
 ///
 /// let file = File::open(&sdmc, "/foo.txt")?;
 /// let mut buf_reader = BufReader::new(file);
 /// let mut contents = String::new();
 /// buf_reader.read_to_string(&mut contents)?;
 /// assert_eq!(contents, "Hello, world!");
+/// #
+/// # Ok(())
+/// # }
 /// ```
 pub struct File {
     handle: u32,
@@ -199,8 +220,8 @@ pub struct Metadata {
 /// ```no_run
 /// use ctru::services::fs::{Fs, OpenOptions};
 ///
-/// let fs = Fs::init().unwrap();
-/// let sdmc_archive = fs.sdmc().unwrap();
+/// let mut fs = Fs::new().unwrap();
+/// let mut sdmc_archive = fs.sdmc().unwrap();
 /// let file = OpenOptions::new()
 ///             .read(true)
 ///             .archive(&sdmc_archive)
@@ -214,8 +235,8 @@ pub struct Metadata {
 /// ```no_run
 /// use ctru::services::fs::{Fs, OpenOptions};
 ///
-/// let fs = Fs::init().unwrap();
-/// let sdmc_archive = fs.sdmc().unwrap();
+/// let mut fs = Fs::new().unwrap();
+/// let mut sdmc_archive = fs.sdmc().unwrap();
 /// let file = OpenOptions::new()
 ///             .read(true)
 ///             .write(true)
@@ -224,7 +245,7 @@ pub struct Metadata {
 ///             .open("foo.txt")
 ///             .unwrap();
 /// ```
-#[derive(Clone, Default)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct OpenOptions {
     read: bool,
     write: bool,
@@ -288,7 +309,7 @@ impl Fs {
     /// ctrulib services are reference counted, so this function may be called
     /// as many times as desired and the service will not exit until all
     /// instances of Fs drop out of scope.
-    pub fn init() -> crate::Result<Fs> {
+    pub fn new() -> crate::Result<Fs> {
         unsafe {
             let r = ctru_sys::fsInit();
             if r < 0 {
@@ -300,7 +321,7 @@ impl Fs {
     }
 
     /// Returns a handle to the SDMC (memory card) Archive.
-    pub fn sdmc(&self) -> crate::Result<Archive> {
+    pub fn sdmc(&mut self) -> crate::Result<Archive> {
         unsafe {
             let mut handle = 0;
             let id = ArchiveID::Sdmc;
@@ -319,7 +340,7 @@ impl Archive {
     /// Retrieves an Archive's [`ArchiveID`]
     ///
     /// [`ArchiveID`]: enum.ArchiveID.html
-    pub fn get_id(&self) -> ArchiveID {
+    pub fn id(&self) -> ArchiveID {
         self.id
     }
 }
@@ -341,8 +362,8 @@ impl File {
     /// ```no_run
     /// use ctru::services::fs::{Fs, File};
     ///
-    /// let fs = Fs::init().unwrap();
-    /// let sdmc_archive = fs.sdmc().unwrap();
+    /// let mut fs =  Fs::new().unwrap();
+    /// let mut sdmc_archive = fs.sdmc().unwrap();
     /// let mut f = File::open(&sdmc_archive, "/foo.txt").unwrap();
     /// ```
     pub fn open<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<File> {
@@ -370,11 +391,11 @@ impl File {
     /// ```no_run
     /// use ctru::services::fs::{Fs, File};
     ///
-    /// let fs = Fs::init().unwrap();
-    /// let sdmc_archive = fs.sdmc().unwrap();
-    /// let mut f = File::create(&sdmc_archive, "/foo.txt").unwrap();
+    /// let mut fs =  Fs::new().unwrap();
+    /// let mut sdmc_archive = fs.sdmc().unwrap();
+    /// let mut f = File::create(&mut sdmc_archive, "/foo.txt").unwrap();
     /// ```
-    pub fn create<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<File> {
+    pub fn create<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<File> {
         OpenOptions::new()
             .write(true)
             .create(true)
@@ -578,11 +599,11 @@ impl OpenOptions {
     /// * Invalid combinations of open options.
     ///
     /// [`Archive`]: struct.Archive.html
-    pub fn open<P: AsRef<Path>>(&self, path: P) -> IoResult<File> {
-        self._open(path.as_ref(), self.get_open_flags())
+    pub fn open<P: AsRef<Path>>(&mut self, path: P) -> IoResult<File> {
+        self._open(path.as_ref(), self.open_flags())
     }
 
-    fn _open(&self, path: &Path, flags: FsOpen) -> IoResult<File> {
+    fn _open(&mut self, path: &Path, flags: FsOpen) -> IoResult<File> {
         unsafe {
             let mut file_handle = 0;
             let path = to_utf16(path);
@@ -618,7 +639,7 @@ impl OpenOptions {
         }
     }
 
-    fn get_open_flags(&self) -> FsOpen {
+    fn open_flags(&self) -> FsOpen {
         match (self.read, self.write || self.append, self.create) {
             (true, false, false) => FsOpen::FS_OPEN_READ,
             (false, true, false) => FsOpen::FS_OPEN_WRITE,
@@ -696,7 +717,7 @@ impl<'a> DirEntry<'a> {
 /// but is not limited to just these cases:
 ///
 /// * User lacks permissions to create directory at `path`
-pub fn create_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
+pub fn create_dir<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<()> {
     unsafe {
         let path = to_utf16(path.as_ref());
         let fs_path = ctru_sys::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
@@ -722,7 +743,7 @@ pub fn create_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
 ///
 /// * If any directory in the path specified by `path` does not already exist
 ///   and it could not be created otherwise.
-pub fn create_dir_all<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
+pub fn create_dir_all<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<()> {
     let path = path.as_ref();
     let mut dir = PathBuf::new();
     let mut result = Ok(());
@@ -758,7 +779,7 @@ pub fn metadata<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<Metadata> {
 ///
 /// * The user lacks permissions to remove the directory at the provided path.
 /// * The directory isn't empty.
-pub fn remove_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
+pub fn remove_dir<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<()> {
     unsafe {
         let path = to_utf16(path.as_ref());
         let fs_path = ctru_sys::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
@@ -776,7 +797,7 @@ pub fn remove_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
 /// # Errors
 ///
 /// see `file::remove_file` and `fs::remove_dir`
-pub fn remove_dir_all<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
+pub fn remove_dir_all<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<()> {
     unsafe {
         let path = to_utf16(path.as_ref());
         let fs_path = ctru_sys::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
@@ -828,7 +849,7 @@ pub fn read_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<ReadDir> {
 ///
 /// * path points to a directory.
 /// * The user lacks permissions to remove the file.
-pub fn remove_file<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
+pub fn remove_file<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<()> {
     unsafe {
         let path = to_utf16(path.as_ref());
         let fs_path = ctru_sys::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
@@ -851,7 +872,7 @@ pub fn remove_file<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
 ///
 /// * from does not exist.
 /// * The user lacks permissions to view contents.
-pub fn rename<P, Q>(arch: &Archive, from: P, to: Q) -> IoResult<()>
+pub fn rename<P, Q>(arch: &mut Archive, from: P, to: Q) -> IoResult<()>
 where
     P: AsRef<Path>,
     Q: AsRef<Path>,
@@ -1008,45 +1029,6 @@ impl Drop for Dir {
     }
 }
 
-impl From<PathType> for ctru_sys::FS_PathType {
-    fn from(p: PathType) -> Self {
-        use self::PathType::*;
-        match p {
-            Invalid => ctru_sys::PATH_INVALID,
-            Empty => ctru_sys::PATH_EMPTY,
-            Binary => ctru_sys::PATH_BINARY,
-            ASCII => ctru_sys::PATH_ASCII,
-            UTF16 => ctru_sys::PATH_UTF16,
-        }
-    }
-}
-
-impl From<ArchiveID> for ctru_sys::FS_ArchiveID {
-    fn from(a: ArchiveID) -> Self {
-        use self::ArchiveID::*;
-        match a {
-            RomFS => ctru_sys::ARCHIVE_ROMFS,
-            Savedata => ctru_sys::ARCHIVE_SAVEDATA,
-            Extdata => ctru_sys::ARCHIVE_EXTDATA,
-            SharedExtdata => ctru_sys::ARCHIVE_SHARED_EXTDATA,
-            SystemSavedata => ctru_sys::ARCHIVE_SYSTEM_SAVEDATA,
-            Sdmc => ctru_sys::ARCHIVE_SDMC,
-            SdmcWriteOnly => ctru_sys::ARCHIVE_SDMC_WRITE_ONLY,
-            BossExtdata => ctru_sys::ARCHIVE_BOSS_EXTDATA,
-            CardSpiFS => ctru_sys::ARCHIVE_CARD_SPIFS,
-            ExtDataAndBossExtdata => ctru_sys::ARCHIVE_EXTDATA_AND_BOSS_EXTDATA,
-            SystemSaveData2 => ctru_sys::ARCHIVE_SYSTEM_SAVEDATA2,
-            NandRW => ctru_sys::ARCHIVE_NAND_RW,
-            NandRO => ctru_sys::ARCHIVE_NAND_RO,
-            NandROWriteAccess => ctru_sys::ARCHIVE_NAND_RO_WRITE_ACCESS,
-            SaveDataAndContent => ctru_sys::ARCHIVE_SAVEDATA_AND_CONTENT,
-            SaveDataAndContent2 => ctru_sys::ARCHIVE_SAVEDATA_AND_CONTENT2,
-            NandCtrFS => ctru_sys::ARCHIVE_NAND_CTR_FS,
-            TwlPhoto => ctru_sys::ARCHIVE_TWL_PHOTO,
-            NandTwlFS => ctru_sys::ARCHIVE_NAND_TWL_FS,
-            GameCardSavedata => ctru_sys::ARCHIVE_GAMECARD_SAVEDATA,
-            UserSavedata => ctru_sys::ARCHIVE_USER_SAVEDATA,
-            DemoSavedata => ctru_sys::ARCHIVE_DEMO_SAVEDATA,
-        }
-    }
-}
+from_impl!(FsMediaType, ctru_sys::FS_MediaType);
+from_impl!(PathType, ctru_sys::FS_PathType);
+from_impl!(ArchiveID, ctru_sys::FS_ArchiveID);

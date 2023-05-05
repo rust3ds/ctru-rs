@@ -11,12 +11,13 @@
 use ctru::prelude::*;
 
 fn main() {
-    ctru::init();
-    let gfx = Gfx::init().expect("Couldn't obtain GFX controller");
-    let hid = Hid::init().expect("Couldn't obtain HID controller");
-    let apt = Apt::init().expect("Couldn't obtain APT controller");
+    ctru::use_panic_handler();
 
-    let mut soc = Soc::init().expect("Couldn't obtain SOC controller");
+    let gfx = Gfx::new().expect("Couldn't obtain GFX controller");
+    let mut hid = Hid::new().expect("Couldn't obtain HID controller");
+    let apt = Apt::new().expect("Couldn't obtain APT controller");
+
+    let mut soc = Soc::new().expect("Couldn't obtain SOC controller");
 
     soc.redirect_to_3dslink(true, true)
         .expect("unable to redirect stdout/err to 3dslink server");
@@ -29,12 +30,9 @@ fn main() {
         //Scan all the inputs. This should be done once for each frame
         hid.scan_input();
 
-        if hid.keys_down().contains(KeyPad::KEY_START) {
+        if hid.keys_down().contains(KeyPad::START) {
             break;
         }
-        // Flush and swap framebuffers
-        gfx.flush_buffers();
-        gfx.swap_buffers();
 
         //Wait for VBlank
         gfx.wait_for_vblank();

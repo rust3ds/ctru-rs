@@ -1,13 +1,13 @@
 use ctru::prelude::*;
 
 fn main() {
-    ctru::init();
+    ctru::use_panic_handler();
 
-    let gfx = Gfx::init().expect("Couldn't obtain GFX controller");
-    let hid = Hid::init().expect("Couldn't obtain HID controller");
-    let apt = Apt::init().expect("Couldn't obtain APT controller");
+    let gfx = Gfx::new().expect("Couldn't obtain GFX controller");
+    let mut hid = Hid::new().expect("Couldn't obtain HID controller");
+    let apt = Apt::new().expect("Couldn't obtain APT controller");
 
-    let _console = Console::init(gfx.top_screen.borrow_mut());
+    let _console = Console::new(gfx.top_screen.borrow_mut());
 
     print!("\x1b[30;16HPress Start to exit.");
 
@@ -16,7 +16,7 @@ fn main() {
         // Scan all the inputs. This should be done once for each frame
         hid.scan_input();
 
-        if hid.keys_down().contains(KeyPad::KEY_START) {
+        if hid.keys_down().contains(KeyPad::START) {
             break;
         }
 
@@ -35,10 +35,6 @@ fn main() {
 
         println!("\x1b[1;1H{hours:0>2}:{minutes:0>2}:{seconds:0>2}");
         println!("{weekday} {month} {day} {year}");
-
-        // Flush and swap framebuffers
-        gfx.flush_buffers();
-        gfx.swap_buffers();
 
         //Wait for VBlank
         gfx.wait_for_vblank();

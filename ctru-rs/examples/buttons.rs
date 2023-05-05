@@ -1,12 +1,12 @@
 use ctru::prelude::*;
 
 fn main() {
-    // Setup services
-    ctru::init();
-    let apt = Apt::init().unwrap();
-    let hid = Hid::init().unwrap();
-    let gfx = Gfx::init().unwrap();
-    let console = Console::init(gfx.top_screen.borrow_mut());
+    ctru::use_panic_handler();
+
+    let apt = Apt::new().unwrap();
+    let mut hid = Hid::new().unwrap();
+    let gfx = Gfx::new().unwrap();
+    let console = Console::new(gfx.top_screen.borrow_mut());
 
     println!("Hi there! Try pressing a button");
     println!("\x1b[29;16HPress Start to exit");
@@ -42,19 +42,19 @@ fn main() {
             // You can also use the .bits() method to do direct comparisons on
             // the underlying bits
 
-            if keys.contains(KeyPad::KEY_A) {
+            if keys.contains(KeyPad::A) {
                 println!("You held A!");
             }
-            if keys.bits() & KeyPad::KEY_B.bits() != 0 {
+            if keys.bits() & KeyPad::B.bits() != 0 {
                 println!("You held B!");
             }
-            if keys.contains(KeyPad::KEY_X | KeyPad::KEY_Y) {
+            if keys.contains(KeyPad::X | KeyPad::Y) {
                 println!("You held X and Y!");
             }
-            if keys.intersects(KeyPad::KEY_L | KeyPad::KEY_R | KeyPad::KEY_ZL | KeyPad::KEY_ZR) {
+            if keys.intersects(KeyPad::L | KeyPad::R | KeyPad::ZL | KeyPad::ZR) {
                 println!("You held a shoulder button!");
             }
-            if keys.intersects(KeyPad::KEY_START) {
+            if keys.intersects(KeyPad::START) {
                 println!("See ya!");
                 break;
             }
@@ -63,9 +63,6 @@ fn main() {
         // Save our current key presses for the next frame
         old_keys = keys;
 
-        // Flush and swap framebuffers
-        gfx.flush_buffers();
-        gfx.swap_buffers();
         gfx.wait_for_vblank();
     }
 }

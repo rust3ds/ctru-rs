@@ -10,12 +10,13 @@ std::thread_local! {
 }
 
 fn main() {
-    ctru::init();
-    let gfx = Gfx::init().expect("Couldn't obtain GFX controller");
+    ctru::use_panic_handler();
+
+    let gfx = Gfx::new().expect("Couldn't obtain GFX controller");
     gfx.top_screen.borrow_mut().set_wide_mode(true);
-    let hid = Hid::init().expect("Couldn't obtain HID controller");
-    let apt = Apt::init().expect("Couldn't obtain APT controller");
-    let _console = Console::init(gfx.top_screen.borrow_mut());
+    let mut hid = Hid::new().expect("Couldn't obtain HID controller");
+    let apt = Apt::new().expect("Couldn't obtain APT controller");
+    let _console = Console::new(gfx.top_screen.borrow_mut());
 
     // Give ourselves up to 30% of the system core's time
     apt.set_app_cpu_time_limit(30)
@@ -60,8 +61,6 @@ fn main() {
             break;
         }
 
-        gfx.flush_buffers();
-        gfx.swap_buffers();
         gfx.wait_for_vblank();
     }
 }

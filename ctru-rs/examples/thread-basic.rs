@@ -6,12 +6,12 @@ use std::os::horizon::thread::BuilderExt;
 use std::time::Duration;
 
 fn main() {
-    // Initialize services
-    ctru::init();
-    let apt = Apt::init().unwrap();
-    let hid = Hid::init().unwrap();
-    let gfx = Gfx::init().unwrap();
-    let _console = Console::init(gfx.top_screen.borrow_mut());
+    ctru::use_panic_handler();
+
+    let apt = Apt::new().unwrap();
+    let mut hid = Hid::new().unwrap();
+    let gfx = Gfx::new().unwrap();
+    let _console = Console::new(gfx.top_screen.borrow_mut());
 
     let prio = std::os::horizon::thread::current_priority();
     println!("Main thread prio: {}\n", prio);
@@ -34,8 +34,6 @@ fn main() {
     }
 
     while apt.main_loop() {
-        gfx.flush_buffers();
-        gfx.swap_buffers();
         gfx.wait_for_vblank();
 
         hid.scan_input();

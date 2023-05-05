@@ -1,10 +1,13 @@
 [package]
 name = "ctru-sys"
-version = "0.4.1"
-authors = ["Ronald Kinard <furyhunter600@gmail.com>"]
-license = "https://en.wikipedia.org/wiki/Zlib_License"
+version = "21.2.0+2.1.2-1"
+authors = [ "Rust3DS Org", "Ronald Kinard <furyhunter600@gmail.com>" ]
+license = "Zlib"
 links = "ctru"
 edition = "2021"
 
 [dependencies]
 libc = { version = "0.2.121", default-features = false }
+
+[build-dependencies]
+which = "4.4.0"

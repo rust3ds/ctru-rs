@@ -1,8 +1,8 @@
 use super::{AudioFormat, NdspError};
 use crate::linear::LinearAllocator;
 
-/// Informational struct holding the raw audio data and playback info. This corresponds to [ctru_sys::ndspWaveBuf]
-pub struct WaveInfo {
+/// Informational struct holding the raw audio data and playback info. This corresponds to [ctru_sys::ndspWaveBuf].
+pub struct Wave {
     /// Data block of the audio wave (and its format information).
     buffer: Box<[u8], LinearAllocator>,
     audio_format: AudioFormat,
@@ -11,9 +11,9 @@ pub struct WaveInfo {
     played_on_channel: Option<u8>,
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u8)]
-/// Enum representing the playback status of a [WaveInfo].
+/// Enum representing the playback status of a [Wave].
 pub enum WaveStatus {
     Free = ctru_sys::NDSP_WBUF_FREE as u8,
     Queued = ctru_sys::NDSP_WBUF_QUEUED as u8,
@@ -21,14 +21,14 @@ pub enum WaveStatus {
     Done = ctru_sys::NDSP_WBUF_DONE as u8,
 }
 
-impl WaveInfo {
+impl Wave {
     /// Build a new playable wave object from a raw buffer on LINEAR memory and a some info.
     pub fn new(
         buffer: Box<[u8], LinearAllocator>,
         audio_format: AudioFormat,
         looping: bool,
     ) -> Self {
-        let sample_count: usize = buffer.len() / (audio_format.sample_size() as usize);
+        let sample_count = buffer.len() / audio_format.size();
 
         // Signal to the DSP processor the buffer's RAM sector.
         // This step may seem delicate, but testing reports failure most of the time, while still having no repercussions on the resulting audio.
@@ -69,10 +69,10 @@ impl WaveInfo {
     ///
     /// # Errors
     ///
-    /// This function will return an error if the [WaveInfo] is currently busy,
+    /// This function will return an error if the [Wave] is currently busy,
     /// with the id to the channel in which it's queued.
     pub fn get_buffer_mut(&mut self) -> Result<&mut [u8], NdspError> {
-        match self.get_status() {
+        match self.status() {
             WaveStatus::Playing | WaveStatus::Queued => {
                 Err(NdspError::WaveBusy(self.played_on_channel.unwrap()))
             }
@@ -81,7 +81,7 @@ impl WaveInfo {
     }
 
     /// Return this wave's playback status.
-    pub fn get_status(&self) -> WaveStatus {
+    pub fn status(&self) -> WaveStatus {
         self.raw_data.status.try_into().unwrap()
     }
 
@@ -90,12 +90,12 @@ impl WaveInfo {
     /// # Notes
     ///
     /// This value varies depending on [Self::set_sample_count].
-    pub fn get_sample_count(&self) -> u32 {
-        self.raw_data.nsamples
+    pub fn sample_count(&self) -> usize {
+        self.raw_data.nsamples as usize
     }
 
     /// Get the format of the audio data.
-    pub fn get_format(&self) -> AudioFormat {
+    pub fn format(&self) -> AudioFormat {
         self.audio_format
     }
 
@@ -117,25 +117,22 @@ impl WaveInfo {
     /// # Errors
     ///
     /// This function will return an error if the sample size exceeds the buffer's capacity
-    /// or if the WaveInfo is currently queued.
-    pub fn set_sample_count(&mut self, sample_count: u32) -> Result<(), NdspError> {
-        match self.get_status() {
+    /// or if the [Wave] is currently queued.
+    pub fn set_sample_count(&mut self, sample_count: usize) -> Result<(), NdspError> {
+        match self.status() {
             WaveStatus::Playing | WaveStatus::Queued => {
                 return Err(NdspError::WaveBusy(self.played_on_channel.unwrap()));
             }
             _ => (),
         }
 
-        let max_count: usize = self.buffer.len() / (self.audio_format.sample_size() as usize);
+        let max_count = self.buffer.len() / self.audio_format.size();
 
-        if sample_count > max_count as u32 {
-            return Err(NdspError::SampleCountOutOfBounds(
-                sample_count,
-                max_count as u32,
-            ));
+        if sample_count > max_count {
+            return Err(NdspError::SampleCountOutOfBounds(sample_count, max_count));
         }
 
-        self.raw_data.nsamples = sample_count;
+        self.raw_data.nsamples = sample_count as u32;
 
         Ok(())
     }
@@ -150,16 +147,16 @@ impl TryFrom<u8> for WaveStatus {
             1 => Ok(Self::Queued),
             2 => Ok(Self::Playing),
             3 => Ok(Self::Done),
-            _ => Err("Invalid WaveInfo Status code"),
+            _ => Err("Invalid Wave Status code"),
         }
     }
 }
 
-impl Drop for WaveInfo {
+impl Drop for Wave {
     fn drop(&mut self) {
-        // This was the only way I found I could check for improper drops of `WaveInfos`.
+        // This was the only way I found I could check for improper drops of `Wave`.
         // A panic was considered, but it would cause issues with drop order against `Ndsp`.
-        match self.get_status() {
+        match self.status() {
             WaveStatus::Free | WaveStatus::Done => (),
             // If the status flag is "unfinished"
             _ => {

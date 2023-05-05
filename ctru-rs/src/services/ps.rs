@@ -1,55 +1,79 @@
 //! Process Services (PS) module. This is used for miscellaneous utility tasks, but
 //! is particularly important because it is used to generate random data, which
 //! is required for common things like [`HashMap`](std::collections::HashMap).
-//! As such, it is initialized by default in `ctru::init` instead of having a safety handler
 //! See also <https://www.3dbrew.org/wiki/Process_Services>
 
 use crate::error::ResultCode;
+use crate::Result;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u32)]
 pub enum AESAlgorithm {
-    CbcEnc,
-    CbcDec,
-    CtrEnc,
-    CtrDec,
-    CcmEnc,
-    CcmDec,
+    CbcEnc = ctru_sys::PS_ALGORITHM_CBC_ENC,
+    CbcDec = ctru_sys::PS_ALGORITHM_CBC_DEC,
+    CtrEnc = ctru_sys::PS_ALGORITHM_CTR_ENC,
+    CtrDec = ctru_sys::PS_ALGORITHM_CTR_DEC,
+    CcmEnc = ctru_sys::PS_ALGORITHM_CCM_ENC,
+    CcmDec = ctru_sys::PS_ALGORITHM_CCM_DEC,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u32)]
 pub enum AESKeyType {
-    Keyslot0D,
-    Keyslot2D,
-    Keyslot31,
-    Keyslot38,
-    Keyslot32,
-    Keyslot39Dlp,
-    Keyslot2E,
-    KeyslotInvalid,
-    Keyslot36,
-    Keyslot39Nfc,
+    Keyslot0D = ctru_sys::PS_KEYSLOT_0D,
+    Keyslot2D = ctru_sys::PS_KEYSLOT_2D,
+    Keyslot2E = ctru_sys::PS_KEYSLOT_2E,
+    Keyslot31 = ctru_sys::PS_KEYSLOT_31,
+    Keyslot32 = ctru_sys::PS_KEYSLOT_32,
+    Keyslot36 = ctru_sys::PS_KEYSLOT_36,
+    Keyslot38 = ctru_sys::PS_KEYSLOT_38,
+    Keyslot39Dlp = ctru_sys::PS_KEYSLOT_39_DLP,
+    Keyslot39Nfc = ctru_sys::PS_KEYSLOT_39_NFC,
+    KeyslotInvalid = ctru_sys::PS_KEYSLOT_INVALID,
 }
 
-pub fn local_friend_code_seed() -> crate::Result<u64> {
-    let mut seed: u64 = 0;
+pub struct Ps(());
 
-    ResultCode(unsafe { ctru_sys::PS_GetLocalFriendCodeSeed(&mut seed) })?;
-    Ok(seed)
+impl Ps {
+    pub fn new() -> Result<Self> {
+        unsafe {
+            ResultCode(ctru_sys::psInit())?;
+            Ok(Ps(()))
+        }
+    }
+
+    pub fn local_friend_code_seed(&self) -> crate::Result<u64> {
+        let mut seed: u64 = 0;
+
+        ResultCode(unsafe { ctru_sys::PS_GetLocalFriendCodeSeed(&mut seed) })?;
+        Ok(seed)
+    }
+
+    pub fn device_id(&self) -> crate::Result<u32> {
+        let mut id: u32 = 0;
+
+        ResultCode(unsafe { ctru_sys::PS_GetDeviceId(&mut id) })?;
+        Ok(id)
+    }
+
+    pub fn generate_random_bytes(&self, out: &mut [u8]) -> crate::Result<()> {
+        ResultCode(unsafe {
+            ctru_sys::PS_GenerateRandomBytes(out.as_mut_ptr().cast(), out.len())
+        })?;
+        Ok(())
+    }
 }
 
-pub fn device_id() -> crate::Result<u32> {
-    let mut id: u32 = 0;
-
-    ResultCode(unsafe { ctru_sys::PS_GetDeviceId(&mut id) })?;
-    Ok(id)
+impl Drop for Ps {
+    fn drop(&mut self) {
+        unsafe {
+            ctru_sys::psExit();
+        }
+    }
 }
 
-pub fn generate_random_bytes(out: &mut [u8]) -> crate::Result<()> {
-    ResultCode(unsafe {
-        ctru_sys::PS_GenerateRandomBytes(out as *mut _ as *mut _, out.len() as u32)
-    })?;
-    Ok(())
-}
+from_impl!(AESAlgorithm, ctru_sys::PS_AESAlgorithm);
+from_impl!(AESKeyType, ctru_sys::PS_AESKeyType);
 
 #[cfg(test)]
 mod tests {

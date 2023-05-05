@@ -8,36 +8,35 @@ use crate::error::ResultCode;
 bitflags::bitflags! {
     /// A set of flags corresponding to the button and directional pad
     /// inputs on the 3DS
-    #[derive(Default)]
     pub struct KeyPad: u32 {
-        const KEY_A             = 1u32 << 0;
-        const KEY_B             = 1u32 << 1;
-        const KEY_SELECT        = 1u32 << 2;
-        const KEY_START         = 1u32 << 3;
-        const KEY_DRIGHT        = 1u32 << 4;
-        const KEY_DLEFT         = 1u32 << 5;
-        const KEY_DUP           = 1u32 << 6;
-        const KEY_DDOWN         = 1u32 << 7;
-        const KEY_R             = 1u32 << 8;
-        const KEY_L             = 1u32 << 9;
-        const KEY_X             = 1u32 << 10;
-        const KEY_Y             = 1u32 << 11;
-        const KEY_ZL            = 1u32 << 14;
-        const KEY_ZR            = 1u32 << 15;
-        const KEY_TOUCH         = 1u32 << 20;
-        const KEY_CSTICK_RIGHT  = 1u32 << 24;
-        const KEY_CSTICK_LEFT   = 1u32 << 25;
-        const KEY_CSTICK_UP     = 1u32 << 26;
-        const KEY_CSTICK_DOWN   = 1u32 << 27;
-        const KEY_CPAD_RIGHT    = 1u32 << 28;
-        const KEY_CPAD_LEFT     = 1u32 << 29;
-        const KEY_CPAD_UP       = 1u32 << 30;
-        const KEY_CPAD_DOWN     = 1u32 << 31;
-        // convenience catch-all for the dpad and cpad
-        const KEY_UP    = KeyPad::KEY_DUP.bits    | KeyPad::KEY_CPAD_UP.bits;
-        const KEY_DOWN  = KeyPad::KEY_DDOWN.bits  | KeyPad::KEY_CPAD_DOWN.bits;
-        const KEY_LEFT  = KeyPad::KEY_DLEFT.bits  | KeyPad::KEY_CPAD_LEFT.bits;
-        const KEY_RIGHT = KeyPad::KEY_DRIGHT.bits | KeyPad::KEY_CPAD_RIGHT.bits;
+        const A             = ctru_sys::KEY_A;
+        const B             = ctru_sys::KEY_B;
+        const SELECT        = ctru_sys::KEY_SELECT;
+        const START         = ctru_sys::KEY_START;
+        const DPAD_RIGHT        = ctru_sys::KEY_DRIGHT;
+        const DPAD_LEFT         = ctru_sys::KEY_DLEFT;
+        const DPAD_UP           = ctru_sys::KEY_DUP;
+        const DPAD_DOWN         = ctru_sys::KEY_DDOWN;
+        const R             = ctru_sys::KEY_R;
+        const L             = ctru_sys::KEY_L;
+        const X             = ctru_sys::KEY_X;
+        const Y             = ctru_sys::KEY_Y;
+        const ZL            = ctru_sys::KEY_ZL;
+        const ZR            = ctru_sys::KEY_ZR;
+        const TOUCH         = ctru_sys::KEY_TOUCH;
+        const CSTICK_RIGHT  = ctru_sys::KEY_CSTICK_RIGHT;
+        const CSTICK_LEFT   = ctru_sys::KEY_CSTICK_LEFT;
+        const CSTICK_UP     = ctru_sys::KEY_CSTICK_UP;
+        const CSTICK_DOWN   = ctru_sys::KEY_CSTICK_DOWN;
+        const CPAD_RIGHT    = ctru_sys::KEY_CPAD_RIGHT;
+        const CPAD_LEFT     = ctru_sys::KEY_CPAD_LEFT;
+        const CPAD_UP       = ctru_sys::KEY_CPAD_UP;
+        const CPAD_DOWN     = ctru_sys::KEY_CPAD_DOWN;
+        // Convenience catch-all for the dpad and cpad
+        const UP    = KeyPad::DPAD_UP.bits()    | KeyPad::CPAD_UP.bits();
+        const DOWN  = KeyPad::DPAD_DOWN.bits()  | KeyPad::CPAD_DOWN.bits();
+        const LEFT  = KeyPad::DPAD_LEFT.bits()  | KeyPad::CPAD_LEFT.bits();
+        const RIGHT = KeyPad::DPAD_RIGHT.bits() | KeyPad::CPAD_RIGHT.bits();
     }
 }
 
@@ -47,12 +46,6 @@ bitflags::bitflags! {
 /// This service requires no special permissions to use.
 pub struct Hid(());
 
-/// Represents user input to the touchscreen.
-pub struct TouchPosition(ctru_sys::touchPosition);
-
-/// Represents the current position of the 3DS circle pad.
-pub struct CirclePosition(ctru_sys::circlePosition);
-
 /// Initializes the HID service.
 ///
 /// # Errors
@@ -61,7 +54,7 @@ pub struct CirclePosition(ctru_sys::circlePosition);
 /// Since this service requires no special or elevated permissions, errors are
 /// rare in practice.
 impl Hid {
-    pub fn init() -> crate::Result<Hid> {
+    pub fn new() -> crate::Result<Hid> {
         unsafe {
             ResultCode(ctru_sys::hidInit())?;
             Ok(Hid(()))
@@ -71,7 +64,7 @@ impl Hid {
     /// Scans the HID service for all user input occurring on the current
     /// frame. This function should be called on every frame when polling
     /// for user input.
-    pub fn scan_input(&self) {
+    pub fn scan_input(&mut self) {
         unsafe { ctru_sys::hidScanInput() };
     }
 
@@ -101,47 +94,33 @@ impl Hid {
             KeyPad::from_bits_truncate(keys)
         }
     }
-}
 
-impl Default for TouchPosition {
-    fn default() -> Self {
-        TouchPosition(ctru_sys::touchPosition { px: 0, py: 0 })
-    }
-}
+    /// Returns the current touch position in pixels (x, y).
+    ///
+    /// # Notes
+    ///
+    /// (0, 0) represents the top left corner of the screen.
+    pub fn touch_position(&mut self) -> (u16, u16) {
+        let mut res = ctru_sys::touchPosition { px: 0, py: 0 };
 
-impl TouchPosition {
-    /// Create a new TouchPosition instance.
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    /// Returns the current touch position in pixels.
-    pub fn get(&mut self) -> (u16, u16) {
         unsafe {
-            ctru_sys::hidTouchRead(&mut self.0);
+            ctru_sys::hidTouchRead(&mut res);
         }
-        (self.0.px, self.0.py)
-    }
-}
-
-impl Default for CirclePosition {
-    fn default() -> Self {
-        CirclePosition(ctru_sys::circlePosition { dx: 0, dy: 0 })
-    }
-}
-
-impl CirclePosition {
-    /// Create a new CirclePosition instance.
-    pub fn new() -> Self {
-        Self::default()
+        (res.px, res.py)
     }
 
-    /// Returns the current circle pad position in (x, y) form.
-    pub fn get(&mut self) -> (i16, i16) {
+    /// Returns the current circle pad position in relative (x, y).
+    ///
+    /// # Notes
+    ///
+    /// (0, 0) represents the center of the circle pad.
+    pub fn circlepad_position(&mut self) -> (i16, i16) {
+        let mut res = ctru_sys::circlePosition { dx: 0, dy: 0 };
+
         unsafe {
-            ctru_sys::hidCircleRead(&mut self.0);
+            ctru_sys::hidCircleRead(&mut res);
         }
-        (self.0.dx, self.0.dy)
+        (res.dx, res.dy)
     }
 }
 
