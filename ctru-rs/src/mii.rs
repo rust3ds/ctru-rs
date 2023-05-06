@@ -176,7 +176,7 @@ pub struct MoleDetails {
 /// Some values are not ordered _like_ the Mii Editor UI. The mapped values can be seen here:
 /// <https://www.3dbrew.org/wiki/Mii#Mapped_Editor_.3C-.3E_Hex_values>
 ///
-/// This struct is returned by the [``MiiSelector``](crate::applets::mii_selector::MiiSelector)
+/// This struct is returned by the [`MiiSelector`](crate::applets::mii_selector::MiiSelector)
 #[derive(Clone, Debug)]
 pub struct MiiData {
     pub options: MiiDataOptions,

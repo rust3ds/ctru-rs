@@ -90,14 +90,10 @@ pub trait Swap: private::Sealed {
     /// Swaps the video buffers.
     ///
     /// If double buffering is disabled, "swapping" the buffers has the side effect
-    /// of committing any configuration changes to the buffers (e.g. [`set_wide_mode`],
-    /// [`set_framebuffer_format`], [`set_double_buffering`]).
+    /// of committing any configuration changes to the buffers (e.g. [`TopScreen::set_wide_mode`],
+    /// [`Screen::set_framebuffer_format`], [`Screen::set_double_buffering`]).
     ///
     /// This should be called once per frame at most.
-    ///
-    /// [`set_wide_mode`]: TopScreen::set_wide_mode
-    /// [`set_framebuffer_format`]: Screen::set_framebuffer_format
-    /// [`set_double_buffering`]: Screen::set_double_buffering
     fn swap_buffers(&mut self);
 }
 
@@ -213,9 +209,12 @@ pub struct Gfx {
 static GFX_ACTIVE: Mutex<usize> = Mutex::new(0);
 
 impl Gfx {
-    /// Creates a new [Gfx] instance with default init values
+    /// Creates a new [`Gfx`] instance with default init values
     /// It's the same as calling:
-    /// `Gfx::with_formats(FramebufferFormat::Bgr8, FramebufferFormat::Bgr8, false)`
+    /// 
+    /// ```
+    /// Gfx::with_formats(FramebufferFormat::Bgr8, FramebufferFormat::Bgr8, false)
+    /// ```
     pub fn new() -> Result<Self> {
         Gfx::with_formats(FramebufferFormat::Bgr8, FramebufferFormat::Bgr8, false)
     }

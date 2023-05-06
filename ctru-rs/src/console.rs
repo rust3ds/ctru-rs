@@ -19,7 +19,7 @@ impl<'screen> Console<'screen> {
     ///
     /// # Notes
     ///
-    /// [Console] automatically takes care of flushing and swapping buffers for its screen when printing.
+    /// [`Console`] automatically takes care of flushing and swapping buffers for its screen when printing.
     pub fn new(screen: RefMut<'screen, dyn Screen>) -> Self {
         let mut context = Box::<PrintConsole>::default();
 

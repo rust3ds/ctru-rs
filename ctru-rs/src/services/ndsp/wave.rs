@@ -1,7 +1,7 @@
 use super::{AudioFormat, NdspError};
 use crate::linear::LinearAllocator;
 
-/// Informational struct holding the raw audio data and playback info. This corresponds to [ctru_sys::ndspWaveBuf].
+/// Informational struct holding the raw audio data and playback info. This corresponds to [`ctru_sys::ndspWaveBuf`].
 pub struct Wave {
     /// Data block of the audio wave (and its format information).
     buffer: Box<[u8], LinearAllocator>,
@@ -13,7 +13,7 @@ pub struct Wave {
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u8)]
-/// Enum representing the playback status of a [Wave].
+/// Enum representing the playback status of a [`Wave`].
 pub enum WaveStatus {
     Free = ctru_sys::NDSP_WBUF_FREE as u8,
     Queued = ctru_sys::NDSP_WBUF_QUEUED as u8,
@@ -69,7 +69,7 @@ impl Wave {
     ///
     /// # Errors
     ///
-    /// This function will return an error if the [Wave] is currently busy,
+    /// This function will return an error if the [`Wave`] is currently busy,
     /// with the id to the channel in which it's queued.
     pub fn get_buffer_mut(&mut self) -> Result<&mut [u8], NdspError> {
         match self.status() {
@@ -89,7 +89,7 @@ impl Wave {
     ///
     /// # Notes
     ///
-    /// This value varies depending on [Self::set_sample_count].
+    /// This value varies depending on [`Wave::set_sample_count`].
     pub fn sample_count(&self) -> usize {
         self.raw_data.nsamples as usize
     }
@@ -117,7 +117,7 @@ impl Wave {
     /// # Errors
     ///
     /// This function will return an error if the sample size exceeds the buffer's capacity
-    /// or if the [Wave] is currently queued.
+    /// or if the [`Wave`] is currently queued.
     pub fn set_sample_count(&mut self, sample_count: usize) -> Result<(), NdspError> {
         match self.status() {
             WaveStatus::Playing | WaveStatus::Queued => {

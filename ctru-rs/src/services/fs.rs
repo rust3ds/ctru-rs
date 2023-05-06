@@ -183,35 +183,25 @@ pub struct File {
 
 /// Metadata information about a file.
 ///
-/// This structure is returned from the [`metadata`] function and
+/// This structure is returned from the [`File::metadata`] function and
 /// represents known metadata about a file.
-///
-/// [`metadata`]: fn.metadata.html
 pub struct Metadata {
     attributes: u32,
     size: u64,
 }
 
 /// Options and flags which can be used to configure how a [`File`] is opened.
-/// This builder exposes the ability to configure how a `File` is opened
+/// This builder exposes the ability to configure how a [`File`] is opened
 /// and what operations are permitted on the open file. The [`File::open`]
 /// and [`File::create`] methods are aliases for commonly used options
 /// using this builder.
 ///
-/// [`File`]: struct.File.html
-/// [`File::open`]: struct.File.html#method.open
-/// [`File::create`]: struct.File.html#method.create
-///
-/// Generally speaking, when using `OpenOptions`, you'll first call [`new()`],
-/// then chain calls to methods to set each option, then call [`open()`],
+/// Generally speaking, when using [`OpenOptions`], you'll first call [`OpenOptions::new`],
+/// then chain calls to methods to set each option, then call [`OpenOptions::open`],
 /// passing the path of the file you're trying to open.
 ///
 /// It is required to also pass a reference to the [`Archive`] that the
 /// file lives in.
-///
-/// [`new()`]: struct.OpenOptions.html#method.new
-/// [`open()`]: struct.OpenOptions.html#method.open
-/// [`Archive`]: struct.Archive.html
 ///
 /// # Examples
 ///
@@ -257,13 +247,10 @@ pub struct OpenOptions {
 
 /// Iterator over the entries in a directory.
 ///
-/// This iterator is returned from the [`read_dir`] function of this module and
+/// This iterator is returned from the [`File::read_dir`] function of this module and
 /// will yield instances of `Result<DirEntry, i32>`. Through a [`DirEntry`]
 /// information like the entry's path and possibly other metadata can be
 /// learned.
-///
-/// [`read_dir`]: fn.read_dir.html
-/// [`DirEntry`]: struct.DirEntry.html
 ///
 /// # Errors
 ///
@@ -276,8 +263,6 @@ pub struct ReadDir<'a> {
 }
 
 /// Entries returned by the [`ReadDir`] iterator.
-///
-/// [`ReadDir`]: struct.ReadDir.html
 ///
 /// An instance of `DirEntry` represents an entry inside of a directory on the
 /// filesystem. Each entry can be inspected via methods to learn about the full
@@ -338,8 +323,6 @@ impl Fs {
 
 impl Archive {
     /// Retrieves an Archive's [`ArchiveID`]
-    ///
-    /// [`ArchiveID`]: enum.ArchiveID.html
     pub fn id(&self) -> ArchiveID {
         self.id
     }
@@ -354,8 +337,6 @@ impl File {
     ///
     /// This function will return an error if `path` does not already exit.
     /// Other errors may also be returned accoridng to [`OpenOptions::open`]
-    ///
-    /// [`OpenOptions::open`]: struct.OpenOptions.html#method.open
     ///
     /// # Examples
     ///
@@ -382,9 +363,7 @@ impl File {
     /// # Errors
     ///
     /// This function will return an error if `path` does not already exit.
-    /// Other errors may also be returned accoridng to [`OpenOptions::create`]
-    ///
-    /// [`OpenOptions::create`]: struct.OpenOptions.html#method.create
+    /// Other errors may also be returned accoridng to [`OpenOptions::create`].
     ///
     /// # Examples
     ///
@@ -597,8 +576,6 @@ impl OpenOptions {
     ///   to the `archive` method.
     /// * Filesystem-level errors (full disk, etc).
     /// * Invalid combinations of open options.
-    ///
-    /// [`Archive`]: struct.Archive.html
     pub fn open<P: AsRef<Path>>(&mut self, path: P) -> IoResult<File> {
         self._open(path.as_ref(), self.open_flags())
     }
@@ -901,7 +878,6 @@ fn to_utf16(path: &Path) -> WideCString {
     WideCString::from_str(path).unwrap()
 }
 
-// Adapted from sys/windows/fs.rs in libstd
 fn truncate_utf16_at_nul(v: &[u16]) -> &[u16] {
     match v.iter().position(|c| *c == 0) {
         // don't include the 0
@@ -909,8 +885,6 @@ fn truncate_utf16_at_nul(v: &[u16]) -> &[u16] {
         None => v,
     }
 }
-
-// Copied from sys/common/io.rs in libstd
 
 // Provides read_to_end functionality over an uninitialized buffer.
 // This function is unsafe because it calls the underlying

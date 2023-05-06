@@ -1,3 +1,6 @@
+//! Safe Rust wrapper around `libctru`.
+//! 
+//! This library behaves as the main tool to access system-specific features and feature fixes.
 #![crate_type = "rlib"]
 #![crate_name = "ctru"]
 #![feature(test)]
@@ -27,8 +30,8 @@ macro_rules! from_impl {
 
 /// Activate the default panic handler.
 ///
-/// With this implementation, the main thread will stop and try to print debug info to an available [console::Console].
-/// In case it fails to find an active [console::Console] the program will just exit.
+/// With this implementation, the main thread will stop and try to print debug info to an available [`Console`](console::Console).
+/// In case it fails to find an active [`Console`](console::Console) the program will just exit.
 ///
 /// # Notes
 ///

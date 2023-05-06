@@ -204,8 +204,8 @@ impl Channel<'_> {
     ///
     /// # Warning
     ///
-    /// `libctru` expects the user to manually keep the info data (in this case [Wave]) alive during playback.
-    /// To ensure safety, checks within [Wave] will clear the whole channel queue if any queued [Wave] is dropped prematurely.
+    /// `libctru` expects the user to manually keep the info data (in this case [`Wave`]) alive during playback.
+    /// To ensure safety, checks within [`Wave`] will clear the whole channel queue if any queued [`Wave`] is dropped prematurely.
     pub fn queue_wave(&mut self, wave: &mut Wave) -> std::result::Result<(), NdspError> {
         match wave.status() {
             WaveStatus::Playing | WaveStatus::Queued => return Err(NdspError::WaveBusy(self.id)),
@@ -222,7 +222,7 @@ impl Channel<'_> {
 
 /// Functions to handle audio filtering.
 ///
-/// Refer to [libctru](https://libctru.devkitpro.org/channel_8h.html#a1da3b363c2edfd318c92276b527daae6) for more info.
+/// Refer to [`libctru`](https://libctru.devkitpro.org/channel_8h.html#a1da3b363c2edfd318c92276b527daae6) for more info.
 impl Channel<'_> {
     /// Enables/disables monopole filters.
     pub fn iir_mono_set_enabled(&mut self, enable: bool) {
@@ -314,7 +314,7 @@ impl AudioFormat {
 }
 
 impl AudioMix {
-    /// Creates a new [AudioMix] with all volumes set to 0.
+    /// Creates a new [`AudioMix`] with all volumes set to 0.
     pub fn zeroed() -> Self {
         Self { raw: [0.; 12] }
     }
@@ -365,8 +365,8 @@ impl AudioMix {
     ///
     /// # Notes
     ///
-    /// [Channel] will normalize the mix values to be within 0 and 1.
-    /// However, an [AudioMix] instance with larger/smaller values is valid.
+    /// [`Channel`] will normalize the mix values to be within 0 and 1.
+    /// However, an [`AudioMix`] instance with larger/smaller values is valid.
     pub fn set_front(&mut self, left: f32, right: f32) {
         self.raw[0] = left;
         self.raw[1] = right;
@@ -376,8 +376,8 @@ impl AudioMix {
     ///
     /// # Notes
     ///
-    /// [Channel] will normalize the mix values to be within 0 and 1.
-    /// However, an [AudioMix] instance with larger/smaller values is valid.
+    /// [`Channel`] will normalize the mix values to be within 0 and 1.
+    /// However, an [`AudioMix`] instance with larger/smaller values is valid.
     pub fn set_back(&mut self, left: f32, right: f32) {
         self.raw[2] = left;
         self.raw[3] = right;
@@ -387,8 +387,8 @@ impl AudioMix {
     ///
     /// # Notes
     ///
-    /// [Channel] will normalize the mix values to be within 0 and 1.
-    /// However, an [AudioMix] instance with larger/smaller values is valid.
+    /// [`Channel`] will normalize the mix values to be within 0 and 1.
+    /// However, an [`AudioMix`] instance with larger/smaller values is valid.
     pub fn set_aux_front(&mut self, left: f32, right: f32, id: usize) {
         if id > 1 {
             panic!("invalid auxiliary output device index")
@@ -404,8 +404,8 @@ impl AudioMix {
     ///
     /// # Notes
     ///
-    /// [Channel] will normalize the mix values to be within 0 and 1.
-    /// However, an [AudioMix] instance with larger/smaller values is valid.
+    /// [`Channel`] will normalize the mix values to be within 0 and 1.
+    /// However, an [`AudioMix`] instance with larger/smaller values is valid.
     pub fn set_aux_back(&mut self, left: f32, right: f32, id: usize) {
         if id > 1 {
             panic!("invalid auxiliary output device index")
@@ -418,7 +418,7 @@ impl AudioMix {
     }
 }
 
-/// Returns an [AudioMix] object with "front left" and "front right" volumes set to 100%, and all other volumes set to 0%.
+/// Returns an [`AudioMix`] object with "front left" and "front right" volumes set to 100%, and all other volumes set to 0%.
 impl Default for AudioMix {
     fn default() -> Self {
         let mut mix = AudioMix::zeroed();
