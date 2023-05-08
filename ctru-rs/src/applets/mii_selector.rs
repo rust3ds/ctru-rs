@@ -65,7 +65,10 @@ pub struct SelectionResult {
 /// Error type for the Mii selector
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum LaunchError {
+    /// The selected Mii's data is corrupt in some way
     InvalidChecksum,
+
+    /// Either the user cancelled the selection (see [Options::MII_SELECTOR_CANCEL]), or no valid Miis were available to select
     NoMiiSelected,
 }
 

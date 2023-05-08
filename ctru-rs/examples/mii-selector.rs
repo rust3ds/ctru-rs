@@ -10,13 +10,13 @@ fn main() {
     let _console = Console::new(gfx.top_screen.borrow_mut());
 
     let mut mii_selector = MiiSelector::new();
+    mii_selector.set_options(Options::MII_SELECTOR_CANCEL);
     mii_selector.set_initial_index(3);
     mii_selector.blacklist_user_mii(0.into());
     mii_selector.set_title("Great Mii Selector!");
 
     match mii_selector.launch() {
         Ok(result) => {
-            println!("Is Mii selected?: {:?}", result.is_mii_selected);
             println!("Mii type: {:?}", result.mii_type);
             println!("Name: {:?}", result.mii_data.name);
             println!("Author: {:?}", result.mii_data.author_name);
