@@ -1,4 +1,4 @@
-use ctru::applets::mii_selector::{LaunchError, MiiSelector};
+use ctru::applets::mii_selector::{LaunchError, MiiSelector, Options};
 use ctru::prelude::*;
 
 fn main() {
