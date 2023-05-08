@@ -56,6 +56,8 @@ pub struct MiiSelector {
 #[derive(Clone, Debug)]
 pub struct SelectionResult {
     pub mii_data: MiiData,
+
+    #[deprecated]
     pub is_mii_selected: bool,
     pub mii_type: MiiType,
 }
@@ -64,6 +66,7 @@ pub struct SelectionResult {
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum LaunchError {
     InvalidChecksum,
+    NoMiiSelected,
 }
 
 impl MiiSelector {
@@ -146,6 +149,10 @@ impl MiiSelector {
     pub fn launch(&mut self) -> Result<SelectionResult, LaunchError> {
         let mut return_val = Box::<ctru_sys::MiiSelectorReturn>::default();
         unsafe { ctru_sys::miiSelectorLaunch(self.config.as_mut(), return_val.as_mut()) }
+
+        if return_val.no_mii_selected != 0 {
+            return Err(LaunchError::NoMiiSelected);
+        }
 
         if unsafe { ctru_sys::miiSelectorChecksumIsValid(return_val.as_mut()) } {
             Ok((*return_val).into())
