@@ -56,9 +56,6 @@ pub struct MiiSelector {
 #[derive(Clone, Debug)]
 pub struct SelectionResult {
     pub mii_data: MiiData,
-
-    #[deprecated]
-    pub is_mii_selected: bool,
     pub mii_type: MiiType,
 }
 
@@ -67,7 +64,6 @@ pub struct SelectionResult {
 pub enum LaunchError {
     /// The selected Mii's data is corrupt in some way
     InvalidChecksum,
-
     /// Either the user cancelled the selection (see [Options::MII_SELECTOR_CANCEL]), or no valid Miis were available to select
     NoMiiSelected,
 }
@@ -178,7 +174,6 @@ impl From<ctru_sys::MiiSelectorReturn> for SelectionResult {
 
         SelectionResult {
             mii_data: raw_mii_data.into(),
-            is_mii_selected: ret.no_mii_selected == 0,
             mii_type: if ret.guest_mii_index != 0xFFFFFFFF {
                 MiiType::Guest {
                     index: ret.guest_mii_index,
