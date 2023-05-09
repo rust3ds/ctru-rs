@@ -56,14 +56,16 @@ pub struct MiiSelector {
 #[derive(Clone, Debug)]
 pub struct SelectionResult {
     pub mii_data: MiiData,
-    pub is_mii_selected: bool,
     pub mii_type: MiiType,
 }
 
 /// Error type for the Mii selector
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum LaunchError {
+    /// The selected Mii's data is corrupt in some way
     InvalidChecksum,
+    /// Either the user cancelled the selection (see [Options::MII_SELECTOR_CANCEL]), or no valid Miis were available to select
+    NoMiiSelected,
 }
 
 impl MiiSelector {
@@ -147,6 +149,10 @@ impl MiiSelector {
         let mut return_val = Box::<ctru_sys::MiiSelectorReturn>::default();
         unsafe { ctru_sys::miiSelectorLaunch(self.config.as_mut(), return_val.as_mut()) }
 
+        if return_val.no_mii_selected != 0 {
+            return Err(LaunchError::NoMiiSelected);
+        }
+
         if unsafe { ctru_sys::miiSelectorChecksumIsValid(return_val.as_mut()) } {
             Ok((*return_val).into())
         } else {
@@ -168,7 +174,6 @@ impl From<ctru_sys::MiiSelectorReturn> for SelectionResult {
 
         SelectionResult {
             mii_data: raw_mii_data.into(),
-            is_mii_selected: ret.no_mii_selected == 0,
             mii_type: if ret.guest_mii_index != 0xFFFFFFFF {
                 MiiType::Guest {
                     index: ret.guest_mii_index,
