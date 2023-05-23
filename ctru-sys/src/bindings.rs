@@ -4486,7 +4486,7 @@ impl Default for ConsoleFont {
         }
     }
 }
-#[doc = " Console structure used to store the state of a console render context.\n\n Default values from consoleGetDefault();\n PrintConsole defaultConsole =\n \n \t//Font:\n \t\n \t\t(u8*)default_font_bin, //font gfx\n \t\t0, //first ascii character in the set\n \t\t128, //number of characters in the font set\n\t,\n\t0,0, //cursorX cursorY\n\t0,0, //prevcursorX prevcursorY\n\t40, //console width\n\t30, //console height\n\t0,  //window x\n\t0,  //window y\n\t32, //window width\n\t24, //window height\n\t3, //tab size\n\t0, //font character offset\n\t0,  //print callback\n\tfalse //console initialized\n ;\n "]
+#[doc = " Console structure used to store the state of a console render context.\n\n Default values from consoleGetDefault();\n PrintConsole defaultConsole =\n {\n \t//Font:\n \t{\n \t\t(u8*)default_font_bin, //font gfx\n \t\t0, //first ascii character in the set\n \t\t128, //number of characters in the font set\n\t},\n\t0,0, //cursorX cursorY\n\t0,0, //prevcursorX prevcursorY\n\t40, //console width\n\t30, //console height\n\t0,  //window x\n\t0,  //window y\n\t32, //window width\n\t24, //window height\n\t3, //tab size\n\t0, //font character offset\n\t0,  //print callback\n\tfalse //console initialized\n };\n "]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct PrintConsole {
@@ -8127,7 +8127,7 @@ extern "C" {
 }
 extern "C" {
     #[must_use]
-    #[doc = " Gets an handle to the end of conversion event.\n # Arguments\n\n* `end_event` - Pointer to the event handle to be set to the end of conversion event. It isn't necessary to create or close this handle.\n\n To enable this event you have to use C Y2RU_SetTransferEndInterrupt(true);The event will be triggered when the corresponding interrupt is fired.\n\n > **Note:** It is recommended to use a timeout when waiting on this event, as it sometimes (but rarely) isn't triggered."]
+    #[doc = " Gets an handle to the end of conversion event.\n # Arguments\n\n* `end_event` - Pointer to the event handle to be set to the end of conversion event. It isn't necessary to create or close this handle.\n\n To enable this event you have to use C} Y2RU_SetTransferEndInterrupt(true);The event will be triggered when the corresponding interrupt is fired.\n\n > **Note:** It is recommended to use a timeout when waiting on this event, as it sometimes (but rarely) isn't triggered."]
     pub fn Y2RU_GetTransferEndEvent(end_event: *mut Handle) -> Result;
 }
 extern "C" {
