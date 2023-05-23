@@ -18,5 +18,5 @@ pub unsafe fn errno() -> s32 {
 }
 
 extern "C" {
-	fn __errno() -> *mut libc::c_int;
+    fn __errno() -> *mut libc::c_int;
 }
