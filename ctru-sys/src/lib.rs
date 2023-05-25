@@ -16,7 +16,3 @@ pub use result::*;
 pub unsafe fn errno() -> s32 {
     *__errno()
 }
-
-extern "C" {
-    fn __errno() -> *mut libc::c_int;
-}

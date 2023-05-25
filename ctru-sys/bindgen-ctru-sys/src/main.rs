@@ -16,13 +16,15 @@ fn main() {
     let devkitarm = std::env::var("DEVKITARM").expect("DEVKITARM not set in environment");
 
     let include_path = PathBuf::from_iter([devkitpro.as_str(), "libctru", "include"]);
-    let header = include_path.join("3ds.h");
+    let ctru_header = include_path.join("3ds.h");
 
     let sysroot = PathBuf::from(devkitarm).join("arm-none-eabi");
     let system_include = sysroot.join("include");
+    let errno_header = system_include.join("errno.h");
 
     let bindings = Builder::default()
-        .header(header.to_str().unwrap())
+        .header(ctru_header.to_str().unwrap())
+        .header(errno_header.to_str().unwrap())
         .rust_target(RustTarget::Nightly)
         .use_core()
         .trust_clang_mangling(false)
