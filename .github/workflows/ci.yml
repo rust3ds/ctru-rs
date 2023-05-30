@@ -47,7 +47,7 @@ jobs:
         run: cargo fmt --all --verbose -- --check
 
       - name: Cargo check
-        run: cargo 3ds clippy --color=always --workspace --verbose --all-targets
+        run: cargo 3ds clippy --color=always --verbose --all-targets
         # --deny=warnings would be nice, but can easily break CI for new clippy
         # lints getting added. I'd also like to use Github's "inline warnings"
         # feature, but https://github.com/actions/runner/issues/2341 means we
