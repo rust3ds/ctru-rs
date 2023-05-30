@@ -12,8 +12,7 @@ pub use bindings::*;
 pub use result::*;
 
 /// In lieu of a proper errno function exposed by libc
-/// (<https://github.com/rust-lang/libc/issues/1995>), this will retrieve the
-/// last error set in the global reentrancy struct.
+/// (<https://github.com/rust-lang/libc/issues/1995>).
 pub unsafe fn errno() -> s32 {
-    (*__getreent())._errno
+    *__errno()
 }
