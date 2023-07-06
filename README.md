@@ -1,6 +1,6 @@
 # ctru-rs
 
-A Rust wrapper library for smealum's [ctrulib](https://github.com/smealum/ctrulib).
+A Rust wrapper around [libctru](https://github.com/devkitPro/libctru).
 
 ## Structure
 
@@ -8,7 +8,7 @@ This repository is organized as follows:
 
 * `ctru-rs`: Safe, idiomatic wrapper around `ctru-sys`
 
-* `ctru-sys`: Low-level, unsafe bindings to ctrulib.
+* `ctru-sys`: Low-level, unsafe bindings to `libctru`.
 
   This crate's version changes according to the version of `libctru`
   used to generate the bindings, with the following convention:

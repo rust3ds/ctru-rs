@@ -1,6 +1,6 @@
 [package]
 authors = ["Rust3DS Org", "Ronald Kinard <furyhunter600@gmail.com>"]
-description = "A safe wrapper around smealum's ctrulib."
+description = "A safe wrapper around libctru"
 license = "Zlib"
 name = "ctru-rs"
 version = "0.7.1"
@@ -44,6 +44,10 @@ std-threads = []
 
 [package.metadata.cargo-3ds]
 romfs_dir = "examples/romfs"
+
+[package.metadata.docs.rs]
+default-target = "armv6k-nintendo-3ds"
+cargo-args = ["-Z", "build-std"]
 
 [[example]]
 name = "thread-basic"

@@ -211,7 +211,7 @@ static GFX_ACTIVE: Mutex<usize> = Mutex::new(0);
 impl Gfx {
     /// Creates a new [`Gfx`] instance with default init values
     /// It's the same as calling:
-    /// 
+    ///
     /// ```
     /// Gfx::with_formats(FramebufferFormat::Bgr8, FramebufferFormat::Bgr8, false)
     /// ```

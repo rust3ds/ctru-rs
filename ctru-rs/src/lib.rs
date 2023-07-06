@@ -1,14 +1,39 @@
-//! Safe Rust wrapper around `libctru`.
-//! 
-//! This library behaves as the main tool to access system-specific features and feature fixes.
+//! Safe wrapper around `libctru`.
+//!
+//! # About
+//!
+//! This crate behaves as the main tool to access system-specific functionality on the Nintendo 3DS when developing homebrew software in Rust.
+//! Thanks to it, developers can access the underlying system services and the console's hardware to develop userland applications
+//! (such as HID devices, network capabilities, graphics, built-in cameras, etc.).
+//!
+//! Among these features, `ctru` also automatically includes functionality to properly integrate the Rust `std` with the console, which the developer would otherwise need to implement manually.
+//!
+//! # Usage
+//!
+//! Read thoroughly the official [`ctru` wiki](https://github.com/rust3ds/ctru-rs/wiki) which guides you through the setup needed to install the required toolchain and helpful tools.
+//! After following the guide and understanding the many quirks of the Nintendo 3DS homebrew development environment, you can create a new project by including this crate as a dependency
+//! of your project in your `Cargo.toml` manifest and build your binaries either manually (for the `armv6k-nintendo-3ds` target) or via [`cargo-3ds`](https://github.com/rust3ds/cargo-3ds).
+//!
+//! # Examples
+//!
+//! You can check out the examples provided with this crate which dive into most of the implemented functionality.
+//!
+
 #![crate_type = "rlib"]
 #![crate_name = "ctru"]
+#![warn(missing_docs)]
 #![feature(test)]
 #![feature(custom_test_frameworks)]
 #![feature(try_trait_v2)]
 #![feature(allocator_api)]
 #![feature(nonnull_slice_from_raw_parts)]
 #![test_runner(test_runner::run)]
+#![doc(
+    html_favicon_url = "https://user-images.githubusercontent.com/11131775/225929072-2fa1741c-93ae-4b47-9bdf-af70f3d59910.png"
+)]
+#![doc(
+    html_logo_url = "https://user-images.githubusercontent.com/11131775/225929072-2fa1741c-93ae-4b47-9bdf-af70f3d59910.png"
+)]
 
 // Nothing is imported from these crates but their inclusion here assures correct linking of the missing implementations.
 extern crate pthread_3ds;

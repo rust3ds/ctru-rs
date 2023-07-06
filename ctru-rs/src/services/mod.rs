@@ -42,7 +42,4 @@ cfg_if::cfg_if! {
     }
 }
 
-pub use self::apt::Apt;
-pub use self::hid::Hid;
-
 pub(crate) use self::reference::ServiceReference;
