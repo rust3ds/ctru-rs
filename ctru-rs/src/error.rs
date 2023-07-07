@@ -1,3 +1,6 @@
+//! Error handling interface.
+//! 
+//! This module holds the generic error and result types to interface with [`ctru_sys`] and the safe wrapper.
 use std::borrow::Cow;
 use std::error;
 use std::ffi::CStr;
@@ -6,8 +9,27 @@ use std::ops::{ControlFlow, FromResidual, Try};
 
 use ctru_sys::result::{R_DESCRIPTION, R_LEVEL, R_MODULE, R_SUMMARY};
 
+/// Custom type alias for generic `ctru` operations.
+/// 
+/// This type is compatible with `ctru-sys` result codes.
 pub type Result<T> = ::std::result::Result<T, Error>;
 
+/// Validity checker of raw [`ctru_sys::Result`] codes.
+/// 
+/// This struct supports the "try" syntax (`?`) to convert to an [`Error::Os`].
+/// 
+/// # Example
+/// 
+/// ```no_run
+/// pub fn hid_init() -> crate::Result<()> {
+///     // We run an unsafe function which returns a `ctru_sys::Result`.
+///     let result: ctru_sys::Result = unsafe { ctru_sys::hidInit() };
+///     
+///     // The result code is parsed and any possible error gets returned by the function.
+///     ResultCode(result)?;
+///     Ok(())
+/// }
+/// ```
 #[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Eq, Ord)]
 #[repr(transparent)]
 pub struct ResultCode(pub ctru_sys::Result);
@@ -48,13 +70,20 @@ impl<T> FromResidual<Error> for Result<T> {
     }
 }
 
-/// The error type returned by all libctru functions.
+/// The generic error enum returned by `ctru` functions.
+/// 
+/// This error enum supports parsing and displaying [`ctru_sys::Result`] codes.
 #[non_exhaustive]
 pub enum Error {
+    /// Raw [`ctru_sys::Result`] codes.
     Os(ctru_sys::Result),
+    /// Generic `libc` error codes. 
     Libc(String),
+    /// Requested service is already active and cannot be activated again.
     ServiceAlreadyActive,
+    /// `stdout` is already being redirected.
     OutputAlreadyRedirected,
+    /// The buffer provided by the user to store some data is shorter than required.
     BufferTooShort {
         /// Length of the buffer provided by the user.
         provided: usize,
@@ -64,8 +93,9 @@ pub enum Error {
 }
 
 impl Error {
-    /// Create an [`Error`] out of the last set value in `errno`. This can be used
-    /// to get a human-readable error string from calls to `libc` functions.
+    /// Create an [`Error`] out of the last set value in `errno`.
+    /// 
+    /// This can be used to get a human-readable error string from calls to `libc` functions.
     pub(crate) fn from_errno() -> Self {
         let error_str = unsafe {
             let errno = ctru_sys::errno();

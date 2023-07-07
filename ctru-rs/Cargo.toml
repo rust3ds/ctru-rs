@@ -5,6 +5,7 @@ license = "Zlib"
 name = "ctru-rs"
 version = "0.7.1"
 edition = "2021"
+repository = "https://github.com/rust3ds/ctru-rs"
 rust-version = "1.64"
 
 [lib]

@@ -17,7 +17,6 @@
 //! # Examples
 //!
 //! You can check out the examples provided with this crate which dive into most of the implemented functionality.
-//!
 
 #![crate_type = "rlib"]
 #![crate_name = "ctru"]
@@ -39,6 +38,9 @@
 extern crate pthread_3ds;
 extern crate shim_3ds;
 
+/// Expanded stack size used to spawn the main thread by `libctru`.
+/// 
+/// This value was chosen to support crate dependencies which expected more stack than provided, without compromising performance.
 #[no_mangle]
 #[cfg(feature = "big-stack")]
 static __stacksize__: usize = 2 * 1024 * 1024; // 2MB
@@ -53,19 +55,24 @@ macro_rules! from_impl {
     };
 }
 
-/// Activate the default panic handler.
+/// Activate the custom `ctru` panic handler.
 ///
 /// With this implementation, the main thread will stop and try to print debug info to an available [`Console`](console::Console).
 /// In case it fails to find an active [`Console`](console::Console) the program will just exit.
 ///
 /// # Notes
 ///
-/// When ´test´ is enabled, this function won't do anything, as it should be overridden by the ´test´ environment.
+/// When ´test´ is enabled, this function will not do anything, as it should be overridden by the ´test´ environment.
 pub fn use_panic_handler() {
     #[cfg(not(test))]
     panic_hook_setup();
 }
 
+/// Internal protocol to activate the custom panic handler hook.
+/// 
+/// # Notes
+/// 
+/// When `test` is enabled, this function will be ignored.
 #[cfg(not(test))]
 fn panic_hook_setup() {
     use crate::services::hid::{Hid, KeyPad};
