@@ -36,7 +36,7 @@ impl RomFS {
             },
             || {
                 let mount_name = CStr::from_bytes_with_nul(b"romfs\0").unwrap();
-                unsafe { ctru_sys::romfsUnmount(mount_name.as_ptr()) };
+                let _ = unsafe { ctru_sys::romfsUnmount(mount_name.as_ptr()) };
             },
         )?;
 

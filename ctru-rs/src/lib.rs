@@ -25,7 +25,6 @@
 #![feature(custom_test_frameworks)]
 #![feature(try_trait_v2)]
 #![feature(allocator_api)]
-#![feature(nonnull_slice_from_raw_parts)]
 #![test_runner(test_runner::run)]
 #![doc(
     html_favicon_url = "https://user-images.githubusercontent.com/11131775/225929072-2fa1741c-93ae-4b47-9bdf-af70f3d59910.png"
@@ -39,7 +38,7 @@ extern crate pthread_3ds;
 extern crate shim_3ds;
 
 /// Expanded stack size used to spawn the main thread by `libctru`.
-/// 
+///
 /// This value was chosen to support crate dependencies which expected more stack than provided, without compromising performance.
 #[no_mangle]
 #[cfg(feature = "big-stack")]
@@ -69,9 +68,9 @@ pub fn use_panic_handler() {
 }
 
 /// Internal protocol to activate the custom panic handler hook.
-/// 
+///
 /// # Notes
-/// 
+///
 /// When `test` is enabled, this function will be ignored.
 #[cfg(not(test))]
 fn panic_hook_setup() {

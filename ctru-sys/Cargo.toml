@@ -2,9 +2,13 @@
 name = "ctru-sys"
 version = "22.2.0+2.2.2-1"
 authors = [ "Rust3DS Org", "Ronald Kinard <furyhunter600@gmail.com>" ]
+description = "Raw bindings to libctru"
+keywords = ["3ds", "libctru"]
+categories = ["os", "external-ffi-bindings", "no-std"]
 license = "Zlib"
 links = "ctru"
 edition = "2021"
+repository = "https://github.com/rust3ds/ctru-rs"
 
 [dependencies]
 libc = { version = "0.2.121", default-features = false }

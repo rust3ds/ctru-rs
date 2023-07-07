@@ -134,7 +134,7 @@ impl<S: Screen> Flush for S {
         let framebuffer = self.raw_framebuffer();
 
         // Flush the data array. `self.raw_framebuffer` should get the correct parameters for all kinds of screens
-        unsafe {
+        let _ = unsafe {
             ctru_sys::GSPGPU_FlushDataCache(
                 framebuffer.ptr.cast(),
                 (framebuffer.height * framebuffer.width) as u32,
