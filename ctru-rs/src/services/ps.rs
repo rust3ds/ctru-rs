@@ -6,6 +6,7 @@
 use crate::error::ResultCode;
 use crate::Result;
 
+#[doc(alias = "PS_AESAlgorithm")]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u32)]
 pub enum AESAlgorithm {
@@ -17,6 +18,7 @@ pub enum AESAlgorithm {
     CcmDec = ctru_sys::PS_ALGORITHM_CCM_DEC,
 }
 
+#[doc(alias = "PS_AESKeyType")]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u32)]
 pub enum AESKeyType {
@@ -35,6 +37,7 @@ pub enum AESKeyType {
 pub struct Ps(());
 
 impl Ps {
+    #[doc(alias = "psInit")]
     pub fn new() -> Result<Self> {
         unsafe {
             ResultCode(ctru_sys::psInit())?;
@@ -42,6 +45,7 @@ impl Ps {
         }
     }
 
+    #[doc(alias = "PS_GetLocalFriendCodeSeed")]
     pub fn local_friend_code_seed(&self) -> crate::Result<u64> {
         let mut seed: u64 = 0;
 
@@ -49,6 +53,7 @@ impl Ps {
         Ok(seed)
     }
 
+    #[doc(alias = "PS_GetDeviceId")]
     pub fn device_id(&self) -> crate::Result<u32> {
         let mut id: u32 = 0;
 
@@ -56,6 +61,7 @@ impl Ps {
         Ok(id)
     }
 
+    #[doc(alias = "PS_GenerateRandomBytes")]
     pub fn generate_random_bytes(&self, out: &mut [u8]) -> crate::Result<()> {
         ResultCode(unsafe {
             ctru_sys::PS_GenerateRandomBytes(out.as_mut_ptr().cast(), out.len())
@@ -65,6 +71,7 @@ impl Ps {
 }
 
 impl Drop for Ps {
+    #[doc(alias = "psExit")]
     fn drop(&mut self) {
         unsafe {
             ctru_sys::psExit();

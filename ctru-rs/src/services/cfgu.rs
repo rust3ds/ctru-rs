@@ -4,6 +4,7 @@
 
 use crate::error::ResultCode;
 
+#[doc(alias = "CFG_Region")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum Region {
@@ -16,6 +17,7 @@ pub enum Region {
     Taiwan = ctru_sys::CFG_REGION_TWN,
 }
 
+#[doc(alias = "CFG_Language")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum Language {
@@ -33,6 +35,7 @@ pub enum Language {
     TraditionalChinese = ctru_sys::CFG_LANGUAGE_TW,
 }
 
+#[doc(alias = "CFG_SystemModel")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum SystemModel {
@@ -61,12 +64,14 @@ impl Cfgu {
     /// ctrulib services are reference counted, so this function may be called
     /// as many times as desired and the service will not exit until all
     /// instances of Cfgu drop out of scope.
+    #[doc(alias = "cfguInit")]
     pub fn new() -> crate::Result<Cfgu> {
         ResultCode(unsafe { ctru_sys::cfguInit() })?;
         Ok(Cfgu(()))
     }
 
     /// Gets system region from secure info
+    #[doc(alias = "CFGU_SecureInfoGetRegion")]
     pub fn region(&self) -> crate::Result<Region> {
         let mut region: u8 = 0;
 
@@ -75,6 +80,7 @@ impl Cfgu {
     }
 
     /// Gets system's model
+    #[doc(alias = "CFGU_GetSystemModel")]
     pub fn model(&self) -> crate::Result<SystemModel> {
         let mut model: u8 = 0;
 
@@ -83,6 +89,7 @@ impl Cfgu {
     }
 
     /// Gets system's language
+    #[doc(alias = "CFGU_GetSystemLanguage")]
     pub fn language(&self) -> crate::Result<Language> {
         let mut language: u8 = 0;
 
@@ -91,6 +98,7 @@ impl Cfgu {
     }
 
     /// Checks if NFC is supported by the console
+    #[doc(alias = "CFGU_IsNFCSupported")]
     pub fn is_nfc_supported(&self) -> crate::Result<bool> {
         let mut supported: bool = false;
 
@@ -99,6 +107,7 @@ impl Cfgu {
     }
 
     /// Check if the console is from the 2DS family (2DS, New2DS, New2DSXL)
+    #[doc(alias = "CFGU_GetModelNintendo2DS")]
     pub fn is_2ds_family(&self) -> crate::Result<bool> {
         let mut is_2ds_family: u8 = 0;
 
@@ -108,6 +117,7 @@ impl Cfgu {
 }
 
 impl Drop for Cfgu {
+    #[doc(alias = "cfguExit")]
     fn drop(&mut self) {
         unsafe {
             ctru_sys::cfguExit();

@@ -7,6 +7,7 @@ use std::iter::once;
 use std::str;
 
 /// An instance of the software keyboard.
+#[doc(alias = "SwkbdState")]
 #[derive(Clone)]
 pub struct Swkbd {
     state: Box<SwkbdState>,
@@ -19,6 +20,7 @@ pub struct Swkbd {
 /// Numpad is a number pad.
 /// Western is a text keyboard without japanese symbols (only applies to JPN systems). For other
 /// systems it's the same as a Normal keyboard.
+#[doc(alias = "SwkbdType")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum Kind {
@@ -29,6 +31,7 @@ pub enum Kind {
 }
 
 /// Represents which button the user pressed to close the software keyboard.
+#[doc(alias = "SwkbdButton")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum Button {
@@ -38,6 +41,7 @@ pub enum Button {
 }
 
 /// Error type for the software keyboard.
+#[doc(alias = "SwkbdResult")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(i32)]
 pub enum Error {
@@ -52,6 +56,7 @@ pub enum Error {
 }
 
 /// Restrictions on keyboard input
+#[doc(alias = "SwkbdValidInput")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum ValidInput {
@@ -90,6 +95,7 @@ bitflags! {
 impl Swkbd {
     /// Initializes a software keyboard of the specified type and the chosen number of buttons
     /// (from 1-3).
+    #[doc(alias = "swkbdInit")]
     pub fn new(keyboard_type: Kind, num_buttons: i32) -> Self {
         unsafe {
             let mut state = Box::<SwkbdState>::default();
@@ -101,6 +107,7 @@ impl Swkbd {
     /// Gets input from this keyboard and appends it to the provided string.
     ///
     /// The text received from the keyboard will be truncated if it is longer than `max_bytes`.
+    #[doc(alias = "swkbdInputText")]
     pub fn get_string(&mut self, max_bytes: usize) -> Result<(String, Button), Error> {
         // Unfortunately the libctru API doesn't really provide a way to get the exact length
         // of the string that it receieves from the software keyboard. Instead it expects you
@@ -125,6 +132,7 @@ impl Swkbd {
     ///
     /// If the buffer is too small to contain the entire sequence received from the keyboard,
     /// the output will be truncated but should still be well-formed UTF-8.
+    #[doc(alias = "swkbdInputText")]
     pub fn write_exact(&mut self, buf: &mut [u8]) -> Result<Button, Error> {
         unsafe {
             match swkbdInputText(self.state.as_mut(), buf.as_mut_ptr(), buf.len()) {
@@ -138,6 +146,7 @@ impl Swkbd {
     }
 
     /// Sets special features for this keyboard
+    #[doc(alias = "swkbdSetFeatures")]
     pub fn set_features(&mut self, features: Features) {
         unsafe { swkbdSetFeatures(self.state.as_mut(), features.bits) }
     }
@@ -156,6 +165,7 @@ impl Swkbd {
 
     /// Sets the hint text for this software keyboard (that is, the help text that is displayed
     /// when the textbox is empty)
+    #[doc(alias = "swkbdSetHintText")]
     pub fn set_hint_text(&mut self, text: &str) {
         unsafe {
             let nul_terminated: String = text.chars().chain(once('\0')).collect();
@@ -169,6 +179,7 @@ impl Swkbd {
     /// `text` configures the display text for the button
     /// `submit` configures whether pressing the button will accept the keyboard's input or
     /// discard it.
+    #[doc(alias = "swkbdSetButton")]
     pub fn configure_button(&mut self, button: Button, text: &str, submit: bool) {
         unsafe {
             let nul_terminated: String = text.chars().chain(once('\0')).collect();

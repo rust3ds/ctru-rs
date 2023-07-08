@@ -25,6 +25,7 @@ impl Soc {
     /// # Errors
     ///
     /// This function will return an error if the `Soc` service is already initialized
+    #[doc(alias = "socInit")]
     pub fn new() -> crate::Result<Self> {
         Self::init_with_buffer_size(0x100000)
     }
@@ -35,6 +36,7 @@ impl Soc {
     /// # Errors
     ///
     /// This function will return an error if the `Soc` service is already initialized
+    #[doc(alias = "socInit")]
     pub fn init_with_buffer_size(num_bytes: usize) -> crate::Result<Self> {
         let _service_handler = ServiceReference::new(
             &SOC_ACTIVE,
@@ -61,6 +63,7 @@ impl Soc {
     }
 
     /// IP Address of the Nintendo 3DS system.
+    #[doc(alias = "gethostid")]
     pub fn host_address(&self) -> Ipv4Addr {
         let raw_id = unsafe { libc::gethostid() };
         Ipv4Addr::from(raw_id.to_ne_bytes())
@@ -73,6 +76,7 @@ impl Soc {
     ///
     /// Returns an error if a connection cannot be established to the server, or
     /// output was already previously redirected.
+    #[doc(alias = "link3dsConnectToHost")]
     pub fn redirect_to_3dslink(&mut self, stdout: bool, stderr: bool) -> crate::Result<()> {
         if self.sock_3dslink >= 0 {
             return Err(Error::OutputAlreadyRedirected);
@@ -92,6 +96,7 @@ impl Soc {
 }
 
 impl Drop for Soc {
+    #[doc(alias = "socExit")]
     fn drop(&mut self) {
         if self.sock_3dslink >= 0 {
             unsafe {

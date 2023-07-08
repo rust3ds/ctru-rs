@@ -46,6 +46,7 @@ bitflags! {
 ///
 /// let result = mii_selector.launch().unwrap();
 /// ```
+#[doc(alias = "MiiSelectorConf")]
 #[derive(Clone, Debug)]
 pub struct MiiSelector {
     config: Box<ctru_sys::MiiSelectorConf>,
@@ -70,6 +71,7 @@ pub enum LaunchError {
 
 impl MiiSelector {
     /// Initializes a Mii Selector
+    #[doc(alias = "miiSelectorInit")]
     pub fn new() -> Self {
         let mut config = Box::<ctru_sys::MiiSelectorConf>::default();
         unsafe {
@@ -81,6 +83,7 @@ impl MiiSelector {
     /// Set the title of the Mii Selector.
     ///
     /// This function would panic if the given ``&str`` contains NUL bytes.
+    #[doc(alias = "miiSelectorSetTitle")]
     pub fn set_title(&mut self, text: &str) {
         // This can only fail if the text contains NUL bytes in the string... which seems
         // unlikely and is documented
@@ -91,11 +94,13 @@ impl MiiSelector {
     }
 
     /// Set the options of the Mii Selector
+    #[doc(alias = "miiSelectorSetOptions")]
     pub fn set_options(&mut self, options: Options) {
         unsafe { ctru_sys::miiSelectorSetOptions(self.config.as_mut(), options.bits) }
     }
 
     /// Whitelist a guest Mii
+    #[doc(alias = "miiSelectorWhitelistGuestMii")]
     pub fn whitelist_guest_mii(&mut self, mii_index: Index) {
         let index = match mii_index {
             Index::Index(i) => i,
@@ -106,6 +111,7 @@ impl MiiSelector {
     }
 
     /// Blacklist a guest Mii
+    #[doc(alias = "miiSelectorBlacklistGuestMii")]
     pub fn blacklist_guest_mii(&mut self, mii_index: Index) {
         let index = match mii_index {
             Index::Index(i) => i,
@@ -116,6 +122,7 @@ impl MiiSelector {
     }
 
     /// Whitelist a user Mii
+    #[doc(alias = "miiSelectorWhitelistUserMii")]
     pub fn whitelist_user_mii(&mut self, mii_index: Index) {
         let index = match mii_index {
             Index::Index(i) => i,
@@ -126,6 +133,7 @@ impl MiiSelector {
     }
 
     /// Blacklist a user Mii
+    #[doc(alias = "miiSelectorBlacklistUserMii")]
     pub fn blacklist_user_mii(&mut self, mii_index: Index) {
         let index = match mii_index {
             Index::Index(i) => i,
@@ -145,6 +153,7 @@ impl MiiSelector {
 
     /// Launch the Mii Selector.
     /// Returns an error when the checksum of the Mii is invalid.
+    #[doc(alias = "miiSelectorLaunch")]
     pub fn launch(&mut self) -> Result<SelectionResult, LaunchError> {
         let mut return_val = Box::<ctru_sys::MiiSelectorReturn>::default();
         unsafe { ctru_sys::miiSelectorLaunch(self.config.as_mut(), return_val.as_mut()) }

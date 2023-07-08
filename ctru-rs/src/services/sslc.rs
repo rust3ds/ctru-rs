@@ -8,6 +8,7 @@ pub struct SslC(());
 
 impl SslC {
     /// Initialize the service
+    #[doc(alias = "sslcInit")]
     pub fn new() -> crate::Result<Self> {
         unsafe {
             ResultCode(ctru_sys::sslcInit(0))?;
@@ -17,6 +18,7 @@ impl SslC {
 }
 
 impl Drop for SslC {
+    #[doc(alias = "sslcExit")]
     fn drop(&mut self) {
         unsafe { ctru_sys::sslcExit() };
     }

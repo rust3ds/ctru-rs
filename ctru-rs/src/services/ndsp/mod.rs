@@ -14,6 +14,7 @@ use std::sync::Mutex;
 
 const NUMBER_OF_CHANNELS: u8 = 24;
 
+#[doc(alias = "ndspOutputMode")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum OutputMode {
@@ -37,6 +38,7 @@ pub struct AudioMix {
     raw: [f32; 12],
 }
 
+#[doc(alias = "ndspInterpType")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum InterpolationType {
@@ -80,6 +82,7 @@ impl Ndsp {
     ///
     /// This function will return an error if an instance of the `Ndsp` struct already exists
     /// or if there are any issues during initialization.
+    #[doc(alias = "ndspInit")]
     pub fn new() -> crate::Result<Self> {
         let _service_handler = ServiceReference::new(
             &NDSP_ACTIVE,
@@ -121,6 +124,7 @@ impl Ndsp {
     }
 
     /// Set the audio output mode. Defaults to `OutputMode::Stereo`.
+    #[doc(alias = "ndspSetOutputMode")]
     pub fn set_output_mode(&mut self, mode: OutputMode) {
         unsafe { ctru_sys::ndspSetOutputMode(mode.into()) };
     }
@@ -128,21 +132,25 @@ impl Ndsp {
 
 impl Channel<'_> {
     /// Reset the channel
+    #[doc(alias = "ndspChnReset")]
     pub fn reset(&mut self) {
         unsafe { ctru_sys::ndspChnReset(self.id.into()) };
     }
 
     /// Initialize the channel's parameters
+    #[doc(alias = "ndspChnInitParams")]
     pub fn init_parameters(&self) {
         unsafe { ctru_sys::ndspChnInitParams(self.id.into()) };
     }
 
     /// Returns whether the channel is playing any audio.
+    #[doc(alias = "ndspChnIsPlaying")]
     pub fn is_playing(&self) -> bool {
         unsafe { ctru_sys::ndspChnIsPlaying(self.id.into()) }
     }
 
     /// Returns whether the channel's playback is currently paused.
+    #[doc(alias = "ndspChnIsPaused")]
     pub fn is_paused(&self) -> bool {
         unsafe { ctru_sys::ndspChnIsPaused(self.id.into()) }
     }
@@ -155,37 +163,44 @@ impl Channel<'_> {
     /// Returns the index of the currently played sample.
     ///
     /// Because of how fast this value changes, it should only be used as a rough estimate of the current progress.
+    #[doc(alias = "ndspChnGetSamplePos")]
     pub fn sample_position(&self) -> usize {
         (unsafe { ctru_sys::ndspChnGetSamplePos(self.id.into()) }) as usize
     }
 
     /// Returns the channel's current wave sequence's id.
+    #[doc(alias = "ndspChnGetWaveBufSeq")]
     pub fn wave_sequence_id(&self) -> u16 {
         unsafe { ctru_sys::ndspChnGetWaveBufSeq(self.id.into()) }
     }
 
     /// Pause or un-pause the channel's playback.
+    #[doc(alias = "ndspChnSetPaused")]
     pub fn set_paused(&mut self, state: bool) {
         unsafe { ctru_sys::ndspChnSetPaused(self.id.into(), state) };
     }
 
     /// Set the channel's output format.
     /// Change this setting based on the used sample's format.
+    #[doc(alias = "ndspChnSetFormat")]
     pub fn set_format(&mut self, format: AudioFormat) {
         unsafe { ctru_sys::ndspChnSetFormat(self.id.into(), format.into()) };
     }
 
     /// Set the channel's interpolation mode.
+    #[doc(alias = "ndspChnSetInterp")]
     pub fn set_interpolation(&mut self, interp_type: InterpolationType) {
         unsafe { ctru_sys::ndspChnSetInterp(self.id.into(), interp_type.into()) };
     }
 
     /// Set the channel's volume mix.
+    #[doc(alias = "ndspChnSetMix")]
     pub fn set_mix(&mut self, mix: &AudioMix) {
         unsafe { ctru_sys::ndspChnSetMix(self.id.into(), mix.as_raw().as_ptr().cast_mut()) }
     }
 
     /// Set the channel's rate of sampling.
+    #[doc(alias = "ndspChnSetRate")]
     pub fn set_sample_rate(&mut self, rate: f32) {
         unsafe { ctru_sys::ndspChnSetRate(self.id.into(), rate) };
     }
@@ -195,6 +210,7 @@ impl Channel<'_> {
     // We suggest using other wave formats when developing homebrew applications.
 
     /// Clear the wave buffer queue and stop playback.
+    #[doc(alias = "ndspChnWaveBufClear")]
     pub fn clear_queue(&mut self) {
         unsafe { ctru_sys::ndspChnWaveBufClear(self.id.into()) };
     }
@@ -206,6 +222,7 @@ impl Channel<'_> {
     ///
     /// `libctru` expects the user to manually keep the info data (in this case [`Wave`]) alive during playback.
     /// To ensure safety, checks within [`Wave`] will clear the whole channel queue if any queued [`Wave`] is dropped prematurely.
+    #[doc(alias = "ndspChnWaveBufAdd")]
     pub fn queue_wave(&mut self, wave: &mut Wave) -> std::result::Result<(), NdspError> {
         match wave.status() {
             WaveStatus::Playing | WaveStatus::Queued => return Err(NdspError::WaveBusy(self.id)),
@@ -225,6 +242,7 @@ impl Channel<'_> {
 /// Refer to [`libctru`](https://libctru.devkitpro.org/channel_8h.html#a1da3b363c2edfd318c92276b527daae6) for more info.
 impl Channel<'_> {
     /// Enables/disables monopole filters.
+    #[doc(alias = "ndspChnIirMonoSetEnable")]
     pub fn iir_mono_set_enabled(&mut self, enable: bool) {
         unsafe { ctru_sys::ndspChnIirMonoSetEnable(self.id.into(), enable) };
     }
@@ -234,6 +252,7 @@ impl Channel<'_> {
     /// # Notes
     ///
     /// This is a lower quality filter than the Biquad alternative.
+    #[doc(alias = "ndspChnIirMonoSetParamsHighPassFilter")]
     pub fn iir_mono_set_params_high_pass_filter(&mut self, cut_off_freq: f32) {
         unsafe { ctru_sys::ndspChnIirMonoSetParamsHighPassFilter(self.id.into(), cut_off_freq) };
     }
@@ -243,16 +262,19 @@ impl Channel<'_> {
     /// # Notes
     ///
     /// This is a lower quality filter than the Biquad alternative.
+    #[doc(alias = "ndspChnIirMonoSetParamsLowPassFilter")]
     pub fn iir_mono_set_params_low_pass_filter(&mut self, cut_off_freq: f32) {
         unsafe { ctru_sys::ndspChnIirMonoSetParamsLowPassFilter(self.id.into(), cut_off_freq) };
     }
 
     /// Enables/disables biquad filters.
+    #[doc(alias = "ndspChnIirBiquadSetEnable")]
     pub fn iir_biquad_set_enabled(&mut self, enable: bool) {
         unsafe { ctru_sys::ndspChnIirBiquadSetEnable(self.id.into(), enable) };
     }
 
     /// Sets the biquad to be a high pass filter.
+    #[doc(alias = "ndspChnIirBiquadSetParamsHighPassFilter")]
     pub fn iir_biquad_set_params_high_pass_filter(&mut self, cut_off_freq: f32, quality: f32) {
         unsafe {
             ctru_sys::ndspChnIirBiquadSetParamsHighPassFilter(self.id.into(), cut_off_freq, quality)
@@ -260,6 +282,7 @@ impl Channel<'_> {
     }
 
     /// Sets the biquad to be a low pass filter.
+    #[doc(alias = "ndspChnIirBiquadSetParamsLowPassFilter")]
     pub fn iir_biquad_set_params_low_pass_filter(&mut self, cut_off_freq: f32, quality: f32) {
         unsafe {
             ctru_sys::ndspChnIirBiquadSetParamsLowPassFilter(self.id.into(), cut_off_freq, quality)
@@ -267,6 +290,7 @@ impl Channel<'_> {
     }
 
     /// Sets the biquad to be a notch filter.
+    #[doc(alias = "ndspChnIirBiquadSetParamsNotchFilter")]
     pub fn iir_biquad_set_params_notch_filter(&mut self, notch_freq: f32, quality: f32) {
         unsafe {
             ctru_sys::ndspChnIirBiquadSetParamsNotchFilter(self.id.into(), notch_freq, quality)
@@ -274,6 +298,7 @@ impl Channel<'_> {
     }
 
     /// Sets the biquad to be a band pass filter.
+    #[doc(alias = "ndspChnIirBiquadSetParamsBandPassFilter")]
     pub fn iir_biquad_set_params_band_pass_filter(&mut self, mid_freq: f32, quality: f32) {
         unsafe {
             ctru_sys::ndspChnIirBiquadSetParamsBandPassFilter(self.id.into(), mid_freq, quality)
@@ -281,6 +306,7 @@ impl Channel<'_> {
     }
 
     /// Sets the biquad to be a peaking equalizer.
+    #[doc(alias = "ndspChnIirBiquadSetParamsPeakingEqualizer")]
     pub fn iir_biquad_set_params_peaking_equalizer(
         &mut self,
         central_freq: f32,
@@ -448,6 +474,7 @@ impl fmt::Display for NdspError {
 impl error::Error for NdspError {}
 
 impl Drop for Ndsp {
+    #[doc(alias = "ndspExit")]
     fn drop(&mut self) {
         for i in 0..NUMBER_OF_CHANNELS {
             self.channel(i).unwrap().reset();

@@ -23,6 +23,7 @@ mod private {
 /// This trait is implemented by the screen structs for working with frame buffers and
 /// drawing to the screens. Graphics-related code can be made generic over this
 /// trait to work with any of the given screens.
+#[doc(alias = "gfxScreen_t")]
 pub trait Screen: private::Sealed {
     /// Returns the `libctru` value for the Screen kind.
     fn as_raw(&self) -> ctru_sys::gfxScreen_t;
@@ -34,6 +35,7 @@ pub trait Screen: private::Sealed {
     ///
     /// Note that the pointer of the framebuffer returned by this function can
     /// change after each call to this function if double buffering is enabled.
+    #[doc(alias = "gfxGetFramebuffer")]
     fn raw_framebuffer(&mut self) -> RawFrameBuffer {
         let mut width: u16 = 0;
         let mut height: u16 = 0;
@@ -52,11 +54,13 @@ pub trait Screen: private::Sealed {
     ///
     /// [`Swap::swap_buffers`] must be called after this function for the configuration
     /// change to take effect.
+    #[doc(alias = "gfxSetDoubleBuffering")]
     fn set_double_buffering(&mut self, enabled: bool) {
         unsafe { ctru_sys::gfxSetDoubleBuffering(self.as_raw(), enabled) }
     }
 
     /// Gets the framebuffer format.
+    #[doc(alias = "gfxGetScreenFormat")]
     fn framebuffer_format(&self) -> FramebufferFormat {
         unsafe { ctru_sys::gfxGetScreenFormat(self.as_raw()) }.into()
     }
@@ -65,6 +69,7 @@ pub trait Screen: private::Sealed {
     ///
     /// [`Swap::swap_buffers`] must be called after this method for the configuration
     /// change to take effect.
+    #[doc(alias = "gfxSetScreenFormat")]
     fn set_framebuffer_format(&mut self, fmt: FramebufferFormat) {
         unsafe { ctru_sys::gfxSetScreenFormat(self.as_raw(), fmt.into()) }
     }
@@ -94,6 +99,7 @@ pub trait Swap: private::Sealed {
     /// [`Screen::set_framebuffer_format`], [`Screen::set_double_buffering`]).
     ///
     /// This should be called once per frame at most.
+    #[doc(alias = "gfxScreenSwapBuffers")]
     fn swap_buffers(&mut self);
 }
 
@@ -126,6 +132,7 @@ impl Swap for BottomScreen {
 pub trait Flush: private::Sealed {
     /// Flushes the video buffer(s) for this screen. Note that you must still call
     /// [`Swap::swap_buffers`] after this method for the buffer contents to be displayed.
+    #[doc(alias = "gfxFlushBuffers")]
     fn flush_buffers(&mut self);
 }
 
@@ -184,11 +191,12 @@ pub struct RawFrameBuffer<'screen> {
     screen: PhantomData<&'screen mut dyn Screen>,
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
-#[repr(u32)]
 /// Side of top screen framebuffer
 ///
 /// The top screen of the 3DS can have two separate sets of framebuffers to support its 3D functionality
+#[doc(alias = "gfx3dSide_t")]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[repr(u32)]
 pub enum Side {
     /// The left framebuffer. This framebuffer is also the one used when 3D is disabled
     Left = ctru_sys::GFX_LEFT,
@@ -215,6 +223,7 @@ impl Gfx {
     /// ```
     /// Gfx::with_formats(FramebufferFormat::Bgr8, FramebufferFormat::Bgr8, false)
     /// ```
+    #[doc(alias = "gfxInit")]
     pub fn new() -> Result<Self> {
         Gfx::with_formats(FramebufferFormat::Bgr8, FramebufferFormat::Bgr8, false)
     }
@@ -223,6 +232,7 @@ impl Gfx {
     /// screens
     ///
     /// Use `Gfx::new()` instead of this function to initialize the module with default parameters
+    #[doc(alias = "gfxInit")]
     pub fn with_formats(
         top_fb_fmt: FramebufferFormat,
         bottom_fb_fmt: FramebufferFormat,
@@ -269,6 +279,7 @@ impl TopScreen3D<'_> {
 }
 
 impl<'screen> From<&'screen RefCell<TopScreen>> for TopScreen3D<'screen> {
+    #[doc(alias = "gfxSet3D")]
     fn from(top_screen: &'screen RefCell<TopScreen>) -> Self {
         unsafe {
             ctru_sys::gfxSet3D(true);
@@ -298,6 +309,7 @@ impl TopScreen {
     ///
     /// [`Swap::swap_buffers`] must be called after this method for the configuration
     /// to take effect.
+    #[doc(alias = "gfxSetWide")]
     pub fn set_wide_mode(&mut self, enable: bool) {
         unsafe {
             ctru_sys::gfxSetWide(enable);
@@ -305,6 +317,7 @@ impl TopScreen {
     }
 
     /// Returns whether or not wide mode is enabled on the top screen.
+    #[doc(alias = "gfxIsWide")]
     pub fn is_wide(&self) -> bool {
         unsafe { ctru_sys::gfxIsWide() }
     }

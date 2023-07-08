@@ -54,6 +54,7 @@ pub struct Hid(());
 /// Since this service requires no special or elevated permissions, errors are
 /// rare in practice.
 impl Hid {
+    #[doc(alias = "hidInit")]
     pub fn new() -> crate::Result<Hid> {
         unsafe {
             ResultCode(ctru_sys::hidInit())?;
@@ -64,12 +65,14 @@ impl Hid {
     /// Scans the HID service for all user input occurring on the current
     /// frame. This function should be called on every frame when polling
     /// for user input.
+    #[doc(alias = "hidScanInput")]
     pub fn scan_input(&mut self) {
         unsafe { ctru_sys::hidScanInput() };
     }
 
     /// Returns a bitflag struct representing which buttons have just been pressed
     /// on the current frame (and were not pressed on the previous frame).
+    #[doc(alias = "hidKeysDown")]
     pub fn keys_down(&self) -> KeyPad {
         unsafe {
             let keys = ctru_sys::hidKeysDown();
@@ -79,6 +82,7 @@ impl Hid {
 
     /// Returns a bitflag struct representing which buttons have been held down
     /// during the current frame.
+    #[doc(alias = "hidKeysHeld")]
     pub fn keys_held(&self) -> KeyPad {
         unsafe {
             let keys = ctru_sys::hidKeysHeld();
@@ -88,6 +92,7 @@ impl Hid {
 
     /// Returns a bitflag struct representing which buttons have just been released on
     /// the current frame.
+    #[doc(alias = "hidKeysUp")]
     pub fn keys_up(&self) -> KeyPad {
         unsafe {
             let keys = ctru_sys::hidKeysUp();
@@ -100,6 +105,7 @@ impl Hid {
     /// # Notes
     ///
     /// (0, 0) represents the top left corner of the screen.
+    #[doc(alias = "hidTouchRead")]
     pub fn touch_position(&mut self) -> (u16, u16) {
         let mut res = ctru_sys::touchPosition { px: 0, py: 0 };
 
@@ -114,6 +120,7 @@ impl Hid {
     /// # Notes
     ///
     /// (0, 0) represents the center of the circle pad.
+    #[doc(alias = "hidCircleRead")]
     pub fn circlepad_position(&mut self) -> (i16, i16) {
         let mut res = ctru_sys::circlePosition { dx: 0, dy: 0 };
 
@@ -125,6 +132,7 @@ impl Hid {
 }
 
 impl Drop for Hid {
+    #[doc(alias = "hidExit")]
     fn drop(&mut self) {
         unsafe { ctru_sys::hidExit() };
     }

@@ -25,6 +25,7 @@ pub struct RomFS {
 static ROMFS_ACTIVE: Mutex<usize> = Mutex::new(0);
 
 impl RomFS {
+    #[doc(alias = "romfsMountSelf")]
     pub fn new() -> crate::Result<Self> {
         let _service_handler = ServiceReference::new(
             &ROMFS_ACTIVE,
@@ -42,6 +43,11 @@ impl RomFS {
 
         Ok(Self { _service_handler })
     }
+}
+
+impl Drop for RomFS {
+    #[doc(alias = "romfsUnmount")]
+    fn drop(&mut self) {}
 }
 
 #[cfg(test)]

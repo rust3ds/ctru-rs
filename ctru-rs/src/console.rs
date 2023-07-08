@@ -7,6 +7,7 @@ use crate::services::gfx::Screen;
 
 static mut EMPTY_CONSOLE: PrintConsole = unsafe { const_zero::const_zero!(PrintConsole) };
 
+#[doc(alias = "PrintConsole")]
 pub struct Console<'screen> {
     context: Box<PrintConsole>,
     _screen: RefMut<'screen, dyn Screen>,
@@ -20,6 +21,7 @@ impl<'screen> Console<'screen> {
     /// # Notes
     ///
     /// [`Console`] automatically takes care of flushing and swapping buffers for its screen when printing.
+    #[doc(alias = "consoleInit")]
     pub fn new(screen: RefMut<'screen, dyn Screen>) -> Self {
         let mut context = Box::<PrintConsole>::default();
 
@@ -45,6 +47,7 @@ impl<'screen> Console<'screen> {
     }
 
     /// Select this console as the current target for stdout
+    #[doc(alias = "consoleSelect")]
     pub fn select(&self) {
         unsafe {
             consoleSelect(self.context.as_ref() as *const _ as *mut _);
@@ -52,6 +55,7 @@ impl<'screen> Console<'screen> {
     }
 
     /// Clears all text from the console
+    #[doc(alias = "consoleClear")]
     pub fn clear(&self) {
         unsafe { consoleClear() }
     }
@@ -64,6 +68,7 @@ impl<'screen> Console<'screen> {
     /// # Safety
     /// This function is unsafe because it does not validate that the input will produce
     /// a console that actually fits on the screen
+    #[doc(alias = "consoleSetWindow")]
     pub unsafe fn set_window(&mut self, x: i32, y: i32, width: i32, height: i32) {
         consoleSetWindow(self.context.as_mut(), x, y, width, height);
     }

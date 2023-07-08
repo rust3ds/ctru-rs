@@ -39,6 +39,7 @@ bitflags! {
     }
 }
 
+#[doc(alias = "FS_MediaType")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum FsMediaType {
@@ -47,6 +48,7 @@ pub enum FsMediaType {
     GameCard = ctru_sys::MEDIATYPE_GAME_CARD,
 }
 
+#[doc(alias = "FS_PathType")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum PathType {
@@ -57,6 +59,7 @@ pub enum PathType {
     UTF16 = ctru_sys::PATH_UTF16,
 }
 
+#[doc(alias = "FS_ArchiveID")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum ArchiveID {
@@ -391,6 +394,7 @@ impl File {
     /// # Errors
     ///
     /// This function will return an error if the file is not opened for writing.
+    #[doc(alias = "FSFILE_SetSize")]
     pub fn set_len(&mut self, size: u64) -> IoResult<()> {
         unsafe {
             let r = ctru_sys::FSFILE_SetSize(self.handle, size);
@@ -426,6 +430,7 @@ impl File {
         }
     }
 
+    #[doc(alias = "FSFILE_Read")]
     fn read(&mut self, buf: &mut [u8]) -> IoResult<usize> {
         unsafe {
             let mut n_read = 0;
@@ -449,6 +454,7 @@ impl File {
         unsafe { read_to_end_uninitialized(self, buf) }
     }
 
+    #[doc(alias = "FSFILE_Write")]
     fn write(&mut self, buf: &[u8]) -> IoResult<usize> {
         unsafe {
             let mut n_written = 0;
@@ -576,6 +582,7 @@ impl OpenOptions {
     ///   to the `archive` method.
     /// * Filesystem-level errors (full disk, etc).
     /// * Invalid combinations of open options.
+    #[doc(alias = "FSUSER_OpenFile")]
     pub fn open<P: AsRef<Path>>(&mut self, path: P) -> IoResult<File> {
         self._open(path.as_ref(), self.open_flags())
     }
@@ -694,6 +701,7 @@ impl<'a> DirEntry<'a> {
 /// but is not limited to just these cases:
 ///
 /// * User lacks permissions to create directory at `path`
+#[doc(alias = "FSUSER_CreateDirectory")]
 pub fn create_dir<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<()> {
     unsafe {
         let path = to_utf16(path.as_ref());
@@ -720,6 +728,7 @@ pub fn create_dir<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<()> {
 ///
 /// * If any directory in the path specified by `path` does not already exist
 ///   and it could not be created otherwise.
+#[doc(alias = "FSUSER_CreateDirectory")]
 pub fn create_dir_all<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<()> {
     let path = path.as_ref();
     let mut dir = PathBuf::new();
@@ -756,6 +765,7 @@ pub fn metadata<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<Metadata> {
 ///
 /// * The user lacks permissions to remove the directory at the provided path.
 /// * The directory isn't empty.
+#[doc(alias = "FSUSER_DeleteDirectory")]
 pub fn remove_dir<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<()> {
     unsafe {
         let path = to_utf16(path.as_ref());
@@ -774,6 +784,7 @@ pub fn remove_dir<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<()> {
 /// # Errors
 ///
 /// see `file::remove_file` and `fs::remove_dir`
+#[doc(alias = "FSUSER_DeleteDirectoryRecursively")]
 pub fn remove_dir_all<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<()> {
     unsafe {
         let path = to_utf16(path.as_ref());
@@ -798,6 +809,7 @@ pub fn remove_dir_all<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<(
 /// * The provided path doesn't exist.
 /// * The process lacks permissions to view the contents.
 /// * The path points at a non-directory file.
+#[doc(alias = "FSUSER_OpenDirectory")]
 pub fn read_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<ReadDir> {
     unsafe {
         let mut handle = 0;
@@ -826,6 +838,7 @@ pub fn read_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<ReadDir> {
 ///
 /// * path points to a directory.
 /// * The user lacks permissions to remove the file.
+#[doc(alias = "FSUSER_DeleteFile")]
 pub fn remove_file<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<()> {
     unsafe {
         let path = to_utf16(path.as_ref());
@@ -849,6 +862,7 @@ pub fn remove_file<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<()> 
 ///
 /// * from does not exist.
 /// * The user lacks permissions to view contents.
+#[doc(alias = "FSUSER_RenameFile", alias = "FSUSER_RenameDirectory")]
 pub fn rename<P, Q>(arch: &mut Archive, from: P, to: Q) -> IoResult<()>
 where
     P: AsRef<Path>,
@@ -972,6 +986,7 @@ impl Seek for File {
 }
 
 impl Drop for Fs {
+    #[doc(alias = "fsExit")]
     fn drop(&mut self) {
         unsafe {
             ctru_sys::fsExit();
@@ -980,6 +995,7 @@ impl Drop for Fs {
 }
 
 impl Drop for Archive {
+    #[doc(alias = "FSUSER_CloseArchive")]
     fn drop(&mut self) {
         unsafe {
             let _ = ctru_sys::FSUSER_CloseArchive(self.handle);
@@ -988,6 +1004,7 @@ impl Drop for Archive {
 }
 
 impl Drop for File {
+    #[doc(alias = "FSFILE_Close")]
     fn drop(&mut self) {
         unsafe {
             let _ = ctru_sys::FSFILE_Close(self.handle);
@@ -996,6 +1013,7 @@ impl Drop for File {
 }
 
 impl Drop for Dir {
+    #[doc(alias = "FSDIR_Close")]
     fn drop(&mut self) {
         unsafe {
             let _ = ctru_sys::FSDIR_Close(self.0);

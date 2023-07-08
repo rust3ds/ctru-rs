@@ -1,5 +1,6 @@
 //! GSPGPU service
 
+#[doc(alias = "GSPGPU_Event")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum Event {
@@ -12,6 +13,7 @@ pub enum Event {
     DMA = ctru_sys::GSPGPU_EVENT_DMA,
 }
 
+#[doc(alias = "GSPGPU_FramebufferFormat")]
 /// Framebuffer formats supported by the 3DS
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
@@ -45,6 +47,7 @@ impl FramebufferFormat {
 /// Waits for a GSPGPU event to occur.
 ///
 /// `discard_current` determines whether to discard the current event and wait for the next event
+#[doc(alias = "gspWaitForEvent")]
 pub fn wait_for_event(ev: Event, discard_current: bool) {
     unsafe {
         ctru_sys::gspWaitForEvent(ev.into(), discard_current);

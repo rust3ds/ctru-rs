@@ -21,6 +21,7 @@ pub struct Cam {
 }
 
 /// Flag to pass to [`Camera::flip_image`]
+#[doc(alias = "CAMU_Flip")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum FlipMode {
@@ -31,6 +32,7 @@ pub enum FlipMode {
 }
 
 /// Flag to pass to [`Camera::set_view_size`]
+#[doc(alias = "CAMU_Size")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum ViewSize {
@@ -48,6 +50,7 @@ pub enum ViewSize {
 }
 
 /// Flag to pass to [`Camera::set_frame_rate`]
+#[doc(alias = "CAMU_FramRate")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum FrameRate {
@@ -68,6 +71,7 @@ pub enum FrameRate {
 
 /// Flag to pass to [`Camera::set_white_balance`] or
 /// [`Camera::set_white_balance_without_base_up`]
+#[doc(alias = "CAMU_WhiteBalance")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum WhiteBalance {
@@ -86,6 +90,7 @@ pub enum WhiteBalance {
 }
 
 /// Flag to pass to [`Camera::set_photo_mode`]
+#[doc(alias = "CAMU_PhotoMode")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum PhotoMode {
@@ -97,6 +102,7 @@ pub enum PhotoMode {
 }
 
 /// Flag to pass to [`Camera::set_effect`]
+#[doc(alias = "CAMU_Effect")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum Effect {
@@ -109,6 +115,7 @@ pub enum Effect {
 }
 
 /// Flag to pass to [`Camera::set_contrast`]
+#[doc(alias = "CAMU_Contrast")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum Contrast {
@@ -121,6 +128,7 @@ pub enum Contrast {
 }
 
 /// Flag to pass to [`Camera::set_lens_correction`]
+#[doc(alias = "CAMU_LensCorrection")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum LensCorrection {
@@ -130,6 +138,7 @@ pub enum LensCorrection {
 }
 
 /// Flag to pass to [`Camera::set_output_format`]
+#[doc(alias = "CAMU_OutputFormat")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum OutputFormat {
@@ -138,6 +147,7 @@ pub enum OutputFormat {
 }
 
 /// Flag to pass to [`Cam::play_shutter_sound`]
+#[doc(alias = "CAMU_ShutterSoundType")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum ShutterSound {
@@ -194,10 +204,12 @@ impl TrimmingParams {
 }
 
 /// Represents data used by the camera to calibrate image quality
+#[doc(alias = "CAMU_ImageQualityCalibrationData")]
 #[derive(Default, Clone, Copy, Debug)]
 pub struct ImageQualityCalibrationData(pub ctru_sys::CAMU_ImageQualityCalibrationData);
 
 /// Represents data used by the camera to calibrate image quality when using both outward cameras
+#[doc(alias = "CAMU_StereoCameraCalibrationData")]
 #[derive(Default, Clone, Copy, Debug)]
 pub struct StereoCameraCalibrationData(pub ctru_sys::CAMU_StereoCameraCalibrationData);
 
@@ -240,6 +252,7 @@ pub struct BothOutwardCam;
 impl BothOutwardCam {
     /// Sets whether to enable or disable synchronization
     /// of brightness for both left and right cameras
+    #[doc(alias = "CAMU_SetBrightnessSynchronization")]
     pub fn set_brightness_synchronization(
         &mut self,
         brightness_synchronization: bool,
@@ -274,6 +287,7 @@ pub trait Camera {
     }
 
     /// Returns true if the camera is busy (receiving data)
+    #[doc(alias = "CAMU_IsBusy")]
     fn is_busy(&self) -> crate::Result<bool> {
         unsafe {
             let mut is_busy = false;
@@ -284,6 +298,7 @@ pub trait Camera {
 
     /// Returns the maximum amount of transfer bytes based on the view size, trimming, and other
     /// modifications set to the camera
+    #[doc(alias = "CAMU_GetTransferBytes")]
     fn transfer_byte_count(&self) -> crate::Result<u32> {
         unsafe {
             let mut transfer_bytes = 0;
@@ -297,6 +312,7 @@ pub trait Camera {
 
     /// Sets whether or not the camera should trim the image based on parameters set by
     /// [`Camera::set_trimming_params`]
+    #[doc(alias = "CAMU_SetTrimming")]
     fn set_trimming(&mut self, enabled: bool) -> crate::Result<()> {
         unsafe {
             ResultCode(ctru_sys::CAMU_SetTrimming(self.port_as_raw(), enabled))?;
@@ -305,6 +321,7 @@ pub trait Camera {
     }
 
     /// Returns whether or not trimming is currently enabled for the camera
+    #[doc(alias = "CAMU_IsTrimming")]
     fn is_trimming_enabled(&self) -> crate::Result<bool> {
         unsafe {
             let mut trimming = false;
@@ -314,6 +331,7 @@ pub trait Camera {
     }
 
     /// Sets trimming parameters based on coordinates specified inside a [`TrimmingParams`]
+    #[doc(alias = "CAMU_SetTrimmingParams")]
     fn set_trimming_params(&mut self, params: TrimmingParams) -> crate::Result<()> {
         unsafe {
             ResultCode(ctru_sys::CAMU_SetTrimmingParams(
@@ -328,6 +346,7 @@ pub trait Camera {
     }
 
     /// Returns the [`TrimmingParams`] set
+    #[doc(alias = "CAMU_GetTrimmingParams")]
     fn trimming_params(&self) -> crate::Result<TrimmingParams> {
         unsafe {
             let mut x_start = 0;
@@ -354,6 +373,7 @@ pub trait Camera {
     /// Sets the trimming parameters revolving around the center of the image.
     /// The new width will be `trim_width / 2` to the left and right of the center.
     /// The new height will be `trim_height / 2` above and below the center.
+    #[doc(alias = "CAMU_SetTrimmingParamsCenter")]
     fn set_trimming_params_center(
         &mut self,
         trim_width: i16,
@@ -374,6 +394,7 @@ pub trait Camera {
     }
 
     /// Sets the exposure level of the camera
+    #[doc(alias = "CAMU_SetExposure")]
     fn set_exposure(&mut self, exposure: i8) -> crate::Result<()> {
         unsafe {
             ResultCode(ctru_sys::CAMU_SetExposure(self.camera_as_raw(), exposure))?;
@@ -382,6 +403,7 @@ pub trait Camera {
     }
 
     /// Sets the white balance mod of the camera based on the passed [`WhiteBalance`] argument
+    #[doc(alias = "CAMU_SetWhiteBalance")]
     fn set_white_balance(&mut self, white_balance: WhiteBalance) -> crate::Result<()> {
         unsafe {
             ResultCode(ctru_sys::CAMU_SetWhiteBalance(
@@ -394,6 +416,7 @@ pub trait Camera {
 
     /// Sets the white balance mode of the camera based on the passed [`WhiteBalance`] argument
     // TODO: Explain base up
+    #[doc(alias = "CAMU_SetWhiteBalanceWithoutBaseUp")]
     fn set_white_balance_without_base_up(
         &mut self,
         white_balance: WhiteBalance,
@@ -408,6 +431,7 @@ pub trait Camera {
     }
 
     /// Sets the sharpness of the camera
+    #[doc(alias = "CAMU_SetSharpness")]
     fn set_sharpness(&mut self, sharpness: i8) -> crate::Result<()> {
         unsafe {
             ResultCode(ctru_sys::CAMU_SetSharpness(self.camera_as_raw(), sharpness))?;
@@ -416,6 +440,7 @@ pub trait Camera {
     }
 
     /// Sets whether auto exposure is enabled or disabled for the camera
+    #[doc(alias = "CAMU_SetAutoExposure")]
     fn set_auto_exposure(&mut self, enabled: bool) -> crate::Result<()> {
         unsafe {
             ResultCode(ctru_sys::CAMU_SetAutoExposure(
@@ -427,6 +452,7 @@ pub trait Camera {
     }
 
     /// Returns true if auto exposure is enabled for the camera
+    #[doc(alias = "CAMU_IsAutoExposure")]
     fn is_auto_exposure_enabled(&self) -> crate::Result<bool> {
         unsafe {
             let mut enabled = false;
@@ -439,6 +465,7 @@ pub trait Camera {
     }
 
     /// Sets whether auto white balance is enabled or disabled for the camera
+    #[doc(alias = "CAMU_SetAutoWhiteBalance")]
     fn set_auto_white_balance(&mut self, enabled: bool) -> crate::Result<()> {
         unsafe {
             ResultCode(ctru_sys::CAMU_SetAutoWhiteBalance(
@@ -450,6 +477,7 @@ pub trait Camera {
     }
 
     /// Returns true if auto white balance is enabled for the camera
+    #[doc(alias = "CAMU_IsAutoWhiteBalance")]
     fn is_auto_white_balance_enabled(&self) -> crate::Result<bool> {
         unsafe {
             let mut enabled = false;
@@ -462,6 +490,7 @@ pub trait Camera {
     }
 
     /// Sets the flip direction of the camera's image based on the passed [`FlipMode`] argument
+    #[doc(alias = "CAMU_FlipImage")]
     fn flip_image(&mut self, flip: FlipMode) -> crate::Result<()> {
         unsafe {
             ResultCode(ctru_sys::CAMU_FlipImage(
@@ -485,6 +514,7 @@ pub trait Camera {
     /// * `height` - height of the image
     /// * `crop_0` - The first crop point in which the image will be trimmed
     /// * `crop_0` - The second crop point in which the image will be trimmed
+    #[doc(alias = "CAMU_SetDetailSize")]
     fn set_detail_size(
         &mut self,
         width: i16,
@@ -508,6 +538,7 @@ pub trait Camera {
     }
 
     /// Sets the view size of the camera based on the passed [`ViewSize`] argument.
+    #[doc(alias = "CAMU_SetSize")]
     fn set_view_size(&mut self, size: ViewSize) -> crate::Result<()> {
         unsafe {
             ResultCode(ctru_sys::CAMU_SetSize(
@@ -520,6 +551,7 @@ pub trait Camera {
     }
 
     /// Sets the frame rate of the camera based on the passed [`FrameRate`] argument.
+    #[doc(alias = "CAMU_SetFrameRate")]
     fn set_frame_rate(&mut self, frame_rate: FrameRate) -> crate::Result<()> {
         unsafe {
             ResultCode(ctru_sys::CAMU_SetFrameRate(
@@ -531,6 +563,7 @@ pub trait Camera {
     }
 
     /// Sets the photo mode of the camera based on the passed [`PhotoMode`] argument.
+    #[doc(alias = "CAMU_SetPhotoMode")]
     fn set_photo_mode(&mut self, photo_mode: PhotoMode) -> crate::Result<()> {
         unsafe {
             ResultCode(ctru_sys::CAMU_SetPhotoMode(
@@ -544,6 +577,7 @@ pub trait Camera {
     /// Sets the effect of the camera based on the passed [`Effect`] argument.
     ///
     /// Multiple effects can be set at once by combining the bitflags of [`Effect`]
+    #[doc(alias = "CAMU_SetEffect")]
     fn set_effect(&mut self, effect: Effect) -> crate::Result<()> {
         unsafe {
             ResultCode(ctru_sys::CAMU_SetEffect(
@@ -556,6 +590,7 @@ pub trait Camera {
     }
 
     /// Sets the contrast of the camera based on the passed [`Contrast`] argument.
+    #[doc(alias = "CAMU_SetContrast")]
     fn set_contrast(&mut self, contrast: Contrast) -> crate::Result<()> {
         unsafe {
             ResultCode(ctru_sys::CAMU_SetContrast(
@@ -567,6 +602,7 @@ pub trait Camera {
     }
 
     /// Sets the lens correction of the camera based on the passed [`LensCorrection`] argument.
+    #[doc(alias = "CAMU_SetLensCorrection")]
     fn set_lens_correction(&mut self, lens_correction: LensCorrection) -> crate::Result<()> {
         unsafe {
             ResultCode(ctru_sys::CAMU_SetLensCorrection(
@@ -578,6 +614,7 @@ pub trait Camera {
     }
 
     /// Sets the output format of the camera based on the passed [`OutputFormat`] argument.
+    #[doc(alias = "CAMU_SetOutputFormat")]
     fn set_output_format(&mut self, format: OutputFormat) -> crate::Result<()> {
         unsafe {
             ResultCode(ctru_sys::CAMU_SetOutputFormat(
@@ -597,6 +634,7 @@ pub trait Camera {
     /// * `y` - Starting y coordinate of the window
     /// * `width` - Width of the window
     /// * `height` - Height of the window
+    #[doc(alias = "CAMU_SetAutoExposureWindow")]
     fn set_auto_exposure_window(
         &mut self,
         x: i16,
@@ -624,6 +662,7 @@ pub trait Camera {
     /// * `y` - Starting y coordinate of the window
     /// * `width` - Width of the window
     /// * `height` - Height of the window
+    #[doc(alias = "CAMU_SetAutoWhiteBalanceWindow")]
     fn set_auto_white_balance_window(
         &mut self,
         x: i16,
@@ -644,6 +683,7 @@ pub trait Camera {
     }
 
     /// Sets whether the noise filter should be enabled or disabled for the camera
+    #[doc(alias = "CAMU_SetNoiseFilter")]
     fn set_noise_filter(&mut self, enabled: bool) -> crate::Result<()> {
         unsafe {
             ResultCode(ctru_sys::CAMU_SetNoiseFilter(self.camera_as_raw(), enabled))?;
@@ -653,6 +693,7 @@ pub trait Camera {
 
     /// Sets the image quality calibration data for the camera based on the passed in
     /// [`ImageQualityCalibrationData`] argument
+    #[doc(alias = "CAMU_SetImageQualityCalibrationData")]
     fn set_image_quality_calibration_data(
         &mut self,
         data: ImageQualityCalibrationData,
@@ -664,6 +705,7 @@ pub trait Camera {
     }
 
     /// Returns the current [`ImageQualityCalibrationData`] for the camera
+    #[doc(alias = "CAMU_GetImageQualityCalibrationData")]
     fn image_quality_calibration_data(&self) -> crate::Result<ImageQualityCalibrationData> {
         unsafe {
             let mut data = ImageQualityCalibrationData::default();
@@ -674,6 +716,7 @@ pub trait Camera {
 
     /// Sets the camera as the current sleep camera
     // TODO: Explain sleep camera
+    #[doc(alias = "CAMU_SetSleepCamera")]
     fn set_sleep_camera(&mut self) -> crate::Result<()> {
         unsafe {
             ResultCode(ctru_sys::CAMU_SetSleepCamera(self.camera_as_raw()))?;
@@ -771,6 +814,7 @@ impl Cam {
     /// This function will return an error if the service was unable to be initialized.
     /// Since this service requires no special or elevated permissions, errors are
     /// rare in practice.
+    #[doc(alias = "camInit")]
     pub fn new() -> crate::Result<Cam> {
         unsafe {
             ResultCode(ctru_sys::camInit())?;
@@ -784,6 +828,7 @@ impl Cam {
     }
 
     /// Plays the specified sound based on the [`ShutterSound`] argument
+    #[doc(alias = "CAMU_PlayShutterSound")]
     pub fn play_shutter_sound(&self, sound: ShutterSound) -> crate::Result<()> {
         unsafe {
             ResultCode(ctru_sys::CAMU_PlayShutterSound(sound.into()))?;
@@ -793,6 +838,7 @@ impl Cam {
 }
 
 impl Drop for Cam {
+    #[doc(alias = "camExit")]
     fn drop(&mut self) {
         unsafe { ctru_sys::camExit() };
     }

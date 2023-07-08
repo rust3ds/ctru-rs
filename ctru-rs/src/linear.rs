@@ -22,12 +22,14 @@ pub struct LinearAllocator;
 
 impl LinearAllocator {
     /// Returns the amount of free space left in the LINEAR sector
+    #[doc(alias = "linearSpaceFree")]
     pub fn free_space() -> u32 {
         unsafe { ctru_sys::linearSpaceFree() }
     }
 }
 
 unsafe impl Allocator for LinearAllocator {
+    #[doc(alias = "linearAlloc", alias = "linearMemAlign")]
     fn allocate(&self, layout: Layout) -> Result<NonNull<[u8]>, AllocError> {
         let pointer = unsafe { ctru_sys::linearMemAlign(layout.size(), layout.align()) };
 
@@ -36,6 +38,7 @@ unsafe impl Allocator for LinearAllocator {
             .ok_or(AllocError)
     }
 
+    #[doc(alias = "linearFree")]
     unsafe fn deallocate(&self, ptr: NonNull<u8>, _layout: Layout) {
         ctru_sys::linearFree(ptr.as_ptr().cast());
     }
