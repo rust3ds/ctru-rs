@@ -14,19 +14,19 @@ pub struct Swkbd {
 }
 
 /// The kind of keyboard to be initialized.
-///
-/// Normal is the full keyboard with several pages (QWERTY/accents/symbol/mobile)
-/// Qwerty is a QWERTY-only keyboard.
-/// Numpad is a number pad.
-/// Western is a text keyboard without japanese symbols (only applies to JPN systems). For other
-/// systems it's the same as a Normal keyboard.
 #[doc(alias = "SwkbdType")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum Kind {
+    /// Normal keyboard composed of several pages (QWERTY, accents, symbols, mobile).
     Normal = ctru_sys::SWKBD_TYPE_NORMAL,
+    /// Only QWERTY keyboard.
     Qwerty = ctru_sys::SWKBD_TYPE_QWERTY,
+    /// Only number pad.
     Numpad = ctru_sys::SWKBD_TYPE_NUMPAD,
+    /// On JPN systems: a keyboard without japanese input capablities.
+    ///
+    /// On any other region: same as [`Normal`](Kind::Normal).
     Western = ctru_sys::SWKBD_TYPE_WESTERN,
 }
 
@@ -35,8 +35,11 @@ pub enum Kind {
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum Button {
+    /// Left button. Usually corresponds to "Cancel".
     Left = ctru_sys::SWKBD_BUTTON_LEFT,
+    /// Middle button. Usually corresponds to "I Forgot".
     Middle = ctru_sys::SWKBD_BUTTON_MIDDLE,
+    /// Right button. Usually corresponds to "OK".
     Right = ctru_sys::SWKBD_BUTTON_RIGHT,
 }
 
@@ -45,49 +48,77 @@ pub enum Button {
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(i32)]
 pub enum Error {
+    /// Invalid parameters inputted in the Software Keyboard.
     InvalidInput = ctru_sys::SWKBD_INVALID_INPUT,
+    /// Out of memory.
     OutOfMem = ctru_sys::SWKBD_OUTOFMEM,
+    /// Home button was pressed during execution.
     HomePressed = ctru_sys::SWKBD_HOMEPRESSED,
+    /// Reset button was pressed during execution.
     ResetPressed = ctru_sys::SWKBD_RESETPRESSED,
+    /// Power button was pressed during execution.
     PowerPressed = ctru_sys::SWKBD_POWERPRESSED,
+    /// The parental PIN was correct.
     ParentalOk = ctru_sys::SWKBD_PARENTAL_OK,
+    /// The parental PIN was incorrect.
     ParentalFail = ctru_sys::SWKBD_PARENTAL_FAIL,
+    /// Input triggered the filter.
     BannedInput = ctru_sys::SWKBD_BANNED_INPUT,
 }
 
-/// Restrictions on keyboard input
+/// Restrictions on keyboard input.
 #[doc(alias = "SwkbdValidInput")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum ValidInput {
+    /// All inputs are accepted.
     Anything = ctru_sys::SWKBD_ANYTHING,
+    /// Empty inputs are not accepted.
     NotEmpty = ctru_sys::SWKBD_NOTEMPTY,
-    NotEmptyNotBlank = ctru_sys::SWKBD_NOTEMPTY_NOTBLANK,
+    /// Blank (consisting only of whitespaces) inputs are not accepted.
     NotBlank = ctru_sys::SWKBD_NOTBLANK,
+    /// Neither empty inputs nor blank inputs are accepted.
+    NotEmptyNotBlank = ctru_sys::SWKBD_NOTEMPTY_NOTBLANK,
+    /// Input must have a fixed length. Maximum length can be specified with [`Swkbd::set_max_text_len`];
     FixedLen = ctru_sys::SWKBD_FIXEDLEN,
 }
 
 bitflags! {
-    /// Keyboard feature flags
+    /// Keyboard feature flags.
     pub struct Features: u32 {
+        /// Parental PIN mode.
         const PARENTAL_PIN      = ctru_sys::SWKBD_PARENTAL;
+        /// Darken top screen while the Software Keyboard is active.
         const DARKEN_TOP_SCREEN  = ctru_sys::SWKBD_DARKEN_TOP_SCREEN;
+        /// Enable predictive input (necessary for Kanji on JPN consoles).
         const PREDICTIVE_INPUT  = ctru_sys::SWKBD_PREDICTIVE_INPUT;
+        /// Enable multiline input.
         const MULTILINE        = ctru_sys::SWKBD_MULTILINE;
+        /// Enable fixed-width mode.
         const FIXED_WIDTH       = ctru_sys::SWKBD_FIXED_WIDTH;
+        /// Allow the usage of the Home Button while the Software Keyboard is active.
         const ALLOW_HOME        = ctru_sys::SWKBD_ALLOW_HOME;
+        /// Allow the usage of the Reset Button while the Software Keyboard is active.
         const ALLOW_RESET       = ctru_sys::SWKBD_ALLOW_RESET;
+        /// Allow the usage of the Power Button while the Software Keyboard is active.
         const ALLOW_POWER       = ctru_sys::SWKBD_ALLOW_POWER;
+        /// Default to the QWERTY page when the Software Keyboard is shown.
         const DEFAULT_QWERTY    = ctru_sys::SWKBD_DEFAULT_QWERTY;
     }
 
     /// Keyboard input filtering flags
     pub struct Filters: u32 {
+        /// Disallows the usage of numerical digits.
         const DIGITS    = ctru_sys::SWKBD_FILTER_DIGITS;
+        /// Disallows the usage of the "at" (@) sign.
         const AT        = ctru_sys::SWKBD_FILTER_AT;
+        /// Disallows the usage of the "percent" (%) sign.
         const PERCENT   = ctru_sys::SWKBD_FILTER_PERCENT;
+        /// Disallows the usage of the "backslash" (\) sign.
         const BACKSLASH = ctru_sys::SWKBD_FILTER_BACKSLASH;
+        /// Disallows the use of profanity via Nintendo's profanity filter.
         const PROFANITY = ctru_sys::SWKBD_FILTER_PROFANITY;
+        /// Use a custom callback in order to filter the input.
         const CALLBACK  = ctru_sys::SWKBD_FILTER_CALLBACK;
     }
 }

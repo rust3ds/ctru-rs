@@ -1,20 +1,28 @@
 //! GSPGPU service
 
+/// GSPGPU events that can be awaited.
 #[doc(alias = "GSPGPU_Event")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum Event {
+    /// Memory fill completed.
     Psc0 = ctru_sys::GSPGPU_EVENT_PSC0,
+    /// TODO: Unknown.
     Psc1 = ctru_sys::GSPGPU_EVENT_PSC1,
+    /// TODO: Unknown.
     VBlank0 = ctru_sys::GSPGPU_EVENT_VBlank0,
+    /// TODO: Unknown.
     VBlank1 = ctru_sys::GSPGPU_EVENT_VBlank1,
+    /// Display transfer finished.
     PPF = ctru_sys::GSPGPU_EVENT_PPF,
+    /// Command list processing finished.
     P3D = ctru_sys::GSPGPU_EVENT_P3D,
+    /// TODO: Unknown.
     DMA = ctru_sys::GSPGPU_EVENT_DMA,
 }
 
 #[doc(alias = "GSPGPU_FramebufferFormat")]
-/// Framebuffer formats supported by the 3DS
+/// Framebuffer formats supported by the 3DS.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum FramebufferFormat {

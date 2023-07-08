@@ -14,9 +14,13 @@ use std::time::Duration;
 /// This service requires no special permissions to use.
 #[non_exhaustive]
 pub struct Cam {
+    /// Inside-facing camera.
     pub inner_cam: InwardCam,
+    /// Outside-facing right camera.
     pub outer_right_cam: OutwardRightCam,
+    /// Outside-facing left camera.
     pub outer_left_cam: OutwardLeftCam,
+    /// Both outside-facing cameras (mainly used for 3D photos).
     pub both_outer_cams: BothOutwardCam,
 }
 
@@ -25,9 +29,13 @@ pub struct Cam {
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum FlipMode {
+    /// No flip applied.
     None = ctru_sys::FLIP_NONE,
+    /// Horizontal flip applied.
     Horizontal = ctru_sys::FLIP_HORIZONTAL,
+    /// Vertical flip applied.
     Vertical = ctru_sys::FLIP_VERTICAL,
+    /// Both vertical and horizontal flip applied.
     Reverse = ctru_sys::FLIP_REVERSE,
 }
 
@@ -36,16 +44,25 @@ pub enum FlipMode {
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum ViewSize {
+    /// Size of the 3DS' top screen. (400 × 240)
+    ///
+    /// Useful if the image is meant to be displayed immediately.
     TopLCD = ctru_sys::SIZE_CTR_TOP_LCD,
-    /// Equivalent to QVga
+    /// Size of the 3DS' bottom screen. (320 × 240)
+    ///
+    /// Equivalent to QVga.
     BottomLCD = ctru_sys::SIZE_CTR_BOTTOM_LCD,
+    /// VGA display size. (640 × 480)
     Vga = ctru_sys::SIZE_VGA,
+    /// QQVGA display size. (160 × 120)
     QQVga = ctru_sys::SIZE_QQVGA,
+    /// CIF display size. (352 × 288)
     Cif = ctru_sys::SIZE_CIF,
+    /// QCIF display size. (176 × 144)
     QCif = ctru_sys::SIZE_QCIF,
-    /// Nintendo DS Screen
+    /// Nintendo DS Screen size. (256 × 192)
     DS = ctru_sys::SIZE_DS_LCD,
-    /// Nintendo DS Screen x4
+    /// Nintendo DS Screen size x4. (512 × 384)
     DSX4 = ctru_sys::SIZE_DS_LCDx4,
 }
 
@@ -54,18 +71,31 @@ pub enum ViewSize {
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum FrameRate {
+    /// 15 FPS.
     Fps15 = ctru_sys::FRAME_RATE_15,
+    /// 15 to 5 FPS.
     Fps15To5 = ctru_sys::FRAME_RATE_15_TO_5,
+    /// 15 to 2 FPS.
     Fps15To2 = ctru_sys::FRAME_RATE_15_TO_2,
+    /// 10 FPS.
     Fps10 = ctru_sys::FRAME_RATE_10,
+    /// 8.5 FPS.
     Fps8_5 = ctru_sys::FRAME_RATE_8_5,
+    /// 5 FPS.
     Fps5 = ctru_sys::FRAME_RATE_5,
+    /// 20 FPS.
     Fps20 = ctru_sys::FRAME_RATE_20,
+    /// 20 to 5 FPS.
     Fps20To5 = ctru_sys::FRAME_RATE_20_TO_5,
+    /// 30 FPS.
     Fps30 = ctru_sys::FRAME_RATE_30,
+    /// 30 to 5 FPS.
     Fps30To5 = ctru_sys::FRAME_RATE_30_TO_5,
+    /// 15 to 10 FPS.
     Fps15To10 = ctru_sys::FRAME_RATE_15_TO_10,
+    /// 20 to 10 FPS.
     Fps20To10 = ctru_sys::FRAME_RATE_20_TO_10,
+    /// 30 to 10 FPS.
     Fps30To10 = ctru_sys::FRAME_RATE_30_TO_10,
 }
 
@@ -85,7 +115,7 @@ pub enum WhiteBalance {
     Temp5200K = ctru_sys::WHITE_BALANCE_5200K,
     /// Cloudy/Horizon
     Temp6000K = ctru_sys::WHITE_BALANCE_6000K,
-    ///Shade
+    /// Shade
     Temp7000K = ctru_sys::WHITE_BALANCE_7000K,
 }
 
@@ -94,10 +124,15 @@ pub enum WhiteBalance {
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum PhotoMode {
+    /// Normal mode.
     Normal = ctru_sys::PHOTO_MODE_NORMAL,
+    /// Portrait mode.
     Portrait = ctru_sys::PHOTO_MODE_PORTRAIT,
+    /// Landscape mode.
     Landscape = ctru_sys::PHOTO_MODE_LANDSCAPE,
+    /// NightView mode.
     NightView = ctru_sys::PHOTO_MODE_NIGHTVIEW,
+    /// Letter mode.
     Letter = ctru_sys::PHOTO_MODE_LETTER,
 }
 
@@ -106,11 +141,17 @@ pub enum PhotoMode {
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum Effect {
+    /// No effects.
     None = ctru_sys::EFFECT_NONE,
+    /// Mono effect.
     Mono = ctru_sys::EFFECT_MONO,
+    /// Sepia effect.
     Sepia = ctru_sys::EFFECT_SEPIA,
+    /// Negative effect.
     Negative = ctru_sys::EFFECT_NEGATIVE,
+    /// Negative film effect.
     Negafilm = ctru_sys::EFFECT_NEGAFILM,
+    /// Sepia effect. (unknown difference)
     Sepia01 = ctru_sys::EFFECT_SEPIA01,
 }
 
@@ -119,11 +160,11 @@ pub enum Effect {
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum Contrast {
-    /// OFF
+    /// Low contrast.
     Low = ctru_sys::CONTRAST_LOW,
-    /// Brightness ratio: 70
+    /// Brightness ratio: 70.
     Normal = ctru_sys::CONTRAST_NORMAL,
-    /// Brightness ratio: 90
+    /// Brightness ratio: 90.
     High = ctru_sys::CONTRAST_HIGH,
 }
 
@@ -132,8 +173,11 @@ pub enum Contrast {
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum LensCorrection {
+    /// No lens correction.
     Off = ctru_sys::LENS_CORRECTION_DARK,
+    /// Normal lens correction.
     Normal = ctru_sys::LENS_CORRECTION_NORMAL,
+    /// Bright lens correction.
     Bright = ctru_sys::LENS_CORRECTION_BRIGHT,
 }
 
@@ -142,7 +186,9 @@ pub enum LensCorrection {
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum OutputFormat {
+    /// YUV422 output format. 16 bits per pixel.
     Yuv422 = ctru_sys::OUTPUT_YUV_422,
+    /// RGB565 output format. 16 bits per pixel.
     Rgb565 = ctru_sys::OUTPUT_RGB_565,
 }
 
@@ -151,8 +197,11 @@ pub enum OutputFormat {
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum ShutterSound {
+    /// Normal shutter sound.
     Normal = ctru_sys::SHUTTER_SOUND_TYPE_NORMAL,
+    /// Shutter sound to begin a movie recording.
     Movie = ctru_sys::SHUTTER_SOUND_TYPE_MOVIE,
+    /// Shutter sound to finish a movie recording.
     MovieEnd = ctru_sys::SHUTTER_SOUND_TYPE_MOVIE_END,
 }
 

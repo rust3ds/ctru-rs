@@ -15,9 +15,13 @@ pub struct Wave {
 #[repr(u8)]
 /// Enum representing the playback status of a [`Wave`].
 pub enum WaveStatus {
+    /// Wave has never been used.
     Free = ctru_sys::NDSP_WBUF_FREE as u8,
+    /// Wave is currently queued for usage.
     Queued = ctru_sys::NDSP_WBUF_QUEUED as u8,
+    /// Wave is currently playing.
     Playing = ctru_sys::NDSP_WBUF_PLAYING as u8,
+    /// Wave has finished playing.
     Done = ctru_sys::NDSP_WBUF_DONE as u8,
 }
 

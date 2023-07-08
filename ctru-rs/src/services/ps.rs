@@ -6,31 +6,49 @@
 use crate::error::ResultCode;
 use crate::Result;
 
+/// Kind of AES algorithm to use.
 #[doc(alias = "PS_AESAlgorithm")]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u32)]
 pub enum AESAlgorithm {
+    /// CBC encryption.
     CbcEnc = ctru_sys::PS_ALGORITHM_CBC_ENC,
+    /// CBC decryption.
     CbcDec = ctru_sys::PS_ALGORITHM_CBC_DEC,
+    /// CTR encryption.
     CtrEnc = ctru_sys::PS_ALGORITHM_CTR_ENC,
+    /// CTR decryption.
     CtrDec = ctru_sys::PS_ALGORITHM_CTR_DEC,
+    /// CCM encryption.
     CcmEnc = ctru_sys::PS_ALGORITHM_CCM_ENC,
+    /// CCM decryption.
     CcmDec = ctru_sys::PS_ALGORITHM_CCM_DEC,
 }
 
+/// PS Key slot to use.
 #[doc(alias = "PS_AESKeyType")]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u32)]
 pub enum AESKeyType {
+    /// Keyslot 0x0D.
     Keyslot0D = ctru_sys::PS_KEYSLOT_0D,
+    /// Keyslot 0x2D.
     Keyslot2D = ctru_sys::PS_KEYSLOT_2D,
+    /// Keyslot 0x2E.
     Keyslot2E = ctru_sys::PS_KEYSLOT_2E,
+    /// Keyslot 0x31.
     Keyslot31 = ctru_sys::PS_KEYSLOT_31,
+    /// Keyslot 0x32.
     Keyslot32 = ctru_sys::PS_KEYSLOT_32,
+    /// Keyslot 0x36.
     Keyslot36 = ctru_sys::PS_KEYSLOT_36,
+    /// Keyslot 0x38.
     Keyslot38 = ctru_sys::PS_KEYSLOT_38,
+    /// Keyslot 0x39 (DLP).
     Keyslot39Dlp = ctru_sys::PS_KEYSLOT_39_DLP,
+    /// Keyslot 0x39 (NFC).
     Keyslot39Nfc = ctru_sys::PS_KEYSLOT_39_NFC,
+    /// Invalid keyslot.
     KeyslotInvalid = ctru_sys::PS_KEYSLOT_INVALID,
 }
 

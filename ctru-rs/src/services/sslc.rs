@@ -4,6 +4,7 @@
 
 use crate::error::ResultCode;
 
+/// Handle to the SSLC service.
 pub struct SslC(());
 
 impl SslC {

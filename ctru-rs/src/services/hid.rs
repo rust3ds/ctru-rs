@@ -9,33 +9,62 @@ bitflags::bitflags! {
     /// A set of flags corresponding to the button and directional pad
     /// inputs on the 3DS
     pub struct KeyPad: u32 {
+        /// A button.
         const A             = ctru_sys::KEY_A;
+        /// B button.
         const B             = ctru_sys::KEY_B;
+        /// Select button.
         const SELECT        = ctru_sys::KEY_SELECT;
+        /// Start button.
         const START         = ctru_sys::KEY_START;
+        /// D-Pad Right.
         const DPAD_RIGHT        = ctru_sys::KEY_DRIGHT;
+        /// D-Pad Left.
         const DPAD_LEFT         = ctru_sys::KEY_DLEFT;
+        /// D-Pad Up.
         const DPAD_UP           = ctru_sys::KEY_DUP;
+        /// D-Pad Down.
         const DPAD_DOWN         = ctru_sys::KEY_DDOWN;
+        /// R button.
         const R             = ctru_sys::KEY_R;
+        /// L button.
         const L             = ctru_sys::KEY_L;
+        /// X button.
         const X             = ctru_sys::KEY_X;
+        /// Y button.
         const Y             = ctru_sys::KEY_Y;
+        /// ZL button.
         const ZL            = ctru_sys::KEY_ZL;
+        /// ZR button.
         const ZR            = ctru_sys::KEY_ZR;
+        /// Touchscreen.
         const TOUCH         = ctru_sys::KEY_TOUCH;
+        /// C-Stick Right.
         const CSTICK_RIGHT  = ctru_sys::KEY_CSTICK_RIGHT;
+        /// C-Stick Left.
         const CSTICK_LEFT   = ctru_sys::KEY_CSTICK_LEFT;
+        /// C-Stick Up.
         const CSTICK_UP     = ctru_sys::KEY_CSTICK_UP;
+        /// C-Stick Down.
         const CSTICK_DOWN   = ctru_sys::KEY_CSTICK_DOWN;
+        /// CirclePad Right.
         const CPAD_RIGHT    = ctru_sys::KEY_CPAD_RIGHT;
+        /// CirclePad Left.
         const CPAD_LEFT     = ctru_sys::KEY_CPAD_LEFT;
+        /// CirclePad Up.
         const CPAD_UP       = ctru_sys::KEY_CPAD_UP;
+        /// CirclePad Down.
         const CPAD_DOWN     = ctru_sys::KEY_CPAD_DOWN;
-        // Convenience catch-all for the dpad and cpad
+
+        // Convenience catch-all for the D-Pad and the C-Pad
+
+        /// Direction Up (either D-Pad or C-Pad).
         const UP    = KeyPad::DPAD_UP.bits()    | KeyPad::CPAD_UP.bits();
+        /// Direction Down (either D-Pad or C-Pad).
         const DOWN  = KeyPad::DPAD_DOWN.bits()  | KeyPad::CPAD_DOWN.bits();
+        /// Direction Left (either D-Pad or C-Pad).
         const LEFT  = KeyPad::DPAD_LEFT.bits()  | KeyPad::CPAD_LEFT.bits();
+        /// Direction Right (either D-Pad or C-Pad)..
         const RIGHT = KeyPad::DPAD_RIGHT.bits() | KeyPad::CPAD_RIGHT.bits();
     }
 }

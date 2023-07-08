@@ -62,9 +62,9 @@ impl<'a> Title<'a> {
     /// Returns the size of this title in bytes.
     pub fn size(&self) -> crate::Result<u64> {
         // Get the internal entry, or fill it if empty.
-        let entry = self.entry.get_or_try_init(|| -> crate::Result<ctru_sys::AM_TitleEntry> {
-            self.title_info()
-        })?;
+        let entry = self
+            .entry
+            .get_or_try_init(|| -> crate::Result<ctru_sys::AM_TitleEntry> { self.title_info() })?;
 
         Ok(entry.size)
     }
@@ -72,9 +72,9 @@ impl<'a> Title<'a> {
     /// Returns the installed version of this title.
     pub fn version(&self) -> crate::Result<u16> {
         // Get the internal entry, or fill it if empty.
-        let entry = self.entry.get_or_try_init(|| -> crate::Result<ctru_sys::AM_TitleEntry> {
-            self.title_info()
-        })?;
+        let entry = self
+            .entry
+            .get_or_try_init(|| -> crate::Result<ctru_sys::AM_TitleEntry> { self.title_info() })?;
 
         Ok(entry.version)
     }

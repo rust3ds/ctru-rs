@@ -6,18 +6,26 @@ use crate::mii::MiiData;
 use bitflags::bitflags;
 use std::ffi::CString;
 
-/// Index of a Mii used to configure some parameters of the Mii Selector
-/// Can be either a single index, or _all_ Miis
+/// Index of a Mii used to configure some parameters of the Mii Selector.
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub enum Index {
+    /// Specific Mii index.
     Index(u32),
+    /// All Miis.
     All,
 }
 
 /// The type of a Mii with their respective data
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum MiiType {
-    Guest { index: u32, name: String },
+    /// Guest Mii.
+    Guest {
+        /// Guest Mii index.
+        index: u32,
+        /// Guest Mii name.
+        name: String,
+    },
+    /// User-made Mii.
     User,
 }
 
@@ -56,7 +64,9 @@ pub struct MiiSelector {
 #[non_exhaustive]
 #[derive(Clone, Debug)]
 pub struct SelectionResult {
+    /// Data regarding the selected Mii.
     pub mii_data: MiiData,
+    /// Type of the selected Mii.
     pub mii_type: MiiType,
 }
 

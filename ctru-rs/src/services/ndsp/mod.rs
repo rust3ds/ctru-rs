@@ -14,21 +14,30 @@ use std::sync::Mutex;
 
 const NUMBER_OF_CHANNELS: u8 = 24;
 
+/// Audio output mode.
 #[doc(alias = "ndspOutputMode")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum OutputMode {
+    /// Single-Channel.
     Mono = ctru_sys::NDSP_OUTPUT_MONO,
+    /// Dual-Channel.
     Stereo = ctru_sys::NDSP_OUTPUT_STEREO,
+    /// Surround.
     Surround = ctru_sys::NDSP_OUTPUT_SURROUND,
 }
 
+/// Audio PCM format.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum AudioFormat {
+    /// PCM 8bit single-channel.
     PCM8Mono = ctru_sys::NDSP_FORMAT_MONO_PCM8,
+    /// PCM 16bit single-channel.
     PCM16Mono = ctru_sys::NDSP_FORMAT_MONO_PCM16,
+    /// PCM 8bit dual-channel.
     PCM8Stereo = ctru_sys::NDSP_FORMAT_STEREO_PCM8,
+    /// PCM 16bit dual-channel.
     PCM16Stereo = ctru_sys::NDSP_FORMAT_STEREO_PCM16,
 }
 
@@ -38,15 +47,20 @@ pub struct AudioMix {
     raw: [f32; 12],
 }
 
+/// Interpolation used between audio frames.
 #[doc(alias = "ndspInterpType")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum InterpolationType {
+    /// Polyphase interpolation.
     Polyphase = ctru_sys::NDSP_INTERP_POLYPHASE,
+    /// Linear interpolation.
     Linear = ctru_sys::NDSP_INTERP_LINEAR,
+    /// No interpolation.
     None = ctru_sys::NDSP_INTERP_NONE,
 }
 
+/// Error enum returned by NDSP methods.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum NdspError {
     /// Channel ID

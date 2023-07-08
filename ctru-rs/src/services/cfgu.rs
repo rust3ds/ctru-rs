@@ -4,46 +4,74 @@
 
 use crate::error::ResultCode;
 
+/// Console's region.
 #[doc(alias = "CFG_Region")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum Region {
+    /// Japan.
     Japan = ctru_sys::CFG_REGION_JPN,
+    /// USA.
     USA = ctru_sys::CFG_REGION_USA,
+    /// Europe.
     Europe = ctru_sys::CFG_REGION_EUR,
+    /// Australia.
     Australia = ctru_sys::CFG_REGION_AUS,
+    /// China.
     China = ctru_sys::CFG_REGION_CHN,
+    /// Korea.
     Korea = ctru_sys::CFG_REGION_KOR,
+    /// Taiwan.
     Taiwan = ctru_sys::CFG_REGION_TWN,
 }
 
+/// Language set for the console's OS.
 #[doc(alias = "CFG_Language")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum Language {
+    /// Japanese.
     Japanese = ctru_sys::CFG_LANGUAGE_JP,
+    /// English.
     English = ctru_sys::CFG_LANGUAGE_EN,
+    /// French.
     French = ctru_sys::CFG_LANGUAGE_FR,
+    /// German.
     German = ctru_sys::CFG_LANGUAGE_DE,
+    /// Italian.
     Italian = ctru_sys::CFG_LANGUAGE_IT,
+    /// Spanish.
     Spanish = ctru_sys::CFG_LANGUAGE_ES,
-    SimplifiedChinese = ctru_sys::CFG_LANGUAGE_ZH,
+    /// Korean.
     Korean = ctru_sys::CFG_LANGUAGE_KO,
+    /// Dutch.
     Dutch = ctru_sys::CFG_LANGUAGE_NL,
+    /// Portuguese.
     Portuguese = ctru_sys::CFG_LANGUAGE_PT,
+    /// Russian.
     Russian = ctru_sys::CFG_LANGUAGE_RU,
+    /// Simplified Chinese.
+    SimplifiedChinese = ctru_sys::CFG_LANGUAGE_ZH,
+    /// Traditional Chinese.
     TraditionalChinese = ctru_sys::CFG_LANGUAGE_TW,
 }
 
+/// 3DS model.
 #[doc(alias = "CFG_SystemModel")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum SystemModel {
+    /// Old Nintendo 3DS.
     Old3DS = ctru_sys::CFG_MODEL_3DS,
+    /// Old Nintendo 3DS XL.
     Old3DSXL = ctru_sys::CFG_MODEL_3DSXL,
+    /// New Nintendo 3DS.
     New3DS = ctru_sys::CFG_MODEL_N3DS,
+    /// Old Nintendo 2DS.
     Old2DS = ctru_sys::CFG_MODEL_2DS,
+    /// New Nintendo 3DS XL.
     New3DSXL = ctru_sys::CFG_MODEL_N3DSXL,
+    /// New Nintendo 2DS XL.
     New2DSXL = ctru_sys::CFG_MODEL_N2DSXL,
 }
 
