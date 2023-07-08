@@ -80,12 +80,13 @@ fn main() {
             // Move cursor to top left
             println!("\x1b[1;1");
 
-            match selected_title.title_info() {
-                Ok(info) => {
-                    println!("Size: {} KB", info.size_bytes() / 1024);
-                    println!("Version: 0x{:x}", info.version());
-                }
-                Err(e) => println!("Failed to get title info: {}", e),
+            match selected_title.size() {
+                Ok(size) => println!("Size: {} kB", size / 1024),
+                Err(e) => println!("Failed to get title size: {}", e),
+            }
+            match selected_title.version() {
+                Ok(version) => println!("Version: 0x{:x}", version),
+                Err(e) => println!("Failed to get title version: {}", e),
             }
             match selected_title.product_code() {
                 Ok(code) => println!("Product code: \"{code}\""),

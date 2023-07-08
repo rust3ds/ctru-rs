@@ -24,6 +24,7 @@
 #![feature(test)]
 #![feature(custom_test_frameworks)]
 #![feature(try_trait_v2)]
+#![feature(once_cell_try)]
 #![feature(allocator_api)]
 #![test_runner(test_runner::run)]
 #![doc(
@@ -39,7 +40,9 @@ extern crate shim_3ds;
 
 /// Expanded stack size used to spawn the main thread by `libctru`.
 ///
-/// This value was chosen to support crate dependencies which expected more stack than provided, without compromising performance.
+/// It takes effect only if the `big-stack` feature is active. Otherwise, the default stack size should be ~32kB.
+///
+/// This value was chosen to support crate dependencies which expected more stack than provided. It's suggested to use less stack if possible.
 #[no_mangle]
 #[cfg(feature = "big-stack")]
 static __stacksize__: usize = 2 * 1024 * 1024; // 2MB
