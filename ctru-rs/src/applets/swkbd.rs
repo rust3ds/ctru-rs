@@ -1,3 +1,7 @@
+//! Software Keyboard applet.
+//! 
+//! This applet opens a virtual keyboard on the console's bottom screen which lets the player/user write UTF-16 valid text.
+
 use bitflags::bitflags;
 use ctru_sys::{
     self, swkbdInit, swkbdInputText, swkbdSetButton, swkbdSetFeatures, swkbdSetHintText, SwkbdState,

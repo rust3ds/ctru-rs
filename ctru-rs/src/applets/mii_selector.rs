@@ -1,6 +1,7 @@
-//! Mii Selector applet
+//! Mii Selector applet.
 //!
-//! This module contains the methods to launch the Mii Selector.
+//! This applet opens a window on the console's bottom screen which lets the player/user choose a Mii from the ones present on their console.
+//! The application can access the selected Mii's data via the use of the [`mii`](crate::mii) module.
 
 use crate::mii::MiiData;
 use bitflags::bitflags;

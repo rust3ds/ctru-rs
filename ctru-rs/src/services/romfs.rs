@@ -18,6 +18,12 @@ use std::sync::Mutex;
 
 use crate::services::ServiceReference;
 
+/// Handle to the RomFS service.
+/// 
+/// This service lets the application access a virtual mounted device created using a folder included within the application bundle.
+/// `ctru` will include as RomFS the folder specified in the `Cargo.toml` manifest (or use `./romfs` by default). Look at the [`romfs`](self) module for more information.
+/// 
+/// After mounting the RomFS file system, the included files and folders will be accessible exactly like any other file, just by using the drive prefix `romfs:/`.
 pub struct RomFS {
     _service_handler: ServiceReference,
 }
@@ -25,6 +31,7 @@ pub struct RomFS {
 static ROMFS_ACTIVE: Mutex<usize> = Mutex::new(0);
 
 impl RomFS {
+    /// Mounts the specified RomFS folder as a virtual drive.
     #[doc(alias = "romfsMountSelf")]
     pub fn new() -> crate::Result<Self> {
         let _service_handler = ServiceReference::new(

@@ -52,9 +52,11 @@ pub enum AESKeyType {
     KeyslotInvalid = ctru_sys::PS_KEYSLOT_INVALID,
 }
 
+/// Handle to the PS service.
 pub struct Ps(());
 
 impl Ps {
+    /// Initialize a new service handle.
     #[doc(alias = "psInit")]
     pub fn new() -> Result<Self> {
         unsafe {
@@ -63,6 +65,7 @@ impl Ps {
         }
     }
 
+    /// Returns the console's local friend code seed.
     #[doc(alias = "PS_GetLocalFriendCodeSeed")]
     pub fn local_friend_code_seed(&self) -> crate::Result<u64> {
         let mut seed: u64 = 0;
@@ -71,6 +74,7 @@ impl Ps {
         Ok(seed)
     }
 
+    /// Returns the console's devide ID.
     #[doc(alias = "PS_GetDeviceId")]
     pub fn device_id(&self) -> crate::Result<u32> {
         let mut id: u32 = 0;
@@ -79,6 +83,7 @@ impl Ps {
         Ok(id)
     }
 
+    /// Generates cryptografically secure random bytes and writes them into the `out` buffer.
     #[doc(alias = "PS_GenerateRandomBytes")]
     pub fn generate_random_bytes(&self, out: &mut [u8]) -> crate::Result<()> {
         ResultCode(unsafe {

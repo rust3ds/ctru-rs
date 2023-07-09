@@ -209,7 +209,9 @@ pub enum Side {
 ///
 /// The service exits when this struct is dropped.
 pub struct Gfx {
+    /// Top screen representation.
     pub top_screen: RefCell<TopScreen>,
+    /// Bottom screen representation.
     pub bottom_screen: RefCell<BottomScreen>,
     _service_handler: ServiceReference,
 }

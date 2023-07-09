@@ -1,3 +1,5 @@
+//! Audio wave representation.
+
 use super::{AudioFormat, NdspError};
 use crate::linear::LinearAllocator;
 

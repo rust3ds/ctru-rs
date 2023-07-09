@@ -1,4 +1,4 @@
-//! NDSP (Audio) service
+//! NDSP (Audio) service.
 
 pub mod wave;
 use wave::{Wave, WaveStatus};
@@ -73,6 +73,19 @@ pub enum NdspError {
     SampleCountOutOfBounds(usize, usize),
 }
 
+/// NDSP Channel representation.
+/// 
+/// There are 24 individual channels in total and each can play a different audio [`Wave`] simultaneuosly.
+/// 
+/// # Default
+/// 
+/// NDSP initialises all channels with default values on creation, but the developer is supposed to change these values to correctly work with the service.
+/// 
+/// In particular:
+/// - Default audio format is set to [`AudioFormat::PCM16Mono`].
+/// - Default sample rate is set to 1 Hz.
+/// - Default interpolation type is set to [`InterpolationType::Polyphase`].
+/// - Default mix is set to [`AudioMix::default()`]
 pub struct Channel<'ndsp> {
     id: u8,
     _rf: RefMut<'ndsp, ()>, // we don't need to hold any data
@@ -169,7 +182,7 @@ impl Channel<'_> {
         unsafe { ctru_sys::ndspChnIsPaused(self.id.into()) }
     }
 
-    // Returns the channel's id
+    /// Returns the channel's index.
     pub fn id(&self) -> u8 {
         self.id
     }
@@ -458,8 +471,8 @@ impl AudioMix {
     }
 }
 
-/// Returns an [`AudioMix`] object with "front left" and "front right" volumes set to 100%, and all other volumes set to 0%.
 impl Default for AudioMix {
+    /// Returns an [`AudioMix`] object with "front left" and "front right" volumes set to 100%, and all other volumes set to 0%.
     fn default() -> Self {
         let mut mix = AudioMix::zeroed();
         mix.set_front(1.0, 1.0);

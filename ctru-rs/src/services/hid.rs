@@ -75,14 +75,14 @@ bitflags::bitflags! {
 /// This service requires no special permissions to use.
 pub struct Hid(());
 
-/// Initializes the HID service.
-///
-/// # Errors
-///
-/// This function will return an error if the service was unable to be initialized.
-/// Since this service requires no special or elevated permissions, errors are
-/// rare in practice.
 impl Hid {
+    /// Initializes the HID service.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the service was unable to be initialized.
+    /// Since this service requires no special or elevated permissions, errors are
+    /// rare in practice.
     #[doc(alias = "hidInit")]
     pub fn new() -> crate::Result<Hid> {
         unsafe {
