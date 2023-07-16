@@ -1,13 +1,14 @@
 [package]
-authors = ["Rust3DS Org", "Ronald Kinard <furyhunter600@gmail.com>"]
-description = "A safe wrapper around libctru"
-keywords = ["3ds", "libctru"]
-categories = ["os", "api-bindings"]
-license = "Zlib"
 name = "ctru-rs"
 version = "0.7.1"
-edition = "2021"
+authors = ["Rust3DS Org", "Ronald Kinard <furyhunter600@gmail.com>"]
+description = "A safe wrapper around libctru"
 repository = "https://github.com/rust3ds/ctru-rs"
+keywords = ["3ds", "libctru"]
+categories = ["os", "api-bindings"]
+exclude = ["examples"]
+license = "Zlib"
+edition = "2021"
 rust-version = "1.70"
 
 [lib]
