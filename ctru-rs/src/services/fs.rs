@@ -285,8 +285,8 @@ pub struct OpenOptions {
 
 /// Iterator over the entries in a directory.
 ///
-/// This iterator is returned from the [`File::read_dir`] function of this module and
-/// will yield instances of `Result<DirEntry, i32>`. Through a [`DirEntry`]
+/// This iterator is returned from the [`read_dir`] function and
+/// will yield instances of [`Result<DirEntry, i32>`]. Through a [`DirEntry`]
 /// information like the entry's path and possibly other metadata can be
 /// learned.
 ///
