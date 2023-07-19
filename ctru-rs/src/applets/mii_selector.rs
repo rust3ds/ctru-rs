@@ -5,9 +5,9 @@
 
 use crate::mii::MiiData;
 use bitflags::bitflags;
-use std::{ffi::CString, error::Error, fmt};
+use std::{error::Error, ffi::CString, fmt};
 
-/// Index of a Mii used to configure some parameters of the Mii Selector.
+/// Index of a Mii on the Mii Selector interface.
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub enum Index {
     /// Specific Mii index.
@@ -32,21 +32,21 @@ pub enum MiiType {
 
 bitflags! {
     /// Options to configure the [MiiSelector].
-    /// 
+    ///
     /// <h1>Example</h1>
-    /// 
+    ///
     /// ```no_run
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
     /// use ctru::applets::mii_selector::{MiiSelector, Options};
-    /// 
+    ///
     /// // Setup a `MiiSelector` that can be cancelled and that makes Guest Miis available to select.
     /// let opts = Options::ENABLE_CANCEL & Options::ENABLE_GUESTS;
-    /// 
+    ///
     /// let mut mii_selector = MiiSelector::new();
     /// mii_selector.set_options(opts);
-    /// 
+    ///
     /// let result = mii_selector.launch()?;
     /// #
     /// # Ok(())
@@ -58,14 +58,14 @@ bitflags! {
         const ENABLE_CANCEL = ctru_sys::MIISELECTOR_CANCEL;
         /// Make guest Miis available to select.
         const ENABLE_GUESTS = ctru_sys::MIISELECTOR_GUESTS;
-        /// Show on the top screen.
+        /// Show the Mii Selector window on the top screen.
         const USE_TOP_SCREEN = ctru_sys::MIISELECTOR_TOP;
-        /// Start on the guests' page. Requires [Options::ENABLE_GUESTS].
+        /// Start the Mii Selector on the guests' page. Requires [Options::ENABLE_GUESTS].
         const START_WITH_GUESTS = ctru_sys::MIISELECTOR_GUESTSTART;
     }
 }
 
-/// Configuration object to setup the Mii Selector applet.
+/// Configuration structure to setup the Mii Selector applet.
 ///
 /// # Example
 /// ```no_run
@@ -132,7 +132,7 @@ impl MiiSelector {
     }
 
     /// Set the options of the Mii Selector.
-    /// 
+    ///
     /// This will overwrite any previously saved options.
     #[doc(alias = "miiSelectorSetOptions")]
     pub fn set_options(&mut self, options: Options) {
@@ -184,7 +184,7 @@ impl MiiSelector {
     }
 
     /// Set where the cursor will start at.
-    /// 
+    ///
     /// If there's no Mii at that index, the cursor will start at the Mii with the index 0.
     pub fn set_initial_index(&mut self, index: usize) {
         // This function is static inline in libctru
@@ -193,7 +193,7 @@ impl MiiSelector {
     }
 
     /// Launch the Mii Selector.
-    /// 
+    ///
     /// Depending on the configuration, the Mii Selector window will appear either on the bottom screen (default behaviour) or the top screen (see [Options::USE_TOP_SCREEN]).
     #[doc(alias = "miiSelectorLaunch")]
     pub fn launch(&mut self) -> Result<Selection, LaunchError> {

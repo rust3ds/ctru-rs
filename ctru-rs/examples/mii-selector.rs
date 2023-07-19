@@ -10,7 +10,7 @@ fn main() {
     let _console = Console::new(gfx.top_screen.borrow_mut());
 
     let mut mii_selector = MiiSelector::new();
-    mii_selector.set_options(Options::MII_SELECTOR_CANCEL);
+    mii_selector.set_options(Options::ENABLE_CANCEL);
     mii_selector.set_initial_index(3);
     mii_selector.blacklist_user_mii(0.into());
     mii_selector.set_title("Great Mii Selector!");
