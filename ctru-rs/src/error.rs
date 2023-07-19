@@ -21,7 +21,9 @@ pub type Result<T> = ::std::result::Result<T, Error>;
 /// # Example
 ///
 /// ```no_run
-/// pub fn hid_init() -> crate::Result<()> {
+/// use ctru::error::{Result, ResultCode};
+///
+/// pub fn hid_init() -> Result<()> {
 ///     // We run an unsafe function which returns a `ctru_sys::Result`.
 ///     let result: ctru_sys::Result = unsafe { ctru_sys::hidInit() };
 ///     

@@ -22,7 +22,7 @@ const-zero = "0.1.0"
 shim-3ds = { git = "https://github.com/rust3ds/shim-3ds.git" }
 pthread-3ds = { git = "https://github.com/rust3ds/pthread-3ds.git" }
 libc = "0.2.121"
-bitflags = "1.0.0"
+bitflags = "2.3.3"
 widestring = "0.2.2"
 
 [build-dependencies]

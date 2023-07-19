@@ -222,8 +222,17 @@ impl Gfx {
     /// Creates a new [`Gfx`] instance with default init values
     /// It's the same as calling:
     ///
-    /// ```
-    /// Gfx::with_formats(FramebufferFormat::Bgr8, FramebufferFormat::Bgr8, false)
+    /// ```no_run
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// # use ctru::services::gfx::Gfx;
+    /// use ctru::services::gspgpu::FramebufferFormat;
+    ///
+    /// Gfx::with_formats(FramebufferFormat::Bgr8, FramebufferFormat::Bgr8, false);
+    /// #
+    /// # Ok(())
+    /// # }
     /// ```
     #[doc(alias = "gfxInit")]
     pub fn new() -> Result<Self> {

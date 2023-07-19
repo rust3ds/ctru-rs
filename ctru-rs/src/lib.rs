@@ -14,10 +14,6 @@
 //! Read thoroughly the official [`ctru-rs` wiki](https://github.com/rust3ds/ctru-rs/wiki) which guides you through the setup needed to install the required toolchain and helpful tools.
 //! After following the guide and understanding the many quirks of the Nintendo 3DS homebrew development environment, you can create a new project by including this crate as a dependency
 //! of your project in your `Cargo.toml` manifest and build your binaries either manually (for the `armv6k-nintendo-3ds` target) or via [`cargo-3ds`](https://github.com/rust3ds/cargo-3ds).
-//!
-//! # Examples
-//!
-//! You can check out the examples provided with this crate which dive into most of the implemented functionality.
 
 #![crate_type = "rlib"]
 #![crate_name = "ctru"]

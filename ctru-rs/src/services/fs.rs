@@ -17,20 +17,20 @@ use std::sync::Arc;
 use widestring::{WideCStr, WideCString};
 
 bitflags! {
-    #[derive(Default)]
+    #[derive(Default, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Clone, Copy)]
     struct FsOpen: u32 {
         const FS_OPEN_READ   = 1;
         const FS_OPEN_WRITE  = 2;
         const FS_OPEN_CREATE = 4;
     }
 
-    #[derive(Default)]
+    #[derive(Default, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Clone, Copy)]
     struct FsWrite: u32 {
         const FS_WRITE_FLUSH       =   1;
         const FS_WRITE_UPDATE_TIME = 256;
     }
 
-    #[derive(Default)]
+    #[derive(Default, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Clone, Copy)]
     struct FsAttribute: u32 {
         const FS_ATTRIBUTE_DIRECTORY =        1;
         const FS_ATTRIBUTE_HIDDEN    =      256;

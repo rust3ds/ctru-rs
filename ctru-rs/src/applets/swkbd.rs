@@ -89,6 +89,7 @@ pub enum ValidInput {
 
 bitflags! {
     /// Keyboard feature flags.
+    #[derive(PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Clone, Copy)]
     pub struct Features: u32 {
         /// Parental PIN mode.
         const PARENTAL_PIN      = ctru_sys::SWKBD_PARENTAL;
@@ -111,6 +112,7 @@ bitflags! {
     }
 
     /// Keyboard input filtering flags
+    #[derive(PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Clone, Copy)]
     pub struct Filters: u32 {
         /// Disallows the usage of numerical digits.
         const DIGITS    = ctru_sys::SWKBD_FILTER_DIGITS;
@@ -183,13 +185,13 @@ impl Swkbd {
     /// Sets special features for this keyboard
     #[doc(alias = "swkbdSetFeatures")]
     pub fn set_features(&mut self, features: Features) {
-        unsafe { swkbdSetFeatures(self.state.as_mut(), features.bits) }
+        unsafe { swkbdSetFeatures(self.state.as_mut(), features.bits()) }
     }
 
     /// Configures input validation for this keyboard
     pub fn set_validation(&mut self, validation: ValidInput, filters: Filters) {
         self.state.valid_input = validation.into();
-        self.state.filter_flags = filters.bits;
+        self.state.filter_flags = filters.bits();
     }
 
     /// Configures the maximum number of digits that can be entered in the keyboard when the

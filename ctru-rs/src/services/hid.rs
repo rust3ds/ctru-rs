@@ -5,9 +5,12 @@
 //! the accelerometer, and the gyroscope.
 
 use crate::error::ResultCode;
-bitflags::bitflags! {
+use bitflags::bitflags;
+
+bitflags! {
     /// A set of flags corresponding to the button and directional pad
     /// inputs on the 3DS
+    #[derive(PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Clone, Copy)]
     pub struct KeyPad: u32 {
         /// A button.
         const A             = ctru_sys::KEY_A;
