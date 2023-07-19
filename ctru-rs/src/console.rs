@@ -10,16 +10,16 @@ use crate::services::gfx::Screen;
 static mut EMPTY_CONSOLE: PrintConsole = unsafe { const_zero::const_zero!(PrintConsole) };
 
 /// Virtual printable console.
-/// 
+///
 /// [`Console`] lets the application redirect `stdout` to a simple text displayer on the 3DS screen.
 /// This means that any text written to `stdout` (e.g. using [`println!`] or [`dbg!`]) will become visible in the area taken by the console.
-/// 
+///
 /// # Notes
-/// 
+///
 /// The console will take full possession of the screen handed to it as long as it stays alive. It also supports ANSI codes.
-/// 
+///
 /// # Alternatives
-/// 
+///
 /// If you'd like to see live `stdout` output while running the application but can't/don't want to show the text on the 3DS itself,
 /// you can try using [`Soc::redirect_to_3dslink`](crate::services::soc::Soc::redirect_to_3dslink) while activating the `--server` flag for `3dslink` (also supported by `cargo-3ds`).
 /// More info in the `cargo-3ds` docs.

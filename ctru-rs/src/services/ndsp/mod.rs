@@ -74,13 +74,13 @@ pub enum NdspError {
 }
 
 /// NDSP Channel representation.
-/// 
+///
 /// There are 24 individual channels in total and each can play a different audio [`Wave`] simultaneuosly.
-/// 
+///
 /// # Default
-/// 
+///
 /// NDSP initialises all channels with default values on creation, but the developer is supposed to change these values to correctly work with the service.
-/// 
+///
 /// In particular:
 /// - Default audio format is set to [`AudioFormat::PCM16Mono`].
 /// - Default sample rate is set to 1 Hz.

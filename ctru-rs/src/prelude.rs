@@ -1,5 +1,5 @@
 //! `use ctru::prelude::*;` to import common services, members and functions.
-//! 
+//!
 //! Particularly useful when writing very small applications.
 
 pub use crate::console::Console;
