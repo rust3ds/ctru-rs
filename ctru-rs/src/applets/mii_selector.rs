@@ -1,16 +1,22 @@
 //! Mii Selector applet.
 //!
-//! This applet opens a window on the console's bottom screen which lets the player/user choose a Mii from the ones present on their console.
+//! This applet opens a window which lets the player/user choose a Mii from the ones present on their console.
 //! The selected Mii is readable as a [`MiiData`](crate::mii::MiiData).
 
 use crate::mii::MiiData;
 use bitflags::bitflags;
-use std::{error::Error, ffi::CString, fmt};
+use std::{ffi::CString, fmt};
 
-/// Index of a Mii on the Mii Selector interface.
+/// Index of a Mii on the [`MiiSelector`] interface.
+///
+/// See [`MiiSelector::whitelist_user_mii()`] and related functions for more information.
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub enum Index {
     /// Specific Mii index.
+    ///
+    /// # Notes
+    ///
+    /// Indexes start at 0.
     Index(u32),
     /// All Miis.
     All,
@@ -31,64 +37,30 @@ pub enum MiiType {
 }
 
 bitflags! {
-    /// Options to configure the [MiiSelector].
+    /// Options to configure the [`MiiSelector`].
     ///
-    /// <h1>Example</h1>
-    ///
-    /// ```no_run
-    /// # use std::error::Error;
-    /// # fn main() -> Result<(), Box<dyn Error>> {
-    /// #
-    /// use ctru::applets::mii_selector::{MiiSelector, Options};
-    ///
-    /// // Setup a `MiiSelector` that can be cancelled and that makes Guest Miis available to select.
-    /// let opts = Options::ENABLE_CANCEL & Options::ENABLE_GUESTS;
-    ///
-    /// let mut mii_selector = MiiSelector::new();
-    /// mii_selector.set_options(opts);
-    ///
-    /// let result = mii_selector.launch()?;
-    /// #
-    /// # Ok(())
-    /// # }
-    /// ```
+    /// See [`MiiSelector::set_options()`] to learn how to use them.
     #[derive(PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Clone, Copy)]
     pub struct Options: u32 {
         /// Show the cancel button.
         const ENABLE_CANCEL = ctru_sys::MIISELECTOR_CANCEL;
         /// Make guest Miis available to select.
         const ENABLE_GUESTS = ctru_sys::MIISELECTOR_GUESTS;
-        /// Show the Mii Selector window on the top screen.
+        /// Show the [`MiiSelector`] window on the top screen.
         const USE_TOP_SCREEN = ctru_sys::MIISELECTOR_TOP;
-        /// Start the Mii Selector on the guests' page. Requires [Options::ENABLE_GUESTS].
+        /// Start the [`MiiSelector`] on the guests' page. Requires [`Options::ENABLE_GUESTS`].
         const START_WITH_GUESTS = ctru_sys::MIISELECTOR_GUESTSTART;
     }
 }
 
 /// Configuration structure to setup the Mii Selector applet.
-///
-/// # Example
-/// ```no_run
-/// # use std::error::Error;
-/// # fn main() -> Result<(), Box<dyn Error>> {
-/// #
-/// use ctru::applets::mii_selector::MiiSelector;
-///
-/// let mut mii_selector = MiiSelector::new();
-/// mii_selector.set_title("Example Mii Selector");
-///
-/// let result = mii_selector.launch()?;
-/// #
-/// # Ok(())
-/// # }
-/// ```
 #[doc(alias = "MiiSelectorConf")]
 #[derive(Clone, Debug)]
 pub struct MiiSelector {
     config: Box<ctru_sys::MiiSelectorConf>,
 }
 
-/// Return value of a successful [MiiSelector::launch()].
+/// Return value of a successful [`MiiSelector::launch()`].
 #[non_exhaustive]
 #[derive(Clone, Debug)]
 pub struct Selection {
@@ -98,12 +70,12 @@ pub struct Selection {
     pub mii_type: MiiType,
 }
 
-/// Error returned by an unsuccessful [MiiSelector::launch()].
+/// Error returned by an unsuccessful [`MiiSelector::launch()`].
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
-pub enum LaunchError {
-    /// The selected Mii's data is corrupt in some way.
+pub enum Error {
+    /// The selected Mii's data is corrupt.
     InvalidChecksum,
-    /// Either the user cancelled the selection (see [Options::ENABLE_CANCEL]), or no valid Miis were available to select.
+    /// Either the user cancelled the selection (see [`Options::ENABLE_CANCEL`]) or no valid Miis were available to select.
     NoMiiSelected,
 }
 
@@ -120,7 +92,18 @@ impl MiiSelector {
 
     /// Set the title of the Mii Selector window.
     ///
+    /// # Panics
     /// This function will panic if the given `&str` contains NUL bytes.
+    ///
+    /// # Example
+    /// ```no_run
+    /// # fn main() {
+    /// use ctru::applets::mii_selector::MiiSelector;
+    ///
+    /// let mut mii_selector = MiiSelector::new();
+    /// mii_selector.set_title("Select a Mii!");
+    /// # }
+    /// ```
     #[doc(alias = "miiSelectorSetTitle")]
     pub fn set_title(&mut self, text: &str) {
         // This can only fail if the text contains NUL bytes in the string... which seems
@@ -133,13 +116,42 @@ impl MiiSelector {
 
     /// Set the options of the Mii Selector.
     ///
-    /// This will overwrite any previously saved options.
+    /// This will overwrite any previously saved options. Use bitwise operations to set all your wanted options at once.
+    ///
+    /// # Example
+    /// ```no_run
+    /// # fn main() {
+    /// use ctru::applets::mii_selector::{MiiSelector, Options};
+    /// let mut mii_selector = MiiSelector::new();
+    ///
+    /// // Setup a `MiiSelector` that can be cancelled and that makes Guest Miis available to select.
+    /// let opts = Options::ENABLE_CANCEL & Options::ENABLE_GUESTS;
+    /// mii_selector.set_options(opts);
+    /// # }
+    /// ```
     #[doc(alias = "miiSelectorSetOptions")]
     pub fn set_options(&mut self, options: Options) {
         unsafe { ctru_sys::miiSelectorSetOptions(self.config.as_mut(), options.bits()) }
     }
 
     /// Whitelist a guest Mii based on its index.
+    ///
+    /// # Notes
+    ///
+    /// Guest Mii's won't be available regardless of their whitelist/blacklist state if the [`MiiSelector`] is run without setting [`Options::ENABLE_GUESTS`].
+    /// Look into [`MiiSelector::set_options()`] to see how to work with options.
+    ///
+    /// # Example
+    /// ```no_run
+    /// # fn main() {
+    /// #
+    /// use ctru::applets::mii_selector::{Index, MiiSelector};
+    /// let mut mii_selector = MiiSelector::new();
+    ///
+    /// // Whitelist the guest Mii at index 2.
+    /// mii_selector.whitelist_guest_mii(Index::Index(2));
+    /// # }
+    /// ```
     #[doc(alias = "miiSelectorWhitelistGuestMii")]
     pub fn whitelist_guest_mii(&mut self, mii_index: Index) {
         let index = match mii_index {
@@ -151,6 +163,23 @@ impl MiiSelector {
     }
 
     /// Blacklist a guest Mii based on its index.
+    ///
+    /// # Notes
+    ///
+    /// Guest Mii's won't be available regardless of their whitelist/blacklist state if the [`MiiSelector`] is run without setting [`Options::ENABLE_GUESTS`].
+    /// Look into [`MiiSelector::set_options()`] to see how to work with options.
+    ///
+    /// # Example
+    /// ```no_run
+    /// # fn main() {
+    /// #
+    /// use ctru::applets::mii_selector::{Index, MiiSelector};
+    /// let mut mii_selector = MiiSelector::new();
+    ///
+    /// // Blacklist the guest Mii at index 1 so that it cannot be selected.
+    /// mii_selector.blacklist_guest_mii(Index::Index(1));
+    /// # }
+    /// ```
     #[doc(alias = "miiSelectorBlacklistGuestMii")]
     pub fn blacklist_guest_mii(&mut self, mii_index: Index) {
         let index = match mii_index {
@@ -161,7 +190,19 @@ impl MiiSelector {
         unsafe { ctru_sys::miiSelectorBlacklistGuestMii(self.config.as_mut(), index) }
     }
 
-    /// Whitelist a user Mii based on its index.
+    /// Whitelist a user-created Mii based on its index.
+    ///
+    /// # Example
+    /// ```no_run
+    /// # fn main() {
+    /// #
+    /// use ctru::applets::mii_selector::{Index, MiiSelector};
+    /// let mut mii_selector = MiiSelector::new();
+    ///
+    /// // Whitelist the user-created Mii at index 0.
+    /// mii_selector.whitelist_user_mii(Index::Index(0));
+    /// # }
+    /// ```
     #[doc(alias = "miiSelectorWhitelistUserMii")]
     pub fn whitelist_user_mii(&mut self, mii_index: Index) {
         let index = match mii_index {
@@ -172,7 +213,19 @@ impl MiiSelector {
         unsafe { ctru_sys::miiSelectorWhitelistUserMii(self.config.as_mut(), index) }
     }
 
-    /// Blacklist a user Mii based on its index.
+    /// Blacklist a user-created Mii based on its index.
+    ///
+    /// # Example
+    /// ```no_run
+    /// # fn main() {
+    /// #
+    /// use ctru::applets::mii_selector::{Index, MiiSelector};
+    /// let mut mii_selector = MiiSelector::new();
+    ///
+    /// // Blacklist all user-created Miis so that they cannot be selected.
+    /// mii_selector.blacklist_user_mii(Index::All);
+    /// # }
+    /// ```
     #[doc(alias = "miiSelectorBlacklistUserMii")]
     pub fn blacklist_user_mii(&mut self, mii_index: Index) {
         let index = match mii_index {
@@ -183,9 +236,10 @@ impl MiiSelector {
         unsafe { ctru_sys::miiSelectorBlacklistUserMii(self.config.as_mut(), index) }
     }
 
-    /// Set where the cursor will start at.
+    /// Set where the GUI cursor will start at.
     ///
     /// If there's no Mii at that index, the cursor will start at the Mii with the index 0.
+    #[doc(alias = "miiSelectorSetInitialIndex")]
     pub fn set_initial_index(&mut self, index: usize) {
         // This function is static inline in libctru
         // https://github.com/devkitPro/libctru/blob/af5321c78ee5c72a55b526fd2ed0d95ca1c05af9/libctru/include/3ds/applets/miiselector.h#L155
@@ -194,20 +248,41 @@ impl MiiSelector {
 
     /// Launch the Mii Selector.
     ///
-    /// Depending on the configuration, the Mii Selector window will appear either on the bottom screen (default behaviour) or the top screen (see [Options::USE_TOP_SCREEN]).
+    /// Depending on the configuration, the Mii Selector window will appear either on the bottom screen (default behaviour) or the top screen (see [`Options::USE_TOP_SCREEN`]).
+    ///
+    /// TODO: UNSAFE OPERATION, LAUNCHING APPLETS REQUIRES GRAPHICS, WITHOUT AN ACTIVE GFX THIS WILL CAUSE A SEGMENTATION FAULT.
+    ///
+    /// # Example
+    /// ```no_run
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::applets::mii_selector::{MiiSelector, Options};
+    ///
+    /// let mut mii_selector = MiiSelector::new();
+    /// mii_selector.set_title("Select a Mii!");
+    ///
+    /// let opts = Options::ENABLE_CANCEL & Options::ENABLE_GUESTS;
+    /// mii_selector.set_options(opts);
+    ///
+    /// let result = mii_selector.launch()?;
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
     #[doc(alias = "miiSelectorLaunch")]
-    pub fn launch(&mut self) -> Result<Selection, LaunchError> {
+    pub fn launch(&mut self) -> Result<Selection, Error> {
         let mut return_val = Box::<ctru_sys::MiiSelectorReturn>::default();
         unsafe { ctru_sys::miiSelectorLaunch(self.config.as_mut(), return_val.as_mut()) }
 
         if return_val.no_mii_selected != 0 {
-            return Err(LaunchError::NoMiiSelected);
+            return Err(Error::NoMiiSelected);
         }
 
         if unsafe { ctru_sys::miiSelectorChecksumIsValid(return_val.as_mut()) } {
             Ok((*return_val).into())
         } else {
-            Err(LaunchError::InvalidChecksum)
+            Err(Error::InvalidChecksum)
         }
     }
 }
@@ -218,7 +293,7 @@ impl Default for MiiSelector {
     }
 }
 
-impl fmt::Display for LaunchError {
+impl fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::InvalidChecksum => write!(f, "selected mii has invalid checksum"),
@@ -227,7 +302,7 @@ impl fmt::Display for LaunchError {
     }
 }
 
-impl Error for LaunchError {}
+impl std::error::Error for Error {}
 
 impl From<ctru_sys::MiiSelectorReturn> for Selection {
     fn from(ret: ctru_sys::MiiSelectorReturn) -> Self {

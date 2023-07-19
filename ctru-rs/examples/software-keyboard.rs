@@ -1,4 +1,4 @@
-use ctru::applets::swkbd::{Button, Swkbd};
+use ctru::applets::swkbd::{Button, SoftwareKeyboard};
 use ctru::prelude::*;
 
 fn main() {
@@ -18,9 +18,9 @@ fn main() {
 
         if hid.keys_down().contains(KeyPad::A) {
             // Prepares a software keyboard with two buttons: One to cancel input and one
-            // to accept it. You can also use `Swkbd::new()` to launch the keyboard in different
+            // to accept it. You can also use `SoftwareKeyboard::new()` to launch the keyboard in different
             // configurations.
-            let mut keyboard = Swkbd::default();
+            let mut keyboard = SoftwareKeyboard::default();
 
             // Raise the software keyboard. You can perform different actions depending on which
             // software button the user pressed

@@ -1,7 +1,7 @@
 //! A file explorer which shows off using standard library file system APIs to
 //! read the SD card.
 
-use ctru::applets::swkbd::{Button, Swkbd};
+use ctru::applets::swkbd::{Button, SoftwareKeyboard};
 use ctru::prelude::*;
 
 use std::fs::DirEntry;
@@ -159,7 +159,7 @@ impl<'a> FileExplorer<'a> {
     }
 
     fn get_input_and_run(&mut self, action: impl FnOnce(&mut Self, String)) {
-        let mut keyboard = Swkbd::default();
+        let mut keyboard = SoftwareKeyboard::default();
 
         match keyboard.get_string(2048) {
             Ok((path, Button::Right)) => {

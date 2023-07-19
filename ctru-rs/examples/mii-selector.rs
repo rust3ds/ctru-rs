@@ -1,4 +1,4 @@
-use ctru::applets::mii_selector::{LaunchError, MiiSelector, Options};
+use ctru::applets::mii_selector::{Error, MiiSelector, Options};
 use ctru::prelude::*;
 
 fn main() {
@@ -25,8 +25,8 @@ fn main() {
                 result.mii_data.mole_details.is_enabled
             );
         }
-        Err(LaunchError::InvalidChecksum) => println!("Corrupt Mii selected"),
-        Err(LaunchError::NoMiiSelected) => println!("No Mii selected"),
+        Err(Error::InvalidChecksum) => println!("Corrupt Mii selected"),
+        Err(Error::NoMiiSelected) => println!("No Mii selected"),
     }
 
     // Main loop
