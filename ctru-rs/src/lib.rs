@@ -1,4 +1,4 @@
-//! Safe wrapper around `libctru`.
+//! Safe and idiomatic Rust wrapper around [`libctru`](https://github.com/devkitPro/libctru).
 //!
 //! # About
 //!
@@ -6,11 +6,12 @@
 //! Thanks to it, developers can access the underlying system services and the console's hardware to develop userland applications
 //! (such as HID devices, network capabilities, graphics, built-in cameras, etc.).
 //!
-//! Among these features, `ctru` also automatically includes functionality to properly integrate the Rust `std` with the console, which the developer would otherwise need to implement manually.
+//! Among these features, `ctru-rs` also automatically includes functionality to properly integrate the Rust `std` with the console's operating system,
+//! which the developer would otherwise need to implement manually.
 //!
 //! # Usage
 //!
-//! Read thoroughly the official [`ctru` wiki](https://github.com/rust3ds/ctru-rs/wiki) which guides you through the setup needed to install the required toolchain and helpful tools.
+//! Read thoroughly the official [`ctru-rs` wiki](https://github.com/rust3ds/ctru-rs/wiki) which guides you through the setup needed to install the required toolchain and helpful tools.
 //! After following the guide and understanding the many quirks of the Nintendo 3DS homebrew development environment, you can create a new project by including this crate as a dependency
 //! of your project in your `Cargo.toml` manifest and build your binaries either manually (for the `armv6k-nintendo-3ds` target) or via [`cargo-3ds`](https://github.com/rust3ds/cargo-3ds).
 //!
@@ -57,7 +58,7 @@ macro_rules! from_impl {
     };
 }
 
-/// Activate the custom `ctru` panic handler.
+/// Activate the custom `ctru-rs` panic handler.
 ///
 /// With this implementation, the main thread will stop and try to print debug info to an available [`Console`](console::Console).
 /// In case it fails to find an active [`Console`](console::Console) the program will just exit.

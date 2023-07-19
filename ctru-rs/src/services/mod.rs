@@ -3,13 +3,13 @@
 //! Most of the 3DS console's functionalities (when writing user-land homebrew) are accessible via services,
 //! which need to be initialized before accessing any particular feature.
 //!
-//! To ensure safety measures when using the underlying services, `ctru` leverages Rust's lifetime model.
+//! To ensure safety measures when using the underlying services, `ctru-rs` leverages Rust's lifetime model.
 //! After initializing the handle for a specific service (e.g. [`Apt`](apt::Apt)) the service will be accessible as long as there is at least one handle "alive".
 //! As such, handles should be dropped *after* the use of a specific service. This is particularly important for services which are necessary for functionality
 //! "outside" their associated methods, such as [`RomFS`](romfs::RomFS), which creates an accessible virtual filesystem, or [`Soc`](soc::Soc),
 //! which enables all network communications via sockets.
 //!
-//! In `ctru` some services only allow a single handle to be created at a time, to ensure a safe and controlled environment.
+//! In `ctru-rs` some services only allow a single handle to be created at a time, to ensure a safe and controlled environment.
 
 pub mod am;
 pub mod apt;
