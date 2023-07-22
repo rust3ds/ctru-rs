@@ -22,7 +22,7 @@ pub enum Event {
 }
 
 #[doc(alias = "GSPGPU_FramebufferFormat")]
-/// Framebuffer formats supported by the 3DS.
+/// Framebuffer formats supported by the 3DS' screens.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum FramebufferFormat {

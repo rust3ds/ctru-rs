@@ -19,23 +19,23 @@ use widestring::{WideCStr, WideCString};
 bitflags! {
     #[derive(Default, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Clone, Copy)]
     struct FsOpen: u32 {
-        const FS_OPEN_READ   = 1;
-        const FS_OPEN_WRITE  = 2;
-        const FS_OPEN_CREATE = 4;
+        const FS_OPEN_READ   = ctru_sys::FS_OPEN_READ;
+        const FS_OPEN_WRITE  = ctru_sys::FS_OPEN_WRITE;
+        const FS_OPEN_CREATE = ctru_sys::FS_OPEN_CREATE;
     }
 
     #[derive(Default, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Clone, Copy)]
     struct FsWrite: u32 {
-        const FS_WRITE_FLUSH       =   1;
-        const FS_WRITE_UPDATE_TIME = 256;
+        const FS_WRITE_FLUSH       = ctru_sys::FS_WRITE_FLUSH;
+        const FS_WRITE_UPDATE_TIME = ctru_sys::FS_WRITE_UPDATE_TIME;
     }
 
     #[derive(Default, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Clone, Copy)]
     struct FsAttribute: u32 {
-        const FS_ATTRIBUTE_DIRECTORY =        1;
-        const FS_ATTRIBUTE_HIDDEN    =      256;
-        const FS_ATTRIBUTE_ARCHIVE   =    65536;
-        const FS_ATTRIBUTE_READ_ONLY = 16777216;
+        const FS_ATTRIBUTE_DIRECTORY = ctru_sys::FS_ATTRIBUTE_DIRECTORY;
+        const FS_ATTRIBUTE_HIDDEN    = ctru_sys::FS_ATTRIBUTE_HIDDEN;
+        const FS_ATTRIBUTE_ARCHIVE   = ctru_sys::FS_ATTRIBUTE_ARCHIVE;
+        const FS_ATTRIBUTE_READ_ONLY = ctru_sys::FS_ATTRIBUTE_READ_ONLY;
     }
 }
 
