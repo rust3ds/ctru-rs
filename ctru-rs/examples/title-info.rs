@@ -80,18 +80,9 @@ fn main() {
             // Move cursor to top left
             println!("\x1b[1;1");
 
-            match selected_title.size() {
-                Ok(size) => println!("Size: {} kB", size / 1024),
-                Err(e) => println!("Failed to get title size: {}", e),
-            }
-            match selected_title.version() {
-                Ok(version) => println!("Version: 0x{:x}", version),
-                Err(e) => println!("Failed to get title version: {}", e),
-            }
-            match selected_title.product_code() {
-                Ok(code) => println!("Product code: \"{code}\""),
-                Err(e) => println!("Failed to get product code: {}", e),
-            }
+            println!("Size: {} kB", selected_title.size() / 1024);
+            println!("Version: 0x{:x}", selected_title.version());
+            println!("Product code: \"{}\"", selected_title.product_code());
 
             println!("\x1b[26;0HPress START to exit");
             if use_nand {

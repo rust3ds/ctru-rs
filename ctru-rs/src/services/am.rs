@@ -4,20 +4,19 @@
 //! - Read the installed applications on the console and their information (depending on the install location).
 //! - Install compatible applications to the console.
 //!
-//! `ctru-rs` doesn't support installing titles (yet).
+//! TODO: `ctru-rs` doesn't support installing or uninstalling titles yet.
 
 use crate::error::ResultCode;
 use crate::services::fs::FsMediaType;
-use std::cell::OnceCell;
 use std::marker::PhantomData;
-use std::mem::MaybeUninit;
 
-/// Struct holding general information about a specific title.
+/// General information about a specific title entry.
 #[doc(alias = "AM_TitleEntry")]
 pub struct Title<'a> {
     id: u64,
     mediatype: FsMediaType,
-    entry: OnceCell<ctru_sys::AM_TitleEntry>,
+    size: u64,
+    version: u16,
     _am: PhantomData<&'a Am>,
 }
 
@@ -29,54 +28,26 @@ impl<'a> Title<'a> {
 
     /// Returns this title's unique product code.
     #[doc(alias = "AM_GetTitleProductCode")]
-    pub fn product_code(&self) -> crate::Result<String> {
+    pub fn product_code(&self) -> String {
         let mut buf: [u8; 16] = [0; 16];
 
+        // This operation is safe as long as the title was correctly obtained via [`Am::title_list()`].
         unsafe {
-            ResultCode(ctru_sys::AM_GetTitleProductCode(
-                self.mediatype.into(),
-                self.id,
-                buf.as_mut_ptr(),
-            ))?;
+            let _ =
+                ctru_sys::AM_GetTitleProductCode(self.mediatype.into(), self.id, buf.as_mut_ptr());
         }
-        Ok(String::from_utf8_lossy(&buf).to_string())
-    }
 
-    /// Retrieves additional information on the title.
-    #[doc(alias = "AM_GetTitleInfo")]
-    fn title_info(&self) -> crate::Result<ctru_sys::AM_TitleEntry> {
-        let mut info = MaybeUninit::zeroed();
-
-        unsafe {
-            ResultCode(ctru_sys::AM_GetTitleInfo(
-                self.mediatype.into(),
-                1,
-                &mut self.id.clone(),
-                info.as_mut_ptr() as _,
-            ))?;
-
-            Ok(info.assume_init())
-        }
+        String::from_utf8_lossy(&buf).to_string()
     }
 
     /// Returns the size of this title in bytes.
-    pub fn size(&self) -> crate::Result<u64> {
-        // Get the internal entry, or fill it if empty.
-        let entry = self
-            .entry
-            .get_or_try_init(|| -> crate::Result<ctru_sys::AM_TitleEntry> { self.title_info() })?;
-
-        Ok(entry.size)
+    pub fn size(&self) -> u64 {
+        self.size
     }
 
     /// Returns the installed version of this title.
-    pub fn version(&self) -> crate::Result<u16> {
-        // Get the internal entry, or fill it if empty.
-        let entry = self
-            .entry
-            .get_or_try_init(|| -> crate::Result<ctru_sys::AM_TitleEntry> { self.title_info() })?;
-
-        Ok(entry.version)
+    pub fn version(&self) -> u16 {
+        self.version
     }
 }
 
@@ -84,7 +55,20 @@ impl<'a> Title<'a> {
 pub struct Am(());
 
 impl Am {
-    /// Initialize a new handle.
+    /// Initialize a new service handle.
+    ///
+    /// # Example
+    /// ```no_run
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::am::Am;
+    ///
+    /// let app_manager = Am::new()?;
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
     #[doc(alias = "amInit")]
     pub fn new() -> crate::Result<Am> {
         unsafe {
@@ -94,6 +78,24 @@ impl Am {
     }
 
     /// Returns the amount of titles currently installed in a specific install location.
+    ///
+    /// # Example
+    /// ```no_run
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::{fs::FsMediaType, am::Am};
+    /// let app_manager = Am::new()?;
+    ///
+    /// // Number of titles installed on the Nand storage.
+    /// let nand_count = app_manager.title_count(FsMediaType::Nand);
+    ///
+    /// // Number of apps installed on the SD card storage
+    /// let sd_count = app_manager.title_count(FsMediaType::Sd);
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
     #[doc(alias = "AM_GetTitleCount")]
     pub fn title_count(&self, mediatype: FsMediaType) -> crate::Result<u32> {
         unsafe {
@@ -104,11 +106,30 @@ impl Am {
     }
 
     /// Returns the list of titles installed in a specific install location.
+    ///
+    /// # Example
+    /// ```no_run
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::{fs::FsMediaType, am::Am};
+    /// let app_manager = Am::new()?;
+    ///
+    /// // Number of apps installed on the SD card storage
+    /// let sd_titles = app_manager.title_list(FsMediaType::Sd)?;
+    ///
+    /// // Unique product code identifier of the 5th installed title.
+    /// let product_code = sd_titles[4].product_code();
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
     #[doc(alias = "AM_GetTitleList")]
     pub fn title_list(&self, mediatype: FsMediaType) -> crate::Result<Vec<Title>> {
         let count = self.title_count(mediatype)?;
         let mut buf = vec![0; count as usize];
         let mut read_amount = 0;
+
         unsafe {
             ResultCode(ctru_sys::AM_GetTitleList(
                 &mut read_amount,
@@ -117,13 +138,30 @@ impl Am {
                 buf.as_mut_ptr(),
             ))?;
         }
-        Ok(buf
+
+        let mut info: Vec<ctru_sys::AM_TitleEntry> = Vec::with_capacity(count as _);
+
+        unsafe {
+            ResultCode(ctru_sys::AM_GetTitleInfo(
+                mediatype.into(),
+                count,
+                buf.as_mut_ptr(),
+                info.as_mut_ptr() as _,
+            ))?;
+
+            info.set_len(count as _);
+        };
+
+        Ok(info
             .into_iter()
-            .map(|id| Title {
-                id,
-                mediatype,
-                entry: OnceCell::new(),
-                _am: PhantomData,
+            .map(|title| {
+                Title {
+                    id: title.titleID,
+                    mediatype,
+                    size: title.size,
+                    version: title.version,
+                    _am: PhantomData,
+                }
             })
             .collect())
     }
