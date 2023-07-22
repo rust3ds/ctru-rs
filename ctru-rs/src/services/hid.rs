@@ -1,15 +1,14 @@
-//! Human-Interface Device service.
+//! Human Interface Device service.
 //!
-//! The HID service provides access to user input such as button presses, touch screen presses,
-//! and circle pad information. It also provides information from the sound volume slider,
-//! the accelerometer, and the gyroscope.
+//! The HID service provides read access to user input such as [button presses](Hid::keys_down), [touch screen presses](Hid::touch_position),
+//! and [circle pad information](Hid::circlepad_position). It also provides information from the sound volume slider, the accelerometer, and the gyroscope.
+// TODO: Implement volume slider, accelerometer and gyroscope + any other missing functionality.
 
 use crate::error::ResultCode;
 use bitflags::bitflags;
 
 bitflags! {
-    /// A set of flags corresponding to the button and directional pad
-    /// inputs on the 3DS
+    /// A set of flags corresponding to the button and directional pad inputs present on the 3DS.
     #[derive(PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Clone, Copy)]
     pub struct KeyPad: u32 {
         /// A button.
@@ -72,10 +71,7 @@ bitflags! {
     }
 }
 
-/// A reference-counted handle to the HID service. The service is closed
-/// when all instances of this struct fall out of scope.
-///
-/// This service requires no special permissions to use.
+/// Handle to the HID service.
 pub struct Hid(());
 
 impl Hid {
@@ -84,8 +80,21 @@ impl Hid {
     /// # Errors
     ///
     /// This function will return an error if the service was unable to be initialized.
-    /// Since this service requires no special or elevated permissions, errors are
-    /// rare in practice.
+    /// Since this service requires no special or elevated permissions, errors are rare in practice.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::hid::Hid;
+    ///
+    /// let hid = Hid::new()?;
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
     #[doc(alias = "hidInit")]
     pub fn new() -> crate::Result<Hid> {
         unsafe {
@@ -94,9 +103,25 @@ impl Hid {
         }
     }
 
-    /// Scans the HID service for all user input occurring on the current
-    /// frame. This function should be called on every frame when polling
+    /// Scan the HID service for all user input occurring on the current frame.
+    ///
+    /// This function should be called on every frame when polling
     /// for user input.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::hid::Hid;
+    /// let mut hid = Hid::new()?;
+    ///
+    /// hid.scan_input();
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
     #[doc(alias = "hidScanInput")]
     pub fn scan_input(&mut self) {
         unsafe { ctru_sys::hidScanInput() };
@@ -104,6 +129,25 @@ impl Hid {
 
     /// Returns a bitflag struct representing which buttons have just been pressed
     /// on the current frame (and were not pressed on the previous frame).
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::hid::{Hid, KeyPad};
+    /// let mut hid = Hid::new()?;
+    ///
+    /// hid.scan_input();
+    ///
+    /// if hid.keys_down().contains(KeyPad::A) {
+    ///     println!("You just pressed the A button!")
+    /// }
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
     #[doc(alias = "hidKeysDown")]
     pub fn keys_down(&self) -> KeyPad {
         unsafe {
@@ -114,6 +158,25 @@ impl Hid {
 
     /// Returns a bitflag struct representing which buttons have been held down
     /// during the current frame.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::hid::{Hid, KeyPad};
+    /// let mut hid = Hid::new()?;
+    ///
+    /// hid.scan_input();
+    ///
+    /// if hid.keys_held().contains(KeyPad::START) {
+    ///     println!("You are holding the START button!")
+    /// }
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
     #[doc(alias = "hidKeysHeld")]
     pub fn keys_held(&self) -> KeyPad {
         unsafe {
@@ -124,6 +187,25 @@ impl Hid {
 
     /// Returns a bitflag struct representing which buttons have just been released on
     /// the current frame.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::hid::{Hid, KeyPad};
+    /// let mut hid = Hid::new()?;
+    ///
+    /// hid.scan_input();
+    ///
+    /// if hid.keys_held().contains(KeyPad::B) {
+    ///     println!("You have released the B button!")
+    /// }
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
     #[doc(alias = "hidKeysUp")]
     pub fn keys_up(&self) -> KeyPad {
         unsafe {
@@ -137,13 +219,31 @@ impl Hid {
     /// # Notes
     ///
     /// (0, 0) represents the top left corner of the screen.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::hid::Hid;
+    /// let mut hid = Hid::new()?;
+    ///
+    /// hid.scan_input();
+    ///
+    /// let (touch_x, touch_y) = hid.touch_position();
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
     #[doc(alias = "hidTouchRead")]
-    pub fn touch_position(&mut self) -> (u16, u16) {
+    pub fn touch_position(&self) -> (u16, u16) {
         let mut res = ctru_sys::touchPosition { px: 0, py: 0 };
 
         unsafe {
             ctru_sys::hidTouchRead(&mut res);
         }
+
         (res.px, res.py)
     }
 
@@ -152,13 +252,31 @@ impl Hid {
     /// # Notes
     ///
     /// (0, 0) represents the center of the circle pad.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::hid::Hid;
+    /// let mut hid = Hid::new()?;
+    ///
+    /// hid.scan_input();
+    ///
+    /// let (pad_x, pad_y) = hid.circlepad_position();
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
     #[doc(alias = "hidCircleRead")]
-    pub fn circlepad_position(&mut self) -> (i16, i16) {
+    pub fn circlepad_position(&self) -> (i16, i16) {
         let mut res = ctru_sys::circlePosition { dx: 0, dy: 0 };
 
         unsafe {
             ctru_sys::hidCircleRead(&mut res);
         }
+
         (res.dx, res.dy)
     }
 }
