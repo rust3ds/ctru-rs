@@ -9,6 +9,20 @@ pub struct SslC(());
 
 impl SslC {
     /// Initialize a new service handle.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::sslc::SslC;
+    ///
+    /// let sslc = SslC::new()?;
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
     #[doc(alias = "sslcInit")]
     pub fn new() -> crate::Result<Self> {
         unsafe {

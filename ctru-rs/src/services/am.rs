@@ -58,7 +58,7 @@ impl Am {
     /// Initialize a new service handle.
     ///
     /// # Example
-    /// 
+    ///
     /// ```no_run
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
@@ -81,7 +81,7 @@ impl Am {
     /// Returns the amount of titles currently installed in a specific install location.
     ///
     /// # Example
-    /// 
+    ///
     /// ```no_run
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
@@ -110,7 +110,7 @@ impl Am {
     /// Returns the list of titles installed in a specific install location.
     ///
     /// # Example
-    /// 
+    ///
     /// ```no_run
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
@@ -157,14 +157,12 @@ impl Am {
 
         Ok(info
             .into_iter()
-            .map(|title| {
-                Title {
-                    id: title.titleID,
-                    mediatype,
-                    size: title.size,
-                    version: title.version,
-                    _am: PhantomData,
-                }
+            .map(|title| Title {
+                id: title.titleID,
+                mediatype,
+                size: title.size,
+                version: title.version,
+                _am: PhantomData,
             })
             .collect())
     }

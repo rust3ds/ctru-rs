@@ -13,9 +13,9 @@ pub struct Apt(());
 
 impl Apt {
     /// Initialize a new service handle.
-    /// 
+    ///
     /// # Example
-    /// 
+    ///
     /// ```no_run
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
@@ -43,20 +43,20 @@ impl Apt {
     /// For this reason, its main use is as the condition of a while loop that controls the main logic for your program.
     ///
     /// # Example
-    /// 
+    ///
     /// ```no_run
     /// use std::error::Error;
     /// use ctru::services::apt::Apt;
-    /// 
+    ///
     /// // In a simple `main` function, the structure should be the following.
     /// fn main() -> Result<(), Box<dyn Error>> {
     ///
     /// let apt = Apt::new()?;
-    /// 
+    ///
     /// while apt.main_loop() {
     ///     // Main program logic should be written here.
     /// }
-    /// 
+    ///
     /// // Optional clean-ups after running the application should be written after the main loop.
     /// #
     /// # Ok(())

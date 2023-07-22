@@ -1,14 +1,15 @@
-//! Process Services. 
-//! 
-//! This is used for miscellaneous utility tasks, but
-//! is particularly important because it is used to generate random data, which
-//! is required for common things like [`HashMap`](std::collections::HashMap).
+//! Process Services.
+//!
+//! This service handles miscellaneous utility tasks used by the various processes.
+//! However, it is particularly important because it is used to generate cryptographically secure random data, which
+//! is required for commonly used functionality such as hashing (e.g. [`HashMap`](std::collections::HashMap) will not work without it).
+//!
 //! See also <https://www.3dbrew.org/wiki/Process_Services>
 
 use crate::error::ResultCode;
 use crate::Result;
 
-/// Kind of AES algorithm to use.
+/// Type of AES algorithm to use.
 #[doc(alias = "PS_AESAlgorithm")]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u32)]
@@ -59,6 +60,20 @@ pub struct Ps(());
 
 impl Ps {
     /// Initialize a new service handle.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::ps::Ps;
+    ///
+    /// let ps = Ps::new()?;
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
     #[doc(alias = "psInit")]
     pub fn new() -> Result<Self> {
         unsafe {
@@ -68,6 +83,21 @@ impl Ps {
     }
 
     /// Returns the console's local friend code seed.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::ps::Ps;
+    /// let ps = Ps::new()?;
+    ///
+    /// let friend_code_seed = ps.local_friend_code_seed()?;
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
     #[doc(alias = "PS_GetLocalFriendCodeSeed")]
     pub fn local_friend_code_seed(&self) -> crate::Result<u64> {
         let mut seed: u64 = 0;
@@ -77,6 +107,21 @@ impl Ps {
     }
 
     /// Returns the console's devide ID.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::ps::Ps;
+    /// let ps = Ps::new()?;
+    ///
+    /// let device_id = ps.device_id()?;
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
     #[doc(alias = "PS_GetDeviceId")]
     pub fn device_id(&self) -> crate::Result<u32> {
         let mut id: u32 = 0;
@@ -86,6 +131,24 @@ impl Ps {
     }
 
     /// Generates cryptografically secure random bytes and writes them into the `out` buffer.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::ps::Ps;
+    /// let ps = Ps::new()?;
+    ///
+    /// let mut buffer = vec![0; 128];
+    ///
+    /// // The buffer is now randomized!
+    /// ps.generate_random_bytes(&mut buffer)?;
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
     #[doc(alias = "PS_GenerateRandomBytes")]
     pub fn generate_random_bytes(&self, out: &mut [u8]) -> crate::Result<()> {
         ResultCode(unsafe {

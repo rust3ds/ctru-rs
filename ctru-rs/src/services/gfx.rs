@@ -220,7 +220,7 @@ static GFX_ACTIVE: Mutex<usize> = Mutex::new(0);
 
 impl Gfx {
     /// Initialize a new default service handle.
-    /// 
+    ///
     /// It's the same as calling:
     ///
     /// ```no_run

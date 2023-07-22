@@ -158,7 +158,7 @@ impl SoftwareKeyboard {
     /// Initialize a new configuration for the Software Keyboard applet depending on how many "exit" buttons are available to the user (1, 2 or 3).
     ///
     /// # Example
-    /// 
+    ///
     /// ```no_run
     /// # fn main() {
     /// #
@@ -189,7 +189,7 @@ impl SoftwareKeyboard {
     /// TODO: UNSAFE OPERATION, LAUNCHING APPLETS REQUIRES GRAPHICS, WITHOUT AN ACTIVE GFX THIS WILL CAUSE A SEGMENTATION FAULT.
     ///
     /// # Example
-    /// 
+    ///
     /// ```no_run
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
@@ -233,7 +233,7 @@ impl SoftwareKeyboard {
     /// TODO: UNSAFE OPERATION, LAUNCHING APPLETS REQUIRES GRAPHICS, WITHOUT AN ACTIVE GFX THIS WILL CAUSE A SEGMENTATION FAULT.
     ///
     /// # Example
-    /// 
+    ///
     /// ```no_run
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
@@ -264,7 +264,7 @@ impl SoftwareKeyboard {
     /// Set special features for this keyboard.
     ///
     /// # Example
-    /// 
+    ///
     /// ```no_run
     /// # fn main() {
     /// #
@@ -284,7 +284,7 @@ impl SoftwareKeyboard {
     /// Configure input validation for this keyboard.
     ///
     /// # Example
-    /// 
+    ///
     /// ```no_run
     /// # fn main() {
     /// #
@@ -307,7 +307,7 @@ impl SoftwareKeyboard {
     /// Configure the maximum number of digits that can be entered in the keyboard when the [`Filters::DIGITS`] flag is enabled.
     ///
     /// # Example
-    /// 
+    ///
     /// ```no_run
     /// # fn main() {
     /// #
@@ -334,7 +334,7 @@ impl SoftwareKeyboard {
     /// The hint text is the text shown in gray before any text gets written in the input box.
     ///
     /// # Example
-    /// 
+    ///
     /// ```no_run
     /// # fn main() {
     /// #
@@ -361,7 +361,7 @@ impl SoftwareKeyboard {
     /// - `submit` - whether pressing the button will accept the keyboard's input or discard it.
     ///
     /// # Example
-    /// 
+    ///
     /// ```no_run
     /// # fn main() {
     /// #
@@ -400,7 +400,7 @@ impl SoftwareKeyboard {
     /// receivable by [`SoftwareKeyboard::get_string()`] and [`SoftwareKeyboard::write_exact()`].
     ///
     /// # Example
-    /// 
+    ///
     /// ```no_run
     /// # fn main() {
     /// #
