@@ -1,4 +1,4 @@
-//! Filesystem service
+//! FileSystem service.
 //!
 //! This module contains basic methods to manipulate the contents of the 3DS's filesystem.
 //! Only the SD card is currently supported. You should prefer using `std::fs`.
@@ -320,7 +320,7 @@ unsafe impl Send for Dir {}
 unsafe impl Sync for Dir {}
 
 impl Fs {
-    /// Initializes the FS service.
+    /// Initialize a new service handle.
     ///
     /// # Errors
     ///

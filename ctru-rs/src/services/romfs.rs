@@ -1,4 +1,4 @@
-//! Read-Only Memory FileSystem
+//! Read-Only Memory FileSystem service.
 //!
 //! This module only gets compiled if the configured RomFS directory is found and the `romfs`
 //! feature is enabled.
@@ -31,7 +31,7 @@ pub struct RomFS {
 static ROMFS_ACTIVE: Mutex<usize> = Mutex::new(0);
 
 impl RomFS {
-    /// Mounts the specified RomFS folder as a virtual drive.
+    /// Mount the specified RomFS folder as a virtual drive.
     #[doc(alias = "romfsMountSelf")]
     pub fn new() -> crate::Result<Self> {
         let _service_handler = ServiceReference::new(

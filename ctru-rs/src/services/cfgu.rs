@@ -1,4 +1,4 @@
-//! Configuration service
+//! System Configuration service.
 //!
 //! This module contains basic methods to retrieve and change configuration from the console.
 
@@ -82,7 +82,7 @@ pub enum SystemModel {
 pub struct Cfgu(());
 
 impl Cfgu {
-    /// Initializes the CFGU service.
+    /// Initialize a new service handle.
     ///
     /// # Errors
     ///

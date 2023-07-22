@@ -1,4 +1,4 @@
-//! SSLC (TLS) service
+//! SSLC (TLS) service.
 
 // TODO: Implement remaining functions
 
@@ -8,7 +8,7 @@ use crate::error::ResultCode;
 pub struct SslC(());
 
 impl SslC {
-    /// Initialize the service
+    /// Initialize a new service handle.
     #[doc(alias = "sslcInit")]
     pub fn new() -> crate::Result<Self> {
         unsafe {

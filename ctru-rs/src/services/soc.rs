@@ -1,4 +1,4 @@
-//! Network Socket
+//! Network Socket service.
 
 use libc::memalign;
 use std::net::Ipv4Addr;
@@ -20,11 +20,11 @@ pub struct Soc {
 static SOC_ACTIVE: Mutex<usize> = Mutex::new(0);
 
 impl Soc {
-    /// Initialize the Soc service with a default buffer size of 0x100000 bytes
+    /// Initialize a new service handle using a socket buffer size of 0x100000 bytes.
     ///
     /// # Errors
     ///
-    /// This function will return an error if the `Soc` service is already initialized
+    /// This function will return an error if the [`Soc`] service is already initialized
     #[doc(alias = "socInit")]
     pub fn new() -> crate::Result<Self> {
         Self::init_with_buffer_size(0x100000)
@@ -35,7 +35,7 @@ impl Soc {
     ///
     /// # Errors
     ///
-    /// This function will return an error if the `Soc` service is already initialized
+    /// This function will return an error if the [`Soc`] service is already initialized
     #[doc(alias = "socInit")]
     pub fn init_with_buffer_size(num_bytes: usize) -> crate::Result<Self> {
         let _service_handler = ServiceReference::new(

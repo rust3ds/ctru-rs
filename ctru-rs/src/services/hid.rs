@@ -1,4 +1,4 @@
-//! HID service
+//! Human-Interface Device service.
 //!
 //! The HID service provides access to user input such as button presses, touch screen presses,
 //! and circle pad information. It also provides information from the sound volume slider,
@@ -79,7 +79,7 @@ bitflags! {
 pub struct Hid(());
 
 impl Hid {
-    /// Initializes the HID service.
+    /// Initialize a new service handle.
     ///
     /// # Errors
     ///

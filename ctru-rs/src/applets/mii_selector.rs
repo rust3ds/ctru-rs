@@ -96,6 +96,7 @@ impl MiiSelector {
     /// This function will panic if the given `&str` contains NUL bytes.
     ///
     /// # Example
+    /// 
     /// ```no_run
     /// # fn main() {
     /// use ctru::applets::mii_selector::MiiSelector;
@@ -119,6 +120,7 @@ impl MiiSelector {
     /// This will overwrite any previously saved options. Use bitwise operations to set all your wanted options at once.
     ///
     /// # Example
+    /// 
     /// ```no_run
     /// # fn main() {
     /// use ctru::applets::mii_selector::{MiiSelector, Options};
@@ -142,6 +144,7 @@ impl MiiSelector {
     /// Look into [`MiiSelector::set_options()`] to see how to work with options.
     ///
     /// # Example
+    /// 
     /// ```no_run
     /// # fn main() {
     /// #
@@ -170,6 +173,7 @@ impl MiiSelector {
     /// Look into [`MiiSelector::set_options()`] to see how to work with options.
     ///
     /// # Example
+    /// 
     /// ```no_run
     /// # fn main() {
     /// #
@@ -193,6 +197,7 @@ impl MiiSelector {
     /// Whitelist a user-created Mii based on its index.
     ///
     /// # Example
+    /// 
     /// ```no_run
     /// # fn main() {
     /// #
@@ -216,6 +221,7 @@ impl MiiSelector {
     /// Blacklist a user-created Mii based on its index.
     ///
     /// # Example
+    /// 
     /// ```no_run
     /// # fn main() {
     /// #
@@ -253,6 +259,7 @@ impl MiiSelector {
     /// TODO: UNSAFE OPERATION, LAUNCHING APPLETS REQUIRES GRAPHICS, WITHOUT AN ACTIVE GFX THIS WILL CAUSE A SEGMENTATION FAULT.
     ///
     /// # Example
+    /// 
     /// ```no_run
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {

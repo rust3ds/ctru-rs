@@ -1,4 +1,4 @@
-//! LCD screens manipulation helper
+//! Graphics service.
 
 use std::cell::{Ref, RefCell, RefMut};
 use std::marker::PhantomData;
@@ -219,7 +219,8 @@ pub struct Gfx {
 static GFX_ACTIVE: Mutex<usize> = Mutex::new(0);
 
 impl Gfx {
-    /// Creates a new [`Gfx`] instance with default init values
+    /// Initialize a new default service handle.
+    /// 
     /// It's the same as calling:
     ///
     /// ```no_run
@@ -239,10 +240,9 @@ impl Gfx {
         Gfx::with_formats(FramebufferFormat::Bgr8, FramebufferFormat::Bgr8, false)
     }
 
-    /// Initialize the Gfx module with the chosen framebuffer formats for the top and bottom
-    /// screens
+    /// Initialize a new service handle with the chosen framebuffer formats for the top and bottom screens.
     ///
-    /// Use `Gfx::new()` instead of this function to initialize the module with default parameters
+    /// Use [`Gfx::new()`] instead of this function to initialize the module with default parameters
     #[doc(alias = "gfxInit")]
     pub fn with_formats(
         top_fb_fmt: FramebufferFormat,

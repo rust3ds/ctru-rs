@@ -1,6 +1,6 @@
-//! Camera service
+//! Camera service.
 //!
-//! The CAM service provides access to the cameras. Cameras can return images
+//! The CAM service provides access to the built-in cameras. [`Camera`]s can return images
 //! in the form of byte vectors which can be displayed or used in other ways.
 
 use crate::error::{Error, ResultCode};
@@ -856,7 +856,7 @@ pub trait Camera {
 }
 
 impl Cam {
-    /// Initializes the CAM service.
+    /// Initialize a new service handle.
     ///
     /// # Errors
     ///
