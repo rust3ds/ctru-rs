@@ -16,3 +16,7 @@ libc = { version = "0.2.121", default-features = false }
 
 [build-dependencies]
 which = "4.4.0"
+
+[package.metadata.docs.rs]
+default-target = "armv6k-nintendo-3ds"
+cargo-args = ["-Z", "build-std"]
