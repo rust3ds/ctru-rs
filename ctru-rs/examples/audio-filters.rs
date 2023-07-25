@@ -5,7 +5,7 @@ use std::f32::consts::PI;
 use ctru::linear::LinearAllocator;
 use ctru::prelude::*;
 use ctru::services::ndsp::{
-    wave::{Wave, WaveStatus},
+    wave::{Status, Wave},
     AudioFormat, AudioMix, InterpolationType, Ndsp, OutputMode,
 };
 
@@ -146,7 +146,7 @@ fn main() {
         };
 
         let status = current.status();
-        if let WaveStatus::Done = status {
+        if let Status::Done = status {
             fill_buffer(current.get_buffer_mut().unwrap(), NOTEFREQ[note]);
 
             channel_zero.queue_wave(current).unwrap();

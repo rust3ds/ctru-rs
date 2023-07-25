@@ -1,9 +1,13 @@
-//! Audio wave representation.
+//! Audio wave.
+//!
+//! This modules has all methods and structs required to work with audio waves meant to be played via the [`ndsp`](crate::services::ndsp) service.
 
 use super::{AudioFormat, NdspError};
 use crate::linear::LinearAllocator;
 
-/// Informational struct holding the raw audio data and playback info. This corresponds to [`ctru_sys::ndspWaveBuf`].
+/// Informational struct holding the raw audio data and playback info.
+///
+/// You can play audio [`Wave`]s by using [`Channel::queue_wave()`](super::Channel::queue_wave).
 pub struct Wave {
     /// Data block of the audio wave (and its format information).
     buffer: Box<[u8], LinearAllocator>,
@@ -15,8 +19,8 @@ pub struct Wave {
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u8)]
-/// Enum representing the playback status of a [`Wave`].
-pub enum WaveStatus {
+/// Playback status of a [`Wave`].
+pub enum Status {
     /// Wave has never been used.
     Free = ctru_sys::NDSP_WBUF_FREE as u8,
     /// Wave is currently queued for usage.
@@ -28,7 +32,23 @@ pub enum WaveStatus {
 }
 
 impl Wave {
-    /// Build a new playable wave object from a raw buffer on LINEAR memory and a some info.
+    /// Build a new playable wave object from a raw buffer on [LINEAR memory](`crate::linear`) and a some info.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # #![feature(allocator_api)]
+    /// # fn main() {
+    /// #
+    /// use ctru::linear::LinearAllocator;
+    /// use ctru::services::ndsp::{AudioFormat, wave::Wave};
+    ///
+    /// // Zeroed box allocated in the LINEAR memory.
+    /// let audio_data = Box::new_in([0u8; 96], LinearAllocator);
+    ///
+    /// let wave = Wave::new(audio_data, AudioFormat::PCM16Stereo, false);
+    /// # }
+    /// ```
     pub fn new(
         buffer: Box<[u8], LinearAllocator>,
         audio_format: AudioFormat,
@@ -79,7 +99,7 @@ impl Wave {
     /// with the id to the channel in which it's queued.
     pub fn get_buffer_mut(&mut self) -> Result<&mut [u8], NdspError> {
         match self.status() {
-            WaveStatus::Playing | WaveStatus::Queued => {
+            Status::Playing | Status::Queued => {
                 Err(NdspError::WaveBusy(self.played_on_channel.unwrap()))
             }
             _ => Ok(&mut self.buffer),
@@ -87,7 +107,26 @@ impl Wave {
     }
 
     /// Return this wave's playback status.
-    pub fn status(&self) -> WaveStatus {
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # #![feature(allocator_api)]
+    /// # fn main() {
+    /// #
+    /// # use ctru::linear::LinearAllocator;
+    /// # let _audio_data = Box::new_in([0u8; 96], LinearAllocator);
+    /// #
+    /// use ctru::services::ndsp::{AudioFormat, wave::{Wave, Status}};
+    ///
+    /// // Provide your own audio data.
+    /// let wave = Wave::new(_audio_data, AudioFormat::PCM16Stereo, false);
+    ///
+    /// // The `Wave` is free if never played before.
+    /// assert!(matches!(wave.status(), Status::Free));
+    /// # }
+    /// ```
+    pub fn status(&self) -> Status {
         self.raw_data.status.try_into().unwrap()
     }
 
@@ -118,7 +157,7 @@ impl Wave {
     /// # Note
     ///
     /// Operations of this kind are particularly useful to allocate memory pools
-    /// for VBR (Variable BitRate) Formats, like OGG Vorbis.
+    /// for VBR (Variable BitRate) formats, like OGG Vorbis.
     ///
     /// # Errors
     ///
@@ -126,7 +165,7 @@ impl Wave {
     /// or if the [`Wave`] is currently queued.
     pub fn set_sample_count(&mut self, sample_count: usize) -> Result<(), NdspError> {
         match self.status() {
-            WaveStatus::Playing | WaveStatus::Queued => {
+            Status::Playing | Status::Queued => {
                 return Err(NdspError::WaveBusy(self.played_on_channel.unwrap()));
             }
             _ => (),
@@ -144,7 +183,7 @@ impl Wave {
     }
 }
 
-impl TryFrom<u8> for WaveStatus {
+impl TryFrom<u8> for Status {
     type Error = &'static str;
 
     fn try_from(value: u8) -> Result<Self, Self::Error> {
@@ -163,7 +202,7 @@ impl Drop for Wave {
         // This was the only way I found I could check for improper drops of `Wave`.
         // A panic was considered, but it would cause issues with drop order against `Ndsp`.
         match self.status() {
-            WaveStatus::Free | WaveStatus::Done => (),
+            Status::Free | Status::Done => (),
             // If the status flag is "unfinished"
             _ => {
                 // The unwrap is safe, since it must have a value in the case the status is "unfinished".
