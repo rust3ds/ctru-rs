@@ -6,7 +6,7 @@
 //! Thanks to it, developers can access the underlying system services and the console's hardware to develop userland applications
 //! (such as [HID devices](crate::services::hid), [network capabilities](crate::services::soc), [graphics](crate::services::gfx), [built-in cameras](crate::services::cam), etc.).
 //!
-//! Among these features, `ctru-rs` also automatically includes functionality to properly integrate the Rust `std` with the console's operating system,
+//! Among these features, [`ctru-rs`](crate) also automatically includes functionality to properly integrate the Rust `std` with the console's operating system,
 //! which the developer would otherwise need to implement manually.
 //!
 //! # Usage
@@ -53,7 +53,7 @@ macro_rules! from_impl {
     };
 }
 
-/// Activate the custom `ctru-rs` panic handler.
+/// Activate the custom [`ctru-rs`](crate) panic handler.
 ///
 /// With this implementation, the main thread will stop and try to print debug info to an available [`Console`](console::Console).
 /// In case it fails to find an active [`Console`](console::Console) the program will just exit.

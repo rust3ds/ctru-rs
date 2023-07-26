@@ -4,7 +4,7 @@
 //! - Read the installed applications on the console and their information (depending on the install location).
 //! - Install compatible applications to the console.
 //!
-//! TODO: `ctru-rs` doesn't support installing or uninstalling titles yet.
+//! TODO: [`ctru-rs`](crate) doesn't support installing or uninstalling titles yet.
 
 use crate::error::ResultCode;
 use crate::services::fs::FsMediaType;

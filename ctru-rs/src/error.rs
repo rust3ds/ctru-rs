@@ -1,6 +1,7 @@
 //! Error handling interface.
 //!
-//! This module holds the generic error and result types to interface with [`ctru_sys`] and the safe wrapper.
+//! This module holds the generic error and result types to interface with `ctru_sys` and the [`ctru-rs`](crate) safe wrapper.
+
 use std::borrow::Cow;
 use std::error;
 use std::ffi::CStr;
@@ -9,12 +10,12 @@ use std::ops::{ControlFlow, FromResidual, Try};
 
 use ctru_sys::result::{R_DESCRIPTION, R_LEVEL, R_MODULE, R_SUMMARY};
 
-/// Custom type alias for generic `ctru` operations.
+/// Custom type alias for generic [`ctru-rs`](crate) operations.
 ///
-/// This type is compatible with `ctru-sys` result codes.
+/// This type is compatible with `ctru-sys::Result` codes.
 pub type Result<T> = ::std::result::Result<T, Error>;
 
-/// Validity checker of raw [`ctru_sys::Result`] codes.
+/// Validity checker of raw `ctru_sys::Result` codes.
 ///
 /// This struct supports the "try" syntax (`?`) to convert to an [`Error::Os`].
 ///
@@ -72,7 +73,7 @@ impl<T> FromResidual<Error> for Result<T> {
     }
 }
 
-/// The generic error enum returned by `ctru` functions.
+/// The generic error enum returned by [`ctru-rs`](crate) functions.
 ///
 /// This error enum supports parsing and displaying [`ctru_sys::Result`] codes.
 #[non_exhaustive]

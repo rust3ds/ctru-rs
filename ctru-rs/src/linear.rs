@@ -1,11 +1,12 @@
-//! Linear memory allocator
+//! LINEAR memory allocator.
 //!
-//! Linear memory is a sector of the 3DS' RAM that binds virtual addresses exactly to the physical address.
-//! As such, it is used for fast and safe memory sharing between services (and is especially needed for GPU and DSP).
+//! LINEAR memory is a sector of the 3DS' RAM that binds virtual addresses exactly to the physical address.
+//! As such, it is used for fast and safe memory sharing between hardware processors (such as the GPU and the DSP).
 //!
-//! Resources:<br>
-//! <https://github.com/devkitPro/libctru/blob/master/libctru/source/allocator/linear.cpp><br>
-//! <https://www.3dbrew.org/wiki/Memory_layout>
+//! # Additional Resources
+//! 
+//! - <https://github.com/devkitPro/libctru/blob/master/libctru/source/allocator/linear.cpp><br>
+//! - <https://www.3dbrew.org/wiki/Memory_layout>
 
 use std::alloc::{AllocError, Allocator, Layout};
 use std::ptr::NonNull;
@@ -15,13 +16,14 @@ use std::ptr::NonNull;
 // Sadly the linear memory allocator included in `libctru` doesn't implement `linearRealloc` at the time of these additions,
 // but the default fallback of the `std` will take care of that for us.
 
-/// [`Allocator`](std::alloc::Allocator) struct for LINEAR memory
+/// [`Allocator`](std::alloc::Allocator) struct for LINEAR memory.
+/// 
 /// To use this struct the main crate must activate the `allocator_api` unstable feature.
 #[derive(Copy, Clone, Default, Debug)]
 pub struct LinearAllocator;
 
 impl LinearAllocator {
-    /// Returns the amount of free space left in the LINEAR sector
+    /// Returns the amount of free space left in the LINEAR memory sector.
     #[doc(alias = "linearSpaceFree")]
     pub fn free_space() -> u32 {
         unsafe { ctru_sys::linearSpaceFree() }

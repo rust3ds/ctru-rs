@@ -1,7 +1,6 @@
 # ctru-rs
 
 Safe and idiomatic Rust wrapper around [`libctru`](https://github.com/devkitPro/libctru).
-This crate uses the bindings provided by [`ctru-sys`](../ctru-sys/).
 
 ## Getting Started
 
