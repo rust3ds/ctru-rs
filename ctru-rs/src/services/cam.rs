@@ -22,7 +22,7 @@ pub struct Cam {
 }
 
 /// Different kinds of flip modes.
-/// 
+///
 /// See [`Camera::flip_image()`] to learn how to use this.
 #[doc(alias = "CAMU_Flip")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -39,7 +39,7 @@ pub enum FlipMode {
 }
 
 /// Size of the camera view.
-/// 
+///
 /// See [`Camera::set_view_size()`] to learn how to use this.
 #[doc(alias = "CAMU_Size")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -68,7 +68,7 @@ pub enum ViewSize {
 }
 
 /// Framerate settings.
-/// 
+///
 /// See [`Camera::set_frame_rate()`] to learn how to use this.
 #[doc(alias = "CAMU_FramRate")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -103,7 +103,7 @@ pub enum FrameRate {
 }
 
 /// White balance settings.
-/// 
+///
 /// See [`Camera::set_white_balance()`] and [`Camera::set_white_balance_without_base_up()`] to learn how to use this.
 #[doc(alias = "CAMU_WhiteBalance")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -124,7 +124,7 @@ pub enum WhiteBalance {
 }
 
 /// Photo mode settings.
-/// 
+///
 /// See [`Camera::set_photo_mode()`] to learn how to use this.
 #[doc(alias = "CAMU_PhotoMode")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -143,7 +143,7 @@ pub enum PhotoMode {
 }
 
 /// Special camera effects.
-/// 
+///
 /// See [`Camera::set_effect()`] to learn how to use this.
 #[doc(alias = "CAMU_Effect")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -160,13 +160,13 @@ pub enum Effect {
     /// Negative film effect.
     Negafilm = ctru_sys::EFFECT_NEGAFILM,
     /// Sepia effect.
-    /// 
+    ///
     /// The difference between this and [`Sepia`](Effect::Sepia) is unknown.
     Sepia01 = ctru_sys::EFFECT_SEPIA01,
 }
 
 /// Contrast settings.
-/// 
+///
 /// See [`Camera::set_contrast()`] to learn how to use this.
 #[doc(alias = "CAMU_Contrast")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -181,7 +181,7 @@ pub enum Contrast {
 }
 
 /// Lens correction settings.
-/// 
+///
 /// See [`Camera::set_lens_correction()`] to learn how to use this.
 #[doc(alias = "CAMU_LensCorrection")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -196,7 +196,7 @@ pub enum LensCorrection {
 }
 
 /// Image output format.
-/// 
+///
 /// See [`Camera::set_output_format()`] to learn how to use this.
 #[doc(alias = "CAMU_OutputFormat")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -209,7 +209,7 @@ pub enum OutputFormat {
 }
 
 /// Playable shutter sounds.
-/// 
+///
 /// See [`Cam::play_shutter_sound()`] to learn how to use this.
 #[doc(alias = "CAMU_ShutterSoundType")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -224,7 +224,7 @@ pub enum ShutterSound {
 }
 
 /// Parameters to handle image trimming.
-/// 
+///
 /// See [`Camera::set_trimming_params()`] to learn how to use this.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct TrimmingParams {
@@ -237,7 +237,7 @@ pub struct TrimmingParams {
 impl TrimmingParams {
     /// Creates a new [`TrimmingParams`] and guarantees the start coordinates are less than or
     /// equal to the end coordinates.
-    /// 
+    ///
     /// # Panics
     ///
     /// This function panics if the start coordinates are larger than the end coordinates (for each axis).
@@ -264,7 +264,7 @@ pub struct ImageQualityCalibrationData(pub ctru_sys::CAMU_ImageQualityCalibratio
 pub struct StereoCameraCalibrationData(pub ctru_sys::CAMU_StereoCameraCalibrationData);
 
 /// Inward camera representation (facing the user of the 3DS).
-/// 
+///
 /// Usually used for selfies.
 #[non_exhaustive]
 pub struct InwardCam;
@@ -296,7 +296,7 @@ impl Camera for OutwardLeftCam {
 }
 
 /// Both outer cameras combined.
-/// 
+///
 /// Usually used for 3D photos.
 #[non_exhaustive]
 pub struct BothOutwardCam;
@@ -340,7 +340,7 @@ pub trait Camera {
     }
 
     /// Returns `true` if the camera is busy (receiving data).
-    /// 
+    ///
     /// # Example
     ///
     /// ```no_run
@@ -349,9 +349,9 @@ pub trait Camera {
     /// #
     /// use ctru::services::cam::{Cam, Camera};
     /// let cam = Cam::new()?;
-    /// 
+    ///
     /// let inward = &cam.inner_cam;
-    /// 
+    ///
     /// // Inward cam is not busy since it is not being used.
     /// assert!(!inward.is_busy()?);
     /// #
@@ -369,7 +369,7 @@ pub trait Camera {
 
     /// Returns the maximum amount of transfer bytes based on the view size, trimming, and other
     /// modifications set to the camera.
-    /// 
+    ///
     /// # Example
     ///
     /// ```no_run
@@ -378,9 +378,9 @@ pub trait Camera {
     /// #
     /// use ctru::services::cam::{Cam, Camera};
     /// let cam = Cam::new()?;
-    /// 
+    ///
     /// let inward = &cam.inner_cam;
-    /// 
+    ///
     /// // Inward cam is not busy since it is not being used.
     /// let transfer_count = inward.transfer_byte_count();
     /// #
@@ -400,7 +400,7 @@ pub trait Camera {
     }
 
     /// Set whether or not the camera should trim the image.
-    /// 
+    ///
     /// [`TrimmingParams`] can be set via [`Camera::set_trimming_params`].
     #[doc(alias = "CAMU_SetTrimming")]
     fn set_trimming(&mut self, enabled: bool) -> crate::Result<()> {
@@ -421,7 +421,7 @@ pub trait Camera {
     }
 
     /// Set trimming bounds based on image coordinates.
-    /// 
+    ///
     /// For trimming to take effect it is required to pass `true` into [`Camera::set_trimming()`].
     #[doc(alias = "CAMU_SetTrimmingParams")]
     fn set_trimming_params(&mut self, params: TrimmingParams) -> crate::Result<()> {
@@ -463,9 +463,9 @@ pub trait Camera {
     }
 
     /// Set the trimming bounds relatively to the center of the image.
-    /// 
+    ///
     /// # Notes
-    /// 
+    ///
     /// The new width will be `trim_width / 2` to the left and right of the center.
     /// The new height will be `trim_height / 2` above and below the center.
     // TODO: This function doesn't use `TrimmingParams`. It'd be better to merge it with `set_trimming_params()` and change the `TrimmingParams` representation.
@@ -606,7 +606,7 @@ pub trait Camera {
     /// coordinates of the second crop point.
     ///
     /// # Arguments
-    /// 
+    ///
     /// * `width` - Width of the image
     /// * `height` - height of the image
     /// * `crop_0` - The first crop point in which the image will be trimmed
@@ -672,9 +672,9 @@ pub trait Camera {
     }
 
     /// Sets the effect of the camera.
-    /// 
+    ///
     /// # Notes
-    /// 
+    ///
     /// This operation will override any previously set [`Effect`]s.
     /// Multiple effects can be set at once by combining the bitflags of [`Effect`].
     #[doc(alias = "CAMU_SetEffect")]
@@ -762,9 +762,9 @@ pub trait Camera {
     /// * `y` - Starting y coordinate of the window
     /// * `width` - Width of the window
     /// * `height` - Height of the window
-    /// 
+    ///
     /// # Notes
-    /// 
+    ///
     /// To activate automatic white balance, you must pass [`WhiteBalance::Auto`] into [`Camera::set_white_balance()`].
     #[doc(alias = "CAMU_SetAutoWhiteBalanceWindow")]
     fn set_auto_white_balance_window(
@@ -838,9 +838,9 @@ pub trait Camera {
     /// * `width` - Width of the desired image
     /// * `height` - Height of the desired image
     /// * `timeout` - Duration to wait for the image
-    /// 
+    ///
     /// # Example
-    /// 
+    ///
     /// ```no_run
     /// # use std::error::Error;
     /// # use std::time::Duration;
@@ -848,19 +848,19 @@ pub trait Camera {
     /// #
     /// use ctru::services::cam::{Cam, Camera, ViewSize, OutputFormat};
     /// let mut cam = Cam::new()?;
-    /// 
+    ///
     /// // We borrow the inward facing `Camera`.
     /// let inward = &mut cam.inner_cam;
-    /// 
+    ///
     /// inward.set_view_size(ViewSize::TopLCD)?;
     /// inward.set_output_format(OutputFormat::Rgb565)?;
     /// inward.set_noise_filter(true)?;
     /// inward.set_auto_exposure(true)?;
     /// inward.set_auto_white_balance(true)?;
-    /// 
+    ///
     /// // Size of the top screen buffer at 2 bytes per pixel (RGB565).
     /// let mut buffer = vec![0; 400*240*2];
-    /// 
+    ///
     /// // Take picture with 3 seconds of timeout.
     /// inward.take_picture(&mut buffer, 400, 240, Duration::from_secs(3));
     /// #
@@ -948,7 +948,7 @@ impl Cam {
     /// This function will return an error if the service was unable to be initialized.
     /// Since this service requires no special or elevated permissions, errors are
     /// rare in practice.
-    /// 
+    ///
     /// # Example
     ///
     /// ```no_run
@@ -976,12 +976,12 @@ impl Cam {
     }
 
     /// Plays the specified sound based on the [`ShutterSound`] argument
-    /// 
+    ///
     /// # Notes
-    /// 
+    ///
     /// Playing the shutter sound does not require a liviving handle to the [`Ndsp`](crate::services::ndsp::Ndsp) service.
     /// Volume will always be maxed out to ensure everyone within photo range can hear the picture being taken (as by japanese law).
-    /// 
+    ///
     /// # Example
     ///
     /// ```no_run
@@ -990,7 +990,7 @@ impl Cam {
     /// #
     /// use ctru::services::cam::{Cam, ShutterSound};
     /// let cam = Cam::new()?;
-    /// 
+    ///
     /// // We play the shutter sound on the console's speakers!
     /// // (even though we aren't taking a photo :P)
     /// cam.play_shutter_sound(ShutterSound::Normal);

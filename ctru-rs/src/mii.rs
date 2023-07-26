@@ -1,9 +1,10 @@
-//! Mii Data
+//! Mii data.
 //!
 //! This module contains the structs that represent all the data of a Mii.
-//! This data is given by the [``MiiSelector``](crate::applets::mii_selector::MiiSelector)
+//!
+//! Have a look at the [`MiiSelector`](crate::applets::mii_selector::MiiSelector) applet to learn how to ask the user for a specific Mii.
 
-/// Represents the region lock of the console.
+/// Region lock of the Mii.
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum RegionLock {
     /// No region-lock.
@@ -16,7 +17,7 @@ pub enum RegionLock {
     Europe,
 }
 
-/// Represent the charset of the console.
+/// Charset of the Mii.
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum Charset {
     /// Japan-USA-Europe unified charset.
@@ -29,9 +30,9 @@ pub enum Charset {
     Taiwan,
 }
 
-/// Represents the options of the Mii.
+/// Generic options of the Mii.
 #[derive(Copy, Clone, Debug)]
-pub struct MiiDataOptions {
+pub struct Options {
     /// Whether it is allowed to copy the Mii.
     pub is_copying_allowed: bool,
     /// Whether the profanity flag is active.
@@ -42,7 +43,7 @@ pub struct MiiDataOptions {
     pub charset: Charset,
 }
 
-/// Represents the position that the Mii has on the selector.
+/// Positional Index that the Mii has on the [`MiiSelector`](crate::applets::mii_selector::MiiSelector) window.
 #[derive(Copy, Clone, Debug)]
 pub struct SelectorPosition {
     /// Index of the page where the Mii is found.
@@ -51,40 +52,42 @@ pub struct SelectorPosition {
     pub slot_index: u8,
 }
 
-/// Represents the console where the Mii originated from.
+/// Console model from which the Mii originated.
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum OriginConsole {
     /// Nintendo Wii.
     Wii,
     /// Nintendo DSi.
     DSi,
-    /// Nintendo 3DS (both New 3DS and Old 3DS).
+    /// Nintendo 3DS.
+    ///
+    /// This includes all consoles of the 3DS family (3DS, 2DS, and their respective "New" or "XL" variants).
     N3DS,
-    /// Nintendo WiiU/Switch.
+    /// Nintendo Wii U/Switch.
     WiiUSwitch,
 }
 
-/// Represents the identity of the origin console.
+/// Identity of the origin console.
 #[derive(Copy, Clone, Debug)]
 pub struct ConsoleIdentity {
     /// From which console the Mii originated from.
     pub origin_console: OriginConsole,
 }
 
-/// Represents the sex of the Mii.
+/// Sex of the Mii.
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
-pub enum MiiSex {
+pub enum Sex {
     /// Male sex.
     Male,
     /// Female sex.
     Female,
 }
 
-/// Represents the details of the Mii.
+/// Generic details of the Mii.
 #[derive(Copy, Clone, Debug)]
 pub struct Details {
     /// Sex of the Mii.
-    pub sex: MiiSex,
+    pub sex: Sex,
     /// Birthday month.
     pub birthday_month: u8,
     /// Birthday day.
@@ -97,7 +100,7 @@ pub struct Details {
     pub is_sharing_enabled: bool,
 }
 
-/// Represents the face style of the Mii.
+/// Face style of the Mii.
 #[derive(Copy, Clone, Debug)]
 pub struct FaceStyle {
     /// Face shape.
@@ -106,7 +109,7 @@ pub struct FaceStyle {
     pub skin_color: u8,
 }
 
-/// Represents the face details of the Mii.
+/// Face details of the Mii.
 #[derive(Copy, Clone, Debug)]
 pub struct FaceDetails {
     /// Face style.
@@ -117,7 +120,7 @@ pub struct FaceDetails {
     pub makeup: u8,
 }
 
-/// Represents the hair details of the Mii.
+/// Hair details of the Mii.
 #[derive(Copy, Clone, Debug)]
 pub struct HairDetails {
     /// Hair style.
@@ -128,7 +131,7 @@ pub struct HairDetails {
     pub is_flipped: bool,
 }
 
-/// Represents the eye details of the Mii.
+/// Eye details of the Mii.
 #[derive(Copy, Clone, Debug)]
 pub struct EyeDetails {
     /// Eye style.
@@ -147,7 +150,7 @@ pub struct EyeDetails {
     pub y_position: u8,
 }
 
-/// Represents the eyebrow details of the Mii
+/// Eyebrow details of the Mii.
 #[derive(Copy, Clone, Debug)]
 pub struct EyebrowDetails {
     /// Eyebrow style.
@@ -166,7 +169,7 @@ pub struct EyebrowDetails {
     pub y_position: u8,
 }
 
-/// Represents the details of the nose
+/// Nose details of the Mii.
 #[derive(Copy, Clone, Debug)]
 pub struct NoseDetails {
     /// Nose style.
@@ -177,7 +180,7 @@ pub struct NoseDetails {
     pub y_position: u8,
 }
 
-/// Represents the details of the mouth
+/// Mouth details of the Mii.
 #[derive(Copy, Clone, Debug)]
 pub struct MouthDetails {
     /// Mouth style.
@@ -192,14 +195,14 @@ pub struct MouthDetails {
     pub y_position: u8,
 }
 
-/// Represents the details of the mustache
+/// Mustache details of the Mii.
 #[derive(Copy, Clone, Debug)]
 pub struct MustacheDetails {
     /// Mustache style.
     pub mustache_style: u8,
 }
 
-/// Represents the details of the beard
+/// Beard details of the Mii.
 #[derive(Copy, Clone, Debug)]
 pub struct BeardDetails {
     /// Beard style
@@ -212,7 +215,7 @@ pub struct BeardDetails {
     pub y_position: u8,
 }
 
-/// Represents the details of the glasses
+/// Glasses details of the Mii.
 #[derive(Copy, Clone, Debug)]
 pub struct GlassesDetails {
     /// Glasses style.
@@ -225,7 +228,7 @@ pub struct GlassesDetails {
     pub y_position: u8,
 }
 
-/// Represents the details of the mole.
+/// Mole details of the Mii.
 #[derive(Copy, Clone, Debug)]
 pub struct MoleDetails {
     /// Whether the Mii has a mole.
@@ -238,16 +241,15 @@ pub struct MoleDetails {
     pub y_position: u8,
 }
 
-/// Represents all the data of a Mii
+/// Full Mii data representation.
 ///
-/// Some values are not ordered _like_ the Mii Editor UI. The mapped values can be seen here:
-/// <https://www.3dbrew.org/wiki/Mii#Mapped_Editor_.3C-.3E_Hex_values>
+/// Some values are not ordered *like* the Mii Editor UI. The mapped values can be seen [here](https://www.3dbrew.org/wiki/Mii#Mapped_Editor_.3C-.3E_Hex_values).
 ///
-/// This struct is returned by the [`MiiSelector`](crate::applets::mii_selector::MiiSelector)
+/// This struct can be retrieved by [`MiiSelector::lauch()`](crate::applets::mii_selector::MiiSelector::launch).
 #[derive(Clone, Debug)]
-pub struct MiiData {
+pub struct Mii {
     /// Mii options.
-    pub options: MiiDataOptions,
+    pub options: Options,
     /// Position taken by the Mii on the Mii Selector screen.
     pub selector_position: SelectorPosition,
     /// Console the Mii was created on.
@@ -293,7 +295,7 @@ pub struct MiiData {
     pub author_name: String,
 }
 
-impl From<ctru_sys::MiiData> for MiiData {
+impl From<ctru_sys::MiiData> for Mii {
     fn from(mii_data: ctru_sys::MiiData) -> Self {
         let raw_mii_data = mii_data._bindgen_opaque_blob;
         // Source for the representation and what each thing means: https://www.3dbrew.org/wiki/Mii
@@ -358,7 +360,7 @@ impl From<ctru_sys::MiiData> for MiiData {
         let name = utf16_byte_pairs_to_string(raw_utf16_name);
         let author_name = utf16_byte_pairs_to_string(raw_utf16_author);
 
-        let options = MiiDataOptions {
+        let options = Options {
             is_copying_allowed: raw_options[0],
             is_profanity_flag_enabled: raw_options[1],
             region_lock: {
@@ -398,8 +400,8 @@ impl From<ctru_sys::MiiData> for MiiData {
         let details = Details {
             sex: {
                 match raw_details[0] {
-                    true => MiiSex::Female,
-                    false => MiiSex::Male,
+                    true => Sex::Female,
+                    false => Sex::Male,
                 }
             },
             birthday_month: partial_u8_bits_to_u8(&raw_details[1..=4]),
@@ -485,7 +487,7 @@ impl From<ctru_sys::MiiData> for MiiData {
             y_position: partial_u8_bits_to_u8(&raw_mole_details[10..=14]),
         };
 
-        MiiData {
+        Mii {
             options,
             selector_position,
             console_identity,

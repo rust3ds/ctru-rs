@@ -1,9 +1,9 @@
 //! Mii Selector applet.
 //!
 //! This applet opens a window which lets the player/user choose a Mii from the ones present on their console.
-//! The selected Mii is readable as a [`MiiData`](crate::mii::MiiData).
+//! The selected Mii is readable as a [`Mii`](crate::mii::Mii).
 
-use crate::mii::MiiData;
+use crate::mii::Mii;
 use bitflags::bitflags;
 use std::{ffi::CString, fmt};
 
@@ -65,7 +65,7 @@ pub struct MiiSelector {
 #[derive(Clone, Debug)]
 pub struct Selection {
     /// Data of the selected Mii.
-    pub mii_data: MiiData,
+    pub mii_data: Mii,
     /// Type of the selected Mii.
     pub mii_type: MiiType,
 }

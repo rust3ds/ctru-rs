@@ -4,7 +4,7 @@
 //! As such, it is used for fast and safe memory sharing between hardware processors (such as the GPU and the DSP).
 //!
 //! # Additional Resources
-//! 
+//!
 //! - <https://github.com/devkitPro/libctru/blob/master/libctru/source/allocator/linear.cpp><br>
 //! - <https://www.3dbrew.org/wiki/Memory_layout>
 
@@ -17,7 +17,7 @@ use std::ptr::NonNull;
 // but the default fallback of the `std` will take care of that for us.
 
 /// [`Allocator`](std::alloc::Allocator) struct for LINEAR memory.
-/// 
+///
 /// To use this struct the main crate must activate the `allocator_api` unstable feature.
 #[derive(Copy, Clone, Default, Debug)]
 pub struct LinearAllocator;
