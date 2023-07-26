@@ -5,7 +5,9 @@ use std::process::{Command, Output, Stdio};
 fn main() {
     let dkp_path = env::var("DEVKITPRO").unwrap();
     let profile = env::var("PROFILE").unwrap();
+    let pwd = env::var("CARGO_MANIFEST_DIR").unwrap();
 
+    // Link to libctru
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-env-changed=DEVKITPRO");
     println!("cargo:rustc-link-search=native={dkp_path}/libctru/lib");
@@ -16,6 +18,10 @@ fn main() {
             _ => "ctru",
         }
     );
+
+    // Link to static inline fns wrapper
+    println!("cargo:rustc-link-search=native={}", pwd);
+    println!("cargo:rustc-link-lib=static=extern");
 
     match check_libctru_version() {
         Ok((maj, min, patch)) => {
@@ -77,8 +83,9 @@ fn check_libctru_version() -> Result<(String, String, String), Box<dyn Error>> {
         .output()?;
 
     for line in String::from_utf8_lossy(&stdout).split('\n') {
-        let Some((_pkg, file)) = line.split_once(char::is_whitespace)
-        else { continue };
+        let Some((_pkg, file)) = line.split_once(char::is_whitespace) else {
+            continue;
+        };
 
         println!("cargo:rerun-if-changed={file}");
     }

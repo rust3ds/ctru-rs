@@ -213,9 +213,9 @@ pub const __int_fast16_t_defined: u32 = 1;
 pub const __int_fast32_t_defined: u32 = 1;
 pub const __int_fast64_t_defined: u32 = 1;
 pub const WINT_MIN: u32 = 0;
-pub const __bool_true_false_are_defined: u32 = 1;
 pub const true_: u32 = 1;
 pub const false_: u32 = 0;
+pub const __bool_true_false_are_defined: u32 = 1;
 pub const CUR_PROCESS_HANDLE: u32 = 4294934529;
 pub const ARBITRATION_SIGNAL_ALL: i32 = -1;
 pub const CUR_THREAD_HANDLE: u32 = 4294934528;
@@ -1600,6 +1600,49 @@ pub const IPC_BUFFER_W: IPC_BufferRights = 4;
 pub const IPC_BUFFER_RW: IPC_BufferRights = 6;
 #[doc = "IPC buffer access rights."]
 pub type IPC_BufferRights = ::libc::c_uint;
+extern "C" {
+    #[doc = "Creates a command header to be used for IPC\n # Arguments\n\n* `command_id` - ID of the command to create a header for.\n * `normal_params` - Size of the normal parameters in words. Up to 63.\n * `translate_params` - Size of the translate parameters in words. Up to 63.\n # Returns\n\nThe created IPC header.\n\n Normal parameters are sent directly to the process while the translate parameters might go through modifications and checks by the kernel.\n The translate parameters are described by headers generated with the IPC_Desc_* functions.\n\n > **Note:** While #normal_params is equivalent to the number of normal parameters, #translate_params includes the size occupied by the translate parameters headers."]
+    #[link_name = "IPC_MakeHeader__extern"]
+    pub fn IPC_MakeHeader(
+        command_id: u16_,
+        normal_params: ::libc::c_uint,
+        translate_params: ::libc::c_uint,
+    ) -> u32_;
+}
+extern "C" {
+    #[doc = "Creates a header to share handles\n # Arguments\n\n* `number` - The number of handles following this header. Max 64.\n # Returns\n\nThe created shared handles header.\n\n The #number next values are handles that will be shared between the two processes.\n\n > **Note:** Zero values will have no effect."]
+    #[link_name = "IPC_Desc_SharedHandles__extern"]
+    pub fn IPC_Desc_SharedHandles(number: ::libc::c_uint) -> u32_;
+}
+extern "C" {
+    #[doc = "Creates the header to transfer handle ownership\n # Arguments\n\n* `number` - The number of handles following this header. Max 64.\n # Returns\n\nThe created handle transfer header.\n\n The #number next values are handles that will be duplicated and closed by the other process.\n\n > **Note:** Zero values will have no effect."]
+    #[link_name = "IPC_Desc_MoveHandles__extern"]
+    pub fn IPC_Desc_MoveHandles(number: ::libc::c_uint) -> u32_;
+}
+extern "C" {
+    #[doc = "Returns the code to ask the kernel to fill the handle with the current process ID.\n # Returns\n\nThe code to request the current process ID.\n\n The next value is a placeholder that will be replaced by the current process ID by the kernel."]
+    #[link_name = "IPC_Desc_CurProcessId__extern"]
+    pub fn IPC_Desc_CurProcessId() -> u32_;
+}
+extern "C" {
+    #[link_name = "IPC_Desc_CurProcessHandle__extern"]
+    pub fn IPC_Desc_CurProcessHandle() -> u32_;
+}
+extern "C" {
+    #[doc = "Creates a header describing a static buffer.\n # Arguments\n\n* `size` - Size of the buffer. Max ?0x03FFFF?.\n * `buffer_id` - The Id of the buffer. Max 0xF.\n # Returns\n\nThe created static buffer header.\n\n The next value is a pointer to the buffer. It will be copied to TLS offset 0x180 + static_buffer_id*8."]
+    #[link_name = "IPC_Desc_StaticBuffer__extern"]
+    pub fn IPC_Desc_StaticBuffer(size: usize, buffer_id: ::libc::c_uint) -> u32_;
+}
+extern "C" {
+    #[doc = "Creates a header describing a buffer to be sent over PXI.\n # Arguments\n\n* `size` - Size of the buffer. Max 0x00FFFFFF.\n * `buffer_id` - The Id of the buffer. Max 0xF.\n * `is_read_only` - true if the buffer is read-only. If false, the buffer is considered to have read-write access.\n # Returns\n\nThe created PXI buffer header.\n\n The next value is a phys-address of a table located in the BASE memregion."]
+    #[link_name = "IPC_Desc_PXIBuffer__extern"]
+    pub fn IPC_Desc_PXIBuffer(size: usize, buffer_id: ::libc::c_uint, is_read_only: bool) -> u32_;
+}
+extern "C" {
+    #[doc = "Creates a header describing a buffer from the main memory.\n # Arguments\n\n* `size` - Size of the buffer. Max 0x0FFFFFFF.\n * `rights` - The rights of the buffer for the destination process.\n # Returns\n\nThe created buffer header.\n\n The next value is a pointer to the buffer."]
+    #[link_name = "IPC_Desc_Buffer__extern"]
+    pub fn IPC_Desc_Buffer(size: usize, rights: IPC_BufferRights) -> u32_;
+}
 #[doc = "< Memory un-mapping"]
 pub const MEMOP_FREE: MemOp = 1;
 #[doc = "< Reserve memory"]
@@ -2353,6 +2396,31 @@ impl Default for StartupInfo {
             s.assume_init()
         }
     }
+}
+extern "C" {
+    #[doc = "Gets the thread local storage buffer.\n # Returns\n\nThe thread local storage bufger."]
+    #[link_name = "getThreadLocalStorage__extern"]
+    pub fn getThreadLocalStorage() -> *mut ::libc::c_void;
+}
+extern "C" {
+    #[doc = "Gets the thread command buffer.\n # Returns\n\nThe thread command bufger."]
+    #[link_name = "getThreadCommandBuffer__extern"]
+    pub fn getThreadCommandBuffer() -> *mut u32_;
+}
+extern "C" {
+    #[doc = "Gets the thread static buffer.\n # Returns\n\nThe thread static bufger."]
+    #[link_name = "getThreadStaticBuffers__extern"]
+    pub fn getThreadStaticBuffers() -> *mut u32_;
+}
+extern "C" {
+    #[doc = "Writes the default DMA device config that the kernel uses when DMACFG_*_IS_DEVICE and DMACFG_*_USE_CFG are not set"]
+    #[link_name = "dmaDeviceConfigInitDefault__extern"]
+    pub fn dmaDeviceConfigInitDefault(cfg: *mut DmaDeviceConfig);
+}
+extern "C" {
+    #[doc = "Initializes a DmaConfig instance with sane defaults for RAM<>RAM tranfers"]
+    #[link_name = "dmaConfigInitDefault__extern"]
+    pub fn dmaConfigInitDefault(cfg: *mut DmaConfig);
 }
 extern "C" {
     #[must_use]
@@ -3946,6 +4014,41 @@ extern "C" {
     pub fn osStrError(error: Result) -> *const ::libc::c_char;
 }
 extern "C" {
+    #[doc = "Gets the system's FIRM version.\n # Returns\n\nThe system's FIRM version.\n\n This can be used to compare system versions easily with SYSTEM_VERSION."]
+    #[link_name = "osGetFirmVersion__extern"]
+    pub fn osGetFirmVersion() -> u32_;
+}
+extern "C" {
+    #[doc = "Gets the system's kernel version.\n # Returns\n\nThe system's kernel version.\n\n This can be used to compare system versions easily with SYSTEM_VERSION.\n\n if(osGetKernelVersion() > SYSTEM_VERSION(2,46,0)) printf(\"You are running 9.0 or higher"]
+    #[link_name = "osGetKernelVersion__extern"]
+    pub fn osGetKernelVersion() -> u32_;
+}
+extern "C" {
+    #[doc = "Gets the system's \"core version\" (2 on NATIVE_FIRM, 3 on SAFE_FIRM, etc.)"]
+    #[link_name = "osGetSystemCoreVersion__extern"]
+    pub fn osGetSystemCoreVersion() -> u32_;
+}
+extern "C" {
+    #[doc = "Gets the system's memory layout ID (0-5 on Old 3DS, 6-8 on New 3DS)"]
+    #[link_name = "osGetApplicationMemType__extern"]
+    pub fn osGetApplicationMemType() -> u32_;
+}
+extern "C" {
+    #[doc = "Gets the size of the specified memory region.\n # Arguments\n\n* `region` - Memory region to check.\n # Returns\n\nThe size of the memory region, in bytes."]
+    #[link_name = "osGetMemRegionSize__extern"]
+    pub fn osGetMemRegionSize(region: MemRegion) -> u32_;
+}
+extern "C" {
+    #[doc = "Gets the number of used bytes within the specified memory region.\n # Arguments\n\n* `region` - Memory region to check.\n # Returns\n\nThe number of used bytes of memory."]
+    #[link_name = "osGetMemRegionUsed__extern"]
+    pub fn osGetMemRegionUsed(region: MemRegion) -> u32_;
+}
+extern "C" {
+    #[doc = "Gets the number of free bytes within the specified memory region.\n # Arguments\n\n* `region` - Memory region to check.\n # Returns\n\nThe number of free bytes of memory."]
+    #[link_name = "osGetMemRegionFree__extern"]
+    pub fn osGetMemRegionFree(region: MemRegion) -> u32_;
+}
+extern "C" {
     #[doc = "Reads the latest reference timepoint published by PTM.\n # Returns\n\nStructure (see osTimeRef_s)."]
     pub fn osGetTimeRef() -> osTimeRef_s;
 }
@@ -3954,8 +4057,33 @@ extern "C" {
     pub fn osGetTime() -> u64_;
 }
 extern "C" {
+    #[doc = "Starts a tick counter.\n # Arguments\n\n* `cnt` - The tick counter."]
+    #[link_name = "osTickCounterStart__extern"]
+    pub fn osTickCounterStart(cnt: *mut TickCounter);
+}
+extern "C" {
+    #[doc = "Updates the elapsed time in a tick counter.\n # Arguments\n\n* `cnt` - The tick counter."]
+    #[link_name = "osTickCounterUpdate__extern"]
+    pub fn osTickCounterUpdate(cnt: *mut TickCounter);
+}
+extern "C" {
     #[doc = "Reads the elapsed time in a tick counter.\n # Arguments\n\n* `cnt` - The tick counter.\n # Returns\n\nThe number of milliseconds elapsed."]
     pub fn osTickCounterRead(cnt: *const TickCounter) -> f64;
+}
+extern "C" {
+    #[doc = "Gets the current Wifi signal strength.\n # Returns\n\nThe current Wifi signal strength.\n\n Valid values are 0-3:\n - 0 means the signal strength is terrible or the 3DS is disconnected from\n all networks.\n - 1 means the signal strength is bad.\n - 2 means the signal strength is decent.\n - 3 means the signal strength is good.\n\n Values outside the range of 0-3 should never be returned.\n\n These values correspond with the number of wifi bars displayed by Home Menu."]
+    #[link_name = "osGetWifiStrength__extern"]
+    pub fn osGetWifiStrength() -> u8_;
+}
+extern "C" {
+    #[doc = "Gets the state of the 3D slider.\n # Returns\n\nThe state of the 3D slider (0.0~1.0)"]
+    #[link_name = "osGet3DSliderState__extern"]
+    pub fn osGet3DSliderState() -> f32;
+}
+extern "C" {
+    #[doc = "Checks whether a headset is connected.\n # Returns\n\ntrue or false."]
+    #[link_name = "osIsHeadsetConnected__extern"]
+    pub fn osIsHeadsetConnected() -> bool;
 }
 extern "C" {
     #[doc = "Configures the New 3DS speedup.\n # Arguments\n\n* `enable` - Specifies whether to enable or disable the speedup."]
@@ -3990,6 +4118,22 @@ pub struct __lock_t {
 pub type _LOCK_RECURSIVE_T = __lock_t;
 pub type _COND_T = u32;
 extern "C" {
+    #[link_name = "__libc_lock_init__extern"]
+    pub fn __libc_lock_init(lock: *mut _LOCK_T);
+}
+extern "C" {
+    #[link_name = "__libc_lock_close__extern"]
+    pub fn __libc_lock_close(lock: *mut _LOCK_T);
+}
+extern "C" {
+    #[link_name = "__libc_lock_init_recursive__extern"]
+    pub fn __libc_lock_init_recursive(lock: *mut _LOCK_RECURSIVE_T);
+}
+extern "C" {
+    #[link_name = "__libc_lock_close_recursive__extern"]
+    pub fn __libc_lock_close_recursive(lock: *mut _LOCK_RECURSIVE_T);
+}
+extern "C" {
     pub fn __libc_lock_acquire(lock: *mut _LOCK_T);
 }
 extern "C" {
@@ -4006,6 +4150,10 @@ extern "C" {
 }
 extern "C" {
     pub fn __libc_lock_try_acquire_recursive(lock: *mut _LOCK_RECURSIVE_T) -> ::libc::c_int;
+}
+extern "C" {
+    #[link_name = "__libc_cond_init__extern"]
+    pub fn __libc_cond_init(cond: *mut _COND_T) -> ::libc::c_int;
 }
 extern "C" {
     pub fn __libc_cond_signal(cond: *mut _COND_T) -> ::libc::c_int;
@@ -4052,6 +4200,51 @@ pub struct LightSemaphore {
     pub num_threads_acq: s16,
     #[doc = "< The maximum release count of the semaphore"]
     pub max_count: s16,
+}
+extern "C" {
+    #[doc = "Performs a Data Synchronization Barrier operation."]
+    #[link_name = "__dsb__extern"]
+    pub fn __dsb();
+}
+extern "C" {
+    #[doc = "Performs a Data Memory Barrier operation."]
+    #[link_name = "__dmb__extern"]
+    pub fn __dmb();
+}
+extern "C" {
+    #[doc = "Performs a clrex operation."]
+    #[link_name = "__clrex__extern"]
+    pub fn __clrex();
+}
+extern "C" {
+    #[doc = "Performs a ldrex operation.\n # Arguments\n\n* `addr` - Address to perform the operation on.\n # Returns\n\nThe resulting value."]
+    #[link_name = "__ldrex__extern"]
+    pub fn __ldrex(addr: *mut s32) -> s32;
+}
+extern "C" {
+    #[doc = "Performs a strex operation.\n # Arguments\n\n* `addr` - Address to perform the operation on.\n * `val` - Value to store.\n # Returns\n\nWhether the operation was successful."]
+    #[link_name = "__strex__extern"]
+    pub fn __strex(addr: *mut s32, val: s32) -> bool;
+}
+extern "C" {
+    #[doc = "Performs a ldrexh operation.\n # Arguments\n\n* `addr` - Address to perform the operation on.\n # Returns\n\nThe resulting value."]
+    #[link_name = "__ldrexh__extern"]
+    pub fn __ldrexh(addr: *mut u16_) -> u16_;
+}
+extern "C" {
+    #[doc = "Performs a strexh operation.\n # Arguments\n\n* `addr` - Address to perform the operation on.\n * `val` - Value to store.\n # Returns\n\nWhether the operation was successful."]
+    #[link_name = "__strexh__extern"]
+    pub fn __strexh(addr: *mut u16_, val: u16_) -> bool;
+}
+extern "C" {
+    #[doc = "Performs a ldrexb operation.\n # Arguments\n\n* `addr` - Address to perform the operation on.\n # Returns\n\nThe resulting value."]
+    #[link_name = "__ldrexb__extern"]
+    pub fn __ldrexb(addr: *mut u8_) -> u8_;
+}
+extern "C" {
+    #[doc = "Performs a strexb operation.\n # Arguments\n\n* `addr` - Address to perform the operation on.\n * `val` - Value to store.\n # Returns\n\nWhether the operation was successful."]
+    #[link_name = "__strexb__extern"]
+    pub fn __strexb(addr: *mut u8_, val: u8_) -> bool;
 }
 extern "C" {
     #[must_use]
@@ -4119,6 +4312,16 @@ extern "C" {
 extern "C" {
     #[doc = "Wakes up threads waiting on a condition variable.\n # Arguments\n\n* `cv` - Pointer to the condition variable.\n * `num_threads` - Maximum number of threads to wake up (or ARBITRATION_SIGNAL_ALL to wake them all)."]
     pub fn CondVar_WakeUp(cv: *mut CondVar, num_threads: s32);
+}
+extern "C" {
+    #[doc = "Wakes up a single thread waiting on a condition variable.\n # Arguments\n\n* `cv` - Pointer to the condition variable."]
+    #[link_name = "CondVar_Signal__extern"]
+    pub fn CondVar_Signal(cv: *mut CondVar);
+}
+extern "C" {
+    #[doc = "Wakes up all threads waiting on a condition variable.\n # Arguments\n\n* `cv` - Pointer to the condition variable."]
+    #[link_name = "CondVar_Broadcast__extern"]
+    pub fn CondVar_Broadcast(cv: *mut CondVar);
 }
 extern "C" {
     #[doc = "Initializes a light event.\n # Arguments\n\n* `event` - Pointer to the event.\n * `reset_type` - Type of reset the event uses (RESET_ONESHOT/RESET_STICKY)."]
@@ -4214,6 +4417,15 @@ extern "C" {
 extern "C" {
     #[doc = "Exits the current libctru thread with an exit code (not usable from the main thread).\n # Arguments\n\n* `rc` - Exit code"]
     pub fn threadExit(rc: ::libc::c_int) -> !;
+}
+extern "C" {
+    #[doc = "Sets the exception handler for the current thread. Called from the main thread, this sets the default handler.\n # Arguments\n\n* `handler` - The exception handler, necessarily an ARM function that does not return\n * `stack_top` - A pointer to the top of the stack that will be used by the handler. See also RUN_HANDLER_ON_FAULTING_STACK\n * `exception_data` - A pointer to the buffer that will contain the exception data.\nSee also WRITE_DATA_TO_HANDLER_STACK and WRITE_DATA_TO_FAULTING_STACK\n\n To have CPU exceptions reported through this mechanism, it is normally necessary that UNITINFO is set to a non-zero value when Kernel11 starts,\n and this mechanism is also controlled by svcKernelSetState type 6, see 3dbrew.\n\n VFP exceptions are always reported this way even if the process is being debugged using the debug SVCs.\n\n The current thread need not be a libctru thread."]
+    #[link_name = "threadOnException__extern"]
+    pub fn threadOnException(
+        handler: ExceptionHandler,
+        stack_top: *mut ::libc::c_void,
+        exception_data: *mut ERRF_ExceptionData,
+    );
 }
 #[doc = "Framebuffer information."]
 #[repr(C)]
@@ -4311,6 +4523,11 @@ pub const GSPGPU_EVENT_DMA: GSPGPU_Event = 6;
 pub const GSPGPU_EVENT_MAX: GSPGPU_Event = 7;
 #[doc = "GSPGPU events."]
 pub type GSPGPU_Event = ::libc::c_uint;
+extern "C" {
+    #[doc = "Gets the number of bytes per pixel for the specified format.\n # Arguments\n\n* `format` - See GSPGPU_FramebufferFormat.\n # Returns\n\nBytes per pixel."]
+    #[link_name = "gspGetBytesPerPixel__extern"]
+    pub fn gspGetBytesPerPixel(format: GSPGPU_FramebufferFormat) -> ::libc::c_uint;
+}
 extern "C" {
     #[must_use]
     #[doc = "Initializes GSPGPU."]
@@ -4675,8 +4892,38 @@ pub const RUNFLAG_APTCHAINLOAD: _bindgen_ty_9 = 4;
 #[doc = "System run-flags."]
 pub type _bindgen_ty_9 = ::libc::c_uint;
 extern "C" {
+    #[doc = "Gets whether the application was launched from a homebrew environment.\n # Returns\n\nWhether the application was launched from a homebrew environment."]
+    #[link_name = "envIsHomebrew__extern"]
+    pub fn envIsHomebrew() -> bool;
+}
+extern "C" {
     #[doc = "Retrieves a handle from the environment handle list.\n # Arguments\n\n* `name` - Name of the handle.\n # Returns\n\nThe retrieved handle."]
     pub fn envGetHandle(name: *const ::libc::c_char) -> Handle;
+}
+extern "C" {
+    #[doc = "Gets the environment-recommended app ID to use with APT.\n # Returns\n\nThe APT app ID."]
+    #[link_name = "envGetAptAppId__extern"]
+    pub fn envGetAptAppId() -> u32_;
+}
+extern "C" {
+    #[doc = "Gets the size of the application heap.\n # Returns\n\nThe application heap size."]
+    #[link_name = "envGetHeapSize__extern"]
+    pub fn envGetHeapSize() -> u32_;
+}
+extern "C" {
+    #[doc = "Gets the size of the linear heap.\n # Returns\n\nThe linear heap size."]
+    #[link_name = "envGetLinearHeapSize__extern"]
+    pub fn envGetLinearHeapSize() -> u32_;
+}
+extern "C" {
+    #[doc = "Gets the environment argument list.\n # Returns\n\nThe argument list."]
+    #[link_name = "envGetSystemArgList__extern"]
+    pub fn envGetSystemArgList() -> *const ::libc::c_char;
+}
+extern "C" {
+    #[doc = "Gets the environment run flags.\n # Returns\n\nThe run flags."]
+    #[link_name = "envGetSystemRunFlags__extern"]
+    pub fn envGetSystemRunFlags() -> u32_;
 }
 pub type _off_t = __int64_t;
 pub type _fpos_t = __int64_t;
@@ -5065,6 +5312,17 @@ extern "C" {
     ) -> bool;
 }
 extern "C" {
+    #[doc = "Decompress data\n # Arguments\n\n* `output` (direction in) - Output buffer\n * `size` (direction in) - Output size limit\n * `callback` (direction in) - Data callback (see decompressV())\n * `userdata` (direction in) - User data passed to callback (see decompressV())\n * `insize` (direction in) - Size of userdata (see decompressV())\n # Returns\n\nWhether succeeded"]
+    #[link_name = "decompress__extern"]
+    pub fn decompress(
+        output: *mut ::libc::c_void,
+        size: usize,
+        callback: decompressCallback,
+        userdata: *mut ::libc::c_void,
+        insize: usize,
+    ) -> bool;
+}
+extern "C" {
     #[doc = "Decompress LZSS/LZ10\n # Arguments\n\n* `iov` (direction in) - Output vector\n * `iovcnt` (direction in) - Number of buffers\n * `callback` (direction in) - Data callback (see decompressV())\n * `userdata` (direction in) - User data passed to callback (see decompressV())\n * `insize` (direction in) - Size of userdata (see decompressV())\n # Returns\n\nWhether succeeded"]
     pub fn decompressV_LZSS(
         iov: *const decompressIOVec,
@@ -5075,10 +5333,32 @@ extern "C" {
     ) -> bool;
 }
 extern "C" {
+    #[doc = "Decompress LZSS/LZ10\n # Arguments\n\n* `output` (direction in) - Output buffer\n * `size` (direction in) - Output size limit\n * `callback` (direction in) - Data callback (see decompressV())\n * `userdata` (direction in) - User data passed to callback (see decompressV())\n * `insize` (direction in) - Size of userdata (see decompressV())\n # Returns\n\nWhether succeeded"]
+    #[link_name = "decompress_LZSS__extern"]
+    pub fn decompress_LZSS(
+        output: *mut ::libc::c_void,
+        size: usize,
+        callback: decompressCallback,
+        userdata: *mut ::libc::c_void,
+        insize: usize,
+    ) -> bool;
+}
+extern "C" {
     #[doc = "Decompress LZ11\n # Arguments\n\n* `iov` (direction in) - Output vector\n * `iovcnt` (direction in) - Number of buffers\n * `callback` (direction in) - Data callback (see decompressV())\n * `userdata` (direction in) - User data passed to callback (see decompressV())\n * `insize` (direction in) - Size of userdata (see decompressV())\n # Returns\n\nWhether succeeded"]
     pub fn decompressV_LZ11(
         iov: *const decompressIOVec,
         iovcnt: usize,
+        callback: decompressCallback,
+        userdata: *mut ::libc::c_void,
+        insize: usize,
+    ) -> bool;
+}
+extern "C" {
+    #[doc = "Decompress LZ11\n # Arguments\n\n* `output` (direction in) - Output buffer\n * `size` (direction in) - Output size limit\n * `callback` (direction in) - Data callback (see decompressV())\n * `userdata` (direction in) - User data passed to callback (see decompressV())\n * `insize` (direction in) - Size of userdata (see decompressV())\n # Returns\n\nWhether succeeded"]
+    #[link_name = "decompress_LZ11__extern"]
+    pub fn decompress_LZ11(
+        output: *mut ::libc::c_void,
+        size: usize,
         callback: decompressCallback,
         userdata: *mut ::libc::c_void,
         insize: usize,
@@ -5096,10 +5376,33 @@ extern "C" {
     ) -> bool;
 }
 extern "C" {
+    #[doc = "Decompress Huffman\n # Arguments\n\n* `bits` (direction in) - Data size in bits (usually 4 or 8)\n * `output` (direction in) - Output buffer\n * `size` (direction in) - Output size limit\n * `callback` (direction in) - Data callback (see decompressV())\n * `userdata` (direction in) - User data passed to callback (see decompressV())\n * `insize` (direction in) - Size of userdata (see decompressV())\n # Returns\n\nWhether succeeded"]
+    #[link_name = "decompress_Huff__extern"]
+    pub fn decompress_Huff(
+        bits: usize,
+        output: *mut ::libc::c_void,
+        size: usize,
+        callback: decompressCallback,
+        userdata: *mut ::libc::c_void,
+        insize: usize,
+    ) -> bool;
+}
+extern "C" {
     #[doc = "Decompress run-length encoding\n # Arguments\n\n* `iov` (direction in) - Output vector\n * `iovcnt` (direction in) - Number of buffers\n * `callback` (direction in) - Data callback (see decompressV())\n * `userdata` (direction in) - User data passed to callback (see decompressV())\n * `insize` (direction in) - Size of userdata (see decompressV())\n # Returns\n\nWhether succeeded"]
     pub fn decompressV_RLE(
         iov: *const decompressIOVec,
         iovcnt: usize,
+        callback: decompressCallback,
+        userdata: *mut ::libc::c_void,
+        insize: usize,
+    ) -> bool;
+}
+extern "C" {
+    #[doc = "Decompress run-length encoding\n # Arguments\n\n* `output` (direction in) - Output buffer\n * `size` (direction in) - Output size limit\n * `callback` (direction in) - Data callback (see decompressV())\n * `userdata` (direction in) - User data passed to callback (see decompressV())\n * `insize` (direction in) - Size of userdata (see decompressV())\n # Returns\n\nWhether succeeded"]
+    #[link_name = "decompress_RLE__extern"]
+    pub fn decompress_RLE(
+        output: *mut ::libc::c_void,
+        size: usize,
         callback: decompressCallback,
         userdata: *mut ::libc::c_void,
         insize: usize,
@@ -7177,6 +7480,15 @@ pub const APTPOS_RESIDENT: APT_AppletPos = 4;
 #[doc = "APT applet position."]
 pub type APT_AppletPos = ::libc::c_int;
 pub type APT_AppletAttr = u8_;
+extern "C" {
+    #[doc = "Create an APT_AppletAttr bitfield from its components."]
+    #[link_name = "aptMakeAppletAttr__extern"]
+    pub fn aptMakeAppletAttr(
+        pos: APT_AppletPos,
+        manualGpuRights: bool,
+        manualDspRights: bool,
+    ) -> APT_AppletAttr;
+}
 pub const APTREPLY_REJECT: APT_QueryReply = 0;
 pub const APTREPLY_ACCEPT: APT_QueryReply = 1;
 pub const APTREPLY_LATER: APT_QueryReply = 2;
@@ -7361,8 +7673,18 @@ extern "C" {
     pub fn aptCheckHomePressRejected() -> bool;
 }
 extern "C" {
+    #[doc = "> **Deprecated** Alias for aptCheckHomePressRejected."]
+    #[link_name = "aptIsHomePressed__extern"]
+    pub fn aptIsHomePressed() -> bool;
+}
+extern "C" {
     #[doc = "Jumps back to the HOME menu."]
     pub fn aptJumpToHomeMenu();
+}
+extern "C" {
+    #[doc = "Handles incoming jump-to-HOME requests."]
+    #[link_name = "aptHandleJumpToHome__extern"]
+    pub fn aptHandleJumpToHome();
 }
 extern "C" {
     #[doc = "Main function which handles sleep mode and HOME/power buttons - call this at the beginning of every frame.\n # Returns\n\ntrue if the application should keep running, false otherwise (see aptShouldClose)."]
@@ -7453,6 +7775,11 @@ extern "C" {
         menu_appid: *mut NS_APPID,
         active_appid: *mut NS_APPID,
     ) -> Result;
+}
+extern "C" {
+    #[doc = "Gets the menu's app ID.\n # Returns\n\nThe menu's app ID."]
+    #[link_name = "aptGetMenuAppID__extern"]
+    pub fn aptGetMenuAppID() -> NS_APPID;
 }
 extern "C" {
     #[must_use]
@@ -9298,6 +9625,11 @@ extern "C" {
     #[must_use]
     #[doc = "Gets the 0x100-byte RSA-2048 SecureInfo signature.\n # Arguments\n\n* `data` - Pointer to output the buffer. (The size must be at least 0x100-bytes)"]
     pub fn CFGI_GetSecureInfoSignature(data: *mut u8_) -> Result;
+}
+extern "C" {
+    #[doc = "Converts a vol-pan pair into a left/right volume pair used by the hardware.\n # Arguments\n\n* `vol` - Volume to use.\n * `pan` - Pan to use.\n # Returns\n\nA left/right volume pair for use by hardware."]
+    #[link_name = "CSND_VOL__extern"]
+    pub fn CSND_VOL(vol: f32, pan: f32) -> u32_;
 }
 #[doc = "< PCM8"]
 pub const CSND_ENCODING_PCM8: _bindgen_ty_17 = 0;
@@ -13906,6 +14238,11 @@ pub const PTMNOTIFID_BATTERY_VERY_LOW: _bindgen_ty_27 = 529;
 pub const PTMNOTIFID_BATTERY_LOW: _bindgen_ty_27 = 530;
 pub type _bindgen_ty_27 = ::libc::c_uint;
 extern "C" {
+    #[doc = "See PTMSYSM_NotifySleepPreparationComplete. Corresponds to the number of potentially remaning notifs. until sleep/wakeup."]
+    #[link_name = "ptmSysmGetNotificationAckValue__extern"]
+    pub fn ptmSysmGetNotificationAckValue(id: u32_) -> s32;
+}
+extern "C" {
     #[must_use]
     #[doc = "Initializes ptm:sysm."]
     pub fn ptmSysmInit() -> Result;
@@ -14074,6 +14411,23 @@ extern "C" {
     pub fn pxiDevExit();
 }
 extern "C" {
+    #[doc = "Creates a packed card SPI transfer option value.\n # Arguments\n\n* `baudRate` - Baud rate to use when transferring.\n * `busMode` - Bus mode to use when transferring.\n # Returns\n\nA packed card SPI transfer option value."]
+    #[link_name = "pxiDevMakeTransferOption__extern"]
+    pub fn pxiDevMakeTransferOption(
+        baudRate: FS_CardSpiBaudRate,
+        busMode: FS_CardSpiBusMode,
+    ) -> u8_;
+}
+extern "C" {
+    #[doc = "Creates a packed card SPI wait operation value.\n # Arguments\n\n* `waitType` - Type of wait to perform.\n * `deassertType` - Type of register deassertion to perform.\n * `timeout` - Timeout, in nanoseconds, to wait, if applicable.\n # Returns\n\nA packed card SPI wait operation value."]
+    #[link_name = "pxiDevMakeWaitOperation__extern"]
+    pub fn pxiDevMakeWaitOperation(
+        waitType: PXIDEV_WaitType,
+        deassertType: PXIDEV_DeassertType,
+        timeout: u64_,
+    ) -> u64_;
+}
+extern "C" {
     #[must_use]
     #[doc = "Performs multiple card SPI writes and reads.\n # Arguments\n\n* `header` - Header to lead the transfers with. Must be, at most, 8 bytes in size.\n * `writeBuffer1` - Buffer to make first transfer from.\n * `readBuffer1` - Buffer to receive first response to.\n * `writeBuffer2` - Buffer to make second transfer from.\n * `readBuffer2` - Buffer to receive second response to.\n * `footer` - Footer to follow the transfers with. Must be, at most, 8 bytes in size. Wait operation is unused."]
     pub fn PXIDEV_SPIMultiWriteRead(
@@ -14138,6 +14492,94 @@ pub struct timezone {
 pub struct bintime {
     pub sec: time_t,
     pub frac: u64,
+}
+extern "C" {
+    #[link_name = "bintime_addx__extern"]
+    pub fn bintime_addx(_bt: *mut bintime, _x: u64);
+}
+extern "C" {
+    #[link_name = "bintime_add__extern"]
+    pub fn bintime_add(_bt: *mut bintime, _bt2: *const bintime);
+}
+extern "C" {
+    #[link_name = "bintime_sub__extern"]
+    pub fn bintime_sub(_bt: *mut bintime, _bt2: *const bintime);
+}
+extern "C" {
+    #[link_name = "bintime_mul__extern"]
+    pub fn bintime_mul(_bt: *mut bintime, _x: u_int);
+}
+extern "C" {
+    #[link_name = "bintime_shift__extern"]
+    pub fn bintime_shift(_bt: *mut bintime, _exp: ::libc::c_int);
+}
+extern "C" {
+    #[link_name = "sbintime_getsec__extern"]
+    pub fn sbintime_getsec(_sbt: sbintime_t) -> ::libc::c_int;
+}
+extern "C" {
+    #[link_name = "bttosbt__extern"]
+    pub fn bttosbt(_bt: bintime) -> sbintime_t;
+}
+extern "C" {
+    #[link_name = "sbttobt__extern"]
+    pub fn sbttobt(_sbt: sbintime_t) -> bintime;
+}
+extern "C" {
+    #[link_name = "sbttons__extern"]
+    pub fn sbttons(_sbt: sbintime_t) -> i64;
+}
+extern "C" {
+    #[link_name = "nstosbt__extern"]
+    pub fn nstosbt(_ns: i64) -> sbintime_t;
+}
+extern "C" {
+    #[link_name = "sbttous__extern"]
+    pub fn sbttous(_sbt: sbintime_t) -> i64;
+}
+extern "C" {
+    #[link_name = "ustosbt__extern"]
+    pub fn ustosbt(_us: i64) -> sbintime_t;
+}
+extern "C" {
+    #[link_name = "sbttoms__extern"]
+    pub fn sbttoms(_sbt: sbintime_t) -> i64;
+}
+extern "C" {
+    #[link_name = "mstosbt__extern"]
+    pub fn mstosbt(_ms: i64) -> sbintime_t;
+}
+extern "C" {
+    #[link_name = "bintime2timespec__extern"]
+    pub fn bintime2timespec(_bt: *const bintime, _ts: *mut timespec);
+}
+extern "C" {
+    #[link_name = "timespec2bintime__extern"]
+    pub fn timespec2bintime(_ts: *const timespec, _bt: *mut bintime);
+}
+extern "C" {
+    #[link_name = "bintime2timeval__extern"]
+    pub fn bintime2timeval(_bt: *const bintime, _tv: *mut timeval);
+}
+extern "C" {
+    #[link_name = "timeval2bintime__extern"]
+    pub fn timeval2bintime(_tv: *const timeval, _bt: *mut bintime);
+}
+extern "C" {
+    #[link_name = "sbttots__extern"]
+    pub fn sbttots(_sbt: sbintime_t) -> timespec;
+}
+extern "C" {
+    #[link_name = "tstosbt__extern"]
+    pub fn tstosbt(_ts: timespec) -> sbintime_t;
+}
+extern "C" {
+    #[link_name = "sbttotv__extern"]
+    pub fn sbttotv(_sbt: sbintime_t) -> timeval;
+}
+extern "C" {
+    #[link_name = "tvtosbt__extern"]
+    pub fn tvtosbt(_tv: timeval) -> sbintime_t;
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
@@ -16045,6 +16487,15 @@ extern "C" {
     pub fn gxCmdQueueWait(queue: *mut gxCmdQueue_s, timeout: s64) -> bool;
 }
 extern "C" {
+    #[doc = "Sets the completion callback for a GX command queue.\n # Arguments\n\n* `queue` - The GX command queue.\n * `callback` - The completion callback.\n * `user` - User data."]
+    #[link_name = "gxCmdQueueSetCallback__extern"]
+    pub fn gxCmdQueueSetCallback(
+        queue: *mut gxCmdQueue_s,
+        callback: ::core::option::Option<unsafe extern "C" fn(arg1: *mut gxCmdQueue_s)>,
+        user: *mut ::libc::c_void,
+    );
+}
+extern "C" {
     #[doc = "Selects a command queue to which GX_* functions will add commands instead of immediately submitting them to GX.\n # Arguments\n\n* `queue` - The GX command queue. (Pass NULL to remove the bound command queue)"]
     pub fn GX_BindQueue(queue: *mut gxCmdQueue_s);
 }
@@ -16686,6 +17137,21 @@ extern "C" {
     pub static mut gpuCmdBufOffset: u32_;
 }
 extern "C" {
+    #[doc = "Sets the GPU command buffer to use.\n # Arguments\n\n* `adr` - Pointer to the command buffer.\n * `size` - Size of the command buffer.\n * `offset` - Offset of the command buffer."]
+    #[link_name = "GPUCMD_SetBuffer__extern"]
+    pub fn GPUCMD_SetBuffer(adr: *mut u32_, size: u32_, offset: u32_);
+}
+extern "C" {
+    #[doc = "Sets the offset of the GPU command buffer.\n # Arguments\n\n* `offset` - Offset of the command buffer."]
+    #[link_name = "GPUCMD_SetBufferOffset__extern"]
+    pub fn GPUCMD_SetBufferOffset(offset: u32_);
+}
+extern "C" {
+    #[doc = "Gets the current GPU command buffer.\n # Arguments\n\n* `addr` - Pointer to output the command buffer to.\n * `size` - Pointer to output the size (in words) of the command buffer to.\n * `offset` - Pointer to output the offset of the command buffer to."]
+    #[link_name = "GPUCMD_GetBuffer__extern"]
+    pub fn GPUCMD_GetBuffer(addr: *mut *mut u32_, size: *mut u32_, offset: *mut u32_);
+}
+extern "C" {
     #[doc = "Adds raw GPU commands to the current command buffer.\n # Arguments\n\n* `cmd` - Buffer containing commands to add.\n * `size` - Size of the buffer."]
     pub fn GPUCMD_AddRawCommands(cmd: *const u32_, size: u32_);
 }
@@ -16712,6 +17178,11 @@ extern "C" {
 extern "C" {
     #[doc = "Converts a 32-bit float to a 31-bit float.\n # Arguments\n\n* `f` - Float to convert.\n # Returns\n\nThe converted float."]
     pub fn f32tof31(f: f32) -> u32_;
+}
+extern "C" {
+    #[doc = "Adds a command with a single parameter to the current command buffer."]
+    #[link_name = "GPUCMD_AddSingleParam__extern"]
+    pub fn GPUCMD_AddSingleParam(header: u32_, param: u32_);
 }
 #[doc = "< Vertex shader."]
 pub const VERTEX_SHDR: DVLE_type = 0;
@@ -17701,6 +18172,26 @@ extern "C" {
     );
 }
 extern "C" {
+    #[doc = "Configures password mode in a software keyboard.\n # Arguments\n\n* `swkbd` - Pointer to swkbd state.\n * `mode` - Password mode."]
+    #[link_name = "swkbdSetPasswordMode__extern"]
+    pub fn swkbdSetPasswordMode(swkbd: *mut SwkbdState, mode: SwkbdPasswordMode);
+}
+extern "C" {
+    #[doc = "Configures input validation in a software keyboard.\n # Arguments\n\n* `swkbd` - Pointer to swkbd state.\n * `validInput` - Specifies which inputs are valid.\n * `filterFlags` - Bitmask specifying which characters are disallowed (filtered).\n * `maxDigits` - In case digits are disallowed, specifies how many digits are allowed at maximum in input strings (0 completely restricts digit input)."]
+    #[link_name = "swkbdSetValidation__extern"]
+    pub fn swkbdSetValidation(
+        swkbd: *mut SwkbdState,
+        validInput: SwkbdValidInput,
+        filterFlags: u32_,
+        maxDigits: ::libc::c_int,
+    );
+}
+extern "C" {
+    #[doc = "Configures what characters will the two bottom keys in a numpad produce.\n # Arguments\n\n* `swkbd` - Pointer to swkbd state.\n * `left` - Unicode codepoint produced by the leftmost key in the bottom row (0 hides the key).\n * `left` - Unicode codepoint produced by the rightmost key in the bottom row (0 hides the key)."]
+    #[link_name = "swkbdSetNumpadKeys__extern"]
+    pub fn swkbdSetNumpadKeys(swkbd: *mut SwkbdState, left: ::libc::c_int, right: ::libc::c_int);
+}
+extern "C" {
     #[doc = "Specifies which special features are enabled in a software keyboard.\n # Arguments\n\n* `swkbd` - Pointer to swkbd state.\n * `features` - Feature bitmask."]
     pub fn swkbdSetFeatures(swkbd: *mut SwkbdState, features: u32_);
 }
@@ -17770,6 +18261,11 @@ extern "C" {
         buf: *mut ::libc::c_char,
         bufsize: usize,
     ) -> SwkbdButton;
+}
+extern "C" {
+    #[doc = "Retrieves the result condition of a software keyboard after it has been used.\n # Arguments\n\n* `swkbd` - Pointer to swkbd state.\n # Returns\n\nThe result value."]
+    #[link_name = "swkbdGetResult__extern"]
+    pub fn swkbdGetResult(swkbd: *mut SwkbdState) -> SwkbdResult;
 }
 #[doc = "<??-Unknown flag"]
 pub const ERROR_LANGUAGE_FLAG: _bindgen_ty_34 = 256;
@@ -17959,6 +18455,11 @@ extern "C" {
     pub fn miiSelectorBlacklistUserMii(conf: *mut MiiSelectorConf, index: u32_);
 }
 extern "C" {
+    #[doc = "Specifies which Mii the cursor should start from\n\n # Arguments\n\n* `conf` - Pointer to miiSelector configuration\n * `index` - Indexed number of the Mii that the cursor will start on.\n If there is no mii with that index, the the cursor will start at the Mii\n with the index 0 (the personal Mii)."]
+    #[link_name = "miiSelectorSetInitialIndex__extern"]
+    pub fn miiSelectorSetInitialIndex(conf: *mut MiiSelectorConf, index: u32_);
+}
+extern "C" {
     #[doc = "Get Mii name\n\n # Arguments\n\n* `returnbuf` - Pointer to miiSelector return\n * `out` - String containing a Mii's name\n * `max_size` - Size of string. Since UTF8 characters range in size from 1-3 bytes\n (assuming that no non-BMP characters are used), this value should be 36 (or 30 if you are not\n dealing with guest miis)."]
     pub fn miiSelectorReturnGetName(
         returnbuf: *const MiiSelectorReturn,
@@ -18126,6 +18627,18 @@ extern "C" {
     #[must_use]
     #[doc = "Unmounts the RomFS device."]
     pub fn romfsUnmount(name: *const ::libc::c_char) -> Result;
+}
+extern "C" {
+    #[must_use]
+    #[doc = "Wrapper for romfsMountSelf with the default \"romfs\" device name."]
+    #[link_name = "romfsInit__extern"]
+    pub fn romfsInit() -> Result;
+}
+extern "C" {
+    #[must_use]
+    #[doc = "Wrapper for romfsUnmount with the default \"romfs\" device name."]
+    #[link_name = "romfsExit__extern"]
+    pub fn romfsExit() -> Result;
 }
 #[doc = "Character width information structure."]
 #[repr(C)]
@@ -18388,6 +18901,29 @@ extern "C" {
     pub fn fontFixPointers(font: *mut CFNT_s);
 }
 extern "C" {
+    #[doc = "Gets the currently loaded system font"]
+    #[link_name = "fontGetSystemFont__extern"]
+    pub fn fontGetSystemFont() -> *mut CFNT_s;
+}
+extern "C" {
+    #[doc = "Retrieves the font information structure of a font.\n # Arguments\n\n* `font` - Pointer to font structure. If NULL, the shared system font is used."]
+    #[link_name = "fontGetInfo__extern"]
+    pub fn fontGetInfo(font: *mut CFNT_s) -> *mut FINF_s;
+}
+extern "C" {
+    #[doc = "Retrieves the texture sheet information of a font.\n # Arguments\n\n* `font` - Pointer to font structure. If NULL, the shared system font is used."]
+    #[link_name = "fontGetGlyphInfo__extern"]
+    pub fn fontGetGlyphInfo(font: *mut CFNT_s) -> *mut TGLP_s;
+}
+extern "C" {
+    #[doc = "Retrieves the pointer to texture data for the specified texture sheet.\n # Arguments\n\n* `font` - Pointer to font structure. If NULL, the shared system font is used.\n * `sheetIndex` - Index of the texture sheet."]
+    #[link_name = "fontGetGlyphSheetTex__extern"]
+    pub fn fontGetGlyphSheetTex(
+        font: *mut CFNT_s,
+        sheetIndex: ::libc::c_int,
+    ) -> *mut ::libc::c_void;
+}
+extern "C" {
     #[doc = "Retrieves the glyph index of the specified Unicode codepoint.\n # Arguments\n\n* `font` - Pointer to font structure. If NULL, the shared system font is used.\n * `codePoint` - Unicode codepoint."]
     pub fn fontGlyphIndexFromCodePoint(font: *mut CFNT_s, codePoint: u32_) -> ::libc::c_int;
 }
@@ -18443,6 +18979,16 @@ extern "C" {
 extern "C" {
     #[doc = "Connects to the 3dslink host, setting up an output stream.\n # Arguments\n\n* `redirStdout` (direction in) - Whether to redirect stdout to nxlink output.\n * `redirStderr` (direction in) - Whether to redirect stderr to nxlink output.\n # Returns\n\nSocket fd on success, negative number on failure.\n > **Note:** The socket should be closed with close() during application cleanup."]
     pub fn link3dsConnectToHost(redirStdout: bool, redirStderr: bool) -> ::libc::c_int;
+}
+extern "C" {
+    #[doc = "Same as link3dsConnectToHost but redirecting both stdout/stderr."]
+    #[link_name = "link3dsStdio__extern"]
+    pub fn link3dsStdio() -> ::libc::c_int;
+}
+extern "C" {
+    #[doc = "Same as link3dsConnectToHost but redirecting only stderr."]
+    #[link_name = "link3dsStdioForDebug__extern"]
+    pub fn link3dsStdioForDebug() -> ::libc::c_int;
 }
 pub type error_t = ::libc::c_int;
 extern "C" {

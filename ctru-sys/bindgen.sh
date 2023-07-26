@@ -26,4 +26,13 @@ cargo run --package bindgen-ctru-sys > src/bindings.rs
 echo "Formatting generated files..."
 cargo fmt --all
 
+echo "Compiling static inline wrappers..."
+arm-none-eabi-gcc -march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft \
+    -I${DEVKITPRO}/libctru/include \
+    -I${DEVKITPRO}/libctru/include/3ds \
+    -O -c -o extern.o /tmp/bindgen/extern.c
+arm-none-eabi-ar -rcs libextern.a extern.o
+rm extern.o
+
+
 echo "Generated bindings for ctru-sys version \"${CTRU_SYS_VERSION}.x+${LIBCTRU_VERSION}\""

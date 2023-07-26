@@ -37,6 +37,7 @@ fn main() {
         .blocklist_type("__va_list")
         .opaque_type("MiiData")
         .derive_default(true)
+        .wrap_static_fns(true)
         .clang_args([
             "--target=arm-none-eabi",
             "--sysroot",
