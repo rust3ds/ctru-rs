@@ -2,6 +2,7 @@
 //!
 //! This module contains basic methods to manipulate the contents of the 3DS's filesystem.
 //! Only the SD card is currently supported. You should prefer using `std::fs`.
+// TODO: Refactor service to accomodate for various changes (such as SMDH support). Properly document the public API.
 
 use bitflags::bitflags;
 use std::ffi::OsString;
