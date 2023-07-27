@@ -113,7 +113,10 @@ impl Soc {
         Ipv4Addr::from(raw_id.to_ne_bytes())
     }
 
-    /// Redirect output streams (i.e. `println` and `eprintln`) to the `3dslink` server.
+    /// Redirect output streams (i.e. `stdout` and `stderr`) to the `3dslink` server.
+    ///
+    /// With this redirection it is possible to send (and view in real time) the output of `stdout` operations,
+    /// such as `println!` or `dbg!`.
     ///
     /// Requires `3dslink` >= 0.6.1 and `new-hbmenu` >= 2.3.0 and the use of the `--server` flag.
     /// The `--server` flag is also availble to use via `cargo-3ds` if the requirements are met.
