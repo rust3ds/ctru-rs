@@ -1,3 +1,7 @@
+//! Audio Filters example.
+//!
+//! This example showcases basic audio functionality using [`Ndsp`].
+
 #![feature(allocator_api)]
 
 use std::f32::consts::PI;
@@ -9,17 +13,18 @@ use ctru::services::ndsp::{
     AudioFormat, AudioMix, InterpolationType, Ndsp, OutputMode,
 };
 
+// Configuration for the NDSP process and channels.
 const SAMPLE_RATE: usize = 22050;
 const SAMPLES_PER_BUF: usize = SAMPLE_RATE / 10; // 2205
 const BYTES_PER_SAMPLE: usize = AudioFormat::PCM16Stereo.size();
 const AUDIO_WAVE_LENGTH: usize = SAMPLES_PER_BUF * BYTES_PER_SAMPLE;
 
-// Note Frequencies
+// Note frequencies.
 const NOTEFREQ: [f32; 7] = [220., 440., 880., 1760., 3520., 7040., 14080.];
 
-// The audio format is Stereo PCM16
-// As such, a sample is made up of 2 "Mono" samples (2 * i16 = u32), one for each channel (left and right)
 fn fill_buffer(audio_data: &mut [u8], frequency: f32) {
+    // The audio format is Stereo PCM16.
+    // As such, a sample is made up of 2 "Mono" samples (2 * i16), one for each channel (left and right).
     let formatted_data = bytemuck::cast_slice_mut::<_, [i16; 2]>(audio_data);
 
     for (i, chunk) in formatted_data.iter_mut().enumerate() {
@@ -44,8 +49,7 @@ fn main() {
 
     let mut note: usize = 4;
 
-    // Filters
-
+    // Filter names to display.
     let filter_names = [
         "None",
         "Low-Pass",
@@ -60,19 +64,26 @@ fn main() {
     // We set up two wave buffers and alternate between the two,
     // effectively streaming an infinitely long sine wave.
 
+    // We create a buffer on the LINEAR memory that will hold our audio data.
+    // It's necessary for the buffer to live on the LINEAR memory sector since it needs to be accessed by the DSP processor.
     let mut audio_data1 = Box::new_in([0u8; AUDIO_WAVE_LENGTH], LinearAllocator);
+
+    // Fill the buffer with the first set of data. This simply writes a sine wave into the buffer.
     fill_buffer(audio_data1.as_mut_slice(), NOTEFREQ[4]);
 
+    // Clone the original buffer to obtain an equal buffer on the LINEAR memory used for double buffering.
     let audio_data2 = audio_data1.clone();
 
+    // Setup two wave info objects with the correct configuration and ownership of the audio data.
     let mut wave_info1 = Wave::new(audio_data1, AudioFormat::PCM16Stereo, false);
     let mut wave_info2 = Wave::new(audio_data2, AudioFormat::PCM16Stereo, false);
 
-    let mut ndsp = Ndsp::new().expect("Couldn't obtain NDSP controller");
+    // Setup the NDSP service and its configuration.
 
-    // This line isn't needed since the default NDSP configuration already sets the output mode to `Stereo`
+    let mut ndsp = Ndsp::new().expect("Couldn't obtain NDSP controller");
     ndsp.set_output_mode(OutputMode::Stereo);
 
+    // Channel configuration. We use channel zero but any channel would do just fine.
     let mut channel_zero = ndsp.channel(0).unwrap();
     channel_zero.set_interpolation(InterpolationType::Linear);
     channel_zero.set_sample_rate(SAMPLE_RATE as f32);
@@ -82,6 +93,7 @@ fn main() {
     let mix = AudioMix::default();
     channel_zero.set_mix(&mix);
 
+    // First set of queueing for the two buffers. The second one will only play after the first one has ended.
     channel_zero.queue_wave(&mut wave_info1).unwrap();
     channel_zero.queue_wave(&mut wave_info2).unwrap();
 
@@ -93,6 +105,8 @@ fn main() {
         filter_names[filter as usize]
     );
 
+    println!("\x1b[29;16HPress Start to exit");
+
     let mut altern = true; // true is wave_info1, false is wave_info2
 
     while apt.main_loop() {
@@ -101,14 +115,16 @@ fn main() {
 
         if keys_down.contains(KeyPad::START) {
             break;
-        } // break in order to return to hbmenu
+        }
 
+        // Note frequency controller using the buttons.
         if keys_down.intersects(KeyPad::DOWN) {
             note = note.saturating_sub(1);
         } else if keys_down.intersects(KeyPad::UP) {
             note = std::cmp::min(note + 1, NOTEFREQ.len() - 1);
         }
 
+        // Filter controller using the buttons.
         let mut update_params = false;
         if keys_down.intersects(KeyPad::LEFT) {
             filter -= 1;
@@ -139,12 +155,14 @@ fn main() {
             }
         }
 
+        // Double buffer alternation depending on the one used.
         let current: &mut Wave = if altern {
             &mut wave_info1
         } else {
             &mut wave_info2
         };
 
+        // If the current buffer has finished playing, we can refill it with new data and re-queue it.
         let status = current.status();
         if let Status::Done = status {
             fill_buffer(current.get_buffer_mut().unwrap(), NOTEFREQ[note]);
@@ -154,7 +172,6 @@ fn main() {
             altern = !altern;
         }
 
-        //Wait for VBlank
         gfx.wait_for_vblank();
     }
 }

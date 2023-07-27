@@ -414,8 +414,12 @@ impl TopScreen {
 
     /// Enable or disable wide mode on the top screen.
     ///
+    /// # Notes
+    ///
     /// [`Swap::swap_buffers`] must be called after this method for the configuration
     /// to take effect.
+    ///
+    /// Wide mode does NOT work on Old 2DS models (but still does on New 2DS XL models).
     #[doc(alias = "gfxSetWide")]
     pub fn set_wide_mode(&mut self, enable: bool) {
         unsafe {

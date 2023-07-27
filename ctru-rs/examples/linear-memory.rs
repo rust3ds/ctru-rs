@@ -1,3 +1,9 @@
+//! LINEAR memory example.
+//!
+//! This example showcases simple allocation on the LINEAR memory sector.
+//! Using LINEAR memory is required when sending data to the GPU or DSP processor.
+
+// You will need to activate this unstable feature to use custom allocators.
 #![feature(allocator_api)]
 
 use ctru::linear::LinearAllocator;
@@ -11,11 +17,13 @@ fn main() {
     let apt = Apt::new().expect("Couldn't obtain APT controller");
     let _console = Console::new(gfx.top_screen.borrow_mut());
 
+    // The `LinearAllocator` is always available for use.
+    // Luckily, we can always read how much memory is available to be allocated on it.
     let linear_space_before = LinearAllocator::free_space();
 
-    // Normal `Box` on the heap
+    // Normal `Box` on the heap.
     let heap_box = Box::new(1492);
-    // `Box` living on the linear memory sector
+    // `Box` living on the LINEAR memory.
     let linear_box: Box<i32, LinearAllocator> = Box::new_in(2022, LinearAllocator);
 
     println!("This value is from the heap: {heap_box}");
@@ -29,16 +37,13 @@ fn main() {
 
     println!("\x1b[29;16HPress Start to exit");
 
-    // Main loop
     while apt.main_loop() {
-        //Scan all the inputs. This should be done once for each frame
         hid.scan_input();
 
         if hid.keys_down().contains(KeyPad::START) {
             break;
         }
 
-        //Wait for VBlank
         gfx.wait_for_vblank();
     }
 }
