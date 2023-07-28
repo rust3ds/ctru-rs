@@ -104,9 +104,9 @@ pub trait Swap: private::Sealed {
     fn swap_buffers(&mut self);
 
     /// Set whether to use double buffering.
-    /// 
+    ///
     /// # Notes
-    /// 
+    ///
     /// Double buffering is enabled by default.
     /// [`Swap::swap_buffers`] must be called after this function for the configuration
     /// change to take effect.

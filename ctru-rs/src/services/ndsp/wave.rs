@@ -154,7 +154,7 @@ impl Wave {
     /// Set the amount of samples to be read.
     ///
     /// # Note
-    /// 
+    ///
     ///
     /// This function doesn't resize the internal buffer. Operations of this kind are particularly useful to allocate memory pools
     /// for VBR (Variable BitRate) formats, like OGG Vorbis.
