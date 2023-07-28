@@ -1,16 +1,29 @@
+use bindgen::callbacks::ParseCallbacks;
+use bindgen::{Builder, RustTarget};
+
 use std::env;
 use std::error::Error;
+use std::path::{Path, PathBuf};
 use std::process::{Command, Output, Stdio};
 
-fn main() {
-    let dkp_path = env::var("DEVKITPRO").unwrap();
-    let profile = env::var("PROFILE").unwrap();
-    let pwd = env::var("CARGO_MANIFEST_DIR").unwrap();
+#[derive(Debug)]
+struct CustomCallbacks;
 
-    // Link to libctru
+impl ParseCallbacks for CustomCallbacks {
+    fn process_comment(&self, comment: &str) -> Option<String> {
+        Some(doxygen_rs::transform(comment))
+    }
+}
+
+fn main() {
+    let devkitpro = env::var("DEVKITPRO").unwrap();
+    let devkitarm = env::var("DEVKITARM").unwrap();
+    let profile = env::var("PROFILE").unwrap();
+    let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
+
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-env-changed=DEVKITPRO");
-    println!("cargo:rustc-link-search=native={dkp_path}/libctru/lib");
+    println!("cargo:rustc-link-search=native={devkitpro}/libctru/lib");
     println!(
         "cargo:rustc-link-lib=static={}",
         match profile.as_str() {
@@ -18,10 +31,6 @@ fn main() {
             _ => "ctru",
         }
     );
-
-    // Link to static inline fns wrapper
-    println!("cargo:rustc-link-search=native={}", pwd);
-    println!("cargo:rustc-link-lib=static=extern");
 
     match check_libctru_version() {
         Ok((maj, min, patch)) => {
@@ -36,9 +45,97 @@ fn main() {
         }
         Err(err) => println!("cargo:warning=failed to check libctru version: {err}"),
     }
+
+    let gcc_version = get_gcc_version(PathBuf::from(&devkitarm).join("bin/arm-none-eabi-gcc"));
+
+    let include_path = PathBuf::from_iter([devkitpro.as_str(), "libctru", "include"]);
+    let ctru_header = include_path.join("3ds.h");
+
+    let sysroot = Path::new(&devkitarm).join("arm-none-eabi");
+    let system_include = sysroot.join("include");
+    let gcc_include = PathBuf::from(format!(
+        "{devkitarm}/lib/gcc/arm-none-eabi/{gcc_version}/include"
+    ));
+    let errno_header = system_include.join("errno.h");
+
+    // Build libctru bindings
+    let bindings = Builder::default()
+        .header(ctru_header.to_str().unwrap())
+        .header(errno_header.to_str().unwrap())
+        .rust_target(RustTarget::Nightly)
+        .use_core()
+        .trust_clang_mangling(false)
+        .must_use_type("Result")
+        .layout_tests(false)
+        .ctypes_prefix("::libc")
+        .prepend_enum_name(false)
+        .blocklist_type("u(8|16|32|64)")
+        .blocklist_type("__builtin_va_list")
+        .blocklist_type("__va_list")
+        .opaque_type("MiiData")
+        .derive_default(true)
+        .wrap_static_fns(true)
+        .wrap_static_fns_path(out_dir.join("libctru_statics_wrapper"))
+        .clang_args([
+            "--target=arm-none-eabi",
+            "--sysroot",
+            sysroot.to_str().unwrap(),
+            "-isystem",
+            system_include.to_str().unwrap(),
+            "-isystem",
+            gcc_include.to_str().unwrap(),
+            "-I",
+            include_path.to_str().unwrap(),
+            "-mfloat-abi=hard",
+            "-march=armv6k",
+            "-mtune=mpcore",
+            "-mfpu=vfp",
+            "-DARM11",
+            "-D__3DS__",
+        ])
+        .parse_callbacks(Box::new(CustomCallbacks))
+        .generate()
+        .expect("unable to generate bindings");
+
+    bindings
+        .write_to_file(out_dir.join("bindings.rs"))
+        .expect("Couldn't write bindings!");
+
+    // Compile static inline fns wrapper
+    let cc = Path::new(devkitarm.as_str()).join("bin/arm-none-eabi-gcc");
+    let ar = Path::new(devkitarm.as_str()).join("bin/arm-none-eabi-ar");
+
+    cc::Build::new()
+        .compiler(cc)
+        .archiver(ar)
+        .include(&include_path)
+        .file(out_dir.join("libctru_statics_wrapper.c"))
+        .flag("-march=armv6k")
+        .flag("-mtune=mpcore")
+        .flag("-mfloat-abi=hard")
+        .flag("-mfpu=vfp")
+        .flag("-mtp=soft")
+        .flag("-Wno-deprecated-declarations")
+        .compile("ctru_statics_wrapper");
 }
 
-fn parse_version(version: &str) -> Result<(String, String, String), &str> {
+fn get_gcc_version(path_to_gcc: PathBuf) -> String {
+    let Output { stdout, .. } = Command::new(path_to_gcc)
+        .arg("--version")
+        .stderr(Stdio::inherit())
+        .output()
+        .unwrap();
+
+    let stdout_str = String::from_utf8_lossy(&stdout);
+
+    stdout_str
+        .split(|c: char| c.is_whitespace())
+        .nth(4)
+        .unwrap()
+        .to_string()
+}
+
+fn parse_libctru_version(version: &str) -> Result<(String, String, String), &str> {
     let versions: Vec<_> = version
         .split(|c| c == '.' || c == '-')
         .map(String::from)
@@ -90,6 +187,6 @@ fn check_libctru_version() -> Result<(String, String, String), Box<dyn Error>> {
         println!("cargo:rerun-if-changed={file}");
     }
 
-    let (lib_major, lib_minor, lib_patch) = parse_version(lib_version)?;
+    let (lib_major, lib_minor, lib_patch) = parse_libctru_version(lib_version)?;
     Ok((lib_major, lib_minor, lib_patch))
 }

@@ -1,7 +1,7 @@
 [package]
 name = "ctru-sys"
 version = "22.2.0+2.2.2-1"
-authors = [ "Rust3DS Org", "Ronald Kinard <furyhunter600@gmail.com>" ]
+authors = ["Rust3DS Org", "Ronald Kinard <furyhunter600@gmail.com>"]
 license = "Zlib"
 links = "ctru"
 edition = "2021"
@@ -10,4 +10,7 @@ edition = "2021"
 libc = { version = "0.2.121", default-features = false }
 
 [build-dependencies]
+bindgen = { version = "0.65.1", features = ["experimental"] }
+cc = "1.0"
+doxygen-rs = "0.4.2"
 which = "4.4.0"
