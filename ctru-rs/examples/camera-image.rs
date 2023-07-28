@@ -61,7 +61,7 @@ fn main() {
     let mut buf = vec![0u8; BUF_SIZE];
 
     println!("\nPress R to take a new picture");
-    println!("\x1b[29;16HPress Start to exit");
+    println!("Press Start to exit");
 
     while apt.main_loop() {
         hid.scan_input();

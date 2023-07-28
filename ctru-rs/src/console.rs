@@ -21,7 +21,9 @@ static mut EMPTY_CONSOLE: PrintConsole = unsafe { const_zero::const_zero!(PrintC
 ///
 /// # Notes
 ///
-/// The console will take full possession of the screen handed to it as long as it stays alive. It also supports ANSI codes.
+/// The [`Console`] will take full possession of the screen handed to it as long as it stays alive. It also supports ANSI codes.
+/// The [`Console`]'s window will have a size of 40x30 on the bottom screen, 50x30 on the normal top screen and
+/// 100x30 on the top screen when wide mode is enabled.
 ///
 /// # Alternatives
 ///

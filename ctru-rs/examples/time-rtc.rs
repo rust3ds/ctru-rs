@@ -27,8 +27,17 @@ fn main() {
         // since the 3DS doesn't seem to support timezones.
         let cur_time = time::OffsetDateTime::now_utc();
 
-        // Display the retrieved information.
-        println!("\x1b[1;1H{cur_time}");
+        let hours = cur_time.hour();
+        let minutes = cur_time.minute();
+        let seconds = cur_time.second();
+
+        let weekday = cur_time.weekday().to_string();
+        let month = cur_time.month().to_string();
+        let day = cur_time.day();
+        let year = cur_time.year();
+
+        println!("\x1b[1;1H{hours:0>2}:{minutes:0>2}:{seconds:0>2}");
+        println!("{weekday} {month} {day} {year}");
 
         gfx.wait_for_vblank();
     }

@@ -13,8 +13,7 @@ fn main() {
     let gfx = Gfx::new().unwrap();
     let _console = Console::new(gfx.top_screen.borrow_mut());
 
-    println!("Press A to enter some text.");
-    println!("\x1b[29;16HPress Start to exit");
+    println!("Press A to enter some text or press Start to exit.");
 
     while apt.main_loop() {
         hid.scan_input();
@@ -23,7 +22,7 @@ fn main() {
             break;
         }
 
-        // If the user request to write some input.
+        // Check if the user request to write some input.
         if hid.keys_down().contains(KeyPad::A) {
             // Prepares a software keyboard with two buttons: One to cancel input and one
             // to accept it. You can also use `SoftwareKeyboard::new()` to launch the keyboard in different

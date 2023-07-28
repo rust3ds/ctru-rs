@@ -12,11 +12,8 @@ fn main() {
     ctru::use_panic_handler();
 
     let gfx = Gfx::new().unwrap();
-    let _console = Console::new(gfx.top_screen.borrow_mut());
     let mut hid = Hid::new().unwrap();
     let apt = Apt::new().unwrap();
-
-    println!("\nlibctru sockets demo\n");
 
     // Owning a living handle to the `Soc` service is required to use network functionalities.
     let soc = Soc::new().unwrap();
@@ -25,8 +22,12 @@ fn main() {
     let server = TcpListener::bind("0.0.0.0:80").unwrap();
     server.set_nonblocking(true).unwrap();
 
-    println!("Point your browser to http://{}/\n", soc.host_address());
-    println!("\x1b[29;16HPress Start to exit");
+    let _bottom_console = Console::new(gfx.bottom_screen.borrow_mut());
+
+    println!("Point your browser at:\nhttp://{}/\n", soc.host_address());
+    println!("\x1b[29;12HPress Start to exit");
+
+    let _top_console = Console::new(gfx.top_screen.borrow_mut());
 
     while apt.main_loop() {
         hid.scan_input();
@@ -34,6 +35,7 @@ fn main() {
             break;
         };
 
+        // Receive any incoming connections.
         match server.accept() {
             Ok((mut stream, socket_addr)) => {
                 println!("Got connection from {socket_addr}");

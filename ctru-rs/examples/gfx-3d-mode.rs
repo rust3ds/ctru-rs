@@ -10,7 +10,6 @@ use ctru::services::gfx::{Flush, Screen, Side, Swap, TopScreen3D};
 //
 // WARNING: this example uses 3D mode in a rather unnatural way, and should
 // probably not be viewed for too long or at all if you are photosensitive.
-
 const IMAGE: &[u8] = include_bytes!("assets/ferris.rgb");
 static ZERO: &[u8] = &[0; IMAGE.len()];
 
@@ -22,8 +21,9 @@ fn main() {
     let apt = Apt::new().expect("Couldn't obtain APT controller");
     let _console = Console::new(gfx.bottom_screen.borrow_mut());
 
-    println!("Press A to switch sides (be sure to have set the 3D slider correctly).");
-    println!("\x1b[29;16HPress Start to exit");
+    println!("Press A to switch sides.");
+    println!("Make sure to have set the 3D slider correctly");
+    println!("\x1b[29;12HPress Start to exit");
 
     gfx.top_screen.borrow_mut().set_double_buffering(true);
 

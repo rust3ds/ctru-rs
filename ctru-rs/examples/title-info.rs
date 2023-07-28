@@ -88,7 +88,8 @@ fn main() {
 
             // Clear the bottom screen and write the properties of selected title to it.
             bottom_screen.select();
-            println!("\x1b[2J");
+            bottom_screen.clear();
+            println!("Press Start to exit");
 
             // Move cursor to top left.
             println!("\x1b[1;1");
@@ -97,7 +98,6 @@ fn main() {
             println!("Version: 0x{:x}", selected_title.version());
             println!("Product code: \"{}\"", selected_title.product_code());
 
-            println!("\x1b[29;16HPress Start to exit");
             if use_nand {
                 println!("Press SELECT to choose SD Card");
                 println!("Current medium: NAND");

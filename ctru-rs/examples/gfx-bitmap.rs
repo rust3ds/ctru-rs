@@ -64,6 +64,15 @@ fn main() {
             } else {
                 IMAGE
             };
+
+            let frame_buffer = bottom_screen.raw_framebuffer();
+
+            // We render the newly switched image to the framebuffer.
+            unsafe {
+                frame_buffer
+                    .ptr
+                    .copy_from(image_bytes.as_ptr(), image_bytes.len());
+            }
         }
 
         // Flush framebuffers. Since we're not using double buffering,
