@@ -413,7 +413,7 @@ impl File {
     /// let mut sdmc_archive = fs.sdmc().unwrap();
     /// let mut f = File::create(&mut sdmc_archive, "/foo.txt").unwrap();
     /// ```
-    pub fn create<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<File> {
+    pub fn create<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<File> {
         OpenOptions::new()
             .write(true)
             .create(true)
@@ -738,7 +738,7 @@ impl<'a> DirEntry<'a> {
 ///
 /// * User lacks permissions to create directory at `path`
 #[doc(alias = "FSUSER_CreateDirectory")]
-pub fn create_dir<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<()> {
+pub fn create_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
     unsafe {
         let path = to_utf16(path.as_ref());
         let fs_path = ctru_sys::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
@@ -765,7 +765,7 @@ pub fn create_dir<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<()> {
 /// * If any directory in the path specified by `path` does not already exist
 ///   and it could not be created otherwise.
 #[doc(alias = "FSUSER_CreateDirectory")]
-pub fn create_dir_all<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<()> {
+pub fn create_dir_all<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
     let path = path.as_ref();
     let mut dir = PathBuf::new();
     let mut result = Ok(());
@@ -802,7 +802,7 @@ pub fn metadata<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<Metadata> {
 /// * The user lacks permissions to remove the directory at the provided path.
 /// * The directory isn't empty.
 #[doc(alias = "FSUSER_DeleteDirectory")]
-pub fn remove_dir<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<()> {
+pub fn remove_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
     unsafe {
         let path = to_utf16(path.as_ref());
         let fs_path = ctru_sys::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
@@ -821,7 +821,7 @@ pub fn remove_dir<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<()> {
 ///
 /// see `file::remove_file` and `fs::remove_dir`
 #[doc(alias = "FSUSER_DeleteDirectoryRecursively")]
-pub fn remove_dir_all<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<()> {
+pub fn remove_dir_all<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
     unsafe {
         let path = to_utf16(path.as_ref());
         let fs_path = ctru_sys::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
@@ -875,7 +875,7 @@ pub fn read_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<ReadDir> {
 /// * path points to a directory.
 /// * The user lacks permissions to remove the file.
 #[doc(alias = "FSUSER_DeleteFile")]
-pub fn remove_file<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<()> {
+pub fn remove_file<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
     unsafe {
         let path = to_utf16(path.as_ref());
         let fs_path = ctru_sys::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
@@ -899,7 +899,7 @@ pub fn remove_file<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<()> 
 /// * from does not exist.
 /// * The user lacks permissions to view contents.
 #[doc(alias = "FSUSER_RenameFile", alias = "FSUSER_RenameDirectory")]
-pub fn rename<P, Q>(arch: &mut Archive, from: P, to: Q) -> IoResult<()>
+pub fn rename<P, Q>(arch: &Archive, from: P, to: Q) -> IoResult<()>
 where
     P: AsRef<Path>,
     Q: AsRef<Path>,
