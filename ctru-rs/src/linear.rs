@@ -1,11 +1,11 @@
 //! LINEAR memory allocator.
 //!
 //! LINEAR memory is a sector of the 3DS' RAM that binds virtual addresses exactly to the physical address.
-//! As such, it is used for fast and safe memory sharing between hardware processors (such as the GPU and the DSP).
+//! As such, it is used for fast and safe memory sharing between different hardware components (such as the GPU and the DSP processor).
 //!
 //! # Additional Resources
 //!
-//! - <https://github.com/devkitPro/libctru/blob/master/libctru/source/allocator/linear.cpp><br>
+//! - <https://github.com/devkitPro/libctru/blob/master/libctru/source/allocator/linear.cpp>
 //! - <https://www.3dbrew.org/wiki/Memory_layout>
 
 use std::alloc::{AllocError, Allocator, Layout};

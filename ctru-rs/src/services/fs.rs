@@ -542,7 +542,7 @@ impl OpenOptions {
         Self::default()
     }
 
-    /// Sets the option for read access.
+    /// Set the option for read access.
     ///
     /// This option, when true, will indicate that the file should be
     /// `read`-able if opened.
@@ -551,7 +551,7 @@ impl OpenOptions {
         self
     }
 
-    /// Sets the option for write access.
+    /// Set the option for write access.
     ///
     /// This option, when true, will indicate that the file should be
     /// `write`-able if opened.
@@ -563,7 +563,7 @@ impl OpenOptions {
         self
     }
 
-    /// Sets the option for the append mode.
+    /// Set the option for the append mode.
     ///
     /// This option, when true, means that writes will append to a file instead
     /// of overwriting previous contents. Note that setting .write(true).append(true)
@@ -575,7 +575,7 @@ impl OpenOptions {
         self
     }
 
-    /// Sets the option for truncating a previous file.
+    /// Set the option for truncating a previous file.
     ///
     /// If a file is successfully opened with this option set it will truncate
     /// the file to 0 length if it already exists.
@@ -586,7 +586,7 @@ impl OpenOptions {
         self
     }
 
-    /// Sets the option for creating a new file.
+    /// Set the option for creating a new file.
     ///
     /// This option indicates whether a new file will be created
     /// if the file does not yet already
@@ -598,7 +598,7 @@ impl OpenOptions {
         self
     }
 
-    /// Sets which archive the file is to be opened in.
+    /// Set which archive the file is to be opened in.
     ///
     /// Failing to pass in an archive will result in the file failing to open.
     pub fn archive(&mut self, archive: &Archive) -> &mut OpenOptions {

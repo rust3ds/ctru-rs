@@ -55,15 +55,6 @@ pub trait Screen: private::Sealed {
         }
     }
 
-    /// Sets whether to use double buffering. Enabled by default.
-    ///
-    /// [`Swap::swap_buffers`] must be called after this function for the configuration
-    /// change to take effect.
-    #[doc(alias = "gfxSetDoubleBuffering")]
-    fn set_double_buffering(&mut self, enabled: bool) {
-        unsafe { ctru_sys::gfxSetDoubleBuffering(self.as_raw(), enabled) }
-    }
-
     /// Gets the framebuffer format.
     #[doc(alias = "gfxGetScreenFormat")]
     fn framebuffer_format(&self) -> FramebufferFormat {
@@ -106,11 +97,21 @@ pub trait Swap: private::Sealed {
     ///
     /// Even if double buffering is disabled, "swapping" the buffers has the side effect
     /// of committing any configuration changes to the buffers (e.g. [`TopScreen::set_wide_mode()`],
-    /// [`Screen::set_framebuffer_format()`], [`Screen::set_double_buffering()`]), so it should still be used.
+    /// [`Screen::set_framebuffer_format()`], [`Swap::set_double_buffering()`]), so it should still be used.
     ///
     /// This should be called once per frame at most.
     #[doc(alias = "gfxScreenSwapBuffers")]
     fn swap_buffers(&mut self);
+
+    /// Set whether to use double buffering.
+    /// 
+    /// # Notes
+    /// 
+    /// Double buffering is enabled by default.
+    /// [`Swap::swap_buffers`] must be called after this function for the configuration
+    /// change to take effect.
+    #[doc(alias = "gfxSetDoubleBuffering")]
+    fn set_double_buffering(&mut self, enabled: bool);
 }
 
 impl Swap for TopScreen3D<'_> {
@@ -118,6 +119,10 @@ impl Swap for TopScreen3D<'_> {
         unsafe {
             ctru_sys::gfxScreenSwapBuffers(ctru_sys::GFX_TOP, true);
         }
+    }
+
+    fn set_double_buffering(&mut self, enabled: bool) {
+        unsafe { ctru_sys::gfxSetDoubleBuffering(ctru_sys::GFX_TOP, enabled) }
     }
 }
 
@@ -127,6 +132,10 @@ impl Swap for TopScreen {
             ctru_sys::gfxScreenSwapBuffers(ctru_sys::GFX_TOP, false);
         }
     }
+
+    fn set_double_buffering(&mut self, enabled: bool) {
+        unsafe { ctru_sys::gfxSetDoubleBuffering(ctru_sys::GFX_TOP, enabled) }
+    }
 }
 
 impl Swap for BottomScreen {
@@ -134,6 +143,10 @@ impl Swap for BottomScreen {
         unsafe {
             ctru_sys::gfxScreenSwapBuffers(ctru_sys::GFX_BOTTOM, false);
         }
+    }
+
+    fn set_double_buffering(&mut self, enabled: bool) {
+        unsafe { ctru_sys::gfxSetDoubleBuffering(ctru_sys::GFX_BOTTOM, enabled) }
     }
 }
 

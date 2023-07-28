@@ -540,7 +540,7 @@ impl Channel<'_> {
         unsafe { ctru_sys::ndspChnIirMonoSetEnable(self.id.into(), enable) };
     }
 
-    /// Sets the monopole to be a high pass filter.
+    /// Set the monopole to be a high pass filter.
     ///
     /// # Notes
     ///
@@ -550,7 +550,7 @@ impl Channel<'_> {
         unsafe { ctru_sys::ndspChnIirMonoSetParamsHighPassFilter(self.id.into(), cut_off_freq) };
     }
 
-    /// Sets the monopole to be a low pass filter.
+    /// Set the monopole to be a low pass filter.
     ///
     /// # Notes
     ///
@@ -566,7 +566,7 @@ impl Channel<'_> {
         unsafe { ctru_sys::ndspChnIirBiquadSetEnable(self.id.into(), enable) };
     }
 
-    /// Sets the biquad to be a high pass filter.
+    /// Set the biquad to be a high pass filter.
     #[doc(alias = "ndspChnIirBiquadSetParamsHighPassFilter")]
     pub fn iir_biquad_set_params_high_pass_filter(&mut self, cut_off_freq: f32, quality: f32) {
         unsafe {
@@ -574,7 +574,7 @@ impl Channel<'_> {
         };
     }
 
-    /// Sets the biquad to be a low pass filter.
+    /// Set the biquad to be a low pass filter.
     #[doc(alias = "ndspChnIirBiquadSetParamsLowPassFilter")]
     pub fn iir_biquad_set_params_low_pass_filter(&mut self, cut_off_freq: f32, quality: f32) {
         unsafe {
@@ -582,7 +582,7 @@ impl Channel<'_> {
         };
     }
 
-    /// Sets the biquad to be a notch filter.
+    /// Set the biquad to be a notch filter.
     #[doc(alias = "ndspChnIirBiquadSetParamsNotchFilter")]
     pub fn iir_biquad_set_params_notch_filter(&mut self, notch_freq: f32, quality: f32) {
         unsafe {
@@ -590,7 +590,7 @@ impl Channel<'_> {
         };
     }
 
-    /// Sets the biquad to be a band pass filter.
+    /// Set the biquad to be a band pass filter.
     #[doc(alias = "ndspChnIirBiquadSetParamsBandPassFilter")]
     pub fn iir_biquad_set_params_band_pass_filter(&mut self, mid_freq: f32, quality: f32) {
         unsafe {
@@ -598,7 +598,7 @@ impl Channel<'_> {
         };
     }
 
-    /// Sets the biquad to be a peaking equalizer.
+    /// Set the biquad to be a peaking equalizer.
     #[doc(alias = "ndspChnIirBiquadSetParamsPeakingEqualizer")]
     pub fn iir_biquad_set_params_peaking_equalizer(
         &mut self,
@@ -681,7 +681,7 @@ impl AudioMix {
         (self.raw[index], self.raw[index + 1])
     }
 
-    /// Sets the values for the "front" volume mix (left and right channel).
+    /// Set the values for the "front" volume mix (left and right channel).
     ///
     /// # Notes
     ///
@@ -692,7 +692,7 @@ impl AudioMix {
         self.raw[1] = right;
     }
 
-    /// Sets the values for the "back" volume mix (left and right channel).
+    /// Set the values for the "back" volume mix (left and right channel).
     ///
     /// # Notes
     ///
@@ -703,7 +703,7 @@ impl AudioMix {
         self.raw[3] = right;
     }
 
-    /// Sets the values for the "front" volume mix (left and right channel) for the specified auxiliary output device (either 0 or 1).
+    /// Set the values for the "front" volume mix (left and right channel) for the specified auxiliary output device (either 0 or 1).
     ///
     /// # Notes
     ///
@@ -720,7 +720,7 @@ impl AudioMix {
         self.raw[index + 1] = right;
     }
 
-    /// Sets the values for the "back" volume mix (left and right channel) for the specified auxiliary output device (either 0 or 1).
+    /// Set the values for the "back" volume mix (left and right channel) for the specified auxiliary output device (either 0 or 1).
     ///
     /// # Notes
     ///

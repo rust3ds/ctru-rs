@@ -127,7 +127,7 @@ impl<'screen> Console<'screen> {
     ///
     /// Any previously selected console will be unhooked and will not show the `stdout` output.
     ///
-    /// # Example
+    /// # Example
     ///
     /// ```no_run
     /// # use std::error::Error;

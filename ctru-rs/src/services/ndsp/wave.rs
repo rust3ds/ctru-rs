@@ -32,7 +32,7 @@ pub enum Status {
 }
 
 impl Wave {
-    /// Build a new playable wave object from a raw buffer on [LINEAR memory](`crate::linear`) and a some info.
+    /// Build a new playable wave object from a raw buffer on [LINEAR memory](`crate::linear`) and some info.
     ///
     /// # Example
     ///
@@ -86,12 +86,12 @@ impl Wave {
         }
     }
 
-    /// Return a slice to the audio data (on the LINEAR memory).
+    /// Returns a slice to the audio data (on the LINEAR memory).
     pub fn get_buffer(&self) -> &[u8] {
         &self.buffer
     }
 
-    /// Return a mutable slice to the audio data (on the LINEAR memory).
+    /// Returns a mutable slice to the audio data (on the LINEAR memory).
     ///
     /// # Errors
     ///
@@ -106,7 +106,7 @@ impl Wave {
         }
     }
 
-    /// Return this wave's playback status.
+    /// Returns this wave's playback status.
     ///
     /// # Example
     ///
@@ -130,7 +130,7 @@ impl Wave {
         self.raw_data.status.try_into().unwrap()
     }
 
-    /// Get the amounts of samples *read* by the NDSP process.
+    /// Returns the amount of samples *read* by the NDSP process.
     ///
     /// # Notes
     ///
@@ -139,7 +139,7 @@ impl Wave {
         self.raw_data.nsamples as usize
     }
 
-    /// Get the format of the audio data.
+    /// Returns the format of the audio data.
     pub fn format(&self) -> AudioFormat {
         self.audio_format
     }
@@ -152,11 +152,11 @@ impl Wave {
     }
 
     /// Set the amount of samples to be read.
-    /// This function doesn't resize the internal buffer.
     ///
     /// # Note
+    /// 
     ///
-    /// Operations of this kind are particularly useful to allocate memory pools
+    /// This function doesn't resize the internal buffer. Operations of this kind are particularly useful to allocate memory pools
     /// for VBR (Variable BitRate) formats, like OGG Vorbis.
     ///
     /// # Errors

@@ -302,8 +302,7 @@ impl Camera for OutwardLeftCam {
 pub struct BothOutwardCam;
 
 impl BothOutwardCam {
-    /// Sets whether to enable or disable synchronization
-    /// of brightness for both left and right cameras
+    /// Set whether to enable or disable brightness synchronization between the two cameras.
     #[doc(alias = "CAMU_SetBrightnessSynchronization")]
     pub fn set_brightness_synchronization(
         &mut self,
@@ -560,7 +559,7 @@ pub trait Camera {
         }
     }
 
-    /// Sets whether auto white balance is enabled or disabled for the camera
+    /// Set whether auto white balance is enabled or disabled for the camera.
     #[doc(alias = "CAMU_SetAutoWhiteBalance")]
     fn set_auto_white_balance(&mut self, enabled: bool) -> crate::Result<()> {
         unsafe {
@@ -659,7 +658,7 @@ pub trait Camera {
         }
     }
 
-    /// Sets the photo mode of the camera.
+    /// Set the photo mode of the camera.
     #[doc(alias = "CAMU_SetPhotoMode")]
     fn set_photo_mode(&mut self, photo_mode: PhotoMode) -> crate::Result<()> {
         unsafe {
@@ -671,7 +670,7 @@ pub trait Camera {
         }
     }
 
-    /// Sets the effect of the camera.
+    /// Set the effect of the camera.
     ///
     /// # Notes
     ///
@@ -975,7 +974,7 @@ impl Cam {
         }
     }
 
-    /// Plays the specified sound based on the [`ShutterSound`] argument
+    /// Play the specified sound based on the [`ShutterSound`] argument
     ///
     /// # Notes
     ///

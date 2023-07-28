@@ -1,6 +1,6 @@
 //! System Configuration service.
 //!
-//! This module contains basic methods to retrieve and change configuration from the console.
+//! This module contains basic methods to retrieve the console's system configuration.
 
 use crate::error::ResultCode;
 

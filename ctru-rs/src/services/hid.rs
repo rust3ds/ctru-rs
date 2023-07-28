@@ -142,7 +142,7 @@ impl Hid {
     /// hid.scan_input();
     ///
     /// if hid.keys_down().contains(KeyPad::A) {
-    ///     println!("You just pressed the A button!")
+    ///     println!("You have pressed the A button!")
     /// }
     /// #
     /// # Ok(())

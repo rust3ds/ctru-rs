@@ -67,7 +67,7 @@ impl Apt {
         unsafe { ctru_sys::aptMainLoop() }
     }
 
-    /// Sets (in percentage) the amount of time to lend to the application thread spawned on the syscore (core #1).
+    /// Set (in percentage) the amount of time to lend to the application thread spawned on the syscore (core #1).
     ///
     /// # Notes
     ///
