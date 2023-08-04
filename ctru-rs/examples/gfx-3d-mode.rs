@@ -1,7 +1,7 @@
 //! 3D Graphics example.
 //!
 //! This example showcases 3D mode rendering (using the CPU).
-//! In a normal application, all rendering should be hanlded via the GPU.
+//! In a normal application, all rendering should be handled via the GPU.
 
 use ctru::prelude::*;
 use ctru::services::gfx::{Flush, Screen, Side, Swap, TopScreen3D};
