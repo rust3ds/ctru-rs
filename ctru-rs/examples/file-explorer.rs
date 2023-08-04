@@ -143,7 +143,7 @@ impl<'a> FileExplorer<'a> {
         }
     }
 
-    /// Paginate output.'
+    // Paginate output.
     fn wait_for_page_down(&mut self) {
         println!("Press A to go to next page, or Start to exit");
 
