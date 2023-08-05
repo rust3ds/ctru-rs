@@ -66,7 +66,7 @@ bitflags! {
         const DOWN  = KeyPad::DPAD_DOWN.bits()  | KeyPad::CPAD_DOWN.bits();
         /// Direction Left (either D-Pad or C-Pad).
         const LEFT  = KeyPad::DPAD_LEFT.bits()  | KeyPad::CPAD_LEFT.bits();
-        /// Direction Right (either D-Pad or C-Pad)..
+        /// Direction Right (either D-Pad or C-Pad).
         const RIGHT = KeyPad::DPAD_RIGHT.bits() | KeyPad::CPAD_RIGHT.bits();
     }
 }

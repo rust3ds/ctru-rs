@@ -979,7 +979,7 @@ impl Cam {
     /// # Notes
     ///
     /// Playing the shutter sound does not require a living handle to the [`Ndsp`](crate::services::ndsp::Ndsp) service.
-    /// Volume will always be maxed out to ensure everyone within photo range can hear the picture being taken (as by japanese law).
+    /// Volume will always be maxed out to ensure everyone within photo range can hear the picture being taken (as by Japanese law).
     ///
     /// # Example
     ///
