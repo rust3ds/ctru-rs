@@ -5,7 +5,7 @@ authors = [ "Rust3DS Org", "Ronald Kinard <furyhunter600@gmail.com>" ]
 description = "Raw bindings to libctru"
 repository = "https://github.com/rust3ds/ctru-rs"
 keywords = ["3ds", "libctru"]
-categories = ["os", "external-ffi-bindings", "no-std"]
+categories = ["os", "external-ffi-bindings", "no-std", "hardware-support"]
 exclude = ["bindgen.sh", "src/.gitattributes"]
 license = "Zlib"
 links = "ctru"
@@ -19,4 +19,5 @@ which = "4.4.0"
 
 [package.metadata.docs.rs]
 default-target = "armv6k-nintendo-3ds"
+targets = []
 cargo-args = ["-Z", "build-std"]

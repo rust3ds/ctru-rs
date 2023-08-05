@@ -58,15 +58,15 @@ bitflags! {
         /// CirclePad Down.
         const CPAD_DOWN     = ctru_sys::KEY_CPAD_DOWN;
 
-        // Convenience catch-all for the D-Pad and the C-Pad
+        // Convenience catch-all for the D-Pad and the CirclePad
 
-        /// Direction Up (either D-Pad or C-Pad).
+        /// Direction Up (either D-Pad or CirclePad).
         const UP    = KeyPad::DPAD_UP.bits()    | KeyPad::CPAD_UP.bits();
-        /// Direction Down (either D-Pad or C-Pad).
+        /// Direction Down (either D-Pad or CirclePad).
         const DOWN  = KeyPad::DPAD_DOWN.bits()  | KeyPad::CPAD_DOWN.bits();
-        /// Direction Left (either D-Pad or C-Pad).
+        /// Direction Left (either D-Pad or CirclePad).
         const LEFT  = KeyPad::DPAD_LEFT.bits()  | KeyPad::CPAD_LEFT.bits();
-        /// Direction Right (either D-Pad or C-Pad).
+        /// Direction Right (either D-Pad or CirclePad).
         const RIGHT = KeyPad::DPAD_RIGHT.bits() | KeyPad::CPAD_RIGHT.bits();
     }
 }

@@ -12,10 +12,10 @@ use ctru_sys::result::{R_DESCRIPTION, R_LEVEL, R_MODULE, R_SUMMARY};
 
 /// Custom type alias for generic [`ctru-rs`](crate) operations.
 ///
-/// This type is compatible with `ctru-sys::Result` codes.
+/// This type is compatible with [`ctru_sys::Result`] codes.
 pub type Result<T> = ::std::result::Result<T, Error>;
 
-/// Validity checker of raw `ctru_sys::Result` codes.
+/// Validity checker of raw [`ctru_sys::Result`] codes.
 ///
 /// This struct supports the "try" syntax (`?`) to convert to an [`Error::Os`].
 ///
@@ -80,7 +80,7 @@ impl<T> FromResidual<Error> for Result<T> {
 pub enum Error {
     /// Raw [`ctru_sys::Result`] codes.
     Os(ctru_sys::Result),
-    /// Generic `libc` error codes.
+    /// Generic [`libc`] errors.
     Libc(String),
     /// Requested service is already active and cannot be activated again.
     ServiceAlreadyActive,

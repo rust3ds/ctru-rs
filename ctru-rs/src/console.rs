@@ -16,18 +16,20 @@ static mut EMPTY_CONSOLE: PrintConsole = unsafe { const_zero::const_zero!(PrintC
 
 /// Virtual text console.
 ///
-/// [`Console`] lets the application redirect `stdout` to a simple text displayer on the 3DS screen.
-/// This means that any text written to `stdout` (e.g. using `println!` or `dbg!`) will become visible in the area taken by the console.
+/// [`Console`] lets the application redirect `stdout` and `stderr` to a simple text displayer on the 3DS screen.
+/// This means that any text written to `stdout` and `stderr` (e.g. using `println!`, `eprintln!` or `dbg!`) will become visible in the area taken by the console.
 ///
 /// # Notes
 ///
 /// The [`Console`] will take full possession of the screen handed to it as long as it stays alive. It also supports some ANSI codes, such as text color and cursor positioning.
-/// The [`Console`]'s window will have a size of 40x30 on the bottom screen, 50x30 on the normal top screen and
-/// 100x30 on the top screen when wide mode is enabled.
+/// The [`Console`]'s window size will be:
+/// - 40x30 on the [`BottomScreen`](crate::services::gfx::BottomScreen).
+/// - 50x30 on the normal [`TopScreen`](crate::services::gfx::TopScreen).
+/// - 100x30 on the [`TopScreen`](crate::services::gfx::TopScreen) when wide mode is enabled.
 ///
 /// # Alternatives
 ///
-/// If you'd like to see live `stdout` output while running the application but cannot or do not want to show the text on the 3DS itself,
+/// If you'd like to see live standard output while running the application but cannot or do not want to show the text on the 3DS itself,
 /// you can try using [`Soc::redirect_to_3dslink`](crate::services::soc::Soc::redirect_to_3dslink) while activating the `--server` flag for `3dslink` (also supported by `cargo-3ds`).
 /// More info in the [`cargo-3ds` docs](https://github.com/rust3ds/cargo-3ds#running-executables).
 #[doc(alias = "PrintConsole")]
@@ -121,11 +123,11 @@ impl<'screen> Console<'screen> {
         }
     }
 
-    /// Select this console as the current target for `stdout`.
+    /// Select this console as the current target for standard output.
     ///
     /// # Notes
     ///
-    /// Any previously selected console will be unhooked and will not show the `stdout` output.
+    /// Any previously selected console will be unhooked and will not show the `stdout` and `stderr` output.
     ///
     /// # Example
     ///

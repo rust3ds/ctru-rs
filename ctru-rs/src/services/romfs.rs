@@ -71,11 +71,6 @@ impl RomFS {
     }
 }
 
-impl Drop for RomFS {
-    #[doc(alias = "romfsUnmount")]
-    fn drop(&mut self) {}
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

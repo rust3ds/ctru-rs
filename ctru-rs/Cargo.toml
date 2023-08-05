@@ -5,7 +5,7 @@ authors = ["Rust3DS Org", "Ronald Kinard <furyhunter600@gmail.com>"]
 description = "A safe wrapper around libctru"
 repository = "https://github.com/rust3ds/ctru-rs"
 keywords = ["3ds", "libctru"]
-categories = ["os", "api-bindings"]
+categories = ["os", "api-bindings", "hardware-support"]
 exclude = ["examples"]
 license = "Zlib"
 edition = "2021"
@@ -51,6 +51,7 @@ romfs_dir = "examples/romfs"
 
 [package.metadata.docs.rs]
 default-target = "armv6k-nintendo-3ds"
+targets = []
 cargo-args = ["-Z", "build-std"]
 
 [[example]]

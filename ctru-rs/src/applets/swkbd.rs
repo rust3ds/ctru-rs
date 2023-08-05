@@ -391,7 +391,7 @@ impl SoftwareKeyboard {
     }
 
     /// Configure the maximum number of UTF-16 code units that can be entered into the software
-    /// keyboard. By default the limit is `0xFDE8` code units.
+    /// keyboard. By default the limit is `65000` code units.
     ///
     /// # Notes
     ///

@@ -2,14 +2,17 @@
 //!
 //! This example showcases 3D mode rendering (using the CPU).
 //! In a normal application, all rendering should be handled via the GPU.
+//!
+//! See `gfx-bitmap.rs` for details on how the image is generated.
+//!
+//! # Warning
+//!
+//! This example uses 3D mode in a rather unnatural way, and should
+//! probably not be viewed for too long or at all if you are photosensitive.
 
 use ctru::prelude::*;
 use ctru::services::gfx::{Flush, Screen, Side, Swap, TopScreen3D};
 
-// See `graphics-bitmap.rs` for details on how the image is generated.
-//
-// WARNING: this example uses 3D mode in a rather unnatural way, and should
-// probably not be viewed for too long or at all if you are photosensitive.
 const IMAGE: &[u8] = include_bytes!("assets/ferris.rgb");
 static ZERO: &[u8] = &[0; IMAGE.len()];
 
