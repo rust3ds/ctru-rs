@@ -5,8 +5,8 @@
 //! - Install compatible applications to the console.
 //!
 //! TODO: [`ctru-rs`](crate) doesn't support installing or uninstalling titles yet.
-#[doc(alias = "app")]
-#[doc(alias = "manager")]
+#![doc(alias = "app")]
+#![doc(alias = "manager")]
 
 use crate::error::ResultCode;
 use crate::services::fs::FsMediaType;

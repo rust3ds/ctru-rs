@@ -3,9 +3,9 @@
 //! The HID service provides read access to user input such as [button presses](Hid::keys_down), [touch screen presses](Hid::touch_position),
 //! and [circle pad information](Hid::circlepad_position). It also provides information from the sound volume slider, the accelerometer, and the gyroscope.
 // TODO: Implement volume slider, accelerometer and gyroscope + any other missing functionality.
-#[doc(alias = "input")]
-#[doc(alias = "controller")]
-#[doc(alias = "gamepad")]
+#![doc(alias = "input")]
+#![doc(alias = "controller")]
+#![doc(alias = "gamepad")]
 
 use crate::error::ResultCode;
 use bitflags::bitflags;

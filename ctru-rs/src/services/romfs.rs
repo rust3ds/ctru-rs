@@ -18,8 +18,14 @@
 //! ```
 //!
 //! Alternatively, you can include the RomFS archive manually when building with `3dsxtool`.
-#[doc(alias = "embed")]
-#[doc(alias = "filesystem")]
+//!
+//! # Notes
+//!
+//! `std::path` has problems when parsing file paths that include the `romfs:` prefix.
+//! As such, it's suggested to use the paths directly or to do simple append operations to avoid unexpected behaviour.
+//! Related [issue](https://github.com/rust-lang/rust/issues/52331).
+#![doc(alias = "embed")]
+#![doc(alias = "filesystem")]
 
 use crate::error::ResultCode;
 use std::ffi::CStr;
