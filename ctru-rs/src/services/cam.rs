@@ -2,6 +2,7 @@
 //!
 //! The CAM service provides access to the built-in cameras. [`Camera`]s can return images
 //! in the form of byte vectors which can be displayed to the screen or used in other ways.
+#[doc(alias = "camera")]
 
 use crate::error::{Error, ResultCode};
 use crate::services::gspgpu::FramebufferFormat;

@@ -2,6 +2,8 @@
 //!
 //! By using this service the program enables the use of network sockets and utilities such as those found in `std::net`, which are completely inaccessible by default.
 //! As such, remember to hold a handle to this service handle while using any network functionality, or else the `std::net` methods will return generic OS errors.
+#[doc(alias = "socket")]
+#[doc(alias = "network")]
 
 use libc::memalign;
 use std::net::Ipv4Addr;

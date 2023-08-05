@@ -18,6 +18,8 @@
 //! ```
 //!
 //! Alternatively, you can include the RomFS archive manually when building with `3dsxtool`.
+#[doc(alias = "embed")]
+#[doc(alias = "filesystem")]
 
 use crate::error::ResultCode;
 use std::ffi::CStr;

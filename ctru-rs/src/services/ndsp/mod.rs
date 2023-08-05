@@ -3,6 +3,7 @@
 //! The NDSP service is used to handle communications to the DSP processor present on the console's motherboard.
 //! Thanks to the DSP processor the program can play sound effects and music on the console's built-in speakers or to any audio device
 //! connected via the audio jack.
+#[doc(alias = "audio")]
 
 pub mod wave;
 use wave::{Status, Wave};

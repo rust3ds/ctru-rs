@@ -2,6 +2,7 @@
 //!
 //! The GFX service controls (in a somewhat high-level way) the console's LCD screens.
 //! The screens are subordinate to the GFX service handle and can be used by only one borrower at a time.
+#[doc(alias = "graphics")]
 
 use std::cell::{Ref, RefCell, RefMut};
 use std::marker::PhantomData;

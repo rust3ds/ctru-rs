@@ -3,6 +3,7 @@
 //! This applet opens a virtual keyboard on the console's bottom screen which lets the user write UTF-16 valid text.
 // TODO: Implement remaining functionality (password mode, filter callbacks, etc.). Also improve "max text length" API. Improve `number of buttons` API when creating a new SoftwareKeyboard.
 // TODO: Split the Parental PIN lock operations into a different type.
+#[doc(alias = "keyboard")]
 
 use bitflags::bitflags;
 use ctru_sys::{

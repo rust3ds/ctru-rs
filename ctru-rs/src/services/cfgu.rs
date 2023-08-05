@@ -1,6 +1,7 @@
 //! System Configuration service.
 //!
 //! This module contains basic methods to retrieve the console's system configuration.
+#[doc(alias = "configuration")]
 
 use crate::error::ResultCode;
 
