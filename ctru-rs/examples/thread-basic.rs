@@ -33,6 +33,8 @@ fn main() {
         println!("Created thread {ix}");
     }
 
+    println!("\x1b[29;16HPress Start to exit");
+
     while apt.main_loop() {
         gfx.wait_for_vblank();
 

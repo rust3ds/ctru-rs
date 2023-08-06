@@ -4,3 +4,4 @@ Cargo.lock
 
 # IDE files
 .idea
+.vscode

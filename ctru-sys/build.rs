@@ -77,8 +77,9 @@ fn check_libctru_version() -> Result<(String, String, String), Box<dyn Error>> {
         .output()?;
 
     for line in String::from_utf8_lossy(&stdout).split('\n') {
-        let Some((_pkg, file)) = line.split_once(char::is_whitespace)
-        else { continue };
+        let Some((_pkg, file)) = line.split_once(char::is_whitespace) else {
+            continue;
+        };
 
         println!("cargo:rerun-if-changed={file}");
     }

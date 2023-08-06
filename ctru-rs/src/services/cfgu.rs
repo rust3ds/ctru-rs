@@ -1,72 +1,123 @@
-//! Configuration service
+//! System Configuration service.
 //!
-//! This module contains basic methods to retrieve and change configuration from the console.
+//! This module contains basic methods to retrieve the console's system configuration.
+#![doc(alias = "configuration")]
 
 use crate::error::ResultCode;
 
+/// Console region.
+#[doc(alias = "CFG_Region")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum Region {
+    /// Japan.
     Japan = ctru_sys::CFG_REGION_JPN,
+    /// USA.
     USA = ctru_sys::CFG_REGION_USA,
+    /// Europe.
     Europe = ctru_sys::CFG_REGION_EUR,
+    /// Australia.
     Australia = ctru_sys::CFG_REGION_AUS,
+    /// China.
     China = ctru_sys::CFG_REGION_CHN,
+    /// Korea.
     Korea = ctru_sys::CFG_REGION_KOR,
+    /// Taiwan.
     Taiwan = ctru_sys::CFG_REGION_TWN,
 }
 
+/// Language set for the console's OS.
+#[doc(alias = "CFG_Language")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum Language {
+    /// Japanese.
     Japanese = ctru_sys::CFG_LANGUAGE_JP,
+    /// English.
     English = ctru_sys::CFG_LANGUAGE_EN,
+    /// French.
     French = ctru_sys::CFG_LANGUAGE_FR,
+    /// German.
     German = ctru_sys::CFG_LANGUAGE_DE,
+    /// Italian.
     Italian = ctru_sys::CFG_LANGUAGE_IT,
+    /// Spanish.
     Spanish = ctru_sys::CFG_LANGUAGE_ES,
-    SimplifiedChinese = ctru_sys::CFG_LANGUAGE_ZH,
+    /// Korean.
     Korean = ctru_sys::CFG_LANGUAGE_KO,
+    /// Dutch.
     Dutch = ctru_sys::CFG_LANGUAGE_NL,
+    /// Portuguese.
     Portuguese = ctru_sys::CFG_LANGUAGE_PT,
+    /// Russian.
     Russian = ctru_sys::CFG_LANGUAGE_RU,
+    /// Simplified Chinese.
+    SimplifiedChinese = ctru_sys::CFG_LANGUAGE_ZH,
+    /// Traditional Chinese.
     TraditionalChinese = ctru_sys::CFG_LANGUAGE_TW,
 }
 
+/// Specific model of the console.
+#[doc(alias = "CFG_SystemModel")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum SystemModel {
+    /// Old Nintendo 3DS.
     Old3DS = ctru_sys::CFG_MODEL_3DS,
+    /// Old Nintendo 3DS XL.
     Old3DSXL = ctru_sys::CFG_MODEL_3DSXL,
+    /// New Nintendo 3DS.
     New3DS = ctru_sys::CFG_MODEL_N3DS,
+    /// Old Nintendo 2DS.
     Old2DS = ctru_sys::CFG_MODEL_2DS,
+    /// New Nintendo 3DS XL.
     New3DSXL = ctru_sys::CFG_MODEL_N3DSXL,
+    /// New Nintendo 2DS XL.
     New2DSXL = ctru_sys::CFG_MODEL_N2DSXL,
 }
 
-/// Represents the configuration service. No actions can be performed
-/// until an instance of this struct is created.
-///
-/// The service exits when all instances of this struct go out of scope.
+/// Handle to the System Configuration service.
 pub struct Cfgu(());
 
 impl Cfgu {
-    /// Initializes the CFGU service.
+    /// Initialize a new service handle.
     ///
-    /// # Errors
+    /// # Example
     ///
-    /// This function will return Err if there was an error initializing the
-    /// CFGU service.
+    /// ```no_run
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::cfgu::Cfgu;
     ///
-    /// ctrulib services are reference counted, so this function may be called
-    /// as many times as desired and the service will not exit until all
-    /// instances of Cfgu drop out of scope.
+    /// let cfgu = Cfgu::new()?;
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[doc(alias = "cfguInit")]
     pub fn new() -> crate::Result<Cfgu> {
         ResultCode(unsafe { ctru_sys::cfguInit() })?;
         Ok(Cfgu(()))
     }
 
-    /// Gets system region from secure info
+    /// Returns the console's region from the system's secure info.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::cfgu::Cfgu;
+    /// let cfgu = Cfgu::new()?;
+    ///
+    /// let region = cfgu.region()?;
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[doc(alias = "CFGU_SecureInfoGetRegion")]
     pub fn region(&self) -> crate::Result<Region> {
         let mut region: u8 = 0;
 
@@ -74,7 +125,23 @@ impl Cfgu {
         Ok(Region::try_from(region).unwrap())
     }
 
-    /// Gets system's model
+    /// Returns the console's model.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::cfgu::Cfgu;
+    /// let cfgu = Cfgu::new()?;
+    ///
+    /// let model = cfgu.model()?;
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[doc(alias = "CFGU_GetSystemModel")]
     pub fn model(&self) -> crate::Result<SystemModel> {
         let mut model: u8 = 0;
 
@@ -82,7 +149,23 @@ impl Cfgu {
         Ok(SystemModel::try_from(model).unwrap())
     }
 
-    /// Gets system's language
+    /// Returns the system language set for the console.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::cfgu::Cfgu;
+    /// let cfgu = Cfgu::new()?;
+    ///
+    /// let language = cfgu.language()?;
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[doc(alias = "CFGU_GetSystemLanguage")]
     pub fn language(&self) -> crate::Result<Language> {
         let mut language: u8 = 0;
 
@@ -90,7 +173,25 @@ impl Cfgu {
         Ok(Language::try_from(language).unwrap())
     }
 
-    /// Checks if NFC is supported by the console
+    /// Check if NFC is supported by the console.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::cfgu::Cfgu;
+    /// let cfgu = Cfgu::new()?;
+    ///
+    /// if cfgu.is_nfc_supported()? {
+    ///     println!("NFC is available!");
+    /// }
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[doc(alias = "CFGU_IsNFCSupported")]
     pub fn is_nfc_supported(&self) -> crate::Result<bool> {
         let mut supported: bool = false;
 
@@ -98,7 +199,27 @@ impl Cfgu {
         Ok(supported)
     }
 
-    /// Check if the console is from the 2DS family (2DS, New2DS, New2DSXL)
+    /// Check if the console is from the 2DS family ([`Old2DS`](SystemModel::Old2DS), [`New2DSXL`](SystemModel::New2DSXL)).
+    ///
+    /// Useful to avoid stereoscopic 3D rendering when working with 2DS consoles.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::cfgu::Cfgu;
+    /// let cfgu = Cfgu::new()?;
+    ///
+    /// if cfgu.is_2ds_family()? {
+    ///     println!("Stereoscopic 3D is not supported.");
+    /// }
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[doc(alias = "CFGU_GetModelNintendo2DS")]
     pub fn is_2ds_family(&self) -> crate::Result<bool> {
         let mut is_2ds_family: u8 = 0;
 
@@ -108,6 +229,7 @@ impl Cfgu {
 }
 
 impl Drop for Cfgu {
+    #[doc(alias = "cfguExit")]
     fn drop(&mut self) {
         unsafe {
             ctru_sys::cfguExit();

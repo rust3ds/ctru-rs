@@ -1,7 +1,9 @@
-//! A file explorer which shows off using standard library file system APIs to
-//! read the SD card.
+//! File Explorer example.
+//!
+//! This (rather complex) example creates a working text-based file explorer which shows off using standard library file system APIs to
+//! read the SD card and RomFS (if properly read via the `romfs:/` prefix).
 
-use ctru::applets::swkbd::{Button, Swkbd};
+use ctru::applets::swkbd::{Button, SoftwareKeyboard};
 use ctru::prelude::*;
 
 use std::fs::DirEntry;
@@ -15,6 +17,7 @@ fn main() {
     let mut hid = Hid::new().unwrap();
     let gfx = Gfx::new().unwrap();
 
+    // Mount the RomFS if available.
     #[cfg(all(feature = "romfs", romfs_exists))]
     let _romfs = ctru::services::romfs::RomFS::new().unwrap();
 
@@ -50,6 +53,7 @@ impl<'a> FileExplorer<'a> {
 
     fn run(&mut self) {
         self.running = true;
+        // Print the file explorer commands.
         self.print_menu();
 
         while self.running && self.apt.main_loop() {
@@ -62,8 +66,10 @@ impl<'a> FileExplorer<'a> {
                 self.path.pop();
                 self.console.clear();
                 self.print_menu();
+            // Open a directory/file to read.
             } else if input.contains(KeyPad::A) {
                 self.get_input_and_run(Self::set_next_path);
+            // Open a specific path using the `SoftwareKeyboard` applet.
             } else if input.contains(KeyPad::X) {
                 self.get_input_and_run(Self::set_exact_path);
             }
@@ -100,7 +106,7 @@ impl<'a> FileExplorer<'a> {
             }
         };
 
-        println!("Start to exit, A to select an entry by number, B to go up a directory, X to set the path.");
+        println!("Press Start to exit, A to select an entry by number, B to go up a directory, X to set the path.");
     }
 
     fn print_dir_entries(&mut self) {
@@ -137,7 +143,7 @@ impl<'a> FileExplorer<'a> {
         }
     }
 
-    /// Paginate output
+    // Paginate output.
     fn wait_for_page_down(&mut self) {
         println!("Press A to go to next page, or Start to exit");
 
@@ -159,18 +165,18 @@ impl<'a> FileExplorer<'a> {
     }
 
     fn get_input_and_run(&mut self, action: impl FnOnce(&mut Self, String)) {
-        let mut keyboard = Swkbd::default();
+        let mut keyboard = SoftwareKeyboard::default();
 
         match keyboard.get_string(2048) {
             Ok((path, Button::Right)) => {
-                // Clicked "OK"
+                // Clicked "OK".
                 action(self, path);
             }
             Ok((_, Button::Left)) => {
-                // Clicked "Cancel"
+                // Clicked "Cancel".
             }
             Ok((_, Button::Middle)) => {
-                // This button wasn't shown
+                // This button wasn't shown.
                 unreachable!()
             }
             Err(e) => {

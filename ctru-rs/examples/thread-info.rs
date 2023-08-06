@@ -36,7 +36,7 @@ fn main() {
         .unwrap();
 
     println!("sys thread exited");
-    println!("\nPress Start to exit");
+    println!("\x1b[29;16HPress Start to exit");
 
     while apt.main_loop() {
         hid.scan_input();

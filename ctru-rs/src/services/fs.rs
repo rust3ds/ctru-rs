@@ -1,7 +1,9 @@
-//! Filesystem service
+//! FileSystem service.
 //!
 //! This module contains basic methods to manipulate the contents of the 3DS's filesystem.
 //! Only the SD card is currently supported. You should prefer using `std::fs`.
+// TODO: Refactor service to accomodate for various changes (such as SMDH support). Properly document the public API.
+#![doc(alias = "filesystem")]
 
 use bitflags::bitflags;
 use std::ffi::OsString;
@@ -17,70 +19,108 @@ use std::sync::Arc;
 use widestring::{WideCStr, WideCString};
 
 bitflags! {
-    #[derive(Default)]
+    #[derive(Default, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Clone, Copy)]
     struct FsOpen: u32 {
-        const FS_OPEN_READ   = 1;
-        const FS_OPEN_WRITE  = 2;
-        const FS_OPEN_CREATE = 4;
+        const FS_OPEN_READ   = ctru_sys::FS_OPEN_READ;
+        const FS_OPEN_WRITE  = ctru_sys::FS_OPEN_WRITE;
+        const FS_OPEN_CREATE = ctru_sys::FS_OPEN_CREATE;
     }
 
-    #[derive(Default)]
+    #[derive(Default, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Clone, Copy)]
     struct FsWrite: u32 {
-        const FS_WRITE_FLUSH       =   1;
-        const FS_WRITE_UPDATE_TIME = 256;
+        const FS_WRITE_FLUSH       = ctru_sys::FS_WRITE_FLUSH;
+        const FS_WRITE_UPDATE_TIME = ctru_sys::FS_WRITE_UPDATE_TIME;
     }
 
-    #[derive(Default)]
+    #[derive(Default, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Clone, Copy)]
     struct FsAttribute: u32 {
-        const FS_ATTRIBUTE_DIRECTORY =        1;
-        const FS_ATTRIBUTE_HIDDEN    =      256;
-        const FS_ATTRIBUTE_ARCHIVE   =    65536;
-        const FS_ATTRIBUTE_READ_ONLY = 16777216;
+        const FS_ATTRIBUTE_DIRECTORY = ctru_sys::FS_ATTRIBUTE_DIRECTORY;
+        const FS_ATTRIBUTE_HIDDEN    = ctru_sys::FS_ATTRIBUTE_HIDDEN;
+        const FS_ATTRIBUTE_ARCHIVE   = ctru_sys::FS_ATTRIBUTE_ARCHIVE;
+        const FS_ATTRIBUTE_READ_ONLY = ctru_sys::FS_ATTRIBUTE_READ_ONLY;
     }
 }
 
+/// Media type used for storage.
+#[doc(alias = "FS_MediaType")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum FsMediaType {
+    /// Internal NAND memory.
     Nand = ctru_sys::MEDIATYPE_NAND,
+    /// External SD card.
     Sd = ctru_sys::MEDIATYPE_SD,
+    /// Game Cartridge.
     GameCard = ctru_sys::MEDIATYPE_GAME_CARD,
 }
 
+/// Kind of file path.
+#[doc(alias = "FS_PathType")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum PathType {
+    /// Invalid path.
     Invalid = ctru_sys::PATH_INVALID,
+    /// Empty path.
     Empty = ctru_sys::PATH_EMPTY,
+    /// Binary path.
+    ///
+    /// Its meaning differs depending on the Archive it is used on.
     Binary = ctru_sys::PATH_BINARY,
+    /// ASCII path.
     ASCII = ctru_sys::PATH_ASCII,
+    /// UTF-16 path.
     UTF16 = ctru_sys::PATH_UTF16,
 }
 
+/// Index of the various usable data archives.
+#[doc(alias = "FS_ArchiveID")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum ArchiveID {
+    /// Read-Only Memory File System.
     RomFS = ctru_sys::ARCHIVE_ROMFS,
+    /// Game save data.
     Savedata = ctru_sys::ARCHIVE_SAVEDATA,
+    /// Game ext data.
     Extdata = ctru_sys::ARCHIVE_EXTDATA,
+    /// Shared ext data.
     SharedExtdata = ctru_sys::ARCHIVE_SHARED_EXTDATA,
+    /// System save data.
     SystemSavedata = ctru_sys::ARCHIVE_SYSTEM_SAVEDATA,
+    /// SD card.
     Sdmc = ctru_sys::ARCHIVE_SDMC,
+    /// SD card (write-only).
     SdmcWriteOnly = ctru_sys::ARCHIVE_SDMC_WRITE_ONLY,
+    /// BOSS ext data.
     BossExtdata = ctru_sys::ARCHIVE_BOSS_EXTDATA,
+    /// Card SPI File System.
     CardSpiFS = ctru_sys::ARCHIVE_CARD_SPIFS,
+    /// Game ext data and BOSS data.
     ExtDataAndBossExtdata = ctru_sys::ARCHIVE_EXTDATA_AND_BOSS_EXTDATA,
+    /// System save data.
     SystemSaveData2 = ctru_sys::ARCHIVE_SYSTEM_SAVEDATA2,
+    /// Internal NAND (read-write).
     NandRW = ctru_sys::ARCHIVE_NAND_RW,
+    /// Internal NAND (read-only).
     NandRO = ctru_sys::ARCHIVE_NAND_RO,
+    /// Internal NAND (read-only write access).
     NandROWriteAccess = ctru_sys::ARCHIVE_NAND_RO_WRITE_ACCESS,
+    /// User save data and ExeFS/RomFS.
     SaveDataAndContent = ctru_sys::ARCHIVE_SAVEDATA_AND_CONTENT,
+    /// User save data and ExeFS/RomFS (only ExeFS for fs:LDR).
     SaveDataAndContent2 = ctru_sys::ARCHIVE_SAVEDATA_AND_CONTENT2,
+    /// NAND CTR File System.
     NandCtrFS = ctru_sys::ARCHIVE_NAND_CTR_FS,
+    /// TWL photo.
     TwlPhoto = ctru_sys::ARCHIVE_TWL_PHOTO,
+    /// NAND TWL File System.
     NandTwlFS = ctru_sys::ARCHIVE_NAND_TWL_FS,
+    /// Game card save data.
     GameCardSavedata = ctru_sys::ARCHIVE_GAMECARD_SAVEDATA,
+    /// User save data.
     UserSavedata = ctru_sys::ARCHIVE_USER_SAVEDATA,
+    /// Demo save data.
     DemoSavedata = ctru_sys::ARCHIVE_DEMO_SAVEDATA,
 }
 
@@ -183,35 +223,25 @@ pub struct File {
 
 /// Metadata information about a file.
 ///
-/// This structure is returned from the [`metadata`] function and
+/// This structure is returned from the [`File::metadata`] function and
 /// represents known metadata about a file.
-///
-/// [`metadata`]: fn.metadata.html
 pub struct Metadata {
     attributes: u32,
     size: u64,
 }
 
 /// Options and flags which can be used to configure how a [`File`] is opened.
-/// This builder exposes the ability to configure how a `File` is opened
+/// This builder exposes the ability to configure how a [`File`] is opened
 /// and what operations are permitted on the open file. The [`File::open`]
 /// and [`File::create`] methods are aliases for commonly used options
 /// using this builder.
 ///
-/// [`File`]: struct.File.html
-/// [`File::open`]: struct.File.html#method.open
-/// [`File::create`]: struct.File.html#method.create
-///
-/// Generally speaking, when using `OpenOptions`, you'll first call [`new()`],
-/// then chain calls to methods to set each option, then call [`open()`],
+/// Generally speaking, when using [`OpenOptions`], you'll first call [`OpenOptions::new`],
+/// then chain calls to methods to set each option, then call [`OpenOptions::open`],
 /// passing the path of the file you're trying to open.
 ///
 /// It is required to also pass a reference to the [`Archive`] that the
 /// file lives in.
-///
-/// [`new()`]: struct.OpenOptions.html#method.new
-/// [`open()`]: struct.OpenOptions.html#method.open
-/// [`Archive`]: struct.Archive.html
 ///
 /// # Examples
 ///
@@ -257,13 +287,10 @@ pub struct OpenOptions {
 
 /// Iterator over the entries in a directory.
 ///
-/// This iterator is returned from the [`read_dir`] function of this module and
-/// will yield instances of `Result<DirEntry, i32>`. Through a [`DirEntry`]
+/// This iterator is returned from the [`read_dir`] function and
+/// will yield instances of [`Result<DirEntry, i32>`]. Through a [`DirEntry`]
 /// information like the entry's path and possibly other metadata can be
 /// learned.
-///
-/// [`read_dir`]: fn.read_dir.html
-/// [`DirEntry`]: struct.DirEntry.html
 ///
 /// # Errors
 ///
@@ -276,8 +303,6 @@ pub struct ReadDir<'a> {
 }
 
 /// Entries returned by the [`ReadDir`] iterator.
-///
-/// [`ReadDir`]: struct.ReadDir.html
 ///
 /// An instance of `DirEntry` represents an entry inside of a directory on the
 /// filesystem. Each entry can be inspected via methods to learn about the full
@@ -297,7 +322,7 @@ unsafe impl Send for Dir {}
 unsafe impl Sync for Dir {}
 
 impl Fs {
-    /// Initializes the FS service.
+    /// Initialize a new service handle.
     ///
     /// # Errors
     ///
@@ -338,8 +363,6 @@ impl Fs {
 
 impl Archive {
     /// Retrieves an Archive's [`ArchiveID`]
-    ///
-    /// [`ArchiveID`]: enum.ArchiveID.html
     pub fn id(&self) -> ArchiveID {
         self.id
     }
@@ -354,8 +377,6 @@ impl File {
     ///
     /// This function will return an error if `path` does not already exit.
     /// Other errors may also be returned accoridng to [`OpenOptions::open`]
-    ///
-    /// [`OpenOptions::open`]: struct.OpenOptions.html#method.open
     ///
     /// # Examples
     ///
@@ -382,9 +403,7 @@ impl File {
     /// # Errors
     ///
     /// This function will return an error if `path` does not already exit.
-    /// Other errors may also be returned accoridng to [`OpenOptions::create`]
-    ///
-    /// [`OpenOptions::create`]: struct.OpenOptions.html#method.create
+    /// Other errors may also be returned accoridng to [`OpenOptions::create`].
     ///
     /// # Examples
     ///
@@ -395,7 +414,7 @@ impl File {
     /// let mut sdmc_archive = fs.sdmc().unwrap();
     /// let mut f = File::create(&mut sdmc_archive, "/foo.txt").unwrap();
     /// ```
-    pub fn create<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<File> {
+    pub fn create<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<File> {
         OpenOptions::new()
             .write(true)
             .create(true)
@@ -412,6 +431,7 @@ impl File {
     /// # Errors
     ///
     /// This function will return an error if the file is not opened for writing.
+    #[doc(alias = "FSFILE_SetSize")]
     pub fn set_len(&mut self, size: u64) -> IoResult<()> {
         unsafe {
             let r = ctru_sys::FSFILE_SetSize(self.handle, size);
@@ -447,6 +467,7 @@ impl File {
         }
     }
 
+    #[doc(alias = "FSFILE_Read")]
     fn read(&mut self, buf: &mut [u8]) -> IoResult<usize> {
         unsafe {
             let mut n_read = 0;
@@ -470,6 +491,7 @@ impl File {
         unsafe { read_to_end_uninitialized(self, buf) }
     }
 
+    #[doc(alias = "FSFILE_Write")]
     fn write(&mut self, buf: &[u8]) -> IoResult<usize> {
         unsafe {
             let mut n_written = 0;
@@ -521,7 +543,7 @@ impl OpenOptions {
         Self::default()
     }
 
-    /// Sets the option for read access.
+    /// Set the option for read access.
     ///
     /// This option, when true, will indicate that the file should be
     /// `read`-able if opened.
@@ -530,7 +552,7 @@ impl OpenOptions {
         self
     }
 
-    /// Sets the option for write access.
+    /// Set the option for write access.
     ///
     /// This option, when true, will indicate that the file should be
     /// `write`-able if opened.
@@ -542,7 +564,7 @@ impl OpenOptions {
         self
     }
 
-    /// Sets the option for the append mode.
+    /// Set the option for the append mode.
     ///
     /// This option, when true, means that writes will append to a file instead
     /// of overwriting previous contents. Note that setting .write(true).append(true)
@@ -554,7 +576,7 @@ impl OpenOptions {
         self
     }
 
-    /// Sets the option for truncating a previous file.
+    /// Set the option for truncating a previous file.
     ///
     /// If a file is successfully opened with this option set it will truncate
     /// the file to 0 length if it already exists.
@@ -565,7 +587,7 @@ impl OpenOptions {
         self
     }
 
-    /// Sets the option for creating a new file.
+    /// Set the option for creating a new file.
     ///
     /// This option indicates whether a new file will be created
     /// if the file does not yet already
@@ -577,7 +599,7 @@ impl OpenOptions {
         self
     }
 
-    /// Sets which archive the file is to be opened in.
+    /// Set which archive the file is to be opened in.
     ///
     /// Failing to pass in an archive will result in the file failing to open.
     pub fn archive(&mut self, archive: &Archive) -> &mut OpenOptions {
@@ -597,8 +619,7 @@ impl OpenOptions {
     ///   to the `archive` method.
     /// * Filesystem-level errors (full disk, etc).
     /// * Invalid combinations of open options.
-    ///
-    /// [`Archive`]: struct.Archive.html
+    #[doc(alias = "FSUSER_OpenFile")]
     pub fn open<P: AsRef<Path>>(&mut self, path: P) -> IoResult<File> {
         self._open(path.as_ref(), self.open_flags())
     }
@@ -717,7 +738,8 @@ impl<'a> DirEntry<'a> {
 /// but is not limited to just these cases:
 ///
 /// * User lacks permissions to create directory at `path`
-pub fn create_dir<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<()> {
+#[doc(alias = "FSUSER_CreateDirectory")]
+pub fn create_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
     unsafe {
         let path = to_utf16(path.as_ref());
         let fs_path = ctru_sys::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
@@ -743,7 +765,8 @@ pub fn create_dir<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<()> {
 ///
 /// * If any directory in the path specified by `path` does not already exist
 ///   and it could not be created otherwise.
-pub fn create_dir_all<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<()> {
+#[doc(alias = "FSUSER_CreateDirectory")]
+pub fn create_dir_all<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
     let path = path.as_ref();
     let mut dir = PathBuf::new();
     let mut result = Ok(());
@@ -779,7 +802,8 @@ pub fn metadata<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<Metadata> {
 ///
 /// * The user lacks permissions to remove the directory at the provided path.
 /// * The directory isn't empty.
-pub fn remove_dir<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<()> {
+#[doc(alias = "FSUSER_DeleteDirectory")]
+pub fn remove_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
     unsafe {
         let path = to_utf16(path.as_ref());
         let fs_path = ctru_sys::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
@@ -797,7 +821,8 @@ pub fn remove_dir<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<()> {
 /// # Errors
 ///
 /// see `file::remove_file` and `fs::remove_dir`
-pub fn remove_dir_all<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<()> {
+#[doc(alias = "FSUSER_DeleteDirectoryRecursively")]
+pub fn remove_dir_all<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
     unsafe {
         let path = to_utf16(path.as_ref());
         let fs_path = ctru_sys::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
@@ -821,6 +846,7 @@ pub fn remove_dir_all<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<(
 /// * The provided path doesn't exist.
 /// * The process lacks permissions to view the contents.
 /// * The path points at a non-directory file.
+#[doc(alias = "FSUSER_OpenDirectory")]
 pub fn read_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<ReadDir> {
     unsafe {
         let mut handle = 0;
@@ -849,7 +875,8 @@ pub fn read_dir<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<ReadDir> {
 ///
 /// * path points to a directory.
 /// * The user lacks permissions to remove the file.
-pub fn remove_file<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<()> {
+#[doc(alias = "FSUSER_DeleteFile")]
+pub fn remove_file<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<()> {
     unsafe {
         let path = to_utf16(path.as_ref());
         let fs_path = ctru_sys::fsMakePath(PathType::UTF16.into(), path.as_ptr() as _);
@@ -872,7 +899,8 @@ pub fn remove_file<P: AsRef<Path>>(arch: &mut Archive, path: P) -> IoResult<()> 
 ///
 /// * from does not exist.
 /// * The user lacks permissions to view contents.
-pub fn rename<P, Q>(arch: &mut Archive, from: P, to: Q) -> IoResult<()>
+#[doc(alias = "FSUSER_RenameFile", alias = "FSUSER_RenameDirectory")]
+pub fn rename<P, Q>(arch: &Archive, from: P, to: Q) -> IoResult<()>
 where
     P: AsRef<Path>,
     Q: AsRef<Path>,
@@ -901,7 +929,6 @@ fn to_utf16(path: &Path) -> WideCString {
     WideCString::from_str(path).unwrap()
 }
 
-// Adapted from sys/windows/fs.rs in libstd
 fn truncate_utf16_at_nul(v: &[u16]) -> &[u16] {
     match v.iter().position(|c| *c == 0) {
         // don't include the 0
@@ -909,8 +936,6 @@ fn truncate_utf16_at_nul(v: &[u16]) -> &[u16] {
         None => v,
     }
 }
-
-// Copied from sys/common/io.rs in libstd
 
 // Provides read_to_end functionality over an uninitialized buffer.
 // This function is unsafe because it calls the underlying
@@ -998,6 +1023,7 @@ impl Seek for File {
 }
 
 impl Drop for Fs {
+    #[doc(alias = "fsExit")]
     fn drop(&mut self) {
         unsafe {
             ctru_sys::fsExit();
@@ -1006,6 +1032,7 @@ impl Drop for Fs {
 }
 
 impl Drop for Archive {
+    #[doc(alias = "FSUSER_CloseArchive")]
     fn drop(&mut self) {
         unsafe {
             let _ = ctru_sys::FSUSER_CloseArchive(self.handle);
@@ -1014,6 +1041,7 @@ impl Drop for Archive {
 }
 
 impl Drop for File {
+    #[doc(alias = "FSFILE_Close")]
     fn drop(&mut self) {
         unsafe {
             let _ = ctru_sys::FSFILE_Close(self.handle);
@@ -1022,6 +1050,7 @@ impl Drop for File {
 }
 
 impl Drop for Dir {
+    #[doc(alias = "FSDIR_Close")]
     fn drop(&mut self) {
         unsafe {
             let _ = ctru_sys::FSDIR_Close(self.0);
