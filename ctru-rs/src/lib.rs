@@ -18,7 +18,6 @@
 #![crate_type = "rlib"]
 #![crate_name = "ctru"]
 #![warn(missing_docs)]
-#![feature(test)]
 #![feature(custom_test_frameworks)]
 #![feature(try_trait_v2)]
 #![feature(allocator_api)]
@@ -40,7 +39,11 @@ extern crate shim_3ds;
 ///
 /// This value was chosen to support crate dependencies which expected more stack than provided. It's suggested to use less stack if possible.
 #[no_mangle]
-#[cfg(feature = "big-stack")]
+// When building lib tests, we don't want to redefine the same symbol twice,
+// since ctru-rs is both the crate under test and a dev-dependency (non-test).
+// We might also be able to use #[linkage] for similar effect, but this way
+// works without depending on another unstable feature.
+#[cfg(all(feature = "big-stack", not(test)))]
 static __stacksize__: usize = 2 * 1024 * 1024; // 2MB
 
 macro_rules! from_impl {
