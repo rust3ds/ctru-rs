@@ -84,6 +84,7 @@ mod tests {
     use super::*;
 
     #[test]
+    #[ignore = "library test .elf doesn't have the romfs in it. citra runner needs to support 3dsx"]
     fn romfs_counter() {
         let _romfs = RomFS::new().unwrap();
         let value = *ROMFS_ACTIVE.lock().unwrap();

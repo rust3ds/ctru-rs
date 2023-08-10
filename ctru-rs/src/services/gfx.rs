@@ -344,7 +344,7 @@ impl Gfx {
     /// // Simple main loop.
     /// while apt.main_loop() {
     ///     // Main program logic
-    ///     
+    ///
     ///     // Wait for the screens to refresh.
     ///     // This blocks the current thread to make it run at 60Hz.
     ///     gfx.wait_for_vblank();
@@ -499,7 +499,8 @@ mod tests {
 
     #[test]
     fn gfx_duplicate() {
-        // We don't need to build a `Gfx` because the test runner has one already
-        assert!(matches!(Gfx::new(), Err(Error::ServiceAlreadyActive)));
+        // NOTE: this will fail if using the console test runner, since that creates
+        // a Gfx as part of its test setup.
+        Gfx::new().unwrap();
     }
 }
