@@ -33,11 +33,13 @@ jobs:
       - name: Checkout branch
         uses: actions/checkout@v2
 
-      - uses: ./.github/actions/setup
+      # TODO update to to rust3ds/$something once migrated. Also, this is a bit
+      # wordy, it might be nicer to put the actions at the top level of the repo
+      - uses: ian-h-chamberlain/test-runner-3ds/.github/actions/setup@v1
         with:
           toolchain: ${{ matrix.toolchain }}
 
-      - name: Hide duplicate warnings from lint job
+      - name: Hide duplicate warnings from nightly
         if: ${{ matrix.toolchain == 'nightly' }}
         run: |
           echo "::remove-matcher owner=clippy::"
@@ -46,14 +48,13 @@ jobs:
       - name: Check formatting
         run: cargo fmt --all --verbose -- --check
 
-      - name: Cargo check
-        run: cargo 3ds clippy --color=always --verbose --all-targets
-        # --deny=warnings would be nice, but can easily break CI for new clippy
-        # lints getting added. I'd also like to use Github's "inline warnings"
-        # feature, but https://github.com/actions/runner/issues/2341 means we
-        # can't have both that *and* colored output.
+      - name: Cargo check ctru-sys (without tests)
+        run: cargo 3ds clippy --package ctru-sys --color=always --verbose
 
-  doctests:
+      - name: Cargo check ctru-rs (including tests)
+        run: cargo 3ds clippy --package ctru-rs --color=always --verbose --all-targets
+
+  test:
     strategy:
       matrix:
         toolchain:
@@ -66,15 +67,33 @@ jobs:
       - name: Checkout branch
         uses: actions/checkout@v2
 
-      - uses: ./.github/actions/setup
+      - uses: ian-h-chamberlain/test-runner-3ds/.github/actions/setup@v1
         with:
           toolchain: ${{ matrix.toolchain }}
 
       - name: Hide duplicated warnings from lint job
         run: echo "::remove-matcher owner=clippy::"
 
-      - name: Build doc tests
-        run: cargo 3ds test --doc --verbose
+      - name: Build lib + integration tests
+        # Technically this will only build one 3dsx even if there's more than one executable,
+        # but we only run the `.elf` outputs so it doesn't really matter.
+        run: cargo 3ds test --no-run --tests --package ctru-rs
 
-  # TODO: it would be nice to actually build 3dsx for examples/tests, etc.
-  # and run it somehow, but exactly how remains to be seen.
+      - name: Build doc tests
+        run: cargo 3ds test --no-run --doc
+
+      - name: Run lib + integration tests
+        uses: ian-h-chamberlain/test-runner-3ds/.github/actions/citra@v1
+        with:
+          executable:  ./target/armv6k-nintendo-3ds/debug/deps/*.elf
+
+      # TODO: run doc tests https://github.com/ian-h-chamberlain/test-runner-3ds/issues/4
+
+      - name: Upload citra logs and capture videos
+        uses: actions/upload-artifact@v3
+        if: success() || failure() # always run unless the workflow was cancelled
+        with:
+          name: citra-logs-${{ matrix.toolchain }}
+          path: |
+            target/armv6k-nintendo-3ds/debug/deps/*.txt
+            target/armv6k-nintendo-3ds/debug/deps/*.webm
