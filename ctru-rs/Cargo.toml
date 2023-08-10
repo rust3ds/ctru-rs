@@ -29,13 +29,15 @@ widestring = "0.2.2"
 toml = "0.5"
 
 [dev-dependencies]
+bytemuck = "1.12.3"
+cfg-if = "1.0.0"
 ferris-says = "0.2.1"
 futures = "0.3"
+lewton = "0.10.2"
+# TODO: switch to rust3ds org once migrated there. Also, rename?
+test-runner = { git = "https://github.com/ian-h-chamberlain/test-runner-3ds" }
 time = "0.3.7"
 tokio = { version = "1.16", features = ["rt", "time", "sync", "macros"] }
-cfg-if = "1.0.0"
-bytemuck = "1.12.3"
-lewton = "0.10.2"
 
 [features]
 default = ["romfs", "big-stack"]

@@ -22,7 +22,7 @@
 #![feature(custom_test_frameworks)]
 #![feature(try_trait_v2)]
 #![feature(allocator_api)]
-#![test_runner(test_runner::run)]
+#![test_runner(test_runner::run_gdb)] // TODO: does this make sense to have configurable?
 #![doc(
     html_favicon_url = "https://user-images.githubusercontent.com/11131775/225929072-2fa1741c-93ae-4b47-9bdf-af70f3d59910.png"
 )]
@@ -73,8 +73,9 @@ pub fn use_panic_handler() {
 /// When `test` is enabled, this function will be ignored.
 #[cfg(not(test))]
 fn panic_hook_setup() {
-    use crate::services::hid::{Hid, KeyPad};
     use std::panic::PanicInfo;
+
+    use crate::services::hid::{Hid, KeyPad};
 
     let main_thread = std::thread::current().id();
 
@@ -109,8 +110,5 @@ pub mod linear;
 pub mod mii;
 pub mod prelude;
 pub mod services;
-
-#[cfg(test)]
-mod test_runner;
 
 pub use crate::error::{Error, Result};
