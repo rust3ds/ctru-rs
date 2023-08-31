@@ -19,7 +19,7 @@ fn main() {
     mii_selector.set_options(Options::ENABLE_CANCEL);
     mii_selector.set_initial_index(3);
     // The first user-made Mii cannot be used.
-    mii_selector.blacklist_user_mii(0.into());
+    mii_selector.blocklist_user_mii(0.into());
     mii_selector.set_title("Great Mii Selector!");
 
     // Launch the Mii Selector and use its result to print the selected Mii's information.
