@@ -5,19 +5,19 @@
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum Event {
-    /// Memory fill completed.
+    /// Memory fill 1 completed.
     Psc0 = ctru_sys::GSPGPU_EVENT_PSC0,
-    /// TODO: Unknown.
+    /// Memory fill 2 completed.
     Psc1 = ctru_sys::GSPGPU_EVENT_PSC1,
-    /// TODO: Unknown.
+    /// Top screen VBlank.
     VBlank0 = ctru_sys::GSPGPU_EVENT_VBlank0,
-    /// TODO: Unknown.
+    /// Bottom screen VBlank.
     VBlank1 = ctru_sys::GSPGPU_EVENT_VBlank1,
-    /// Display transfer finished.
+    /// Display transfer completed.
     PPF = ctru_sys::GSPGPU_EVENT_PPF,
-    /// Command list processing finished.
+    /// Command list processing completed.
     P3D = ctru_sys::GSPGPU_EVENT_P3D,
-    /// TODO: Unknown.
+    /// Direct Memory Access requested.
     DMA = ctru_sys::GSPGPU_EVENT_DMA,
 }
 
