@@ -35,7 +35,7 @@ static mut EMPTY_CONSOLE: PrintConsole = unsafe { const_zero::const_zero!(PrintC
 #[doc(alias = "PrintConsole")]
 pub struct Console<'screen> {
     context: Box<PrintConsole>,
-    _screen: RefMut<'screen, dyn Screen>,
+    screen: RefMut<'screen, dyn Screen>,
 }
 
 impl<'screen> Console<'screen> {
@@ -78,7 +78,7 @@ impl<'screen> Console<'screen> {
 
         Console {
             context,
-            _screen: screen,
+            screen,
         }
     }
 
@@ -174,16 +174,120 @@ impl<'screen> Console<'screen> {
     /// # Notes
     ///
     /// The first two arguments are the desired coordinates of the top-left corner
-    /// of the console, and the second pair is the new width and height.
-    ///
-    /// # Safety
-    ///
-    /// This function is unsafe because it does not validate whether the input will produce
-    /// a console that actually fits on the screen.
-    // TODO: Wrap this safely.
+    /// of the new window based on the row/column coordinates of a full-screen console.
+    /// The second pair is the new width and height.
+    /// 
+    /// # Panics
+    /// 
+    /// This function will panic if the new window's position or size does not fit the screen.
+    /// 
+    /// # Example
+    /// 
+    /// ```no_run
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// # use ctru::services::gfx::Gfx;
+    /// # let gfx = Gfx::new()?;
+    /// #
+    /// # use ctru::console::Console;
+    /// #
+    /// let mut top_console = Console::new(gfx.top_screen.borrow_mut());
+    /// top_console.set_window(10, 10, 16, 6);
+    /// 
+    /// println!("I'm becoming claustrophobic in here!");
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
     #[doc(alias = "consoleSetWindow")]
-    pub unsafe fn set_window(&mut self, x: i32, y: i32, width: i32, height: i32) {
-        consoleSetWindow(self.context.as_mut(), x, y, width, height);
+    pub fn set_window(&mut self, x: u8, y: u8, width: u8, height: u8) {
+        let height_limit = 30; 
+        let length_limit = self.max_width();
+
+        if x >= length_limit {
+            panic!("x coordinate of new console window out of bounds");
+        }
+        if y >= height_limit {
+            panic!("y coordinate of new console window out of bounds");
+        }
+
+        if (x+width) > length_limit {
+            panic!("width of new console window out of bounds");
+        }
+        if (y+height) > height_limit {
+            panic!("height of new console window out of bounds");
+        }
+        
+        unsafe { consoleSetWindow(self.context.as_mut(), x.into(), y.into(), width.into(), height.into()) };
+    }
+
+    /// Reset the window's size to default parameters.
+    /// 
+    /// This can be used to undo the changes made by [`set_window()`](Console::set_window()).
+    /// 
+    /// # Example
+    /// 
+    /// ```no_run
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// # use ctru::services::gfx::Gfx;
+    /// # let gfx = Gfx::new()?;
+    /// #
+    /// # use ctru::console::Console;
+    /// #
+    /// let mut top_console = Console::new(gfx.top_screen.borrow_mut());
+    /// top_console.set_window(15, 15, 8, 10);
+    /// 
+    /// println!("It's really jammed in here!");
+    /// 
+    /// top_console.reset_window();
+    /// 
+    /// println!("Phew, finally a breath of fresh air.");
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn reset_window(&mut self) {
+        let width = self.max_width();
+
+        unsafe { consoleSetWindow(self.context.as_mut(), 0, 0, width.into(), 30) };
+    }
+
+    /// Returns this [`Console`]'s maximum character width depending on the screen used.
+    /// 
+    /// # Example
+    /// 
+    /// ```no_run
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// # use ctru::services::gfx::Gfx;
+    /// # use ctru::console::Console;
+    /// #
+    /// let gfx = Gfx::new()?;
+    /// 
+    /// let top_console = Console::new(gfx.top_screen.borrow_mut());
+    /// 
+    /// // The maximum width for the top screen (without any alterations) is 50 characters.
+    /// assert_eq!(top_console.max_width(), 50);
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn max_width(&self) -> u8 {
+        match self.screen.as_raw() {
+            ctru_sys::GFX_TOP => {
+                if unsafe { ctru_sys::gfxIsWide() } {
+                    100
+                } else {
+                    50
+                }
+            }
+            ctru_sys::GFX_BOTTOM => 40,
+            _ => unreachable!(),
+        }
     }
 }
 
