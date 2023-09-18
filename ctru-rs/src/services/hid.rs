@@ -80,6 +80,15 @@ bitflags! {
     }
 }
 
+/// Error enum for generic errors within the [`Hid`] service.
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum Error {
+    /// An attempt was made to access the accelerometer while disabled.
+    UnavailableAccelerometer,
+    /// An attempt was made to access the gyroscope while disabled.
+    UnavailableGyroscope,
+}
+
 /// Handle to the HID service.
 pub struct Hid {
     active_accellerometer: bool,
@@ -398,9 +407,9 @@ impl Hid {
     }
 
     #[doc(alias = "hidAccelRead")]
-    pub fn accellerometer_vector(&self) -> (i16, i16, i16) {
+    pub fn accellerometer_vector(&self) -> Result<(i16, i16, i16), Error> {
         if !self.active_accellerometer {
-            panic!("tried to read accellerometer while disabled")
+            return Err(Error::UnavailableAccelerometer);
         }
 
         let mut res = ctru_sys::accelVector { x: 0, y: 0, z: 0 };
@@ -409,13 +418,13 @@ impl Hid {
             ctru_sys::hidAccelRead(&mut res);
         }
 
-        (res.x, res.y, res.z)
+        Ok((res.x, res.y, res.z))
     }
 
     #[doc(alias = "hidGyroRead")]
-    pub fn gyroscope_rate(&self) -> (i16, i16, i16) {
+    pub fn gyroscope_rate(&self) -> Result<(i16, i16, i16), Error> {
         if !self.active_gyroscope {
-            panic!("tried to read accellerometer while disabled")
+            return Err(Error::UnavailableGyroscope);
         }
 
         let mut res = ctru_sys::angularRate { x: 0, y: 0, z: 0 };
@@ -424,6 +433,17 @@ impl Hid {
             ctru_sys::hidGyroRead(&mut res);
         }
 
-        (res.x, res.y, res.z)
+        Ok((res.x, res.y, res.z))
     }
 }
+
+impl std::fmt::Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::UnavailableAccelerometer => write!(f, "tried using accelerometer while disabled"),
+            Self::UnavailableGyroscope => write!(f, "tried using gyroscope while disabled"),
+        }
+    }
+}
+
+impl std::error::Error for Error {}

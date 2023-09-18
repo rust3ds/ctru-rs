@@ -2,7 +2,7 @@
 //!
 //! This modules has all methods and structs required to work with audio waves meant to be played via the [`ndsp`](crate::services::ndsp) service.
 
-use super::{AudioFormat, NdspError};
+use super::{AudioFormat, Error};
 use crate::linear::LinearAllocator;
 
 /// Informational struct holding the raw audio data and playback info.
@@ -97,10 +97,10 @@ impl Wave {
     ///
     /// This function will return an error if the [`Wave`] is currently busy,
     /// with the id to the channel in which it's queued.
-    pub fn get_buffer_mut(&mut self) -> Result<&mut [u8], NdspError> {
+    pub fn get_buffer_mut(&mut self) -> Result<&mut [u8], Error> {
         match self.status() {
             Status::Playing | Status::Queued => {
-                Err(NdspError::WaveBusy(self.played_on_channel.unwrap()))
+                Err(Error::WaveBusy(self.played_on_channel.unwrap()))
             }
             _ => Ok(&mut self.buffer),
         }
@@ -163,10 +163,10 @@ impl Wave {
     ///
     /// This function will return an error if the sample size exceeds the buffer's capacity
     /// or if the [`Wave`] is currently queued.
-    pub fn set_sample_count(&mut self, sample_count: usize) -> Result<(), NdspError> {
+    pub fn set_sample_count(&mut self, sample_count: usize) -> Result<(), Error> {
         match self.status() {
             Status::Playing | Status::Queued => {
-                return Err(NdspError::WaveBusy(self.played_on_channel.unwrap()));
+                return Err(Error::WaveBusy(self.played_on_channel.unwrap()));
             }
             _ => (),
         }
@@ -174,7 +174,7 @@ impl Wave {
         let max_count = self.buffer.len() / self.audio_format.size();
 
         if sample_count > max_count {
-            return Err(NdspError::SampleCountOutOfBounds(sample_count, max_count));
+            return Err(Error::SampleCountOutOfBounds(sample_count, max_count));
         }
 
         self.raw_data.nsamples = sample_count as u32;

@@ -52,6 +52,16 @@ pub struct AudioMix {
     raw: [f32; 12],
 }
 
+/// Auxiliary Device index.
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[repr(usize)]
+pub enum AuxDevice {
+    /// Aux device with index 0.
+    Zero = 0,
+    /// Aux device with index 1.
+    One = 1,
+}
+
 /// Interpolation used between audio frames.
 #[doc(alias = "ndspInterpType")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -67,7 +77,7 @@ pub enum InterpolationType {
 
 /// Errors returned by [`ndsp`](self) functions.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub enum NdspError {
+pub enum Error {
     /// Channel with the specified ID does not exist.
     InvalidChannel(u8),
     /// Channel with the specified ID is already being used.
@@ -169,7 +179,7 @@ impl Ndsp {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn channel(&self, id: u8) -> std::result::Result<Channel, NdspError> {
+    pub fn channel(&self, id: u8) -> std::result::Result<Channel, Error> {
         let in_bounds = self.channel_flags.get(id as usize);
 
         match in_bounds {
@@ -177,10 +187,10 @@ impl Ndsp {
                 let flag = ref_cell.try_borrow_mut();
                 match flag {
                     Ok(_rf) => Ok(Channel { id, _rf }),
-                    Err(_) => Err(NdspError::ChannelAlreadyInUse(id)),
+                    Err(_) => Err(Error::ChannelAlreadyInUse(id)),
                 }
             }
-            None => Err(NdspError::InvalidChannel(id)),
+            None => Err(Error::InvalidChannel(id)),
         }
     }
 
@@ -516,9 +526,9 @@ impl Channel<'_> {
     // TODO: Find a better way to handle the wave lifetime problem.
     //       These "alive wave" shenanigans are the most substantial reason why I'd like to fully re-write this service in Rust.
     #[doc(alias = "ndspChnWaveBufAdd")]
-    pub fn queue_wave(&mut self, wave: &mut Wave) -> std::result::Result<(), NdspError> {
+    pub fn queue_wave(&mut self, wave: &mut Wave) -> std::result::Result<(), Error> {
         match wave.status() {
-            Status::Playing | Status::Queued => return Err(NdspError::WaveBusy(self.id)),
+            Status::Playing | Status::Queued => return Err(Error::WaveBusy(self.id)),
             _ => (),
         }
 
@@ -660,23 +670,15 @@ impl AudioMix {
     }
 
     /// Returns the values set for the "front" volume mix (left and right channel) for the specified auxiliary output device (either 0 or 1).
-    pub fn aux_front(&self, id: usize) -> (f32, f32) {
-        if id > 1 {
-            panic!("invalid auxiliary output device index")
-        }
-
-        let index = 4 + id * 4;
+    pub fn aux_front(&self, id: AuxDevice) -> (f32, f32) {
+        let index = 4 + (id as usize * 4);
 
         (self.raw[index], self.raw[index + 1])
     }
 
     /// Returns the values set for the "back" volume mix (left and right channel) for the specified auxiliary output device (either 0 or 1).
-    pub fn aux_back(&self, id: usize) -> (f32, f32) {
-        if id > 1 {
-            panic!("invalid auxiliary output device index")
-        }
-
-        let index = 6 + id * 4;
+    pub fn aux_back(&self, id: AuxDevice) -> (f32, f32) {
+        let index = 6 + (id as usize * 4);
 
         (self.raw[index], self.raw[index + 1])
     }
@@ -709,12 +711,8 @@ impl AudioMix {
     ///
     /// [`Channel`] will normalize the mix values to be within 0 and 1.
     /// However, an [`AudioMix`] instance with larger/smaller values is valid.
-    pub fn set_aux_front(&mut self, left: f32, right: f32, id: usize) {
-        if id > 1 {
-            panic!("invalid auxiliary output device index")
-        }
-
-        let index = 4 + id * 4;
+    pub fn set_aux_front(&mut self, left: f32, right: f32, id: AuxDevice) {
+        let index = 4 + (id as usize * 4);
 
         self.raw[index] = left;
         self.raw[index + 1] = right;
@@ -726,12 +724,8 @@ impl AudioMix {
     ///
     /// [`Channel`] will normalize the mix values to be within 0 and 1.
     /// However, an [`AudioMix`] instance with larger/smaller values is valid.
-    pub fn set_aux_back(&mut self, left: f32, right: f32, id: usize) {
-        if id > 1 {
-            panic!("invalid auxiliary output device index")
-        }
-
-        let index = 6 + id * 4;
+    pub fn set_aux_back(&mut self, left: f32, right: f32, id: AuxDevice) {
+        let index = 6 + (id as usize * 4);
 
         self.raw[index] = left;
         self.raw[index + 1] = right;
@@ -754,7 +748,7 @@ impl From<[f32; 12]> for AudioMix {
     }
 }
 
-impl fmt::Display for NdspError {
+impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Self::InvalidChannel(id) => write!(f, "audio Channel with ID {id} doesn't exist. Valid channels have an ID between 0 and 23"),
@@ -765,7 +759,7 @@ impl fmt::Display for NdspError {
     }
 }
 
-impl error::Error for NdspError {}
+impl error::Error for Error {}
 
 impl Drop for Ndsp {
     #[doc(alias = "ndspExit")]

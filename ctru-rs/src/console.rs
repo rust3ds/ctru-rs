@@ -14,6 +14,31 @@ use crate::services::gfx::Screen;
 
 static mut EMPTY_CONSOLE: PrintConsole = unsafe { const_zero::const_zero!(PrintConsole) };
 
+/// Error enum for generic errors within [`Console`].
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum Error {
+    /// The coordinate specified on the given axis exceeds the limits imposed by the [`Console`] window.
+    CoordinateOutOfBounds(Axis),
+    /// The size specified for the given dimension exceeds the limits imposed by the [`Console`] window.
+    DimensionOutOfBounds(Dimension),
+}
+
+/// 2D coordinate axes.
+#[allow(missing_docs)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum Axis {
+    X,
+    Y,
+}
+
+/// 2D dimensions.
+#[allow(missing_docs)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum Dimension {
+    Width,
+    Height,
+}
+
 /// Virtual text console.
 ///
 /// [`Console`] lets the application redirect `stdout` and `stderr` to a simple text displayer on the 3DS screen.
@@ -174,10 +199,6 @@ impl<'screen> Console<'screen> {
     /// of the new window based on the row/column coordinates of a full-screen console.
     /// The second pair is the new width and height.
     ///
-    /// # Panics
-    ///
-    /// This function will panic if the new window's position or size does not fit the screen.
-    ///
     /// # Example
     ///
     /// ```no_run
@@ -198,22 +219,22 @@ impl<'screen> Console<'screen> {
     /// # }
     /// ```
     #[doc(alias = "consoleSetWindow")]
-    pub fn set_window(&mut self, x: u8, y: u8, width: u8, height: u8) {
+    pub fn set_window(&mut self, x: u8, y: u8, width: u8, height: u8) -> Result<(), Error> {
         let height_limit = 30;
         let length_limit = self.max_width();
 
         if x >= length_limit {
-            panic!("x coordinate of new console window out of bounds");
+            return Err(Error::CoordinateOutOfBounds(Axis::X));
         }
         if y >= height_limit {
-            panic!("y coordinate of new console window out of bounds");
+            return Err(Error::CoordinateOutOfBounds(Axis::Y));
         }
 
         if (x + width) > length_limit {
-            panic!("width of new console window out of bounds");
+            return Err(Error::DimensionOutOfBounds(Dimension::Width));
         }
         if (y + height) > height_limit {
-            panic!("height of new console window out of bounds");
+            return Err(Error::DimensionOutOfBounds(Dimension::Height));
         }
 
         unsafe {
@@ -225,6 +246,8 @@ impl<'screen> Console<'screen> {
                 height.into(),
             )
         };
+
+        Ok(())
     }
 
     /// Reset the window's size to default parameters.
@@ -321,3 +344,36 @@ impl Drop for Console<'_> {
         }
     }
 }
+
+impl std::fmt::Display for Axis {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::X => write!(f, "x"),
+            Self::Y => write!(f, "y"),
+        }
+    }
+}
+
+impl std::fmt::Display for Dimension {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Width => write!(f, "width"),
+            Self::Height => write!(f, "height"),
+        }
+    }
+}
+
+impl std::fmt::Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::CoordinateOutOfBounds(a) => {
+                write!(f, "coordinate specified for the {a} axis is out of bounds")
+            }
+            Self::DimensionOutOfBounds(d) => {
+                write!(f, "size specified for the {d} is out of bounds")
+            }
+        }
+    }
+}
+
+impl std::error::Error for Error {}

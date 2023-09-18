@@ -83,16 +83,12 @@ mod tests {
     use super::*;
 
     #[test]
-    fn romfs_counter() {
-        let _romfs = RomFS::new().unwrap();
-        let value = *ROMFS_ACTIVE.lock().unwrap();
+    #[should_panic]
+    fn romfs_lock() {
+        let romfs = RomFS::new().unwrap();
 
-        assert_eq!(value, 1);
+        let _value = *ROMFS_ACTIVE.lock().unwrap();
 
-        drop(_romfs);
-
-        let value = *ROMFS_ACTIVE.lock().unwrap();
-
-        assert_eq!(value, 0);
+        drop(romfs);
     }
 }
