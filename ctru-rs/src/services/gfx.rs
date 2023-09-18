@@ -244,7 +244,7 @@ pub struct Gfx {
     _service_handler: ServiceReference,
 }
 
-static GFX_ACTIVE: Mutex<usize> = Mutex::new(0);
+static GFX_ACTIVE: Mutex<()> = Mutex::new(());
 
 impl Gfx {
     /// Initialize a new default service handle.
@@ -311,7 +311,6 @@ impl Gfx {
     ) -> Result<Self> {
         let handler = ServiceReference::new(
             &GFX_ACTIVE,
-            false,
             || unsafe {
                 ctru_sys::gfxInit(top_fb_fmt.into(), bottom_fb_fmt.into(), use_vram_buffers);
 

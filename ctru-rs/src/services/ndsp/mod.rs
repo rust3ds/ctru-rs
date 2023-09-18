@@ -98,7 +98,7 @@ pub struct Channel<'ndsp> {
     _rf: RefMut<'ndsp, ()>, // we don't need to hold any data
 }
 
-static NDSP_ACTIVE: Mutex<usize> = Mutex::new(0);
+static NDSP_ACTIVE: Mutex<()> = Mutex::new(());
 
 /// Handle to the DSP service.
 ///
@@ -133,7 +133,6 @@ impl Ndsp {
     pub fn new() -> crate::Result<Self> {
         let _service_handler = ServiceReference::new(
             &NDSP_ACTIVE,
-            false,
             || {
                 ResultCode(unsafe { ctru_sys::ndspInit() })?;
 

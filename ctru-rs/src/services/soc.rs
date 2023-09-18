@@ -19,7 +19,7 @@ pub struct Soc {
     sock_3dslink: libc::c_int,
 }
 
-static SOC_ACTIVE: Mutex<usize> = Mutex::new(0);
+static SOC_ACTIVE: Mutex<()> = Mutex::new(());
 
 impl Soc {
     /// Initialize a new service handle using a socket buffer size of `0x100000` bytes.
@@ -71,7 +71,6 @@ impl Soc {
     pub fn init_with_buffer_size(num_bytes: usize) -> crate::Result<Self> {
         let _service_handler = ServiceReference::new(
             &SOC_ACTIVE,
-            false,
             || {
                 let soc_mem = unsafe { memalign(0x1000, num_bytes) } as *mut u32;
                 ResultCode(unsafe { ctru_sys::socInit(soc_mem, num_bytes as u32) })?;

@@ -25,6 +25,13 @@ fn main() {
         // Get information about which keys were held down on this frame.
         let keys = hid.keys_held();
 
+        // Print the status of the 2 sliders.
+        println!(
+            "\x1b[20;0HVolume slider: {}              ",
+            hid.slider_volume()
+        );
+        println!("\x1b[21;0H3D slider: {}              ", hid.slider_3d());
+
         // We only want to print when the keys we're holding now are different
         // from what they were on the previous frame.
         if keys != old_keys {
@@ -44,7 +51,7 @@ fn main() {
             // and the `.intersects()` method checks for any of the provided keys.
             //
             // You can also use the `.bits()` method to do direct comparisons on
-            // the underlying bits
+            // the underlying bits.
 
             if keys.contains(KeyPad::A) {
                 println!("You held A!");

@@ -76,10 +76,7 @@ impl<'screen> Console<'screen> {
 
         unsafe { consoleInit(screen.as_raw(), context.as_mut()) };
 
-        Console {
-            context,
-            screen,
-        }
+        Console { context, screen }
     }
 
     /// Returns `true` if a valid [`Console`] to print on is currently selected.
@@ -176,13 +173,13 @@ impl<'screen> Console<'screen> {
     /// The first two arguments are the desired coordinates of the top-left corner
     /// of the new window based on the row/column coordinates of a full-screen console.
     /// The second pair is the new width and height.
-    /// 
+    ///
     /// # Panics
-    /// 
+    ///
     /// This function will panic if the new window's position or size does not fit the screen.
-    /// 
+    ///
     /// # Example
-    /// 
+    ///
     /// ```no_run
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
@@ -194,7 +191,7 @@ impl<'screen> Console<'screen> {
     /// #
     /// let mut top_console = Console::new(gfx.top_screen.borrow_mut());
     /// top_console.set_window(10, 10, 16, 6);
-    /// 
+    ///
     /// println!("I'm becoming claustrophobic in here!");
     /// #
     /// # Ok(())
@@ -202,7 +199,7 @@ impl<'screen> Console<'screen> {
     /// ```
     #[doc(alias = "consoleSetWindow")]
     pub fn set_window(&mut self, x: u8, y: u8, width: u8, height: u8) {
-        let height_limit = 30; 
+        let height_limit = 30;
         let length_limit = self.max_width();
 
         if x >= length_limit {
@@ -212,22 +209,30 @@ impl<'screen> Console<'screen> {
             panic!("y coordinate of new console window out of bounds");
         }
 
-        if (x+width) > length_limit {
+        if (x + width) > length_limit {
             panic!("width of new console window out of bounds");
         }
-        if (y+height) > height_limit {
+        if (y + height) > height_limit {
             panic!("height of new console window out of bounds");
         }
-        
-        unsafe { consoleSetWindow(self.context.as_mut(), x.into(), y.into(), width.into(), height.into()) };
+
+        unsafe {
+            consoleSetWindow(
+                self.context.as_mut(),
+                x.into(),
+                y.into(),
+                width.into(),
+                height.into(),
+            )
+        };
     }
 
     /// Reset the window's size to default parameters.
-    /// 
+    ///
     /// This can be used to undo the changes made by [`set_window()`](Console::set_window()).
-    /// 
+    ///
     /// # Example
-    /// 
+    ///
     /// ```no_run
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
@@ -239,11 +244,11 @@ impl<'screen> Console<'screen> {
     /// #
     /// let mut top_console = Console::new(gfx.top_screen.borrow_mut());
     /// top_console.set_window(15, 15, 8, 10);
-    /// 
+    ///
     /// println!("It's really jammed in here!");
-    /// 
+    ///
     /// top_console.reset_window();
-    /// 
+    ///
     /// println!("Phew, finally a breath of fresh air.");
     /// #
     /// # Ok(())
@@ -256,9 +261,9 @@ impl<'screen> Console<'screen> {
     }
 
     /// Returns this [`Console`]'s maximum character width depending on the screen used.
-    /// 
+    ///
     /// # Example
-    /// 
+    ///
     /// ```no_run
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
@@ -267,9 +272,9 @@ impl<'screen> Console<'screen> {
     /// # use ctru::console::Console;
     /// #
     /// let gfx = Gfx::new()?;
-    /// 
+    ///
     /// let top_console = Console::new(gfx.top_screen.borrow_mut());
-    /// 
+    ///
     /// // The maximum width for the top screen (without any alterations) is 50 characters.
     /// assert_eq!(top_console.max_width(), 50);
     /// #

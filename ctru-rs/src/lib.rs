@@ -87,15 +87,24 @@ fn panic_hook_setup() {
         if main_thread == std::thread::current().id() && console::Console::exists() {
             println!("\nPress SELECT to exit the software");
 
-            match Hid::new() {
-                Ok(mut hid) => loop {
-                    hid.scan_input();
-                    let keys = hid.keys_down();
-                    if keys.contains(KeyPad::SELECT) {
+            // Due to how the Hid service operates, we can't safely use 2 handles to it at the same time.
+            // Furthermore, the panic hook runs before the panic cleanup is done, which means that any other handles
+            // to the service will still be alive during this process.
+            // Regardless, we can "unsafely" spin up a new instance, since the module won't be used any further from the main process,
+            // which is going to get cleaned up right after this loop.
+            unsafe {
+                let _ = ctru_sys::hidInit();
+
+                loop {
+                    ctru_sys::hidScanInput();
+                    let keys = ctru_sys::hidKeysDown();
+
+                    if KeyPad::from_bits_truncate(keys).contains(KeyPad::SELECT) {
                         break;
                     }
-                },
-                Err(e) => println!("Error while intializing Hid controller during panic: {e}"),
+                }
+                
+                ctru_sys::hidExit();
             }
         }
     });

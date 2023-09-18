@@ -1,14 +1,20 @@
 //! Human Interface Device service.
 //!
 //! The HID service provides read access to user input such as [button presses](Hid::keys_down), [touch screen presses](Hid::touch_position),
-//! and [circle pad information](Hid::circlepad_position). It also provides information from the sound volume slider, the accelerometer, and the gyroscope.
-// TODO: Implement volume slider, accelerometer and gyroscope + any other missing functionality.
+//! and [circle pad information](Hid::circlepad_position). It also provides information from the [3D slider](Hid::slider_3d()), the [volume slider](Hid::slider_volume()),
+//! the [accelerometer](Hid::accellerometer_vector()), and the [gyroscope](Hid::gyroscope_rate()).
 #![doc(alias = "input")]
 #![doc(alias = "controller")]
 #![doc(alias = "gamepad")]
 
+use std::sync::Mutex;
+
 use crate::error::ResultCode;
+use crate::services::ServiceReference;
+
 use bitflags::bitflags;
+
+static HID_ACTIVE: Mutex<()> = Mutex::new(());
 
 bitflags! {
     /// A set of flags corresponding to the button and directional pad inputs present on the 3DS.
@@ -75,7 +81,11 @@ bitflags! {
 }
 
 /// Handle to the HID service.
-pub struct Hid(());
+pub struct Hid {
+    active_accellerometer: bool,
+    active_gyroscope: bool,
+    _service_handler: ServiceReference,
+}
 
 impl Hid {
     /// Initialize a new service handle.
@@ -100,10 +110,26 @@ impl Hid {
     /// ```
     #[doc(alias = "hidInit")]
     pub fn new() -> crate::Result<Hid> {
-        unsafe {
-            ResultCode(ctru_sys::hidInit())?;
-            Ok(Hid(()))
-        }
+        let handler = ServiceReference::new(
+            &HID_ACTIVE,
+            || {
+                ResultCode(unsafe { ctru_sys::hidInit() })?;
+
+                Ok(())
+            },
+            || unsafe {
+                let _ = ctru_sys::HIDUSER_DisableGyroscope();
+                let _ = ctru_sys::HIDUSER_DisableAccelerometer();
+
+                ctru_sys::hidExit();
+            },
+        )?;
+
+        Ok(Self {
+            active_accellerometer: false,
+            active_gyroscope: false,
+            _service_handler: handler,
+        })
     }
 
     /// Scan the HID service for all user input occurring on the current frame.
@@ -282,11 +308,122 @@ impl Hid {
 
         (res.dx, res.dy)
     }
-}
 
-impl Drop for Hid {
-    #[doc(alias = "hidExit")]
-    fn drop(&mut self) {
-        unsafe { ctru_sys::hidExit() };
+    /// Returns the current volume slider position (between 0 and 1).
+    ///
+    /// # Notes
+    ///
+    /// The [`ndsp`](crate::services::ndsp) service automatically uses the volume slider's position to handle audio mixing.
+    /// As such this method should not be used to programmatically change the volume.
+    ///
+    /// Its purpose is only to inform the program of the volume slider's position (e.g. checking if the user has muted the audio).
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::hid::Hid;
+    /// let mut hid = Hid::new()?;
+    ///
+    /// hid.scan_input();
+    ///
+    /// let volume = hid.slider_volume();
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[doc(alias = "HIDUSER_GetSoundVolume")]
+    pub fn slider_volume(&self) -> f32 {
+        let mut slider = 0;
+
+        unsafe {
+            let _ = ctru_sys::HIDUSER_GetSoundVolume(&mut slider);
+        }
+
+        (slider as f32) / 63.
+    }
+
+    /// Returns the current 3D slider position (between 0 and 1).
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::hid::Hid;
+    /// let mut hid = Hid::new()?;
+    ///
+    /// hid.scan_input();
+    ///
+    /// let volume = hid.volume_slider();
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[doc(alias = "osGet3DSliderState")]
+    pub fn slider_3d(&self) -> f32 {
+        // TODO: Replace with the static inline function `osGet3DSliderState`, which works the exact same way.
+        unsafe { (*(ctru_sys::OS_SHAREDCFG_VADDR as *mut ctru_sys::osSharedConfig_s)).slider_3d }
+    }
+
+    #[doc(alias = "HIDUSER_EnableAccelerometer")]
+    pub fn enable_accellerometer(&mut self) {
+        let _ = unsafe { ctru_sys::HIDUSER_EnableAccelerometer() };
+
+        self.active_accellerometer = true;
+    }
+
+    #[doc(alias = "HIDUSER_EnableGyroscope")]
+    pub fn enable_gyroscope(&mut self) {
+        let _ = unsafe { ctru_sys::HIDUSER_EnableGyroscope() };
+
+        self.active_gyroscope = true;
+    }
+
+    #[doc(alias = "HIDUSER_DisableAccelerometer")]
+    pub fn disable_accellerometer(&mut self) {
+        let _ = unsafe { ctru_sys::HIDUSER_DisableAccelerometer() };
+
+        self.active_accellerometer = false;
+    }
+
+    #[doc(alias = "HIDUSER_DisableGyroscope")]
+    pub fn disable_gyroscope(&mut self) {
+        let _ = unsafe { ctru_sys::HIDUSER_DisableGyroscope() };
+
+        self.active_gyroscope = false;
+    }
+
+    #[doc(alias = "hidAccelRead")]
+    pub fn accellerometer_vector(&self) -> (i16, i16, i16) {
+        if !self.active_accellerometer {
+            panic!("tried to read accellerometer while disabled")
+        }
+
+        let mut res = ctru_sys::accelVector { x: 0, y: 0, z: 0 };
+
+        unsafe {
+            ctru_sys::hidAccelRead(&mut res);
+        }
+
+        (res.x, res.y, res.z)
+    }
+
+    #[doc(alias = "hidGyroRead")]
+    pub fn gyroscope_rate(&self) -> (i16, i16, i16) {
+        if !self.active_gyroscope {
+            panic!("tried to read accellerometer while disabled")
+        }
+
+        let mut res = ctru_sys::angularRate { x: 0, y: 0, z: 0 };
+
+        unsafe {
+            ctru_sys::hidGyroRead(&mut res);
+        }
+
+        (res.x, res.y, res.z)
     }
 }

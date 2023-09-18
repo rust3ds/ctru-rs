@@ -38,7 +38,7 @@ pub struct RomFS {
     _service_handler: ServiceReference,
 }
 
-static ROMFS_ACTIVE: Mutex<usize> = Mutex::new(0);
+static ROMFS_ACTIVE: Mutex<()> = Mutex::new(());
 
 impl RomFS {
     /// Mount the bundled RomFS archive as a virtual drive.
@@ -63,7 +63,6 @@ impl RomFS {
     pub fn new() -> crate::Result<Self> {
         let _service_handler = ServiceReference::new(
             &ROMFS_ACTIVE,
-            true,
             || {
                 let mount_name = CStr::from_bytes_with_nul(b"romfs\0").unwrap();
                 ResultCode(unsafe { ctru_sys::romfsMountSelf(mount_name.as_ptr()) })?;
