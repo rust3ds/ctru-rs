@@ -1,6 +1,6 @@
 //! Movement example.
 //!
-//! Simple application to showcase the use of the accellerometer and gyroscope.
+//! Simple application to showcase the use of the accelerometer and gyroscope.
 
 use ctru::prelude::*;
 
@@ -19,12 +19,12 @@ fn main() {
     // Activate the accelerometer and the gyroscope.
     // Because of the complex nature of the movement sensors, they aren't activated by default with the `Hid` service.
     // However, they can simply be turned on and off whenever necessary.
-    hid.enable_accellerometer();
+    hid.enable_accelerometer();
     hid.enable_gyroscope();
 
     while apt.main_loop() {
         // Scan all the controller inputs.
-        // Accellerometer and gyroscope require this step to update the readings.
+        // Accelerometer and gyroscope require this step to update the readings.
         hid.scan_input();
 
         if hid.keys_down().contains(KeyPad::START) {
@@ -33,8 +33,8 @@ fn main() {
 
         // Be careful: reading without activating the sensors (as done before this loop) will result in a panic.
         println!(
-            "\x1b[3;0HAccelleration: {:?}              ",
-            hid.accellerometer_vector()
+            "\x1b[3;0HAcceleration: {:?}              ",
+            hid.accelerometer_vector()
         );
         println!(
             "\x1b[4;0HGyroscope angular rate: {:?}              ",
