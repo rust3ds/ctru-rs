@@ -27,10 +27,10 @@
 #![doc(alias = "embed")]
 #![doc(alias = "filesystem")]
 
-use crate::error::ResultCode;
 use std::ffi::CStr;
 use std::sync::Mutex;
 
+use crate::error::ResultCode;
 use crate::services::ServiceReference;
 
 /// Handle to the RomFS service.
@@ -84,7 +84,6 @@ mod tests {
     use super::*;
 
     #[test]
-    #[ignore = "library test .elf doesn't have the romfs in it. citra runner needs to support 3dsx"]
     fn romfs_counter() {
         let _romfs = RomFS::new().unwrap();
         let value = *ROMFS_ACTIVE.lock().unwrap();

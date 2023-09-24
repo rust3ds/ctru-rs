@@ -499,8 +499,10 @@ mod tests {
 
     #[test]
     fn gfx_duplicate() {
-        // NOTE: this will fail if using the console test runner, since that creates
-        // a Gfx as part of its test setup.
-        Gfx::new().unwrap();
+        // NOTE: this is expected to fail if using the console test runner, since
+        // that necessarily creates a Gfx as part of its test setup:
+        let _gfx = Gfx::new().unwrap();
+
+        assert!(matches!(Gfx::new(), Err(Error::ServiceAlreadyActive)));
     }
 }

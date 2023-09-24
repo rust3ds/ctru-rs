@@ -9,12 +9,6 @@ on:
       - master
   workflow_dispatch:
 
-env:
-  # https://blog.rust-lang.org/2022/06/22/sparse-registry-testing.html
-  CARGO_UNSTABLE_SPARSE_REGISTRY: "true"
-  # actions-rust-lang/setup-rust-toolchain sets some default RUSTFLAGS
-  RUSTFLAGS: ""
-
 jobs:
   lint:
     strategy:
@@ -33,13 +27,15 @@ jobs:
       - name: Checkout branch
         uses: actions/checkout@v2
 
-      # TODO update to to rust3ds/$something once migrated. Also, this is a bit
-      # wordy, it might be nicer to put the actions at the top level of the repo
-      - uses: ian-h-chamberlain/test-runner-3ds/.github/actions/setup@v1
+      # TODO point to to rust3ds/test-runner once migrated
+      - uses: ian-h-chamberlain/test-runner-3ds/setup@v1
         with:
           toolchain: ${{ matrix.toolchain }}
 
-      - name: Hide duplicate warnings from nightly
+      # https://github.com/actions/runner/issues/504
+      # Removing the matchers won't keep the job from failing if there are errors,
+      # but will at least declutter pull request annotations (especially for warnings).
+      - name: Hide duplicate annotations from nightly
         if: ${{ matrix.toolchain == 'nightly' }}
         run: |
           echo "::remove-matcher owner=clippy::"
@@ -67,27 +63,22 @@ jobs:
       - name: Checkout branch
         uses: actions/checkout@v2
 
-      - uses: ian-h-chamberlain/test-runner-3ds/.github/actions/setup@v1
+      - uses: ian-h-chamberlain/test-runner-3ds/setup@v1
         with:
           toolchain: ${{ matrix.toolchain }}
 
       - name: Hide duplicated warnings from lint job
         run: echo "::remove-matcher owner=clippy::"
 
-      - name: Build lib + integration tests
-        # Technically this will only build one 3dsx even if there's more than one executable,
-        # but we only run the `.elf` outputs so it doesn't really matter.
-        run: cargo 3ds test --no-run --tests --package ctru-rs
-
-      - name: Build doc tests
-        run: cargo 3ds test --no-run --doc
-
-      - name: Run lib + integration tests
-        uses: ian-h-chamberlain/test-runner-3ds/.github/actions/citra@v1
+      - name: Build and run lib and integration tests
+        uses: ian-h-chamberlain/test-runner-3ds/run-tests@v1
         with:
-          executable:  ./target/armv6k-nintendo-3ds/debug/deps/*.elf
+          args: --tests --package ctru-rs
 
-      # TODO: run doc tests https://github.com/ian-h-chamberlain/test-runner-3ds/issues/4
+      - name: Build and run doc tests
+        uses: ian-h-chamberlain/test-runner-3ds/run-tests@v1
+        with:
+          args: --doc --package ctru-rs
 
       - name: Upload citra logs and capture videos
         uses: actions/upload-artifact@v3
