@@ -75,6 +75,11 @@ impl<'screen> Console<'screen> {
     ///
     /// [`Console`] automatically takes care of flushing and swapping buffers for its screen when printing.
     ///
+    /// # Panics
+    ///
+    /// If the [`Gfx`](crate::services::gfx::Gfx) service was initialised via [`Gfx::with_formats_vram()`](crate::services::gfx::Gfx::with_formats_vram)
+    /// this function will crash the program with an ARM exception.
+    ///
     /// # Example
     ///
     /// ```no_run
@@ -84,7 +89,7 @@ impl<'screen> Console<'screen> {
     /// use ctru::services::gfx::Gfx;
     /// use ctru::console::Console;
     ///
-    /// // Initialize graphics.
+    /// // Initialize graphics (using framebuffers allocated on the HEAP).
     /// let gfx = Gfx::new()?;
     ///
     /// // Create a `Console` that takes control of the upper LCD screen.

@@ -400,13 +400,13 @@ impl Hid {
     pub fn set_accelerometer(&mut self, enabled: bool) {
         if enabled {
             let _ = unsafe { ctru_sys::HIDUSER_EnableAccelerometer() };
-        }  else {
+        } else {
             let _ = unsafe { ctru_sys::HIDUSER_DisableAccelerometer() };
         }
 
         self.active_accelerometer = enabled;
     }
-    
+
     /// Activate/deactivate the console's gyroscopic sensor.
     ///
     /// # Example
@@ -429,7 +429,7 @@ impl Hid {
     pub fn set_gyroscope(&mut self, enabled: bool) {
         if enabled {
             let _ = unsafe { ctru_sys::HIDUSER_EnableGyroscope() };
-        }  else {
+        } else {
             let _ = unsafe { ctru_sys::HIDUSER_DisableGyroscope() };
         }
 
@@ -437,9 +437,9 @@ impl Hid {
     }
 
     /// Returns the acceleration vector (x,y,z) registered by the accelerometer.
-    /// 
+    ///
     /// # Errors
-    /// 
+    ///
     /// This function will return an error if the accelerometer was not previously enabled.
     /// Have a look at [`Hid::set_accelerometer()`] to enable the accelerometer.
     ///
@@ -451,10 +451,10 @@ impl Hid {
     /// #
     /// use ctru::services::hid::Hid;
     /// let mut hid = Hid::new()?;
-    /// 
+    ///
     /// // The accelerometer will start to register movements.
     /// hid.set_accelerometer(true);
-    /// 
+    ///
     /// // It's necessary to run `scan_input()` to update the accelerometer's readings.
     /// hid.scan_input();
     ///
@@ -480,9 +480,9 @@ impl Hid {
     }
 
     /// Returns the angular rate (x,y,z) registered by the gyroscope.
-    /// 
+    ///
     /// # Errors
-    /// 
+    ///
     /// This function returns an error if the gyroscope was not previously enabled.
     /// Have a look at [`Hid::set_gyroscope()`].
     ///
@@ -494,10 +494,10 @@ impl Hid {
     /// #
     /// use ctru::services::hid::Hid;
     /// let mut hid = Hid::new()?;
-    /// 
+    ///
     /// // The gyroscope will start to register positions.
     ///  hid.set_gyroscope(true);
-    /// 
+    ///
     /// // It's necessary to run `scan_input()` to update the gyroscope's readings.
     /// hid.scan_input();
     ///
