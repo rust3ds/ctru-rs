@@ -1,3 +1,8 @@
+//! Time Clock example.
+//!
+//! This example showcases how to retrieve the local time set in the console's configuration
+//! using the implementations of the standard library.
+
 use ctru::prelude::*;
 
 fn main() {
@@ -9,11 +14,9 @@ fn main() {
 
     let _console = Console::new(gfx.top_screen.borrow_mut());
 
-    print!("\x1b[30;16HPress Start to exit.");
+    println!("\x1b[29;16HPress Start to exit");
 
-    // Main loop
     while apt.main_loop() {
-        // Scan all the inputs. This should be done once for each frame
         hid.scan_input();
 
         if hid.keys_down().contains(KeyPad::START) {
@@ -21,7 +24,7 @@ fn main() {
         }
 
         // Technically, this actually just gets local time and assumes it's UTC,
-        // since the 3DS doesn't seem to support timezones...
+        // since the 3DS doesn't seem to support timezones.
         let cur_time = time::OffsetDateTime::now_utc();
 
         let hours = cur_time.hour();
@@ -36,7 +39,6 @@ fn main() {
         println!("\x1b[1;1H{hours:0>2}:{minutes:0>2}:{seconds:0>2}");
         println!("{weekday} {month} {day} {year}");
 
-        //Wait for VBlank
         gfx.wait_for_vblank();
     }
 }

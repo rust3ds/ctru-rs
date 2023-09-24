@@ -1,3 +1,6 @@
+/// Bitmap Graphics example.
+///
+/// This example uses the CPU to render a simple bitmap image to the screen.
 use ctru::prelude::*;
 use ctru::services::gfx::{Flush, Screen, Swap};
 
@@ -22,7 +25,8 @@ fn main() {
     let apt = Apt::new().expect("Couldn't obtain APT controller");
     let _console = Console::new(gfx.top_screen.borrow_mut());
 
-    println!("\x1b[21;4HPress Start to exit, or A to flip the image.");
+    println!("\x1b[21;4HPress A to flip the image.");
+    println!("\x1b[29;16HPress Start to exit");
 
     let mut bottom_screen = gfx.bottom_screen.borrow_mut();
 
@@ -37,17 +41,22 @@ fn main() {
 
     let mut image_bytes = IMAGE;
 
-    // Main loop
+    // We assume the image is the correct size already, so we drop width + height.
+    let frame_buffer = bottom_screen.raw_framebuffer();
+
+    // We copy the image to the framebuffer.
+    unsafe {
+        frame_buffer
+            .ptr
+            .copy_from(image_bytes.as_ptr(), image_bytes.len());
+    }
+
     while apt.main_loop() {
-        //Scan all the inputs. This should be done once for each frame
         hid.scan_input();
 
         if hid.keys_down().contains(KeyPad::START) {
             break;
         }
-
-        // We assume the image is the correct size already, so we drop width + height.
-        let frame_buffer = bottom_screen.raw_framebuffer();
 
         if hid.keys_down().contains(KeyPad::A) {
             image_bytes = if std::ptr::eq(image_bytes, IMAGE) {
@@ -55,20 +64,21 @@ fn main() {
             } else {
                 IMAGE
             };
-        }
 
-        // this copies more than necessary (once per frame) but it's fine...
-        unsafe {
-            frame_buffer
-                .ptr
-                .copy_from(image_bytes.as_ptr(), image_bytes.len());
+            let frame_buffer = bottom_screen.raw_framebuffer();
+
+            // We render the newly switched image to the framebuffer.
+            unsafe {
+                frame_buffer
+                    .ptr
+                    .copy_from(image_bytes.as_ptr(), image_bytes.len());
+            }
         }
 
         // Flush framebuffers. Since we're not using double buffering,
         // this will render the pixels immediately
         bottom_screen.flush_buffers();
 
-        //Wait for VBlank
         gfx.wait_for_vblank();
     }
 }

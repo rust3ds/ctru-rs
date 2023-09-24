@@ -1,3 +1,7 @@
+//! Buttons example.
+//!
+//! This example showcases how to retrieve button inputs from the console's HID.
+
 use ctru::prelude::*;
 
 fn main() {
@@ -18,28 +22,28 @@ fn main() {
         // Scan for user input on the current frame.
         hid.scan_input();
 
-        // Get information about which keys were held down on this frame
+        // Get information about which keys were held down on this frame.
         let keys = hid.keys_held();
 
         // We only want to print when the keys we're holding now are different
-        // from what they were on the previous frame
+        // from what they were on the previous frame.
         if keys != old_keys {
-            // Clear the screen
+            // Clear the screen.
             console.clear();
 
-            // We print these again because we just cleared the screen above
+            // We print these again because we just cleared the screen above.
             println!("Hi there! Try pressing a button");
             println!("\x1b[29;16HPress Start to exit");
 
-            // Move the cursor back to the top of the screen
+            // Move the cursor back to the top of the screen.
             println!("\x1b[3;0H");
 
             // Print to the screen depending on which keys were held.
             //
-            // The .contains() method checks for all of the provided keys,
-            // and the .intersects() method checks for any of the provided keys.
+            // The `.contains()` method checks for all of the provided keys,
+            // and the `.intersects()` method checks for any of the provided keys.
             //
-            // You can also use the .bits() method to do direct comparisons on
+            // You can also use the `.bits()` method to do direct comparisons on
             // the underlying bits
 
             if keys.contains(KeyPad::A) {
@@ -54,13 +58,13 @@ fn main() {
             if keys.intersects(KeyPad::L | KeyPad::R | KeyPad::ZL | KeyPad::ZR) {
                 println!("You held a shoulder button!");
             }
-            if keys.intersects(KeyPad::START) {
+            if keys.contains(KeyPad::START) {
                 println!("See ya!");
                 break;
             }
         }
 
-        // Save our current key presses for the next frame
+        // Save our current key presses for the next frame.
         old_keys = keys;
 
         gfx.wait_for_vblank();

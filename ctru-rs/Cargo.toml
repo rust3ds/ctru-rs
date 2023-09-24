@@ -1,11 +1,15 @@
 [package]
-authors = ["Rust3DS Org", "Ronald Kinard <furyhunter600@gmail.com>"]
-description = "A safe wrapper around smealum's ctrulib."
-license = "Zlib"
 name = "ctru-rs"
 version = "0.7.1"
+authors = ["Rust3DS Org", "Ronald Kinard <furyhunter600@gmail.com>"]
+description = "A safe wrapper around libctru"
+repository = "https://github.com/rust3ds/ctru-rs"
+keywords = ["3ds", "libctru"]
+categories = ["os", "api-bindings", "hardware-support"]
+exclude = ["examples"]
+license = "Zlib"
 edition = "2021"
-rust-version = "1.64"
+rust-version = "1.70"
 
 [lib]
 crate-type = ["rlib"]
@@ -18,7 +22,7 @@ const-zero = "0.1.0"
 shim-3ds = { git = "https://github.com/rust3ds/shim-3ds.git" }
 pthread-3ds = { git = "https://github.com/rust3ds/pthread-3ds.git" }
 libc = "0.2.121"
-bitflags = "1.0.0"
+bitflags = "2.3.3"
 widestring = "0.2.2"
 
 [build-dependencies]
@@ -44,6 +48,11 @@ std-threads = []
 
 [package.metadata.cargo-3ds]
 romfs_dir = "examples/romfs"
+
+[package.metadata.docs.rs]
+default-target = "armv6k-nintendo-3ds"
+targets = []
+cargo-args = ["-Z", "build-std"]
 
 [[example]]
 name = "thread-basic"

@@ -1,6 +1,7 @@
 [workspace]
 members = ["ctru-rs", "ctru-sys"]
 default-members = ["ctru-rs", "ctru-sys"]
+resolver = "2"
 
 [patch.'https://github.com/rust3ds/ctru-rs']
 # Make sure all dependencies use the local ctru-sys package
