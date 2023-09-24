@@ -374,8 +374,7 @@ impl Hid {
     /// ```
     #[doc(alias = "osGet3DSliderState")]
     pub fn slider_3d(&self) -> f32 {
-        // TODO: Replace with the static inline function `osGet3DSliderState`, which works the exact same way.
-        unsafe { (*(ctru_sys::OS_SHAREDCFG_VADDR as *mut ctru_sys::osSharedConfig_s)).slider_3d }
+        unsafe { ctru_sys::osGet3DSliderState() }
     }
 
     /// Activate/deactivate the console's acceleration sensor.

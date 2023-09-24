@@ -247,9 +247,7 @@ impl MiiSelector {
     /// If there's no Mii at that index, the cursor will start at the Mii with the index 0.
     #[doc(alias = "miiSelectorSetInitialIndex")]
     pub fn set_initial_index(&mut self, index: usize) {
-        // This function is static inline in libctru
-        // https://github.com/devkitPro/libctru/blob/af5321c78ee5c72a55b526fd2ed0d95ca1c05af9/libctru/include/3ds/applets/miiselector.h#L155
-        self.config.initial_index = index as u32;
+        unsafe { ctru_sys::miiSelectorSetInitialIndex(self.config.as_mut(), index as u32) };
     }
 
     /// Launch the Mii Selector.
