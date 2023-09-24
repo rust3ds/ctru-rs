@@ -1,7 +1,7 @@
 //! Mii Selector applet.
 //!
 //! This applet opens a window which lets the player/user choose a Mii from the ones present on their console.
-//! The selected Mii is readable as a [`Mii`](crate::mii::Mii).
+//! The selected Mii is readable as a [`Mii`].
 
 use crate::mii::Mii;
 use bitflags::bitflags;

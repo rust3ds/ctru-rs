@@ -16,7 +16,7 @@ use std::ptr::NonNull;
 // Sadly the linear memory allocator included in `libctru` doesn't implement `linearRealloc` at the time of these additions,
 // but the default fallback of the `std` will take care of that for us.
 
-/// [`Allocator`](std::alloc::Allocator) struct for LINEAR memory.
+/// [`Allocator`] struct for LINEAR memory.
 ///
 /// To use this struct the main crate must activate the `allocator_api` unstable feature.
 #[derive(Copy, Clone, Default, Debug)]
