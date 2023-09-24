@@ -1,8 +1,0 @@
-[package]
-name = "bindgen-ctru-sys"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-bindgen = "0.65.1"
-doxygen-rs = "0.4.2"
