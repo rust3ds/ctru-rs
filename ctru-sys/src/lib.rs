@@ -5,11 +5,9 @@
 #![allow(clippy::all)]
 
 pub mod result;
-
-mod bindings;
-
-pub use bindings::*;
 pub use result::*;
+
+include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 
 /// In lieu of a proper errno function exposed by libc
 /// (<https://github.com/rust-lang/libc/issues/1995>).
