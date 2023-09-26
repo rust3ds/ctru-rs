@@ -1,5 +1,6 @@
-use crate::Error;
 use std::sync::Mutex;
+
+use crate::Error;
 pub(crate) struct ServiceReference {
     counter: &'static Mutex<usize>,
     close: Box<dyn Fn() + Send + Sync>,

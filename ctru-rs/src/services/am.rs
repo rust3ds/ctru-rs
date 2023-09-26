@@ -8,9 +8,10 @@
 #![doc(alias = "app")]
 #![doc(alias = "manager")]
 
+use std::marker::PhantomData;
+
 use crate::error::ResultCode;
 use crate::services::fs::FsMediaType;
-use std::marker::PhantomData;
 
 /// General information about a specific title entry.
 #[doc(alias = "AM_TitleEntry")]
@@ -61,7 +62,8 @@ impl Am {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
@@ -84,11 +86,13 @@ impl Am {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
-    /// use ctru::services::{fs::FsMediaType, am::Am};
+    /// use ctru::services::am::Am;
+    /// use ctru::services::fs::FsMediaType;
     /// let app_manager = Am::new()?;
     ///
     /// // Number of titles installed on the Nand storage.
@@ -113,11 +117,13 @@ impl Am {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
-    /// use ctru::services::{fs::FsMediaType, am::Am};
+    /// use ctru::services::am::Am;
+    /// use ctru::services::fs::FsMediaType;
     /// let app_manager = Am::new()?;
     ///
     /// // Number of apps installed on the SD card storage

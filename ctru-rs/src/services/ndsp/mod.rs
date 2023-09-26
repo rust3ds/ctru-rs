@@ -6,16 +6,15 @@
 #![doc(alias = "audio")]
 
 pub mod wave;
+use std::cell::{RefCell, RefMut};
+use std::default::Default;
+use std::sync::Mutex;
+use std::{error, fmt};
+
 use wave::{Status, Wave};
 
 use crate::error::ResultCode;
 use crate::services::ServiceReference;
-
-use std::cell::{RefCell, RefMut};
-use std::default::Default;
-use std::error;
-use std::fmt;
-use std::sync::Mutex;
 
 const NUMBER_OF_CHANNELS: u8 = 24;
 
@@ -118,7 +117,8 @@ impl Ndsp {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
@@ -158,7 +158,8 @@ impl Ndsp {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
@@ -189,7 +190,8 @@ impl Ndsp {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
@@ -213,7 +215,8 @@ impl Channel<'_> {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
@@ -235,7 +238,8 @@ impl Channel<'_> {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
@@ -257,7 +261,8 @@ impl Channel<'_> {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
@@ -280,7 +285,8 @@ impl Channel<'_> {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
@@ -303,7 +309,8 @@ impl Channel<'_> {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
@@ -339,7 +346,8 @@ impl Channel<'_> {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
@@ -366,7 +374,8 @@ impl Channel<'_> {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
@@ -390,7 +399,8 @@ impl Channel<'_> {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
@@ -415,7 +425,8 @@ impl Channel<'_> {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # use std::default::Default;
     /// # fn main() -> Result<(), Box<dyn Error>> {
@@ -439,7 +450,8 @@ impl Channel<'_> {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
@@ -464,7 +476,8 @@ impl Channel<'_> {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
@@ -493,13 +506,15 @@ impl Channel<'_> {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
     /// # #![feature(allocator_api)]
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// # let _runner = test_runner::GdbRunner::default();
     /// #
     /// # use ctru::linear::LinearAllocator;
-    /// use ctru::services::ndsp::{AudioFormat, Ndsp, wave::Wave};
+    /// use ctru::services::ndsp::wave::Wave;
+    /// use ctru::services::ndsp::{AudioFormat, Ndsp};
     /// let ndsp = Ndsp::new()?;
     /// let mut channel_0 = ndsp.channel(0)?;
     ///

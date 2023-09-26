@@ -2,12 +2,12 @@
 //!
 //! This example demonstrates how to use the built-in cameras to take a picture and display it to the screen.
 
+use std::time::Duration;
+
 use ctru::prelude::*;
 use ctru::services::cam::{Cam, Camera, OutputFormat, ShutterSound, ViewSize};
 use ctru::services::gfx::{Flush, Screen, Swap};
 use ctru::services::gspgpu::FramebufferFormat;
-
-use std::time::Duration;
 
 const WIDTH: usize = 400;
 const HEIGHT: usize = 240;

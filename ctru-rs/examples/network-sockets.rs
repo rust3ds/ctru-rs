@@ -2,11 +2,11 @@
 //!
 //! This example showcases the use of network sockets via the `Soc` service and the standard library's implementations.
 
-use ctru::prelude::*;
-
 use std::io::{self, Read, Write};
 use std::net::{Shutdown, TcpListener};
 use std::time::Duration;
+
+use ctru::prelude::*;
 
 fn main() {
     ctru::use_panic_handler();

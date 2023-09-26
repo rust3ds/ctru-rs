@@ -7,10 +7,10 @@
 
 #![feature(horizon_thread_ext)]
 
-use ctru::prelude::*;
-
-use futures::StreamExt;
 use std::os::horizon::thread::BuilderExt;
+
+use ctru::prelude::*;
+use futures::StreamExt;
 
 fn main() {
     ctru::use_panic_handler();

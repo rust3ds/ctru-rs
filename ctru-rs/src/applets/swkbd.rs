@@ -5,14 +5,15 @@
 // TODO: Split the Parental PIN lock operations into a different type.
 #![doc(alias = "keyboard")]
 
+use std::fmt::Display;
+use std::iter::once;
+use std::str;
+
 use bitflags::bitflags;
 use ctru_sys::{
     self, swkbdInit, swkbdInputText, swkbdSetButton, swkbdSetFeatures, swkbdSetHintText, SwkbdState,
 };
 use libc;
-use std::fmt::Display;
-use std::iter::once;
-use std::str;
 
 /// Configuration structure to setup the Software Keyboard applet.
 #[doc(alias = "SwkbdState")]
@@ -160,7 +161,8 @@ impl SoftwareKeyboard {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # fn main() {
     /// #
     /// use ctru::applets::swkbd::{SoftwareKeyboard, Kind};
@@ -191,7 +193,8 @@ impl SoftwareKeyboard {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
@@ -235,7 +238,8 @@ impl SoftwareKeyboard {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
@@ -266,7 +270,8 @@ impl SoftwareKeyboard {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # fn main() {
     /// #
     /// use ctru::applets::swkbd::{SoftwareKeyboard, Features};
@@ -286,7 +291,8 @@ impl SoftwareKeyboard {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # fn main() {
     /// #
     /// use ctru::applets::swkbd::{SoftwareKeyboard, ValidInput, Filters};
@@ -309,7 +315,8 @@ impl SoftwareKeyboard {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # fn main() {
     /// #
     /// use ctru::applets::swkbd::{SoftwareKeyboard, ValidInput, Filters};
@@ -336,7 +343,8 @@ impl SoftwareKeyboard {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # fn main() {
     /// #
     /// use ctru::applets::swkbd::SoftwareKeyboard;
@@ -363,7 +371,8 @@ impl SoftwareKeyboard {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # fn main() {
     /// #
     /// use ctru::applets::swkbd::{SoftwareKeyboard, Button, Kind};
@@ -402,7 +411,8 @@ impl SoftwareKeyboard {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # fn main() {
     /// #
     /// use ctru::applets::swkbd::{SoftwareKeyboard, Button, Kind};

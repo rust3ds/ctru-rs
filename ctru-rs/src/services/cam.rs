@@ -4,10 +4,12 @@
 //! in the form of byte vectors which can be displayed to the screen or used in other ways.
 #![doc(alias = "camera")]
 
+use std::time::Duration;
+
+use ctru_sys::Handle;
+
 use crate::error::{Error, ResultCode};
 use crate::services::gspgpu::FramebufferFormat;
-use ctru_sys::Handle;
-use std::time::Duration;
 
 /// Handle to the Camera service.
 #[non_exhaustive]
@@ -343,7 +345,8 @@ pub trait Camera {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
@@ -372,7 +375,8 @@ pub trait Camera {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
@@ -841,12 +845,13 @@ pub trait Camera {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # use std::time::Duration;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
-    /// use ctru::services::cam::{Cam, Camera, ViewSize, OutputFormat};
+    /// use ctru::services::cam::{Cam, Camera, OutputFormat, ViewSize};
     /// let mut cam = Cam::new()?;
     ///
     /// // We borrow the inward facing `Camera`.
@@ -859,7 +864,7 @@ pub trait Camera {
     /// inward.set_auto_white_balance(true)?;
     ///
     /// // Size of the top screen buffer at 2 bytes per pixel (RGB565).
-    /// let mut buffer = vec![0; 400*240*2];
+    /// let mut buffer = vec![0; 400 * 240 * 2];
     ///
     /// // Take picture with 3 seconds of timeout.
     /// inward.take_picture(&mut buffer, 400, 240, Duration::from_secs(3));
@@ -951,7 +956,8 @@ impl Cam {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
@@ -984,7 +990,8 @@ impl Cam {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #

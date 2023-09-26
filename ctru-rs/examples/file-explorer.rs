@@ -3,12 +3,12 @@
 //! This (rather complex) example creates a working text-based file explorer which shows off using standard library file system APIs to
 //! read the SD card and RomFS (if properly read via the `romfs:/` prefix).
 
-use ctru::applets::swkbd::{Button, SoftwareKeyboard};
-use ctru::prelude::*;
-
 use std::fs::DirEntry;
 use std::os::horizon::fs::MetadataExt;
 use std::path::{Path, PathBuf};
+
+use ctru::applets::swkbd::{Button, SoftwareKeyboard};
+use ctru::prelude::*;
 
 fn main() {
     ctru::use_panic_handler();

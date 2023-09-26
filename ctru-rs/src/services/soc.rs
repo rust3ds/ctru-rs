@@ -5,9 +5,10 @@
 #![doc(alias = "socket")]
 #![doc(alias = "network")]
 
-use libc::memalign;
 use std::net::Ipv4Addr;
 use std::sync::Mutex;
+
+use libc::memalign;
 
 use crate::error::ResultCode;
 use crate::services::ServiceReference;
@@ -30,7 +31,8 @@ impl Soc {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
@@ -56,7 +58,8 @@ impl Soc {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
@@ -97,7 +100,8 @@ impl Soc {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
@@ -130,7 +134,8 @@ impl Soc {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #

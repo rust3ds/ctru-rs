@@ -253,7 +253,8 @@ impl Gfx {
     ///
     /// It's the same as calling:
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
@@ -268,7 +269,8 @@ impl Gfx {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
@@ -290,11 +292,13 @@ impl Gfx {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
-    /// use ctru::services::{gfx::Gfx, gspgpu::FramebufferFormat};
+    /// use ctru::services::gfx::Gfx;
+    /// use ctru::services::gspgpu::FramebufferFormat;
     ///
     /// // Top screen uses RGBA8, bottom screen uses RGB565.
     /// // The screen buffers are allocated in the standard HEAP memory, and not in VRAM.
@@ -333,11 +337,13 @@ impl Gfx {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
-    /// use ctru::services::{apt::Apt, gfx::Gfx};
+    /// use ctru::services::apt::Apt;
+    /// use ctru::services::gfx::Gfx;
     /// let apt = Apt::new()?;
     /// let gfx = Gfx::new()?;
     ///
@@ -376,7 +382,8 @@ impl TopScreen3D<'_> {
 ///
 /// # Example
 ///
-/// ```no_run
+/// ```
+/// # let _runner = test_runner::GdbRunner::default();
 /// # use std::error::Error;
 /// # fn main() -> Result<(), Box<dyn Error>> {
 /// #

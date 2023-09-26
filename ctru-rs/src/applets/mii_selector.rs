@@ -3,9 +3,12 @@
 //! This applet opens a window which lets the player/user choose a Mii from the ones present on their console.
 //! The selected Mii is readable as a [`Mii`](crate::mii::Mii).
 
-use crate::mii::Mii;
+use std::ffi::CString;
+use std::fmt;
+
 use bitflags::bitflags;
-use std::{ffi::CString, fmt};
+
+use crate::mii::Mii;
 
 /// Index of a Mii on the [`MiiSelector`] interface.
 ///
@@ -97,7 +100,8 @@ impl MiiSelector {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # fn main() {
     /// use ctru::applets::mii_selector::MiiSelector;
     ///
@@ -121,7 +125,8 @@ impl MiiSelector {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # fn main() {
     /// use ctru::applets::mii_selector::{MiiSelector, Options};
     /// let mut mii_selector = MiiSelector::new();
@@ -145,7 +150,8 @@ impl MiiSelector {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # fn main() {
     /// #
     /// use ctru::applets::mii_selector::{Index, MiiSelector};
@@ -174,7 +180,8 @@ impl MiiSelector {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # fn main() {
     /// #
     /// use ctru::applets::mii_selector::{Index, MiiSelector};
@@ -198,7 +205,8 @@ impl MiiSelector {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # fn main() {
     /// #
     /// use ctru::applets::mii_selector::{Index, MiiSelector};
@@ -222,7 +230,8 @@ impl MiiSelector {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # fn main() {
     /// #
     /// use ctru::applets::mii_selector::{Index, MiiSelector};
@@ -260,7 +269,8 @@ impl MiiSelector {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
