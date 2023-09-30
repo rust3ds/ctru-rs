@@ -7,9 +7,8 @@
 #![doc(alias = "controller")]
 #![doc(alias = "gamepad")]
 
-use bitflags::bitflags;
-
 use crate::error::ResultCode;
+use bitflags::bitflags;
 
 bitflags! {
     /// A set of flags corresponding to the button and directional pad inputs present on the 3DS.

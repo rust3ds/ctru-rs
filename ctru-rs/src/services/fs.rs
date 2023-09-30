@@ -5,15 +5,17 @@
 // TODO: Refactor service to accomodate for various changes (such as SMDH support). Properly document the public API.
 #![doc(alias = "filesystem")]
 
-use std::ffi::OsString;
-use std::io::{
-    Error as IoError, ErrorKind as IoErrorKind, Read, Result as IoResult, Seek, SeekFrom, Write,
-};
-use std::path::{Path, PathBuf};
-use std::sync::Arc;
-use std::{mem, ptr, slice};
-
 use bitflags::bitflags;
+use std::ffi::OsString;
+use std::io::Error as IoError;
+use std::io::ErrorKind as IoErrorKind;
+use std::io::Result as IoResult;
+use std::io::{Read, Seek, SeekFrom, Write};
+use std::mem;
+use std::path::{Path, PathBuf};
+use std::ptr;
+use std::slice;
+use std::sync::Arc;
 use widestring::{WideCStr, WideCString};
 
 bitflags! {
@@ -259,8 +261,8 @@ pub struct Metadata {
 /// let mut fs = Fs::new().unwrap();
 /// let mut sdmc_archive = fs.sdmc().unwrap();
 /// let result = OpenOptions::new()
-///     .read(true)
-///     .archive(&sdmc_archive)
+///             .read(true)
+///             .archive(&sdmc_archive)
 ///     .open("foo.txt");
 ///
 /// assert!(result.is_err());
@@ -276,12 +278,12 @@ pub struct Metadata {
 /// let mut fs = Fs::new().unwrap();
 /// let mut sdmc_archive = fs.sdmc().unwrap();
 /// let file = OpenOptions::new()
-///     .read(true)
-///     .write(true)
-///     .create(true)
-///     .archive(&sdmc_archive)
+///             .read(true)
+///             .write(true)
+///             .create(true)
+///             .archive(&sdmc_archive)
 ///     .open("/foo.txt")
-///     .unwrap();
+///             .unwrap();
 /// ```
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct OpenOptions {
@@ -392,7 +394,7 @@ impl File {
     /// # let _runner = test_runner::GdbRunner::default();
     /// use ctru::services::fs::{File, Fs};
     ///
-    /// let mut fs = Fs::new().unwrap();
+    /// let mut fs =  Fs::new().unwrap();
     /// let mut sdmc_archive = fs.sdmc().unwrap();
     /// // Non-existent file:
     /// assert!(File::open(&sdmc_archive, "/foo.txt").is_err());
@@ -421,7 +423,7 @@ impl File {
     /// # let _runner = test_runner::GdbRunner::default();
     /// use ctru::services::fs::{File, Fs};
     ///
-    /// let mut fs = Fs::new().unwrap();
+    /// let mut fs =  Fs::new().unwrap();
     /// let mut sdmc_archive = fs.sdmc().unwrap();
     /// let mut f = File::create(&mut sdmc_archive, "/foo.txt").unwrap();
     /// ```

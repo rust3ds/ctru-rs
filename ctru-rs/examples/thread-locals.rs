@@ -1,9 +1,9 @@
 #![feature(horizon_thread_ext)]
 
+use ctru::prelude::*;
+
 use std::cell::RefCell;
 use std::os::horizon::thread::BuilderExt;
-
-use ctru::prelude::*;
 
 std::thread_local! {
     static MY_LOCAL: RefCell<&'static str> = RefCell::new("initial value");

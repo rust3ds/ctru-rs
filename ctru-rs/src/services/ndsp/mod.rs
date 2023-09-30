@@ -15,15 +15,16 @@
 // https://github.com/citra-emu/citra/issues/6111
 
 pub mod wave;
-use std::cell::{RefCell, RefMut};
-use std::default::Default;
-use std::sync::Mutex;
-use std::{error, fmt};
-
 use wave::{Status, Wave};
 
 use crate::error::ResultCode;
 use crate::services::ServiceReference;
+
+use std::cell::{RefCell, RefMut};
+use std::default::Default;
+use std::error;
+use std::fmt;
+use std::sync::Mutex;
 
 const NUMBER_OF_CHANNELS: u8 = 24;
 

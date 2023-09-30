@@ -5,10 +5,9 @@
 #![doc(alias = "socket")]
 #![doc(alias = "network")]
 
+use libc::memalign;
 use std::net::Ipv4Addr;
 use std::sync::Mutex;
-
-use libc::memalign;
 
 use crate::error::ResultCode;
 use crate::services::ServiceReference;

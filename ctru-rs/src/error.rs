@@ -3,9 +3,10 @@
 //! This module holds the generic error and result types to interface with `ctru_sys` and the [`ctru-rs`](crate) safe wrapper.
 
 use std::borrow::Cow;
+use std::error;
 use std::ffi::CStr;
+use std::fmt;
 use std::ops::{ControlFlow, FromResidual, Try};
-use std::{error, fmt};
 
 use ctru_sys::result::{R_DESCRIPTION, R_LEVEL, R_MODULE, R_SUMMARY};
 
@@ -27,7 +28,7 @@ pub type Result<T> = ::std::result::Result<T, Error>;
 /// #   let _runner = test_runner::GdbRunner::default();
 ///     // We run an unsafe function which returns a `ctru_sys::Result`.
 ///     let result: ctru_sys::Result = unsafe { ctru_sys::hidInit() };
-///
+///     
 ///     // The result code is parsed and any possible error gets returned by the function.
 ///     ResultCode(result)?;
 ///     Ok(())

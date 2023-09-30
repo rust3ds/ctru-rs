@@ -5,15 +5,14 @@
 // TODO: Split the Parental PIN lock operations into a different type.
 #![doc(alias = "keyboard")]
 
-use std::fmt::Display;
-use std::iter::once;
-use std::str;
-
 use bitflags::bitflags;
 use ctru_sys::{
     self, swkbdInit, swkbdInputText, swkbdSetButton, swkbdSetFeatures, swkbdSetHintText, SwkbdState,
 };
 use libc;
+use std::fmt::Display;
+use std::iter::once;
+use std::str;
 
 /// Configuration structure to setup the Software Keyboard applet.
 #[doc(alias = "SwkbdState")]

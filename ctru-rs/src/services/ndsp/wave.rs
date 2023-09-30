@@ -42,8 +42,7 @@ impl Wave {
     /// # let _runner = test_runner::GdbRunner::default();
     /// #
     /// use ctru::linear::LinearAllocator;
-    /// use ctru::services::ndsp::wave::Wave;
-    /// use ctru::services::ndsp::AudioFormat;
+    /// use ctru::services::ndsp::{AudioFormat, wave::Wave};
     ///
     /// // Zeroed box allocated in the LINEAR memory.
     /// let audio_data = Box::new_in([0u8; 96], LinearAllocator);
@@ -120,8 +119,7 @@ impl Wave {
     /// # use ctru::linear::LinearAllocator;
     /// # let _audio_data = Box::new_in([0u8; 96], LinearAllocator);
     /// #
-    /// use ctru::services::ndsp::wave::{Status, Wave};
-    /// use ctru::services::ndsp::AudioFormat;
+    /// use ctru::services::ndsp::{AudioFormat, wave::{Wave, Status}};
     ///
     /// // Provide your own audio data.
     /// let wave = Wave::new(_audio_data, AudioFormat::PCM16Stereo, false);

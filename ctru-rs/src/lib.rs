@@ -76,9 +76,8 @@ pub fn use_panic_handler() {
 /// When `test` is enabled, this function will be ignored.
 #[cfg(not(test))]
 fn panic_hook_setup() {
-    use std::panic::PanicInfo;
-
     use crate::services::hid::{Hid, KeyPad};
+    use std::panic::PanicInfo;
 
     let main_thread = std::thread::current().id();
 

@@ -8,8 +8,10 @@ use std::f32::consts::PI;
 
 use ctru::linear::LinearAllocator;
 use ctru::prelude::*;
-use ctru::services::ndsp::wave::{Status, Wave};
-use ctru::services::ndsp::{AudioFormat, AudioMix, InterpolationType, Ndsp, OutputMode};
+use ctru::services::ndsp::{
+    wave::{Status, Wave},
+    AudioFormat, AudioMix, InterpolationType, Ndsp, OutputMode,
+};
 
 // Configuration for the NDSP process and channels.
 const SAMPLE_RATE: usize = 22050;

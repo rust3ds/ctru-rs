@@ -8,10 +8,9 @@
 #![doc(alias = "app")]
 #![doc(alias = "manager")]
 
-use std::marker::PhantomData;
-
 use crate::error::ResultCode;
 use crate::services::fs::FsMediaType;
+use std::marker::PhantomData;
 
 /// General information about a specific title entry.
 #[doc(alias = "AM_TitleEntry")]

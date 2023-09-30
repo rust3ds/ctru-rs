@@ -27,10 +27,10 @@
 #![doc(alias = "embed")]
 #![doc(alias = "filesystem")]
 
+use crate::error::ResultCode;
 use std::ffi::CStr;
 use std::sync::Mutex;
 
-use crate::error::ResultCode;
 use crate::services::ServiceReference;
 
 /// Handle to the RomFS service.

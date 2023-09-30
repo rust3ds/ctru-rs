@@ -2,9 +2,8 @@
 //!
 //! Simple "Hello World" application to showcase the basic setup needed for any user-oriented app to work.
 
-use std::io::BufWriter;
-
 use ctru::prelude::*;
+use std::io::BufWriter;
 
 fn main() {
     // Setup the custom panic handler in case any errors arise.

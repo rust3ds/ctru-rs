@@ -1,9 +1,9 @@
 #![feature(horizon_thread_ext)]
 
+use ctru::prelude::*;
+
 use std::os::horizon::thread::BuilderExt;
 use std::time::Duration;
-
-use ctru::prelude::*;
 
 fn main() {
     ctru::use_panic_handler();
