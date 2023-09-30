@@ -85,6 +85,8 @@ mod tests {
     use super::*;
 
     #[test]
+    // NOTE: this test only passes when run with a .3dsx, which for now requires separate build
+    // and run steps so the 3dsx is built before the runner looks for the executable
     fn romfs_counter() {
         let _romfs = RomFS::new().unwrap();
         let value = *ROMFS_ACTIVE.lock().unwrap();

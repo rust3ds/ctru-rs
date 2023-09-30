@@ -70,7 +70,15 @@ jobs:
       - name: Hide duplicated warnings from lint job
         run: echo "::remove-matcher owner=clippy::"
 
-      - name: Build and run lib and integration tests
+      # This needs to be done separately from running the tests to ensure the
+      # lib tests' .3dsx is built before the test is run (for romfs). We don't
+      # really have a good way to build the 3dsx in between the build + test,
+      # unless cargo-3ds actually runs them as separate commands. See
+      # https://github.com/rust3ds/cargo-3ds/issues/44 for more details
+      - name: Build lib and integration tests
+        run: cargo 3ds test --no-run --tests --package ctru-rs
+
+      - name: Run lib and integration tests
         uses: ian-h-chamberlain/test-runner-3ds/run-tests@v1
         with:
           args: --tests --package ctru-rs

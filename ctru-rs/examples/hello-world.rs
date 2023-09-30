@@ -32,8 +32,6 @@ fn main() {
         String::from_utf8_lossy(&writer.into_inner().unwrap())
     );
 
-    dbg!(std::env::args());
-
     println!("\x1b[29;16HPress Start to exit");
 
     // Main application loop. This checks whether the app is normally running in the foreground.
