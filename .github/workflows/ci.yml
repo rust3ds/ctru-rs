@@ -28,7 +28,7 @@ jobs:
         uses: actions/checkout@v2
 
       # TODO point to to rust3ds/test-runner once migrated
-      - uses: ian-h-chamberlain/test-runner-3ds/setup@v1
+      - uses: rust3ds/test-runner/setup@v1
         with:
           toolchain: ${{ matrix.toolchain }}
 
@@ -63,7 +63,7 @@ jobs:
       - name: Checkout branch
         uses: actions/checkout@v2
 
-      - uses: ian-h-chamberlain/test-runner-3ds/setup@v1
+      - uses: rust3ds/test-runner/setup@v1
         with:
           toolchain: ${{ matrix.toolchain }}
 
@@ -79,12 +79,12 @@ jobs:
         run: cargo 3ds test --no-run --tests --package ctru-rs
 
       - name: Run lib and integration tests
-        uses: ian-h-chamberlain/test-runner-3ds/run-tests@v1
+        uses: rust3ds/test-runner/run-tests@v1
         with:
           args: --tests --package ctru-rs
 
       - name: Build and run doc tests
-        uses: ian-h-chamberlain/test-runner-3ds/run-tests@v1
+        uses: rust3ds/test-runner/run-tests@v1
         with:
           args: --doc --package ctru-rs
 
