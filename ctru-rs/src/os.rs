@@ -1,6 +1,16 @@
 //! Utilities to get information about the operating system and hardware state.
 
-/// System version information.
+/// System version information. This struct is used for both kernel and firmware versions.
+///
+/// # Example
+/// ```
+/// # let _runner = test_runner::GdbRunner::default();
+/// let firm_version = ctru::os::firm_version();
+/// assert_ne!(firm_version.major(), 0);
+///
+/// let kernel_version = ctru::os::kernel_version();
+/// assert_ne!(kernel_version.major(), 0);
+/// ```
 #[derive(Clone, Copy)]
 pub struct Version(u32);
 
@@ -95,13 +105,22 @@ impl MemRegion {
     }
 }
 
-/// WiFi signal strength. This enum's [`u8`] representation corresponds with
+/// WiFi signal strength. This enum's `u8` representation corresponds with
 /// the number of bars displayed in the Home menu.
+///
+/// # Example
+///
+/// ```
+/// # let _runner = test_runner::GdbRunner::default();
+/// let strength = ctru::os::WifiStrength::current();
+/// assert!((strength as u8) < 4);
+/// ```
+#[derive(Clone, Copy, Debug)]
 #[non_exhaustive]
 #[repr(u8)]
 pub enum WifiStrength {
     /// This may indicate a very poor signal quality even worse than `Bad`,
-    /// or it may indicate that no network is connected at all.
+    /// or that no network is connected at all.
     Disconnected = 0,
     /// Poor signal strength.
     Bad = 1,
