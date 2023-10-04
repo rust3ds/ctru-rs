@@ -1,7 +1,7 @@
 //! Human Interface Device service.
 //!
 //! The HID service provides read access to user input such as [button presses](Hid::keys_down), [touch screen presses](Hid::touch_position),
-//! and [circle pad information](Hid::circlepad_position). It also provides information from the [3D slider](Hid::slider_3d()), the [volume slider](Hid::slider_volume()),
+//! and [circle pad information](Hid::circlepad_position). It also provides information from the [volume slider](Hid::slider_volume()),
 //! the [accelerometer](Hid::accelerometer_vector()), and the [gyroscope](Hid::gyroscope_rate()).
 #![doc(alias = "input")]
 #![doc(alias = "controller")]
@@ -344,7 +344,7 @@ impl Hid {
     /// # }
     /// ```
     #[doc(alias = "HIDUSER_GetSoundVolume")]
-    pub fn slider_volume(&self) -> f32 {
+    pub fn volume_slider(&self) -> f32 {
         let mut slider = 0;
 
         unsafe {
@@ -352,29 +352,6 @@ impl Hid {
         }
 
         (slider as f32) / 63.
-    }
-
-    /// Returns the current 3D slider position (between 0 and 1).
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// # use std::error::Error;
-    /// # fn main() -> Result<(), Box<dyn Error>> {
-    /// #
-    /// use ctru::services::hid::Hid;
-    /// let mut hid = Hid::new()?;
-    ///
-    /// hid.scan_input();
-    ///
-    /// let volume = hid.slider_3d();
-    /// #
-    /// # Ok(())
-    /// # }
-    /// ```
-    #[doc(alias = "osGet3DSliderState")]
-    pub fn slider_3d(&self) -> f32 {
-        unsafe { ctru_sys::osGet3DSliderState() }
     }
 
     /// Activate/deactivate the console's acceleration sensor.
@@ -478,7 +455,7 @@ impl Hid {
         Ok((res.x, res.y, res.z))
     }
 
-    /// Returns the angular rate (x,y,z) registered by the gyroscope.
+    /// Returns the angular rate (roll,pitch,yaw) registered by the gyroscope.
     ///
     /// # Errors
     ///

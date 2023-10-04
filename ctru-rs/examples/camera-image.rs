@@ -3,17 +3,16 @@
 //! This example demonstrates how to use the built-in cameras to take a picture and display it to the screen.
 
 use ctru::prelude::*;
-use ctru::services::cam::{Cam, Camera, OutputFormat, ShutterSound, ViewSize};
+use ctru::services::cam::{
+    Cam, Camera, OutputFormat, ShutterSound, Trimming, ViewSize, WhiteBalance,
+};
 use ctru::services::gfx::{Flush, Screen, Swap};
 use ctru::services::gspgpu::FramebufferFormat;
 
 use std::time::Duration;
 
-const WIDTH: usize = 400;
-const HEIGHT: usize = 240;
-
-// The screen size is the width and height multiplied by 2 (RGB565 store pixels in 2 bytes).
-const BUF_SIZE: usize = WIDTH * HEIGHT * 2;
+const WIDTH: usize = 200;
+const HEIGHT: usize = 100;
 
 const WAIT_TIMEOUT: Duration = Duration::from_millis(300);
 
@@ -35,30 +34,35 @@ fn main() {
     let mut cam = Cam::new().expect("Failed to initialize CAM service.");
 
     // Camera setup.
-    {
-        let camera = &mut cam.outer_right_cam;
+    let camera = &mut cam.outer_right_cam;
 
-        camera
-            .set_view_size(ViewSize::TopLCD)
-            .expect("Failed to set camera size");
-        camera
-            .set_output_format(OutputFormat::Rgb565)
-            .expect("Failed to set camera output format");
-        camera
-            .set_noise_filter(true)
-            .expect("Failed to enable noise filter");
-        camera
-            .set_auto_exposure(true)
-            .expect("Failed to enable auto exposure");
-        camera
-            .set_auto_white_balance(true)
-            .expect("Failed to enable auto white balance");
-        camera
-            .set_trimming(false)
-            .expect("Failed to disable trimming");
-    }
+    camera
+        .set_view_size(ViewSize::TopLCD)
+        .expect("Failed to set camera size");
+    camera
+        .set_output_format(OutputFormat::Rgb565)
+        .expect("Failed to set camera output format");
+    camera
+        .set_noise_filter(true)
+        .expect("Failed to enable noise filter");
+    camera
+        .set_auto_exposure(true)
+        .expect("Failed to enable auto exposure");
+    camera
+        .set_white_balance(WhiteBalance::Auto)
+        .expect("Failed to enable auto white balance");
+    camera
+        .set_trimming(Trimming::Centered {
+            width: WIDTH as i16,
+            height: HEIGHT as i16,
+        })
+        .expect("Failed to disable trimming");
 
-    let mut buf = vec![0u8; BUF_SIZE];
+    // We don't intend on making any other modifications to the camera, so this size should be enough.
+    let len = camera
+        .max_byte_count()
+        .expect("could not retrieve max image buffer size");
+    let mut buf = vec![0u8; len];
 
     println!("\nPress R to take a new picture");
     println!("Press Start to exit");
@@ -79,20 +83,24 @@ fn main() {
 
             // Take a picture and write it to the buffer.
             camera
-                .take_picture(
-                    &mut buf,
-                    WIDTH.try_into().unwrap(),
-                    HEIGHT.try_into().unwrap(),
-                    WAIT_TIMEOUT,
-                )
+                .take_picture(&mut buf, WAIT_TIMEOUT)
                 .expect("Failed to take picture");
+
+            let image_size = camera
+                .final_image_size()
+                .expect("could not retrieve final image size");
 
             // Play the normal shutter sound.
             cam.play_shutter_sound(ShutterSound::Normal)
                 .expect("Failed to play shutter sound");
 
             // Rotate the image and correctly display it on the screen.
-            rotate_image_to_screen(&buf, top_screen.raw_framebuffer().ptr, WIDTH, HEIGHT);
+            rotate_image_to_screen(
+                &buf,
+                top_screen.raw_framebuffer().ptr,
+                image_size.0 as usize,
+                image_size.1 as usize,
+            );
 
             // We will only flush and swap the "camera" screen, since the other screen is handled by the `Console`.
             top_screen.flush_buffers();

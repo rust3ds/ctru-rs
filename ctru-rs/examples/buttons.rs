@@ -25,12 +25,11 @@ fn main() {
         // Get information about which keys were held down on this frame.
         let keys = hid.keys_held();
 
-        // Print the status of the 2 sliders.
+        // Print the status of the volume slider.
         println!(
             "\x1b[20;0HVolume slider: {}              ",
             hid.slider_volume()
         );
-        println!("\x1b[21;0H3D slider: {}              ", hid.slider_3d());
 
         // We only want to print when the keys we're holding now are different
         // from what they were on the previous frame.
