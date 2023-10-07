@@ -11,8 +11,8 @@ use ctru::services::gspgpu::FramebufferFormat;
 
 use std::time::Duration;
 
-const WIDTH: usize = 200;
-const HEIGHT: usize = 100;
+const WIDTH: i16 = 400;
+const HEIGHT: i16 = 240;
 
 const WAIT_TIMEOUT: Duration = Duration::from_millis(300);
 
@@ -51,17 +51,13 @@ fn main() {
     camera
         .set_white_balance(WhiteBalance::Auto)
         .expect("Failed to enable auto white balance");
-    camera
-        .set_trimming(Trimming::Centered {
-            width: WIDTH as i16,
-            height: HEIGHT as i16,
-        })
-        .expect("Failed to disable trimming");
+    camera.set_trimming(Trimming::Centered {
+        width: WIDTH,
+        height: HEIGHT,
+    });
 
     // We don't intend on making any other modifications to the camera, so this size should be enough.
-    let len = camera
-        .max_byte_count()
-        .expect("could not retrieve max image buffer size");
+    let len = camera.max_byte_count();
     let mut buf = vec![0u8; len];
 
     println!("\nPress R to take a new picture");
@@ -86,9 +82,7 @@ fn main() {
                 .take_picture(&mut buf, WAIT_TIMEOUT)
                 .expect("Failed to take picture");
 
-            let image_size = camera
-                .final_image_size()
-                .expect("could not retrieve final image size");
+            let image_size = camera.final_image_size();
 
             // Play the normal shutter sound.
             cam.play_shutter_sound(ShutterSound::Normal)
