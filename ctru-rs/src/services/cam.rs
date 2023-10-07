@@ -980,8 +980,8 @@ pub trait Camera {
 
             ResultCode(ctru_sys::CAMU_GetMaxBytes(
                 &mut transfer_unit,
-                final_view.0,
-                final_view.1,
+                full_view.0,
+                full_view.1,
             ))?;
 
             transfer_unit
