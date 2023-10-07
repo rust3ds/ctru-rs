@@ -32,28 +32,30 @@ fn main() {
 
     // Camera setup.
     let camera = &mut cam.outer_right_cam;
-
-    camera
-        .set_view_size(ViewSize::TopLCD)
-        .expect("Failed to set camera size");
-    camera
-        .set_output_format(OutputFormat::Rgb565)
-        .expect("Failed to set camera output format");
-    camera
-        .set_noise_filter(true)
-        .expect("Failed to enable noise filter");
-    camera
-        .set_auto_exposure(true)
-        .expect("Failed to enable auto exposure");
-    camera
-        .set_white_balance(WhiteBalance::Auto)
-        .expect("Failed to enable auto white balance");
-    
-    // Un-comment this line and see how it changes!
-    // camera.set_trimming(Trimming::Centered(ViewSize::BottomLCD));
+    {
+        camera
+            .set_view_size(ViewSize::TopLCD)
+            .expect("Failed to set camera size");
+        camera
+            .set_output_format(OutputFormat::Rgb565)
+            .expect("Failed to set camera output format");
+        camera
+            .set_noise_filter(true)
+            .expect("Failed to enable noise filter");
+        camera
+            .set_auto_exposure(true)
+            .expect("Failed to enable auto exposure");
+        camera
+            .set_white_balance(WhiteBalance::Auto)
+            .expect("Failed to enable auto white balance");
+        // This line has no effect on the camera since the photos are already shot with `TopLCD` size.
+        camera
+            .set_trimming(Trimming::Centered(ViewSize::TopLCD))
+            .expect("Failed to enable trimming");
+    }
 
     // We don't intend on making any other modifications to the camera, so this size should be enough.
-    let len = camera.max_byte_count();
+    let len = camera.final_byte_length();
     let mut buf = vec![0u8; len];
 
     println!("\nPress R to take a new picture");
@@ -78,7 +80,7 @@ fn main() {
                 .take_picture(&mut buf, WAIT_TIMEOUT)
                 .expect("Failed to take picture");
 
-            let image_size = camera.final_image_size();
+            let image_size = camera.final_view_size();
 
             // Play the normal shutter sound.
             cam.play_shutter_sound(ShutterSound::Normal)
