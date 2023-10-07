@@ -110,7 +110,7 @@ pub enum FrameRate {
 
 /// White balance settings.
 ///
-/// See [`Camera::set_white_balance()`] and [`Camera::set_white_balance_without_base_up()`] to learn how to use this.
+/// See [`Camera::set_white_balance()`] to learn how to use this.
 #[doc(alias = "CAMU_WhiteBalance")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
@@ -230,22 +230,11 @@ pub enum ShutterSound {
 }
 
 /// Configuration to handle image trimming.
+#[non_exhaustive]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Trimming {
-    /// Trimming configuration based on absolute coordinates of the image.
-    Absolute {
-        /// Top-left corner coordinates (x,y) of the trimmed area.
-        top_left: (i16, i16),
-        /// Bottom-right corner coordinates (x,y) of the trimmed area.
-        bottom_right: (i16, i16),
-    },
     /// Trimming configuration relatively to the center of the image.
-    Centered {
-        /// Width of the trimmed area.
-        width: i16,
-        /// Height of the trimmed area.
-        height: i16,
-    },
+    Centered(ViewSize),
     /// Trimming disabled.
     Off,
 }
@@ -324,36 +313,12 @@ impl BothOutwardCam {
 macro_rules! trimming_checks {
     ($trimming:ident, $view_size:expr) => {
         match $trimming {
-            Trimming::Absolute {
-                top_left,
-                bottom_right,
-            } => {
+            Trimming::Centered(trim_size) => {
                 let view_size: (i16, i16) = $view_size;
+                let trim_size: (i16, i16) = trim_size.into();
 
-                // Top left corner is "before" bottom right corner.
-                assert!(top_left.0 <= bottom_right.0 && top_left.1 <= bottom_right.1);
-                // All coordinates are positive.
-                assert!(
-                    top_left.0 >= 0
-                        && top_left.1 >= 0
-                        && bottom_right.0 >= 0
-                        && bottom_right.1 >= 0
-                );
-                // All coordinates are within the view.
-                assert!(
-                    top_left.0 < view_size.0
-                        && bottom_right.0 < view_size.0
-                        && top_left.1 < view_size.1
-                        && bottom_right.1 < view_size.1
-                );
-            }
-            Trimming::Centered { width, height } => {
-                let view_size: (i16, i16) = $view_size;
-
-                // Trim sizes are positive.
-                assert!(width >= 0 && height >= 0);
                 // Trim sizes are within the view.
-                assert!(width <= view_size.0 && height <= view_size.1);
+                assert!(trim_size.0 <= view_size.0 && trim_size.1 <= view_size.1);
             }
             Trimming::Off => (),
         }
@@ -522,7 +487,8 @@ pub trait Camera {
     /// # Notes
     ///
     /// This view is the full resolution at which the camera will take the photo.
-    /// If you are interested in the final image dimension, after all processing and modifications, have a look at [`Camera::final_image_size()`].
+    /// If you are interested in the final image's size, calculated while taking into account all processing and modifications,
+    /// have a look at [`Camera::final_view_size()`].
     fn view_size(&self) -> ViewSize;
 
     /// Returns the raw port of the selected camera.
@@ -558,8 +524,12 @@ pub trait Camera {
         }
     }
 
-    /// Returns the maximum amount of bytes the final image will occupy based on the view size, trimming, pixel depth and other
+    /// Returns the maximum amount of bytes the final image will occupy in memory based on the view size, trimming, pixel depth and other
     /// modifications set to the camera.
+    ///
+    /// # Notes
+    ///
+    /// Remember to query this information again if *any* changes are applied to the [`Camera`] configuration!
     ///
     /// # Example
     ///
@@ -572,20 +542,19 @@ pub trait Camera {
     ///
     /// let inward = &cam.inner_cam;
     ///
-    /// let transfer_count = inward.max_byte_count();
+    /// let transfer_count = inward.final_byte_length();
     /// #
     /// # Ok(())
     /// # }
     /// ```
-    #[doc(alias = "CAMU_GetTransferBytes")]
-    fn max_byte_count(&self) -> usize {
-        let size = self.final_image_size();
+    fn final_byte_length(&self) -> usize {
+        let size = self.final_view_size();
 
         let mut res: usize = (size.0 as usize * size.1 as usize) * std::mem::size_of::<i16>();
 
         // If we are taking a picture using both outwards cameras, we need to expect 2 images, rather than just 1
         if self.port_as_raw() == ctru_sys::PORT_BOTH {
-            res = res * 2;
+            res *= 2;
         }
 
         res
@@ -594,35 +563,33 @@ pub trait Camera {
     /// Returns the dimensions of the final image based on the view size, trimming and other
     /// modifications set to the camera.
     ///
+    /// # Notes
+    ///
+    /// Remember to query this information again if *any* changes are applied to the [`Camera`] configuration!
+    ///
     /// # Example
     ///
     /// ```no_run
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
-    /// use ctru::services::cam::{Cam, Camera};
-    /// let cam = Cam::new()?;
+    /// use ctru::services::cam::{Cam, Camera, Trimming, ViewSize};
+    /// let mut cam = Cam::new()?;
     ///
-    /// let mut inward = &cam.inner_cam;
+    /// let mut inward = &mut cam.inner_cam;
     ///
-    /// inward.set_trimming(Trimming::Centered {
-    ///     width: 100,
-    ///     height: 100,
-    /// });
+    /// // We trim the image down so that it fits on a DS screen!
+    /// inward.set_trimming(Trimming::Centered(ViewSize::DS));
     ///
     /// // This result will take into account the trimming.
-    /// let final_resolution = inward.final_image_size();
+    /// let final_resolution = inward.final_view_size();
     /// #
     /// # Ok(())
     /// # }
     /// ```
-    fn final_image_size(&self) -> (i16, i16) {
+    fn final_view_size(&self) -> (i16, i16) {
         match self.trimming() {
-            Trimming::Absolute {
-                top_left,
-                bottom_right,
-            } => (bottom_right.0 - top_left.0, bottom_right.1 - top_left.1),
-            Trimming::Centered { width, height } => (width, height),
+            Trimming::Centered(trim_size) => trim_size.into(),
             Trimming::Off => self.view_size().into(),
         }
     }
@@ -905,74 +872,50 @@ pub trait Camera {
     /// # use std::time::Duration;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
-    /// use ctru::services::cam::{Cam, Camera, ViewSize, OutputFormat};
+    /// use ctru::services::cam::{Cam, Camera, ViewSize, OutputFormat, WhiteBalance};
     /// let mut cam = Cam::new()?;
     ///
     /// // We borrow the inward facing `Camera`.
-    /// let inward = &mut cam.inner_cam;
+    /// let camera = &mut cam.inner_cam;
     ///
-    /// inward.set_view_size(ViewSize::TopLCD)?;
-    /// inward.set_output_format(OutputFormat::Rgb565)?;
-    /// inward.set_noise_filter(true)?;
-    /// inward.set_auto_exposure(true)?;
-    /// inward.set_auto_white_balance(true)?;
+    /// camera.set_view_size(ViewSize::TopLCD)?;
+    /// camera.set_output_format(OutputFormat::Rgb565)?;
+    /// camera.set_noise_filter(true)?;
+    /// camera.set_auto_exposure(true)?;
+    /// camera.set_white_balance(WhiteBalance::Auto)?;
     ///
     /// // Size of the top screen buffer at 2 bytes per pixel (RGB565).
-    /// let mut buffer = vec![0; 400*240*2];
+    /// let mut buffer = vec![0; camera.final_byte_length()];
     ///
     /// // Take picture with 3 seconds of timeout.
-    /// inward.take_picture(&mut buffer, 400, 240, Duration::from_secs(3));
+    /// camera.take_picture(&mut buffer, Duration::from_secs(3));
     /// #
     /// # Ok(())
     /// # }
     /// ```
     fn take_picture(&mut self, buffer: &mut [u8], timeout: Duration) -> crate::Result<()> {
-        let full_view: (i16, i16) = self.view_size().into();
-
-        // It seems like doing this as the first step gives the option to use trimming and get correct readings for the transfer bytes.
-        unsafe {
-            ResultCode(ctru_sys::CAMU_Activate(self.camera_as_raw()))?;
-        };
-
         // Obtain the final view size and make the needed modifications to the camera.
-        let final_view: (i16, i16) = match self.trimming() {
-            Trimming::Absolute {
-                top_left,
-                bottom_right,
-            } => unsafe {
+        match self.trimming() {
+            Trimming::Centered(trim_size) => unsafe {
                 ResultCode(ctru_sys::CAMU_SetTrimming(self.port_as_raw(), true))?;
 
-                ResultCode(ctru_sys::CAMU_SetTrimmingParams(
-                    self.port_as_raw(),
-                    top_left.0,
-                    top_left.1,
-                    bottom_right.0,
-                    bottom_right.1,
-                ))?;
-
-                (bottom_right.0 - top_left.0, bottom_right.1 - top_left.1)
-            },
-            Trimming::Centered { width, height } => unsafe {
-                ResultCode(ctru_sys::CAMU_SetTrimming(self.port_as_raw(), true))?;
+                let full_view: (i16, i16) = self.view_size().into();
+                let trim_size: (i16, i16) = trim_size.into();
 
                 ResultCode(ctru_sys::CAMU_SetTrimmingParamsCenter(
                     self.port_as_raw(),
-                    width,
-                    height,
+                    trim_size.0,
+                    trim_size.1,
                     full_view.0,
                     full_view.1,
                 ))?;
-
-                (width, height)
             },
             Trimming::Off => unsafe {
                 ResultCode(ctru_sys::CAMU_SetTrimming(self.port_as_raw(), false))?;
-
-                full_view
             },
         };
 
-        println!("CAMU_GetMaxBytes{:?}", final_view);
+        let final_view = self.final_view_size();
 
         // The transfer unit is NOT the "max number of bytes" or whatever the docs make you think it is...
         let transfer_unit = unsafe {
@@ -980,8 +923,8 @@ pub trait Camera {
 
             ResultCode(ctru_sys::CAMU_GetMaxBytes(
                 &mut transfer_unit,
-                full_view.0,
-                full_view.1,
+                final_view.0,
+                final_view.1,
             ))?;
 
             transfer_unit
@@ -997,7 +940,7 @@ pub trait Camera {
         };
 
         // Check whether the input buffer is big enough for the image.
-        let max_size = (final_view.0 as usize * final_view.1 as usize) * std::mem::size_of::<i16>();
+        let max_size = self.final_byte_length();
         if buffer.len() < max_size {
             // We deactivate the camera prematurely.
             //
@@ -1010,6 +953,11 @@ pub trait Camera {
                 wanted: max_size,
             });
         }
+
+        unsafe {
+            ResultCode(ctru_sys::CAMU_Activate(self.camera_as_raw()))?;
+            ResultCode(ctru_sys::CAMU_ClearBuffer(self.port_as_raw()))?;
+        };
 
         let receive_event = unsafe {
             let mut completion_handle: Handle = 0;

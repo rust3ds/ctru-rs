@@ -1,7 +1,7 @@
 //! Human Interface Device service.
 //!
 //! The HID service provides read access to user input such as [button presses](Hid::keys_down), [touch screen presses](Hid::touch_position),
-//! and [circle pad information](Hid::circlepad_position). It also provides information from the [volume slider](Hid::slider_volume()),
+//! and [circle pad information](Hid::circlepad_position). It also provides information from the [volume slider](Hid::volume_slider()),
 //! the [accelerometer](Hid::accelerometer_vector()), and the [gyroscope](Hid::gyroscope_rate()).
 #![doc(alias = "input")]
 #![doc(alias = "controller")]
@@ -338,7 +338,7 @@ impl Hid {
     ///
     /// hid.scan_input();
     ///
-    /// let volume = hid.slider_volume();
+    /// let volume = hid.volume_slider();
     /// #
     /// # Ok(())
     /// # }

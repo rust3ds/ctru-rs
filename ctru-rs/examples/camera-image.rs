@@ -11,9 +11,6 @@ use ctru::services::gspgpu::FramebufferFormat;
 
 use std::time::Duration;
 
-const WIDTH: i16 = 400;
-const HEIGHT: i16 = 240;
-
 const WAIT_TIMEOUT: Duration = Duration::from_millis(300);
 
 fn main() {
@@ -51,10 +48,9 @@ fn main() {
     camera
         .set_white_balance(WhiteBalance::Auto)
         .expect("Failed to enable auto white balance");
-    camera.set_trimming(Trimming::Centered {
-        width: WIDTH,
-        height: HEIGHT,
-    });
+    
+    // Un-comment this line and see how it changes!
+    // camera.set_trimming(Trimming::Centered(ViewSize::BottomLCD));
 
     // We don't intend on making any other modifications to the camera, so this size should be enough.
     let len = camera.max_byte_count();
