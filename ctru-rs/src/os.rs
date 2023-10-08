@@ -4,7 +4,7 @@
 ///
 /// # Example
 /// ```
-/// # let _runner = test_runner::GdbRunner::default();
+/// # // let _runner = test_runner::GdbRunner::default();
 /// let firm_version = ctru::os::firm_version();
 /// assert_ne!(firm_version.major(), 0);
 ///
@@ -61,7 +61,7 @@ pub fn kernel_version() -> Version {
 ///
 /// # Example
 /// ```
-/// # let _runner = test_runner::GdbRunner::default();
+/// # // let _runner = test_runner::GdbRunner::default();
 /// let all_memory = ctru::os::MemRegion::All;
 ///
 /// assert!(all_memory.size() > 0);
@@ -111,7 +111,7 @@ impl MemRegion {
 /// # Example
 ///
 /// ```
-/// # let _runner = test_runner::GdbRunner::default();
+/// # // let _runner = test_runner::GdbRunner::default();
 /// let strength = ctru::os::WifiStrength::current();
 /// assert!((strength as u8) < 4);
 /// ```
