@@ -28,7 +28,7 @@ fn main() {
         // Print the status of the volume slider.
         println!(
             "\x1b[20;0HVolume slider: {}              ",
-            hid.slider_volume()
+            hid.volume_slider()
         );
 
         // We only want to print when the keys we're holding now are different

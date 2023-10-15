@@ -76,7 +76,7 @@ fn main() {
         if keys_down.contains(KeyPad::R) {
             println!("Capturing new image");
 
-            let mut camera = &mut cam.both_outer_cams;
+            let camera = &mut cam.both_outer_cams;
 
             // Take a picture and write it to the buffer.
             camera
