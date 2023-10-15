@@ -6,7 +6,7 @@ use ctru::prelude::*;
 use ctru::services::cam::{
     Cam, Camera, OutputFormat, ShutterSound, Trimming, ViewSize, WhiteBalance,
 };
-use ctru::services::gfx::{Flush, Screen, Swap};
+use ctru::services::gfx::{Flush, Screen, Swap, TopScreen3D};
 use ctru::services::gspgpu::FramebufferFormat;
 
 use std::time::Duration;
@@ -20,9 +20,12 @@ fn main() {
     let mut hid = Hid::new().expect("Failed to initialize Hid service.");
     let gfx = Gfx::new().expect("Failed to initialize GFX service.");
 
-    let mut top_screen = gfx.top_screen.borrow_mut();
-    top_screen.set_double_buffering(true);
-    top_screen.set_framebuffer_format(FramebufferFormat::Rgb565);
+    gfx.top_screen.borrow_mut().set_double_buffering(true);
+    gfx.top_screen
+        .borrow_mut()
+        .set_framebuffer_format(FramebufferFormat::Rgb565);
+
+    let mut top_screen_3d = TopScreen3D::from(&gfx.top_screen);
 
     let _console = Console::new(gfx.bottom_screen.borrow_mut());
 
@@ -31,7 +34,7 @@ fn main() {
     let mut cam = Cam::new().expect("Failed to initialize CAM service.");
 
     // Camera setup.
-    let camera = &mut cam.outer_right_cam;
+    let camera = &mut cam.both_outer_cams;
     {
         camera
             .set_view_size(ViewSize::TopLCD)
@@ -73,7 +76,7 @@ fn main() {
         if keys_down.contains(KeyPad::R) {
             println!("Capturing new image");
 
-            let camera = &mut cam.outer_right_cam;
+            let mut camera = &mut cam.both_outer_cams;
 
             // Take a picture and write it to the buffer.
             camera
@@ -86,17 +89,29 @@ fn main() {
             cam.play_shutter_sound(ShutterSound::Normal)
                 .expect("Failed to play shutter sound");
 
-            // Rotate the image and correctly display it on the screen.
-            rotate_image_to_screen(
-                &buf,
-                top_screen.raw_framebuffer().ptr,
-                image_size.0 as usize,
-                image_size.1 as usize,
-            );
+            {
+                let (mut left_side, mut right_side) = top_screen_3d.split_mut();
+
+                // Rotate the left image and correctly display it on the screen.
+                rotate_image_to_screen(
+                    &buf,
+                    left_side.raw_framebuffer().ptr,
+                    image_size.0 as usize,
+                    image_size.1 as usize,
+                );
+
+                // Rotate the right image and correctly display it on the screen.
+                rotate_image_to_screen(
+                    &buf[len / 2..],
+                    right_side.raw_framebuffer().ptr,
+                    image_size.0 as usize,
+                    image_size.1 as usize,
+                );
+            }
 
             // We will only flush and swap the "camera" screen, since the other screen is handled by the `Console`.
-            top_screen.flush_buffers();
-            top_screen.swap_buffers();
+            top_screen_3d.flush_buffers();
+            top_screen_3d.swap_buffers();
 
             gfx.wait_for_vblank();
         }

@@ -241,15 +241,16 @@ pub enum Trimming {
 }
 
 /// Data used by the camera to calibrate image quality for a single camera.
+// TODO: Implement Image quality calibration.
 #[doc(alias = "CAMU_ImageQualityCalibrationData")]
 #[derive(Default, Clone, Copy, Debug)]
-pub struct ImageQualityCalibrationData(pub ctru_sys::CAMU_ImageQualityCalibrationData);
+pub struct ImageQualityCalibration(pub ctru_sys::CAMU_ImageQualityCalibrationData);
 
 /// Data used by the camera to calibrate image quality when using both outward cameras.
 // TODO: Implement Stereo camera calibration.
 #[doc(alias = "CAMU_StereoCameraCalibrationData")]
 #[derive(Default, Clone, Copy, Debug)]
-pub struct StereoCameraCalibrationData(pub ctru_sys::CAMU_StereoCameraCalibrationData);
+pub struct StereoCameraCalibration(ctru_sys::CAMU_StereoCameraCalibrationData);
 
 /// Inward camera representation (facing the user of the 3DS).
 ///
@@ -358,8 +359,44 @@ impl BothOutwardCam {
             ResultCode(ctru_sys::CAMU_SetBrightnessSynchronization(
                 brightness_synchronization,
             ))?;
-            Ok(())
         }
+
+        Ok(())
+    }
+
+    #[doc(alias = "CAMU_GetStereoCameraCalibrationData")]
+    /// Returns the currently set [`StereoCameraCalibration`].
+    pub fn stereo_calibration(&self) -> crate::Result<StereoCameraCalibration> {
+        let mut calibration = StereoCameraCalibration::default();
+
+        unsafe {
+            ResultCode(ctru_sys::CAMU_GetStereoCameraCalibrationData(
+                &mut calibration.0,
+            ))?;
+        }
+
+        Ok(calibration)
+    }
+
+    #[doc(alias = "CAMU_SetStereoCameraCalibrationData")]
+    /// Set the [`StereoCameraCalibration`].
+    // TODO: This seems to have no effect.
+    pub fn set_stereo_calibration(
+        &mut self,
+        mut stereo_calibration: StereoCameraCalibration,
+    ) -> crate::Result<()> {
+        let view_size = self.final_view_size();
+
+        stereo_calibration.0.imageWidth = view_size.0;
+        stereo_calibration.0.imageHeight = view_size.1;
+
+        unsafe {
+            ResultCode(ctru_sys::CAMU_SetStereoCameraCalibrationData(
+                stereo_calibration.0,
+            ))?;
+        }
+
+        Ok(())
     }
 }
 
@@ -388,6 +425,114 @@ impl Camera for BothOutwardCam {
 
     fn port_as_raw(&self) -> ctru_sys::u32_ {
         ctru_sys::PORT_BOTH
+    }
+
+    fn take_picture(&mut self, buffer: &mut [u8], timeout: Duration) -> crate::Result<()> {
+        // Check whether the provided buffer is big enough to store the image.
+        let max_size = self.final_byte_length();
+        if buffer.len() < max_size {
+            return Err(Error::BufferTooShort {
+                provided: buffer.len(),
+                wanted: max_size,
+            });
+        }
+
+        let final_view = self.final_view_size();
+
+        // The transfer unit is NOT the "max number of bytes" or whatever the docs make you think it is...
+        let transfer_unit = unsafe {
+            let mut transfer_unit = 0;
+
+            ResultCode(ctru_sys::CAMU_GetMaxBytes(
+                &mut transfer_unit,
+                final_view.0,
+                final_view.1,
+            ))?;
+
+            transfer_unit
+        };
+
+        unsafe {
+            ResultCode(ctru_sys::CAMU_SetTransferBytes(
+                self.port_as_raw(),
+                transfer_unit,
+                final_view.0,
+                final_view.1,
+            ))?;
+        };
+
+        unsafe {
+            ResultCode(ctru_sys::CAMU_Activate(self.camera_as_raw()))?;
+            ResultCode(ctru_sys::CAMU_ClearBuffer(self.port_as_raw()))?;
+        };
+
+        // Synchronize the two cameras.
+        unsafe {
+            ResultCode(ctru_sys::CAMU_SynchronizeVsyncTiming(
+                ctru_sys::SELECT_OUT1,
+                ctru_sys::SELECT_OUT2,
+            ))?;
+        }
+
+        // Start capturing with the camera.
+        unsafe {
+            ResultCode(ctru_sys::CAMU_StartCapture(self.port_as_raw()))?;
+        };
+
+        let receive_event_1 = unsafe {
+            let mut completion_handle: Handle = 0;
+
+            ResultCode(ctru_sys::CAMU_SetReceiving(
+                &mut completion_handle,
+                buffer.as_mut_ptr().cast(),
+                ctru_sys::PORT_CAM1,
+                (max_size / 2) as u32,
+                transfer_unit.try_into().unwrap(),
+            ))?;
+
+            completion_handle
+        };
+
+        let receive_event_2 = unsafe {
+            let mut completion_handle: Handle = 0;
+
+            ResultCode(ctru_sys::CAMU_SetReceiving(
+                &mut completion_handle,
+                buffer[max_size / 2..].as_mut_ptr().cast(),
+                ctru_sys::PORT_CAM2,
+                (max_size / 2) as u32,
+                transfer_unit.try_into().unwrap(),
+            ))?;
+
+            completion_handle
+        };
+
+        unsafe {
+            // Panicking without closing an SVC handle causes an ARM exception, we have to handle it carefully.
+            let wait_result_1 = ResultCode(ctru_sys::svcWaitSynchronization(
+                receive_event_1,
+                timeout.as_nanos().try_into().unwrap(),
+            ));
+
+            let wait_result_2 = ResultCode(ctru_sys::svcWaitSynchronization(
+                receive_event_2,
+                timeout.as_nanos().try_into().unwrap(),
+            ));
+
+            // We close everything first, then we check for possible errors
+            let _ = ctru_sys::svcCloseHandle(receive_event_1); // We wouldn't return the error even if there was one, so no use of ResultCode is needed.
+            let _ = ctru_sys::svcCloseHandle(receive_event_2);
+
+            // Camera state cleanup
+            ResultCode(ctru_sys::CAMU_StopCapture(self.port_as_raw()))?;
+            ResultCode(ctru_sys::CAMU_ClearBuffer(self.port_as_raw()))?;
+            ResultCode(ctru_sys::CAMU_Activate(ctru_sys::SELECT_NONE))?;
+
+            wait_result_1?;
+            wait_result_2?;
+        };
+
+        Ok(())
     }
 }
 
@@ -445,6 +590,7 @@ pub trait Camera: private::ConfigurableCamera {
     ///
     /// # Notes
     ///
+    /// The value returned will be double the image size if requested by [`BothOutwardCam`].
     /// Remember to query this information again if *any* changes are applied to the [`Camera`] configuration!
     ///
     /// # Example
@@ -799,11 +945,11 @@ pub trait Camera: private::ConfigurableCamera {
         }
     }
 
-    /// Set the [`ImageQualityCalibrationData`] for the camera.
+    /// Set the [`ImageQualityCalibration`] for the camera.
     #[doc(alias = "CAMU_SetImageQualityCalibrationData")]
-    fn set_image_quality_calibration_data(
+    fn set_image_quality_calibration(
         &mut self,
-        data: ImageQualityCalibrationData,
+        data: ImageQualityCalibration,
     ) -> crate::Result<()> {
         unsafe {
             ResultCode(ctru_sys::CAMU_SetImageQualityCalibrationData(data.0))?;
@@ -811,11 +957,11 @@ pub trait Camera: private::ConfigurableCamera {
         }
     }
 
-    /// Returns the current [`ImageQualityCalibrationData`] for the camera.
+    /// Returns the current [`ImageQualityCalibration`] for the camera.
     #[doc(alias = "CAMU_GetImageQualityCalibrationData")]
-    fn image_quality_calibration_data(&self) -> crate::Result<ImageQualityCalibrationData> {
+    fn image_quality_calibration(&self) -> crate::Result<ImageQualityCalibration> {
         unsafe {
-            let mut data = ImageQualityCalibrationData::default();
+            let mut data = ImageQualityCalibration::default();
             ResultCode(ctru_sys::CAMU_GetImageQualityCalibrationData(&mut data.0))?;
             Ok(data)
         }
@@ -826,6 +972,13 @@ pub trait Camera: private::ConfigurableCamera {
     /// # Errors
     ///
     /// This function will return an error if the camera is already busy or if the timeout duration is reached.
+    ///
+    /// # Notes
+    ///
+    /// If the picture is taken using [`BothOutwardCam`], the buffer will have to be able to hold both images
+    /// (from each camera), which will be written into it sequentially.
+    /// Use [`Camera::final_byte_length()`] to know how big the buffer needs to be to hold your next image.
+    ///
     /// # Example
     ///
     /// ```no_run
@@ -858,13 +1011,12 @@ pub trait Camera: private::ConfigurableCamera {
         // Check whether the provided buffer is big enough to store the image.
         let max_size = self.final_byte_length();
         if buffer.len() < max_size {
-
             return Err(Error::BufferTooShort {
                 provided: buffer.len(),
                 wanted: max_size,
             });
         }
-        
+
         let final_view = self.final_view_size();
 
         // The transfer unit is NOT the "max number of bytes" or whatever the docs make you think it is...
