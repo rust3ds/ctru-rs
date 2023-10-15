@@ -140,8 +140,8 @@ fn rotate_image_to_screen(src: &[u8], framebuf: *mut u8, width: usize, height: u
             unsafe {
                 // We'll work with pointers since the framebuffer is a raw pointer regardless.
                 // The offsets are completely safe as long as the width and height are correct.
-                let pixel_pointer = framebuf.offset(draw_index as isize);
-                pixel_pointer.copy_from(src.as_ptr().offset(read_index as isize), 2);
+                let pixel_pointer = framebuf.add(draw_index);
+                pixel_pointer.copy_from(src.as_ptr().add(read_index), 2);
             }
         }
     }

@@ -58,19 +58,17 @@ fn main() {
 
         if hid.keys_down().intersects(KeyPad::DOWN) {
             if offset + 1 < cur_list.len() {
-                offset = offset + 1;
+                offset += 1;
                 refresh = true;
             }
-        } else if hid.keys_down().intersects(KeyPad::UP) {
-            if offset > 0 {
-                offset = offset - 1;
-                refresh = true;
-            }
+        } else if hid.keys_down().intersects(KeyPad::UP) && offset > 0 {
+            offset -= 1;
+            refresh = true;
         }
 
         // Render the title list via a scrollable text UI.
         if refresh {
-            let mut selected_title = cur_list.iter().skip(offset).next().unwrap();
+            let mut selected_title = cur_list.iter().nth(offset).unwrap();
 
             // Clear the top screen and write title IDs to it.
             top_screen.select();
