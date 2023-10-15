@@ -68,7 +68,7 @@ fn main() {
 
         // Render the title list via a scrollable text UI.
         if refresh {
-            let mut selected_title = cur_list.iter().nth(offset).unwrap();
+            let mut selected_title = cur_list.get(offset).unwrap();
 
             // Clear the top screen and write title IDs to it.
             top_screen.select();
