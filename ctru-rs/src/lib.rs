@@ -110,6 +110,7 @@ pub mod console;
 pub mod error;
 pub mod linear;
 pub mod mii;
+pub mod os;
 pub mod prelude;
 pub mod services;
 
