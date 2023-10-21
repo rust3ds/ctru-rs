@@ -343,7 +343,8 @@ pub trait Camera {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
@@ -372,7 +373,8 @@ pub trait Camera {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
@@ -841,12 +843,13 @@ pub trait Camera {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # use std::time::Duration;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
-    /// use ctru::services::cam::{Cam, Camera, ViewSize, OutputFormat};
+    /// use ctru::services::cam::{Cam, Camera, OutputFormat, ViewSize};
     /// let mut cam = Cam::new()?;
     ///
     /// // We borrow the inward facing `Camera`.
@@ -951,7 +954,8 @@ impl Cam {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
@@ -984,7 +988,8 @@ impl Cam {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #

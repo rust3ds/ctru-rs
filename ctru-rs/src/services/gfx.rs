@@ -253,7 +253,8 @@ impl Gfx {
     ///
     /// It's the same as calling:
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
@@ -268,7 +269,8 @@ impl Gfx {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
@@ -290,11 +292,13 @@ impl Gfx {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
-    /// use ctru::services::{gfx::Gfx, gspgpu::FramebufferFormat};
+    /// use ctru::services::gfx::Gfx;
+    /// use ctru::services::gspgpu::FramebufferFormat;
     ///
     /// // Top screen uses RGBA8, bottom screen uses RGB565.
     /// // The screen buffers are allocated in the standard HEAP memory, and not in VRAM.
@@ -333,18 +337,20 @@ impl Gfx {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
-    /// use ctru::services::{apt::Apt, gfx::Gfx};
+    /// use ctru::services::apt::Apt;
+    /// use ctru::services::gfx::Gfx;
     /// let apt = Apt::new()?;
     /// let gfx = Gfx::new()?;
     ///
     /// // Simple main loop.
     /// while apt.main_loop() {
     ///     // Main program logic
-    ///     
+    ///
     ///     // Wait for the screens to refresh.
     ///     // This blocks the current thread to make it run at 60Hz.
     ///     gfx.wait_for_vblank();
@@ -376,7 +382,8 @@ impl TopScreen3D<'_> {
 ///
 /// # Example
 ///
-/// ```no_run
+/// ```
+/// # let _runner = test_runner::GdbRunner::default();
 /// # use std::error::Error;
 /// # fn main() -> Result<(), Box<dyn Error>> {
 /// #
@@ -499,7 +506,10 @@ mod tests {
 
     #[test]
     fn gfx_duplicate() {
-        // We don't need to build a `Gfx` because the test runner has one already
+        // NOTE: this is expected to fail if using the console test runner, since
+        // that necessarily creates a Gfx as part of its test setup:
+        let _gfx = Gfx::new().unwrap();
+
         assert!(matches!(Gfx::new(), Err(Error::ServiceAlreadyActive)));
     }
 }

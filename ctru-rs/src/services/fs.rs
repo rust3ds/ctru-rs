@@ -136,7 +136,8 @@ pub struct Fs(());
 ///
 /// # Examples
 ///
-/// ```no_run
+/// ```
+/// # let _runner = test_runner::GdbRunner::default();
 /// use ctru::services::fs::Fs;
 ///
 /// let mut fs = Fs::new().unwrap();
@@ -158,12 +159,14 @@ pub struct Archive {
 ///
 /// Create a new file and write bytes to it:
 ///
-/// ```no_run
+/// ```
+/// # let _runner = test_runner::GdbRunner::default();
 /// # use std::error::Error;
 /// # fn main() -> Result<(), Box<dyn Error>> {
 /// #
 /// use std::io::prelude::*;
-/// use ctru::services::fs::{Fs, File};
+///
+/// use ctru::services::fs::{File, Fs};
 ///
 /// let mut fs = Fs::new()?;
 /// let mut sdmc = fs.sdmc()?;
@@ -174,12 +177,14 @@ pub struct Archive {
 ///
 /// Read the contents of a file into a `String`::
 ///
-/// ```no_run
+/// ```
+/// # let _runner = test_runner::GdbRunner::default();
 /// # use std::error::Error;
 /// # fn main() -> Result<(), Box<dyn Error>> {
 /// #
 /// use std::io::prelude::*;
-/// use ctru::services::fs::{Fs, File};
+///
+/// use ctru::services::fs::{File, Fs};
 ///
 /// let mut fs = Fs::new()?;
 /// let mut sdmc = fs.sdmc()?;
@@ -196,13 +201,15 @@ pub struct Archive {
 /// It can be more efficient to read the contents of a file with a buffered
 /// `Read`er. This can be accomplished with `BufReader<R>`:
 ///
-/// ```no_run
+/// ```
+/// # let _runner = test_runner::GdbRunner::default();
 /// # use std::error::Error;
 /// # fn main() -> Result<(), Box<dyn Error>> {
 /// #
-/// use std::io::BufReader;
 /// use std::io::prelude::*;
-/// use ctru::services::fs::{Fs, File};
+/// use std::io::BufReader;
+///
+/// use ctru::services::fs::{File, Fs};
 ///
 /// let mut fs = Fs::new()?;
 /// let mut sdmc = fs.sdmc()?;
@@ -247,22 +254,25 @@ pub struct Metadata {
 ///
 /// Opening a file to read:
 ///
-/// ```no_run
+/// ```
+/// # let _runner = test_runner::GdbRunner::default();
 /// use ctru::services::fs::{Fs, OpenOptions};
 ///
 /// let mut fs = Fs::new().unwrap();
 /// let mut sdmc_archive = fs.sdmc().unwrap();
-/// let file = OpenOptions::new()
+/// let result = OpenOptions::new()
 ///             .read(true)
 ///             .archive(&sdmc_archive)
-///             .open("foo.txt")
-///             .unwrap();
+///     .open("foo.txt");
+///
+/// assert!(result.is_err());
 /// ```
 ///
 /// Opening a file for both reading and writing, as well as creating it if it
 /// doesn't exist:
 ///
-/// ```no_run
+/// ```
+/// # let _runner = test_runner::GdbRunner::default();
 /// use ctru::services::fs::{Fs, OpenOptions};
 ///
 /// let mut fs = Fs::new().unwrap();
@@ -272,7 +282,7 @@ pub struct Metadata {
 ///             .write(true)
 ///             .create(true)
 ///             .archive(&sdmc_archive)
-///             .open("foo.txt")
+///     .open("/foo.txt")
 ///             .unwrap();
 /// ```
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -380,12 +390,14 @@ impl File {
     ///
     /// # Examples
     ///
-    /// ```no_run
-    /// use ctru::services::fs::{Fs, File};
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
+    /// use ctru::services::fs::{File, Fs};
     ///
     /// let mut fs =  Fs::new().unwrap();
     /// let mut sdmc_archive = fs.sdmc().unwrap();
-    /// let mut f = File::open(&sdmc_archive, "/foo.txt").unwrap();
+    /// // Non-existent file:
+    /// assert!(File::open(&sdmc_archive, "/foo.txt").is_err());
     /// ```
     pub fn open<P: AsRef<Path>>(arch: &Archive, path: P) -> IoResult<File> {
         OpenOptions::new()
@@ -407,8 +419,9 @@ impl File {
     ///
     /// # Examples
     ///
-    /// ```no_run
-    /// use ctru::services::fs::{Fs, File};
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
+    /// use ctru::services::fs::{File, Fs};
     ///
     /// let mut fs =  Fs::new().unwrap();
     /// let mut sdmc_archive = fs.sdmc().unwrap();

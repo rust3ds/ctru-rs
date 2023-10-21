@@ -3,7 +3,16 @@
 //! The NDSP service is used to handle communications to the DSP processor present on the console's motherboard.
 //! Thanks to the DSP processor the program can play sound effects and music on the console's built-in speakers or to any audio device
 //! connected via the audio jack.
+//!
+//! To use NDSP audio, you will need to dump DSP firmware from a real 3DS using
+//! something like [DSP1](https://www.gamebrew.org/wiki/DSP1_3DS).
+//!
+//! `libctru` expects to find it at `sdmc:/3ds/dspfirm.cdc` when initializing the NDSP service.
 #![doc(alias = "audio")]
+
+// As a result of requiring DSP firmware to initialize, all of the doctests in
+// this module are `no_run`, since Citra doesn't provide a stub for the DSP firmware:
+// https://github.com/citra-emu/citra/issues/6111
 
 pub mod wave;
 use wave::{Status, Wave};
@@ -114,7 +123,8 @@ impl Ndsp {
     /// # Errors
     ///
     /// This function will return an error if an instance of the [`Ndsp`] struct already exists
-    /// or if there are any issues during initialization.
+    /// or if there are any issues during initialization (for example, DSP firmware
+    /// cannot be found. See [module documentation](super::ndsp) for more details.).
     ///
     /// # Example
     ///
@@ -499,14 +509,15 @@ impl Channel<'_> {
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
     /// # use ctru::linear::LinearAllocator;
-    /// use ctru::services::ndsp::{AudioFormat, Ndsp, wave::Wave};
+    /// use ctru::services::ndsp::wave::Wave;
+    /// use ctru::services::ndsp::{AudioFormat, Ndsp};
     /// let ndsp = Ndsp::new()?;
     /// let mut channel_0 = ndsp.channel(0)?;
     ///
-    /// # let _audio_data = Box::new_in([0u8; 96], LinearAllocator);
+    /// # let audio_data = Box::new_in([0u8; 96], LinearAllocator);
     ///
     /// // Provide your own audio data.
-    /// let mut wave = Wave::new(_audio_data, AudioFormat::PCM16Stereo, false);
+    /// let mut wave = Wave::new(audio_data, AudioFormat::PCM16Stereo, false);
     ///
     /// // Clear the audio queue and stop playback.
     /// channel_0.queue_wave(&mut wave);

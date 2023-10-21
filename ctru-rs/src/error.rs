@@ -21,10 +21,11 @@ pub type Result<T> = ::std::result::Result<T, Error>;
 ///
 /// # Example
 ///
-/// ```no_run
+/// ```
 /// use ctru::error::{Result, ResultCode};
 ///
-/// pub fn hid_init() -> Result<()> {
+/// pub fn main() -> Result<()> {
+/// #   let _runner = test_runner::GdbRunner::default();
 ///     // We run an unsafe function which returns a `ctru_sys::Result`.
 ///     let result: ctru_sys::Result = unsafe { ctru_sys::hidInit() };
 ///
