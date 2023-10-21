@@ -27,7 +27,6 @@ jobs:
       - name: Checkout branch
         uses: actions/checkout@v2
 
-      # TODO point to to rust3ds/test-runner once migrated
       - uses: rust3ds/test-runner/setup@v1
         with:
           toolchain: ${{ matrix.toolchain }}
