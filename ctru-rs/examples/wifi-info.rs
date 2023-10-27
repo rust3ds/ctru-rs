@@ -37,6 +37,13 @@ fn print_network_info(ac: &Ac) -> ctru::Result<()> {
     if connected {
         println!("Wi-Fi SSID: {}", ac.get_wifi_ssid()?);
         println!("Wi-Fi security: {:?}", ac.get_wifi_security()?);
+        let proxied = ac.get_proxy_enabled()?;
+        println!("Proxy enabled: {}", proxied);
+        if proxied {
+            println!("Proxy port: {}", ac.get_proxy_port()?);
+            println!("Proxy username: {}", ac.get_proxy_username()?);
+            println!("Proxy password: {}", ac.get_proxy_password()?);
+        }
     }
 
     Ok(())

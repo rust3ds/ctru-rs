@@ -140,8 +140,130 @@ impl Ac {
             let mut len = 0u32;
             ResultCode(ctru_sys::ACU_GetSSIDLength(&mut len))?;
             // we don't really need space for the terminator
-            let mut vec: Vec<u8> = vec![0u8; len as usize];
+            let mut vec = vec![0u8; len as usize];
             ResultCode(ctru_sys::ACU_GetSSID(vec.as_mut_ptr()))?;
+            // how do i handle this error?
+            Ok(String::from_utf8(vec).unwrap())
+        }
+    }
+
+    /// Returns whether the console is connected to a proxy.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::ac::Ac;
+    ///
+    /// let ac = Ac::new()?;
+    /// 
+    /// println!("Proxy enabled: {}", ac.get_proxy_enabled()?);
+    /// 
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[doc(alias = "ACU_GetProxyEnable")]
+    pub fn get_proxy_enabled(&self) -> crate::Result<bool> {
+        unsafe {
+            let mut ret = false;
+            ResultCode(ctru_sys::ACU_GetProxyEnable(&mut ret))?;
+
+            Ok(ret)
+        }
+    }
+
+    /// Returns the connected network's proxy port, if present.
+    ///
+    /// You can check if the console is using a proxy with [`Self::get_proxy_enabled()`]
+    /// 
+    /// # Example
+    ///
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::ac::Ac;
+    ///
+    /// let ac = Ac::new()?;
+    /// 
+    /// println!("Proxy port: {}", ac.get_proxy_port()?);
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[doc(alias = "ACU_GetProxyPort")]
+    pub fn get_proxy_port(&self) -> crate::Result<u32> {
+        unsafe {
+            let mut ret = 0u32;
+            ResultCode(ctru_sys::ACU_GetProxyPort(&mut ret))?;
+
+            Ok(ret)
+        }
+    }
+
+    /// Returns the connected network's proxy username, if present.
+    ///
+    /// You can check if the console is using a proxy with [`Self::get_proxy_enabled()`]
+    /// 
+    /// # Example
+    ///
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::ac::Ac;
+    ///
+    /// let ac = Ac::new()?;
+    /// 
+    /// println!("Proxy username: {}", ac.get_proxy_username()?);
+    /// 
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[doc(alias = "ACU_GetProxyUserName")]
+    pub fn get_proxy_username(&self) -> crate::Result<String> {
+        unsafe {
+            let mut vec = vec![0u8; 0x20];
+            ResultCode(ctru_sys::ACU_GetProxyUserName(vec.as_mut_ptr()))?;
+
+            // how do i handle this error?
+            Ok(String::from_utf8(vec).unwrap())
+        }
+    }
+
+    /// Returns the connected network's proxy password, if present.
+    ///
+    /// You can check if the console is using a proxy with [`Self::get_proxy_enabled()`]
+    /// 
+    /// # Example
+    ///
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::ac::Ac;
+    ///
+    /// let ac = Ac::new()?;
+    /// 
+    /// println!("Proxy password: {}", ac.get_proxy_password()?);
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[doc(alias = "ACU_GetProxyPassword")]
+    pub fn get_proxy_password(&self) -> crate::Result<String> {
+        unsafe {
+            let mut vec = vec![0u8; 0x20];
+            ResultCode(ctru_sys::ACU_GetProxyPassword(vec.as_mut_ptr()))?;
+
             // how do i handle this error?
             Ok(String::from_utf8(vec).unwrap())
         }
