@@ -11,6 +11,7 @@
 //!
 //! In [`ctru-rs`](crate) some services only allow a single handle to be created at a time, to ensure a safe and controlled environment.
 
+pub mod ac;
 pub mod am;
 pub mod apt;
 pub mod cam;
@@ -26,7 +27,6 @@ mod reference;
 pub mod soc;
 pub mod sslc;
 pub mod svc;
-pub mod ac;
 
 cfg_if::cfg_if! {
     if #[cfg(all(feature = "romfs", romfs_exists))] {

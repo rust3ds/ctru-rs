@@ -41,7 +41,7 @@ impl Ac {
     /// use ctru::services::ac::Ac;
     ///
     /// let ac = Ac::new()?;
-    /// 
+    ///
     /// println!("Waiting for an internet connection...");
     /// ac.wait_for_internet_connection()?;
     /// println!("Connected.");
@@ -70,7 +70,7 @@ impl Ac {
     /// use ctru::services::ac::Ac;
     ///
     /// let ac = Ac::new()?;
-    /// 
+    ///
     /// println!("Wi-Fi connected: {}", ac.get_wifi_status()?);
     /// #
     /// # Ok(())
@@ -98,7 +98,7 @@ impl Ac {
     /// use ctru::services::ac::Ac;
     ///
     /// let ac = Ac::new()?;
-    /// 
+    ///
     /// #
     /// # Ok(())
     /// # }
@@ -115,7 +115,7 @@ impl Ac {
     }
 
     /// Returns the SSID of the Wi-Fi network the console is connected to, or error if the console isn't connected to any network.
-    /// 
+    ///
     /// You can check if the console is connected to a network using [`Self::get_wifi_status()`]
     ///
     /// # Example
@@ -128,7 +128,7 @@ impl Ac {
     /// use ctru::services::ac::Ac;
     ///
     /// let ac = Ac::new()?;
-    /// 
+    ///
     /// println!("The console is connected to the network \"{}\"", ac.get_wifi_ssid().unwrap())
     /// #
     /// # Ok(())
@@ -159,9 +159,9 @@ impl Ac {
     /// use ctru::services::ac::Ac;
     ///
     /// let ac = Ac::new()?;
-    /// 
+    ///
     /// println!("Proxy enabled: {}", ac.get_proxy_enabled()?);
-    /// 
+    ///
     /// #
     /// # Ok(())
     /// # }
@@ -179,7 +179,7 @@ impl Ac {
     /// Returns the connected network's proxy port, if present.
     ///
     /// You can check if the console is using a proxy with [`Self::get_proxy_enabled()`]
-    /// 
+    ///
     /// # Example
     ///
     /// ```
@@ -190,7 +190,7 @@ impl Ac {
     /// use ctru::services::ac::Ac;
     ///
     /// let ac = Ac::new()?;
-    /// 
+    ///
     /// println!("Proxy port: {}", ac.get_proxy_port()?);
     /// #
     /// # Ok(())
@@ -209,7 +209,7 @@ impl Ac {
     /// Returns the connected network's proxy username, if present.
     ///
     /// You can check if the console is using a proxy with [`Self::get_proxy_enabled()`]
-    /// 
+    ///
     /// # Example
     ///
     /// ```
@@ -220,9 +220,9 @@ impl Ac {
     /// use ctru::services::ac::Ac;
     ///
     /// let ac = Ac::new()?;
-    /// 
+    ///
     /// println!("Proxy username: {}", ac.get_proxy_username()?);
-    /// 
+    ///
     /// #
     /// # Ok(())
     /// # }
@@ -241,7 +241,7 @@ impl Ac {
     /// Returns the connected network's proxy password, if present.
     ///
     /// You can check if the console is using a proxy with [`Self::get_proxy_enabled()`]
-    /// 
+    ///
     /// # Example
     ///
     /// ```
@@ -252,7 +252,7 @@ impl Ac {
     /// use ctru::services::ac::Ac;
     ///
     /// let ac = Ac::new()?;
-    /// 
+    ///
     /// println!("Proxy password: {}", ac.get_proxy_password()?);
     /// #
     /// # Ok(())
@@ -268,6 +268,34 @@ impl Ac {
             Ok(String::from_utf8(vec).unwrap())
         }
     }
+
+    /*
+    /// Load the selected network slot, if present.
+    ///
+    /// Note: this method requires `ac:i` access
+    /// # Example
+    ///
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::ac::Ac;
+    ///
+    /// let ac = Ac::new()?;
+    ///
+    /// ac.load_network_slot(NetworkSlot::Second)?;
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[doc(alias = "ACI_LoadNetworkSetting")]
+    pub fn load_network_slot(&self, slot: NetworkSlot) -> crate::Result<()> {
+        unsafe {
+            ResultCode(ctru_sys::ACI_LoadNetworkSetting(slot as u32))?;
+            Ok(())
+        }
+    }*/
 }
 
 impl Drop for Ac {
@@ -288,5 +316,15 @@ pub enum SecurityMode {
     WPA_TKIP = 4,
     WPA2_TKIP = 5,
     WPA_AES = 6,
-    WPA2_AES = 7
+    WPA2_AES = 7,
 }
+
+/*
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[repr(u32)]
+pub enum NetworkSlot {
+    First = 0,
+    Second = 1,
+    Third = 2
+}
+*/
