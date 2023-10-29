@@ -7,7 +7,8 @@
 
 use bitflags::bitflags;
 use ctru_sys::{
-    self, swkbdInit, swkbdInputText, swkbdSetButton, swkbdSetFeatures, swkbdSetHintText, SwkbdState,
+    self, swkbdInit, swkbdInputText, swkbdSetButton, swkbdSetFeatures, swkbdSetHintText,
+    swkbdSetInitialText, SwkbdState,
 };
 use libc;
 use std::fmt::Display;
@@ -334,6 +335,30 @@ impl SoftwareKeyboard {
     /// # }
     pub fn set_max_digits(&mut self, digits: u16) {
         self.state.max_digits = digits;
+    }
+
+    /// Set the initial text for this software keyboard.
+    ///
+    /// The initial text is the text already written when you open the software keyboard.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
+    /// # fn main() {
+    /// #
+    /// use ctru::applets::swkbd::SoftwareKeyboard;
+    /// let mut keyboard = SoftwareKeyboard::default();
+    ///
+    /// keyboard.set_initial_text("Write here what you like!");
+    /// #
+    /// # }
+    #[doc(alias = "swkbdSetInitialText")]
+    pub fn set_initial_text(&mut self, text: &str) {
+        unsafe {
+            let nul_terminated: String = text.chars().chain(once('\0')).collect();
+            swkbdSetInitialText(self.state.as_mut(), nul_terminated.as_ptr());
+        }
     }
 
     /// Set the hint text for this software keyboard.
