@@ -1,5 +1,6 @@
 use bindgen::callbacks::ParseCallbacks;
 use bindgen::{Builder, RustTarget};
+use itertools::Itertools;
 
 use std::env;
 use std::error::Error;
@@ -32,19 +33,7 @@ fn main() {
         }
     );
 
-    match check_libctru_version() {
-        Ok((maj, min, patch)) => {
-            eprintln!("using libctru version {maj}.{min}.{patch}");
-
-            // These are accessible by the crate during build with `env!()`.
-            // We might consider exporting some public constants or something.
-            println!("cargo:rustc-env=LIBCTRU_VERSION={maj}.{min}.{patch}");
-            println!("cargo:rustc-env=LIBCTRU_MAJOR={maj}");
-            println!("cargo:rustc-env=LIBCTRU_MINOR={min}");
-            println!("cargo:rustc-env=LIBCTRU_PATCH={patch}");
-        }
-        Err(err) => println!("cargo:warning=failed to check libctru version: {err}"),
-    }
+    detect_and_track_libctru();
 
     let gcc_version = get_gcc_version(PathBuf::from(&devkitarm).join("bin/arm-none-eabi-gcc"));
 
@@ -135,22 +124,39 @@ fn get_gcc_version(path_to_gcc: PathBuf) -> String {
         .to_string()
 }
 
-fn parse_libctru_version(version: &str) -> Result<(String, String, String), &str> {
-    let versions: Vec<_> = version
-        .split(|c| c == '.' || c == '-')
-        .map(String::from)
-        .collect();
+fn detect_and_track_libctru() {
+    let pacman = match which::which("dkp-pacman")
+        .or_else(|err1| which::which("pacman").map_err(|err2| format!("{err1}; {err2}")))
+    {
+        Ok(pacman) => pacman,
+        Err(err) => {
+            println!("cargo:warning=unable to find `pacman` or `dkp-pacman`: {err}");
+            return;
+        }
+    };
 
-    match &versions[..] {
-        [major, minor, patch, _build] => Ok((major.clone(), minor.clone(), patch.clone())),
-        _ => Err("unexpected number of version segments"),
+    match get_libctru_version(&pacman) {
+        Ok((maj, min, patch, rel)) => {
+            eprintln!("using libctru version {maj}.{min}.{patch}-{rel}");
+
+            // These are accessible by the crate during build with `env!()`.
+            // We might consider exporting some public constants or something.
+            println!("cargo:rustc-env=LIBCTRU_VERSION={maj}.{min}.{patch}-{rel}");
+            println!("cargo:rustc-env=LIBCTRU_MAJOR={maj}");
+            println!("cargo:rustc-env=LIBCTRU_MINOR={min}");
+            println!("cargo:rustc-env=LIBCTRU_PATCH={patch}");
+            println!("cargo:rustc-env=LIBCTRU_RELEASE={rel}");
+        }
+        Err(err) => println!("cargo:warning=unknown libctru version: {err}"),
+    }
+
+    if let Err(err) = track_libctru_files(&pacman) {
+        println!("cargo:warning=unable to track `libctru` files for changes: {err}");
     }
 }
 
-fn check_libctru_version() -> Result<(String, String, String), Box<dyn Error>> {
-    let pacman = which::which("dkp-pacman").or_else(|_| which::which("pacman"))?;
-
-    let Output { stdout, .. } = Command::new(&pacman)
+fn get_libctru_version(pacman: &Path) -> Result<(String, String, String, String), Box<dyn Error>> {
+    let Output { stdout, .. } = Command::new(pacman)
         .args(["--query", "libctru"])
         .stderr(Stdio::inherit())
         .output()?;
@@ -159,35 +165,44 @@ fn check_libctru_version() -> Result<(String, String, String), Box<dyn Error>> {
 
     let (_pkg, lib_version) = output_str
         .split_once(char::is_whitespace)
-        .ok_or("unexpected pacman output format")?;
+        .ok_or_else(|| format!("unexpected pacman output format: {output_str:?}"))?;
 
     let lib_version = lib_version.trim();
 
-    let cargo_pkg_version = env::var("CARGO_PKG_VERSION").unwrap();
-    let (_, crate_built_version) = cargo_pkg_version
-        .split_once('+')
-        .expect("crate version should have '+' delimeter");
+    parse_libctru_version(lib_version).map_err(Into::into)
+}
 
-    if lib_version != crate_built_version {
-        return Err(format!(
-            "libctru version is {lib_version} but this crate was built for {crate_built_version}"
-        )
-        .into());
-    }
+fn parse_libctru_version(version: &str) -> Result<(String, String, String, String), String> {
+    version
+        .split(|c| c == '.' || c == '-')
+        .map(String::from)
+        .collect_tuple()
+        .ok_or_else(|| format!("unexpected number of version segments: {version:?}"))
+}
 
-    let Output { stdout, .. } = Command::new(pacman)
+fn track_libctru_files(pacman: &Path) -> Result<(), String> {
+    let stdout = match Command::new(pacman)
         .args(["--query", "--list", "libctru"])
         .stderr(Stdio::inherit())
-        .output()?;
+        .output()
+    {
+        Ok(Output { stdout, status, .. }) if status.success() => stdout,
+        Ok(Output { status, .. }) => {
+            return Err(format!("pacman query failed with status {status}"));
+        }
+        Err(err) => {
+            return Err(format!("pacman query failed: {err}"));
+        }
+    };
 
-    for line in String::from_utf8_lossy(&stdout).split('\n') {
+    for line in String::from_utf8_lossy(&stdout).trim().split('\n') {
         let Some((_pkg, file)) = line.split_once(char::is_whitespace) else {
+            println!("cargo:warning=unexpected line from pacman query: {line:?}");
             continue;
         };
 
         println!("cargo:rerun-if-changed={file}");
     }
 
-    let (lib_major, lib_minor, lib_patch) = parse_libctru_version(lib_version)?;
-    Ok((lib_major, lib_minor, lib_patch))
+    Ok(())
 }
