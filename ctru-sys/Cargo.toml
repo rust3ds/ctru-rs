@@ -21,6 +21,10 @@ doxygen-rs = "0.4.2"
 itertools = "0.11.0"
 which = "4.4.0"
 
+[dev-dependencies]
+shim-3ds = { git = "https://github.com/rust3ds/shim-3ds.git" }
+test-runner = { git = "https://github.com/rust3ds/test-runner.git" }
+
 [package.metadata.docs.rs]
 default-target = "armv6k-nintendo-3ds"
 targets = []

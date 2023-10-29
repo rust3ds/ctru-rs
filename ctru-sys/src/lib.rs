@@ -3,6 +3,8 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 #![allow(clippy::all)]
+#![cfg_attr(test, feature(custom_test_frameworks))]
+#![cfg_attr(test, test_runner(test_runner::run_gdb))]
 
 pub mod result;
 pub use result::*;
@@ -15,10 +17,6 @@ pub unsafe fn errno() -> s32 {
     *__errno()
 }
 
-// TODO: not sure if there's a better way to do this, but I have gotten myself
-// with this a couple times so having the hint seems nice to have.
+// Prevent linking errors from the standard `test` library when running `cargo 3ds test --lib`.
 #[cfg(test)]
-compile_error!(concat!(
-    "ctru-sys doesn't have tests and its lib test will fail to build at link time. ",
-    "Try specifying `--package ctru-rs` to build those tests.",
-));
+extern crate shim_3ds;

@@ -19,19 +19,28 @@ impl ParseCallbacks for CustomCallbacks {
 fn main() {
     let devkitpro = env::var("DEVKITPRO").unwrap();
     let devkitarm = env::var("DEVKITARM").unwrap();
-    let profile = env::var("PROFILE").unwrap();
+    let debuginfo = env::var("DEBUG").unwrap();
     let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
 
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-env-changed=DEVKITPRO");
     println!("cargo:rustc-link-search=native={devkitpro}/libctru/lib");
-    println!(
-        "cargo:rustc-link-lib=static={}",
-        match profile.as_str() {
-            "debug" => "ctrud",
-            _ => "ctru",
-        }
-    );
+
+    let linked_libctru = match debuginfo.as_str() {
+        // Normally this should just be "true" or "false", but just in case,
+        // we don't support all the different options documented in
+        // https://doc.rust-lang.org/cargo/reference/profiles.html#debug
+        // so just default to linking with debuginfo if it wasn't disabled
+        "0" | "false" | "none" => "ctru",
+        // TODO https://github.com/rust3ds/cargo-3ds/issues/14#issuecomment-1783991872
+        // To link properly, this must be the same as the library linked by cargo-3ds
+        // building the standard library,  which is always `ctru` in practice.
+        // Ideally we should link `ctrud` if debug symbols are requested though:
+        _ => "ctru",
+        // _ => "ctrud",
+    };
+
+    println!("cargo:rustc-link-lib=static={linked_libctru}");
 
     detect_and_track_libctru();
 
