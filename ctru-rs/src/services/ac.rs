@@ -1,6 +1,10 @@
+//! The Automatic Connection (AC) service handles Wi-Fi and network settings.
+//! It can:
+//! - Connect to a network or slot
+//! - Get information about a network, such as its SSID or security settings
 use crate::error::ResultCode;
 
-/// Handle to the AC service, that handles Wi-Fi and network settings.
+/// Handle to the Automatic Connection (AC) service, that handles Wi-Fi and network settings.
 pub struct Ac(());
 
 impl Ac {
@@ -128,7 +132,7 @@ impl Ac {
     ///
     /// let ac = Ac::new()?;
     ///
-    /// println!("The console is connected to the network \"{}\"", ac.get_wifi_ssid().unwrap())
+    /// println!("The console is connected to the network \"{}\"", ac.get_wifi_ssid().unwrap());
     /// #
     /// # Ok(())
     /// # }
@@ -267,34 +271,34 @@ impl Ac {
             Ok(String::from_utf8(vec)?)
         }
     }
-
     /*
-    /// Load the selected network slot, if present.
-    ///
-    /// Note: this method requires `ac:i` access
-    /// # Example
-    ///
-    /// ```
-    /// # let _runner = test_runner::GdbRunner::default();
-    /// # use std::error::Error;
-    /// # fn main() -> Result<(), Box<dyn Error>> {
-    /// #
-    /// use ctru::services::ac::Ac;
-    ///
-    /// let ac = Ac::new()?;
-    ///
-    /// ac.load_network_slot(NetworkSlot::Second)?;
-    /// #
-    /// # Ok(())
-    /// # }
-    /// ```
-    #[doc(alias = "ACI_LoadNetworkSetting")]
-    pub fn load_network_slot(&self, slot: NetworkSlot) -> crate::Result<()> {
-        unsafe {
-            ResultCode(ctru_sys::ACI_LoadNetworkSetting(slot as u32))?;
-            Ok(())
+        /// Load the selected network slot, if present.
+        ///
+        /// Note: this method requires `ac:i` access
+        /// # Example
+        ///
+        /// ```
+        /// # let _runner = test_runner::GdbRunner::default();
+        /// # use std::error::Error;
+        /// # fn main() -> Result<(), Box<dyn Error>> {
+        /// #
+        /// use ctru::services::ac::Ac;
+        ///
+        /// let ac = Ac::new()?;
+        ///
+        /// ac.load_network_slot(NetworkSlot::Second)?;
+        /// #
+        /// # Ok(())
+        /// # }
+        /// ```
+        #[doc(alias = "ACI_LoadNetworkSetting")]
+        pub fn load_network_slot(&self, slot: NetworkSlot) -> crate::Result<()> {
+            unsafe {
+                ResultCode(ctru_sys::ACI_LoadNetworkSetting(slot as u32))?;
+                Ok(())
+            }
         }
-    }*/
+    */
 }
 
 impl Drop for Ac {
@@ -327,13 +331,14 @@ pub enum SecurityMode {
     /// WPA2-AES authentication
     WPA2_AES = ctru_sys::AC_WPA2_AES,
 }
-
 /*
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 #[repr(u32)]
 pub enum NetworkSlot {
     First = 0,
     Second = 1,
-    Third = 2
+    Third = 2,
 }
 */
+
+from_impl!(SecurityMode, ctru_sys::acSecurityMode);
