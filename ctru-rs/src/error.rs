@@ -96,6 +96,8 @@ pub enum Error {
     },
     /// An error that doesn't fit into the other categories.
     Other(String),
+    /// UTF-8 buffer to [String] conversion error
+    Utf8(std::string::FromUtf8Error),
 }
 
 impl Error {
@@ -137,6 +139,12 @@ impl From<ResultCode> for Error {
     }
 }
 
+impl From<std::string::FromUtf8Error> for Error {
+    fn from(err: std::string::FromUtf8Error) -> Self {
+        Error::Utf8(err)
+    }
+}
+
 impl fmt::Debug for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
@@ -157,6 +165,7 @@ impl fmt::Debug for Error {
                 .field("wanted", wanted)
                 .finish(),
             Self::Other(err) => f.debug_tuple("Other").field(err).finish(),
+            Self::Utf8(e) => f.debug_tuple("Utf8").field(e).finish(),
         }
     }
 }
@@ -181,6 +190,7 @@ impl fmt::Display for Error {
             }
             Self::BufferTooShort{provided, wanted} => write!(f, "the provided buffer's length is too short (length = {provided}) to hold the wanted data (size = {wanted})"),
             Self::Other(err) => write!(f, "{err}"),
+            Self::Utf8(e) => write!(f, "UTF-8 conversion error: {e}")
         }
     }
 }

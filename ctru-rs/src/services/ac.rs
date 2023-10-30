@@ -1,7 +1,4 @@
 use crate::error::ResultCode;
-use std::ffi::CString;
-use std::io::Write;
-use std::marker::PhantomData;
 pub struct Ac(());
 
 impl Ac {
@@ -43,7 +40,7 @@ impl Ac {
     /// let ac = Ac::new()?;
     ///
     /// println!("Waiting for an internet connection...");
-    /// ac.wait_for_internet_connection()?;
+    /// ac.wait_internet_connection()?;
     /// println!("Connected.");
     /// #
     /// # Ok(())
@@ -143,7 +140,7 @@ impl Ac {
             let mut vec = vec![0u8; len as usize];
             ResultCode(ctru_sys::ACU_GetSSID(vec.as_mut_ptr()))?;
             // how do i handle this error?
-            Ok(String::from_utf8(vec).unwrap())
+            Ok(String::from_utf8(vec)?)
         }
     }
 
@@ -234,7 +231,7 @@ impl Ac {
             ResultCode(ctru_sys::ACU_GetProxyUserName(vec.as_mut_ptr()))?;
 
             // how do i handle this error?
-            Ok(String::from_utf8(vec).unwrap())
+            Ok(String::from_utf8(vec)?)
         }
     }
 
@@ -265,7 +262,7 @@ impl Ac {
             ResultCode(ctru_sys::ACU_GetProxyPassword(vec.as_mut_ptr()))?;
 
             // how do i handle this error?
-            Ok(String::from_utf8(vec).unwrap())
+            Ok(String::from_utf8(vec)?)
         }
     }
 
@@ -308,6 +305,7 @@ impl Drop for Ac {
 #[doc(alias = "acSecurityMode")]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u32)]
+#[non_exhaustive]
 pub enum SecurityMode {
     Open = 0,
     WEP40Bit = 1,
