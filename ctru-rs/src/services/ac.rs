@@ -1,4 +1,6 @@
 use crate::error::ResultCode;
+
+/// Handle to the AC service, that handles Wi-Fi and network settings.
 pub struct Ac(());
 
 impl Ac {
@@ -306,15 +308,24 @@ impl Drop for Ac {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u32)]
 #[non_exhaustive]
+/// Represents all the supported Wi-Fi security modes.
 pub enum SecurityMode {
-    Open = 0,
-    WEP40Bit = 1,
-    WEP104Bit = 2,
-    WEP128Bit = 3,
-    WPA_TKIP = 4,
-    WPA2_TKIP = 5,
-    WPA_AES = 6,
-    WPA2_AES = 7,
+    /// No authentication
+    Open = ctru_sys::AC_OPEN,
+    /// WEP 40bit authentication
+    WEP40Bit = ctru_sys::AC_WEP_40BIT,
+    /// WEP 104bit authentication
+    WEP104Bit = ctru_sys::AC_WEP_104BIT,
+    /// WEP 128bit authentication
+    WEP128Bit = ctru_sys::AC_WEP_128BIT,
+    /// WPA-TKIP authentication
+    WPA_TKIP = ctru_sys::AC_WPA_TKIP,
+    /// WPA2-TKIP authentication
+    WPA2_TKIP = ctru_sys::AC_WPA2_TKIP,
+    /// WPA-AES authentication
+    WPA_AES = ctru_sys::AC_WPA_AES,
+    /// WPA2-AES authentication
+    WPA2_AES = ctru_sys::AC_WPA2_AES,
 }
 
 /*
