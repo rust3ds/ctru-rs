@@ -21,13 +21,14 @@ pub type Result<T> = ::std::result::Result<T, Error>;
 ///
 /// # Example
 ///
-/// ```no_run
+/// ```
 /// use ctru::error::{Result, ResultCode};
 ///
-/// pub fn hid_init() -> Result<()> {
+/// pub fn main() -> Result<()> {
+/// #   let _runner = test_runner::GdbRunner::default();
 ///     // We run an unsafe function which returns a `ctru_sys::Result`.
 ///     let result: ctru_sys::Result = unsafe { ctru_sys::hidInit() };
-///     
+///
 ///     // The result code is parsed and any possible error gets returned by the function.
 ///     ResultCode(result)?;
 ///     Ok(())
@@ -152,6 +153,8 @@ impl fmt::Debug for Error {
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
+            // TODO: should we consider using ctru_sys::osStrError here as well?
+            // It might do some of the work for us or provide additional details
             &Self::Os(err) => write!(
                 f,
                 "libctru result code 0x{err:08X}: [{} {}] {}: {}",

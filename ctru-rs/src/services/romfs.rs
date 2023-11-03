@@ -45,7 +45,8 @@ impl RomFS {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
@@ -82,11 +83,13 @@ impl RomFS {
 mod tests {
     use super::*;
 
+    // NOTE: this test only passes when run with a .3dsx, which for now requires separate build
+    // and run steps so the 3dsx is built before the runner looks for the executable
     #[test]
     #[should_panic]
     fn romfs_lock() {
         let romfs = RomFS::new().unwrap();
-
+      
         ROMFS_ACTIVE.try_lock().unwrap();
 
         drop(romfs);

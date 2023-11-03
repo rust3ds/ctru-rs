@@ -36,9 +36,10 @@ impl Wave {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
     /// # #![feature(allocator_api)]
     /// # fn main() {
+    /// # let _runner = test_runner::GdbRunner::default();
     /// #
     /// use ctru::linear::LinearAllocator;
     /// use ctru::services::ndsp::{AudioFormat, wave::Wave};
@@ -110,9 +111,10 @@ impl Wave {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
     /// # #![feature(allocator_api)]
     /// # fn main() {
+    /// # let _runner = test_runner::GdbRunner::default();
     /// #
     /// # use ctru::linear::LinearAllocator;
     /// # let _audio_data = Box::new_in([0u8; 96], LinearAllocator);

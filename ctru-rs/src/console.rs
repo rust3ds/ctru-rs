@@ -82,12 +82,13 @@ impl<'screen> Console<'screen> {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
-    /// use ctru::services::gfx::Gfx;
     /// use ctru::console::Console;
+    /// use ctru::services::gfx::Gfx;
     ///
     /// // Initialize graphics (using framebuffers allocated on the HEAP).
     /// let gfx = Gfx::new()?;
@@ -121,7 +122,8 @@ impl<'screen> Console<'screen> {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
@@ -158,7 +160,8 @@ impl<'screen> Console<'screen> {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #

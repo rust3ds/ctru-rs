@@ -16,7 +16,8 @@ impl Apt {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
@@ -44,7 +45,8 @@ impl Apt {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
     /// use std::error::Error;
     /// use ctru::services::apt::Apt;
     ///

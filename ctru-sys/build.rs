@@ -171,7 +171,8 @@ fn check_libctru_version() -> Result<(String, String, String), Box<dyn Error>> {
     if lib_version != crate_built_version {
         Err(format!(
             "libctru version is {lib_version} but this crate was built for {crate_built_version}"
-        ))?;
+        )
+        .into());
     }
 
     let Output { stdout, .. } = Command::new(pacman)
