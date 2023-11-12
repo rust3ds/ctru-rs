@@ -83,7 +83,7 @@ fn main() {
                 .take_picture(&mut buf, WAIT_TIMEOUT)
                 .expect("Failed to take picture");
 
-            let image_size = camera.final_view_size();
+            let (width, height) = camera.final_view_size();
 
             // Play the normal shutter sound.
             cam.play_shutter_sound(ShutterSound::Normal)
@@ -96,16 +96,16 @@ fn main() {
                 rotate_image_to_screen(
                     &buf,
                     left_side.raw_framebuffer().ptr,
-                    image_size.0 as usize,
-                    image_size.1 as usize,
+                    width as usize,
+                    height as usize,
                 );
 
                 // Rotate the right image and correctly display it on the screen.
                 rotate_image_to_screen(
                     &buf[len / 2..],
                     right_side.raw_framebuffer().ptr,
-                    image_size.0 as usize,
-                    image_size.1 as usize,
+                    width as usize,
+                    height as usize,
                 );
             }
 

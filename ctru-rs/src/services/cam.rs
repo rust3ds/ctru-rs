@@ -633,7 +633,7 @@ pub trait Camera: private::ConfigurableCamera {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #

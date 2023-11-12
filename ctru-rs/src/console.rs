@@ -209,7 +209,7 @@ impl<'screen> Console<'screen> {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
@@ -264,7 +264,7 @@ impl<'screen> Console<'screen> {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
@@ -288,14 +288,14 @@ impl<'screen> Console<'screen> {
     pub fn reset_window(&mut self) {
         let width = self.max_width();
 
-        unsafe { consoleSetWindow(self.context.as_mut(), 0, 0, width.into(), 30) };
+        self.set_window(0, 0, width, 30).unwrap();
     }
 
     /// Returns this [`Console`]'s maximum character width depending on the screen used.
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #

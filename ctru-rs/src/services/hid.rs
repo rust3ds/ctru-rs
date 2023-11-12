@@ -81,12 +81,35 @@ bitflags! {
 }
 
 /// Error enum for generic errors within the [`Hid`] service.
+#[non_exhaustive]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum Error {
     /// An attempt was made to access the accelerometer while disabled.
     UnavailableAccelerometer,
     /// An attempt was made to access the gyroscope while disabled.
     UnavailableGyroscope,
+}
+
+/// Representation of the acceleration vector read by the accelerometer.
+///
+/// Have a look at [`Hid::enable_accelerometer()`] for more information.
+#[allow(missing_docs)]
+#[derive(Default, Copy, Clone, Debug, PartialEq, Eq)]
+pub struct Acceleration {
+    x: i16,
+    y: i16,
+    z: i16,
+}
+
+/// Representation of the angular rate read by the gyroscope.
+///
+/// Have a look at [`Hid::enable_gyroscope())`] for more information.
+#[allow(missing_docs)]
+#[derive(Default, Copy, Clone, Debug, PartialEq, Eq)]
+pub struct AngularRate {
+    roll: i16,
+    pitch: i16,
+    yaw: i16,
 }
 
 /// Handle to the HID service.
@@ -336,7 +359,7 @@ impl Hid {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
@@ -365,7 +388,7 @@ impl Hid {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
@@ -373,28 +396,30 @@ impl Hid {
     /// let mut hid = Hid::new()?;
     ///
     /// // The accelerometer will start to register movements.
-    /// hid.set_accelerometer(true);
+    /// hid.set_accelerometer(true).unwrap();
     /// #
     /// # Ok(())
     /// # }
     /// ```
     #[doc(alias = "HIDUSER_EnableAccelerometer")]
     #[doc(alias = "HIDUSER_DisableAccelerometer")]
-    pub fn set_accelerometer(&mut self, enabled: bool) {
+    pub fn set_accelerometer(&mut self, enabled: bool) -> crate::Result<()> {
         if enabled {
-            let _ = unsafe { ctru_sys::HIDUSER_EnableAccelerometer() };
+            ResultCode(unsafe { ctru_sys::HIDUSER_EnableAccelerometer() })?;
         } else {
-            let _ = unsafe { ctru_sys::HIDUSER_DisableAccelerometer() };
+            ResultCode(unsafe { ctru_sys::HIDUSER_DisableAccelerometer() })?;
         }
 
         self.active_accelerometer = enabled;
+
+        Ok(())
     }
 
     /// Activate/deactivate the console's gyroscopic sensor.
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
@@ -402,24 +427,26 @@ impl Hid {
     /// let mut hid = Hid::new()?;
     ///
     /// // The gyroscope will start to register positions.
-    /// hid.set_gyroscope(true);
+    /// hid.set_gyroscope(true).unwrap();
     /// #
     /// # Ok(())
     /// # }
     /// ```
     #[doc(alias = "HIDUSER_EnableGyroscope")]
     #[doc(alias = "HIDUSER_DisableGyroscope")]
-    pub fn set_gyroscope(&mut self, enabled: bool) {
+    pub fn set_gyroscope(&mut self, enabled: bool) -> crate::Result<()> {
         if enabled {
-            let _ = unsafe { ctru_sys::HIDUSER_EnableGyroscope() };
+            ResultCode(unsafe { ctru_sys::HIDUSER_EnableGyroscope() })?;
         } else {
-            let _ = unsafe { ctru_sys::HIDUSER_DisableGyroscope() };
+            ResultCode(unsafe { ctru_sys::HIDUSER_DisableGyroscope() })?;
         }
 
         self.active_gyroscope = enabled;
+
+        Ok(())
     }
 
-    /// Returns the acceleration vector (x,y,z) registered by the accelerometer.
+    /// Returns the acceleration vector (x, y, z) registered by the accelerometer.
     ///
     /// # Errors
     ///
@@ -428,7 +455,7 @@ impl Hid {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
@@ -436,7 +463,7 @@ impl Hid {
     /// let mut hid = Hid::new()?;
     ///
     /// // The accelerometer will start to register movements.
-    /// hid.set_accelerometer(true);
+    /// hid.set_accelerometer(true).unwrap();
     ///
     /// // It's necessary to run `scan_input()` to update the accelerometer's readings.
     /// hid.scan_input();
@@ -448,7 +475,7 @@ impl Hid {
     /// # }
     /// ```
     #[doc(alias = "hidAccelRead")]
-    pub fn accelerometer_vector(&self) -> Result<(i16, i16, i16), Error> {
+    pub fn accelerometer_vector(&self) -> Result<Acceleration, Error> {
         if !self.active_accelerometer {
             return Err(Error::UnavailableAccelerometer);
         }
@@ -459,10 +486,14 @@ impl Hid {
             ctru_sys::hidAccelRead(&mut res);
         }
 
-        Ok((res.x, res.y, res.z))
+        Ok(Acceleration {
+            x: res.x,
+            y: res.y,
+            z: res.z,
+        })
     }
 
-    /// Returns the angular rate (roll,pitch,yaw) registered by the gyroscope.
+    /// Returns the angular rate registered by the gyroscope.
     ///
     /// # Errors
     ///
@@ -471,7 +502,7 @@ impl Hid {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
@@ -479,7 +510,7 @@ impl Hid {
     /// let mut hid = Hid::new()?;
     ///
     /// // The gyroscope will start to register positions.
-    ///  hid.set_gyroscope(true);
+    ///  hid.set_gyroscope(true).unwrap();
     ///
     /// // It's necessary to run `scan_input()` to update the gyroscope's readings.
     /// hid.scan_input();
@@ -491,7 +522,7 @@ impl Hid {
     /// # }
     /// ```
     #[doc(alias = "hidGyroRead")]
-    pub fn gyroscope_rate(&self) -> Result<(i16, i16, i16), Error> {
+    pub fn gyroscope_rate(&self) -> Result<AngularRate, Error> {
         if !self.active_gyroscope {
             return Err(Error::UnavailableGyroscope);
         }
@@ -502,7 +533,23 @@ impl Hid {
             ctru_sys::hidGyroRead(&mut res);
         }
 
-        Ok((res.x, res.y, res.z))
+        Ok(AngularRate {
+            roll: res.x,
+            pitch: res.y,
+            yaw: res.z,
+        })
+    }
+}
+
+impl From<Acceleration> for (i16, i16, i16) {
+    fn from(value: Acceleration) -> (i16, i16, i16) {
+        (value.x, value.y, value.z)
+    }
+}
+
+impl From<AngularRate> for (i16, i16, i16) {
+    fn from(value: AngularRate) -> (i16, i16, i16) {
+        (value.roll, value.pitch, value.yaw)
     }
 }
 

@@ -350,11 +350,11 @@ impl Gfx {
     /// By initializing the [`Gfx`] service as such, all functionality that relies on CPU manipulation of the framebuffers will
     /// be completely unavailable (usually resulting in an ARM panic if wrongly used).
     ///
-    /// Things such as [`Console`](crate::console::Console) and [`Screen::raw_framebuffer()`] will result in ARM exceptions.
+    /// Usage of functionality such as [`Console`](crate::console::Console) and [`Screen::raw_framebuffer()`] will result in ARM exceptions.
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #

@@ -76,7 +76,6 @@ pub fn use_panic_handler() {
 /// When `test` is enabled, this function will be ignored.
 #[cfg(not(test))]
 fn panic_hook_setup() {
-    use crate::services::hid::KeyPad;
     use std::panic::PanicInfo;
 
     let main_thread = std::thread::current().id();
@@ -88,27 +87,9 @@ fn panic_hook_setup() {
 
         // Only for panics in the main thread
         if main_thread == std::thread::current().id() && console::Console::exists() {
-            println!("\nPress SELECT to exit the software");
+            println!("\nThe software will exit in 5 seconds");
 
-            // Due to how the Hid service operates, we can't safely use 2 handles to it at the same time.
-            // Furthermore, the panic hook runs before the panic cleanup is done, which means that any other handles
-            // to the service will still be alive during this process.
-            // Regardless, we can "unsafely" spin up a new instance, since the module won't be used any further from the main process,
-            // which is going to get cleaned up right after this loop.
-            unsafe {
-                let _ = ctru_sys::hidInit();
-
-                loop {
-                    ctru_sys::hidScanInput();
-                    let keys = ctru_sys::hidKeysDown();
-
-                    if KeyPad::from_bits_truncate(keys).contains(KeyPad::SELECT) {
-                        break;
-                    }
-                }
-
-                ctru_sys::hidExit();
-            }
+            std::thread::sleep(std::time::Duration::from_secs(5));
         }
     });
     std::panic::set_hook(new_hook);

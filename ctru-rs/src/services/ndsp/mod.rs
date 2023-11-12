@@ -85,6 +85,7 @@ pub enum InterpolationType {
 }
 
 /// Errors returned by [`ndsp`](self) functions.
+#[non_exhaustive]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum Error {
     /// Channel with the specified ID does not exist.

@@ -19,8 +19,10 @@ fn main() {
     // Activate the accelerometer and the gyroscope.
     // Because of the complex nature of the movement sensors, they aren't activated by default with the `Hid` service.
     // However, they can simply be turned on and off whenever necessary.
-    hid.set_accelerometer(true);
-    hid.set_gyroscope(true);
+    hid.set_accelerometer(true)
+        .expect("Couldn't activate accelerometer");
+    hid.set_gyroscope(true)
+        .expect("Couldn't activate gyroscope");
 
     while apt.main_loop() {
         // Scan all the controller inputs.
@@ -34,13 +36,17 @@ fn main() {
         // Be careful: reading without activating the sensors (as done before this loop) will result in a panic.
         println!(
             "\x1b[3;0HAcceleration: {:?}              ",
-            hid.accelerometer_vector()
-                .expect("could not retrieve acceleration vector")
+            Into::<(i16, i16, i16)>::into(
+                hid.accelerometer_vector()
+                    .expect("could not retrieve acceleration vector")
+            )
         );
         println!(
             "\x1b[4;0HGyroscope angular rate: {:?}              ",
-            hid.gyroscope_rate()
-                .expect("could not retrieve angular rate")
+            Into::<(i16, i16, i16)>::into(
+                hid.gyroscope_rate()
+                    .expect("could not retrieve angular rate")
+            )
         );
 
         gfx.wait_for_vblank();
