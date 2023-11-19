@@ -53,7 +53,7 @@ fn main() {
             .expect("Failed to enable auto white balance");
         // This line has no effect on the camera since the photos are already shot with `TopLCD` size.
         camera
-            .set_trimming(Trimming::Centered(ViewSize::TopLCD))
+            .set_trimming(Trimming::new_centered_with_view(ViewSize::TopLCD))
             .expect("Failed to enable trimming");
     }
 

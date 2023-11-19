@@ -231,11 +231,18 @@ pub enum ShutterSound {
 }
 
 /// Configuration to handle image trimming.
+///
+/// See [`Trimming::new_centered()`] and the other associated methods for controlled
+/// ways of configuring trimming.
 #[non_exhaustive]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Trimming {
     /// Trimming configuration relatively to the center of the image.
-    Centered(ViewSize),
+    #[allow(missing_docs)]
+    Centered{
+        width: i16,
+        height: i16,
+    },
     /// Trimming disabled.
     Off,
 }
@@ -653,7 +660,7 @@ pub trait Camera: private::ConfigurableCamera {
     /// ```
     fn final_view_size(&self) -> (i16, i16) {
         match self.trimming() {
-            Trimming::Centered(trim_size) => trim_size.into(),
+            Trimming::Centered{width, height} => (width, height),
             Trimming::Off => self.view_size().into(),
         }
     }
@@ -667,22 +674,24 @@ pub trait Camera: private::ConfigurableCamera {
     ///
     /// # Notes
     ///
-    /// Trimming the image view directly on the cameras can only work if the final image has the size of one of the supported image formats.
-    /// As such, even after trimming the image (which will result in a "zoomed in" view of the original image)
-    /// the resulting picture must still be of [`ViewSize`] dimensions.
+    /// Setting up a [`Trimming`] configurations that exceeds the bounds of the original
+    /// image's size will result in the trimming to be clamped to the maximum borders of the image.
+    /// Also, the final image size must have a pixel area multiple of 128,
+    /// otherwise the "status_changed" error may be returned.
     #[doc(alias = "CAMU_SetTrimming")]
     fn set_trimming(&mut self, trimming: Trimming) -> crate::Result<()> {
-        // Run checks for all trimming possibilities.
         match trimming {
-            Trimming::Centered(trim_size) => unsafe {
+            Trimming::Centered{width, height} => unsafe {
                 let view_size: (i16, i16) = self.view_size().into();
-                let trim_size: (i16, i16) = trim_size.into();
+                let mut trim_size: (i16, i16) = (width, height);
 
-                // Trim sizes are within the view.
-                assert!(
-                    trim_size.0 <= view_size.0 && trim_size.1 <= view_size.1,
-                    "trimmed view is bigger than the camera view"
-                );
+                if trim_size.0 > view_size.0 {
+                    trim_size.0 = view_size.0;
+                };
+
+                if trim_size.1 > view_size.1 {
+                    trim_size.1 = view_size.1;
+                };
 
                 ResultCode(ctru_sys::CAMU_SetTrimming(self.port_as_raw(), true))?;
 
@@ -1087,6 +1096,34 @@ pub trait Camera: private::ConfigurableCamera {
         };
 
         Ok(())
+    }
+}
+
+impl Trimming {
+    /// Create a new [`Trimming`] configuration using width and height centered to the original image.
+    ///
+    /// # Panics
+    /// 
+    /// This function will panic if the pixel area of the new configuration (`width * height`)
+    /// is not a multiple of 128.
+    pub fn new_centered(width: i16, height: i16) -> Self {
+        // Pixel area must be a multiple of 128.
+        assert!((width * height) % 128 == 0);
+        
+        Self::Centered {
+            width,
+            height,
+        }
+    }
+
+    /// Create a new [`Trimming`] configuration using a standard view size centered to the original image.
+    pub fn new_centered_with_view(size: ViewSize) -> Self {
+        let size: (i16, i16) = size.into();
+
+        Self::Centered {
+            width: size.0,
+            height: size.1,
+        }
     }
 }
 
