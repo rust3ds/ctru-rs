@@ -239,10 +239,7 @@ pub enum ShutterSound {
 pub enum Trimming {
     /// Trimming configuration relatively to the center of the image.
     #[allow(missing_docs)]
-    Centered{
-        width: i16,
-        height: i16,
-    },
+    Centered { width: i16, height: i16 },
     /// Trimming disabled.
     Off,
 }
@@ -660,7 +657,7 @@ pub trait Camera: private::ConfigurableCamera {
     /// ```
     fn final_view_size(&self) -> (i16, i16) {
         match self.trimming() {
-            Trimming::Centered{width, height} => (width, height),
+            Trimming::Centered { width, height } => (width, height),
             Trimming::Off => self.view_size().into(),
         }
     }
@@ -681,7 +678,7 @@ pub trait Camera: private::ConfigurableCamera {
     #[doc(alias = "CAMU_SetTrimming")]
     fn set_trimming(&mut self, trimming: Trimming) -> crate::Result<()> {
         match trimming {
-            Trimming::Centered{width, height} => unsafe {
+            Trimming::Centered { width, height } => unsafe {
                 let view_size: (i16, i16) = self.view_size().into();
                 let mut trim_size: (i16, i16) = (width, height);
 
@@ -1103,17 +1100,14 @@ impl Trimming {
     /// Create a new [`Trimming`] configuration using width and height centered to the original image.
     ///
     /// # Panics
-    /// 
+    ///
     /// This function will panic if the pixel area of the new configuration (`width * height`)
     /// is not a multiple of 128.
     pub fn new_centered(width: i16, height: i16) -> Self {
         // Pixel area must be a multiple of 128.
         assert!((width * height) % 128 == 0);
-        
-        Self::Centered {
-            width,
-            height,
-        }
+
+        Self::Centered { width, height }
     }
 
     /// Create a new [`Trimming`] configuration using a standard view size centered to the original image.

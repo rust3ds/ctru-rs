@@ -92,7 +92,7 @@ pub enum Error {
 
 /// Representation of the acceleration vector read by the accelerometer.
 ///
-/// Have a look at [`Hid::enable_accelerometer()`] for more information.
+/// Have a look at [`Hid::set_accelerometer()`] for more information.
 #[allow(missing_docs)]
 #[derive(Default, Copy, Clone, Debug, PartialEq, Eq)]
 pub struct Acceleration {
@@ -103,7 +103,7 @@ pub struct Acceleration {
 
 /// Representation of the angular rate read by the gyroscope.
 ///
-/// Have a look at [`Hid::enable_gyroscope())`] for more information.
+/// Have a look at [`Hid::set_gyroscope()`] for more information.
 #[allow(missing_docs)]
 #[derive(Default, Copy, Clone, Debug, PartialEq, Eq)]
 pub struct AngularRate {
