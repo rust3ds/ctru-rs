@@ -669,26 +669,22 @@ pub trait Camera: private::ConfigurableCamera {
 
     /// Set trimming bounds to trim the camera photo.
     ///
-    /// # Notes
+    /// # Panics
     ///
     /// Setting up a [`Trimming`] configurations that exceeds the bounds of the original
-    /// image's size will result in the trimming to be clamped to the maximum borders of the image.
-    /// Also, the final image size must have a pixel area multiple of 128,
-    /// otherwise the "status_changed" error may be returned.
+    /// image's size will result in a panic.
     #[doc(alias = "CAMU_SetTrimming")]
     fn set_trimming(&mut self, trimming: Trimming) -> crate::Result<()> {
         match trimming {
             Trimming::Centered { width, height } => unsafe {
                 let view_size: (i16, i16) = self.view_size().into();
-                let mut trim_size: (i16, i16) = (width, height);
+                let trim_size: (i16, i16) = (width, height);
 
-                if trim_size.0 > view_size.0 {
-                    trim_size.0 = view_size.0;
-                };
-
-                if trim_size.1 > view_size.1 {
-                    trim_size.1 = view_size.1;
-                };
+                // Check whether the trim size is within the view.
+                assert!(
+                    trim_size.0 <= view_size.0 && trim_size.1 <= view_size.1,
+                    "trimmed view is bigger than the camera view",
+                );
 
                 ResultCode(ctru_sys::CAMU_SetTrimming(self.port_as_raw(), true))?;
 
