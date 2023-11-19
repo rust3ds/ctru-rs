@@ -647,7 +647,7 @@ pub trait Camera: private::ConfigurableCamera {
     /// let mut inward = &mut cam.inner_cam;
     ///
     /// // We trim the image down so that it fits on a DS screen!
-    /// inward.set_trimming(Trimming::Centered(ViewSize::DS));
+    /// inward.set_trimming(Trimming::new_centered_with_view(ViewSize::DS));
     ///
     /// // This result will take into account the trimming.
     /// let final_resolution = inward.final_view_size();
