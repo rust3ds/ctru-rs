@@ -669,6 +669,11 @@ pub trait Camera: private::ConfigurableCamera {
 
     /// Set trimming bounds to trim the camera photo.
     ///
+    /// # Notes
+    ///
+    /// The trimmed image must have a pixel area of (`width * height`) multiple of 128.
+    /// If not, a raw `libctru` error may be returned.
+    ///
     /// # Panics
     ///
     /// Setting up a [`Trimming`] configurations that exceeds the bounds of the original
