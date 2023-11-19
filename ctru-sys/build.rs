@@ -19,26 +19,35 @@ impl ParseCallbacks for CustomCallbacks {
 fn main() {
     let devkitpro = env::var("DEVKITPRO").unwrap();
     let devkitarm = env::var("DEVKITARM").unwrap();
-    let debuginfo = env::var("DEBUG").unwrap();
     let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
 
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-env-changed=DEVKITPRO");
     println!("cargo:rustc-link-search=native={devkitpro}/libctru/lib");
 
-    let linked_libctru = match debuginfo.as_str() {
-        // Normally this should just be "true" or "false", but just in case,
-        // we don't support all the different options documented in
-        // https://doc.rust-lang.org/cargo/reference/profiles.html#debug
-        // so just default to linking with debuginfo if it wasn't disabled
-        "0" | "false" | "none" => "ctru",
-        // TODO https://github.com/rust3ds/cargo-3ds/issues/14#issuecomment-1783991872
-        // To link properly, this must be the same as the library linked by cargo-3ds
-        // building the standard library,  which is always `ctru` in practice.
-        // Ideally we should link `ctrud` if debug symbols are requested though:
-        _ => "ctru",
-        // _ => "ctrud",
-    };
+    // https://github.com/rust3ds/cargo-3ds/issues/14#issuecomment-1783991872
+    // To link properly, this must be the same as the library linked by cargo-3ds when building
+    // the standard library, so if `-lctru[d]` is found in RUSTFLAGS we always defer to that
+    // https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-sets-for-build-scripts
+    let cargo_rustflags = env::var("CARGO_ENCODED_RUSTFLAGS").unwrap();
+    let rustflags_libctru = cargo_rustflags
+        .split('\x1F')
+        // Technically this  could also be `-l ctru`, or `-lstatic=ctru` etc.
+        // but for now we'll just rely on cargo-3ds implementation to pass it like this
+        .find(|flag| flag.starts_with("-lctru"))
+        .and_then(|flag| flag.strip_prefix("-l"));
+
+    let linked_libctru = rustflags_libctru.unwrap_or_else(|| {
+        let debuginfo = env::var("DEBUG").unwrap();
+        match debuginfo.as_str() {
+            // Normally this should just be "true" or "false", but just in case,
+            // we don't support all the different options documented in
+            // https://doc.rust-lang.org/cargo/reference/profiles.html#debug
+            // so just default to linking with debuginfo if it wasn't disabled
+            "0" | "false" | "none" => "ctru",
+            _ => "ctrud",
+        }
+    });
 
     println!("cargo:rustc-link-lib=static={linked_libctru}");
 
