@@ -321,21 +321,7 @@ impl Gfx {
         top_fb_fmt: FramebufferFormat,
         bottom_fb_fmt: FramebufferFormat,
     ) -> Result<Self> {
-        let handler = ServiceReference::new(
-            &GFX_ACTIVE,
-            || unsafe {
-                ctru_sys::gfxInit(top_fb_fmt.into(), bottom_fb_fmt.into(), false);
-
-                Ok(())
-            },
-            || unsafe { ctru_sys::gfxExit() },
-        )?;
-
-        Ok(Self {
-            top_screen: RefCell::new(TopScreen::new()),
-            bottom_screen: RefCell::new(BottomScreen),
-            _service_handler: handler,
-        })
+        Self::with_configuration(top_fb_fmt, bottom_fb_fmt, false)
     }
 
     /// Initialize a new service handle with the chosen framebuffer formats on the VRAM for the top and bottom screens.
@@ -372,10 +358,19 @@ impl Gfx {
         top_fb_fmt: FramebufferFormat,
         bottom_fb_fmt: FramebufferFormat,
     ) -> Result<Self> {
+        Self::with_configuration(top_fb_fmt, bottom_fb_fmt, true)
+    }
+
+    // Internal function to handle the initialization of `Gfx`.
+    fn with_configuration(
+        top_fb_fmt: FramebufferFormat,
+        bottom_fb_fmt: FramebufferFormat,
+        vram_buffer: bool,
+    ) -> Result<Self> {
         let handler = ServiceReference::new(
             &GFX_ACTIVE,
             || unsafe {
-                ctru_sys::gfxInit(top_fb_fmt.into(), bottom_fb_fmt.into(), true);
+                ctru_sys::gfxInit(top_fb_fmt.into(), bottom_fb_fmt.into(), vram_buffer);
 
                 Ok(())
             },
