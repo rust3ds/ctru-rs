@@ -36,7 +36,7 @@ fn main() {
         // Be careful: reading without activating the sensors (as done before this loop) will result in a panic.
         println!(
             "\x1b[3;0HAcceleration: {:?}              ",
-            Into::<(i16, i16, i16)>::into(
+            <(i16, i16, i16)>::from(
                 hid.accelerometer_vector()
                     .expect("could not retrieve acceleration vector")
             )
