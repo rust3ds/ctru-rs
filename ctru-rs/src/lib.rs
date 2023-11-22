@@ -56,55 +56,6 @@ macro_rules! from_impl {
     };
 }
 
-/// Activate the custom [`ctru-rs`](crate) panic handler.
-///
-/// With this implementation, the main thread will stop and try to print debug info to an available [`Console`](console::Console).
-/// In case it fails to find an active [`Console`](console::Console) the program will just exit.
-///
-/// # Notes
-///
-/// When `test` is enabled, this function will not do anything, as its behaviour should be overridden by the `test` environment.
-pub fn use_panic_handler() {
-    #[cfg(not(test))]
-    panic_hook_setup();
-}
-
-/// Internal protocol to activate the custom panic handler hook.
-///
-/// # Notes
-///
-/// When `test` is enabled, this function will be ignored.
-#[cfg(not(test))]
-fn panic_hook_setup() {
-    use crate::services::hid::{Hid, KeyPad};
-    use std::panic::PanicInfo;
-
-    let main_thread = std::thread::current().id();
-
-    // Panic Hook setup
-    let default_hook = std::panic::take_hook();
-    let new_hook = Box::new(move |info: &PanicInfo| {
-        default_hook(info);
-
-        // Only for panics in the main thread
-        if main_thread == std::thread::current().id() && console::Console::exists() {
-            println!("\nPress SELECT to exit the software");
-
-            match Hid::new() {
-                Ok(mut hid) => loop {
-                    hid.scan_input();
-                    let keys = hid.keys_down();
-                    if keys.contains(KeyPad::SELECT) {
-                        break;
-                    }
-                },
-                Err(e) => println!("Error while intializing Hid controller during panic: {e}"),
-            }
-        }
-    });
-    std::panic::set_hook(new_hook);
-}
-
 pub mod applets;
 pub mod console;
 pub mod error;

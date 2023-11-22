@@ -8,8 +8,6 @@ use ctru::services::am::Am;
 use ctru::services::fs::FsMediaType;
 
 fn main() {
-    ctru::use_panic_handler();
-
     let gfx = Gfx::new().expect("Couldn't obtain GFX controller");
     let mut hid = Hid::new().expect("Couldn't obtain HID controller");
     let apt = Apt::new().expect("Couldn't obtain APT controller");
@@ -58,19 +56,17 @@ fn main() {
 
         if hid.keys_down().intersects(KeyPad::DOWN) {
             if offset + 1 < cur_list.len() {
-                offset = offset + 1;
+                offset += 1;
                 refresh = true;
             }
-        } else if hid.keys_down().intersects(KeyPad::UP) {
-            if offset > 0 {
-                offset = offset - 1;
-                refresh = true;
-            }
+        } else if hid.keys_down().intersects(KeyPad::UP) && offset > 0 {
+            offset -= 1;
+            refresh = true;
         }
 
         // Render the title list via a scrollable text UI.
         if refresh {
-            let mut selected_title = cur_list.iter().skip(offset).next().unwrap();
+            let mut selected_title = cur_list.get(offset).unwrap();
 
             // Clear the top screen and write title IDs to it.
             top_screen.select();

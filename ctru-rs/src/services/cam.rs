@@ -6,12 +6,18 @@
 
 use crate::error::{Error, ResultCode};
 use crate::services::gspgpu::FramebufferFormat;
+use crate::services::ServiceReference;
 use ctru_sys::Handle;
+use private::Configuration;
+
+use std::sync::Mutex;
 use std::time::Duration;
 
+static CAM_ACTIVE: Mutex<()> = Mutex::new(());
+
 /// Handle to the Camera service.
-#[non_exhaustive]
 pub struct Cam {
+    _service_handler: ServiceReference,
     /// Inside-facing camera.
     pub inner_cam: InwardCam,
     /// Outside-facing right camera.
@@ -105,7 +111,7 @@ pub enum FrameRate {
 
 /// White balance settings.
 ///
-/// See [`Camera::set_white_balance()`] and [`Camera::set_white_balance_without_base_up()`] to learn how to use this.
+/// See [`Camera::set_white_balance()`] to learn how to use this.
 #[doc(alias = "CAMU_WhiteBalance")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
@@ -224,83 +230,127 @@ pub enum ShutterSound {
     MovieEnd = ctru_sys::SHUTTER_SOUND_TYPE_MOVIE_END,
 }
 
-/// Parameters to handle image trimming.
+/// Configuration to handle image trimming.
 ///
-/// See [`Camera::set_trimming_params()`] to learn how to use this.
+/// See [`Trimming::new_centered()`] and the other associated methods for controlled
+/// ways of configuring trimming.
+#[non_exhaustive]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub struct TrimmingParams {
-    x_start: i16,
-    y_start: i16,
-    x_end: i16,
-    y_end: i16,
-}
-
-impl TrimmingParams {
-    /// Creates a new [`TrimmingParams`] and guarantees the start coordinates are less than or
-    /// equal to the end coordinates.
-    ///
-    /// # Panics
-    ///
-    /// This function panics if the start coordinates are larger than the end coordinates (for each axis).
-    pub fn new(x_start: i16, y_start: i16, x_end: i16, y_end: i16) -> TrimmingParams {
-        assert!(x_start <= x_end && y_start <= y_end);
-        Self {
-            x_start,
-            y_start,
-            x_end,
-            y_end,
-        }
-    }
+pub enum Trimming {
+    /// Trimming configuration relatively to the center of the image.
+    #[allow(missing_docs)]
+    Centered { width: i16, height: i16 },
+    /// Trimming disabled.
+    Off,
 }
 
 /// Data used by the camera to calibrate image quality for a single camera.
+// TODO: Implement Image quality calibration.
 #[doc(alias = "CAMU_ImageQualityCalibrationData")]
 #[derive(Default, Clone, Copy, Debug)]
-pub struct ImageQualityCalibrationData(pub ctru_sys::CAMU_ImageQualityCalibrationData);
+pub struct ImageQualityCalibration(pub ctru_sys::CAMU_ImageQualityCalibrationData);
 
 /// Data used by the camera to calibrate image quality when using both outward cameras.
 // TODO: Implement Stereo camera calibration.
 #[doc(alias = "CAMU_StereoCameraCalibrationData")]
 #[derive(Default, Clone, Copy, Debug)]
-pub struct StereoCameraCalibrationData(pub ctru_sys::CAMU_StereoCameraCalibrationData);
+pub struct StereoCameraCalibration(ctru_sys::CAMU_StereoCameraCalibrationData);
 
 /// Inward camera representation (facing the user of the 3DS).
 ///
 /// Usually used for selfies.
-#[non_exhaustive]
-pub struct InwardCam;
-
-impl Camera for InwardCam {
-    fn camera_as_raw(&self) -> ctru_sys::u32_ {
-        ctru_sys::SELECT_IN1
-    }
+pub struct InwardCam {
+    configuration: Configuration,
 }
 
 /// Right-side outward camera representation.
-#[non_exhaustive]
-pub struct OutwardRightCam;
-
-impl Camera for OutwardRightCam {
-    fn camera_as_raw(&self) -> ctru_sys::u32_ {
-        ctru_sys::SELECT_OUT1
-    }
+pub struct OutwardRightCam {
+    configuration: Configuration,
 }
 
 /// Left-side outward camera representation.
-#[non_exhaustive]
-pub struct OutwardLeftCam;
-
-impl Camera for OutwardLeftCam {
-    fn camera_as_raw(&self) -> ctru_sys::u32_ {
-        ctru_sys::SELECT_OUT2
-    }
+pub struct OutwardLeftCam {
+    configuration: Configuration,
 }
 
 /// Both outer cameras combined.
 ///
 /// Usually used for 3D photos.
-#[non_exhaustive]
-pub struct BothOutwardCam;
+pub struct BothOutwardCam {
+    configuration: Configuration,
+}
+
+mod private {
+    use super::{BothOutwardCam, InwardCam, OutwardLeftCam, OutwardRightCam, Trimming, ViewSize};
+
+    /// Basic configuration needed to properly use the built-in cameras.
+    #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+    pub struct Configuration {
+        pub view_size: ViewSize,
+        pub trimming: Trimming,
+    }
+
+    impl Configuration {
+        pub fn new() -> Self {
+            Self::default()
+        }
+    }
+
+    impl Default for Configuration {
+        fn default() -> Self {
+            Self {
+                view_size: ViewSize::TopLCD,
+                trimming: Trimming::Off,
+            }
+        }
+    }
+
+    pub trait ConfigurableCamera {
+        fn configuration(&self) -> &Configuration;
+
+        fn configuration_mut(&mut self) -> &mut Configuration;
+    }
+
+    impl ConfigurableCamera for InwardCam {
+        fn configuration(&self) -> &Configuration {
+            &self.configuration
+        }
+
+        fn configuration_mut(&mut self) -> &mut Configuration {
+            &mut self.configuration
+        }
+    }
+
+    impl ConfigurableCamera for OutwardRightCam {
+        fn configuration(&self) -> &Configuration {
+            &self.configuration
+        }
+
+        fn configuration_mut(&mut self) -> &mut Configuration {
+            &mut self.configuration
+        }
+    }
+
+    impl ConfigurableCamera for OutwardLeftCam {
+        fn configuration(&self) -> &Configuration {
+            &self.configuration
+        }
+
+        fn configuration_mut(&mut self) -> &mut Configuration {
+            &mut self.configuration
+        }
+    }
+
+    impl ConfigurableCamera for BothOutwardCam {
+        fn configuration(&self) -> &Configuration {
+            &self.configuration
+        }
+
+        fn configuration_mut(&mut self) -> &mut Configuration {
+            &mut self.configuration
+        }
+    }
+}
 
 impl BothOutwardCam {
     /// Set whether to enable or disable brightness synchronization between the two cameras.
@@ -313,8 +363,62 @@ impl BothOutwardCam {
             ResultCode(ctru_sys::CAMU_SetBrightnessSynchronization(
                 brightness_synchronization,
             ))?;
-            Ok(())
         }
+
+        Ok(())
+    }
+
+    #[doc(alias = "CAMU_GetStereoCameraCalibrationData")]
+    /// Returns the currently set [`StereoCameraCalibration`].
+    pub fn stereo_calibration(&self) -> crate::Result<StereoCameraCalibration> {
+        let mut calibration = StereoCameraCalibration::default();
+
+        unsafe {
+            ResultCode(ctru_sys::CAMU_GetStereoCameraCalibrationData(
+                &mut calibration.0,
+            ))?;
+        }
+
+        Ok(calibration)
+    }
+
+    #[doc(alias = "CAMU_SetStereoCameraCalibrationData")]
+    /// Set the [`StereoCameraCalibration`].
+    // TODO: This seems to have no effect.
+    pub fn set_stereo_calibration(
+        &mut self,
+        mut stereo_calibration: StereoCameraCalibration,
+    ) -> crate::Result<()> {
+        let view_size = self.final_view_size();
+
+        stereo_calibration.0.imageWidth = view_size.0;
+        stereo_calibration.0.imageHeight = view_size.1;
+
+        unsafe {
+            ResultCode(ctru_sys::CAMU_SetStereoCameraCalibrationData(
+                stereo_calibration.0,
+            ))?;
+        }
+
+        Ok(())
+    }
+}
+
+impl Camera for InwardCam {
+    fn camera_as_raw(&self) -> ctru_sys::u32_ {
+        ctru_sys::SELECT_IN1
+    }
+}
+
+impl Camera for OutwardRightCam {
+    fn camera_as_raw(&self) -> ctru_sys::u32_ {
+        ctru_sys::SELECT_OUT1
+    }
+}
+
+impl Camera for OutwardLeftCam {
+    fn camera_as_raw(&self) -> ctru_sys::u32_ {
+        ctru_sys::SELECT_OUT2
     }
 }
 
@@ -326,13 +430,131 @@ impl Camera for BothOutwardCam {
     fn port_as_raw(&self) -> ctru_sys::u32_ {
         ctru_sys::PORT_BOTH
     }
+
+    fn take_picture(&mut self, buffer: &mut [u8], timeout: Duration) -> crate::Result<()> {
+        // Check whether the provided buffer is big enough to store the image.
+        let max_size = self.final_byte_length();
+        if buffer.len() < max_size {
+            return Err(Error::BufferTooShort {
+                provided: buffer.len(),
+                wanted: max_size,
+            });
+        }
+
+        let final_view = self.final_view_size();
+
+        // The transfer unit is NOT the "max number of bytes" or whatever the docs make you think it is...
+        let transfer_unit = unsafe {
+            let mut transfer_unit = 0;
+
+            ResultCode(ctru_sys::CAMU_GetMaxBytes(
+                &mut transfer_unit,
+                final_view.0,
+                final_view.1,
+            ))?;
+
+            transfer_unit
+        };
+
+        unsafe {
+            ResultCode(ctru_sys::CAMU_SetTransferBytes(
+                self.port_as_raw(),
+                transfer_unit,
+                final_view.0,
+                final_view.1,
+            ))?;
+        };
+
+        unsafe {
+            ResultCode(ctru_sys::CAMU_Activate(self.camera_as_raw()))?;
+            ResultCode(ctru_sys::CAMU_ClearBuffer(self.port_as_raw()))?;
+        };
+
+        // Synchronize the two cameras.
+        unsafe {
+            ResultCode(ctru_sys::CAMU_SynchronizeVsyncTiming(
+                ctru_sys::SELECT_OUT1,
+                ctru_sys::SELECT_OUT2,
+            ))?;
+        }
+
+        // Start capturing with the camera.
+        unsafe {
+            ResultCode(ctru_sys::CAMU_StartCapture(self.port_as_raw()))?;
+        };
+
+        let receive_event_1 = unsafe {
+            let mut completion_handle: Handle = 0;
+
+            ResultCode(ctru_sys::CAMU_SetReceiving(
+                &mut completion_handle,
+                buffer.as_mut_ptr().cast(),
+                ctru_sys::PORT_CAM1,
+                (max_size / 2) as u32,
+                transfer_unit.try_into().unwrap(),
+            ))?;
+
+            completion_handle
+        };
+
+        let receive_event_2 = unsafe {
+            let mut completion_handle: Handle = 0;
+
+            ResultCode(ctru_sys::CAMU_SetReceiving(
+                &mut completion_handle,
+                buffer[max_size / 2..].as_mut_ptr().cast(),
+                ctru_sys::PORT_CAM2,
+                (max_size / 2) as u32,
+                transfer_unit.try_into().unwrap(),
+            ))?;
+
+            completion_handle
+        };
+
+        unsafe {
+            // Panicking without closing an SVC handle causes an ARM exception, we have to handle it carefully.
+            let wait_result_1 = ResultCode(ctru_sys::svcWaitSynchronization(
+                receive_event_1,
+                timeout.as_nanos().try_into().unwrap(),
+            ));
+
+            let wait_result_2 = ResultCode(ctru_sys::svcWaitSynchronization(
+                receive_event_2,
+                timeout.as_nanos().try_into().unwrap(),
+            ));
+
+            // We close everything first, then we check for possible errors
+            let _ = ctru_sys::svcCloseHandle(receive_event_1); // We wouldn't return the error even if there was one, so no use of ResultCode is needed.
+            let _ = ctru_sys::svcCloseHandle(receive_event_2);
+
+            // Camera state cleanup
+            ResultCode(ctru_sys::CAMU_StopCapture(self.port_as_raw()))?;
+            ResultCode(ctru_sys::CAMU_ClearBuffer(self.port_as_raw()))?;
+            ResultCode(ctru_sys::CAMU_Activate(ctru_sys::SELECT_NONE))?;
+
+            wait_result_1?;
+            wait_result_2?;
+        };
+
+        Ok(())
+    }
 }
 
 /// Generic functionality common to all cameras.
-// TODO: Change "set true/set parameters" scheme (classic of C code) into a single "set parameter" scheme using enums. This is valid for stuff such as [`TrimmingParams`]
-pub trait Camera {
+pub trait Camera: private::ConfigurableCamera {
     /// Returns the raw value of the selected camera.
     fn camera_as_raw(&self) -> ctru_sys::u32_;
+
+    /// Returns view size of the selected camera.
+    ///
+    /// # Notes
+    ///
+    /// This view is the full resolution at which the camera will take the photo.
+    /// If you are interested in the final image's size, calculated while taking into account all processing and modifications,
+    /// have a look at [`Camera::final_view_size()`].
+    fn view_size(&self) -> ViewSize {
+        self.configuration().view_size
+    }
 
     /// Returns the raw port of the selected camera.
     fn port_as_raw(&self) -> ctru_sys::u32_ {
@@ -368,8 +590,13 @@ pub trait Camera {
         }
     }
 
-    /// Returns the maximum amount of transfer bytes based on the view size, trimming, and other
+    /// Returns the maximum amount of bytes the final image will occupy in memory based on the view size, trimming, pixel depth and other
     /// modifications set to the camera.
+    ///
+    /// # Notes
+    ///
+    /// The value returned will be double the image size if requested by [`BothOutwardCam`].
+    /// Remember to query this information again if *any* changes are applied to the [`Camera`] configuration!
     ///
     /// # Example
     ///
@@ -383,115 +610,114 @@ pub trait Camera {
     ///
     /// let inward = &cam.inner_cam;
     ///
-    /// // Inward cam is not busy since it is not being used.
-    /// let transfer_count = inward.transfer_byte_count();
+    /// let transfer_count = inward.final_byte_length();
     /// #
     /// # Ok(())
     /// # }
     /// ```
-    #[doc(alias = "CAMU_GetTransferBytes")]
-    fn transfer_byte_count(&self) -> crate::Result<u32> {
-        unsafe {
-            let mut transfer_bytes = 0;
-            ResultCode(ctru_sys::CAMU_GetTransferBytes(
-                &mut transfer_bytes,
-                self.port_as_raw(),
-            ))?;
-            Ok(transfer_bytes)
+    fn final_byte_length(&self) -> usize {
+        let size = self.final_view_size();
+
+        let mut res: usize = (size.0 as usize * size.1 as usize) * std::mem::size_of::<i16>();
+
+        // If we are taking a picture using both outwards cameras, we need to expect 2 images, rather than just 1
+        if self.port_as_raw() == ctru_sys::PORT_BOTH {
+            res *= 2;
+        }
+
+        res
+    }
+
+    /// Returns the dimensions of the final image based on the view size, trimming and other
+    /// modifications set to the camera.
+    ///
+    /// # Notes
+    ///
+    /// Remember to query this information again if *any* changes are applied to the [`Camera`] configuration!
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::cam::{Cam, Camera, Trimming, ViewSize};
+    /// let mut cam = Cam::new()?;
+    ///
+    /// let mut inward = &mut cam.inner_cam;
+    ///
+    /// // We trim the image down so that it fits on a DS screen!
+    /// inward.set_trimming(Trimming::new_centered_with_view(ViewSize::DS));
+    ///
+    /// // This result will take into account the trimming.
+    /// let final_resolution = inward.final_view_size();
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
+    fn final_view_size(&self) -> (i16, i16) {
+        match self.trimming() {
+            Trimming::Centered { width, height } => (width, height),
+            Trimming::Off => self.view_size().into(),
         }
     }
 
-    /// Set whether or not the camera should trim the image.
+    /// Returns the [`Trimming`] configuration currently set.
+    fn trimming(&self) -> Trimming {
+        self.configuration().trimming
+    }
+
+    /// Set trimming bounds to trim the camera photo.
     ///
-    /// [`TrimmingParams`] can be set via [`Camera::set_trimming_params`].
+    /// # Notes
+    ///
+    /// The trimmed image must have a pixel area of (`width * height`) multiple of 128.
+    /// If not, a raw `libctru` error may be returned.
+    ///
+    /// # Panics
+    ///
+    /// Setting up a [`Trimming`] configurations that exceeds the bounds of the original
+    /// image's size will result in a panic.
     #[doc(alias = "CAMU_SetTrimming")]
-    fn set_trimming(&mut self, enabled: bool) -> crate::Result<()> {
-        unsafe {
-            ResultCode(ctru_sys::CAMU_SetTrimming(self.port_as_raw(), enabled))?;
-            Ok(())
+    fn set_trimming(&mut self, trimming: Trimming) -> crate::Result<()> {
+        match trimming {
+            Trimming::Centered { width, height } => unsafe {
+                let view_size: (i16, i16) = self.view_size().into();
+                let trim_size: (i16, i16) = (width, height);
+
+                // Check whether the trim size is within the view.
+                assert!(
+                    trim_size.0 <= view_size.0 && trim_size.1 <= view_size.1,
+                    "trimmed view is bigger than the camera view",
+                );
+
+                ResultCode(ctru_sys::CAMU_SetTrimming(self.port_as_raw(), true))?;
+
+                ResultCode(ctru_sys::CAMU_SetTrimmingParamsCenter(
+                    self.port_as_raw(),
+                    trim_size.0,
+                    trim_size.1,
+                    view_size.0,
+                    view_size.1,
+                ))?;
+            },
+            Trimming::Off => unsafe {
+                ResultCode(ctru_sys::CAMU_SetTrimming(self.port_as_raw(), false))?;
+            },
         }
+
+        self.configuration_mut().trimming = trimming;
+
+        Ok(())
     }
 
     /// Returns whether or not trimming is currently enabled for the camera.
     #[doc(alias = "CAMU_IsTrimming")]
-    fn is_trimming_enabled(&self) -> crate::Result<bool> {
-        unsafe {
-            let mut trimming = false;
-            ResultCode(ctru_sys::CAMU_IsTrimming(&mut trimming, self.port_as_raw()))?;
-            Ok(trimming)
-        }
+    fn is_trimming(&self) -> bool {
+        matches!(self.trimming(), Trimming::Off)
     }
 
-    /// Set trimming bounds based on image coordinates.
-    ///
-    /// For trimming to take effect it is required to pass `true` into [`Camera::set_trimming()`].
-    #[doc(alias = "CAMU_SetTrimmingParams")]
-    fn set_trimming_params(&mut self, params: TrimmingParams) -> crate::Result<()> {
-        unsafe {
-            ResultCode(ctru_sys::CAMU_SetTrimmingParams(
-                self.port_as_raw(),
-                params.x_start,
-                params.y_start,
-                params.x_end,
-                params.y_end,
-            ))?;
-            Ok(())
-        }
-    }
-
-    /// Returns the [`TrimmingParams`] currently set.
-    #[doc(alias = "CAMU_GetTrimmingParams")]
-    fn trimming_params(&self) -> crate::Result<TrimmingParams> {
-        unsafe {
-            let mut x_start = 0;
-            let mut y_start = 0;
-            let mut x_end = 0;
-            let mut y_end = 0;
-            ResultCode(ctru_sys::CAMU_GetTrimmingParams(
-                &mut x_start,
-                &mut y_start,
-                &mut x_end,
-                &mut y_end,
-                self.port_as_raw(),
-            ))?;
-
-            Ok(TrimmingParams {
-                x_start,
-                y_start,
-                x_end,
-                y_end,
-            })
-        }
-    }
-
-    /// Set the trimming bounds relatively to the center of the image.
-    ///
-    /// # Notes
-    ///
-    /// The new width will be `trim_width / 2` to the left and right of the center.
-    /// The new height will be `trim_height / 2` above and below the center.
-    // TODO: This function doesn't use `TrimmingParams`. It'd be better to merge it with `set_trimming_params()` and change the `TrimmingParams` representation.
-    #[doc(alias = "CAMU_SetTrimmingParamsCenter")]
-    fn set_trimming_params_center(
-        &mut self,
-        trim_width: i16,
-        trim_height: i16,
-        cam_width: i16,
-        cam_height: i16,
-    ) -> crate::Result<()> {
-        unsafe {
-            ResultCode(ctru_sys::CAMU_SetTrimmingParamsCenter(
-                self.port_as_raw(),
-                trim_width,
-                trim_height,
-                cam_width,
-                cam_height,
-            ))?;
-            Ok(())
-        }
-    }
-
-    /// Set the exposure level of the camera.å
+    /// Set the exposure level of the camera.
     #[doc(alias = "CAMU_SetExposure")]
     fn set_exposure(&mut self, exposure: i8) -> crate::Result<()> {
         unsafe {
@@ -505,22 +731,6 @@ pub trait Camera {
     fn set_white_balance(&mut self, white_balance: WhiteBalance) -> crate::Result<()> {
         unsafe {
             ResultCode(ctru_sys::CAMU_SetWhiteBalance(
-                self.camera_as_raw(),
-                white_balance.into(),
-            ))?;
-            Ok(())
-        }
-    }
-
-    /// Set the white balance of the camera.
-    // TODO: Explain what "without base up" means.
-    #[doc(alias = "CAMU_SetWhiteBalanceWithoutBaseUp")]
-    fn set_white_balance_without_base_up(
-        &mut self,
-        white_balance: WhiteBalance,
-    ) -> crate::Result<()> {
-        unsafe {
-            ResultCode(ctru_sys::CAMU_SetWhiteBalanceWithoutBaseUp(
                 self.camera_as_raw(),
                 white_balance.into(),
             ))?;
@@ -562,31 +772,6 @@ pub trait Camera {
         }
     }
 
-    /// Set whether auto white balance is enabled or disabled for the camera.
-    #[doc(alias = "CAMU_SetAutoWhiteBalance")]
-    fn set_auto_white_balance(&mut self, enabled: bool) -> crate::Result<()> {
-        unsafe {
-            ResultCode(ctru_sys::CAMU_SetAutoWhiteBalance(
-                self.camera_as_raw(),
-                enabled,
-            ))?;
-            Ok(())
-        }
-    }
-
-    /// Returns `true` if auto white balance is enabled for the camera.
-    #[doc(alias = "CAMU_IsAutoWhiteBalance")]
-    fn is_auto_white_balance_enabled(&self) -> crate::Result<bool> {
-        unsafe {
-            let mut enabled = false;
-            ResultCode(ctru_sys::CAMU_IsAutoWhiteBalance(
-                &mut enabled,
-                self.camera_as_raw(),
-            ))?;
-            Ok(enabled)
-        }
-    }
-
     /// Set the flip mode of the camera's image.
     #[doc(alias = "CAMU_FlipImage")]
     fn flip_image(&mut self, flip: FlipMode) -> crate::Result<()> {
@@ -600,43 +785,11 @@ pub trait Camera {
         }
     }
 
-    /// Set the image resolution of the camera in detail.
-    ///
-    /// # Errors
-    ///
-    /// This function will error if the coordinates of the first crop point are greater than the
-    /// coordinates of the second crop point.
-    ///
-    /// # Arguments
-    ///
-    /// * `width` - Width of the image
-    /// * `height` - height of the image
-    /// * `crop_0` - The first crop point in which the image will be trimmed
-    /// * `crop_1` - The second crop point in which the image will be trimmed
-    #[doc(alias = "CAMU_SetDetailSize")]
-    fn set_detail_size(
-        &mut self,
-        width: i16,
-        height: i16,
-        crop_0: (i16, i16),
-        crop_1: (i16, i16),
-    ) -> crate::Result<()> {
-        unsafe {
-            ResultCode(ctru_sys::CAMU_SetDetailSize(
-                self.camera_as_raw(),
-                width,
-                height,
-                crop_0.0,
-                crop_0.1,
-                crop_1.0,
-                crop_1.1,
-                ctru_sys::CONTEXT_A,
-            ))?;
-            Ok(())
-        }
-    }
-
     /// Set the view size of the camera.
+    ///
+    /// # Notes
+    ///
+    /// Calling this function will reset the trimming configuration.
     #[doc(alias = "CAMU_SetSize")]
     fn set_view_size(&mut self, size: ViewSize) -> crate::Result<()> {
         unsafe {
@@ -645,8 +798,13 @@ pub trait Camera {
                 size.into(),
                 ctru_sys::CONTEXT_A,
             ))?;
-            Ok(())
         }
+
+        self.configuration_mut().view_size = size;
+
+        self.set_trimming(Trimming::Off)?;
+
+        Ok(())
     }
 
     /// Set the frame rate of the camera.
@@ -677,8 +835,7 @@ pub trait Camera {
     ///
     /// # Notes
     ///
-    /// This operation will override any previously set [`Effect`]s.
-    /// Multiple effects can be set at once by combining the bitflags of [`Effect`].
+    /// This operation will override any previously set [`Effect`].
     #[doc(alias = "CAMU_SetEffect")]
     fn set_effect(&mut self, effect: Effect) -> crate::Result<()> {
         unsafe {
@@ -797,11 +954,11 @@ pub trait Camera {
         }
     }
 
-    /// Set the [`ImageQualityCalibrationData`] for the camera.
+    /// Set the [`ImageQualityCalibration`] for the camera.
     #[doc(alias = "CAMU_SetImageQualityCalibrationData")]
-    fn set_image_quality_calibration_data(
+    fn set_image_quality_calibration(
         &mut self,
-        data: ImageQualityCalibrationData,
+        data: ImageQualityCalibration,
     ) -> crate::Result<()> {
         unsafe {
             ResultCode(ctru_sys::CAMU_SetImageQualityCalibrationData(data.0))?;
@@ -809,23 +966,13 @@ pub trait Camera {
         }
     }
 
-    /// Returns the current [`ImageQualityCalibrationData`] for the camera.
+    /// Returns the current [`ImageQualityCalibration`] for the camera.
     #[doc(alias = "CAMU_GetImageQualityCalibrationData")]
-    fn image_quality_calibration_data(&self) -> crate::Result<ImageQualityCalibrationData> {
+    fn image_quality_calibration(&self) -> crate::Result<ImageQualityCalibration> {
         unsafe {
-            let mut data = ImageQualityCalibrationData::default();
+            let mut data = ImageQualityCalibration::default();
             ResultCode(ctru_sys::CAMU_GetImageQualityCalibrationData(&mut data.0))?;
             Ok(data)
-        }
-    }
-
-    /// Set the camera as the current sleep camera.
-    // TODO: Explain sleep camera
-    #[doc(alias = "CAMU_SetSleepCamera")]
-    fn set_sleep_camera(&mut self) -> crate::Result<()> {
-        unsafe {
-            ResultCode(ctru_sys::CAMU_SetSleepCamera(self.camera_as_raw()))?;
-            Ok(())
         }
     }
 
@@ -833,13 +980,13 @@ pub trait Camera {
     ///
     /// # Errors
     ///
-    /// This function will return an error if the camera is busy or if the timeout duration gets reached.
+    /// This function will return an error if the camera is already busy or if the timeout duration is reached.
     ///
-    /// # Arguments
+    /// # Notes
     ///
-    /// * `width` - Width of the desired image
-    /// * `height` - Height of the desired image
-    /// * `timeout` - Duration to wait for the image
+    /// If the picture is taken using [`BothOutwardCam`], the buffer will have to be able to hold both images
+    /// (from each camera), which will be written into it sequentially.
+    /// Use [`Camera::final_byte_length()`] to know how big the buffer needs to be to hold your next image.
     ///
     /// # Example
     ///
@@ -849,91 +996,98 @@ pub trait Camera {
     /// # use std::time::Duration;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
-    /// use ctru::services::cam::{Cam, Camera, OutputFormat, ViewSize};
+    /// use ctru::services::cam::{Cam, Camera, ViewSize, OutputFormat, WhiteBalance};
     /// let mut cam = Cam::new()?;
     ///
     /// // We borrow the inward facing `Camera`.
-    /// let inward = &mut cam.inner_cam;
+    /// let camera = &mut cam.inner_cam;
     ///
-    /// inward.set_view_size(ViewSize::TopLCD)?;
-    /// inward.set_output_format(OutputFormat::Rgb565)?;
-    /// inward.set_noise_filter(true)?;
-    /// inward.set_auto_exposure(true)?;
-    /// inward.set_auto_white_balance(true)?;
+    /// camera.set_view_size(ViewSize::TopLCD)?;
+    /// camera.set_output_format(OutputFormat::Rgb565)?;
+    /// camera.set_noise_filter(true)?;
+    /// camera.set_auto_exposure(true)?;
+    /// camera.set_white_balance(WhiteBalance::Auto)?;
     ///
     /// // Size of the top screen buffer at 2 bytes per pixel (RGB565).
-    /// let mut buffer = vec![0; 400*240*2];
+    /// let mut buffer = vec![0; camera.final_byte_length()];
     ///
     /// // Take picture with 3 seconds of timeout.
-    /// inward.take_picture(&mut buffer, 400, 240, Duration::from_secs(3));
+    /// camera.take_picture(&mut buffer, Duration::from_secs(3));
     /// #
     /// # Ok(())
     /// # }
     /// ```
-    // TODO: This should use the value passed within `set_view_size` rather than arbitrary `width` and `height` values.
-    //       Furthermore, it's pretty unclear what the "default" view size is. What happens if the user doesn't set it before taking the picture?
-    fn take_picture(
-        &mut self,
-        buffer: &mut [u8],
-        width: u16,
-        height: u16,
-        timeout: Duration,
-    ) -> crate::Result<()> {
+    fn take_picture(&mut self, buffer: &mut [u8], timeout: Duration) -> crate::Result<()> {
+        // Check whether the provided buffer is big enough to store the image.
+        let max_size = self.final_byte_length();
+        if buffer.len() < max_size {
+            return Err(Error::BufferTooShort {
+                provided: buffer.len(),
+                wanted: max_size,
+            });
+        }
+
+        let final_view = self.final_view_size();
+
+        // The transfer unit is NOT the "max number of bytes" or whatever the docs make you think it is...
         let transfer_unit = unsafe {
-            let mut buf_size = 0;
+            let mut transfer_unit = 0;
+
             ResultCode(ctru_sys::CAMU_GetMaxBytes(
-                &mut buf_size,
-                width as i16,
-                height as i16,
+                &mut transfer_unit,
+                final_view.0,
+                final_view.1,
             ))?;
-            Ok::<u32, i32>(buf_size)
-        }?;
+
+            transfer_unit
+        };
 
         unsafe {
             ResultCode(ctru_sys::CAMU_SetTransferBytes(
                 self.port_as_raw(),
                 transfer_unit,
-                width as i16,
-                height as i16,
+                final_view.0,
+                final_view.1,
             ))?;
         };
-
-        let screen_size: usize = usize::from(width) * usize::from(height) * 2;
-        if buffer.len() < screen_size {
-            return Err(Error::BufferTooShort {
-                provided: buffer.len(),
-                wanted: screen_size,
-            });
-        }
 
         unsafe {
             ResultCode(ctru_sys::CAMU_Activate(self.camera_as_raw()))?;
             ResultCode(ctru_sys::CAMU_ClearBuffer(self.port_as_raw()))?;
-            ResultCode(ctru_sys::CAMU_StartCapture(self.port_as_raw()))?;
         };
 
         let receive_event = unsafe {
             let mut completion_handle: Handle = 0;
+
             ResultCode(ctru_sys::CAMU_SetReceiving(
                 &mut completion_handle,
                 buffer.as_mut_ptr().cast(),
                 self.port_as_raw(),
-                screen_size as u32,
+                max_size as u32,
                 transfer_unit.try_into().unwrap(),
             ))?;
-            Ok::<Handle, i32>(completion_handle)
-        }?;
+
+            completion_handle
+        };
+
+        // Start capturing with the camera.
+        unsafe {
+            ResultCode(ctru_sys::CAMU_StartCapture(self.port_as_raw()))?;
+        };
 
         unsafe {
-            // Panicking without closing an SVC handle causes an ARM exception, we have to handle it carefully (TODO: SVC module)
+            // Panicking without closing an SVC handle causes an ARM exception, we have to handle it carefully.
             let wait_result = ResultCode(ctru_sys::svcWaitSynchronization(
                 receive_event,
                 timeout.as_nanos().try_into().unwrap(),
             ));
 
             // We close everything first, then we check for possible errors
-            let _ = ctru_sys::svcCloseHandle(receive_event); // We wouldn't return the error even if there was one, so no use of ResultCode is needed
+            let _ = ctru_sys::svcCloseHandle(receive_event); // We wouldn't return the error even if there was one, so no use of ResultCode is needed.
+
+            // Camera state cleanup
             ResultCode(ctru_sys::CAMU_StopCapture(self.port_as_raw()))?;
+            ResultCode(ctru_sys::CAMU_ClearBuffer(self.port_as_raw()))?;
             ResultCode(ctru_sys::CAMU_Activate(ctru_sys::SELECT_NONE))?;
 
             wait_result?;
@@ -943,8 +1097,38 @@ pub trait Camera {
     }
 }
 
+impl Trimming {
+    /// Create a new [`Trimming`] configuration using width and height centered to the original image.
+    ///
+    /// # Panics
+    ///
+    /// This function will panic if the pixel area of the new configuration (`width * height`)
+    /// is not a multiple of 128.
+    pub fn new_centered(width: i16, height: i16) -> Self {
+        // Pixel area must be a multiple of 128.
+        assert!((width * height) % 128 == 0);
+
+        Self::Centered { width, height }
+    }
+
+    /// Create a new [`Trimming`] configuration using a standard view size centered to the original image.
+    pub fn new_centered_with_view(size: ViewSize) -> Self {
+        let size: (i16, i16) = size.into();
+
+        Self::Centered {
+            width: size.0,
+            height: size.1,
+        }
+    }
+}
+
 impl Cam {
     /// Initialize a new service handle.
+    ///
+    /// # Notes
+    ///
+    /// All cameras default to taking photos with [`ViewSize::TopLCD`] and [`OutputFormat::Yuv422`].
+    /// Have a look at [`Camera::set_view_size()`] and [`Camera::set_output_format()`] to change these settings.
     ///
     /// # Errors
     ///
@@ -968,15 +1152,37 @@ impl Cam {
     /// ```
     #[doc(alias = "camInit")]
     pub fn new() -> crate::Result<Cam> {
-        unsafe {
-            ResultCode(ctru_sys::camInit())?;
-            Ok(Cam {
-                inner_cam: InwardCam,
-                outer_right_cam: OutwardRightCam,
-                outer_left_cam: OutwardLeftCam,
-                both_outer_cams: BothOutwardCam,
-            })
-        }
+        let _service_handler = ServiceReference::new(
+            &CAM_ACTIVE,
+            || {
+                ResultCode(unsafe { ctru_sys::camInit() })?;
+
+                Ok(())
+            },
+            || unsafe {
+                ctru_sys::camExit();
+            },
+        )?;
+
+        let configuration = Configuration::new();
+
+        let mut inner_cam = InwardCam { configuration };
+        let mut outer_right_cam = OutwardRightCam { configuration };
+        let mut outer_left_cam = OutwardLeftCam { configuration };
+        let mut both_outer_cams = BothOutwardCam { configuration };
+
+        inner_cam.set_view_size(ViewSize::TopLCD)?;
+        outer_right_cam.set_view_size(ViewSize::TopLCD)?;
+        outer_left_cam.set_view_size(ViewSize::TopLCD)?;
+        both_outer_cams.set_view_size(ViewSize::TopLCD)?;
+
+        Ok(Cam {
+            _service_handler,
+            inner_cam,
+            outer_right_cam,
+            outer_left_cam,
+            both_outer_cams,
+        })
     }
 
     /// Play the specified sound based on the [`ShutterSound`] argument
@@ -1012,13 +1218,6 @@ impl Cam {
     }
 }
 
-impl Drop for Cam {
-    #[doc(alias = "camExit")]
-    fn drop(&mut self) {
-        unsafe { ctru_sys::camExit() };
-    }
-}
-
 impl TryFrom<FramebufferFormat> for OutputFormat {
     type Error = ();
 
@@ -1037,6 +1236,21 @@ impl TryFrom<OutputFormat> for FramebufferFormat {
         match value {
             OutputFormat::Rgb565 => Ok(FramebufferFormat::Rgb565),
             _ => Err(()),
+        }
+    }
+}
+
+impl From<ViewSize> for (i16, i16) {
+    fn from(value: ViewSize) -> Self {
+        match value {
+            ViewSize::TopLCD => (400, 240),
+            ViewSize::BottomLCD => (320, 240),
+            ViewSize::Vga => (640, 480),
+            ViewSize::QQVga => (160, 120),
+            ViewSize::Cif => (352, 288),
+            ViewSize::QCif => (176, 144),
+            ViewSize::DS => (256, 192),
+            ViewSize::DSX4 => (512, 384),
         }
     }
 }

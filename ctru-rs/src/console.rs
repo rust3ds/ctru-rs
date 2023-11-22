@@ -14,6 +14,31 @@ use crate::services::gfx::Screen;
 
 static mut EMPTY_CONSOLE: PrintConsole = unsafe { const_zero::const_zero!(PrintConsole) };
 
+/// Error enum for generic errors within [`Console`].
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum Error {
+    /// The coordinate specified on the given axis exceeds the limits imposed by the [`Console`] window.
+    CoordinateOutOfBounds(Axis),
+    /// The size specified for the given dimension exceeds the limits imposed by the [`Console`] window.
+    DimensionOutOfBounds(Dimension),
+}
+
+/// 2D coordinate axes.
+#[allow(missing_docs)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum Axis {
+    X,
+    Y,
+}
+
+/// 2D dimensions.
+#[allow(missing_docs)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum Dimension {
+    Width,
+    Height,
+}
+
 /// Virtual text console.
 ///
 /// [`Console`] lets the application redirect `stdout` and `stderr` to a simple text displayer on the 3DS screen.
@@ -35,7 +60,7 @@ static mut EMPTY_CONSOLE: PrintConsole = unsafe { const_zero::const_zero!(PrintC
 #[doc(alias = "PrintConsole")]
 pub struct Console<'screen> {
     context: Box<PrintConsole>,
-    _screen: RefMut<'screen, dyn Screen>,
+    screen: RefMut<'screen, dyn Screen>,
 }
 
 impl<'screen> Console<'screen> {
@@ -50,6 +75,11 @@ impl<'screen> Console<'screen> {
     ///
     /// [`Console`] automatically takes care of flushing and swapping buffers for its screen when printing.
     ///
+    /// # Panics
+    ///
+    /// If the [`Gfx`](crate::services::gfx::Gfx) service was initialised via [`Gfx::with_formats_vram()`](crate::services::gfx::Gfx::with_formats_vram)
+    /// this function will crash the program with an ARM exception.
+    ///
     /// # Example
     ///
     /// ```
@@ -60,7 +90,7 @@ impl<'screen> Console<'screen> {
     /// use ctru::console::Console;
     /// use ctru::services::gfx::Gfx;
     ///
-    /// // Initialize graphics.
+    /// // Initialize graphics (using framebuffers allocated on the HEAP).
     /// let gfx = Gfx::new()?;
     ///
     /// // Create a `Console` that takes control of the upper LCD screen.
@@ -77,10 +107,7 @@ impl<'screen> Console<'screen> {
 
         unsafe { consoleInit(screen.as_raw(), context.as_mut()) };
 
-        Console {
-            context,
-            _screen: screen,
-        }
+        Console { context, screen }
     }
 
     /// Returns `true` if a valid [`Console`] to print on is currently selected.
@@ -89,9 +116,6 @@ impl<'screen> Console<'screen> {
     ///
     /// This function is used to check whether one of the two screens has an existing (and selected) [`Console`],
     /// so that the program can be sure its output will be shown *somewhere*.
-    ///
-    /// The main use of this is within the [`ctru::use_panic_handler()`](crate::use_panic_handler()) hook,
-    /// since it will only stop the program's execution if the user is able to see the panic information output on screen.
     ///
     /// # Example
     ///
@@ -177,16 +201,126 @@ impl<'screen> Console<'screen> {
     /// # Notes
     ///
     /// The first two arguments are the desired coordinates of the top-left corner
-    /// of the console, and the second pair is the new width and height.
+    /// of the new window based on the row/column coordinates of a full-screen console.
+    /// The second pair is the new width and height.
     ///
-    /// # Safety
+    /// # Example
     ///
-    /// This function is unsafe because it does not validate whether the input will produce
-    /// a console that actually fits on the screen.
-    // TODO: Wrap this safely.
+    /// ```
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// # use ctru::services::gfx::Gfx;
+    /// # let gfx = Gfx::new()?;
+    /// #
+    /// # use ctru::console::Console;
+    /// #
+    /// let mut top_console = Console::new(gfx.top_screen.borrow_mut());
+    /// top_console.set_window(10, 10, 16, 6);
+    ///
+    /// println!("I'm becoming claustrophobic in here!");
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
     #[doc(alias = "consoleSetWindow")]
-    pub unsafe fn set_window(&mut self, x: i32, y: i32, width: i32, height: i32) {
-        consoleSetWindow(self.context.as_mut(), x, y, width, height);
+    pub fn set_window(&mut self, x: u8, y: u8, width: u8, height: u8) -> Result<(), Error> {
+        let height_limit = 30;
+        let length_limit = self.max_width();
+
+        if x >= length_limit {
+            return Err(Error::CoordinateOutOfBounds(Axis::X));
+        }
+        if y >= height_limit {
+            return Err(Error::CoordinateOutOfBounds(Axis::Y));
+        }
+
+        if (x + width) > length_limit {
+            return Err(Error::DimensionOutOfBounds(Dimension::Width));
+        }
+        if (y + height) > height_limit {
+            return Err(Error::DimensionOutOfBounds(Dimension::Height));
+        }
+
+        unsafe {
+            consoleSetWindow(
+                self.context.as_mut(),
+                x.into(),
+                y.into(),
+                width.into(),
+                height.into(),
+            )
+        };
+
+        Ok(())
+    }
+
+    /// Reset the window's size to default parameters.
+    ///
+    /// This can be used to undo the changes made by [`set_window()`](Console::set_window()).
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// # use ctru::services::gfx::Gfx;
+    /// # let gfx = Gfx::new()?;
+    /// #
+    /// # use ctru::console::Console;
+    /// #
+    /// let mut top_console = Console::new(gfx.top_screen.borrow_mut());
+    /// top_console.set_window(15, 15, 8, 10);
+    ///
+    /// println!("It's really jammed in here!");
+    ///
+    /// top_console.reset_window();
+    ///
+    /// println!("Phew, finally a breath of fresh air.");
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn reset_window(&mut self) {
+        let width = self.max_width();
+
+        self.set_window(0, 0, width, 30).unwrap();
+    }
+
+    /// Returns this [`Console`]'s maximum character width depending on the screen used.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// # use ctru::services::gfx::Gfx;
+    /// # use ctru::console::Console;
+    /// #
+    /// let gfx = Gfx::new()?;
+    ///
+    /// let top_console = Console::new(gfx.top_screen.borrow_mut());
+    ///
+    /// // The maximum width for the top screen (without any alterations) is 50 characters.
+    /// assert_eq!(top_console.max_width(), 50);
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn max_width(&self) -> u8 {
+        match self.screen.as_raw() {
+            ctru_sys::GFX_TOP => {
+                if unsafe { ctru_sys::gfxIsWide() } {
+                    100
+                } else {
+                    50
+                }
+            }
+            ctru_sys::GFX_BOTTOM => 40,
+            _ => unreachable!(),
+        }
     }
 }
 
@@ -215,3 +349,36 @@ impl Drop for Console<'_> {
         }
     }
 }
+
+impl std::fmt::Display for Axis {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::X => write!(f, "x"),
+            Self::Y => write!(f, "y"),
+        }
+    }
+}
+
+impl std::fmt::Display for Dimension {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Width => write!(f, "width"),
+            Self::Height => write!(f, "height"),
+        }
+    }
+}
+
+impl std::fmt::Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::CoordinateOutOfBounds(a) => {
+                write!(f, "coordinate specified for the {a} axis is out of bounds")
+            }
+            Self::DimensionOutOfBounds(d) => {
+                write!(f, "size specified for the {d} is out of bounds")
+            }
+        }
+    }
+}
+
+impl std::error::Error for Error {}

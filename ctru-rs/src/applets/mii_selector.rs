@@ -1,7 +1,7 @@
 //! Mii Selector applet.
 //!
 //! This applet opens a window which lets the player/user choose a Mii from the ones present on their console.
-//! The selected Mii is readable as a [`Mii`](crate::mii::Mii).
+//! The selected Mii is readable as a [`Mii`].
 
 use crate::mii::Mii;
 use bitflags::bitflags;
@@ -9,7 +9,7 @@ use std::{ffi::CString, fmt};
 
 /// Index of a Mii on the [`MiiSelector`] interface.
 ///
-/// See [`MiiSelector::whitelist_user_mii()`] and related functions for more information.
+/// See [`MiiSelector::allowlist_user_mii()`] and related functions for more information.
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub enum Index {
     /// Specific Mii index.
@@ -136,11 +136,11 @@ impl MiiSelector {
         unsafe { ctru_sys::miiSelectorSetOptions(self.config.as_mut(), options.bits()) }
     }
 
-    /// Whitelist a guest Mii based on its index.
+    /// Allowlist a guest Mii based on its index.
     ///
     /// # Notes
     ///
-    /// Guest Mii's won't be available regardless of their whitelist/blacklist state if the [`MiiSelector`] is run without setting [`Options::ENABLE_GUESTS`].
+    /// Guest Mii's won't be available regardless of their allowlist/blocklist state if the [`MiiSelector`] is run without setting [`Options::ENABLE_GUESTS`].
     /// Look into [`MiiSelector::set_options()`] to see how to work with options.
     ///
     /// # Example
@@ -151,12 +151,12 @@ impl MiiSelector {
     /// use ctru::applets::mii_selector::{Index, MiiSelector};
     /// let mut mii_selector = MiiSelector::new();
     ///
-    /// // Whitelist the guest Mii at index 2.
-    /// mii_selector.whitelist_guest_mii(Index::Index(2));
+    /// // Allowlist the guest Mii at index 2.
+    /// mii_selector.allowlist_guest_mii(Index::Index(2));
     /// # }
     /// ```
     #[doc(alias = "miiSelectorWhitelistGuestMii")]
-    pub fn whitelist_guest_mii(&mut self, mii_index: Index) {
+    pub fn allowlist_guest_mii(&mut self, mii_index: Index) {
         let index = match mii_index {
             Index::Index(i) => i,
             Index::All => ctru_sys::MIISELECTOR_GUESTMII_SLOTS,
@@ -165,11 +165,11 @@ impl MiiSelector {
         unsafe { ctru_sys::miiSelectorWhitelistGuestMii(self.config.as_mut(), index) }
     }
 
-    /// Blacklist a guest Mii based on its index.
+    /// Blocklist a guest Mii based on its index.
     ///
     /// # Notes
     ///
-    /// Guest Mii's won't be available regardless of their whitelist/blacklist state if the [`MiiSelector`] is run without setting [`Options::ENABLE_GUESTS`].
+    /// Guest Mii's won't be available regardless of their allowlist/blocklist state if the [`MiiSelector`] is run without setting [`Options::ENABLE_GUESTS`].
     /// Look into [`MiiSelector::set_options()`] to see how to work with options.
     ///
     /// # Example
@@ -180,12 +180,12 @@ impl MiiSelector {
     /// use ctru::applets::mii_selector::{Index, MiiSelector};
     /// let mut mii_selector = MiiSelector::new();
     ///
-    /// // Blacklist the guest Mii at index 1 so that it cannot be selected.
-    /// mii_selector.blacklist_guest_mii(Index::Index(1));
+    /// // Blocklist the guest Mii at index 1 so that it cannot be selected.
+    /// mii_selector.blocklist_guest_mii(Index::Index(1));
     /// # }
     /// ```
     #[doc(alias = "miiSelectorBlacklistGuestMii")]
-    pub fn blacklist_guest_mii(&mut self, mii_index: Index) {
+    pub fn blocklist_guest_mii(&mut self, mii_index: Index) {
         let index = match mii_index {
             Index::Index(i) => i,
             Index::All => ctru_sys::MIISELECTOR_GUESTMII_SLOTS,
@@ -194,7 +194,7 @@ impl MiiSelector {
         unsafe { ctru_sys::miiSelectorBlacklistGuestMii(self.config.as_mut(), index) }
     }
 
-    /// Whitelist a user-created Mii based on its index.
+    /// Allowlist a user-created Mii based on its index.
     ///
     /// # Example
     ///
@@ -204,12 +204,12 @@ impl MiiSelector {
     /// use ctru::applets::mii_selector::{Index, MiiSelector};
     /// let mut mii_selector = MiiSelector::new();
     ///
-    /// // Whitelist the user-created Mii at index 0.
-    /// mii_selector.whitelist_user_mii(Index::Index(0));
+    /// // Allowlist the user-created Mii at index 0.
+    /// mii_selector.allowlist_user_mii(Index::Index(0));
     /// # }
     /// ```
     #[doc(alias = "miiSelectorWhitelistUserMii")]
-    pub fn whitelist_user_mii(&mut self, mii_index: Index) {
+    pub fn allowlist_user_mii(&mut self, mii_index: Index) {
         let index = match mii_index {
             Index::Index(i) => i,
             Index::All => ctru_sys::MIISELECTOR_USERMII_SLOTS,
@@ -218,7 +218,7 @@ impl MiiSelector {
         unsafe { ctru_sys::miiSelectorWhitelistUserMii(self.config.as_mut(), index) }
     }
 
-    /// Blacklist a user-created Mii based on its index.
+    /// Blocklist a user-created Mii based on its index.
     ///
     /// # Example
     ///
@@ -228,12 +228,12 @@ impl MiiSelector {
     /// use ctru::applets::mii_selector::{Index, MiiSelector};
     /// let mut mii_selector = MiiSelector::new();
     ///
-    /// // Blacklist all user-created Miis so that they cannot be selected.
-    /// mii_selector.blacklist_user_mii(Index::All);
+    /// // Blocklist all user-created Miis so that they cannot be selected.
+    /// mii_selector.blocklist_user_mii(Index::All);
     /// # }
     /// ```
     #[doc(alias = "miiSelectorBlacklistUserMii")]
-    pub fn blacklist_user_mii(&mut self, mii_index: Index) {
+    pub fn blocklist_user_mii(&mut self, mii_index: Index) {
         let index = match mii_index {
             Index::Index(i) => i,
             Index::All => ctru_sys::MIISELECTOR_USERMII_SLOTS,
@@ -247,9 +247,7 @@ impl MiiSelector {
     /// If there's no Mii at that index, the cursor will start at the Mii with the index 0.
     #[doc(alias = "miiSelectorSetInitialIndex")]
     pub fn set_initial_index(&mut self, index: usize) {
-        // This function is static inline in libctru
-        // https://github.com/devkitPro/libctru/blob/af5321c78ee5c72a55b526fd2ed0d95ca1c05af9/libctru/include/3ds/applets/miiselector.h#L155
-        self.config.initial_index = index as u32;
+        unsafe { ctru_sys::miiSelectorSetInitialIndex(self.config.as_mut(), index as u32) };
     }
 
     /// Launch the Mii Selector.

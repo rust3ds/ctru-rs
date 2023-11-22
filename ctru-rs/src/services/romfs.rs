@@ -38,7 +38,7 @@ pub struct RomFS {
     _service_handler: ServiceReference,
 }
 
-static ROMFS_ACTIVE: Mutex<usize> = Mutex::new(0);
+static ROMFS_ACTIVE: Mutex<()> = Mutex::new(());
 
 impl RomFS {
     /// Mount the bundled RomFS archive as a virtual drive.
@@ -64,7 +64,6 @@ impl RomFS {
     pub fn new() -> crate::Result<Self> {
         let _service_handler = ServiceReference::new(
             &ROMFS_ACTIVE,
-            true,
             || {
                 let mount_name = CStr::from_bytes_with_nul(b"romfs\0").unwrap();
                 ResultCode(unsafe { ctru_sys::romfsMountSelf(mount_name.as_ptr()) })?;
@@ -84,19 +83,15 @@ impl RomFS {
 mod tests {
     use super::*;
 
-    #[test]
     // NOTE: this test only passes when run with a .3dsx, which for now requires separate build
     // and run steps so the 3dsx is built before the runner looks for the executable
-    fn romfs_counter() {
-        let _romfs = RomFS::new().unwrap();
-        let value = *ROMFS_ACTIVE.lock().unwrap();
+    #[test]
+    #[should_panic]
+    fn romfs_lock() {
+        let romfs = RomFS::new().unwrap();
 
-        assert_eq!(value, 1);
+        ROMFS_ACTIVE.try_lock().unwrap();
 
-        drop(_romfs);
-
-        let value = *ROMFS_ACTIVE.lock().unwrap();
-
-        assert_eq!(value, 0);
+        drop(romfs);
     }
 }

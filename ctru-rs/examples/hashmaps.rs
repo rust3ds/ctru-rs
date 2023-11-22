@@ -9,8 +9,6 @@
 use ctru::prelude::*;
 
 fn main() {
-    ctru::use_panic_handler();
-
     // HashMaps generate hashes thanks to the 3DS' cryptografically secure generator.
     // This generator is only active when activating the `PS` service.
     // This service is automatically initialized.

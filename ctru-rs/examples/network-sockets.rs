@@ -9,8 +9,6 @@ use std::net::{Shutdown, TcpListener};
 use std::time::Duration;
 
 fn main() {
-    ctru::use_panic_handler();
-
     let gfx = Gfx::new().unwrap();
     let mut hid = Hid::new().unwrap();
     let apt = Apt::new().unwrap();

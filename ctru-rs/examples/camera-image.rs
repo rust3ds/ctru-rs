@@ -3,30 +3,27 @@
 //! This example demonstrates how to use the built-in cameras to take a picture and display it to the screen.
 
 use ctru::prelude::*;
-use ctru::services::cam::{Cam, Camera, OutputFormat, ShutterSound, ViewSize};
-use ctru::services::gfx::{Flush, Screen, Swap};
+use ctru::services::cam::{
+    Cam, Camera, OutputFormat, ShutterSound, Trimming, ViewSize, WhiteBalance,
+};
+use ctru::services::gfx::{Flush, Screen, Swap, TopScreen3D};
 use ctru::services::gspgpu::FramebufferFormat;
 
 use std::time::Duration;
 
-const WIDTH: usize = 400;
-const HEIGHT: usize = 240;
-
-// The screen size is the width and height multiplied by 2 (RGB565 store pixels in 2 bytes).
-const BUF_SIZE: usize = WIDTH * HEIGHT * 2;
-
 const WAIT_TIMEOUT: Duration = Duration::from_millis(300);
 
 fn main() {
-    ctru::use_panic_handler();
-
     let apt = Apt::new().expect("Failed to initialize Apt service.");
     let mut hid = Hid::new().expect("Failed to initialize Hid service.");
     let gfx = Gfx::new().expect("Failed to initialize GFX service.");
 
-    let mut top_screen = gfx.top_screen.borrow_mut();
-    top_screen.set_double_buffering(true);
-    top_screen.set_framebuffer_format(FramebufferFormat::Rgb565);
+    gfx.top_screen.borrow_mut().set_double_buffering(true);
+    gfx.top_screen
+        .borrow_mut()
+        .set_framebuffer_format(FramebufferFormat::Rgb565);
+
+    let mut top_screen_3d = TopScreen3D::from(&gfx.top_screen);
 
     let _console = Console::new(gfx.bottom_screen.borrow_mut());
 
@@ -35,9 +32,8 @@ fn main() {
     let mut cam = Cam::new().expect("Failed to initialize CAM service.");
 
     // Camera setup.
+    let camera = &mut cam.both_outer_cams;
     {
-        let camera = &mut cam.outer_right_cam;
-
         camera
             .set_view_size(ViewSize::TopLCD)
             .expect("Failed to set camera size");
@@ -51,14 +47,17 @@ fn main() {
             .set_auto_exposure(true)
             .expect("Failed to enable auto exposure");
         camera
-            .set_auto_white_balance(true)
+            .set_white_balance(WhiteBalance::Auto)
             .expect("Failed to enable auto white balance");
+        // This line has no effect on the camera since the photos are already shot with `TopLCD` size.
         camera
-            .set_trimming(false)
-            .expect("Failed to disable trimming");
+            .set_trimming(Trimming::new_centered_with_view(ViewSize::TopLCD))
+            .expect("Failed to enable trimming");
     }
 
-    let mut buf = vec![0u8; BUF_SIZE];
+    // We don't intend on making any other modifications to the camera, so this size should be enough.
+    let len = camera.final_byte_length();
+    let mut buf = vec![0u8; len];
 
     println!("\nPress R to take a new picture");
     println!("Press Start to exit");
@@ -75,28 +74,42 @@ fn main() {
         if keys_down.contains(KeyPad::R) {
             println!("Capturing new image");
 
-            let camera = &mut cam.outer_right_cam;
+            let camera = &mut cam.both_outer_cams;
 
             // Take a picture and write it to the buffer.
             camera
-                .take_picture(
-                    &mut buf,
-                    WIDTH.try_into().unwrap(),
-                    HEIGHT.try_into().unwrap(),
-                    WAIT_TIMEOUT,
-                )
+                .take_picture(&mut buf, WAIT_TIMEOUT)
                 .expect("Failed to take picture");
+
+            let (width, height) = camera.final_view_size();
 
             // Play the normal shutter sound.
             cam.play_shutter_sound(ShutterSound::Normal)
                 .expect("Failed to play shutter sound");
 
-            // Rotate the image and correctly display it on the screen.
-            rotate_image_to_screen(&buf, top_screen.raw_framebuffer().ptr, WIDTH, HEIGHT);
+            {
+                let (mut left_side, mut right_side) = top_screen_3d.split_mut();
+
+                // Rotate the left image and correctly display it on the screen.
+                rotate_image_to_screen(
+                    &buf,
+                    left_side.raw_framebuffer().ptr,
+                    width as usize,
+                    height as usize,
+                );
+
+                // Rotate the right image and correctly display it on the screen.
+                rotate_image_to_screen(
+                    &buf[len / 2..],
+                    right_side.raw_framebuffer().ptr,
+                    width as usize,
+                    height as usize,
+                );
+            }
 
             // We will only flush and swap the "camera" screen, since the other screen is handled by the `Console`.
-            top_screen.flush_buffers();
-            top_screen.swap_buffers();
+            top_screen_3d.flush_buffers();
+            top_screen_3d.swap_buffers();
 
             gfx.wait_for_vblank();
         }
@@ -125,8 +138,8 @@ fn rotate_image_to_screen(src: &[u8], framebuf: *mut u8, width: usize, height: u
             unsafe {
                 // We'll work with pointers since the framebuffer is a raw pointer regardless.
                 // The offsets are completely safe as long as the width and height are correct.
-                let pixel_pointer = framebuf.offset(draw_index as isize);
-                pixel_pointer.copy_from(src.as_ptr().offset(read_index as isize), 2);
+                let pixel_pointer = framebuf.add(draw_index);
+                pixel_pointer.copy_from(src.as_ptr().add(read_index), 2);
             }
         }
     }

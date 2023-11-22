@@ -37,10 +37,16 @@ pub trait Screen: private::Sealed {
     /// Returns the Screen side (left or right).
     fn side(&self) -> Side;
 
-    /// Returns a [`RawFrameBuffer`] for the screen.
+    /// Returns a [`RawFrameBuffer`] for the screen (if the framebuffer was allocated on the HEAP).
     ///
-    /// Note that the pointer of the framebuffer returned by this function can
-    /// change after each call to this function if double buffering is enabled.
+    /// # Notes
+    ///
+    /// The pointer of the framebuffer returned by this function can change after each call
+    /// to this function if double buffering is enabled, so it's suggested to NOT save it for later use.
+    ///
+    /// # Panics
+    ///
+    /// If the [`Gfx`] service was initialised via [`Gfx::with_formats_vram()`] this function will crash the program with an ARM exception.
     #[doc(alias = "gfxGetFramebuffer")]
     fn raw_framebuffer(&mut self) -> RawFrameBuffer {
         let mut width: u16 = 0;
@@ -244,14 +250,15 @@ pub struct Gfx {
     _service_handler: ServiceReference,
 }
 
-static GFX_ACTIVE: Mutex<usize> = Mutex::new(0);
+static GFX_ACTIVE: Mutex<()> = Mutex::new(());
 
 impl Gfx {
     /// Initialize a new default service handle.
     ///
     /// # Notes
     ///
-    /// It's the same as calling:
+    /// The new `Gfx` instance will allocate the needed framebuffers in the CPU-GPU shared memory region (to ensure compatibiltiy with all possible uses of the `Gfx` service).
+    /// As such, it's the same as calling:
     ///
     /// ```
     /// # let _runner = test_runner::GdbRunner::default();
@@ -261,11 +268,13 @@ impl Gfx {
     /// # use ctru::services::gfx::Gfx;
     /// # use ctru::services::gspgpu::FramebufferFormat;
     /// #
-    /// Gfx::with_formats(FramebufferFormat::Bgr8, FramebufferFormat::Bgr8, false)?;
+    /// Gfx::with_formats_shared(FramebufferFormat::Bgr8, FramebufferFormat::Bgr8)?;
     /// #
     /// # Ok(())
     /// # }
     /// ```
+    ///
+    /// Have a look at [`Gfx::with_formats_vram()`] if you aren't interested in manipulating the framebuffers using the CPU.
     ///
     /// # Example
     ///
@@ -283,10 +292,10 @@ impl Gfx {
     /// ```
     #[doc(alias = "gfxInit")]
     pub fn new() -> Result<Self> {
-        Gfx::with_formats(FramebufferFormat::Bgr8, FramebufferFormat::Bgr8, false)
+        Gfx::with_formats_shared(FramebufferFormat::Bgr8, FramebufferFormat::Bgr8)
     }
 
-    /// Initialize a new service handle with the chosen framebuffer formats for the top and bottom screens.
+    /// Initialize a new service handle with the chosen framebuffer formats on the HEAP for the top and bottom screens.
     ///
     /// Use [`Gfx::new()`] instead of this function to initialize the module with default parameters
     ///
@@ -302,22 +311,66 @@ impl Gfx {
     ///
     /// // Top screen uses RGBA8, bottom screen uses RGB565.
     /// // The screen buffers are allocated in the standard HEAP memory, and not in VRAM.
-    /// let gfx = Gfx::with_formats(FramebufferFormat::Rgba8, FramebufferFormat::Rgb565, false)?;
+    /// let gfx = Gfx::with_formats_shared(FramebufferFormat::Rgba8, FramebufferFormat::Rgb565)?;
     /// #
     /// # Ok(())
     /// # }
     /// ```
     #[doc(alias = "gfxInit")]
-    pub fn with_formats(
+    pub fn with_formats_shared(
         top_fb_fmt: FramebufferFormat,
         bottom_fb_fmt: FramebufferFormat,
-        use_vram_buffers: bool,
+    ) -> Result<Self> {
+        Self::with_configuration(top_fb_fmt, bottom_fb_fmt, false)
+    }
+
+    /// Initialize a new service handle with the chosen framebuffer formats on the VRAM for the top and bottom screens.
+    ///
+    /// # Notes
+    ///
+    /// Though unsafe to do so, it's suggested to use VRAM buffers when working exclusively with the GPU,
+    /// since they result in faster performance and less memory waste.
+    ///
+    /// # Safety
+    ///
+    /// By initializing the [`Gfx`] service as such, all functionality that relies on CPU manipulation of the framebuffers will
+    /// be completely unavailable (usually resulting in an ARM panic if wrongly used).
+    ///
+    /// Usage of functionality such as [`Console`](crate::console::Console) and [`Screen::raw_framebuffer()`] will result in ARM exceptions.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::{gfx::Gfx, gspgpu::FramebufferFormat};
+    ///
+    /// // Top screen uses RGBA8, bottom screen uses RGB565.
+    /// // The screen buffers are allocated in the in VRAM, so they will NOT be accessible from the CPU.
+    /// let gfx = unsafe { Gfx::with_formats_vram(FramebufferFormat::Rgba8, FramebufferFormat::Rgb565)? };
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[doc(alias = "gfxInit")]
+    pub unsafe fn with_formats_vram(
+        top_fb_fmt: FramebufferFormat,
+        bottom_fb_fmt: FramebufferFormat,
+    ) -> Result<Self> {
+        Self::with_configuration(top_fb_fmt, bottom_fb_fmt, true)
+    }
+
+    // Internal function to handle the initialization of `Gfx`.
+    fn with_configuration(
+        top_fb_fmt: FramebufferFormat,
+        bottom_fb_fmt: FramebufferFormat,
+        vram_buffer: bool,
     ) -> Result<Self> {
         let handler = ServiceReference::new(
             &GFX_ACTIVE,
-            false,
             || unsafe {
-                ctru_sys::gfxInit(top_fb_fmt.into(), bottom_fb_fmt.into(), use_vram_buffers);
+                ctru_sys::gfxInit(top_fb_fmt.into(), bottom_fb_fmt.into(), vram_buffer);
 
                 Ok(())
             },

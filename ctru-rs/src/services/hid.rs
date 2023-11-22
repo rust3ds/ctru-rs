@@ -1,14 +1,20 @@
 //! Human Interface Device service.
 //!
 //! The HID service provides read access to user input such as [button presses](Hid::keys_down), [touch screen presses](Hid::touch_position),
-//! and [circle pad information](Hid::circlepad_position). It also provides information from the sound volume slider, the accelerometer, and the gyroscope.
-// TODO: Implement volume slider, accelerometer and gyroscope + any other missing functionality.
+//! and [circle pad information](Hid::circlepad_position). It also provides information from the [volume slider](Hid::volume_slider()),
+//! the [accelerometer](Hid::accelerometer_vector()), and the [gyroscope](Hid::gyroscope_rate()).
 #![doc(alias = "input")]
 #![doc(alias = "controller")]
 #![doc(alias = "gamepad")]
 
+use std::sync::Mutex;
+
 use crate::error::ResultCode;
+use crate::services::ServiceReference;
+
 use bitflags::bitflags;
+
+static HID_ACTIVE: Mutex<()> = Mutex::new(());
 
 bitflags! {
     /// A set of flags corresponding to the button and directional pad inputs present on the 3DS.
@@ -74,8 +80,44 @@ bitflags! {
     }
 }
 
+/// Error enum for generic errors within the [`Hid`] service.
+#[non_exhaustive]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum Error {
+    /// An attempt was made to access the accelerometer while disabled.
+    UnavailableAccelerometer,
+    /// An attempt was made to access the gyroscope while disabled.
+    UnavailableGyroscope,
+}
+
+/// Representation of the acceleration vector read by the accelerometer.
+///
+/// Have a look at [`Hid::set_accelerometer()`] for more information.
+#[allow(missing_docs)]
+#[derive(Default, Copy, Clone, Debug, PartialEq, Eq)]
+pub struct Acceleration {
+    x: i16,
+    y: i16,
+    z: i16,
+}
+
+/// Representation of the angular rate read by the gyroscope.
+///
+/// Have a look at [`Hid::set_gyroscope()`] for more information.
+#[allow(missing_docs)]
+#[derive(Default, Copy, Clone, Debug, PartialEq, Eq)]
+pub struct AngularRate {
+    roll: i16,
+    pitch: i16,
+    yaw: i16,
+}
+
 /// Handle to the HID service.
-pub struct Hid(());
+pub struct Hid {
+    active_accelerometer: bool,
+    active_gyroscope: bool,
+    _service_handler: ServiceReference,
+}
 
 impl Hid {
     /// Initialize a new service handle.
@@ -101,10 +143,26 @@ impl Hid {
     /// ```
     #[doc(alias = "hidInit")]
     pub fn new() -> crate::Result<Hid> {
-        unsafe {
-            ResultCode(ctru_sys::hidInit())?;
-            Ok(Hid(()))
-        }
+        let handler = ServiceReference::new(
+            &HID_ACTIVE,
+            || {
+                ResultCode(unsafe { ctru_sys::hidInit() })?;
+
+                Ok(())
+            },
+            || unsafe {
+                let _ = ctru_sys::HIDUSER_DisableGyroscope();
+                let _ = ctru_sys::HIDUSER_DisableAccelerometer();
+
+                ctru_sys::hidExit();
+            },
+        )?;
+
+        Ok(Self {
+            active_accelerometer: false,
+            active_gyroscope: false,
+            _service_handler: handler,
+        })
     }
 
     /// Scan the HID service for all user input occurring on the current frame.
@@ -289,11 +347,219 @@ impl Hid {
 
         (res.dx, res.dy)
     }
-}
 
-impl Drop for Hid {
-    #[doc(alias = "hidExit")]
-    fn drop(&mut self) {
-        unsafe { ctru_sys::hidExit() };
+    /// Returns the current volume slider position (between 0 and 1).
+    ///
+    /// # Notes
+    ///
+    /// The [`ndsp`](crate::services::ndsp) service automatically uses the volume slider's position to handle audio mixing.
+    /// As such this method should not be used to programmatically change the volume.
+    ///
+    /// Its purpose is only to inform the program of the volume slider's position (e.g. checking if the user has muted the audio).
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::hid::Hid;
+    /// let mut hid = Hid::new()?;
+    ///
+    /// hid.scan_input();
+    ///
+    /// let volume = hid.volume_slider();
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[doc(alias = "HIDUSER_GetSoundVolume")]
+    pub fn volume_slider(&self) -> f32 {
+        let mut slider = 0;
+
+        unsafe {
+            let _ = ctru_sys::HIDUSER_GetSoundVolume(&mut slider);
+        }
+
+        (slider as f32) / 63.
+    }
+
+    /// Activate/deactivate the console's acceleration sensor.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::hid::Hid;
+    /// let mut hid = Hid::new()?;
+    ///
+    /// // The accelerometer will start to register movements.
+    /// hid.set_accelerometer(true).unwrap();
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[doc(alias = "HIDUSER_EnableAccelerometer")]
+    #[doc(alias = "HIDUSER_DisableAccelerometer")]
+    pub fn set_accelerometer(&mut self, enabled: bool) -> crate::Result<()> {
+        if enabled {
+            ResultCode(unsafe { ctru_sys::HIDUSER_EnableAccelerometer() })?;
+        } else {
+            ResultCode(unsafe { ctru_sys::HIDUSER_DisableAccelerometer() })?;
+        }
+
+        self.active_accelerometer = enabled;
+
+        Ok(())
+    }
+
+    /// Activate/deactivate the console's gyroscopic sensor.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::hid::Hid;
+    /// let mut hid = Hid::new()?;
+    ///
+    /// // The gyroscope will start to register positions.
+    /// hid.set_gyroscope(true).unwrap();
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[doc(alias = "HIDUSER_EnableGyroscope")]
+    #[doc(alias = "HIDUSER_DisableGyroscope")]
+    pub fn set_gyroscope(&mut self, enabled: bool) -> crate::Result<()> {
+        if enabled {
+            ResultCode(unsafe { ctru_sys::HIDUSER_EnableGyroscope() })?;
+        } else {
+            ResultCode(unsafe { ctru_sys::HIDUSER_DisableGyroscope() })?;
+        }
+
+        self.active_gyroscope = enabled;
+
+        Ok(())
+    }
+
+    /// Returns the acceleration vector (x, y, z) registered by the accelerometer.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the accelerometer was not previously enabled.
+    /// Have a look at [`Hid::set_accelerometer()`] to enable the accelerometer.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::hid::Hid;
+    /// let mut hid = Hid::new()?;
+    ///
+    /// // The accelerometer will start to register movements.
+    /// hid.set_accelerometer(true).unwrap();
+    ///
+    /// // It's necessary to run `scan_input()` to update the accelerometer's readings.
+    /// hid.scan_input();
+    ///
+    /// // This call fails if the accelerometer was not previously enabled.
+    /// let acceleration = hid.accelerometer_vector()?;
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[doc(alias = "hidAccelRead")]
+    pub fn accelerometer_vector(&self) -> Result<Acceleration, Error> {
+        if !self.active_accelerometer {
+            return Err(Error::UnavailableAccelerometer);
+        }
+
+        let mut res = ctru_sys::accelVector { x: 0, y: 0, z: 0 };
+
+        unsafe {
+            ctru_sys::hidAccelRead(&mut res);
+        }
+
+        Ok(Acceleration {
+            x: res.x,
+            y: res.y,
+            z: res.z,
+        })
+    }
+
+    /// Returns the angular rate registered by the gyroscope.
+    ///
+    /// # Errors
+    ///
+    /// This function returns an error if the gyroscope was not previously enabled.
+    /// Have a look at [`Hid::set_gyroscope()`].
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::hid::Hid;
+    /// let mut hid = Hid::new()?;
+    ///
+    /// // The gyroscope will start to register positions.
+    ///  hid.set_gyroscope(true).unwrap();
+    ///
+    /// // It's necessary to run `scan_input()` to update the gyroscope's readings.
+    /// hid.scan_input();
+    ///
+    /// // This call fails if the gyroscope was not previously enabled.
+    /// let angular_rate = hid.gyroscope_rate()?;
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[doc(alias = "hidGyroRead")]
+    pub fn gyroscope_rate(&self) -> Result<AngularRate, Error> {
+        if !self.active_gyroscope {
+            return Err(Error::UnavailableGyroscope);
+        }
+
+        let mut res = ctru_sys::angularRate { x: 0, y: 0, z: 0 };
+
+        unsafe {
+            ctru_sys::hidGyroRead(&mut res);
+        }
+
+        Ok(AngularRate {
+            roll: res.x,
+            pitch: res.y,
+            yaw: res.z,
+        })
     }
 }
+
+impl From<Acceleration> for (i16, i16, i16) {
+    fn from(value: Acceleration) -> (i16, i16, i16) {
+        (value.x, value.y, value.z)
+    }
+}
+
+impl From<AngularRate> for (i16, i16, i16) {
+    fn from(value: AngularRate) -> (i16, i16, i16) {
+        (value.roll, value.pitch, value.yaw)
+    }
+}
+
+impl std::fmt::Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::UnavailableAccelerometer => write!(f, "tried using accelerometer while disabled"),
+            Self::UnavailableGyroscope => write!(f, "tried using gyroscope while disabled"),
+        }
+    }
+}
+
+impl std::error::Error for Error {}
