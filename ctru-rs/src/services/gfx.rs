@@ -1,4 +1,8 @@
-//! LCD screens manipulation helper
+//! Graphics service.
+//!
+//! The GFX service controls (in a somewhat high-level way) the console's LCD screens.
+//! The screens are subordinate to the GFX service handle and can be used by only one borrower at a time.
+#![doc(alias = "graphics")]
 
 use std::cell::{Ref, RefCell, RefMut};
 use std::marker::PhantomData;
@@ -20,9 +24,12 @@ mod private {
     impl Sealed for BottomScreen {}
 }
 
+/// Trait to handle common functionality for all screens.
+///
 /// This trait is implemented by the screen structs for working with frame buffers and
 /// drawing to the screens. Graphics-related code can be made generic over this
 /// trait to work with any of the given screens.
+#[doc(alias = "gfxScreen_t")]
 pub trait Screen: private::Sealed {
     /// Returns the `libctru` value for the Screen kind.
     fn as_raw(&self) -> ctru_sys::gfxScreen_t;
@@ -30,10 +37,17 @@ pub trait Screen: private::Sealed {
     /// Returns the Screen side (left or right).
     fn side(&self) -> Side;
 
-    /// Returns a [`RawFrameBuffer`] for the screen.
+    /// Returns a [`RawFrameBuffer`] for the screen (if the framebuffer was allocated on the HEAP).
     ///
-    /// Note that the pointer of the framebuffer returned by this function can
-    /// change after each call to this function if double buffering is enabled.
+    /// # Notes
+    ///
+    /// The pointer of the framebuffer returned by this function can change after each call
+    /// to this function if double buffering is enabled, so it's suggested to NOT save it for later use.
+    ///
+    /// # Panics
+    ///
+    /// If the [`Gfx`] service was initialised via [`Gfx::with_formats_vram()`] this function will crash the program with an ARM exception.
+    #[doc(alias = "gfxGetFramebuffer")]
     fn raw_framebuffer(&mut self) -> RawFrameBuffer {
         let mut width: u16 = 0;
         let mut height: u16 = 0;
@@ -48,15 +62,8 @@ pub trait Screen: private::Sealed {
         }
     }
 
-    /// Sets whether to use double buffering. Enabled by default.
-    ///
-    /// [`Swap::swap_buffers`] must be called after this function for the configuration
-    /// change to take effect.
-    fn set_double_buffering(&mut self, enabled: bool) {
-        unsafe { ctru_sys::gfxSetDoubleBuffering(self.as_raw(), enabled) }
-    }
-
     /// Gets the framebuffer format.
+    #[doc(alias = "gfxGetScreenFormat")]
     fn framebuffer_format(&self) -> FramebufferFormat {
         unsafe { ctru_sys::gfxGetScreenFormat(self.as_raw()) }.into()
     }
@@ -65,40 +72,53 @@ pub trait Screen: private::Sealed {
     ///
     /// [`Swap::swap_buffers`] must be called after this method for the configuration
     /// change to take effect.
+    #[doc(alias = "gfxSetScreenFormat")]
     fn set_framebuffer_format(&mut self, fmt: FramebufferFormat) {
         unsafe { ctru_sys::gfxSetScreenFormat(self.as_raw(), fmt.into()) }
     }
 }
 
-/// The top screen. Mutable access to this struct is required to write to the top
-/// screen's frame buffer. To enable 3D mode, it can be converted into a [`TopScreen3D`].
+/// The top LCD screen.
+///
+/// Mutable access to this struct is required to write to the top screen's frame buffer.
+///
+/// To enable 3D mode, it can be converted into a [`TopScreen3D`].
 pub struct TopScreen {
     left: TopScreenLeft,
     right: TopScreenRight,
 }
 
+/// The top LCD screen set in stereoscopic 3D mode.
+///
 /// A helper container for both sides of the top screen. Once the [`TopScreen`] is
 /// converted into this, 3D mode will be enabled until this struct is dropped.
 pub struct TopScreen3D<'screen> {
     screen: &'screen RefCell<TopScreen>,
 }
 
-/// A screen that can have its frame buffers swapped, if double buffering is enabled.
+/// Trait for screens that can have its frame buffers swapped, when double buffering is enabled.
 ///
 /// This trait applies to all [`Screen`]s that have swappable frame buffers.
 pub trait Swap: private::Sealed {
     /// Swaps the video buffers.
     ///
-    /// If double buffering is disabled, "swapping" the buffers has the side effect
-    /// of committing any configuration changes to the buffers (e.g. [`set_wide_mode`],
-    /// [`set_framebuffer_format`], [`set_double_buffering`]).
+    /// Even if double buffering is disabled, "swapping" the buffers has the side effect
+    /// of committing any configuration changes to the buffers (e.g. [`TopScreen::set_wide_mode()`],
+    /// [`Screen::set_framebuffer_format()`], [`Swap::set_double_buffering()`]), so it should still be used.
     ///
     /// This should be called once per frame at most.
-    ///
-    /// [`set_wide_mode`]: TopScreen::set_wide_mode
-    /// [`set_framebuffer_format`]: Screen::set_framebuffer_format
-    /// [`set_double_buffering`]: Screen::set_double_buffering
+    #[doc(alias = "gfxScreenSwapBuffers")]
     fn swap_buffers(&mut self);
+
+    /// Set whether to use double buffering.
+    ///
+    /// # Notes
+    ///
+    /// Double buffering is enabled by default.
+    /// [`Swap::swap_buffers`] must be called after this function for the configuration
+    /// change to take effect.
+    #[doc(alias = "gfxSetDoubleBuffering")]
+    fn set_double_buffering(&mut self, enabled: bool);
 }
 
 impl Swap for TopScreen3D<'_> {
@@ -106,6 +126,10 @@ impl Swap for TopScreen3D<'_> {
         unsafe {
             ctru_sys::gfxScreenSwapBuffers(ctru_sys::GFX_TOP, true);
         }
+    }
+
+    fn set_double_buffering(&mut self, enabled: bool) {
+        unsafe { ctru_sys::gfxSetDoubleBuffering(ctru_sys::GFX_TOP, enabled) }
     }
 }
 
@@ -115,6 +139,10 @@ impl Swap for TopScreen {
             ctru_sys::gfxScreenSwapBuffers(ctru_sys::GFX_TOP, false);
         }
     }
+
+    fn set_double_buffering(&mut self, enabled: bool) {
+        unsafe { ctru_sys::gfxSetDoubleBuffering(ctru_sys::GFX_TOP, enabled) }
+    }
 }
 
 impl Swap for BottomScreen {
@@ -123,13 +151,20 @@ impl Swap for BottomScreen {
             ctru_sys::gfxScreenSwapBuffers(ctru_sys::GFX_BOTTOM, false);
         }
     }
+
+    fn set_double_buffering(&mut self, enabled: bool) {
+        unsafe { ctru_sys::gfxSetDoubleBuffering(ctru_sys::GFX_BOTTOM, enabled) }
+    }
 }
 
-/// A screen with buffers that can be flushed. This trait applies to any [`Screen`]
-/// that has data written to its frame buffer.
+/// A screen with buffers that can be flushed.
+///
+/// This trait applies to any [`Screen`] that has data written to its frame buffer.
 pub trait Flush: private::Sealed {
-    /// Flushes the video buffer(s) for this screen. Note that you must still call
-    /// [`Swap::swap_buffers`] after this method for the buffer contents to be displayed.
+    /// Flushes the video buffer(s) for this screen.
+    ///
+    /// Note that you must still call [`Swap::swap_buffers`] after this method for the buffer contents to be displayed.
+    #[doc(alias = "gfxFlushBuffers")]
     fn flush_buffers(&mut self);
 }
 
@@ -138,7 +173,7 @@ impl<S: Screen> Flush for S {
         let framebuffer = self.raw_framebuffer();
 
         // Flush the data array. `self.raw_framebuffer` should get the correct parameters for all kinds of screens
-        unsafe {
+        let _ = unsafe {
             ctru_sys::GSPGPU_FlushDataCache(
                 framebuffer.ptr.cast(),
                 (framebuffer.height * framebuffer.width) as u32,
@@ -167,14 +202,16 @@ pub struct TopScreenLeft;
 #[non_exhaustive]
 pub struct TopScreenRight;
 
-/// The bottom screen. Mutable access to this struct is required to write to the
-/// bottom screen's frame buffer.
+/// The bottom LCD screen.
+///
+/// Mutable access to this struct is required to write to the bottom screen's frame buffer.
 #[derive(Debug)]
 #[non_exhaustive]
 pub struct BottomScreen;
 
-/// Representation of a framebuffer for one [`Side`] of the top screen, or the
-/// entire bottom screen. The inner pointer is only valid for one frame if double
+/// Representation of a framebuffer for one [`Side`] of the top screen, or the entire bottom screen.
+///
+/// The inner pointer is only valid for one frame if double
 /// buffering is enabled. Data written to `ptr` will be rendered to the screen.
 #[derive(Debug)]
 pub struct RawFrameBuffer<'screen> {
@@ -188,11 +225,12 @@ pub struct RawFrameBuffer<'screen> {
     screen: PhantomData<&'screen mut dyn Screen>,
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
-#[repr(u32)]
-/// Side of top screen framebuffer
+/// Side of the [`TopScreen`]'s framebuffer.
 ///
 /// The top screen of the 3DS can have two separate sets of framebuffers to support its 3D functionality
+#[doc(alias = "gfx3dSide_t")]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[repr(u32)]
 pub enum Side {
     /// The left framebuffer. This framebuffer is also the one used when 3D is disabled
     Left = ctru_sys::GFX_LEFT,
@@ -200,40 +238,139 @@ pub enum Side {
     Right = ctru_sys::GFX_RIGHT,
 }
 
-/// A handle to libctru's gfx module. This module is a wrapper around the GSPGPU service that
-/// provides helper functions and utilities for software rendering.
+/// Handle to the GFX service.
 ///
-/// The service exits when this struct is dropped.
+/// This service is a wrapper around the lower-level [GSPGPU](crate::services::gspgpu) service that
+/// provides helper functions and utilities for software rendering.
 pub struct Gfx {
+    /// Top screen representation.
     pub top_screen: RefCell<TopScreen>,
+    /// Bottom screen representation.
     pub bottom_screen: RefCell<BottomScreen>,
     _service_handler: ServiceReference,
 }
 
-static GFX_ACTIVE: Mutex<usize> = Mutex::new(0);
+static GFX_ACTIVE: Mutex<()> = Mutex::new(());
 
 impl Gfx {
-    /// Creates a new [Gfx] instance with default init values
-    /// It's the same as calling:
-    /// `Gfx::with_formats(FramebufferFormat::Bgr8, FramebufferFormat::Bgr8, false)`
+    /// Initialize a new default service handle.
+    ///
+    /// # Notes
+    ///
+    /// The new `Gfx` instance will allocate the needed framebuffers in the CPU-GPU shared memory region (to ensure compatibiltiy with all possible uses of the `Gfx` service).
+    /// As such, it's the same as calling:
+    ///
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// # use ctru::services::gfx::Gfx;
+    /// # use ctru::services::gspgpu::FramebufferFormat;
+    /// #
+    /// Gfx::with_formats_shared(FramebufferFormat::Bgr8, FramebufferFormat::Bgr8)?;
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// Have a look at [`Gfx::with_formats_vram()`] if you aren't interested in manipulating the framebuffers using the CPU.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::gfx::Gfx;
+    ///
+    /// let gfx = Gfx::new()?;
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[doc(alias = "gfxInit")]
     pub fn new() -> Result<Self> {
-        Gfx::with_formats(FramebufferFormat::Bgr8, FramebufferFormat::Bgr8, false)
+        Gfx::with_formats_shared(FramebufferFormat::Bgr8, FramebufferFormat::Bgr8)
     }
 
-    /// Initialize the Gfx module with the chosen framebuffer formats for the top and bottom
-    /// screens
+    /// Initialize a new service handle with the chosen framebuffer formats on the HEAP for the top and bottom screens.
     ///
-    /// Use `Gfx::new()` instead of this function to initialize the module with default parameters
-    pub fn with_formats(
+    /// Use [`Gfx::new()`] instead of this function to initialize the module with default parameters
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::gfx::Gfx;
+    /// use ctru::services::gspgpu::FramebufferFormat;
+    ///
+    /// // Top screen uses RGBA8, bottom screen uses RGB565.
+    /// // The screen buffers are allocated in the standard HEAP memory, and not in VRAM.
+    /// let gfx = Gfx::with_formats_shared(FramebufferFormat::Rgba8, FramebufferFormat::Rgb565)?;
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[doc(alias = "gfxInit")]
+    pub fn with_formats_shared(
         top_fb_fmt: FramebufferFormat,
         bottom_fb_fmt: FramebufferFormat,
-        use_vram_buffers: bool,
+    ) -> Result<Self> {
+        Self::with_configuration(top_fb_fmt, bottom_fb_fmt, false)
+    }
+
+    /// Initialize a new service handle with the chosen framebuffer formats on the VRAM for the top and bottom screens.
+    ///
+    /// # Notes
+    ///
+    /// Though unsafe to do so, it's suggested to use VRAM buffers when working exclusively with the GPU,
+    /// since they result in faster performance and less memory waste.
+    ///
+    /// # Safety
+    ///
+    /// By initializing the [`Gfx`] service as such, all functionality that relies on CPU manipulation of the framebuffers will
+    /// be completely unavailable (usually resulting in an ARM panic if wrongly used).
+    ///
+    /// Usage of functionality such as [`Console`](crate::console::Console) and [`Screen::raw_framebuffer()`] will result in ARM exceptions.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::{gfx::Gfx, gspgpu::FramebufferFormat};
+    ///
+    /// // Top screen uses RGBA8, bottom screen uses RGB565.
+    /// // The screen buffers are allocated in the in VRAM, so they will NOT be accessible from the CPU.
+    /// let gfx = unsafe { Gfx::with_formats_vram(FramebufferFormat::Rgba8, FramebufferFormat::Rgb565)? };
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[doc(alias = "gfxInit")]
+    pub unsafe fn with_formats_vram(
+        top_fb_fmt: FramebufferFormat,
+        bottom_fb_fmt: FramebufferFormat,
+    ) -> Result<Self> {
+        Self::with_configuration(top_fb_fmt, bottom_fb_fmt, true)
+    }
+
+    // Internal function to handle the initialization of `Gfx`.
+    fn with_configuration(
+        top_fb_fmt: FramebufferFormat,
+        bottom_fb_fmt: FramebufferFormat,
+        vram_buffer: bool,
     ) -> Result<Self> {
         let handler = ServiceReference::new(
             &GFX_ACTIVE,
-            false,
             || unsafe {
-                ctru_sys::gfxInit(top_fb_fmt.into(), bottom_fb_fmt.into(), use_vram_buffers);
+                ctru_sys::gfxInit(top_fb_fmt.into(), bottom_fb_fmt.into(), vram_buffer);
 
                 Ok(())
             },
@@ -247,9 +384,34 @@ impl Gfx {
         })
     }
 
-    /// Waits for the vertical blank interrupt
+    /// Waits for the vertical blank event.
     ///
     /// Use this to synchronize your application with the refresh rate of the LCD screens
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::apt::Apt;
+    /// use ctru::services::gfx::Gfx;
+    /// let apt = Apt::new()?;
+    /// let gfx = Gfx::new()?;
+    ///
+    /// // Simple main loop.
+    /// while apt.main_loop() {
+    ///     // Main program logic
+    ///
+    ///     // Wait for the screens to refresh.
+    ///     // This blocks the current thread to make it run at 60Hz.
+    ///     gfx.wait_for_vblank();
+    /// }
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn wait_for_vblank(&self) {
         gspgpu::wait_for_event(gspgpu::Event::VBlank0, true);
     }
@@ -269,7 +431,36 @@ impl TopScreen3D<'_> {
     }
 }
 
+/// Convert the [`TopScreen`] into a [`TopScreen3D`] and activate stereoscopic 3D.
+///
+/// # Example
+///
+/// ```
+/// # let _runner = test_runner::GdbRunner::default();
+/// # use std::error::Error;
+/// # fn main() -> Result<(), Box<dyn Error>> {
+/// #
+/// use ctru::services::gfx::{Gfx, TopScreen, TopScreen3D};
+/// let gfx = Gfx::new()?;
+///
+/// let mut top_screen = TopScreen3D::from(&gfx.top_screen);
+///
+/// let (left, right) = top_screen.split_mut();
+///
+/// // Rendering must be done twice for each side
+/// // (with a slight variation in perspective to simulate the eye-to-eye distance).
+/// render(left);
+/// render(right);
+/// #
+/// # Ok(())
+/// # }
+/// #
+/// # use ctru::services::gfx::Screen;
+/// # use std::cell::RefMut;
+/// # fn render(screen: RefMut<'_, dyn Screen>) {}
+/// ```
 impl<'screen> From<&'screen RefCell<TopScreen>> for TopScreen3D<'screen> {
+    #[doc(alias = "gfxSet3D")]
     fn from(top_screen: &'screen RefCell<TopScreen>) -> Self {
         unsafe {
             ctru_sys::gfxSet3D(true);
@@ -297,8 +488,13 @@ impl TopScreen {
 
     /// Enable or disable wide mode on the top screen.
     ///
+    /// # Notes
+    ///
     /// [`Swap::swap_buffers`] must be called after this method for the configuration
     /// to take effect.
+    ///
+    /// Wide mode does NOT work on Old 2DS models (but still does on New 2DS XL models).
+    #[doc(alias = "gfxSetWide")]
     pub fn set_wide_mode(&mut self, enable: bool) {
         unsafe {
             ctru_sys::gfxSetWide(enable);
@@ -306,6 +502,7 @@ impl TopScreen {
     }
 
     /// Returns whether or not wide mode is enabled on the top screen.
+    #[doc(alias = "gfxIsWide")]
     pub fn is_wide(&self) -> bool {
         unsafe { ctru_sys::gfxIsWide() }
     }
@@ -362,7 +559,10 @@ mod tests {
 
     #[test]
     fn gfx_duplicate() {
-        // We don't need to build a `Gfx` because the test runner has one already
+        // NOTE: this is expected to fail if using the console test runner, since
+        // that necessarily creates a Gfx as part of its test setup:
+        let _gfx = Gfx::new().unwrap();
+
         assert!(matches!(Gfx::new(), Err(Error::ServiceAlreadyActive)));
     }
 }

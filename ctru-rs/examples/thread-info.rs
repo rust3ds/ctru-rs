@@ -7,8 +7,6 @@ use ctru::prelude::*;
 use std::os::horizon::thread::BuilderExt;
 
 fn main() {
-    ctru::use_panic_handler();
-
     let gfx = Gfx::new().expect("Couldn't obtain GFX controller");
     let mut hid = Hid::new().expect("Couldn't obtain HID controller");
     let apt = Apt::new().expect("Couldn't obtain APT controller");
@@ -36,7 +34,7 @@ fn main() {
         .unwrap();
 
     println!("sys thread exited");
-    println!("\nPress Start to exit");
+    println!("\x1b[29;16HPress Start to exit");
 
     while apt.main_loop() {
         hid.scan_input();

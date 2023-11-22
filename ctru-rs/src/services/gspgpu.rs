@@ -1,18 +1,28 @@
 //! GSPGPU service
 
+/// GSPGPU events that can be awaited.
+#[doc(alias = "GSPGPU_Event")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum Event {
+    /// Memory fill 1 completed.
     Psc0 = ctru_sys::GSPGPU_EVENT_PSC0,
+    /// Memory fill 2 completed.
     Psc1 = ctru_sys::GSPGPU_EVENT_PSC1,
+    /// Top screen VBlank.
     VBlank0 = ctru_sys::GSPGPU_EVENT_VBlank0,
+    /// Bottom screen VBlank.
     VBlank1 = ctru_sys::GSPGPU_EVENT_VBlank1,
+    /// Display transfer completed.
     PPF = ctru_sys::GSPGPU_EVENT_PPF,
+    /// Command list processing completed.
     P3D = ctru_sys::GSPGPU_EVENT_P3D,
+    /// Direct Memory Access requested.
     DMA = ctru_sys::GSPGPU_EVENT_DMA,
 }
 
-/// Framebuffer formats supported by the 3DS
+#[doc(alias = "GSPGPU_FramebufferFormat")]
+/// Framebuffer formats supported by the 3DS' screens.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum FramebufferFormat {
@@ -45,6 +55,7 @@ impl FramebufferFormat {
 /// Waits for a GSPGPU event to occur.
 ///
 /// `discard_current` determines whether to discard the current event and wait for the next event
+#[doc(alias = "gspWaitForEvent")]
 pub fn wait_for_event(ev: Event, discard_current: bool) {
     unsafe {
         ctru_sys::gspWaitForEvent(ev.into(), discard_current);

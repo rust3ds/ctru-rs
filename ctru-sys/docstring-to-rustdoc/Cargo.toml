@@ -1,7 +1,0 @@
-[package]
-name = "docstring-to-rustdoc"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-doxygen-rs = "0.3.1"

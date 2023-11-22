@@ -9,19 +9,13 @@ on:
       - master
   workflow_dispatch:
 
-env:
-  # https://blog.rust-lang.org/2022/06/22/sparse-registry-testing.html
-  CARGO_UNSTABLE_SPARSE_REGISTRY: "true"
-  # actions-rust-lang/setup-rust-toolchain sets some default RUSTFLAGS
-  RUSTFLAGS: ""
-
 jobs:
   lint:
     strategy:
       matrix:
         toolchain:
-          # Run against a "known good" nightly
-          - nightly-2023-01-13
+          # Run against a "known good" nightly. Rustc version is 1 day behind the toolchain date
+          - nightly-2023-06-01
           # Check for breakage on latest nightly
           - nightly
 
@@ -33,11 +27,14 @@ jobs:
       - name: Checkout branch
         uses: actions/checkout@v2
 
-      - uses: ./.github/actions/setup
+      - uses: rust3ds/test-runner/setup@v1
         with:
           toolchain: ${{ matrix.toolchain }}
 
-      - name: Hide duplicate warnings from lint job
+      # https://github.com/actions/runner/issues/504
+      # Removing the matchers won't keep the job from failing if there are errors,
+      # but will at least declutter pull request annotations (especially for warnings).
+      - name: Hide duplicate annotations from nightly
         if: ${{ matrix.toolchain == 'nightly' }}
         run: |
           echo "::remove-matcher owner=clippy::"
@@ -46,18 +43,17 @@ jobs:
       - name: Check formatting
         run: cargo fmt --all --verbose -- --check
 
-      - name: Cargo check
-        run: cargo 3ds clippy --color=always --workspace --verbose --all-targets
-        # --deny=warnings would be nice, but can easily break CI for new clippy
-        # lints getting added. I'd also like to use Github's "inline warnings"
-        # feature, but https://github.com/actions/runner/issues/2341 means we
-        # can't have both that *and* colored output.
+      - name: Cargo check ctru-sys (without tests)
+        run: cargo 3ds clippy --package ctru-sys --color=always --verbose
 
-  doctests:
+      - name: Cargo check ctru-rs (including tests)
+        run: cargo 3ds clippy --package ctru-rs --color=always --verbose --all-targets
+
+  test:
     strategy:
       matrix:
         toolchain:
-          - nightly-2023-01-13
+          - nightly-2023-06-01
           - nightly
     continue-on-error: ${{ matrix.toolchain == 'nightly' }}
     runs-on: ubuntu-latest
@@ -66,15 +62,36 @@ jobs:
       - name: Checkout branch
         uses: actions/checkout@v2
 
-      - uses: ./.github/actions/setup
+      - uses: rust3ds/test-runner/setup@v1
         with:
           toolchain: ${{ matrix.toolchain }}
 
       - name: Hide duplicated warnings from lint job
         run: echo "::remove-matcher owner=clippy::"
 
-      - name: Build doc tests
-        run: cargo 3ds test --doc --verbose
+      # This needs to be done separately from running the tests to ensure the
+      # lib tests' .3dsx is built before the test is run (for romfs). We don't
+      # really have a good way to build the 3dsx in between the build + test,
+      # unless cargo-3ds actually runs them as separate commands. See
+      # https://github.com/rust3ds/cargo-3ds/issues/44 for more details
+      - name: Build lib and integration tests
+        run: cargo 3ds test --no-run --tests --package ctru-rs
 
-  # TODO: it would be nice to actually build 3dsx for examples/tests, etc.
-  # and run it somehow, but exactly how remains to be seen.
+      - name: Run lib and integration tests
+        uses: rust3ds/test-runner/run-tests@v1
+        with:
+          args: --tests --package ctru-rs
+
+      - name: Build and run doc tests
+        uses: rust3ds/test-runner/run-tests@v1
+        with:
+          args: --doc --package ctru-rs
+
+      - name: Upload citra logs and capture videos
+        uses: actions/upload-artifact@v3
+        if: success() || failure() # always run unless the workflow was cancelled
+        with:
+          name: citra-logs-${{ matrix.toolchain }}
+          path: |
+            target/armv6k-nintendo-3ds/debug/deps/*.txt
+            target/armv6k-nintendo-3ds/debug/deps/*.webm

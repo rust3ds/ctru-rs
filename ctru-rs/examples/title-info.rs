@@ -1,27 +1,37 @@
+//! Title Info example.
+//!
+//! This example showcases how to retrieve information about the titles installed on the console running the application
+//! via the Application Manager (Am) service.
+
 use ctru::prelude::*;
 use ctru::services::am::Am;
 use ctru::services::fs::FsMediaType;
 
 fn main() {
-    ctru::use_panic_handler();
-
     let gfx = Gfx::new().expect("Couldn't obtain GFX controller");
     let mut hid = Hid::new().expect("Couldn't obtain HID controller");
     let apt = Apt::new().expect("Couldn't obtain APT controller");
-    let am = Am::new().expect("Couldn't obtain AM controller");
+
     let top_screen = Console::new(gfx.top_screen.borrow_mut());
     let bottom_screen = Console::new(gfx.bottom_screen.borrow_mut());
 
+    // Setup the AM service to retrieve the wanted information.
+    let am = Am::new().expect("Couldn't obtain AM controller");
+
+    // Amount of titles installed on the SD card.
     let sd_count = am
         .title_count(FsMediaType::Sd)
         .expect("Failed to get sd title count");
+    // List of titles installed on the SD card.
     let sd_list = am
         .title_list(FsMediaType::Sd)
         .expect("Failed to get sd title list");
 
+    // Amount of titles installed on the NAND storage.
     let nand_count = am
         .title_count(FsMediaType::Nand)
         .expect("Failed to get nand title count");
+    // List of titles installed on the NAND storage.
     let nand_list = am
         .title_list(FsMediaType::Nand)
         .expect("Failed to get nand title list");
@@ -30,9 +40,7 @@ fn main() {
     let mut refresh = true;
     let mut use_nand = false;
 
-    // Main loop
     while apt.main_loop() {
-        //Scan all the inputs. This should be done once for each frame
         hid.scan_input();
 
         if hid.keys_down().contains(KeyPad::START) {
@@ -48,23 +56,23 @@ fn main() {
 
         if hid.keys_down().intersects(KeyPad::DOWN) {
             if offset + 1 < cur_list.len() {
-                offset = offset + 1;
+                offset += 1;
                 refresh = true;
             }
-        } else if hid.keys_down().intersects(KeyPad::UP) {
-            if offset > 0 {
-                offset = offset - 1;
-                refresh = true;
-            }
+        } else if hid.keys_down().intersects(KeyPad::UP) && offset > 0 {
+            offset -= 1;
+            refresh = true;
         }
 
+        // Render the title list via a scrollable text UI.
         if refresh {
-            let mut selected_title = cur_list.iter().skip(offset).next().unwrap();
-            // Clear top screen and write title ids to it
+            let mut selected_title = cur_list.get(offset).unwrap();
+
+            // Clear the top screen and write title IDs to it.
             top_screen.select();
             print!("\x1b[2J");
 
-            // Top screen seems to have only 30 rows
+            // Top screen has 30 rows.
             for (i, title) in cur_list.iter().skip(offset).take(29).enumerate() {
                 if i == 0 {
                     selected_title = title;
@@ -74,25 +82,18 @@ fn main() {
                 }
             }
 
-            // Clear bottom screen and write properties of selected title to it
+            // Clear the bottom screen and write the properties of selected title to it.
             bottom_screen.select();
-            println!("\x1b[2J");
-            // Move cursor to top left
+            bottom_screen.clear();
+            println!("Press Start to exit");
+
+            // Move cursor to top left.
             println!("\x1b[1;1");
 
-            match selected_title.title_info() {
-                Ok(info) => {
-                    println!("Size: {} KB", info.size_bytes() / 1024);
-                    println!("Version: 0x{:x}", info.version());
-                }
-                Err(e) => println!("Failed to get title info: {}", e),
-            }
-            match selected_title.product_code() {
-                Ok(code) => println!("Product code: \"{code}\""),
-                Err(e) => println!("Failed to get product code: {}", e),
-            }
+            println!("Size: {} kB", selected_title.size() / 1024);
+            println!("Version: 0x{:x}", selected_title.version());
+            println!("Product code: \"{}\"", selected_title.product_code());
 
-            println!("\x1b[26;0HPress START to exit");
             if use_nand {
                 println!("Press SELECT to choose SD Card");
                 println!("Current medium: NAND");
@@ -106,7 +107,6 @@ fn main() {
             refresh = false;
         }
 
-        //Wait for VBlank
         gfx.wait_for_vblank();
     }
 }

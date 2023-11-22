@@ -7,17 +7,14 @@
 use core::arch::asm;
 
 pub mod result;
-
-mod bindings;
-
-pub use bindings::*;
 pub use result::*;
 
+include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
+
 /// In lieu of a proper errno function exposed by libc
-/// (<https://github.com/rust-lang/libc/issues/1995>), this will retrieve the
-/// last error set in the global reentrancy struct.
+/// (<https://github.com/rust-lang/libc/issues/1995>).
 pub unsafe fn errno() -> s32 {
-    (*__getreent())._errno
+    *__errno()
 }
 
 pub unsafe fn getThreadLocalStorage() -> *mut libc::c_void {
@@ -29,3 +26,11 @@ pub unsafe fn getThreadLocalStorage() -> *mut libc::c_void {
 pub unsafe fn getThreadCommandBuffer() -> *mut u32 {
     (getThreadLocalStorage() as *mut u8).add(0x80) as *mut u32
 }
+
+// TODO: not sure if there's a better way to do this, but I have gotten myself
+// with this a couple times so having the hint seems nice to have.
+#[cfg(test)]
+compile_error!(concat!(
+    "ctru-sys doesn't have tests and its lib test will fail to build at link time. ",
+    "Try specifying `--package ctru-rs` to build those tests.",
+));

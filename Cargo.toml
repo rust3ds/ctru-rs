@@ -1,6 +1,10 @@
 [workspace]
-members = ["ctru-rs", "ctru-sys", "ctru-sys/docstring-to-rustdoc"]
+members = ["ctru-rs", "ctru-sys"]
+default-members = ["ctru-rs", "ctru-sys"]
+resolver = "2"
 
 [patch.'https://github.com/rust3ds/ctru-rs']
-# Make sure all dependencies use the local ctru-sys package
+# Make sure all dependencies use the local packages. This is needed for things
+# like pthread-3ds that rely on ctru-sys, and test-runner which relies on ctru-rs
+ctru-rs = { path = "ctru-rs" }
 ctru-sys = { path = "ctru-sys" }

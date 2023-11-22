@@ -1,36 +1,37 @@
 use crate::Error;
-use std::sync::Mutex;
+use std::sync::{Mutex, MutexGuard, TryLockError};
 
 pub(crate) struct ServiceReference {
-    counter: &'static Mutex<usize>,
+    _guard: MutexGuard<'static, ()>,
     close: Box<dyn Fn() + Send + Sync>,
 }
 
 impl ServiceReference {
-    pub fn new<S, E>(
-        counter: &'static Mutex<usize>,
-        allow_multiple: bool,
-        start: S,
-        close: E,
-    ) -> crate::Result<Self>
+    pub fn new<S, E>(counter: &'static Mutex<()>, start: S, close: E) -> crate::Result<Self>
     where
         S: FnOnce() -> crate::Result<()>,
         E: Fn() + Send + Sync + 'static,
     {
-        let mut value = counter
-            .lock()
-            .expect("Mutex Counter for ServiceReference is poisoned"); // todo: handle poisoning
+        let _guard = match counter.try_lock() {
+            Ok(lock) => lock,
+            Err(e) => match e {
+                TryLockError::Poisoned(guard) => {
+                    // If the MutexGuard is poisoned that means that the "other" service instance (of which the thread panicked)
+                    // was NOT properly closed. To avoid any weird behaviour, we try closing the service now, to then re-open a fresh instance.
+                    //
+                    // It's up to our `close()` implementations to avoid panicking/doing weird stuff again.
+                    close();
 
-        if *value == 0 {
-            start()?;
-        } else if !allow_multiple {
-            return Err(Error::ServiceAlreadyActive);
-        }
+                    guard.into_inner()
+                }
+                TryLockError::WouldBlock => return Err(Error::ServiceAlreadyActive),
+            },
+        };
 
-        *value += 1;
+        start()?;
 
         Ok(Self {
-            counter,
+            _guard,
             close: Box::new(close),
         })
     }
@@ -38,13 +39,6 @@ impl ServiceReference {
 
 impl Drop for ServiceReference {
     fn drop(&mut self) {
-        let mut value = self
-            .counter
-            .lock()
-            .expect("Mutex Counter for ServiceReference is poisoned"); // todo: handle poisoning
-        *value -= 1;
-        if *value == 0 {
-            (self.close)();
-        }
+        (self.close)();
     }
 }

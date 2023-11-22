@@ -10,8 +10,6 @@ std::thread_local! {
 }
 
 fn main() {
-    ctru::use_panic_handler();
-
     let gfx = Gfx::new().expect("Couldn't obtain GFX controller");
     gfx.top_screen.borrow_mut().set_wide_mode(true);
     let mut hid = Hid::new().expect("Couldn't obtain HID controller");
@@ -52,7 +50,7 @@ fn main() {
         );
     });
 
-    println!("Press Start to exit");
+    println!("\x1b[29;16HPress Start to exit");
 
     while apt.main_loop() {
         hid.scan_input();
