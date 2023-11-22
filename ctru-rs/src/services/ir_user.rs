@@ -7,7 +7,7 @@ use std::ffi::CString;
 use std::ptr::{slice_from_raw_parts, slice_from_raw_parts_mut};
 use std::sync::Mutex;
 
-static IR_USER_ACTIVE: Mutex<usize> = Mutex::new(0);
+static IR_USER_ACTIVE: Mutex<()> = Mutex::new(());
 static IR_USER_STATE: Mutex<Option<IrUserState>> = Mutex::new(None);
 
 /// The "ir:USER" service. This service is used to talk to IR devices such as
@@ -55,7 +55,6 @@ impl IrUser {
     ) -> crate::Result<Self> {
         let service_reference = ServiceReference::new(
             &IR_USER_ACTIVE,
-            false,
             || unsafe {
                 // Get the ir:USER service handle
                 let mut service_handle = Handle::default();
