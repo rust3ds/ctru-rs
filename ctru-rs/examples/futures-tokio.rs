@@ -6,8 +6,6 @@ use std::os::horizon::thread::BuilderExt;
 use std::time::Duration;
 
 fn main() {
-    ctru::use_panic_handler();
-
     let gfx = Gfx::new().expect("Couldn't obtain GFX controller");
     let mut hid = Hid::new().expect("Couldn't obtain HID controller");
     let apt = Apt::new().expect("Couldn't obtain APT controller");

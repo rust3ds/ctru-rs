@@ -14,8 +14,6 @@ use std::time::Duration;
 const WAIT_TIMEOUT: Duration = Duration::from_millis(300);
 
 fn main() {
-    ctru::use_panic_handler();
-
     let apt = Apt::new().expect("Failed to initialize Apt service.");
     let mut hid = Hid::new().expect("Failed to initialize Hid service.");
     let gfx = Gfx::new().expect("Failed to initialize GFX service.");

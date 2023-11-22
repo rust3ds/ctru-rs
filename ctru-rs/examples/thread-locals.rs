@@ -10,8 +10,6 @@ std::thread_local! {
 }
 
 fn main() {
-    ctru::use_panic_handler();
-
     let gfx = Gfx::new().expect("Couldn't obtain GFX controller");
     gfx.top_screen.borrow_mut().set_wide_mode(true);
     let mut hid = Hid::new().expect("Couldn't obtain HID controller");

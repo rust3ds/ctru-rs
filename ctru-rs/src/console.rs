@@ -117,9 +117,6 @@ impl<'screen> Console<'screen> {
     /// This function is used to check whether one of the two screens has an existing (and selected) [`Console`],
     /// so that the program can be sure its output will be shown *somewhere*.
     ///
-    /// The main use of this is within the [`ctru::use_panic_handler()`](crate::use_panic_handler()) hook,
-    /// since it will only stop the program's execution if the user is able to see the panic information output on screen.
-    ///
     /// # Example
     ///
     /// ```

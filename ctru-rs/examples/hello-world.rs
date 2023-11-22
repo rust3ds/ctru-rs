@@ -8,7 +8,6 @@ use std::io::BufWriter;
 fn main() {
     // Setup the custom panic handler in case any errors arise.
     // Thanks to it the user will get promptly notified of any panics.
-    ctru::use_panic_handler();
 
     // Setup Graphics, Controller Inputs, Application runtime.
     // These is standard setup any app would need.

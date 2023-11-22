@@ -17,8 +17,6 @@ const IMAGE: &[u8] = include_bytes!("assets/ferris.rgb");
 static ZERO: &[u8] = &[0; IMAGE.len()];
 
 fn main() {
-    ctru::use_panic_handler();
-
     let gfx = Gfx::new().expect("Couldn't obtain GFX controller");
     let mut hid = Hid::new().expect("Couldn't obtain HID controller");
     let apt = Apt::new().expect("Couldn't obtain APT controller");
