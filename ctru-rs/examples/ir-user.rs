@@ -15,7 +15,6 @@ const CPP_CONNECTION_POLLING_PERIOD_MS: u8 = 0x08;
 const CPP_POLLING_PERIOD_MS: u8 = 0x32;
 
 fn main() {
-    ctru::use_panic_handler();
     let apt = Apt::new().unwrap();
     let gfx = Gfx::new().unwrap();
     let top_console = Console::new(gfx.top_screen.borrow_mut());
