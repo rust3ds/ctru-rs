@@ -195,7 +195,9 @@ impl<'screen> CirclePadProDemo<'screen> {
     fn handle_packets(&self) {
         let packets = self.ir_user.get_packets();
         let packet_count = packets.len();
-        let Some(last_packet) = packets.last() else { return };
+        let Some(last_packet) = packets.last() else {
+            return;
+        };
 
         // Use a buffer to avoid flickering the screen (write all output at once)
         let mut output_buffer = Vec::with_capacity(0x1000);
