@@ -13,13 +13,14 @@ to use this library.
 Crate bindings are generated at build time, so the available APIs will depend on the
 installed version of `libctru` when the crate is built. If you want to check
 what version of `libctru` is being built, you can examine these environment
-variables with [`env!`](https://doc.rust-lang.org/std/macro.env.html):
+variables from your crate's build script via to its
+[`links` variables](https://doc.rust-lang.org/cargo/reference/build-scripts.html#the-links-manifest-key):
 
-* `LIBCTRU_VERSION`: full version string (e.g. `"2.3.1-4"`)
-* `LIBCTRU_MAJOR`: major version (e.g. `"2"` for version `2.3.1-4`)
-* `LIBCTRU_MINOR`: minor version (e.g. `"3"` for version `2.3.1-4`)
-* `LIBCTRU_PATCH`: patch version (e.g. `"1"` for version `2.3.1-4`)
-* `LIBCTRU_RELEASE`: release version (e.g. `"4"` for version `2.3.1-4`)
+* `DEP_CTRU_VERSION`: full version string (e.g. `"2.3.1-4"`)
+* `DEP_CTRU_MAJOR_VERSION`: major version (e.g. `"2"` for version `2.3.1-4`)
+* `DEP_CTRU_MINOR_VERSION`: minor version (e.g. `"3"` for version `2.3.1-4`)
+* `DEP_CTRU_PATCH_VERSION`: patch version (e.g. `"1"` for version `2.3.1-4`)
+* `DEP_CTRU_RELEASE`: release version (e.g. `"4"` for version `2.3.1-4`)
 
 ## License
 

@@ -155,15 +155,16 @@ fn detect_and_track_libctru() {
 
     match get_libctru_version(&pacman) {
         Ok((maj, min, patch, rel)) => {
-            eprintln!("using libctru version {maj}.{min}.{patch}-{rel}");
-
-            // These are accessible by the crate during build with `env!()`.
-            // We might consider exporting some public constants or something.
-            println!("cargo:rustc-env=LIBCTRU_VERSION={maj}.{min}.{patch}-{rel}");
-            println!("cargo:rustc-env=LIBCTRU_MAJOR={maj}");
-            println!("cargo:rustc-env=LIBCTRU_MINOR={min}");
-            println!("cargo:rustc-env=LIBCTRU_PATCH={patch}");
-            println!("cargo:rustc-env=LIBCTRU_RELEASE={rel}");
+            let version = format!("{maj}.{min}.{patch}-{rel}");
+            eprintln!("using libctru version {version}");
+            // These are exported as build script output variables, accessible
+            // via `env::var("DEP_CTRU_<key>")` in other crates' build scripts.
+            // https://doc.rust-lang.org/cargo/reference/build-scripts.html#the-links-manifest-key
+            println!("cargo:VERSION={version}");
+            println!("cargo:MAJOR_VERSION={maj}");
+            println!("cargo:MINOR_VERSION={min}");
+            println!("cargo:PATCH_VERSION={patch}");
+            println!("cargo:RELEASE={rel}");
         }
         Err(err) => println!("cargo:warning=unknown libctru version: {err}"),
     }
