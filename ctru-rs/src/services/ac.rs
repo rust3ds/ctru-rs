@@ -271,34 +271,33 @@ impl Ac {
             Ok(String::from_utf8(vec)?)
         }
     }
-    /*
-        /// Load the selected network slot, if present.
-        ///
-        /// Note: this method requires `ac:i` access
-        /// # Example
-        ///
-        /// ```
-        /// # let _runner = test_runner::GdbRunner::default();
-        /// # use std::error::Error;
-        /// # fn main() -> Result<(), Box<dyn Error>> {
-        /// #
-        /// use ctru::services::ac::Ac;
-        ///
-        /// let ac = Ac::new()?;
-        ///
-        /// ac.load_network_slot(NetworkSlot::Second)?;
-        /// #
-        /// # Ok(())
-        /// # }
-        /// ```
-        #[doc(alias = "ACI_LoadNetworkSetting")]
-        pub fn load_network_slot(&self, slot: NetworkSlot) -> crate::Result<()> {
-            unsafe {
-                ResultCode(ctru_sys::ACI_LoadNetworkSetting(slot as u32))?;
-                Ok(())
-            }
+
+    /// Load the selected network slot, if present.
+    ///
+    /// Note: this method requires `ac:i` access
+    /// # Example
+    ///
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::ac::Ac;
+    ///
+    /// let ac = Ac::new()?;
+    ///
+    /// ac.load_network_slot(NetworkSlot::Second)?;
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[doc(alias = "ACI_LoadNetworkSetting")]
+    pub fn load_network_slot(&self, slot: NetworkSlot) -> crate::Result<()> {
+        unsafe {
+            ResultCode(ctru_sys::ACI_LoadNetworkSetting(slot as u32))?;
+            Ok(())
         }
-    */
+    }
 }
 
 impl Drop for Ac {
@@ -331,7 +330,7 @@ pub enum SecurityMode {
     /// WPA2-AES authentication
     WPA2_AES = ctru_sys::AC_WPA2_AES,
 }
-/*
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 #[repr(u32)]
 pub enum NetworkSlot {
@@ -339,6 +338,5 @@ pub enum NetworkSlot {
     Second = 1,
     Third = 2,
 }
-*/
 
 from_impl!(SecurityMode, ctru_sys::acSecurityMode);
