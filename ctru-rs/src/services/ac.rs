@@ -32,7 +32,7 @@ impl Ac {
         }
     }
 
-    /// Waits for an internet connection
+    /// Waits for an internet connection.
     ///
     /// # Example
     ///
@@ -61,7 +61,7 @@ impl Ac {
         }
     }
 
-    /// Returns whether the console is connected to Wi-Fi
+    /// Returns the current Wi-Fi connection status.
     ///
     /// # Example
     ///
@@ -74,23 +74,32 @@ impl Ac {
     ///
     /// let ac = Ac::new()?;
     ///
-    /// println!("Wi-Fi connected: {}", ac.get_wifi_status()?);
+    /// println!("Wi-Fi status: {:?}", ac.get_wifi_status()?);
     /// #
     /// # Ok(())
     /// # }
     /// ```
     #[doc(alias = "ACU_GetWifiStatus")]
-    pub fn get_wifi_status(&self) -> crate::Result<bool> {
+    pub fn get_wifi_status(&self) -> crate::Result<NetworkStatus> {
         unsafe {
             let mut ret = 0u32;
             ResultCode(ctru_sys::ACU_GetStatus(&mut ret))?;
 
-            Ok(ret == 3)
+            Ok(
+                match ret {
+                    0 => NetworkStatus::None,
+                    1 => NetworkStatus::Idle,
+                    2 => NetworkStatus::LANConnected,
+                    3 => NetworkStatus::WANConnected,
+                    _ => Err(crate::Error::Other(format!("Unknown value {}", ret)))
+                }
+            )
         }
     }
 
-    /// Returns whether the console is connected to Wi-Fi
+    /// Returns the [`SecurityMode`] of the currently connected network, or error if the console isn't connected to any network.
     ///
+    /// You can check if the console is connected to a network using [`Ac::get_wifi_status()`].
     /// # Example
     ///
     /// ```
@@ -101,6 +110,10 @@ impl Ac {
     /// use ctru::services::ac::Ac;
     ///
     /// let ac = Ac::new()?;
+    ///
+    /// if ac.get_wifi_status()? == NetworkStatus::WANConnected {
+    ///     println!("Network security: {:?}", ac.get_wifi_security()?);
+    /// }
     ///
     /// #
     /// # Ok(())
@@ -113,13 +126,27 @@ impl Ac {
             ResultCode(ctru_sys::ACU_GetSecurityMode(&mut ret))?;
             // fix this, for some reason the bindings have the type as a struct and not enum
             // and so i can't impl TryFrom automatically
-            Ok(std::mem::transmute(ret))
+            Ok(match ret {
+                0 => SecurityMode::Open,
+
+                1 => SecurityMode::WEP40Bit,
+                2 => SecurityMode::WEP104Bit,
+                3 => SecurityMode::WEP128Bit,
+
+                4 => SecurityMode::WPA_TKIP,
+                5 => SecurityMode::WPA2_TKIP,
+
+                6 => SecurityMode::WPA_AES,
+                7 => SecurityMode::WPA2_AES,
+
+                _ => Err(crate::Error::Other(format!("Unknown value {}", ret)))
+            })
         }
     }
 
     /// Returns the SSID of the Wi-Fi network the console is connected to, or error if the console isn't connected to any network.
     ///
-    /// You can check if the console is connected to a network using [`Self::get_wifi_status()`]
+    /// You can check if the console is connected to a network using [`Ac::get_wifi_status()`].
     ///
     /// # Example
     ///
@@ -145,7 +172,6 @@ impl Ac {
             // we don't really need space for the terminator
             let mut vec = vec![0u8; len as usize];
             ResultCode(ctru_sys::ACU_GetSSID(vec.as_mut_ptr()))?;
-            // how do i handle this error?
             Ok(String::from_utf8(vec)?)
         }
     }
@@ -181,7 +207,7 @@ impl Ac {
 
     /// Returns the connected network's proxy port, if present.
     ///
-    /// You can check if the console is using a proxy with [`Self::get_proxy_enabled()`]
+    /// You can check if the console is using a proxy with [`Ac::get_proxy_enabled()`]
     ///
     /// # Example
     ///
@@ -211,7 +237,7 @@ impl Ac {
 
     /// Returns the connected network's proxy username, if present.
     ///
-    /// You can check if the console is using a proxy with [`Self::get_proxy_enabled()`]
+    /// You can check if the console is using a proxy with [`Ac::get_proxy_enabled()`]
     ///
     /// # Example
     ///
@@ -236,14 +262,13 @@ impl Ac {
             let mut vec = vec![0u8; 0x20];
             ResultCode(ctru_sys::ACU_GetProxyUserName(vec.as_mut_ptr()))?;
 
-            // how do i handle this error?
             Ok(String::from_utf8(vec)?)
         }
     }
 
     /// Returns the connected network's proxy password, if present.
     ///
-    /// You can check if the console is using a proxy with [`Self::get_proxy_enabled()`]
+    /// You can check if the console is using a proxy with [`Ac::get_proxy_enabled()`]
     ///
     /// # Example
     ///
@@ -267,7 +292,6 @@ impl Ac {
             let mut vec = vec![0u8; 0x20];
             ResultCode(ctru_sys::ACU_GetProxyPassword(vec.as_mut_ptr()))?;
 
-            // how do i handle this error?
             Ok(String::from_utf8(vec)?)
         }
     }
@@ -282,7 +306,7 @@ impl Ac {
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
-    /// use ctru::services::ac::Ac;
+    /// use ctru::services::ac::{Ac, NetworkSlot};
     ///
     /// let ac = Ac::new()?;
     ///
@@ -311,6 +335,7 @@ impl Drop for Ac {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u32)]
 #[non_exhaustive]
+#[allow(non_camel_case_types)]
 /// Represents all the supported Wi-Fi security modes.
 pub enum SecurityMode {
     /// No authentication
@@ -333,10 +358,29 @@ pub enum SecurityMode {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 #[repr(u32)]
+/// Represents a network slot, like in the System Settings
 pub enum NetworkSlot {
+    /// The first network slot
     First = 0,
+    /// The second network slot
     Second = 1,
+    /// The third network slot
     Third = 2,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(u32)]
+#[non_exhaustive]
+/// Represents the current Wi-Fi status
+pub enum NetworkStatus {
+    /// Wi-Fi turned off
+    None = 0,
+    /// Not connected
+    Idle = 1,
+    /// Connected, only LAN.
+    LANConnected = 2,
+    /// Connected to the Internet.
+    WANConnected = 3
 }
 
 from_impl!(SecurityMode, ctru_sys::acSecurityMode);

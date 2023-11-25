@@ -29,7 +29,7 @@ fn main() {
 
 fn print_network_info(ac: &Ac) -> ctru::Result<()> {
     let connected = ac.get_wifi_status()?;
-    println!("Wi-Fi connected: {}", connected);
+    println!("Wi-Fi status: {:?}", connected);
 
     // Some methods error out if the console isn't connected
     if connected {
