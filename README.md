@@ -6,13 +6,19 @@ This repository is home of the `ctru-rs` project, which aims to bring full contr
 
 This repository is organized as follows:
 
-  * [`ctru-rs`](./ctru-rs/) - Safe, idiomatic wrapper around [`ctru-sys`](./ctru-sys/).
-  * [`ctru-sys`](./ctru-sys/) - Low-level, unsafe bindings to [`libctru`](https://github.com/devkitPro/libctru).
+  * [`ctru-rs`](./ctru-rs) - Safe, idiomatic wrapper around [`ctru-sys`](./ctru-sys).
+  * [`ctru-sys`](./ctru-sys) - Low-level, unsafe bindings to [`libctru`](https://github.com/devkitPro/libctru).
 
 ## Getting Started
 
 Specific information about how to use the crates is present in the individual README for each package.
 Have a look at `ctru-rs`' [README.md](./ctru-rs/README.md) for a broad overview.
+
+## Documentation
+
+Cargo-generated [documentation](https://rust3ds.github.io/ctru-rs/crates) is available
+via GitHub Pages, because the <https://docs.rs> build environment does not have `libctru`
+installed.
 
 ## Original version
 

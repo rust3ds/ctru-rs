@@ -2,6 +2,8 @@
 
 Safe and idiomatic Rust wrapper around [`libctru`](https://github.com/devkitPro/libctru).
 
+Documentation for the `master` branch can be found [here](https://rust3ds.github.io/ctru-rs/crates/ctru).
+
 ## Getting Started
 
 Thoroughly read the [`ctru-rs` wiki](https://github.com/rust3ds/ctru-rs/wiki/Getting-Started) to meet the requirements

@@ -2,6 +2,9 @@
 
 Raw Rust bindings over the [`libctru`](https://github.com/devkitPro/libctru) C library.
 
+Documentation for the latest devkitPro release can be found
+[here](https://rust3ds.github.io/crates/ctru_sys).
+
 ## Requirements
 
 To use the bindings provided by this crate you will need to link against the [`libctru`](https://github.com/devkitPro/libctru) library.

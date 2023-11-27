@@ -1,0 +1,62 @@
+name: GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: devkitpro/devkitarm
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+
+      - name: Build with Jekyll
+        uses: actions/jekyll-build-pages@v1
+
+      - uses: rust3ds/test-runner/setup@v1
+        with:
+          toolchain: nightly
+
+      - name: Build workspace docs
+        run: cargo 3ds --verbose doc --verbose --no-deps --workspace
+        env:
+          RUSTDOCFLAGS: --enable-index-page
+
+      # https://github.com/actions/upload-pages-artifact#file-permissions
+      - name: Fix file permissions
+        run: |
+          chmod -c -R +rX "target/armv6k-nintendo-3ds/doc" | while read line; do
+            echo "::warning title=Invalid file permissions automatically fixed::$line"
+          done
+
+      - name: Copy generated docs to _site
+        # Note: this won't include proc-macro crate, but macros are re-exported
+        # by the crate docs so there will still be some documentation.
+        run: cp -R ./target/armv6k-nintendo-3ds/doc ./_site/crates
+
+      - name: Upload docs
+        uses: actions/upload-pages-artifact@v2
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
+

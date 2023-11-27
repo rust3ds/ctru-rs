@@ -1,0 +1,15 @@
+---
+---
+
+// https://github.com/pages-themes/midnight#stylesheet
+@import "{{ site.theme }}";
+
+// Give code links a color that matches regular links
+a code {
+    color: inherit;
+}
+
+// Remove weird extra padding and spaces from inline code blocks
+code {
+    padding: 0;
+}
