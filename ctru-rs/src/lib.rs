@@ -28,6 +28,7 @@
 #![doc(
     html_logo_url = "https://user-images.githubusercontent.com/11131775/225929072-2fa1741c-93ae-4b47-9bdf-af70f3d59910.png"
 )]
+#![doc(html_root_url = "https://rust3ds.github.io/ctru-rs/crates")]
 
 // Nothing is imported from these crates but their inclusion here assures correct linking of the missing implementations.
 extern crate pthread_3ds;
