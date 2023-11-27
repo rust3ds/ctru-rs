@@ -5,11 +5,13 @@
 // TODO: Split the Parental PIN lock operations into a different type.
 #![doc(alias = "keyboard")]
 
-use bitflags::bitflags;
 use ctru_sys::{
     self, swkbdInit, swkbdInputText, swkbdSetButton, swkbdSetFeatures, swkbdSetHintText,
     swkbdSetInitialText, SwkbdState,
 };
+use crate::services::{apt::Apt, gfx::Gfx};
+
+use bitflags::bitflags;
 use libc;
 use std::fmt::Display;
 use std::iter::once;
@@ -188,8 +190,7 @@ impl SoftwareKeyboard {
     /// # Notes
     ///
     /// The text received from the keyboard will be truncated if it is longer than `max_bytes`.
-    ///
-    /// TODO: UNSAFE OPERATION, LAUNCHING APPLETS REQUIRES GRAPHICS, WITHOUT AN ACTIVE GFX THIS WILL CAUSE A SEGMENTATION FAULT.
+    /// Use [`SoftwareKeyboard::set_max_text_len()`] to make sure the buffer can contain the input text.
     ///
     /// # Example
     ///
@@ -207,13 +208,13 @@ impl SoftwareKeyboard {
     /// # }
     /// ```
     #[doc(alias = "swkbdInputText")]
-    pub fn get_string(&mut self, max_bytes: usize) -> Result<(String, Button), Error> {
+    pub fn get_string(&mut self, max_bytes: usize, apt: &Apt, gfx: &Gfx) -> Result<(String, Button), Error> {
         // Unfortunately the libctru API doesn't really provide a way to get the exact length
         // of the string that it receieves from the software keyboard. Instead it expects you
         // to pass in a buffer and hope that it's big enough to fit the entire string, so
         // you have to set some upper limit on the potential size of the user's input.
         let mut tmp = vec![0u8; max_bytes];
-        let button = self.write_exact(&mut tmp)?;
+        let button = self.write_exact(&mut tmp, apt, gfx)?;
 
         // libctru does, however, seem to ensure that the buffer will always contain a properly
         // terminated UTF-8 sequence even if the input has to be truncated, so these operations
@@ -234,8 +235,6 @@ impl SoftwareKeyboard {
     /// If the buffer is too small to contain the entire sequence received from the keyboard,
     /// the output will be truncated.
     ///
-    /// TODO: UNSAFE OPERATION, LAUNCHING APPLETS REQUIRES GRAPHICS, WITHOUT AN ACTIVE GFX THIS WILL CAUSE A SEGMENTATION FAULT.
-    ///
     /// # Example
     ///
     /// ```
@@ -254,7 +253,7 @@ impl SoftwareKeyboard {
     /// # }
     /// ```
     #[doc(alias = "swkbdInputText")]
-    pub fn write_exact(&mut self, buf: &mut [u8]) -> Result<Button, Error> {
+    pub fn write_exact(&mut self, buf: &mut [u8], apt: &Apt, gfx: &Gfx) -> Result<Button, Error> {
         unsafe {
             match swkbdInputText(self.state.as_mut(), buf.as_mut_ptr(), buf.len()) {
                 ctru_sys::SWKBD_BUTTON_NONE => Err(self.parse_swkbd_error()),

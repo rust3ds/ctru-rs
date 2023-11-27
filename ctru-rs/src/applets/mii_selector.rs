@@ -4,6 +4,8 @@
 //! The selected Mii is readable as a [`Mii`].
 
 use crate::mii::Mii;
+use crate::services::{apt::Apt, gfx::Gfx};
+
 use bitflags::bitflags;
 use std::{ffi::CString, fmt};
 
@@ -252,9 +254,8 @@ impl MiiSelector {
 
     /// Launch the Mii Selector.
     ///
-    /// Depending on the configuration, the Mii Selector window will appear either on the bottom screen (default behaviour) or the top screen (see [`Options::USE_TOP_SCREEN`]).
-    ///
-    /// TODO: UNSAFE OPERATION, LAUNCHING APPLETS REQUIRES GRAPHICS, WITHOUT AN ACTIVE GFX THIS WILL CAUSE A SEGMENTATION FAULT.
+    /// Depending on the configuration, the Mii Selector window will appear either
+    /// on the bottom screen (default behaviour) or the top screen (see [`Options::USE_TOP_SCREEN`]).
     ///
     /// # Example
     ///
@@ -276,7 +277,7 @@ impl MiiSelector {
     /// # }
     /// ```
     #[doc(alias = "miiSelectorLaunch")]
-    pub fn launch(&mut self) -> Result<Selection, Error> {
+    pub fn launch(&mut self, apt: &Apt, gfx: &Gfx) -> Result<Selection, Error> {
         let mut return_val = Box::<ctru_sys::MiiSelectorReturn>::default();
         unsafe { ctru_sys::miiSelectorLaunch(self.config.as_mut(), return_val.as_mut()) }
 
