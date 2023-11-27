@@ -5,6 +5,13 @@
 #![allow(clippy::all)]
 #![cfg_attr(test, feature(custom_test_frameworks))]
 #![cfg_attr(test, test_runner(test_runner::run_gdb))]
+#![doc(
+    html_favicon_url = "https://user-images.githubusercontent.com/11131775/225929072-2fa1741c-93ae-4b47-9bdf-af70f3d59910.png"
+)]
+#![doc(
+    html_logo_url = "https://user-images.githubusercontent.com/11131775/225929072-2fa1741c-93ae-4b47-9bdf-af70f3d59910.png"
+)]
+#![doc(html_root_url = "https://rust3ds.github.io/ctru-rs/crates")]
 
 pub mod result;
 pub use result::*;
