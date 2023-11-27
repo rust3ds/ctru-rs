@@ -4,6 +4,7 @@ version = "0.5.0"
 authors = ["Rust3DS Org", "Ronald Kinard <furyhunter600@gmail.com>"]
 description = "Raw bindings to libctru"
 repository = "https://github.com/rust3ds/ctru-rs"
+documentation = "https://rust3ds.github.io/ctru-rs/crates/ctru_sys"
 keywords = ["3ds", "libctru"]
 categories = ["os", "external-ffi-bindings", "no-std", "hardware-support"]
 exclude = ["src/.gitattributes"]

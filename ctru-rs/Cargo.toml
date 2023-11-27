@@ -4,6 +4,7 @@ version = "0.7.1"
 authors = ["Rust3DS Org", "Ronald Kinard <furyhunter600@gmail.com>"]
 description = "A safe wrapper around libctru"
 repository = "https://github.com/rust3ds/ctru-rs"
+documentation = "https://rust3ds.github.io/ctru-rs/crates/ctru"
 keywords = ["3ds", "libctru"]
 categories = ["os", "api-bindings", "hardware-support"]
 exclude = ["examples"]
