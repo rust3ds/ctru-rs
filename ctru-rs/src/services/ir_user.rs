@@ -342,13 +342,10 @@ impl IrUser {
         let shared_mem = shared_mem_guard.as_mut().unwrap();
 
         // Set up the request
-        let cmd_buffer = unsafe {
-            &mut *(slice_from_raw_parts_mut(
-                ctru_sys::getThreadCommandBuffer(),
-                max(request.len(), expected_response_len),
-            ))
-        };
-        cmd_buffer[0..request.len()].copy_from_slice(&request);
+        let thread_command_buffer = unsafe { ctru_sys::getThreadCommandBuffer() };
+        unsafe {
+            std::ptr::copy(request.as_ptr(), thread_command_buffer, request.len());
+        }
 
         // Send the request
         unsafe {
@@ -356,11 +353,19 @@ impl IrUser {
         }
 
         // Handle the result returned by the service
-        ResultCode(cmd_buffer[1] as ctru_sys::Result)?;
+        let result = unsafe { std::ptr::read(thread_command_buffer.add(1)) };
+        ResultCode(result as ctru_sys::Result)?;
 
         // Copy back the response
         request.clear();
-        request.extend_from_slice(&cmd_buffer[0..expected_response_len]);
+        request.resize(expected_response_len, 0);
+        unsafe {
+            std::ptr::copy(
+                thread_command_buffer,
+                request.as_mut_ptr(),
+                expected_response_len,
+            );
+        }
 
         Ok(request)
     }
