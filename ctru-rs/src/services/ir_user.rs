@@ -1,5 +1,6 @@
 use crate::error::ResultCode;
 use crate::services::ServiceReference;
+use crate::Error;
 use ctru_sys::{Handle, MEMPERM_READ, MEMPERM_READWRITE};
 use std::alloc::Layout;
 use std::cmp::max;
@@ -107,14 +108,22 @@ impl IrUser {
                     recv_buffer_size,
                     recv_packet_count,
                 };
-                *IR_USER_STATE.lock().unwrap() = Some(user_state);
+                let mut ir_user_state = IR_USER_STATE
+                    .lock()
+                    .map_err(|e| Error::Other(format!("Failed to write to IR_USER_STATE: {e}")))?;
+                *ir_user_state = Some(user_state);
 
                 Ok(())
             },
             || {
                 // Remove our service state from the global location
-                let mut shared_mem_guard = IR_USER_STATE.lock().unwrap();
-                let shared_mem = shared_mem_guard.take().unwrap();
+                let mut shared_mem_guard = IR_USER_STATE
+                    .lock()
+                    .expect("Failed to write to IR_USER_STATE");
+                let Some(shared_mem) = shared_mem_guard.take() else {
+                    // If we don't have any state, then we don't need to clean up.
+                    return;
+                };
 
                 (move || unsafe {
                     // Close service and memory handles

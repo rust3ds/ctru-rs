@@ -94,6 +94,8 @@ pub enum Error {
         /// Size of the requested data (in bytes).
         wanted: usize,
     },
+    /// An error that doesn't fit into the other categories.
+    Other(String),
 }
 
 impl Error {
@@ -153,6 +155,7 @@ impl fmt::Debug for Error {
                 .field("provided", provided)
                 .field("wanted", wanted)
                 .finish(),
+            Self::Other(err) => f.debug_tuple("Other").field(err).finish(),
         }
     }
 }
@@ -175,7 +178,8 @@ impl fmt::Display for Error {
             Self::OutputAlreadyRedirected => {
                 write!(f, "output streams are already redirected to 3dslink")
             }
-            Self::BufferTooShort{provided, wanted} => write!(f, "the provided buffer's length is too short (length = {provided}) to hold the wanted data (size = {wanted})")
+            Self::BufferTooShort{provided, wanted} => write!(f, "the provided buffer's length is too short (length = {provided}) to hold the wanted data (size = {wanted})"),
+            Self::Other(err) => write!(f, "{err}"),
         }
     }
 }
