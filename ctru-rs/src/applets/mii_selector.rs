@@ -277,6 +277,7 @@ impl MiiSelector {
     /// # }
     /// ```
     #[doc(alias = "miiSelectorLaunch")]
+    #[allow(unused_variables)]
     pub fn launch(&mut self, apt: &Apt, gfx: &Gfx) -> Result<Selection, Error> {
         let mut return_val = Box::<ctru_sys::MiiSelectorReturn>::default();
         unsafe { ctru_sys::miiSelectorLaunch(self.config.as_mut(), return_val.as_mut()) }

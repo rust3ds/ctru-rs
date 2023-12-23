@@ -2,14 +2,13 @@
 //!
 //! This applet opens a virtual keyboard on the console's bottom screen which lets the user write UTF-16 valid text.
 // TODO: Implement remaining functionality (password mode, filter callbacks, etc.). Also improve "max text length" API. Improve `number of buttons` API when creating a new SoftwareKeyboard.
-// TODO: Split the Parental PIN lock operations into a different type.
 #![doc(alias = "keyboard")]
 
+use crate::services::{apt::Apt, gfx::Gfx};
 use ctru_sys::{
     self, swkbdInit, swkbdInputText, swkbdSetButton, swkbdSetFeatures, swkbdSetHintText,
     swkbdSetInitialText, SwkbdState,
 };
-use crate::services::{apt::Apt, gfx::Gfx};
 
 use bitflags::bitflags;
 use libc;
@@ -21,6 +20,15 @@ use std::str;
 #[doc(alias = "SwkbdState")]
 #[derive(Clone)]
 pub struct SoftwareKeyboard {
+    state: Box<SwkbdState>,
+}
+
+/// Configuration structure to setup the Parental Lock applet.
+///
+/// Internally, the Parental Lock is just a different kind of [`SoftwareKeyboard`].
+#[doc(alias = "SwkbdState")]
+#[derive(Clone)]
+pub struct ParentalLock {
     state: Box<SwkbdState>,
 }
 
@@ -75,15 +83,22 @@ pub enum Error {
     PowerPressed = ctru_sys::SWKBD_POWERPRESSED,
     /// The parental lock PIN was correct.
     ///
-    /// While this variant isn't *technically* considerable an error
-    /// the result of a Parental PIN operation won't return a string to the program, thus it's still exceptional behaviour.
+    /// This variant should never be returned by normal operations made using this module,
+    /// and is listed here only for compatibility purposes.
+    /// Refer to the return value of [`ParentalLock::launch()`] to confirm the outcome
+    /// of the Parental Lock PIN operation.
     ParentalOk = ctru_sys::SWKBD_PARENTAL_OK,
     /// The parental lock PIN was incorrect.
+    ///
+    /// Refer to the return value of [`ParentalLock::launch()`] to confirm the outcome
+    /// of the Parental Lock PIN operation.
     ParentalFail = ctru_sys::SWKBD_PARENTAL_FAIL,
     /// Input triggered the filter.
     ///
     /// You can have a look at [`Filters`] to activate custom filters.
     BannedInput = ctru_sys::SWKBD_BANNED_INPUT,
+    /// An on-screen button was pressed to exit the prompt.
+    ButtonPressed = ctru_sys::SWKBD_D0_CLICK,
 }
 
 /// Restrictions to enforce rules on the keyboard input.
@@ -109,12 +124,6 @@ bitflags! {
     /// Special features that can be activated via [`SoftwareKeyboard::set_features()`].
     #[derive(PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Clone, Copy)]
     pub struct Features: u32 {
-        /// Parental PIN mode.
-        ///
-        /// # Notes
-        ///
-        /// Refer to [`Error::ParentalOk`] and [`Error::ParentalFail`] to check whether the Parental PIN lock was successfully opened.
-        const PARENTAL_PIN      = ctru_sys::SWKBD_PARENTAL;
         /// Darken top screen while the [`SoftwareKeyboard`] is active.
         const DARKEN_TOP_SCREEN = ctru_sys::SWKBD_DARKEN_TOP_SCREEN;
         /// Enable predictive input (necessary for Kanji on JPN consoles).
@@ -181,7 +190,7 @@ impl SoftwareKeyboard {
         unsafe {
             let mut state = Box::<SwkbdState>::default();
             swkbdInit(state.as_mut(), keyboard_type.into(), num_buttons, -1);
-            SoftwareKeyboard { state }
+            Self { state }
         }
     }
 
@@ -208,7 +217,12 @@ impl SoftwareKeyboard {
     /// # }
     /// ```
     #[doc(alias = "swkbdInputText")]
-    pub fn get_string(&mut self, max_bytes: usize, apt: &Apt, gfx: &Gfx) -> Result<(String, Button), Error> {
+    pub fn get_string(
+        &mut self,
+        max_bytes: usize,
+        apt: &Apt,
+        gfx: &Gfx,
+    ) -> Result<(String, Button), Error> {
         // Unfortunately the libctru API doesn't really provide a way to get the exact length
         // of the string that it receieves from the software keyboard. Instead it expects you
         // to pass in a buffer and hope that it's big enough to fit the entire string, so
@@ -253,10 +267,11 @@ impl SoftwareKeyboard {
     /// # }
     /// ```
     #[doc(alias = "swkbdInputText")]
+    #[allow(unused_variables)]
     pub fn write_exact(&mut self, buf: &mut [u8], apt: &Apt, gfx: &Gfx) -> Result<Button, Error> {
         unsafe {
             match swkbdInputText(self.state.as_mut(), buf.as_mut_ptr(), buf.len()) {
-                ctru_sys::SWKBD_BUTTON_NONE => Err(self.parse_swkbd_error()),
+                ctru_sys::SWKBD_BUTTON_NONE => Err(self.state.result.into()),
                 ctru_sys::SWKBD_BUTTON_LEFT => Ok(Button::Left),
                 ctru_sys::SWKBD_BUTTON_MIDDLE => Ok(Button::Middle),
                 ctru_sys::SWKBD_BUTTON_RIGHT => Ok(Button::Right),
@@ -448,18 +463,49 @@ impl SoftwareKeyboard {
     pub fn set_max_text_len(&mut self, len: u16) {
         self.state.max_text_len = len;
     }
+}
 
-    fn parse_swkbd_error(&self) -> Error {
-        match self.state.result {
-            ctru_sys::SWKBD_INVALID_INPUT => Error::InvalidParameters,
-            ctru_sys::SWKBD_OUTOFMEM => Error::OutOfMem,
-            ctru_sys::SWKBD_HOMEPRESSED => Error::HomePressed,
-            ctru_sys::SWKBD_RESETPRESSED => Error::ResetPressed,
-            ctru_sys::SWKBD_POWERPRESSED => Error::PowerPressed,
-            ctru_sys::SWKBD_PARENTAL_OK => Error::ParentalOk,
-            ctru_sys::SWKBD_PARENTAL_FAIL => Error::ParentalFail,
-            ctru_sys::SWKBD_BANNED_INPUT => Error::BannedInput,
-            _ => unreachable!(),
+impl ParentalLock {
+    /// Initialize a new configuration for the Parental Lock applet.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
+    /// # fn main() {
+    /// #
+    /// use ctru::applets::swkbd::{SoftwareKeyboard, Kind};
+    ///
+    /// // Standard keyboard.
+    /// let keyboard = SoftwareKeyboard::new(Kind::Normal, 2);
+    ///
+    /// // Numpad (with only the "confirm" button).
+    /// let keyboard = SoftwareKeyboard::new(Kind::Numpad, 1);
+    /// #
+    /// # }
+    #[doc(alias = "swkbdInit")]
+    pub fn new() -> Self {
+        unsafe {
+            let mut state = Box::<SwkbdState>::default();
+            swkbdInit(state.as_mut(), Kind::Normal.into(), 1, -1);
+            swkbdSetFeatures(state.as_mut(), ctru_sys::SWKBD_PARENTAL);
+            Self { state }
+        }
+    }
+
+    /// Launch the Parental Lock applet based on the configuration and return a result depending on whether the operation was successful or not.
+    #[doc(alias = "swkbdInputText")]
+    #[allow(unused_variables)]
+    pub fn launch(&mut self, apt: &Apt, gfx: &Gfx) -> Result<(), Error> {
+        unsafe {
+            let mut buf = [0; 10];
+            swkbdInputText(self.state.as_mut(), buf.as_mut_ptr(), 10);
+            let e = self.state.result.into();
+
+            match e {
+                Error::ParentalOk => Ok(()),
+                _ => Err(e),
+            }
         }
     }
 }
@@ -496,11 +542,34 @@ impl Display for Error {
                 f,
                 "input given to the software keyboard triggered the active filters"
             ),
+            Self::ButtonPressed => write!(f, "on-screen button was pressed to exit the prompt"),
         }
     }
 }
 
 impl std::error::Error for Error {}
+
+impl From<ctru_sys::SwkbdResult> for Error {
+    fn from(value: ctru_sys::SwkbdResult) -> Self {
+        match value {
+            ctru_sys::SWKBD_INVALID_INPUT => Error::InvalidParameters,
+            ctru_sys::SWKBD_OUTOFMEM => Error::OutOfMem,
+            ctru_sys::SWKBD_HOMEPRESSED => Error::HomePressed,
+            ctru_sys::SWKBD_RESETPRESSED => Error::ResetPressed,
+            ctru_sys::SWKBD_POWERPRESSED => Error::PowerPressed,
+            ctru_sys::SWKBD_PARENTAL_OK => Error::ParentalOk,
+            ctru_sys::SWKBD_PARENTAL_FAIL => Error::ParentalFail,
+            ctru_sys::SWKBD_BANNED_INPUT => Error::BannedInput,
+            ctru_sys::SWKBD_D0_CLICK => Error::ButtonPressed,
+            ctru_sys::SWKBD_D1_CLICK0 => Error::ButtonPressed,
+            ctru_sys::SWKBD_D1_CLICK1 => Error::ButtonPressed,
+            ctru_sys::SWKBD_D2_CLICK0 => Error::ButtonPressed,
+            ctru_sys::SWKBD_D2_CLICK1 => Error::ButtonPressed,
+            ctru_sys::SWKBD_D2_CLICK2 => Error::ButtonPressed,
+            _ => unreachable!(),
+        }
+    }
+}
 
 from_impl!(Kind, ctru_sys::SwkbdType);
 from_impl!(Button, ctru_sys::SwkbdButton);
