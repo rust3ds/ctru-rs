@@ -232,7 +232,12 @@ impl IrUser {
                 shared_mem[6],
                 shared_mem[7],
             ]),
-            connection_status: shared_mem[8],
+            connection_status: match shared_mem[8] {
+                0 => ConnectionStatus::Disconnected,
+                1 => ConnectionStatus::Connecting,
+                2 => ConnectionStatus::Connected,
+                n => ConnectionStatus::Unknown(n),
+            },
             trying_to_connect_status: shared_mem[9],
             connection_role: shared_mem[10],
             machine_id: shared_mem[11],
@@ -436,7 +441,7 @@ impl IrDeviceId {
 pub struct IrUserStatusInfo {
     pub recv_err_result: ctru_sys::Result,
     pub send_err_result: ctru_sys::Result,
-    pub connection_status: u8,
+    pub connection_status: ConnectionStatus,
     pub trying_to_connect_status: u8,
     pub connection_role: u8,
     pub machine_id: u8,
@@ -444,6 +449,20 @@ pub struct IrUserStatusInfo {
     pub network_id: u8,
     pub unknown_field_2: u8,
     pub unknown_field_3: u8,
+}
+
+/// Connection status values for [`IrUserStatusInfo`].
+#[repr(u8)]
+#[derive(Debug, PartialEq, Eq)]
+pub enum ConnectionStatus {
+    /// Device is not connected
+    Disconnected = 0,
+    /// Waiting for device to connect
+    Connecting = 1,
+    /// Device is connected
+    Connected = 2,
+    /// Unknown connection status
+    Unknown(u8),
 }
 
 /// A packet of data sent/received to/from the IR device.

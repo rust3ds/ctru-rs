@@ -1,7 +1,7 @@
 //! A demo of using the ir:USER service to connect to the Circle Pad Pro.
 
 use ctru::prelude::*;
-use ctru::services::ir_user::{CirclePadProInputResponse, IrDeviceId, IrUser};
+use ctru::services::ir_user::{CirclePadProInputResponse, ConnectionStatus, IrDeviceId, IrUser};
 use ctru::services::srv::HandleExt;
 use ctru_sys::Handle;
 use std::io::Write;
@@ -137,7 +137,7 @@ impl<'screen> CirclePadProDemo<'screen> {
             }
 
             self.print_status_info();
-            if self.ir_user.get_status_info().connection_status == 2 {
+            if self.ir_user.get_status_info().connection_status == ConnectionStatus::Connected {
                 println!("Connected!");
                 break;
             }
