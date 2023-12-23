@@ -262,6 +262,10 @@ impl MiiSelector {
     /// ```no_run
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// # use ctru::services::{apt::Apt, gfx::Gfx};
+    /// #
+    /// # let gfx = Gfx::new().unwrap();
+    /// # let apt = Apt::new().unwrap();
     /// #
     /// use ctru::applets::mii_selector::{MiiSelector, Options};
     ///
@@ -271,7 +275,7 @@ impl MiiSelector {
     /// let opts = Options::ENABLE_CANCEL & Options::ENABLE_GUESTS;
     /// mii_selector.set_options(opts);
     ///
-    /// let result = mii_selector.launch()?;
+    /// let result = mii_selector.launch(&apt, &gfx)?;
     /// #
     /// # Ok(())
     /// # }

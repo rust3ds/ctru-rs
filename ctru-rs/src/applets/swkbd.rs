@@ -1,14 +1,11 @@
 //! Software Keyboard applet.
 //!
 //! This applet opens a virtual keyboard on the console's bottom screen which lets the user write UTF-16 valid text.
-// TODO: Implement remaining functionality (password mode, filter callbacks, etc.). Also improve "max text length" API.
+// TODO: Implement remaining functionality (filter callbacks, etc.). Also improve "max text length" API.
 #![doc(alias = "keyboard")]
 
 use crate::services::{apt::Apt, gfx::Gfx};
-use ctru_sys::{
-    self, swkbdInit, swkbdInputText, swkbdSetButton, swkbdSetFeatures, swkbdSetHintText,
-    swkbdSetInitialText, SwkbdState,
-};
+use ctru_sys::{self, SwkbdState};
 
 use bitflags::bitflags;
 use libc;
@@ -64,6 +61,21 @@ pub enum Button {
     Middle = ctru_sys::SWKBD_BUTTON_MIDDLE,
     /// Right button. Usually corresponds to "OK".
     Right = ctru_sys::SWKBD_BUTTON_RIGHT,
+}
+
+/// Represents the password mode to conceal the input text for the [`SoftwareKeyboard`].
+///
+/// Can be set using [`SoftwareKeyboard::set_password_mode()`].
+#[doc(alias = "SwkbdPasswordMode")]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[repr(u32)]
+pub enum PasswordMode {
+    /// The input text will not be concealed.
+    None = ctru_sys::SWKBD_PASSWORD_NONE,
+    /// The input text will be concealed immediately after typing.
+    Hide = ctru_sys::SWKBD_PASSWORD_HIDE,
+    /// The input text will be concealed a second after typing.
+    HideDelay = ctru_sys::SWKBD_PASSWORD_HIDE_DELAY,
 }
 
 /// Configuration to setup the on-screen buttons to exit the [`SoftwareKeyboard`] prompt.
@@ -201,7 +213,7 @@ impl SoftwareKeyboard {
     pub fn new(keyboard_type: Kind, buttons: ButtonConfig) -> Self {
         unsafe {
             let mut state = Box::<SwkbdState>::default();
-            swkbdInit(state.as_mut(), keyboard_type.into(), buttons.into(), -1);
+            ctru_sys::swkbdInit(state.as_mut(), keyboard_type.into(), buttons.into(), -1);
             Self { state }
         }
     }
@@ -219,11 +231,15 @@ impl SoftwareKeyboard {
     /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// # use ctru::services::{apt::Apt, gfx::Gfx};
+    /// #
+    /// # let gfx = Gfx::new().unwrap();
+    /// # let apt = Apt::new().unwrap();
     /// #
     /// use ctru::applets::swkbd::SoftwareKeyboard;
     /// let mut keyboard = SoftwareKeyboard::default();
     ///
-    /// let (text, button) = keyboard.get_string(2048)?;
+    /// let (text, button) = keyboard.get_string(2048, &apt, &gfx)?;
     /// #
     /// # Ok(())
     /// # }
@@ -267,13 +283,17 @@ impl SoftwareKeyboard {
     /// # let _runner = test_runner::GdbRunner::default();
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// # use ctru::services::{apt::Apt, gfx::Gfx};
+    /// #
+    /// # let gfx = Gfx::new().unwrap();
+    /// # let apt = Apt::new().unwrap();
     /// #
     /// use ctru::applets::swkbd::SoftwareKeyboard;
     /// let mut keyboard = SoftwareKeyboard::default();
     ///
     /// let mut buffer = vec![0; 100];
     ///
-    /// let button = keyboard.write_exact(&mut buffer)?;
+    /// let button = keyboard.write_exact(&mut buffer, &apt, &gfx)?;
     /// #
     /// # Ok(())
     /// # }
@@ -282,7 +302,7 @@ impl SoftwareKeyboard {
     #[allow(unused_variables)]
     pub fn write_exact(&mut self, buf: &mut [u8], apt: &Apt, gfx: &Gfx) -> Result<Button, Error> {
         unsafe {
-            match swkbdInputText(self.state.as_mut(), buf.as_mut_ptr(), buf.len()) {
+            match ctru_sys::swkbdInputText(self.state.as_mut(), buf.as_mut_ptr(), buf.len()) {
                 ctru_sys::SWKBD_BUTTON_NONE => Err(self.state.result.into()),
                 ctru_sys::SWKBD_BUTTON_LEFT => Ok(Button::Left),
                 ctru_sys::SWKBD_BUTTON_MIDDLE => Ok(Button::Middle),
@@ -310,7 +330,7 @@ impl SoftwareKeyboard {
     /// # }
     #[doc(alias = "swkbdSetFeatures")]
     pub fn set_features(&mut self, features: Features) {
-        unsafe { swkbdSetFeatures(self.state.as_mut(), features.bits()) }
+        unsafe { ctru_sys::swkbdSetFeatures(self.state.as_mut(), features.bits()) }
     }
 
     /// Configure input validation for this keyboard.
@@ -383,7 +403,7 @@ impl SoftwareKeyboard {
     pub fn set_initial_text(&mut self, text: &str) {
         unsafe {
             let nul_terminated: String = text.chars().chain(once('\0')).collect();
-            swkbdSetInitialText(self.state.as_mut(), nul_terminated.as_ptr());
+            ctru_sys::swkbdSetInitialText(self.state.as_mut(), nul_terminated.as_ptr());
         }
     }
 
@@ -407,7 +427,57 @@ impl SoftwareKeyboard {
     pub fn set_hint_text(&mut self, text: &str) {
         unsafe {
             let nul_terminated: String = text.chars().chain(once('\0')).collect();
-            swkbdSetHintText(self.state.as_mut(), nul_terminated.as_ptr());
+            ctru_sys::swkbdSetHintText(self.state.as_mut(), nul_terminated.as_ptr());
+        }
+    }
+
+    /// Set a password mode for this software keyboard.
+    ///
+    /// Depending on the selected mode the input text will be concealed.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
+    /// # fn main() {
+    /// #
+    /// use ctru::applets::swkbd::{SoftwareKeyboard, PasswordMode};
+    /// let mut keyboard = SoftwareKeyboard::default();
+    ///
+    /// keyboard.set_password_mode(PasswordMode::Hide);
+    /// #
+    /// # }
+    #[doc(alias = "swkbdSetPasswordMode")]
+    pub fn set_password_mode(&mut self, mode: PasswordMode) {
+        unsafe {
+            ctru_sys::swkbdSetPasswordMode(self.state.as_mut(), mode.into());
+        }
+    }
+
+    /// Set the 2 custom characters to add to the keyboard while using [`Kind::Numpad`].
+    ///
+    /// These characters will appear in their own buttons right next to the `0` key.
+    ///
+    /// # Notes
+    ///
+    /// You can set one or both of these keys to `NUL` (value 0) to avoid showing the additional buttons to the user.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
+    /// # fn main() {
+    /// #
+    /// use ctru::applets::swkbd::{SoftwareKeyboard, Kind, ButtonConfig};
+    /// let mut keyboard = SoftwareKeyboard::new(Kind::Numpad, ButtonConfig::LeftRight);
+    ///
+    /// keyboard.set_numpad_keys(('#', '.'));
+    /// #
+    /// # }
+    #[doc(alias = "swkbdSetNumpadKeys")]
+    pub fn set_numpad_keys(&mut self, keys: (char, char)) {
+        unsafe {
+            ctru_sys::swkbdSetNumpadKeys(self.state.as_mut(), keys.0 as i32, keys.1 as i32);
         }
     }
 
@@ -441,7 +511,7 @@ impl SoftwareKeyboard {
     pub fn configure_button(&mut self, button: Button, text: &str, submit: bool) {
         unsafe {
             let nul_terminated: String = text.chars().chain(once('\0')).collect();
-            swkbdSetButton(
+            ctru_sys::swkbdSetButton(
                 self.state.as_mut(),
                 button.into(),
                 nul_terminated.as_ptr(),
@@ -454,6 +524,8 @@ impl SoftwareKeyboard {
     /// keyboard. By default the limit is `65000` code units.
     ///
     /// # Notes
+    /// 
+    /// This action will overwrite any previously submitted [`ValidInput`] validation.
     ///
     /// Keyboard input is converted from UTF-16 to UTF-8 before being handed to Rust,
     /// so this code point limit does not necessarily equal the max number of UTF-8 code points
@@ -474,6 +546,9 @@ impl SoftwareKeyboard {
     /// # }
     pub fn set_max_text_len(&mut self, len: u16) {
         self.state.max_text_len = len;
+
+        // Activate the specific validation rule for maximum length.
+        self.state.valid_input = ValidInput::FixedLen.into();
     }
 }
 
@@ -495,8 +570,8 @@ impl ParentalLock {
     pub fn new() -> Self {
         unsafe {
             let mut state = Box::<SwkbdState>::default();
-            swkbdInit(state.as_mut(), Kind::Normal.into(), 1, -1);
-            swkbdSetFeatures(state.as_mut(), ctru_sys::SWKBD_PARENTAL);
+            ctru_sys::swkbdInit(state.as_mut(), Kind::Normal.into(), 1, -1);
+            ctru_sys::swkbdSetFeatures(state.as_mut(), ctru_sys::SWKBD_PARENTAL);
             Self { state }
         }
     }
@@ -508,12 +583,15 @@ impl ParentalLock {
     /// ```
     /// # let _runner = test_runner::GdbRunner::default();
     /// # fn main() {
+    /// # use ctru::services::{apt::Apt, gfx::Gfx};
     /// #
-    /// use ctru::applets::swkbd::ParentalLock;
+    /// # let gfx = Gfx::new().unwrap();
+    /// # let apt = Apt::new().unwrap();
+    /// use ctru::applets::swkbd::{ParentalLock, Error};
     ///
     /// let parental_lock = ParentalLock::new();
     ///
-    /// match parental_lock.launch() {
+    /// match parental_lock.launch(&apt, &gfx) {
     ///     Ok(_) => println!("You can access parental-only features and settings."),
     ///     Err(Error::ParentalFail) => println!("Is a kid trying to access this?"),
     ///     Err(_) => println!("Something wrong happened during the parental lock prompt.")
@@ -525,7 +603,7 @@ impl ParentalLock {
     pub fn launch(&mut self, apt: &Apt, gfx: &Gfx) -> Result<(), Error> {
         unsafe {
             let mut buf = [0; 10];
-            swkbdInputText(self.state.as_mut(), buf.as_mut_ptr(), 10);
+            ctru_sys::swkbdInputText(self.state.as_mut(), buf.as_mut_ptr(), 10);
             let e = self.state.result.into();
 
             match e {
@@ -601,4 +679,6 @@ from_impl!(Kind, ctru_sys::SwkbdType);
 from_impl!(Button, ctru_sys::SwkbdButton);
 from_impl!(Error, ctru_sys::SwkbdResult);
 from_impl!(ValidInput, i32);
+from_impl!(ValidInput, u32);
 from_impl!(ButtonConfig, i32);
+from_impl!(PasswordMode, u32);
