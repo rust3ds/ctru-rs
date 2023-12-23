@@ -1,7 +1,7 @@
 //! Software Keyboard applet.
 //!
 //! This applet opens a virtual keyboard on the console's bottom screen which lets the user write UTF-16 valid text.
-// TODO: Implement remaining functionality (password mode, filter callbacks, etc.). Also improve "max text length" API. Improve `number of buttons` API when creating a new SoftwareKeyboard.
+// TODO: Implement remaining functionality (password mode, filter callbacks, etc.). Also improve "max text length" API.
 #![doc(alias = "keyboard")]
 
 use crate::services::{apt::Apt, gfx::Gfx};
@@ -64,6 +64,18 @@ pub enum Button {
     Middle = ctru_sys::SWKBD_BUTTON_MIDDLE,
     /// Right button. Usually corresponds to "OK".
     Right = ctru_sys::SWKBD_BUTTON_RIGHT,
+}
+
+/// Configuration to setup the on-screen buttons to exit the [`SoftwareKeyboard`] prompt.
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[repr(i32)]
+pub enum ButtonConfig {
+    /// 1 Button: considered the right button.
+    Right = 1,
+    /// 2 Buttons: left and right buttons.
+    LeftRight = 2,
+    /// 3 Buttons: left, middle and right buttons.
+    LeftMiddleRight = 3,
 }
 
 /// Error returned by an unsuccessful [`SoftwareKeyboard::get_string()`].
@@ -176,20 +188,20 @@ impl SoftwareKeyboard {
     /// # let _runner = test_runner::GdbRunner::default();
     /// # fn main() {
     /// #
-    /// use ctru::applets::swkbd::{SoftwareKeyboard, Kind};
+    /// use ctru::applets::swkbd::{SoftwareKeyboard, ButtonConfig, Kind};
     ///
-    /// // Standard keyboard.
-    /// let keyboard = SoftwareKeyboard::new(Kind::Normal, 2);
+    /// // Standard keyboard. Equivalent to `SoftwareKeyboard::default()`.
+    /// let keyboard = SoftwareKeyboard::new(Kind::Normal, ButtonConfig::LeftRight);
     ///
     /// // Numpad (with only the "confirm" button).
-    /// let keyboard = SoftwareKeyboard::new(Kind::Numpad, 1);
+    /// let keyboard = SoftwareKeyboard::new(Kind::Numpad, ButtonConfig::Right);
     /// #
     /// # }
     #[doc(alias = "swkbdInit")]
-    pub fn new(keyboard_type: Kind, num_buttons: i32) -> Self {
+    pub fn new(keyboard_type: Kind, buttons: ButtonConfig) -> Self {
         unsafe {
             let mut state = Box::<SwkbdState>::default();
-            swkbdInit(state.as_mut(), keyboard_type.into(), num_buttons, -1);
+            swkbdInit(state.as_mut(), keyboard_type.into(), buttons.into(), -1);
             Self { state }
         }
     }
@@ -413,10 +425,10 @@ impl SoftwareKeyboard {
     /// # let _runner = test_runner::GdbRunner::default();
     /// # fn main() {
     /// #
-    /// use ctru::applets::swkbd::{SoftwareKeyboard, Button, Kind};
+    /// use ctru::applets::swkbd::{SoftwareKeyboard, Button, ButtonConfig, Kind};
     ///
     /// // We create a `SoftwareKeyboard` with left and right buttons.
-    /// let mut keyboard = SoftwareKeyboard::new(Kind::Normal, 2);
+    /// let mut keyboard = SoftwareKeyboard::new(Kind::Normal, ButtonConfig::LeftRight);
     ///
     /// // Set the left button text to "Cancel" and pressing it will NOT return the user's input.
     /// keyboard.configure_button(Button::Left, "Cancel", false);
@@ -474,13 +486,9 @@ impl ParentalLock {
     /// # let _runner = test_runner::GdbRunner::default();
     /// # fn main() {
     /// #
-    /// use ctru::applets::swkbd::{SoftwareKeyboard, Kind};
+    /// use ctru::applets::swkbd::ParentalLock;
     ///
-    /// // Standard keyboard.
-    /// let keyboard = SoftwareKeyboard::new(Kind::Normal, 2);
-    ///
-    /// // Numpad (with only the "confirm" button).
-    /// let keyboard = SoftwareKeyboard::new(Kind::Numpad, 1);
+    /// let parental_lock = ParentalLock::new();
     /// #
     /// # }
     #[doc(alias = "swkbdInit")]
@@ -494,6 +502,24 @@ impl ParentalLock {
     }
 
     /// Launch the Parental Lock applet based on the configuration and return a result depending on whether the operation was successful or not.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
+    /// # fn main() {
+    /// #
+    /// use ctru::applets::swkbd::ParentalLock;
+    ///
+    /// let parental_lock = ParentalLock::new();
+    ///
+    /// match parental_lock.launch() {
+    ///     Ok(_) => println!("You can access parental-only features and settings."),
+    ///     Err(Error::ParentalFail) => println!("Is a kid trying to access this?"),
+    ///     Err(_) => println!("Something wrong happened during the parental lock prompt.")
+    /// }
+    /// #
+    /// # }
     #[doc(alias = "swkbdInputText")]
     #[allow(unused_variables)]
     pub fn launch(&mut self, apt: &Apt, gfx: &Gfx) -> Result<(), Error> {
@@ -513,7 +539,7 @@ impl ParentalLock {
 /// Creates a new [`SoftwareKeyboard`] configuration set to using a [`Kind::Normal`] keyboard and 2 [`Button`]s.
 impl Default for SoftwareKeyboard {
     fn default() -> Self {
-        SoftwareKeyboard::new(Kind::Normal, 2)
+        SoftwareKeyboard::new(Kind::Normal, ButtonConfig::LeftRight)
     }
 }
 
@@ -575,3 +601,4 @@ from_impl!(Kind, ctru_sys::SwkbdType);
 from_impl!(Button, ctru_sys::SwkbdButton);
 from_impl!(Error, ctru_sys::SwkbdResult);
 from_impl!(ValidInput, i32);
+from_impl!(ButtonConfig, i32);

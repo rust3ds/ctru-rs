@@ -14,7 +14,10 @@ fn main() {
     // Prepares a software keyboard with two buttons: one to cancel input and one
     // to accept it. You can also use `SoftwareKeyboard::new()` to launch the keyboard
     // with different configurations.
-    let mut keyboard = SoftwareKeyboard::default();
+    let mut keyboard = SoftwareKeyboard::new(
+        ctru::applets::swkbd::Kind::Normal,
+        ctru::applets::swkbd::ButtonConfig::LeftMiddleRight,
+    );
 
     println!("Press A to enter some text or press Start to exit.");
 
