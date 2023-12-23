@@ -5,6 +5,7 @@ use ctru_sys::{Handle, MEMPERM_READ, MEMPERM_READWRITE};
 use std::alloc::Layout;
 use std::cmp::max;
 use std::ffi::CString;
+use std::fmt::format;
 use std::ptr::{slice_from_raw_parts, slice_from_raw_parts_mut};
 use std::sync::Mutex;
 
@@ -243,7 +244,7 @@ impl IrUser {
     }
 
     /// Read and parse the current packets received from the IR device.
-    pub fn get_packets(&self) -> Vec<IrUserPacket> {
+    pub fn get_packets(&self) -> Result<Vec<IrUserPacket>, String> {
         let shared_mem_guard = IR_USER_STATE.lock().unwrap();
         let user_state = shared_mem_guard.as_ref().unwrap();
         let shared_mem = user_state.shared_memory;
@@ -312,9 +313,13 @@ impl IrUser {
 
                 // IR packets start with a magic number, so double check it
                 let magic_number = packet_data(0);
-                assert_eq!(magic_number, 0xA5);
+                if magic_number != 0xA5 {
+                    return Err(format!(
+                        "Invalid magic number in packet: {magic_number:#x}, expected 0xA5"
+                    ));
+                }
 
-                IrUserPacket {
+                Ok(IrUserPacket {
                     magic_number: packet_data(0),
                     destination_network_id: packet_data(1),
                     payload_length,
@@ -322,7 +327,7 @@ impl IrUser {
                         .map(packet_data)
                         .collect(),
                     checksum: packet_data(payload_offset + payload_length),
-                }
+                })
             })
             .collect()
     }

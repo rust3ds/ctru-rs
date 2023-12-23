@@ -193,7 +193,10 @@ impl<'screen> CirclePadProDemo<'screen> {
     }
 
     fn handle_packets(&self) {
-        let packets = self.ir_user.get_packets();
+        let packets = self
+            .ir_user
+            .get_packets()
+            .expect("Packets should be well formed");
         let packet_count = packets.len();
         let Some(last_packet) = packets.last() else {
             return;
