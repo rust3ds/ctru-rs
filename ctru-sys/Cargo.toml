@@ -1,9 +1,10 @@
 [package]
 name = "ctru-sys"
-version = "22.2.0+2.2.2-1"
+version = "0.5.0"
 authors = ["Rust3DS Org", "Ronald Kinard <furyhunter600@gmail.com>"]
 description = "Raw bindings to libctru"
 repository = "https://github.com/rust3ds/ctru-rs"
+documentation = "https://rust3ds.github.io/ctru-rs/crates/ctru_sys"
 keywords = ["3ds", "libctru"]
 categories = ["os", "external-ffi-bindings", "no-std", "hardware-support"]
 exclude = ["src/.gitattributes"]
@@ -18,7 +19,12 @@ libc = { version = "0.2.121", default-features = false }
 bindgen = { version = "0.65.1", features = ["experimental"] }
 cc = "1.0"
 doxygen-rs = "0.4.2"
+itertools = "0.11.0"
 which = "4.4.0"
+
+[dev-dependencies]
+shim-3ds = { git = "https://github.com/rust3ds/shim-3ds.git" }
+test-runner = { git = "https://github.com/rust3ds/test-runner.git" }
 
 [package.metadata.docs.rs]
 default-target = "armv6k-nintendo-3ds"

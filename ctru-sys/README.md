@@ -2,6 +2,10 @@
 
 Raw Rust bindings over the [`libctru`](https://github.com/devkitPro/libctru) C library.
 
+Documentation for the latest devkitPro release
+[on Docker Hub](https://hub.docker.com/r/devkitpro/devkitarm/)
+can be found [here](https://rust3ds.github.io/ctru-rs/crates/ctru_sys).
+
 ## Requirements
 
 To use the bindings provided by this crate you will need to link against the [`libctru`](https://github.com/devkitPro/libctru) library.
@@ -10,23 +14,17 @@ to use this library.
 
 ## Version
 
-This crate's version changes according to the version of `libctru`
-used to generate the bindings, with the following convention:
+Crate bindings are generated at build time, so the available APIs will depend on the
+installed version of `libctru` when the crate is built. If you want to check
+what version of `libctru` is being built, you can examine these environment
+variables from your crate's build script via to its
+[`links` variables](https://doc.rust-lang.org/cargo/reference/build-scripts.html#the-links-manifest-key):
 
-  * [`libctru`](https://github.com/devkitPro/libctru) version `X.Y.Z-W`
-  * `ctru-sys` version `XY.Z.P+X.Y.Z-W`
-
-  where `P` is usually 0 but may be incremented for fixes in e.g.
-  binding generation, `libc` dependency bump, etc.
-
-It may be possible to build this crate against a different version of [`libctru`](https://github.com/devkitPro/libctru),
-but you may encounter linker errors or ABI issues. A build-time Cargo warning
-(displayed when built with `-vv`) will be issued if the build script detects
-a mismatch or is unable to check the installed [`libctru`](https://github.com/devkitPro/libctru) version.
-
-## Generating bindings
-
-Bindings of new versions of [`libctru`](https://github.com/devkitPro/libctru) can be built using the integrated [`bindgen.sh`](./bindgen.sh) script.
+* `DEP_CTRU_VERSION`: full version string (e.g. `"2.3.1-4"`)
+* `DEP_CTRU_MAJOR_VERSION`: major version (e.g. `"2"` for version `2.3.1-4`)
+* `DEP_CTRU_MINOR_VERSION`: minor version (e.g. `"3"` for version `2.3.1-4`)
+* `DEP_CTRU_PATCH_VERSION`: patch version (e.g. `"1"` for version `2.3.1-4`)
+* `DEP_CTRU_RELEASE`: release version (e.g. `"4"` for version `2.3.1-4`)
 
 ## License
 

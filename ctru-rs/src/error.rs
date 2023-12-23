@@ -263,7 +263,13 @@ fn result_code_description_str(result: ctru_sys::Result) -> Cow<'static, str> {
         RD_NOT_AUTHORIZED => "not_authorized",
         RD_TOO_LARGE => "too_large",
         RD_INVALID_SELECTION => "invalid_selection",
-        code => return Cow::Owned(format!("(unknown description: {code:#x})")),
+        code => {
+            let error = unsafe { CStr::from_ptr(ctru_sys::osStrError(result)) }.to_str();
+            match error {
+                Ok(err) => err,
+                Err(_) => return Cow::Owned(format!("(unknown description: {code:#x})")),
+            }
+        }
     })
 }
 
