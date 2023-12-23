@@ -65,7 +65,7 @@ impl IrUser {
                 ))?;
 
                 // Calculate the shared memory size.
-                // Shared memory length must be page aligned.
+                // Shared memory length must be a multiple of the page size.
                 let minimum_shared_memory_len =
                     SHARED_MEM_INFO_SECTIONS_SIZE + recv_buffer_size + send_buffer_size;
                 let shared_memory_len = round_up(minimum_shared_memory_len, PAGE_SIZE);
