@@ -10,7 +10,7 @@ use std::default::Default;
 
 use ctru_sys::{consoleClear, consoleInit, consoleSelect, consoleSetWindow, PrintConsole};
 
-use crate::services::gfx::Screen;
+use crate::services::gfx::{Flush, Screen, Swap};
 
 static mut EMPTY_CONSOLE: PrintConsole = unsafe { const_zero::const_zero!(PrintConsole) };
 
@@ -326,6 +326,30 @@ impl<'screen, S: Screen> Console<'screen, S> {
     /// Run a function with access to the underlying screen.
     pub fn with_screen(&mut self, action: impl FnOnce(&mut RefMut<'_, S>)) {
         action(&mut self.screen);
+    }
+}
+
+impl<S: Screen + Swap> Swap for Console<'_, S> {
+    /// Swaps the video buffers. Note: The console's cursor position is not reset, only the framebuffer is changed.
+    ///
+    /// Even if double buffering is disabled, "swapping" the buffers has the side effect
+    /// of committing any configuration changes to the buffers (e.g. [`TopScreen::set_wide_mode()`],
+    /// [`Screen::set_framebuffer_format()`], [`Swap::set_double_buffering()`]), so it should still be used.
+    ///
+    /// This should be called once per frame at most.
+    fn swap_buffers(&mut self) {
+        self.screen.swap_buffers();
+        self.context.frameBuffer = self.screen.raw_framebuffer().ptr as *mut u16;
+    }
+
+    fn set_double_buffering(&mut self, enabled: bool) {
+        self.screen.set_double_buffering(enabled);
+    }
+}
+
+impl<S: Screen + Flush> Flush for Console<'_, S> {
+    fn flush_buffers(&mut self) {
+        self.screen.flush_buffers();
     }
 }
 

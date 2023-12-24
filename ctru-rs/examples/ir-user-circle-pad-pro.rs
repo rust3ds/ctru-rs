@@ -80,10 +80,8 @@ impl<'screen> CirclePadProDemo<'screen> {
         bottom_console: Console<'screen, BottomScreen>,
     ) -> Self {
         // Set up double buffering on top screen
-        top_console.with_screen(|screen| {
-            screen.set_double_buffering(true);
-            screen.swap_buffers();
-        });
+        top_console.set_double_buffering(true);
+        top_console.swap_buffers();
 
         // Write messages to bottom screen (not double buffered)
         bottom_console.select();
@@ -120,10 +118,8 @@ impl<'screen> CirclePadProDemo<'screen> {
         self.top_console.select();
         self.top_console.clear();
         println!("{:#x?}", self.ir_user.get_status_info());
-        self.top_console.with_screen(|screen| {
-            screen.flush_buffers();
-            screen.swap_buffers();
-        });
+        self.top_console.flush_buffers();
+        self.top_console.swap_buffers();
         self.bottom_console.select();
     }
 
@@ -238,10 +234,8 @@ impl<'screen> CirclePadProDemo<'screen> {
         println!("\n{cpp_response:#02x?}");
 
         // Flush output and switch back to bottom screen
-        self.top_console.with_screen(|screen| {
-            screen.flush_buffers();
-            screen.swap_buffers();
-        });
+        self.top_console.flush_buffers();
+        self.top_console.swap_buffers();
         self.bottom_console.select();
 
         // Done handling the packets, release them
