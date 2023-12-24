@@ -58,12 +58,12 @@ pub enum Dimension {
 /// you can try using [`Soc::redirect_to_3dslink`](crate::services::soc::Soc::redirect_to_3dslink) while activating the `--server` flag for `3dslink` (also supported by `cargo-3ds`).
 /// More info in the [`cargo-3ds` docs](https://github.com/rust3ds/cargo-3ds#running-executables).
 #[doc(alias = "PrintConsole")]
-pub struct Console<'screen> {
+pub struct Console<'screen, S: Screen> {
     context: Box<PrintConsole>,
-    screen: RefMut<'screen, dyn Screen>,
+    screen: RefMut<'screen, S>,
 }
 
-impl<'screen> Console<'screen> {
+impl<'screen, S: Screen> Console<'screen, S> {
     /// Initialize a console on the chosen screen.
     ///
     /// # Notes
@@ -102,7 +102,7 @@ impl<'screen> Console<'screen> {
     /// # }
     /// ```
     #[doc(alias = "consoleInit")]
-    pub fn new(screen: RefMut<'screen, dyn Screen>) -> Self {
+    pub fn new(screen: RefMut<'screen, S>) -> Self {
         let mut context = Box::<PrintConsole>::default();
 
         unsafe { consoleInit(screen.as_raw(), context.as_mut()) };
@@ -322,9 +322,14 @@ impl<'screen> Console<'screen> {
             _ => unreachable!(),
         }
     }
+
+    /// Run a function with access to the underlying screen.
+    pub fn with_screen(&mut self, action: impl FnOnce(&mut RefMut<'_, S>)) {
+        action(&mut self.screen);
+    }
 }
 
-impl Drop for Console<'_> {
+impl<S: Screen> Drop for Console<'_, S> {
     fn drop(&mut self) {
         unsafe {
             // Safety: We are about to deallocate the PrintConsole data pointed

@@ -1,10 +1,10 @@
 //! A demo of using the ir:USER service to connect to the Circle Pad Pro.
 
 use ctru::prelude::*;
+use ctru::services::gfx::{BottomScreen, Flush, Swap, TopScreen};
 use ctru::services::ir_user::{CirclePadProInputResponse, ConnectionStatus, IrDeviceId, IrUser};
 use ctru::services::srv::HandleExt;
 use ctru_sys::Handle;
-use std::io::Write;
 use std::time::Duration;
 
 const PACKET_INFO_SIZE: usize = 8;
@@ -19,7 +19,7 @@ fn main() {
     let gfx = Gfx::new().unwrap();
     let top_console = Console::new(gfx.top_screen.borrow_mut());
     let bottom_console = Console::new(gfx.bottom_screen.borrow_mut());
-    let demo = CirclePadProDemo::new(top_console, bottom_console);
+    let mut demo = CirclePadProDemo::new(top_console, bottom_console);
     demo.print_status_info();
 
     // Initialize HID after ir:USER because libctru also initializes ir:rst,
@@ -62,8 +62,8 @@ fn main() {
 }
 
 struct CirclePadProDemo<'screen> {
-    top_console: Console<'screen>,
-    bottom_console: Console<'screen>,
+    top_console: Console<'screen, TopScreen>,
+    bottom_console: Console<'screen, BottomScreen>,
     ir_user: IrUser,
     connection_status_event: Handle,
     receive_packet_event: Handle,
@@ -75,7 +75,17 @@ enum ConnectionResult {
 }
 
 impl<'screen> CirclePadProDemo<'screen> {
-    fn new(top_console: Console<'screen>, bottom_console: Console<'screen>) -> Self {
+    fn new(
+        mut top_console: Console<'screen, TopScreen>,
+        bottom_console: Console<'screen, BottomScreen>,
+    ) -> Self {
+        // Set up double buffering on top screen
+        top_console.with_screen(|screen| {
+            screen.set_double_buffering(true);
+            screen.swap_buffers();
+        });
+
+        // Write messages to bottom screen (not double buffered)
         bottom_console.select();
         println!("Welcome to the ir:USER / Circle Pad Pro Demo");
 
@@ -106,14 +116,18 @@ impl<'screen> CirclePadProDemo<'screen> {
         }
     }
 
-    fn print_status_info(&self) {
+    fn print_status_info(&mut self) {
         self.top_console.select();
         self.top_console.clear();
         println!("{:#x?}", self.ir_user.get_status_info());
+        self.top_console.with_screen(|screen| {
+            screen.flush_buffers();
+            screen.swap_buffers();
+        });
         self.bottom_console.select();
     }
 
-    fn connect_to_cpp(&self, hid: &mut Hid) -> ConnectionResult {
+    fn connect_to_cpp(&mut self, hid: &mut Hid) -> ConnectionResult {
         // Connection loop
         loop {
             hid.scan_input();
@@ -192,7 +206,7 @@ impl<'screen> CirclePadProDemo<'screen> {
         ConnectionResult::Connected
     }
 
-    fn handle_packets(&self) {
+    fn handle_packets(&mut self) {
         let packets = self
             .ir_user
             .get_packets()
@@ -201,32 +215,33 @@ impl<'screen> CirclePadProDemo<'screen> {
         let Some(last_packet) = packets.last() else {
             return;
         };
-
-        // Use a buffer to avoid flickering the screen (write all output at once)
-        let mut output_buffer = Vec::with_capacity(0x1000);
-
-        writeln!(&mut output_buffer, "{:x?}", self.ir_user.get_status_info()).unwrap();
-
-        self.ir_user.process_shared_memory(|ir_mem| {
-            writeln!(&mut output_buffer, "\nReceiveBufferInfo:").unwrap();
-            write_buffer_as_hex(&ir_mem[0x10..0x20], &mut output_buffer);
-
-            writeln!(&mut output_buffer, "\nReceiveBuffer:").unwrap();
-            write_buffer_as_hex(&ir_mem[0x20..0x20 + PACKET_BUFFER_SIZE], &mut output_buffer);
-            writeln!(&mut output_buffer).unwrap();
-        });
-
-        writeln!(&mut output_buffer, "\nPacket count: {packet_count}").unwrap();
-        writeln!(&mut output_buffer, "{last_packet:02x?}").unwrap();
-
+        let status_info = self.ir_user.get_status_info();
         let cpp_response = CirclePadProInputResponse::try_from(last_packet)
             .expect("Failed to parse CPP response from IR packet");
-        writeln!(&mut output_buffer, "\n{cpp_response:#02x?}").unwrap();
 
-        // Write output to top screen
+        // Write data to top screen
         self.top_console.select();
         self.top_console.clear();
-        std::io::stdout().write_all(&output_buffer).unwrap();
+        println!("{:x?}", status_info);
+
+        self.ir_user.process_shared_memory(|ir_mem| {
+            println!("\nReceiveBufferInfo:");
+            print_buffer_as_hex(&ir_mem[0x10..0x20]);
+
+            println!("\nReceiveBuffer:");
+            print_buffer_as_hex(&ir_mem[0x20..0x20 + PACKET_BUFFER_SIZE]);
+            println!();
+        });
+
+        println!("\nPacket count: {packet_count}");
+        println!("{last_packet:02x?}");
+        println!("\n{cpp_response:#02x?}");
+
+        // Flush output and switch back to bottom screen
+        self.top_console.with_screen(|screen| {
+            screen.flush_buffers();
+            screen.swap_buffers();
+        });
         self.bottom_console.select();
 
         // Done handling the packets, release them
@@ -241,13 +256,13 @@ impl<'screen> CirclePadProDemo<'screen> {
     }
 }
 
-fn write_buffer_as_hex(buffer: &[u8], output: &mut Vec<u8>) {
+fn print_buffer_as_hex(buffer: &[u8]) {
     let mut counter = 0;
     for byte in buffer {
-        write!(output, "{byte:02x} ").unwrap();
+        print!("{byte:02x} ");
         counter += 1;
         if counter % 16 == 0 {
-            writeln!(output).unwrap();
+            println!();
         }
     }
 }
