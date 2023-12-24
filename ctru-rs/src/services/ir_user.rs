@@ -1,11 +1,21 @@
+//! IR (Infrared) User Service.
+//!
+//! The ir:USER service allows you to communicate with IR devices such as the Circle Pad Pro.
+//!
+//! The Circle Pad Pro (CPP) is an accessory for the 3DS which adds a second Circle Pad and extra shoulder buttons.
+//! On New 3DS systems, the ir:USER service uses the built-in C-stick and new shoulder buttons to emulate the Circle Pad
+//! Pro. Many released games which support the second stick and extra shoulder buttons use this service to communicate
+//! so they can  support both Old 3DS + CPP and New 3DS.
+#![doc(alias = "input")]
+#![doc(alias = "controller")]
+#![doc(alias = "gamepad")]
+
 use crate::error::ResultCode;
 use crate::services::ServiceReference;
 use crate::Error;
 use ctru_sys::{Handle, MEMPERM_READ, MEMPERM_READWRITE};
 use std::alloc::Layout;
-use std::cmp::max;
 use std::ffi::CString;
-use std::fmt::format;
 use std::ptr::{slice_from_raw_parts, slice_from_raw_parts_mut};
 use std::sync::Mutex;
 
@@ -421,7 +431,9 @@ unsafe fn initialize_irnop_shared(params: InitializeIrnopSharedParams) -> crate:
 /// An enum which represents the different IR devices the 3DS can connect to via
 /// the ir:USER service.
 pub enum IrDeviceId {
+    /// Circle Pad Pro
     CirclePadPro,
+    /// Other devices
     // Pretty sure no other IDs are recognized, but just in case
     Custom(u32),
 }
@@ -439,15 +451,25 @@ impl IrDeviceId {
 /// This struct holds a parsed copy of the ir:USER service status (from shared memory).
 #[derive(Debug)]
 pub struct IrUserStatusInfo {
+    /// The result of the last receive operation.
     pub recv_err_result: ctru_sys::Result,
+    /// The result of the last send operation.
     pub send_err_result: ctru_sys::Result,
+    /// The current connection status.
     pub connection_status: ConnectionStatus,
+    /// The status of the connection attempt.
     pub trying_to_connect_status: u8,
+    /// The role of the device in the connection (value meaning is unknown).
     pub connection_role: u8,
+    /// The machine ID of the device.
     pub machine_id: u8,
+    /// Unknown field.
     pub unknown_field_1: u8,
+    /// The network ID of the connection.
     pub network_id: u8,
+    /// Unknown field.
     pub unknown_field_2: u8,
+    /// Unknown field.
     pub unknown_field_3: u8,
 }
 
@@ -468,22 +490,34 @@ pub enum ConnectionStatus {
 /// A packet of data sent/received to/from the IR device.
 #[derive(Debug)]
 pub struct IrUserPacket {
+    /// The magic number of the packet. Should always be 0xA5.
     pub magic_number: u8,
+    /// The destination network ID.
     pub destination_network_id: u8,
+    /// The length of the payload.
     pub payload_length: usize,
+    /// The payload data.
     pub payload: Vec<u8>,
+    /// The checksum of the packet.
     pub checksum: u8,
 }
 
 /// Circle Pad Pro response packet holding the current device input signals and status.
 #[derive(Debug, Default)]
 pub struct CirclePadProInputResponse {
+    /// The X value of the C-stick.
     pub c_stick_x: u16,
+    /// The Y value of the C-stick.
     pub c_stick_y: u16,
+    /// The battery level of the Circle Pad Pro.
     pub battery_level: u8,
+    /// Whether the ZL button is pressed.
     pub zl_pressed: bool,
+    /// Whether the ZR button is pressed.
     pub zr_pressed: bool,
+    /// Whether the R button is pressed.
     pub r_pressed: bool,
+    /// Unknown field.
     pub unknown_field: u8,
 }
 
