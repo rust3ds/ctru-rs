@@ -11,13 +11,13 @@
 #![doc(alias = "gamepad")]
 
 use crate::error::ResultCode;
-use crate::services::srv::make_ipc_header;
+use crate::services::svc::{make_ipc_header, HandleExt};
 use crate::services::ServiceReference;
 use crate::Error;
 use ctru_sys::{Handle, MEMPERM_READ, MEMPERM_READWRITE};
 use std::alloc::Layout;
 use std::ffi::CString;
-use std::ptr::{slice_from_raw_parts, slice_from_raw_parts_mut};
+use std::ptr::slice_from_raw_parts;
 use std::sync::Mutex;
 
 static IR_USER_ACTIVE: Mutex<()> = Mutex::new(());
@@ -100,16 +100,18 @@ impl IrUser {
                 ))?;
 
                 // Initialize the ir:USER service with the shared memory
-                initialize_irnop_shared(InitializeIrnopSharedParams {
-                    ir_user_handle: service_handle,
-                    shared_memory_len: shared_memory_len as u32,
-                    recv_packet_buffer_len: recv_buffer_size as u32,
-                    recv_packet_count: recv_packet_count as u32,
-                    send_packet_buffer_len: send_buffer_size as u32,
-                    send_packet_count: send_packet_count as u32,
-                    bit_rate: IR_BITRATE,
+                let request = vec![
+                    INITIALIZE_IRNOP_SHARED_COMMAND_HEADER,
+                    shared_memory_len as u32,
+                    recv_buffer_size as u32,
+                    recv_packet_count as u32,
+                    send_buffer_size as u32,
+                    send_packet_count as u32,
+                    IR_BITRATE,
+                    0,
                     shared_memory_handle,
-                })?;
+                ];
+                service_handle.send_service_request(request, 2)?;
 
                 // Set up our service state
                 let user_state = IrUserState {
@@ -161,23 +163,28 @@ impl IrUser {
 
     /// Try to connect to the device with the provided ID.
     pub fn require_connection(&self, device_id: IrDeviceId) -> crate::Result<()> {
-        self.send_service_request(
-            vec![REQUIRE_CONNECTION_COMMAND_HEADER, device_id.get_id()],
-            2,
-        )?;
+        unsafe {
+            self.send_service_request(
+                vec![REQUIRE_CONNECTION_COMMAND_HEADER, device_id.get_id()],
+                2,
+            )?;
+        }
         Ok(())
     }
 
     /// Close the current IR connection.
     pub fn disconnect(&self) -> crate::Result<()> {
-        self.send_service_request(vec![DISCONNECT_COMMAND_HEADER], 2)?;
+        unsafe {
+            self.send_service_request(vec![DISCONNECT_COMMAND_HEADER], 2)?;
+        }
         Ok(())
     }
 
     /// Get an event handle that activates on connection status changes.
     pub fn get_connection_status_event(&self) -> crate::Result<Handle> {
-        let response =
-            self.send_service_request(vec![GET_CONNECTION_STATUS_EVENT_COMMAND_HEADER], 4)?;
+        let response = unsafe {
+            self.send_service_request(vec![GET_CONNECTION_STATUS_EVENT_COMMAND_HEADER], 4)
+        }?;
         let status_event = response[3] as Handle;
 
         Ok(status_event)
@@ -185,7 +192,8 @@ impl IrUser {
 
     /// Get an event handle that activates when a packet is received.
     pub fn get_recv_event(&self) -> crate::Result<Handle> {
-        let response = self.send_service_request(vec![GET_RECEIVE_EVENT_COMMAND_HEADER], 4)?;
+        let response =
+            unsafe { self.send_service_request(vec![GET_RECEIVE_EVENT_COMMAND_HEADER], 4) }?;
         let recv_event = response[3] as Handle;
 
         Ok(recv_event)
@@ -197,15 +205,17 @@ impl IrUser {
     /// with the current device input values.
     pub fn request_input_polling(&self, period_ms: u8) -> crate::Result<()> {
         let ir_request: [u8; 3] = [1, period_ms, (period_ms + 2) << 2];
-        self.send_service_request(
-            vec![
-                SEND_IR_NOP_COMMAND_HEADER,
-                ir_request.len() as u32,
-                2 + (ir_request.len() << 14) as u32,
-                ir_request.as_ptr() as u32,
-            ],
-            2,
-        )?;
+        unsafe {
+            self.send_service_request(
+                vec![
+                    SEND_IR_NOP_COMMAND_HEADER,
+                    ir_request.len() as u32,
+                    2 + (ir_request.len() << 14) as u32,
+                    ir_request.as_ptr() as u32,
+                ],
+                2,
+            )?;
+        }
 
         Ok(())
     }
@@ -213,7 +223,9 @@ impl IrUser {
     /// Mark the last `packet_count` packets as processed, so their memory in
     /// the receive buffer can be reused.
     pub fn release_received_data(&self, packet_count: u32) -> crate::Result<()> {
-        self.send_service_request(vec![RELEASE_RECEIVED_DATA_COMMAND_HEADER, packet_count], 2)?;
+        unsafe {
+            self.send_service_request(vec![RELEASE_RECEIVED_DATA_COMMAND_HEADER, packet_count], 2)?;
+        }
         Ok(())
     }
 
@@ -349,37 +361,17 @@ impl IrUser {
     }
 
     /// Internal helper for calling ir:USER service methods.
-    fn send_service_request(
+    unsafe fn send_service_request(
         &self,
-        mut request: Vec<u32>,
+        request: Vec<u32>,
         expected_response_len: usize,
     ) -> crate::Result<Vec<u32>> {
         let mut shared_mem_guard = IR_USER_STATE.lock().unwrap();
         let shared_mem = shared_mem_guard.as_mut().unwrap();
 
-        unsafe {
-            // Set up the request
-            let thread_command_buffer = unsafe { ctru_sys::getThreadCommandBuffer() };
-            std::ptr::copy(request.as_ptr(), thread_command_buffer, request.len());
-
-            // Send the request
-            ResultCode(ctru_sys::svcSendSyncRequest(shared_mem.service_handle))?;
-
-            // Handle the result returned by the service
-            let result = unsafe { std::ptr::read(thread_command_buffer.add(1)) };
-            ResultCode(result as ctru_sys::Result)?;
-
-            // Copy back the response
-            request.clear();
-            request.resize(expected_response_len, 0);
-            std::ptr::copy(
-                thread_command_buffer,
-                request.as_mut_ptr(),
-                expected_response_len,
-            );
-        }
-
-        Ok(request)
+        shared_mem
+            .service_handle
+            .send_service_request(request, expected_response_len)
     }
 }
 
@@ -390,44 +382,6 @@ fn round_up(value: usize, multiple: usize) -> usize {
     } else {
         (value / multiple) * multiple
     }
-}
-
-struct InitializeIrnopSharedParams {
-    ir_user_handle: Handle,
-    shared_memory_len: u32,
-    recv_packet_buffer_len: u32,
-    recv_packet_count: u32,
-    send_packet_buffer_len: u32,
-    send_packet_count: u32,
-    bit_rate: u32,
-    shared_memory_handle: Handle,
-}
-
-/// Internal helper for initializing the ir:USER service
-unsafe fn initialize_irnop_shared(params: InitializeIrnopSharedParams) -> crate::Result<()> {
-    // Set up the request
-    let request = [
-        INITIALIZE_IRNOP_SHARED_COMMAND_HEADER,
-        params.shared_memory_len,
-        params.recv_packet_buffer_len,
-        params.recv_packet_count,
-        params.send_packet_buffer_len,
-        params.send_packet_count,
-        params.bit_rate,
-        0,
-        params.shared_memory_handle,
-    ];
-    let cmd_buffer_ptr = ctru_sys::getThreadCommandBuffer();
-    std::ptr::copy_nonoverlapping(request.as_ptr(), cmd_buffer_ptr, request.len());
-
-    // Send the request
-    ResultCode(ctru_sys::svcSendSyncRequest(params.ir_user_handle))?;
-
-    // Handle the result returned by the service
-    let result = std::ptr::read(cmd_buffer_ptr.add(1));
-    ResultCode(result as ctru_sys::Result)?;
-
-    Ok(())
 }
 
 /// An enum which represents the different IR devices the 3DS can connect to via
