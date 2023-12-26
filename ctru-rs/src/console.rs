@@ -322,11 +322,6 @@ impl<'screen, S: Screen> Console<'screen, S> {
             _ => unreachable!(),
         }
     }
-
-    /// Run a function with access to the underlying screen.
-    pub fn with_screen(&mut self, action: impl FnOnce(&mut RefMut<'_, S>)) {
-        action(&mut self.screen);
-    }
 }
 
 impl<S: Screen + Swap> Swap for Console<'_, S> {
