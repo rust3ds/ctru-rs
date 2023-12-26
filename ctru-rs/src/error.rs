@@ -116,6 +116,7 @@ impl Error {
         Self::Libc(error_str.to_string_lossy().into())
     }
 
+    /// Check if the error is a timeout.
     pub fn is_timeout(&self) -> bool {
         match *self {
             Error::Os(code) => R_DESCRIPTION(code) == ctru_sys::RD_TIMEOUT as ctru_sys::Result,
