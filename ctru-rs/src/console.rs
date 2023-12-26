@@ -39,6 +39,10 @@ pub enum Dimension {
     Height,
 }
 
+/// A [`Screen`] that can be used as a target for [`Console`].
+pub trait ConsoleScreen: Screen + Swap + Flush {}
+impl<S: Screen + Swap + Flush> ConsoleScreen for S {}
+
 /// Virtual text console.
 ///
 /// [`Console`] lets the application redirect `stdout` and `stderr` to a simple text displayer on the 3DS screen.
@@ -58,12 +62,12 @@ pub enum Dimension {
 /// you can try using [`Soc::redirect_to_3dslink`](crate::services::soc::Soc::redirect_to_3dslink) while activating the `--server` flag for `3dslink` (also supported by `cargo-3ds`).
 /// More info in the [`cargo-3ds` docs](https://github.com/rust3ds/cargo-3ds#running-executables).
 #[doc(alias = "PrintConsole")]
-pub struct Console<'screen, S: Screen> {
+pub struct Console<'screen> {
     context: Box<PrintConsole>,
-    screen: RefMut<'screen, S>,
+    screen: RefMut<'screen, dyn ConsoleScreen>,
 }
 
-impl<'screen, S: Screen> Console<'screen, S> {
+impl<'screen> Console<'screen> {
     /// Initialize a console on the chosen screen.
     ///
     /// # Notes
@@ -102,7 +106,7 @@ impl<'screen, S: Screen> Console<'screen, S> {
     /// # }
     /// ```
     #[doc(alias = "consoleInit")]
-    pub fn new(screen: RefMut<'screen, S>) -> Self {
+    pub fn new<S: ConsoleScreen>(screen: RefMut<'screen, S>) -> Self {
         let mut context = Box::<PrintConsole>::default();
 
         unsafe { consoleInit(screen.as_raw(), context.as_mut()) };
@@ -324,7 +328,7 @@ impl<'screen, S: Screen> Console<'screen, S> {
     }
 }
 
-impl<S: Screen + Swap> Swap for Console<'_, S> {
+impl Swap for Console<'_> {
     /// Swaps the video buffers. Note: The console's cursor position is not reset, only the framebuffer is changed.
     ///
     /// Even if double buffering is disabled, "swapping" the buffers has the side effect
@@ -342,13 +346,13 @@ impl<S: Screen + Swap> Swap for Console<'_, S> {
     }
 }
 
-impl<S: Screen + Flush> Flush for Console<'_, S> {
+impl Flush for Console<'_> {
     fn flush_buffers(&mut self) {
         self.screen.flush_buffers();
     }
 }
 
-impl<S: Screen> Drop for Console<'_, S> {
+impl Drop for Console<'_> {
     fn drop(&mut self) {
         unsafe {
             // Safety: We are about to deallocate the PrintConsole data pointed

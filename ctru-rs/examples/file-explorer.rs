@@ -6,7 +6,6 @@
 use ctru::applets::swkbd::{Button, SoftwareKeyboard};
 use ctru::prelude::*;
 
-use ctru::services::gfx::TopScreen;
 use std::fs::DirEntry;
 use std::os::horizon::fs::MetadataExt;
 use std::path::{Path, PathBuf};
@@ -27,7 +26,7 @@ struct FileExplorer<'a> {
     apt: &'a Apt,
     hid: &'a mut Hid,
     gfx: &'a Gfx,
-    console: Console<'a, TopScreen>,
+    console: Console<'a>,
     path: PathBuf,
     entries: Vec<DirEntry>,
     running: bool,

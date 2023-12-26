@@ -1,7 +1,7 @@
 //! A demo of using the ir:USER service to connect to the Circle Pad Pro.
 
 use ctru::prelude::*;
-use ctru::services::gfx::{BottomScreen, Flush, Swap, TopScreen};
+use ctru::services::gfx::{Flush, Swap};
 use ctru::services::ir_user::{CirclePadProInputResponse, ConnectionStatus, IrDeviceId, IrUser};
 use ctru::services::srv::HandleExt;
 use ctru_sys::Handle;
@@ -62,8 +62,8 @@ fn main() {
 }
 
 struct CirclePadProDemo<'screen> {
-    top_console: Console<'screen, TopScreen>,
-    bottom_console: Console<'screen, BottomScreen>,
+    top_console: Console<'screen>,
+    bottom_console: Console<'screen>,
     ir_user: IrUser,
     connection_status_event: Handle,
     receive_packet_event: Handle,
@@ -75,10 +75,7 @@ enum ConnectionResult {
 }
 
 impl<'screen> CirclePadProDemo<'screen> {
-    fn new(
-        mut top_console: Console<'screen, TopScreen>,
-        bottom_console: Console<'screen, BottomScreen>,
-    ) -> Self {
+    fn new(mut top_console: Console<'screen>, bottom_console: Console<'screen>) -> Self {
         // Set up double buffering on top screen
         top_console.set_double_buffering(true);
         top_console.swap_buffers();

@@ -13,7 +13,7 @@ use crate::services::gspgpu::{self, FramebufferFormat};
 use crate::services::ServiceReference;
 
 mod private {
-    use super::{BottomScreen, Screen, TopScreen, TopScreen3D, TopScreenLeft, TopScreenRight};
+    use super::{BottomScreen, TopScreen, TopScreen3D, TopScreenLeft, TopScreenRight};
     use crate::console::Console;
 
     pub trait Sealed {}
@@ -23,7 +23,7 @@ mod private {
     impl Sealed for TopScreenLeft {}
     impl Sealed for TopScreenRight {}
     impl Sealed for BottomScreen {}
-    impl<S: Screen> Sealed for Console<'_, S> {}
+    impl Sealed for Console<'_> {}
 }
 
 /// Trait to handle common functionality for all screens.
