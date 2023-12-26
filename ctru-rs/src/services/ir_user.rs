@@ -357,25 +357,21 @@ impl IrUser {
         let mut shared_mem_guard = IR_USER_STATE.lock().unwrap();
         let shared_mem = shared_mem_guard.as_mut().unwrap();
 
-        // Set up the request
-        let thread_command_buffer = unsafe { ctru_sys::getThreadCommandBuffer() };
         unsafe {
+            // Set up the request
+            let thread_command_buffer = unsafe { ctru_sys::getThreadCommandBuffer() };
             std::ptr::copy(request.as_ptr(), thread_command_buffer, request.len());
-        }
 
-        // Send the request
-        unsafe {
+            // Send the request
             ResultCode(ctru_sys::svcSendSyncRequest(shared_mem.service_handle))?;
-        }
 
-        // Handle the result returned by the service
-        let result = unsafe { std::ptr::read(thread_command_buffer.add(1)) };
-        ResultCode(result as ctru_sys::Result)?;
+            // Handle the result returned by the service
+            let result = unsafe { std::ptr::read(thread_command_buffer.add(1)) };
+            ResultCode(result as ctru_sys::Result)?;
 
-        // Copy back the response
-        request.clear();
-        request.resize(expected_response_len, 0);
-        unsafe {
+            // Copy back the response
+            request.clear();
+            request.resize(expected_response_len, 0);
             std::ptr::copy(
                 thread_command_buffer,
                 request.as_mut_ptr(),
@@ -409,22 +405,27 @@ struct InitializeIrnopSharedParams {
 
 /// Internal helper for initializing the ir:USER service
 unsafe fn initialize_irnop_shared(params: InitializeIrnopSharedParams) -> crate::Result<()> {
-    let cmd_buffer = &mut *(slice_from_raw_parts_mut(ctru_sys::getThreadCommandBuffer(), 9));
-    cmd_buffer[0] = INITIALIZE_IRNOP_SHARED_COMMAND_HEADER;
-    cmd_buffer[1] = params.shared_memory_len;
-    cmd_buffer[2] = params.recv_packet_buffer_len;
-    cmd_buffer[3] = params.recv_packet_count;
-    cmd_buffer[4] = params.send_packet_buffer_len;
-    cmd_buffer[5] = params.send_packet_count;
-    cmd_buffer[6] = params.bit_rate;
-    cmd_buffer[7] = 0;
-    cmd_buffer[8] = params.shared_memory_handle;
+    // Set up the request
+    let request = [
+        INITIALIZE_IRNOP_SHARED_COMMAND_HEADER,
+        params.shared_memory_len,
+        params.recv_packet_buffer_len,
+        params.recv_packet_count,
+        params.send_packet_buffer_len,
+        params.send_packet_count,
+        params.bit_rate,
+        0,
+        params.shared_memory_handle,
+    ];
+    let cmd_buffer_ptr = ctru_sys::getThreadCommandBuffer();
+    std::ptr::copy_nonoverlapping(request.as_ptr(), cmd_buffer_ptr, request.len());
 
     // Send the request
     ResultCode(ctru_sys::svcSendSyncRequest(params.ir_user_handle))?;
 
     // Handle the result returned by the service
-    ResultCode(cmd_buffer[1] as ctru_sys::Result)?;
+    let result = std::ptr::read(cmd_buffer_ptr.add(1));
+    ResultCode(result as ctru_sys::Result)?;
 
     Ok(())
 }
