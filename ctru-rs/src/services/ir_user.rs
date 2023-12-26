@@ -11,6 +11,7 @@
 #![doc(alias = "gamepad")]
 
 use crate::error::ResultCode;
+use crate::services::srv::make_ipc_header;
 use crate::services::ServiceReference;
 use crate::Error;
 use ctru_sys::{Handle, MEMPERM_READ, MEMPERM_READWRITE};
@@ -39,13 +40,13 @@ struct IrUserState {
 }
 
 // ir:USER syscall command headers
-const REQUIRE_CONNECTION_COMMAND_HEADER: u32 = 0x00060040;
-const DISCONNECT_COMMAND_HEADER: u32 = 0x00090000;
-const GET_RECEIVE_EVENT_COMMAND_HEADER: u32 = 0x000A0000;
-const GET_CONNECTION_STATUS_EVENT_COMMAND_HEADER: u32 = 0x000C0000;
-const SEND_IR_NOP_COMMAND_HEADER: u32 = 0x000D0042;
-const INITIALIZE_IRNOP_SHARED_COMMAND_HEADER: u32 = 0x00180182;
-const RELEASE_RECEIVED_DATA_COMMAND_HEADER: u32 = 0x00190040;
+const REQUIRE_CONNECTION_COMMAND_HEADER: u32 = make_ipc_header(6, 1, 0);
+const DISCONNECT_COMMAND_HEADER: u32 = make_ipc_header(9, 0, 0);
+const GET_RECEIVE_EVENT_COMMAND_HEADER: u32 = make_ipc_header(10, 0, 0);
+const GET_CONNECTION_STATUS_EVENT_COMMAND_HEADER: u32 = make_ipc_header(12, 0, 0);
+const SEND_IR_NOP_COMMAND_HEADER: u32 = make_ipc_header(13, 1, 2);
+const INITIALIZE_IRNOP_SHARED_COMMAND_HEADER: u32 = make_ipc_header(24, 6, 2);
+const RELEASE_RECEIVED_DATA_COMMAND_HEADER: u32 = make_ipc_header(25, 1, 0);
 
 // Misc constants
 const SHARED_MEM_INFO_SECTIONS_SIZE: usize = 0x30;

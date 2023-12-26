@@ -28,3 +28,10 @@ impl HandleExt for Handle {
         Ok(())
     }
 }
+
+/// Creates a command header to be used for IPC. This is a const fn version of [`ctru_sys::IPC_MakeHeader`].
+pub const fn make_ipc_header(command_id: u16, normal_params: u8, translate_params: u8) -> u32 {
+    ((command_id as u32) << 16)
+        | (((normal_params as u32) & 0x3F) << 6)
+        | ((translate_params as u32) & 0x3F)
+}
