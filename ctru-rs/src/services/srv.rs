@@ -16,11 +16,14 @@ pub trait HandleExt {
 
 impl HandleExt for Handle {
     fn wait_for_event(self, timeout: Duration) -> crate::Result<()> {
+        let timeout = i64::try_from(timeout.as_nanos()).map_err(|e| {
+            crate::Error::Other(format!(
+                "Failed to convert timeout to 64-bit nanoseconds: {}",
+                e
+            ))
+        })?;
         unsafe {
-            ResultCode(ctru_sys::svcWaitSynchronization(
-                self,
-                timeout.as_nanos() as i64,
-            ))?;
+            ResultCode(ctru_sys::svcWaitSynchronization(self, timeout))?;
         }
         Ok(())
     }
