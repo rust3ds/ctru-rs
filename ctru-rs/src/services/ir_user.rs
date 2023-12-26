@@ -243,18 +243,8 @@ impl IrUser {
         let shared_mem = shared_mem_guard.as_ref().unwrap().shared_memory;
 
         IrUserStatusInfo {
-            recv_err_result: i32::from_ne_bytes([
-                shared_mem[0],
-                shared_mem[1],
-                shared_mem[2],
-                shared_mem[3],
-            ]),
-            send_err_result: i32::from_ne_bytes([
-                shared_mem[4],
-                shared_mem[5],
-                shared_mem[6],
-                shared_mem[7],
-            ]),
+            recv_err_result: i32::from_ne_bytes(shared_mem[0..4].try_into().unwrap()),
+            send_err_result: i32::from_ne_bytes(shared_mem[4..8].try_into().unwrap()),
             connection_status: match shared_mem[8] {
                 0 => ConnectionStatus::Disconnected,
                 1 => ConnectionStatus::Connecting,
@@ -278,18 +268,8 @@ impl IrUser {
         let shared_mem = user_state.shared_memory;
 
         // Find where the packets are, and how many
-        let start_index = u32::from_ne_bytes([
-            shared_mem[0x10],
-            shared_mem[0x11],
-            shared_mem[0x12],
-            shared_mem[0x13],
-        ]);
-        let valid_packet_count = u32::from_ne_bytes([
-            shared_mem[0x18],
-            shared_mem[0x19],
-            shared_mem[0x1a],
-            shared_mem[0x1b],
-        ]);
+        let start_index = u32::from_ne_bytes(shared_mem[0x10..0x14].try_into().unwrap());
+        let valid_packet_count = u32::from_ne_bytes(shared_mem[0x18..0x1c].try_into().unwrap());
 
         // Parse the packets
         (0..valid_packet_count as usize)
@@ -301,18 +281,10 @@ impl IrUser {
                 let packet_info =
                     &shared_mem[packet_info_offset..packet_info_offset + PACKET_INFO_SIZE];
 
-                let offset_to_data_buffer = u32::from_ne_bytes([
-                    packet_info[0],
-                    packet_info[1],
-                    packet_info[2],
-                    packet_info[3],
-                ]) as usize;
-                let data_length = u32::from_ne_bytes([
-                    packet_info[4],
-                    packet_info[5],
-                    packet_info[6],
-                    packet_info[7],
-                ]) as usize;
+                let offset_to_data_buffer =
+                    u32::from_ne_bytes(packet_info[0..4].try_into().unwrap()) as usize;
+                let data_length =
+                    u32::from_ne_bytes(packet_info[4..8].try_into().unwrap()) as usize;
 
                 // Find the packet data. The packet data may wrap around the buffer end, so
                 // `packet_data` is a function from packet byte offset to value.
@@ -337,7 +309,13 @@ impl IrUser {
                 };
 
                 // Check our payload length math against what the packet info contains
-                assert_eq!(data_length, payload_offset + payload_length + 1);
+                if data_length != payload_offset + payload_length + 1 {
+                    return Err(format!(
+                        "Invalid payload length (expected {}, got {})",
+                        data_length,
+                        payload_offset + payload_length + 1
+                    ));
+                }
 
                 // IR packets start with a magic number, so double check it
                 let magic_number = packet_data(0);
@@ -491,7 +469,7 @@ impl TryFrom<&IrUserPacket> for CirclePadProInputResponse {
         let response_id = packet.payload[0];
         if response_id != CIRCLE_PAD_PRO_INPUT_RESPONSE_PACKET_ID {
             return Err(format!(
-                "Invalid response ID (expected 0x10, got {:#x}",
+                "Invalid response ID (expected {CIRCLE_PAD_PRO_INPUT_RESPONSE_PACKET_ID}, got {:#x}",
                 packet.payload[0]
             ));
         }
