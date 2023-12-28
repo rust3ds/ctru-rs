@@ -8,7 +8,7 @@ use ctru_sys::{self, SwkbdState};
 
 use bitflags::bitflags;
 use libc;
-use std::ffi::CStr;
+use std::ffi::{CStr, CString};
 use std::fmt::Display;
 use std::iter::once;
 use std::str;
@@ -199,10 +199,6 @@ bitflags! {
         const BACKSLASH = ctru_sys::SWKBD_FILTER_BACKSLASH;
         /// Disallow the use of profanity via Nintendo's profanity filter.
         const PROFANITY = ctru_sys::SWKBD_FILTER_PROFANITY;
-        /// Use a custom callback in order to filter the input.
-        ///
-        /// TODO: It's currently impossible to setup a custom filter callback.
-        const CALLBACK  = ctru_sys::SWKBD_FILTER_CALLBACK;
     }
 }
 
@@ -378,26 +374,52 @@ impl SoftwareKeyboard {
     ///
     /// # Notes
     ///
-    /// This function will overwrite any currently set filter configuration.
+    /// The filter callback will work only for the next time the keyboard is used. After using it once, it must be set again.
+    /// 
+    /// # Example
+    ///
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
+    /// # fn main() {
+    /// #
+    /// use ctru::applets::swkbd::{SoftwareKeyboard, CallbackInput};
+    /// let mut keyboard = SoftwareKeyboard::default();
+    /// 
+    /// keyboard.set_filter_callback(|text| {
+    ///     if text.contains("boo") {
+    ///         println!("Ah, you scared me!");
+    ///     }
+    /// 
+    ///     (CallbackResult::Ok, None)
+    /// });
+    /// #
+    /// # }
     pub fn set_filter_callback<F>(&mut self, callback: F)
     where
-        F: FnOnce(&str) -> CallbackResult,
+        F: FnOnce(&str) -> (CallbackResult, Option<CString>),
     {
         unsafe extern "C" fn internal_callback<F>(
             user: *mut libc::c_void,
-            _pp_message: *mut *const libc::c_char,
+            pp_message: *mut *const libc::c_char,
             text: *const libc::c_char,
             _text_size: libc::size_t,
         ) -> ctru_sys::SwkbdCallbackResult
         where
-            F: FnOnce(&str) -> CallbackResult,
+            F: FnOnce(&str) -> (CallbackResult, Option<CString>),
         {
             let closure = Box::from_raw(user as *mut Box<F>);
 
             let text = CStr::from_ptr(text);
             let text_slice: &str = text.to_str().unwrap();
 
-            closure(text_slice).into()
+            let result = closure(text_slice);
+
+            if let Some(cstr) = result.1 {
+                *pp_message = cstr.as_ptr();
+                Box::leak(Box::new(cstr)); // Definitely SHOULD NOT do this, but as far as design goes, it's clean.
+            }
+
+            result.0.into()
         }
 
         let boxed_callback = Box::new(Box::new(callback));
@@ -511,10 +533,10 @@ impl SoftwareKeyboard {
     /// Set the 2 custom characters to add to the keyboard while using [`Kind::Numpad`].
     ///
     /// These characters will appear in their own buttons right next to the `0` key.
-    ///
+    /// 
     /// # Notes
-    ///
-    /// You can set one or both of these keys to `NUL` (value 0) to avoid showing the additional buttons to the user.
+    /// 
+    /// If `None` is passed as either key, that button will not be shown to the user.
     ///
     /// # Example
     ///
@@ -525,13 +547,26 @@ impl SoftwareKeyboard {
     /// use ctru::applets::swkbd::{SoftwareKeyboard, Kind, ButtonConfig};
     /// let mut keyboard = SoftwareKeyboard::new(Kind::Numpad, ButtonConfig::LeftRight);
     ///
-    /// keyboard.set_numpad_keys(('#', '.'));
+    /// keyboard.set_numpad_keys(Some('#'), Some('.'));
+    /// 
+    /// // The right numpad key will not be shown.
+    /// keyboard.set_numpad_keys(Some('!'), None);
     /// #
     /// # }
     #[doc(alias = "swkbdSetNumpadKeys")]
-    pub fn set_numpad_keys(&mut self, keys: (char, char)) {
+    pub fn set_numpad_keys(&mut self, left_key: Option<char>, right_key: Option<char>) {
+        let mut keys = (0, 0);
+
+        if let Some(k) = left_key {
+            keys.0 = k as i32;
+        }
+
+        if let Some(k) = right_key {
+            keys.1 = k as i32;
+        }
+
         unsafe {
-            ctru_sys::swkbdSetNumpadKeys(self.state.as_mut(), keys.0 as i32, keys.1 as i32);
+            ctru_sys::swkbdSetNumpadKeys(self.state.as_mut(), keys.0, keys.1);
         }
     }
 
