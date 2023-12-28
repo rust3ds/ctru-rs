@@ -375,21 +375,21 @@ impl SoftwareKeyboard {
     /// # Notes
     ///
     /// The filter callback will work only for the next time the keyboard is used. After using it once, it must be set again.
-    /// 
+    ///
     /// # Example
     ///
     /// ```
     /// # let _runner = test_runner::GdbRunner::default();
     /// # fn main() {
     /// #
-    /// use ctru::applets::swkbd::{SoftwareKeyboard, CallbackInput};
+    /// use ctru::applets::swkbd::{SoftwareKeyboard, CallbackResult};
     /// let mut keyboard = SoftwareKeyboard::default();
-    /// 
+    ///
     /// keyboard.set_filter_callback(|text| {
     ///     if text.contains("boo") {
     ///         println!("Ah, you scared me!");
     ///     }
-    /// 
+    ///
     ///     (CallbackResult::Ok, None)
     /// });
     /// #
@@ -533,9 +533,9 @@ impl SoftwareKeyboard {
     /// Set the 2 custom characters to add to the keyboard while using [`Kind::Numpad`].
     ///
     /// These characters will appear in their own buttons right next to the `0` key.
-    /// 
+    ///
     /// # Notes
-    /// 
+    ///
     /// If `None` is passed as either key, that button will not be shown to the user.
     ///
     /// # Example
@@ -548,7 +548,7 @@ impl SoftwareKeyboard {
     /// let mut keyboard = SoftwareKeyboard::new(Kind::Numpad, ButtonConfig::LeftRight);
     ///
     /// keyboard.set_numpad_keys(Some('#'), Some('.'));
-    /// 
+    ///
     /// // The right numpad key will not be shown.
     /// keyboard.set_numpad_keys(Some('!'), None);
     /// #
@@ -678,7 +678,7 @@ impl ParentalLock {
     /// # let apt = Apt::new().unwrap();
     /// use ctru::applets::swkbd::{ParentalLock, Error};
     ///
-    /// let parental_lock = ParentalLock::new();
+    /// let mut parental_lock = ParentalLock::new();
     ///
     /// match parental_lock.launch(&apt, &gfx) {
     ///     Ok(_) => println!("You can access parental-only features and settings."),
