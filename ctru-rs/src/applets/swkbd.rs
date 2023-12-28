@@ -1,7 +1,6 @@
 //! Software Keyboard applet.
 //!
 //! This applet opens a virtual keyboard on the console's bottom screen which lets the user write UTF-16 valid text.
-// TODO: Implement remaining functionality (filter callbacks, etc.). Also improve "max text length" API.
 #![doc(alias = "keyboard")]
 
 use crate::services::{apt::Apt, gfx::Gfx};
@@ -9,6 +8,7 @@ use ctru_sys::{self, SwkbdState};
 
 use bitflags::bitflags;
 use libc;
+use std::ffi::CStr;
 use std::fmt::Display;
 use std::iter::once;
 use std::str;
@@ -46,6 +46,21 @@ pub enum Kind {
     ///
     /// On any other region: same as [`Normal`](Kind::Normal).
     Western = ctru_sys::SWKBD_TYPE_WESTERN,
+}
+
+/// The type of result returned by a custom filter callback.
+///
+/// The custom callback can be set using [`SoftwareKeyboard::set_filter_callback()`].
+#[doc(alias = "SwkbdCallbackResult")]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[repr(u32)]
+pub enum CallbackResult {
+    /// The callback yields a positive result.
+    Ok = ctru_sys::SWKBD_CALLBACK_OK,
+    /// The callback finds the input invalid, but lets the user try again.
+    Retry = ctru_sys::SWKBD_CALLBACK_CONTINUE,
+    /// The callback finds the input invalid and closes the Software Keyboard view.
+    Close = ctru_sys::SWKBD_CALLBACK_CLOSE,
 }
 
 /// Represents which button the user pressed to close the [`SoftwareKeyboard`].
@@ -357,6 +372,45 @@ impl SoftwareKeyboard {
         self.state.filter_flags = filters.bits();
     }
 
+    /// Configure a custom filtering function to validate the input.
+    ///
+    /// The callback function will return a callback result and the error message to display when the input is invalid.
+    ///
+    /// # Notes
+    ///
+    /// This function will overwrite any currently set filter configuration.
+    pub fn set_filter_callback<F>(&mut self, callback: F)
+    where
+        F: FnOnce(&str) -> CallbackResult,
+    {
+        unsafe extern "C" fn internal_callback<F>(
+            user: *mut libc::c_void,
+            _pp_message: *mut *const libc::c_char,
+            text: *const libc::c_char,
+            _text_size: libc::size_t,
+        ) -> ctru_sys::SwkbdCallbackResult
+        where
+            F: FnOnce(&str) -> CallbackResult,
+        {
+            let closure = Box::from_raw(user as *mut Box<F>);
+
+            let text = CStr::from_ptr(text);
+            let text_slice: &str = text.to_str().unwrap();
+
+            closure(text_slice).into()
+        }
+
+        let boxed_callback = Box::new(Box::new(callback));
+
+        unsafe {
+            ctru_sys::swkbdSetFilterCallback(
+                self.state.as_mut(),
+                Some(internal_callback::<F>),
+                Box::into_raw(boxed_callback).cast(),
+            )
+        };
+    }
+
     /// Configure the maximum number of digits that can be entered in the keyboard when the [`Filters::DIGITS`] flag is enabled.
     ///
     /// # Example
@@ -524,7 +578,7 @@ impl SoftwareKeyboard {
     /// keyboard. By default the limit is `65000` code units.
     ///
     /// # Notes
-    /// 
+    ///
     /// This action will overwrite any previously submitted [`ValidInput`] validation.
     ///
     /// Keyboard input is converted from UTF-16 to UTF-8 before being handed to Rust,
@@ -682,3 +736,4 @@ from_impl!(ValidInput, i32);
 from_impl!(ValidInput, u32);
 from_impl!(ButtonConfig, i32);
 from_impl!(PasswordMode, u32);
+from_impl!(CallbackResult, u32);
