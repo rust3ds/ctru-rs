@@ -9,20 +9,9 @@ use std::marker::PhantomData;
 use std::sync::Mutex;
 
 use crate::error::Result;
+use crate::sealed::Sealed;
 use crate::services::gspgpu::{self, FramebufferFormat};
 use crate::services::ServiceReference;
-
-mod private {
-    use super::{BottomScreen, TopScreen, TopScreen3D, TopScreenLeft, TopScreenRight};
-
-    pub trait Sealed {}
-
-    impl Sealed for TopScreen {}
-    impl Sealed for TopScreen3D<'_> {}
-    impl Sealed for TopScreenLeft {}
-    impl Sealed for TopScreenRight {}
-    impl Sealed for BottomScreen {}
-}
 
 /// Trait to handle common functionality for all screens.
 ///
@@ -30,7 +19,7 @@ mod private {
 /// drawing to the screens. Graphics-related code can be made generic over this
 /// trait to work with any of the given screens.
 #[doc(alias = "gfxScreen_t")]
-pub trait Screen: private::Sealed {
+pub trait Screen: Sealed {
     /// Returns the `libctru` value for the Screen kind.
     fn as_raw(&self) -> ctru_sys::gfxScreen_t;
 
@@ -99,7 +88,7 @@ pub struct TopScreen3D<'screen> {
 /// Trait for screens that can have its frame buffers swapped, when double buffering is enabled.
 ///
 /// This trait applies to all [`Screen`]s that have swappable frame buffers.
-pub trait Swap: private::Sealed {
+pub trait Swap: Sealed {
     /// Swaps the video buffers.
     ///
     /// Even if double buffering is disabled, "swapping" the buffers has the side effect
@@ -160,7 +149,7 @@ impl Swap for BottomScreen {
 /// A screen with buffers that can be flushed.
 ///
 /// This trait applies to any [`Screen`] that has data written to its frame buffer.
-pub trait Flush: private::Sealed {
+pub trait Flush: Sealed {
     /// Flushes the video buffer(s) for this screen.
     ///
     /// Note that you must still call [`Swap::swap_buffers`] after this method for the buffer contents to be displayed.

@@ -94,6 +94,8 @@ pub enum Error {
         /// Size of the requested data (in bytes).
         wanted: usize,
     },
+    /// An error that doesn't fit into the other categories.
+    Other(String),
 }
 
 impl Error {
@@ -112,6 +114,14 @@ impl Error {
 
         // Copy out of the error string, since it may be changed by other libc calls later
         Self::Libc(error_str.to_string_lossy().into())
+    }
+
+    /// Check if the error is a timeout.
+    pub fn is_timeout(&self) -> bool {
+        match *self {
+            Error::Os(code) => R_DESCRIPTION(code) == ctru_sys::RD_TIMEOUT as ctru_sys::Result,
+            _ => false,
+        }
     }
 }
 
@@ -146,6 +156,7 @@ impl fmt::Debug for Error {
                 .field("provided", provided)
                 .field("wanted", wanted)
                 .finish(),
+            Self::Other(err) => f.debug_tuple("Other").field(err).finish(),
         }
     }
 }
@@ -168,7 +179,8 @@ impl fmt::Display for Error {
             Self::OutputAlreadyRedirected => {
                 write!(f, "output streams are already redirected to 3dslink")
             }
-            Self::BufferTooShort{provided, wanted} => write!(f, "the provided buffer's length is too short (length = {provided}) to hold the wanted data (size = {wanted})")
+            Self::BufferTooShort{provided, wanted} => write!(f, "the provided buffer's length is too short (length = {provided}) to hold the wanted data (size = {wanted})"),
+            Self::Other(err) => write!(f, "{err}"),
         }
     }
 }

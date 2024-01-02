@@ -64,6 +64,7 @@ pub mod linear;
 pub mod mii;
 pub mod os;
 pub mod prelude;
+mod sealed;
 pub mod services;
 
 pub use crate::error::{Error, Result};

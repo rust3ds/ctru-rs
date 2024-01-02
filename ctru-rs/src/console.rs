@@ -10,7 +10,7 @@ use std::default::Default;
 
 use ctru_sys::{consoleClear, consoleInit, consoleSelect, consoleSetWindow, PrintConsole};
 
-use crate::services::gfx::Screen;
+use crate::services::gfx::{Flush, Screen, Swap};
 
 static mut EMPTY_CONSOLE: PrintConsole = unsafe { const_zero::const_zero!(PrintConsole) };
 
@@ -39,6 +39,10 @@ pub enum Dimension {
     Height,
 }
 
+/// A [`Screen`] that can be used as a target for [`Console`].
+pub trait ConsoleScreen: Screen + Swap + Flush {}
+impl<S: Screen + Swap + Flush> ConsoleScreen for S {}
+
 /// Virtual text console.
 ///
 /// [`Console`] lets the application redirect `stdout` and `stderr` to a simple text displayer on the 3DS screen.
@@ -60,7 +64,7 @@ pub enum Dimension {
 #[doc(alias = "PrintConsole")]
 pub struct Console<'screen> {
     context: Box<PrintConsole>,
-    screen: RefMut<'screen, dyn Screen>,
+    screen: RefMut<'screen, dyn ConsoleScreen>,
 }
 
 impl<'screen> Console<'screen> {
@@ -102,7 +106,7 @@ impl<'screen> Console<'screen> {
     /// # }
     /// ```
     #[doc(alias = "consoleInit")]
-    pub fn new(screen: RefMut<'screen, dyn Screen>) -> Self {
+    pub fn new<S: ConsoleScreen>(screen: RefMut<'screen, S>) -> Self {
         let mut context = Box::<PrintConsole>::default();
 
         unsafe { consoleInit(screen.as_raw(), context.as_mut()) };
@@ -321,6 +325,30 @@ impl<'screen> Console<'screen> {
             ctru_sys::GFX_BOTTOM => 40,
             _ => unreachable!(),
         }
+    }
+}
+
+impl Swap for Console<'_> {
+    /// Swaps the video buffers. Note: The console's cursor position is not reset, only the framebuffer is changed.
+    ///
+    /// Even if double buffering is disabled, "swapping" the buffers has the side effect
+    /// of committing any configuration changes to the buffers (e.g. [`TopScreen::set_wide_mode()`],
+    /// [`Screen::set_framebuffer_format()`], [`Swap::set_double_buffering()`]), so it should still be used.
+    ///
+    /// This should be called once per frame at most.
+    fn swap_buffers(&mut self) {
+        self.screen.swap_buffers();
+        self.context.frameBuffer = self.screen.raw_framebuffer().ptr as *mut u16;
+    }
+
+    fn set_double_buffering(&mut self, enabled: bool) {
+        self.screen.set_double_buffering(enabled);
+    }
+}
+
+impl Flush for Console<'_> {
+    fn flush_buffers(&mut self) {
+        self.screen.flush_buffers();
     }
 }
 

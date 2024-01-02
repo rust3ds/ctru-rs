@@ -19,11 +19,13 @@ pub mod fs;
 pub mod gfx;
 pub mod gspgpu;
 pub mod hid;
+pub mod ir_user;
 pub mod ndsp;
 pub mod ps;
 mod reference;
 pub mod soc;
 pub mod sslc;
+pub mod svc;
 
 cfg_if::cfg_if! {
     if #[cfg(all(feature = "romfs", romfs_exists))] {
