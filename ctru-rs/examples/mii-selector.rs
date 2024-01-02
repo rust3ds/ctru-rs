@@ -21,7 +21,7 @@ fn main() {
     mii_selector.set_title("Great Mii Selector!");
 
     // Launch the Mii Selector and use its result to print the selected Mii's information.
-    match mii_selector.launch() {
+    match mii_selector.launch(&apt, &gfx) {
         Ok(result) => {
             println!("Mii type: {:?}", result.mii_type);
             println!("Name: {:?}", result.mii_data.name);
