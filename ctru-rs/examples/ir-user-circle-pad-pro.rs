@@ -9,12 +9,20 @@ use ctru::services::svc::HandleExt;
 use ctru_sys::Handle;
 use std::time::Duration;
 
+// Configuration for this demo of the Circle Pad Pro (not general purpose ir:USER values).
 const PACKET_INFO_SIZE: usize = 8;
 const MAX_PACKET_SIZE: usize = 32;
 const PACKET_COUNT: usize = 1;
 const PACKET_BUFFER_SIZE: usize = PACKET_COUNT * (PACKET_INFO_SIZE + MAX_PACKET_SIZE);
 const CPP_CONNECTION_POLLING_PERIOD_MS: u8 = 0x08;
 const CPP_POLLING_PERIOD_MS: u8 = 0x32;
+
+// This export tells libctru to not initialize ir:rst when initializing HID.
+// This is necessary on the New 3DS because ir:rst is mutually exclusive with ir:USER.
+#[no_mangle]
+unsafe extern "C" fn hidShouldUseIrrst() -> bool {
+    false
+}
 
 fn main() {
     let apt = Apt::new().unwrap();
