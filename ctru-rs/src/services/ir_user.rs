@@ -162,7 +162,7 @@ impl IrUser {
     }
 
     /// Try to connect to the device with the provided ID.
-    pub fn require_connection(&self, device_id: IrDeviceId) -> crate::Result<()> {
+    pub fn require_connection(&mut self, device_id: IrDeviceId) -> crate::Result<()> {
         unsafe {
             self.send_service_request(
                 vec![REQUIRE_CONNECTION_COMMAND_HEADER, device_id.get_id()],
@@ -173,7 +173,7 @@ impl IrUser {
     }
 
     /// Close the current IR connection.
-    pub fn disconnect(&self) -> crate::Result<()> {
+    pub fn disconnect(&mut self) -> crate::Result<()> {
         unsafe {
             self.send_service_request(vec![DISCONNECT_COMMAND_HEADER], 2)?;
         }
@@ -203,7 +203,7 @@ impl IrUser {
     ///
     /// This will send a packet to the CPP requesting it to send back packets
     /// with the current device input values.
-    pub fn request_input_polling(&self, period_ms: u8) -> crate::Result<()> {
+    pub fn request_input_polling(&mut self, period_ms: u8) -> crate::Result<()> {
         let ir_request: [u8; 3] = [1, period_ms, (period_ms + 2) << 2];
         unsafe {
             self.send_service_request(
@@ -222,7 +222,7 @@ impl IrUser {
 
     /// Mark the last `packet_count` packets as processed, so their memory in
     /// the receive buffer can be reused.
-    pub fn release_received_data(&self, packet_count: u32) -> crate::Result<()> {
+    pub fn release_received_data(&mut self, packet_count: u32) -> crate::Result<()> {
         unsafe {
             self.send_service_request(vec![RELEASE_RECEIVED_DATA_COMMAND_HEADER, packet_count], 2)?;
         }
@@ -340,7 +340,7 @@ impl IrUser {
 
     /// Internal helper for calling ir:USER service methods.
     unsafe fn send_service_request(
-        &self,
+        &mut self,
         request: Vec<u32>,
         expected_response_len: usize,
     ) -> crate::Result<Vec<u32>> {
