@@ -1,3 +1,5 @@
+//! ir:USER Circle Pad Pro example.
+//!
 //! A demo of using the ir:USER service to connect to the Circle Pad Pro.
 
 use ctru::prelude::*;
