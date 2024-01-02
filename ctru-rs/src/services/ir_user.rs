@@ -340,7 +340,7 @@ impl IrUser {
 
     /// Internal helper for calling ir:USER service methods.
     unsafe fn send_service_request(
-        &mut self,
+        &self,
         request: Vec<u32>,
         expected_response_len: usize,
     ) -> crate::Result<Vec<u32>> {
