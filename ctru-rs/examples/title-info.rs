@@ -20,20 +20,20 @@ fn main() {
 
     // Amount of titles installed on the SD card.
     let sd_count = am
-        .title_count(FsMediaType::Sd)
+        .title_count(MediaType::Sd)
         .expect("Failed to get sd title count");
     // List of titles installed on the SD card.
     let sd_list = am
-        .title_list(FsMediaType::Sd)
+        .title_list(MediaType::Sd)
         .expect("Failed to get sd title list");
 
     // Amount of titles installed on the NAND storage.
     let nand_count = am
-        .title_count(FsMediaType::Nand)
+        .title_count(MediaType::Nand)
         .expect("Failed to get nand title count");
     // List of titles installed on the NAND storage.
     let nand_list = am
-        .title_list(FsMediaType::Nand)
+        .title_list(MediaType::Nand)
         .expect("Failed to get nand title list");
 
     let mut offset = 0;
