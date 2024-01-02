@@ -5,7 +5,7 @@
 
 use ctru::prelude::*;
 use ctru::services::am::Am;
-use ctru::services::fs::FsMediaType;
+use ctru::services::fs::MediaType;
 
 fn main() {
     let gfx = Gfx::new().expect("Couldn't obtain GFX controller");
