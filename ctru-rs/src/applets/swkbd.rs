@@ -402,7 +402,7 @@ impl SoftwareKeyboard<'_> {
     /// use std::borrow::Cow;
     /// use std::ffi::CString;
     /// use ctru::applets::swkbd::{SoftwareKeyboard, CallbackResult};
-    /// 
+    ///
     /// let mut keyboard = SoftwareKeyboard::default();
     ///
     /// keyboard.set_filter_callback(Some(Box::new(|str| {
