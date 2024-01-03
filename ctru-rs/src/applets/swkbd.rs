@@ -8,16 +8,21 @@ use ctru_sys::{self, SwkbdState};
 
 use bitflags::bitflags;
 use libc;
-use std::ffi::{CStr, CString};
+
+use std::borrow::Cow;
+use std::ffi::CStr;
 use std::fmt::Display;
 use std::iter::once;
 use std::str;
 
+type CallbackFunction = dyn Fn(&CStr) -> (CallbackResult, Option<Cow<CStr>>);
+
 /// Configuration structure to setup the Software Keyboard applet.
 #[doc(alias = "SwkbdState")]
-#[derive(Clone)]
-pub struct SoftwareKeyboard {
+pub struct SoftwareKeyboard<'a> {
     state: Box<SwkbdState>,
+    callback: Option<Box<CallbackFunction>>,
+    error_message: Option<Cow<'a, CStr>>,
 }
 
 /// Configuration structure to setup the Parental Lock applet.
@@ -202,7 +207,7 @@ bitflags! {
     }
 }
 
-impl SoftwareKeyboard {
+impl SoftwareKeyboard<'_> {
     /// Initialize a new configuration for the Software Keyboard applet depending on how many "exit" buttons are available to the user (1, 2 or 3).
     ///
     /// # Example
@@ -225,7 +230,11 @@ impl SoftwareKeyboard {
         unsafe {
             let mut state = Box::<SwkbdState>::default();
             ctru_sys::swkbdInit(state.as_mut(), keyboard_type.into(), buttons.into(), -1);
-            Self { state }
+            Self {
+                state,
+                callback: None,
+                error_message: None,
+            }
         }
     }
 
@@ -312,6 +321,13 @@ impl SoftwareKeyboard {
     #[doc(alias = "swkbdInputText")]
     pub fn write_exact(&mut self, buf: &mut [u8], _apt: &Apt, _gfx: &Gfx) -> Result<Button, Error> {
         unsafe {
+            // The filter callback gets reset every time the SoftwareKeyboard is used.
+            ctru_sys::swkbdSetFilterCallback(
+                self.state.as_mut(),
+                Some(Self::internal_callback),
+                (self as *mut Self).cast(),
+            );
+
             match ctru_sys::swkbdInputText(self.state.as_mut(), buf.as_mut_ptr(), buf.len()) {
                 ctru_sys::SWKBD_BUTTON_NONE => Err(self.state.result.into()),
                 ctru_sys::SWKBD_BUTTON_LEFT => Ok(Button::Left),
@@ -369,11 +385,13 @@ impl SoftwareKeyboard {
 
     /// Configure a custom filtering function to validate the input.
     ///
-    /// The callback function will return a callback result and the error message to display when the input is invalid.
-    ///
+    /// The callback function must return a [`CallbackResult`] and the error message to display when the input is invalid.
+    /// 
     /// # Notes
-    ///
-    /// The filter callback will work only for the next time the keyboard is used. After using it once, it must be set again.
+    /// 
+    /// Passing [`None`] will unbind the custom filter callback.
+    /// 
+    /// The error message returned by the callback should be shorter than `256` characters, otherwise it will be truncated.
     ///
     /// # Example
     ///
@@ -384,52 +402,56 @@ impl SoftwareKeyboard {
     /// use ctru::applets::swkbd::{SoftwareKeyboard, CallbackResult};
     /// let mut keyboard = SoftwareKeyboard::default();
     ///
-    /// keyboard.set_filter_callback(|text| {
-    ///     if text.contains("boo") {
-    ///         println!("Ah, you scared me!");
+    /// keyboard.set_filter_callback(Some(Box::new(|str| {
+    ///     if str.to_str().unwrap().contains("boo") {
+    ///         return (
+    ///             CallbackResult::Retry,
+    ///             Some(Cow::Owned(CString::new("Ah, you scared me!").unwrap())),
+    ///         );
     ///     }
-    ///
+    /// 
     ///     (CallbackResult::Ok, None)
-    /// });
+    /// })));
     /// #
     /// # }
-    pub fn set_filter_callback<F>(&mut self, callback: F)
-    where
-        F: FnOnce(&str) -> (CallbackResult, Option<CString>),
-    {
-        unsafe extern "C" fn internal_callback<F>(
-            user: *mut libc::c_void,
-            pp_message: *mut *const libc::c_char,
-            text: *const libc::c_char,
-            _text_size: libc::size_t,
-        ) -> ctru_sys::SwkbdCallbackResult
-        where
-            F: FnOnce(&str) -> (CallbackResult, Option<CString>),
-        {
-            let closure: Box<Box<F>> = Box::from_raw(user.cast());
+    pub fn set_filter_callback(&mut self, callback: Option<Box<CallbackFunction>>) {
+        self.callback = callback;
+    }
 
-            let text = CStr::from_ptr(text);
-            let text_slice: &str = text.to_str().unwrap();
-
-            let result = closure(text_slice);
-
-            if let Some(cstr) = result.1 {
-                *pp_message = cstr.as_ptr();
-                Box::leak(Box::new(cstr)); // Definitely SHOULD NOT do this, but as far as design goes, it's clean.
-            }
-
-            result.0.into()
-        }
-
-        let boxed_callback = Box::new(Box::new(callback));
+    /// Internal function called by the filter callback.
+    extern "C" fn internal_callback(
+        user: *mut libc::c_void,
+        pp_message: *mut *const libc::c_char,
+        text: *const libc::c_char,
+        _text_size: libc::size_t,
+    ) -> ctru_sys::SwkbdCallbackResult {
+        let this: *mut SoftwareKeyboard = user.cast();
 
         unsafe {
-            ctru_sys::swkbdSetFilterCallback(
-                self.state.as_mut(),
-                Some(internal_callback::<F>),
-                Box::into_raw(boxed_callback).cast(),
-            )
-        };
+            // Reset any leftover error message.
+            (*this).error_message = None;
+
+            let text = CStr::from_ptr(text);
+
+            let result = {
+                // Run the callback if still available.
+                if let Some(callback) = &mut (*this).callback {
+                    let (res, cstr) = callback(text);
+
+                    (*this).error_message = cstr;
+
+                    if let Some(newstr) = &(*this).error_message {
+                        *pp_message = newstr.as_ptr();
+                    }
+
+                    res
+                } else {
+                    CallbackResult::Ok
+                }
+            };
+
+            result.into()
+        }
     }
 
     /// Configure the maximum number of digits that can be entered in the keyboard when the [`Filters::DIGITS`] flag is enabled.
@@ -535,7 +557,7 @@ impl SoftwareKeyboard {
     ///
     /// # Notes
     ///
-    /// If `None` is passed as either key, that button will not be shown to the user.
+    /// If [`None`] is passed as either key, that button will not be shown to the user.
     ///
     /// # Example
     ///
@@ -703,7 +725,7 @@ impl ParentalLock {
 }
 
 /// Creates a new [`SoftwareKeyboard`] configuration set to using a [`Kind::Normal`] keyboard and 2 [`Button`]s.
-impl Default for SoftwareKeyboard {
+impl Default for SoftwareKeyboard<'_> {
     fn default() -> Self {
         SoftwareKeyboard::new(Kind::Normal, ButtonConfig::LeftRight)
     }

@@ -2,8 +2,11 @@
 //!
 //! This example showcases the use of the Software Keyboard applet to receive text input from the user.
 
-use ctru::applets::swkbd::{Button, SoftwareKeyboard};
+use ctru::applets::swkbd::{Button, CallbackResult, SoftwareKeyboard};
 use ctru::prelude::*;
+
+use std::borrow::Cow;
+use std::ffi::CString;
 
 fn main() {
     let apt = Apt::new().unwrap();
@@ -15,6 +18,21 @@ fn main() {
     // to accept it. You can also use `SoftwareKeyboard::new()` to launch the keyboard
     // with different configurations.
     let mut keyboard = SoftwareKeyboard::default();
+
+    // Custom filter callback to handle the given input.
+    // Using this callback it's possible to integrate the applet
+    // with custom error messages when the input is incorrect.
+    keyboard.set_filter_callback(Some(Box::new(|str| {
+        // The string is guaranteed to contain valid Unicode text, so we can safely unwrap and use it as a normal `&str`.
+        if str.to_str().unwrap().contains("boo") {
+            return (
+                CallbackResult::Retry,
+                Some(Cow::Owned(CString::new("Ah, you scared me!").unwrap())),
+            );
+        }
+
+        (CallbackResult::Ok, None)
+    })));
 
     println!("Press A to enter some text or press Start to exit.");
 
