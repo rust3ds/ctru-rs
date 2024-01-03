@@ -691,7 +691,7 @@ impl ParentalLock {
     pub fn launch(&mut self, apt: &Apt, gfx: &Gfx) -> Result<(), Error> {
         unsafe {
             let mut buf = [0; 0];
-            ctru_sys::swkbdInputText(self.state.as_mut(), buf.as_mut_ptr(), 10);
+            ctru_sys::swkbdInputText(self.state.as_mut(), buf.as_mut_ptr(), 0);
             let e = self.state.result.into();
 
             match e {
