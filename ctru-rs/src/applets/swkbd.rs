@@ -310,8 +310,7 @@ impl SoftwareKeyboard {
     /// # }
     /// ```
     #[doc(alias = "swkbdInputText")]
-    #[allow(unused_variables)]
-    pub fn write_exact(&mut self, buf: &mut [u8], apt: &Apt, gfx: &Gfx) -> Result<Button, Error> {
+    pub fn write_exact(&mut self, buf: &mut [u8], _apt: &Apt, _gfx: &Gfx) -> Result<Button, Error> {
         unsafe {
             match ctru_sys::swkbdInputText(self.state.as_mut(), buf.as_mut_ptr(), buf.len()) {
                 ctru_sys::SWKBD_BUTTON_NONE => Err(self.state.result.into()),
@@ -407,7 +406,7 @@ impl SoftwareKeyboard {
         where
             F: FnOnce(&str) -> (CallbackResult, Option<CString>),
         {
-            let closure = Box::from_raw(user as *mut Box<F>);
+            let closure: Box<Box<F>> = Box::from_raw(user.cast());
 
             let text = CStr::from_ptr(text);
             let text_slice: &str = text.to_str().unwrap();
@@ -691,7 +690,7 @@ impl ParentalLock {
     #[allow(unused_variables)]
     pub fn launch(&mut self, apt: &Apt, gfx: &Gfx) -> Result<(), Error> {
         unsafe {
-            let mut buf = [0; 10];
+            let mut buf = [0; 0];
             ctru_sys::swkbdInputText(self.state.as_mut(), buf.as_mut_ptr(), 10);
             let e = self.state.result.into();
 
