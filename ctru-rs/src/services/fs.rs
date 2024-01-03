@@ -1,8 +1,6 @@
 //! FileSystem service.
 //!
-//! This module contains basic methods to manipulate the contents of the 3DS's filesystem.
-//! Only the SD card is currently supported. You should prefer using `std::fs`.
-// TODO: Refactor service to accomodate for various changes (such as SMDH support). Properly document the public API.
+//! Currently, this module contains only datatypes to easily operate with unsafe [`ctru_sys`] code regarding the file-system functionality.
 #![doc(alias = "filesystem")]
 
 use bitflags::bitflags;
