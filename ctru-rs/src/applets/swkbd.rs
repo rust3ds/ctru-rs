@@ -399,7 +399,10 @@ impl SoftwareKeyboard<'_> {
     /// # let _runner = test_runner::GdbRunner::default();
     /// # fn main() {
     /// #
+    /// use std::borrow::Cow;
+    /// use std::ffi::CString;
     /// use ctru::applets::swkbd::{SoftwareKeyboard, CallbackResult};
+    /// 
     /// let mut keyboard = SoftwareKeyboard::default();
     ///
     /// keyboard.set_filter_callback(Some(Box::new(|str| {
