@@ -386,11 +386,11 @@ impl SoftwareKeyboard<'_> {
     /// Configure a custom filtering function to validate the input.
     ///
     /// The callback function must return a [`CallbackResult`] and the error message to display when the input is invalid.
-    /// 
+    ///
     /// # Notes
-    /// 
+    ///
     /// Passing [`None`] will unbind the custom filter callback.
-    /// 
+    ///
     /// The error message returned by the callback should be shorter than `256` characters, otherwise it will be truncated.
     ///
     /// # Example
@@ -409,7 +409,7 @@ impl SoftwareKeyboard<'_> {
     ///             Some(Cow::Owned(CString::new("Ah, you scared me!").unwrap())),
     ///         );
     ///     }
-    /// 
+    ///
     ///     (CallbackResult::Ok, None)
     /// })));
     /// #
