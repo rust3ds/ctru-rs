@@ -9,14 +9,14 @@
 #![doc(alias = "manager")]
 
 use crate::error::ResultCode;
-use crate::services::fs::FsMediaType;
+use crate::services::fs::MediaType;
 use std::marker::PhantomData;
 
 /// General information about a specific title entry.
 #[doc(alias = "AM_TitleEntry")]
 pub struct Title<'a> {
     id: u64,
-    mediatype: FsMediaType,
+    mediatype: MediaType,
     size: u64,
     version: u16,
     _am: PhantomData<&'a Am>,
@@ -91,20 +91,20 @@ impl Am {
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
     /// use ctru::services::am::Am;
-    /// use ctru::services::fs::FsMediaType;
+    /// use ctru::services::fs::MediaType;
     /// let app_manager = Am::new()?;
     ///
     /// // Number of titles installed on the Nand storage.
-    /// let nand_count = app_manager.title_count(FsMediaType::Nand);
+    /// let nand_count = app_manager.title_count(MediaType::Nand);
     ///
     /// // Number of apps installed on the SD card storage
-    /// let sd_count = app_manager.title_count(FsMediaType::Sd);
+    /// let sd_count = app_manager.title_count(MediaType::Sd);
     /// #
     /// # Ok(())
     /// # }
     /// ```
     #[doc(alias = "AM_GetTitleCount")]
-    pub fn title_count(&self, mediatype: FsMediaType) -> crate::Result<u32> {
+    pub fn title_count(&self, mediatype: MediaType) -> crate::Result<u32> {
         unsafe {
             let mut count = 0;
             ResultCode(ctru_sys::AM_GetTitleCount(mediatype.into(), &mut count))?;
@@ -122,11 +122,11 @@ impl Am {
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
     /// use ctru::services::am::Am;
-    /// use ctru::services::fs::FsMediaType;
+    /// use ctru::services::fs::MediaType;
     /// let app_manager = Am::new()?;
     ///
     /// // Number of apps installed on the SD card storage
-    /// let sd_titles = app_manager.title_list(FsMediaType::Sd)?;
+    /// let sd_titles = app_manager.title_list(MediaType::Sd)?;
     ///
     /// // Unique product code identifier of the 5th installed title.
     /// let product_code = sd_titles[4].product_code();
@@ -135,7 +135,7 @@ impl Am {
     /// # }
     /// ```
     #[doc(alias = "AM_GetTitleList")]
-    pub fn title_list(&self, mediatype: FsMediaType) -> crate::Result<Vec<Title>> {
+    pub fn title_list(&self, mediatype: MediaType) -> crate::Result<Vec<Title>> {
         let count = self.title_count(mediatype)?;
         let mut buf = vec![0; count as usize];
         let mut read_amount = 0;
