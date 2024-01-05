@@ -5,7 +5,6 @@
 use ctru::applets::swkbd::{Button, CallbackResult, SoftwareKeyboard};
 use ctru::prelude::*;
 
-use std::borrow::Cow;
 use std::ffi::CString;
 
 fn main() {
@@ -27,7 +26,7 @@ fn main() {
         if str.to_str().unwrap().contains("boo") {
             return (
                 CallbackResult::Retry,
-                Some(Cow::Owned(CString::new("Ah, you scared me!").unwrap())),
+                Some(CString::new("Ah, you scared me!").unwrap()),
             );
         }
 

@@ -9,20 +9,19 @@ use ctru_sys::{self, SwkbdState};
 use bitflags::bitflags;
 use libc;
 
-use std::borrow::Cow;
-use std::ffi::CStr;
+use std::ffi::{CStr, CString};
 use std::fmt::Display;
 use std::iter::once;
 use std::str;
 
-type CallbackFunction = dyn Fn(&CStr) -> (CallbackResult, Option<Cow<CStr>>);
+type CallbackFunction = dyn Fn(&CStr) -> (CallbackResult, Option<CString>);
 
 /// Configuration structure to setup the Software Keyboard applet.
 #[doc(alias = "SwkbdState")]
-pub struct SoftwareKeyboard<'a> {
+pub struct SoftwareKeyboard {
     state: Box<SwkbdState>,
     callback: Option<Box<CallbackFunction>>,
-    error_message: Option<Cow<'a, CStr>>,
+    error_message: Option<CString>,
 }
 
 /// Configuration structure to setup the Parental Lock applet.
@@ -207,7 +206,7 @@ bitflags! {
     }
 }
 
-impl SoftwareKeyboard<'_> {
+impl SoftwareKeyboard {
     /// Initialize a new configuration for the Software Keyboard applet depending on how many "exit" buttons are available to the user (1, 2 or 3).
     ///
     /// # Example
@@ -409,7 +408,7 @@ impl SoftwareKeyboard<'_> {
     ///     if str.to_str().unwrap().contains("boo") {
     ///         return (
     ///             CallbackResult::Retry,
-    ///             Some(Cow::Owned(CString::new("Ah, you scared me!").unwrap())),
+    ///             Some(CString::new("Ah, you scared me!").unwrap()),
     ///         );
     ///     }
     ///
@@ -441,6 +440,8 @@ impl SoftwareKeyboard<'_> {
                 if let Some(callback) = &mut (*this).callback {
                     let (res, cstr) = callback(text);
 
+                    // Due to how `libctru` operates, the user is expected to keep the error message alive until
+                    // the end of the Software Keyboard prompt. We ensure that happens by saving it within the configuration.
                     (*this).error_message = cstr;
 
                     if let Some(newstr) = &(*this).error_message {
@@ -712,8 +713,7 @@ impl ParentalLock {
     /// #
     /// # }
     #[doc(alias = "swkbdInputText")]
-    #[allow(unused_variables)]
-    pub fn launch(&mut self, apt: &Apt, gfx: &Gfx) -> Result<(), Error> {
+    pub fn launch(&mut self, _apt: &Apt, _gfx: &Gfx) -> Result<(), Error> {
         unsafe {
             let mut buf = [0; 0];
             ctru_sys::swkbdInputText(self.state.as_mut(), buf.as_mut_ptr(), 0);
@@ -728,7 +728,7 @@ impl ParentalLock {
 }
 
 /// Creates a new [`SoftwareKeyboard`] configuration set to using a [`Kind::Normal`] keyboard and 2 [`Button`]s.
-impl Default for SoftwareKeyboard<'_> {
+impl Default for SoftwareKeyboard {
     fn default() -> Self {
         SoftwareKeyboard::new(Kind::Normal, ButtonConfig::LeftRight)
     }
