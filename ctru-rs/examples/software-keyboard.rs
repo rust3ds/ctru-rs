@@ -2,14 +2,36 @@
 //!
 //! This example showcases the use of the Software Keyboard applet to receive text input from the user.
 
-use ctru::applets::swkbd::{Button, SoftwareKeyboard};
+use ctru::applets::swkbd::{Button, CallbackResult, SoftwareKeyboard};
 use ctru::prelude::*;
+
+use std::ffi::CString;
 
 fn main() {
     let apt = Apt::new().unwrap();
     let mut hid = Hid::new().unwrap();
     let gfx = Gfx::new().unwrap();
     let _console = Console::new(gfx.top_screen.borrow_mut());
+
+    // Prepares a software keyboard with two buttons: one to cancel input and one
+    // to accept it. You can also use `SoftwareKeyboard::new()` to launch the keyboard
+    // with different configurations.
+    let mut keyboard = SoftwareKeyboard::default();
+
+    // Custom filter callback to handle the given input.
+    // Using this callback it's possible to integrate the applet
+    // with custom error messages when the input is incorrect.
+    keyboard.set_filter_callback(Some(Box::new(|str| {
+        // The string is guaranteed to contain valid Unicode text, so we can safely unwrap and use it as a normal `&str`.
+        if str.to_str().unwrap().contains("boo") {
+            return (
+                CallbackResult::Retry,
+                Some(CString::new("Ah, you scared me!").unwrap()),
+            );
+        }
+
+        (CallbackResult::Ok, None)
+    })));
 
     println!("Press A to enter some text or press Start to exit.");
 
@@ -22,14 +44,9 @@ fn main() {
 
         // Check if the user request to write some input.
         if hid.keys_down().contains(KeyPad::A) {
-            // Prepares a software keyboard with two buttons: One to cancel input and one
-            // to accept it. You can also use `SoftwareKeyboard::new()` to launch the keyboard in different
-            // configurations.
-            let mut keyboard = SoftwareKeyboard::default();
-
             // Raise the software keyboard. You can perform different actions depending on which
             // software button the user pressed.
-            match keyboard.get_string(2048) {
+            match keyboard.get_string(2048, &apt, &gfx) {
                 Ok((text, Button::Right)) => println!("You entered: {text}"),
                 Ok((_, Button::Left)) => println!("Cancelled"),
                 Ok((_, Button::Middle)) => println!("How did you even press this?"),
