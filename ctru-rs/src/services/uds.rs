@@ -252,6 +252,9 @@ impl Uds {
     /// Initialise a new service handle.
     /// No `new_with_buffer_size` function is provided, as there isn't really a
     /// reason to use any size other than the default.
+    /// 
+    /// The `username` parameter should be a max 10-byte (not 10 code point!) UTF-8 string, converted to UTF-16 internally.
+    /// Pass `None` to use the 3DS's configured username.
     ///
     /// # Errors
     ///
