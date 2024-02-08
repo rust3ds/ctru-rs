@@ -95,19 +95,19 @@ impl TryFrom<u8> for ConnectionType {
 }
 
 /// Information about a network node.
-/// Ported to Rust so that Debug can be derived on it.
 #[allow(missing_docs)]
 #[doc(alias = "udsNodeInfo")]
 #[derive(Debug)]
+// Ported to Rust so that Debug can be derived on it.
 pub struct NodeInfo {
     pub uds_friendcodeseed: u64,
     pub username: String,
-    pub unk_x1c: u16,
+    unk_x1c: u16,
     pub flag: u8,
-    pub pad_x1f: u8,
+    pad_x1f: u8,
     pub node_id: u16,
-    pub pad_x22: u16,
-    pub word_x24: u32,
+    pad_x22: u16,
+    word_x24: u32,
 }
 
 impl From<ctru_sys::udsNodeInfo> for NodeInfo {
@@ -130,13 +130,16 @@ impl From<ctru_sys::udsNodeInfo> for NodeInfo {
 }
 
 /// Information returned from scanning for networks.
-/// Ported to Rust so that Debug can be derived on it.
-#[allow(missing_docs)]
 #[doc(alias = "udsNetworkScanInfo")]
 #[derive(Debug)]
+// Ported to Rust so that Debug can be derived on it.
 pub struct NetworkScanInfo {
+    /// NWM output structure.
     pub datareply_entry: ctru_sys::nwmBeaconDataReplyEntry,
+    /// Information about the network.
     pub network: ctru_sys::udsNetworkStruct,
+    /// All nodes on the network (first node is the server,
+    /// max 16, `None` means no node connected).
     pub nodes: [Option<NodeInfo>; 16],
 }
 
@@ -152,6 +155,42 @@ impl From<ctru_sys::udsNetworkScanInfo> for NetworkScanInfo {
                     None
                 }
             }),
+        }
+    }
+}
+
+/// Status of the connection.
+#[doc(alias = "udsConnectionStatus")]
+#[derive(Debug)]
+pub struct ConnectionStatus {
+    // TODO: is this in some kind of readable format?
+    pub status: u32,
+    unk_x4: u32,
+    /// Network node ID for the current device.
+    pub cur_node_id: u16,
+    unk_xa: u16,
+    unk_xc: [u32; 8],
+    /// Number of nodes connected to the network.
+    pub total_nodes: u8,
+    /// Maximum nodes allowed on this network.
+    pub max_nodes: u8,
+    /// Bitmask for which of the 16 possible nodes are connected
+    /// to this network; bit 0 is the server, bit 1 is the first
+    /// original client, etc.
+    pub node_bitmask: u16,
+}
+
+impl From<ctru_sys::udsConnectionStatus> for ConnectionStatus {
+    fn from(value: ctru_sys::udsConnectionStatus) -> Self {
+        Self {
+            status: value.status,
+            unk_x4: value.unk_x4,
+            cur_node_id: value.cur_NetworkNodeID,
+            unk_xa: value.unk_xa,
+            unk_xc: value.unk_xc,
+            total_nodes: value.total_nodes,
+            max_nodes: value.max_nodes,
+            node_bitmask: value.node_bitmask,
         }
     }
 }
@@ -172,6 +211,7 @@ pub struct Uds {
     _service_handler: ServiceReference,
     context: Option<ctru_sys::udsBindContext>,
     network: Option<ctru_sys::udsNetworkStruct>,
+    scan_buf: Box<[u8; Self::SCAN_BUF_SIZE]>,
 }
 
 static UDS_ACTIVE: Mutex<()> = Mutex::new(());
@@ -266,6 +306,7 @@ impl Uds {
             _service_handler: handler,
             context: None,
             network: None,
+            scan_buf: Box::new([0; Self::SCAN_BUF_SIZE]),
         })
     }
 
@@ -290,14 +331,12 @@ impl Uds {
     /// ```
     #[doc(alias = "udsScanBeacons")]
     pub fn scan(
-        &self,
+        &mut self,
         comm_id: &[u8; 4],
         additional_id: Option<u8>,
         whitelist_macaddr: Option<MacAddr6>,
     ) -> crate::Result<Vec<NetworkScanInfo>> {
-        // normally, I construct this on the stack, but this example seems to have the stack size
-        // set too small for that, which causes a segfault.
-        let mut scan_buf = Box::<[u8; Self::SCAN_BUF_SIZE]>::new_zeroed();
+        self.scan_buf.fill(0);
 
         let mut networks = MaybeUninit::uninit();
         let mut total_networks = MaybeUninit::uninit();
@@ -381,7 +420,10 @@ impl Uds {
 
         let actual_size = unsafe { actual_size.assume_init() };
 
-        Ok(appdata_buffer[..actual_size].to_vec())
+        appdata_buffer.truncate(actual_size);
+        appdata_buffer.shrink_to_fit();
+
+        Ok(appdata_buffer)
     }
 
     /// Retrieve app data for the currently connected network.
@@ -433,7 +475,10 @@ impl Uds {
 
         let actual_size = unsafe { actual_size.assume_init() };
 
-        Ok(appdata_buffer[..actual_size].to_vec())
+        appdata_buffer.truncate(actual_size);
+        appdata_buffer.shrink_to_fit();
+
+        Ok(appdata_buffer)
     }
 
     /// Connect to a network.
@@ -643,7 +688,7 @@ impl Uds {
         Ok(unsafe { ctru_sys::udsWaitConnectionStatusEvent(next, wait) })
     }
 
-    /// Returns the current [`ctru_sys::udsConnectionStatus`] struct.
+    /// Returns the current [`ConnectionStatus`] struct.
     ///
     /// TODO: should this return an error if not connected?
     ///
@@ -669,14 +714,14 @@ impl Uds {
     /// # }
     /// ```
     #[doc(alias = "udsGetConnectionStatus")]
-    pub fn get_connection_status(&self) -> crate::Result<ctru_sys::udsConnectionStatus> {
+    pub fn get_connection_status(&self) -> crate::Result<ConnectionStatus> {
         let mut status = MaybeUninit::uninit();
 
         ResultCode(unsafe { ctru_sys::udsGetConnectionStatus(status.as_mut_ptr()) })?;
 
         let status = unsafe { status.assume_init() };
 
-        Ok(status)
+        Ok(status.into())
     }
 
     /// Send a packet to the network.
@@ -798,6 +843,7 @@ impl Uds {
         Ok(if actual_size == 0 {
             None
         } else {
+            // TODO: to_vec() first, then truncate() and shrink_to_fit()?
             Some((frame[..actual_size].to_vec(), src_node_id))
         })
     }
