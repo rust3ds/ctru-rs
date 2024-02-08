@@ -343,7 +343,7 @@ impl Uds {
 
         ResultCode(unsafe {
             ctru_sys::udsScanBeacons(
-                scan_buf.as_mut_ptr().cast(),
+                self.scan_buf.as_mut_ptr().cast(),
                 Self::SCAN_BUF_SIZE,
                 networks.as_mut_ptr(),
                 total_networks.as_mut_ptr(),
@@ -355,10 +355,6 @@ impl Uds {
                 self.service_status() == ServiceStatus::Client,
             )
         })?;
-
-        unsafe {
-            scan_buf.assume_init_drop();
-        }
 
         let networks = unsafe { networks.assume_init() };
         let total_networks = unsafe { total_networks.assume_init() };
