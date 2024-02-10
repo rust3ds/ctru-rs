@@ -1225,7 +1225,7 @@ impl Uds {
     /// Returns the [`NodeInfo`] struct for the specified network node.
     ///
     /// # Errors
-    /// 
+    ///
     /// This function will return an error if [`NodeID::None`] or [`NodeID::Broadcast`] is passed.
     ///
     /// # Example
