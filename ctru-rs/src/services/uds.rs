@@ -20,11 +20,11 @@ use macaddr::MacAddr6;
 
 bitflags! {
     /// Flags used for sending packets to a network.
-    #[allow(missing_docs)]
-    #[derive(Copy, Clone, Debug, PartialEq, Eq)]
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
     pub struct SendFlags: u8 {
-        /// According to libctru source, it's not really known what these do.
+        /// Unknown function according to `libctru`.
         const Default = ctru_sys::UDS_SENDFLAG_Default as u8;
+        /// Broadcast the data frame even when sending to a non-broadcast address.
         const Broadcast = ctru_sys::UDS_SENDFLAG_Broadcast as u8;
     }
 }
@@ -94,6 +94,43 @@ impl TryFrom<u8> for ConnectionType {
     }
 }
 
+/// ID for a node on the network.
+#[doc(alias = "NetworkNodeID")]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum NodeID {
+    /// No node ID set (not connected to a network).
+    None,
+    /// A normal node on the network, counting from 1 (the host) to 16, inclusive.
+    Node(u8),
+    /// Broadcast to all nodes
+    Broadcast,
+}
+
+impl From<NodeID> for u16 {
+    fn from(value: NodeID) -> Self {
+        match value {
+            NodeID::None => 0,
+            NodeID::Node(node) => node as u16,
+            NodeID::Broadcast => ctru_sys::UDS_BROADCAST_NETWORKNODEID as u16,
+        }
+    }
+}
+
+impl TryFrom<u16> for NodeID {
+    type Error = ();
+
+    fn try_from(value: u16) -> std::result::Result<Self, Self::Error> {
+        match value as u32 {
+            0 => Ok(Self::None),
+            ctru_sys::UDS_HOST_NETWORKNODEID..=ctru_sys::UDS_MAXNODES => {
+                Ok(Self::Node(value as u8))
+            }
+            ctru_sys::UDS_BROADCAST_NETWORKNODEID => Ok(Self::Broadcast),
+            _ => Err(()),
+        }
+    }
+}
+
 /// Information about a network node.
 #[allow(missing_docs)]
 #[doc(alias = "udsNodeInfo")]
@@ -105,7 +142,7 @@ pub struct NodeInfo {
     unk_x1c: u16,
     pub flag: u8,
     pad_x1f: u8,
-    pub node_id: u16,
+    pub node_id: NodeID,
     pad_x22: u16,
     word_x24: u32,
 }
@@ -121,7 +158,10 @@ impl From<ctru_sys::udsNodeInfo> for NodeInfo {
                 unk_x1c: value.__bindgen_anon_1.__bindgen_anon_1.unk_x1c,
                 flag: value.__bindgen_anon_1.__bindgen_anon_1.flag,
                 pad_x1f: value.__bindgen_anon_1.__bindgen_anon_1.pad_x1f,
-                node_id: value.NetworkNodeID,
+                node_id: value
+                    .NetworkNodeID
+                    .try_into()
+                    .expect("UDS service should always provide a valid NetworkNodeID"),
                 pad_x22: value.pad_x22,
                 word_x24: value.word_x24,
             }
@@ -163,11 +203,12 @@ impl From<ctru_sys::udsNetworkScanInfo> for NetworkScanInfo {
 #[doc(alias = "udsConnectionStatus")]
 #[derive(Debug)]
 pub struct ConnectionStatus {
+    /// Raw status information
     // TODO: is this in some kind of readable format?
     pub status: u32,
     unk_x4: u32,
     /// Network node ID for the current device.
-    pub cur_node_id: u16,
+    pub cur_node_id: NodeID,
     unk_xa: u16,
     unk_xc: [u32; 8],
     /// Number of nodes connected to the network.
@@ -185,7 +226,10 @@ impl From<ctru_sys::udsConnectionStatus> for ConnectionStatus {
         Self {
             status: value.status,
             unk_x4: value.unk_x4,
-            cur_node_id: value.cur_NetworkNodeID,
+            cur_node_id: value
+                .cur_NetworkNodeID
+                .try_into()
+                .expect("UDS service should always provide a valid NetworkNodeID"),
             unk_xa: value.unk_xa,
             unk_xc: value.unk_xc,
             total_nodes: value.total_nodes,
@@ -196,7 +240,7 @@ impl From<ctru_sys::udsConnectionStatus> for ConnectionStatus {
 }
 
 /// Status of the service handle.
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ServiceStatus {
     /// Not connected to or hosting a network.
     Disconnected,
@@ -252,7 +296,7 @@ impl Uds {
     /// Initialise a new service handle.
     /// No `new_with_buffer_size` function is provided, as there isn't really a
     /// reason to use any size other than the default.
-    /// 
+    ///
     /// The `username` parameter should be a max 10-byte (not 10 code point!) UTF-8 string, converted to UTF-16 internally.
     /// Pass `None` to use the 3DS's configured username.
     ///
@@ -754,7 +798,7 @@ impl Uds {
     pub fn send_packet(
         &self,
         packet: &[u8],
-        to_nodes: u16,
+        address: NodeID,
         channel: u8,
         flags: SendFlags,
     ) -> Result<(), Error> {
@@ -768,7 +812,7 @@ impl Uds {
 
         let code = ResultCode(unsafe {
             ctru_sys::udsSendTo(
-                to_nodes,
+                address.into(),
                 channel,
                 flags.bits(),
                 packet.as_ptr().cast(),
@@ -815,7 +859,7 @@ impl Uds {
     /// # }
     /// ```
     #[doc(alias = "udsPullPacket")]
-    pub fn pull_packet(&self) -> Result<Option<(Vec<u8>, u16)>, Error> {
+    pub fn pull_packet(&self) -> Result<Option<(Vec<u8>, NodeID)>, Error> {
         if self.service_status() == ServiceStatus::Disconnected {
             return Err(Error::NotConnected);
         }
@@ -843,7 +887,12 @@ impl Uds {
             None
         } else {
             // TODO: to_vec() first, then truncate() and shrink_to_fit()?
-            Some((frame[..actual_size].to_vec(), src_node_id))
+            Some((
+                frame[..actual_size].to_vec(),
+                src_node_id
+                    .try_into()
+                    .expect("UDS service should always provide a valid NetworkNodeID"),
+            ))
         })
     }
 

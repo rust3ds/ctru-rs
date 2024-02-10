@@ -165,7 +165,7 @@ fn main() {
                     Ok(p) => {
                         if let Some((pkt, node)) = p {
                             println!(
-                                "{:02X}{:02X}{:02X}{:02X} from {:04X}",
+                                "{:02X}{:02X}{:02X}{:02X} from {:?}",
                                 pkt[0], pkt[1], pkt[2], pkt[3], node
                             );
                         }
@@ -186,7 +186,7 @@ fn main() {
                             if mode != ConnectionType::Spectator {
                                 uds.send_packet(
                                     &transfer_data.to_le_bytes(),
-                                    ctru_sys::UDS_BROADCAST_NETWORKNODEID as _,
+                                    NodeID::Broadcast,
                                     data_channel,
                                     SendFlags::Default,
                                 )
@@ -241,7 +241,7 @@ fn main() {
                     Ok(p) => {
                         if let Some((pkt, node)) = p {
                             println!(
-                                "{:02X}{:02X}{:02X}{:02X} from {:04X}",
+                                "{:02X}{:02X}{:02X}{:02X} from {:?}",
                                 pkt[0], pkt[1], pkt[2], pkt[3], node
                             );
                         }
@@ -261,7 +261,7 @@ fn main() {
                             let transfer_data = hid.keys_held().bits();
                             uds.send_packet(
                                 &transfer_data.to_le_bytes(),
-                                ctru_sys::UDS_BROADCAST_NETWORKNODEID as _,
+                                NodeID::Broadcast,
                                 data_channel,
                                 SendFlags::Default,
                             )
