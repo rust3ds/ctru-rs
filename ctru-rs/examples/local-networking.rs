@@ -5,7 +5,30 @@
 use ctru::prelude::*;
 use ctru::services::uds::*;
 
-fn main() {
+fn handle_status_event(uds: &Uds, prev_node_mask: u16) -> ctru::Result<u16> {
+    println!("Connection status event signalled");
+    let status = uds.get_connection_status()?;
+    println!("Status: {status:#02X?}");
+    let left = prev_node_mask & (status.node_bitmask ^ prev_node_mask);
+    let joined = status.node_bitmask & (status.node_bitmask ^ prev_node_mask);
+    for i in 0..16 {
+        if left & (1 << i) != 0 {
+            println!("Node {} disconnected", i + 1);
+        }
+    }
+    for i in 0..16 {
+        if joined & (1 << i) != 0 {
+            println!(
+                "Node {} connected: {:?}",
+                i + 1,
+                uds.get_node_info(NodeID::Node(i + 1))
+            );
+        }
+    }
+    Ok(status.node_bitmask)
+}
+
+fn main() -> Result<(), Error> {
     let apt = Apt::new().unwrap();
     let mut hid = Hid::new().unwrap();
     let gfx = Gfx::new().unwrap();
@@ -40,6 +63,8 @@ fn main() {
     let mut channel = 0;
     let data_channel = 1;
 
+    let mut prev_node_mask = 0;
+
     while apt.main_loop() {
         gfx.wait_for_vblank();
 
@@ -53,9 +78,11 @@ fn main() {
                 if hid.keys_down().contains(KeyPad::A) {
                     state = State::Scanning;
                     console.clear();
+                    prev_node_mask = 0;
                 } else if hid.keys_down().contains(KeyPad::B) {
                     state = State::Create;
                     console.clear();
+                    prev_node_mask = 0;
                 }
             }
             State::Scanning => {
@@ -126,9 +153,7 @@ fn main() {
                 }
             }
             State::Connect => {
-                let appdata = uds
-                    .get_network_appdata(&networks[selected_network], None)
-                    .unwrap();
+                let appdata = uds.get_network_appdata(&networks[selected_network], None)?;
                 println!("App data: {:02X?}", appdata);
 
                 if let Err(e) = uds.connect_network(
@@ -142,16 +167,14 @@ fn main() {
                     state = State::Initialised;
                     println!("Press A to start scanning or B to create a new network");
                 } else {
-                    channel = uds.get_channel().unwrap();
+                    channel = uds.get_channel()?;
                     println!("Connected using channel {}", channel);
 
-                    let appdata = uds.get_appdata(None).unwrap();
+                    let appdata = uds.get_appdata(None)?;
                     println!("App data: {:02X?}", appdata);
 
-                    if uds.wait_status_event(false, false).unwrap() {
-                        println!("Connection status event signalled");
-                        let status = uds.get_connection_status().unwrap();
-                        println!("Status: {status:#02X?}");
+                    if uds.wait_status_event(false, false)? {
+                        prev_node_mask = handle_status_event(&uds, prev_node_mask)?;
                     }
 
                     println!("Press A to stop data transfer");
@@ -170,14 +193,12 @@ fn main() {
                             );
                         }
 
-                        if uds.wait_status_event(false, false).unwrap() {
-                            println!("Connection status event signalled");
-                            let status = uds.get_connection_status().unwrap();
-                            println!("Status: {status:#02X?}");
+                        if uds.wait_status_event(false, false)? {
+                            prev_node_mask = handle_status_event(&uds, prev_node_mask)?;
                         }
 
                         if hid.keys_down().contains(KeyPad::A) {
-                            uds.disconnect_network().unwrap();
+                            uds.disconnect_network()?;
                             state = State::Initialised;
                             console.clear();
                             println!("Press A to start scanning or B to create a new network");
@@ -189,15 +210,14 @@ fn main() {
                                     NodeID::Broadcast,
                                     data_channel,
                                     SendFlags::Default,
-                                )
-                                .unwrap();
+                                )?;
                             }
                         }
                     }
                     Err(e) => {
-                        uds.disconnect_network().unwrap();
+                        uds.disconnect_network()?;
                         console.clear();
-                        eprintln!("Error while grabbing packet from network: {e:#?}");
+                        eprintln!("Error while grabbing packet from network: {e}");
                         state = State::Initialised;
                         println!("Press A to start scanning or B to create a new network");
                     }
@@ -221,7 +241,7 @@ fn main() {
                             .chain(std::iter::repeat(0).take(3))
                             .collect::<Vec<_>>();
 
-                        uds.set_appdata(&appdata).unwrap();
+                        uds.set_appdata(&appdata)?;
 
                         println!("Press A to stop data transfer");
                         state = State::Created;
@@ -246,14 +266,12 @@ fn main() {
                             );
                         }
 
-                        if uds.wait_status_event(false, false).unwrap() {
-                            println!("Connection status event signalled");
-                            let status = uds.get_connection_status().unwrap();
-                            println!("Status: {status:#02X?}");
+                        if uds.wait_status_event(false, false)? {
+                            prev_node_mask = handle_status_event(&uds, prev_node_mask)?;
                         }
 
                         if hid.keys_down().contains(KeyPad::A) {
-                            uds.destroy_network().unwrap();
+                            uds.destroy_network()?;
                             state = State::Initialised;
                             console.clear();
                             println!("Press A to start scanning or B to create a new network");
@@ -264,14 +282,13 @@ fn main() {
                                 NodeID::Broadcast,
                                 data_channel,
                                 SendFlags::Default,
-                            )
-                            .unwrap();
+                            )?;
                         }
                     }
                     Err(e) => {
-                        uds.destroy_network().unwrap();
+                        uds.destroy_network()?;
                         console.clear();
-                        eprintln!("Error while grabbing packet from network: {e:#?}");
+                        eprintln!("Error while grabbing packet from network: {e}");
                         state = State::Initialised;
                         println!("Press A to start scanning or B to create a new network");
                     }
@@ -279,4 +296,6 @@ fn main() {
             }
         }
     }
+
+    Ok(())
 }

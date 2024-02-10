@@ -5,8 +5,9 @@
 #![doc(alias = "network")]
 #![doc(alias = "dlplay")]
 
+use std::error::Error as StdError;
 use std::ffi::CString;
-use std::fmt::Debug;
+use std::fmt::{Debug, Display};
 use std::mem::MaybeUninit;
 use std::ops::FromResidual;
 use std::ptr::null;
@@ -47,6 +48,8 @@ pub enum Error {
     NoNetwork,
     /// The provided app data buffer was too large.
     TooMuchAppData,
+    /// The provided node ID does not reference a specific node.
+    NotANode,
     /// ctru-rs error
     Lib(crate::Error),
 }
@@ -62,6 +65,29 @@ impl<T> FromResidual<crate::Error> for Result<T, Error> {
         Err(residual.into())
     }
 }
+
+impl Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::UsernameTooLong =>
+                    "provided username was too long (max 10 bytes, not code points)".into(),
+                Self::UsernameContainsNull => "provided username contained a NULL byte".into(),
+                Self::NotConnected => "not connected to a network".into(),
+                Self::NoContext => "no context bound".into(),
+                Self::Spectator => "cannot send data on a network as a spectator".into(),
+                Self::NoNetwork => "not hosting a network".into(),
+                Self::TooMuchAppData => "provided too much app data (max 200 bytes)".into(),
+                Self::NotANode => "provided node ID was non-specific".into(),
+                Self::Lib(e) => format!("ctru-rs error: {e}"),
+            }
+        )
+    }
+}
+
+impl StdError for Error {}
 
 /// Possible types of connection to a network
 ///
@@ -558,7 +584,7 @@ impl Uds {
                 passphrase.as_ptr().cast(),
                 passphrase.len(),
                 context.as_mut_ptr(),
-                ctru_sys::UDS_BROADCAST_NETWORKNODEID as u16,
+                NodeID::Broadcast.into(),
                 connection_type as u32,
                 channel,
                 Self::RECV_BUF_SIZE,
@@ -784,12 +810,12 @@ impl Uds {
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
-    /// use ctru::services::uds::{ConnectionType, SendFlags, Uds};
+    /// use ctru::services::uds::{ConnectionType, NodeID, SendFlags, Uds};
     /// let mut uds = Uds::new(None)?;
     ///
     /// let networks = uds.scan(b"HBW\x10", None, None)?;
     /// uds.connect_network(&networks[0], b"udsdemo passphrase c186093cd2652741\0", ConnectionType::Client, 1)?;
-    /// uds.send_packet(b"Hello, World!", ctru_sys::UDS_BROADCAST_NETWORKNODEID as u16, 1, SendFlags::Default)?;
+    /// uds.send_packet(b"Hello, World!", NodeID::Broadcast, 1, SendFlags::Default)?;
     /// #
     /// # Ok(())
     /// # }
@@ -848,7 +874,7 @@ impl Uds {
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
-    /// use ctru::services::uds::{ConnectionType, SendFlags, Uds};
+    /// use ctru::services::uds::{ConnectionType, Uds};
     /// let mut uds = Uds::new(None)?;
     ///
     /// let networks = uds.scan(b"HBW\x10", None, None)?;
@@ -909,7 +935,7 @@ impl Uds {
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
-    /// use ctru::services::uds::{ConnectionType, SendFlags, Uds};
+    /// use ctru::services::uds::Uds;
     /// let mut uds = Uds::new(None)?;
     ///
     /// uds.create_network(b"HBW\x10", None, None, b"udsdemo passphrase c186093cd2652741\0", 1)?;
@@ -974,7 +1000,7 @@ impl Uds {
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
-    /// use ctru::services::uds::{ConnectionType, SendFlags, Uds};
+    /// use ctru::services::uds::Uds;
     /// let mut uds = Uds::new(None)?;
     ///
     /// uds.create_network(b"HBW\x10", None, None, b"udsdemo passphrase c186093cd2652741\0", 1)?;
@@ -1016,7 +1042,7 @@ impl Uds {
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
-    /// use ctru::services::uds::{ConnectionType, SendFlags, Uds};
+    /// use ctru::services::uds::Uds;
     /// let mut uds = Uds::new(None)?;
     ///
     /// uds.create_network(b"HBW\x10", None, None, b"udsdemo passphrase c186093cd2652741\0", 1)?;
@@ -1038,6 +1064,199 @@ impl Uds {
         ResultCode(unsafe { ctru_sys::udsSetApplicationData(data.as_ptr().cast(), data.len()) })?;
 
         Ok(())
+    }
+
+    /// Wait for a bind event to occur.
+    ///
+    /// If `next` is `true`, discard the current event (if any) and wait for the next one.
+    ///
+    /// If `wait` is `true`, block until an event is signalled, else return `false` if no event.
+    ///
+    /// Always returns `true`, unless `wait` is `false` and no event has been signalled.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the service is currently neither connected to nor hosting a network.
+    /// See [`Uds::connect_network()`] to connect to a network or [`Uds::create_network()`] to create one.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::uds::{ConnectionType, Uds};
+    /// let mut uds = Uds::new(None)?;
+    ///
+    /// let networks = uds.scan(b"HBW\x10", None, None)?;
+    /// uds.connect_network(&networks[0], b"udsdemo passphrase c186093cd2652741\0", ConnectionType::Client, 1)?;
+    /// if uds.wait_data_available(false, false)? {
+    ///     println!("Data available");
+    /// }
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[doc(alias = "udsWaitConnectionStatusEvent")]
+    pub fn wait_data_available(&self, next: bool, wait: bool) -> Result<bool, Error> {
+        if self.service_status() == ServiceStatus::Disconnected {
+            return Err(Error::NotConnected);
+        }
+
+        Ok(unsafe {
+            ctru_sys::udsWaitDataAvailable(&self.context.unwrap() as *const _, next, wait)
+        })
+    }
+
+    /// Eject a client from the network.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if no network has been created.
+    /// See [`Uds::create_network()`] to create a network.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::uds::{NodeID, Uds};
+    /// let mut uds = Uds::new(None)?;
+    ///
+    /// uds.create_network(b"HBW\x10", None, None, b"udsdemo passphrase c186093cd2652741\0", 1)?;
+    /// uds.eject_client(NodeID::Node(2))?;
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[doc(alias = "udsEjectClient")]
+    pub fn eject_client(&self, address: NodeID) -> Result<(), Error> {
+        if self.service_status() != ServiceStatus::Server {
+            return Err(Error::NoNetwork);
+        }
+
+        ResultCode(unsafe { ctru_sys::udsEjectClient(address.into()) })?;
+
+        Ok(())
+    }
+
+    /// Allow or disallow spectators on the network.
+    ///
+    /// Disallowing spectators will disconnect all spectators currently observing the network.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if no network has been created.
+    /// See [`Uds::create_network()`] to create a network.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::uds::Uds;
+    /// let mut uds = Uds::new(None)?;
+    ///
+    /// uds.create_network(b"HBW\x10", None, None, b"udsdemo passphrase c186093cd2652741\0", 1)?;
+    /// uds.allow_spectators(false)?;
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[doc(alias = "udsEjectSpectator")]
+    #[doc(alias = "udsAllowSpectators")]
+    pub fn allow_spectators(&mut self, allow: bool) -> Result<(), Error> {
+        if self.service_status() != ServiceStatus::Server {
+            return Err(Error::NoNetwork);
+        }
+
+        ResultCode(unsafe {
+            if allow {
+                ctru_sys::udsAllowSpectators()
+            } else {
+                ctru_sys::udsEjectSpectator()
+            }
+        })?;
+
+        Ok(())
+    }
+
+    /// Allow or disallow new clients on the network.
+    ///
+    /// Disallowing new clients will not disconnect any currently connected clients.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if no network has been created.
+    /// See [`Uds::create_network()`] to create a network.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::uds::Uds;
+    /// let mut uds = Uds::new(None)?;
+    ///
+    /// uds.create_network(b"HBW\x10", None, None, b"udsdemo passphrase c186093cd2652741\0", 1)?;
+    /// uds.allow_new_clients(false)?;
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[doc(alias = "udsSetNewConnectionsBlocked")]
+    pub fn allow_new_clients(&mut self, allow: bool) -> Result<(), Error> {
+        if self.service_status() != ServiceStatus::Server {
+            return Err(Error::NoNetwork);
+        }
+
+        ResultCode(unsafe { ctru_sys::udsSetNewConnectionsBlocked(!allow, true, false) })?;
+
+        Ok(())
+    }
+
+    /// Returns the [`NodeInfo`] struct for the specified network node.
+    ///
+    /// # Errors
+    /// 
+    /// This function will return an error if [`NodeID::None`] or [`NodeID::Broadcast`] is passed.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #
+    /// use ctru::services::uds::{NodeID, Uds};
+    /// let mut uds = Uds::new(None)?;
+    ///
+    /// uds.create_network(b"HBW\x10", None, None, b"udsdemo passphrase c186093cd2652741\0", 1)?;
+    /// let node_info = uds.get_node_info(NodeID::Node(2))?;
+    /// #
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[doc(alias = "udsGetNodeInformation")]
+    pub fn get_node_info(&self, address: NodeID) -> Result<NodeInfo, Error> {
+        let NodeID::Node(node) = address else {
+            return Err(Error::NotANode);
+        };
+
+        let mut info = MaybeUninit::uninit();
+
+        ResultCode(unsafe { ctru_sys::udsGetNodeInformation(node as u16, info.as_mut_ptr()) })?;
+
+        let info = unsafe { info.assume_init() };
+
+        Ok(info.into())
     }
 }
 
