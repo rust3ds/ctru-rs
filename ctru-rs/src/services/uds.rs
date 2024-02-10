@@ -395,7 +395,7 @@ impl Uds {
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
     /// use ctru::services::uds::Uds;
-    /// let uds = Uds::new(None)?;
+    /// let mut uds = Uds::new(None)?;
     ///
     /// let networks = uds.scan(b"HBW\x10", None, None)?;
     /// #
@@ -455,7 +455,7 @@ impl Uds {
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
     /// use ctru::services::uds::Uds;
-    /// let uds = Uds::new(None)?;
+    /// let mut uds = Uds::new(None)?;
     ///
     /// let networks = uds.scan(b"HBW\x10", None, None)?;
     /// let appdata = uds.get_network_appdata(&networks[0], None)?;
@@ -510,7 +510,7 @@ impl Uds {
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
     /// use ctru::services::uds::{ConnectionType, Uds};
-    /// let uds = Uds::new(None)?;
+    /// let mut uds = Uds::new(None)?;
     ///
     /// let networks = uds.scan(b"HBW\x10", None, None)?;
     /// uds.connect_network(&networks[0], b"udsdemo passphrase c186093cd2652741\0", ConnectionType::Client, 1)?;
