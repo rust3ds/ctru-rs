@@ -46,7 +46,7 @@ fn main() {
         if hid.keys_down().contains(KeyPad::A) {
             // Raise the software keyboard. You can perform different actions depending on which
             // software button the user pressed.
-            match keyboard.get_string(2048, &apt, &gfx) {
+            match keyboard.get_string(&apt, &gfx) {
                 Ok((text, Button::Right)) => println!("You entered: {text}"),
                 Ok((_, Button::Left)) => println!("Cancelled"),
                 Ok((_, Button::Middle)) => println!("How did you even press this?"),
