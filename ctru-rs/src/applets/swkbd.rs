@@ -809,12 +809,12 @@ impl SoftwareKeyboard {
                     SWKBD_SHARED_MEM
                         .add((*swkbd).text_offset as _)
                         .cast::<u16>(),
-                    (*swkbd).text_length as usize + 1,
+                    (*swkbd).text_length as usize,
                 ))
                 .unwrap()
             }
         } else {
-            widestring::utf16str!("\0")
+            widestring::utf16str!("")
         };
 
         buf.extend(text16.encode_utf8());
