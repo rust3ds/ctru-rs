@@ -631,7 +631,7 @@ impl SoftwareKeyboard {
     // A reimplementation of `swkbdInputText` from `libctru/source/applets/swkbd.c`. Allows us to
     // get text from the software keyboard and put it directly into a `String` without requiring
     // an intermediate fixed-size buffer
-    unsafe fn swkbd_input_text(swkbd: *mut SwkbdState, buf: &mut Vec<u8>) -> SwkbdButton {
+    fn swkbd_input_text(swkbd: &mut SwkbdState, buf: &mut Vec<u8>) -> SwkbdButton {
         use ctru_sys::{
             MEMPERM_READ, MEMPERM_WRITE, R_FAILED, SWKBD_BUTTON_LEFT, SWKBD_BUTTON_MIDDLE,
             SWKBD_BUTTON_NONE, SWKBD_BUTTON_RIGHT, SWKBD_D0_CLICK, SWKBD_D1_CLICK0,
@@ -639,22 +639,22 @@ impl SoftwareKeyboard {
             SWKBD_FILTER_CALLBACK, SWKBD_OUTOFMEM,
         };
 
-        let mut extra = unsafe { (*swkbd).__bindgen_anon_1.extra };
+        let mut extra = unsafe { swkbd.__bindgen_anon_1.extra };
 
         // Calculate shared mem size
         let mut shared_mem_size = 0;
 
         shared_mem_size +=
-            (std::mem::size_of::<u16>() * ((*swkbd).max_text_len as usize + 1) + 3) & !3;
+            (std::mem::size_of::<u16>() * (swkbd.max_text_len as usize + 1) + 3) & !3;
 
         let dict_off = shared_mem_size;
 
         shared_mem_size +=
-            (std::mem::size_of::<SwkbdDictWord>() * (*swkbd).dict_word_count as usize + 3) & !3;
+            (std::mem::size_of::<SwkbdDictWord>() * swkbd.dict_word_count as usize + 3) & !3;
 
         let status_off = shared_mem_size;
 
-        shared_mem_size += if (*swkbd).initial_learning_offset >= 0 {
+        shared_mem_size += if swkbd.initial_learning_offset >= 0 {
             std::mem::size_of::<SwkbdStatusData>()
         } else {
             0
@@ -662,25 +662,25 @@ impl SoftwareKeyboard {
 
         let learning_off = shared_mem_size;
 
-        shared_mem_size += if (*swkbd).initial_learning_offset >= 0 {
+        shared_mem_size += if swkbd.initial_learning_offset >= 0 {
             std::mem::size_of::<SwkbdLearningData>()
         } else {
             0
         };
 
-        if (*swkbd).save_state_flags & (1 << 0) != 0 {
-            (*swkbd).status_offset = shared_mem_size as _;
+        if swkbd.save_state_flags & (1 << 0) != 0 {
+            swkbd.status_offset = shared_mem_size as _;
             shared_mem_size += std::mem::size_of::<SwkbdStatusData>();
         }
 
-        if (*swkbd).save_state_flags & (1 << 1) != 0 {
-            (*swkbd).learning_offset = shared_mem_size as _;
+        if swkbd.save_state_flags & (1 << 1) != 0 {
+            swkbd.learning_offset = shared_mem_size as _;
             shared_mem_size += std::mem::size_of::<SwkbdLearningData>();
         }
 
         shared_mem_size = (shared_mem_size + 0xFFF) & !0xFFF;
 
-        (*swkbd).shared_memory_size = shared_mem_size;
+        swkbd.shared_memory_size = shared_mem_size;
 
         // Allocate shared mem
         unsafe { SWKBD_SHARED_MEM = libc::memalign(0x1000, shared_mem_size).cast() };
@@ -688,7 +688,7 @@ impl SoftwareKeyboard {
         let mut swkbd_shared_mem_handle = 0;
 
         if unsafe { SWKBD_SHARED_MEM.is_null() } {
-            (*swkbd).result = SWKBD_OUTOFMEM;
+            swkbd.result = SWKBD_OUTOFMEM;
             return SWKBD_BUTTON_NONE;
         }
 
@@ -705,42 +705,44 @@ impl SoftwareKeyboard {
         if R_FAILED(res) {
             unsafe {
                 libc::free(SWKBD_SHARED_MEM);
-                (*swkbd).result = SWKBD_OUTOFMEM;
+                swkbd.result = SWKBD_OUTOFMEM;
                 return SWKBD_BUTTON_NONE;
             }
         }
 
         // Copy stuff to shared mem
         if !extra.initial_text.is_null() {
-            (*swkbd).initial_text_offset = 0;
+            swkbd.initial_text_offset = 0;
 
-            let utf16_iter = CStr::from_ptr(extra.initial_text)
-                .to_str()
-                .unwrap()
-                .encode_utf16()
-                .chain(once(0));
+            unsafe {
+                let utf16_iter = CStr::from_ptr(extra.initial_text)
+                    .to_str()
+                    .unwrap()
+                    .encode_utf16()
+                    .chain(once(0));
 
-            let mut initial_text_cursor = SWKBD_SHARED_MEM.cast::<u16>();
+                let mut initial_text_cursor = SWKBD_SHARED_MEM.cast::<u16>();
 
-            for ch in utf16_iter {
-                *initial_text_cursor = ch;
-                unsafe { initial_text_cursor = initial_text_cursor.add(1) };
+                for ch in utf16_iter {
+                    *initial_text_cursor = ch;
+                    initial_text_cursor = initial_text_cursor.add(1);
+                }
             }
         }
 
         if !extra.dict.is_null() {
-            (*swkbd).dict_offset = dict_off as _;
+            swkbd.dict_offset = dict_off as _;
             unsafe {
                 libc::memcpy(
                     SWKBD_SHARED_MEM.add(dict_off),
                     extra.dict.cast(),
-                    std::mem::size_of::<SwkbdDictWord>() * (*swkbd).dict_word_count as usize,
+                    std::mem::size_of::<SwkbdDictWord>() * swkbd.dict_word_count as usize,
                 )
             };
         }
 
-        if (*swkbd).initial_status_offset >= 0 {
-            (*swkbd).initial_status_offset = status_off as _;
+        if swkbd.initial_status_offset >= 0 {
+            swkbd.initial_status_offset = status_off as _;
             unsafe {
                 libc::memcpy(
                     SWKBD_SHARED_MEM.add(status_off),
@@ -750,8 +752,8 @@ impl SoftwareKeyboard {
             };
         }
 
-        if (*swkbd).initial_learning_offset >= 0 {
-            (*swkbd).initial_learning_offset = learning_off as _;
+        if swkbd.initial_learning_offset >= 0 {
+            swkbd.initial_learning_offset = learning_off as _;
             unsafe {
                 libc::memcpy(
                     SWKBD_SHARED_MEM.add(learning_off),
@@ -762,17 +764,17 @@ impl SoftwareKeyboard {
         }
 
         if extra.callback.is_some() {
-            (*swkbd).filter_flags |= SWKBD_FILTER_CALLBACK;
+            swkbd.filter_flags |= SWKBD_FILTER_CALLBACK;
         } else {
-            (*swkbd).filter_flags &= !SWKBD_FILTER_CALLBACK;
+            swkbd.filter_flags &= !SWKBD_FILTER_CALLBACK;
         }
 
         // Launch swkbd
         unsafe {
             libc::memset(
-                std::ptr::addr_of_mut!((*swkbd).__bindgen_anon_1.reserved).cast(),
+                std::ptr::addr_of_mut!(swkbd.__bindgen_anon_1.reserved).cast(),
                 0,
-                std::mem::size_of_val(&(*swkbd).__bindgen_anon_1.reserved),
+                swkbd.__bindgen_anon_1.reserved.len(),
             );
 
             if extra.callback.is_some() {
@@ -784,7 +786,7 @@ impl SoftwareKeyboard {
 
             aptLaunchLibraryApplet(
                 APPID_SOFTWARE_KEYBOARD,
-                swkbd.cast(),
+                swkbd as *mut _ as *mut _,
                 std::mem::size_of::<SwkbdState>(),
                 swkbd_shared_mem_handle,
             );
@@ -796,20 +798,18 @@ impl SoftwareKeyboard {
             let _ = svcCloseHandle(swkbd_shared_mem_handle);
         }
 
-        let button = match (*swkbd).result {
+        let button = match swkbd.result {
             SWKBD_D1_CLICK0 | SWKBD_D2_CLICK0 => SWKBD_BUTTON_LEFT,
             SWKBD_D2_CLICK1 => SWKBD_BUTTON_MIDDLE,
             SWKBD_D0_CLICK | SWKBD_D1_CLICK1 | SWKBD_D2_CLICK2 => SWKBD_BUTTON_RIGHT,
             _ => SWKBD_BUTTON_NONE,
         };
 
-        let text16 = if (*swkbd).text_length > 0 {
+        let text16 = if swkbd.text_length > 0 {
             unsafe {
                 widestring::Utf16Str::from_slice(std::slice::from_raw_parts(
-                    SWKBD_SHARED_MEM
-                        .add((*swkbd).text_offset as _)
-                        .cast::<u16>(),
-                    (*swkbd).text_length as usize,
+                    SWKBD_SHARED_MEM.add(swkbd.text_offset as _).cast::<u16>(),
+                    swkbd.text_length as usize,
                 ))
                 .unwrap()
             }
@@ -819,21 +819,21 @@ impl SoftwareKeyboard {
 
         buf.extend(text16.encode_utf8());
 
-        if (*swkbd).save_state_flags & (1 << 0) != 0 {
+        if swkbd.save_state_flags & (1 << 0) != 0 {
             unsafe {
                 libc::memcpy(
                     extra.status_data.cast(),
-                    SWKBD_SHARED_MEM.add((*swkbd).status_offset as _),
+                    SWKBD_SHARED_MEM.add(swkbd.status_offset as _),
                     std::mem::size_of::<SwkbdStatusData>(),
                 )
             };
         }
 
-        if (*swkbd).save_state_flags & (1 << 1) != 0 {
+        if swkbd.save_state_flags & (1 << 1) != 0 {
             unsafe {
                 libc::memcpy(
                     extra.learning_data.cast(),
-                    SWKBD_SHARED_MEM.add((*swkbd).learning_offset as _),
+                    SWKBD_SHARED_MEM.add(swkbd.learning_offset as _),
                     std::mem::size_of::<SwkbdLearningData>(),
                 )
             };
@@ -854,8 +854,8 @@ impl SoftwareKeyboard {
         msg: *mut libc::c_void,
         msg_size: libc::size_t,
     ) {
-        let extra = user.cast::<SwkbdExtra>();
-        let swkbd = msg.cast::<SwkbdState>();
+        let extra = &mut *user.cast::<SwkbdExtra>();
+        let swkbd = &mut *msg.cast::<SwkbdState>();
 
         if sender != ctru_sys::APPID_SOFTWARE_KEYBOARD
             || msg_size != std::mem::size_of::<SwkbdState>()
@@ -865,10 +865,8 @@ impl SoftwareKeyboard {
 
         let text16 = unsafe {
             widestring::Utf16Str::from_slice(std::slice::from_raw_parts(
-                SWKBD_SHARED_MEM
-                    .add((*swkbd).text_offset as _)
-                    .cast::<u16>(),
-                (*swkbd).text_length as usize + 1,
+                SWKBD_SHARED_MEM.add(swkbd.text_offset as _).cast::<u16>(),
+                swkbd.text_length as usize + 1,
             ))
             .unwrap()
         };
@@ -883,8 +881,8 @@ impl SoftwareKeyboard {
 
         let mut retmsg = std::ptr::null();
 
-        (*swkbd).callback_result = (*extra).callback.unwrap()(
-            (*extra).callback_user,
+        swkbd.callback_result = extra.callback.unwrap()(
+            extra.callback_user,
             &mut retmsg,
             text8.as_ptr(),
             text8.len(),
@@ -899,9 +897,9 @@ impl SoftwareKeyboard {
             "\0"
         };
 
-        let callback_msg = &mut (*swkbd).callback_msg;
+        let callback_msg = &mut swkbd.callback_msg;
 
-        if (*swkbd).callback_result > SWKBD_CALLBACK_OK as _ {
+        if swkbd.callback_result > SWKBD_CALLBACK_OK as _ {
             for (idx, ch) in retmsg.encode_utf16().take(callback_msg.len()).enumerate() {
                 callback_msg[idx] = ch;
             }
@@ -913,7 +911,7 @@ impl SoftwareKeyboard {
             envGetAptAppId(),
             sender,
             APTCMD_MESSAGE,
-            swkbd.cast(),
+            swkbd as *mut _ as *mut _,
             std::mem::size_of::<SwkbdState>() as _,
             0,
         );
