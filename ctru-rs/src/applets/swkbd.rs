@@ -687,7 +687,7 @@ impl SoftwareKeyboard {
 
         let mut swkbd_shared_mem_handle = 0;
 
-        if unsafe { SWKBD_SHARED_MEM == std::ptr::null_mut() } {
+        if unsafe { SWKBD_SHARED_MEM.is_null() } {
             (*swkbd).result = SWKBD_OUTOFMEM;
             return SWKBD_BUTTON_NONE;
         }
@@ -711,7 +711,7 @@ impl SoftwareKeyboard {
         }
 
         // Copy stuff to shared mem
-        if extra.initial_text != std::ptr::null() {
+        if !extra.initial_text.is_null() {
             (*swkbd).initial_text_offset = 0;
 
             let utf16_iter = CStr::from_ptr(extra.initial_text)
@@ -728,7 +728,7 @@ impl SoftwareKeyboard {
             }
         }
 
-        if extra.dict != std::ptr::null() {
+        if !extra.dict.is_null() {
             (*swkbd).dict_offset = dict_off as _;
             unsafe {
                 libc::memcpy(
@@ -890,7 +890,7 @@ impl SoftwareKeyboard {
             text8.len(),
         ) as _;
 
-        let retmsg = if retmsg != std::ptr::null() {
+        let retmsg = if !retmsg.is_null() {
             unsafe {
                 let len = libc::strlen(retmsg);
                 std::str::from_utf8_unchecked(std::slice::from_raw_parts(retmsg, len + 1))
