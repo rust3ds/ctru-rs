@@ -890,7 +890,11 @@ impl SoftwareKeyboard {
         let callback_msg = &mut swkbd.callback_msg;
 
         if swkbd.callback_result > SWKBD_CALLBACK_OK as _ {
-            for (idx, ch) in retmsg.encode_utf16().take(callback_msg.len()).enumerate() {
+            for (idx, ch) in retmsg
+                .encode_utf16()
+                .take(callback_msg.len() - 1)
+                .enumerate()
+            {
                 callback_msg[idx] = ch;
             }
         } else {
