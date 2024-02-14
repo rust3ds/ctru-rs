@@ -869,12 +869,14 @@ impl SoftwareKeyboard {
 
         let mut retmsg = std::ptr::null();
 
-        swkbd.callback_result = extra.callback.unwrap()(
-            extra.callback_user,
-            &mut retmsg,
-            text8.as_ptr(),
-            text8.len(),
-        ) as _;
+        if let Some(cb) = extra.callback {
+            swkbd.callback_result = cb(
+                extra.callback_user,
+                &mut retmsg,
+                text8.as_ptr(),
+                text8.len(),
+            ) as _
+        };
 
         let retmsg = if !retmsg.is_null() {
             unsafe {
