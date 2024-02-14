@@ -606,7 +606,7 @@ impl SoftwareKeyboard {
     ///
     /// Keyboard input is converted from UTF-16 to UTF-8 before being handed to Rust,
     /// so this code point limit does not necessarily equal the max number of UTF-8 code points
-    /// receivable by [`SoftwareKeyboard::get_string()`] and [`SoftwareKeyboard::write_exact()`].
+    /// receivable by [`SoftwareKeyboard::get_string()`].
     ///
     /// # Example
     ///
