@@ -281,7 +281,7 @@ impl SoftwareKeyboard {
                 (self as *mut Self).cast(),
             );
 
-            match Self::swkbd_input_text(self.state.as_mut(), &mut output) {
+            match Self::swkbd_input_text(&mut self.state, &mut output) {
                 ctru_sys::SWKBD_BUTTON_NONE => Err(self.state.result.into()),
                 ctru_sys::SWKBD_BUTTON_LEFT => Ok((output, Button::Left)),
                 ctru_sys::SWKBD_BUTTON_MIDDLE => Ok((output, Button::Middle)),
@@ -631,7 +631,9 @@ impl SoftwareKeyboard {
     // A reimplementation of `swkbdInputText` from `libctru/source/applets/swkbd.c`. Allows us to
     // get text from the software keyboard and put it directly into a `String` without requiring
     // an intermediate fixed-size buffer
-    fn swkbd_input_text(swkbd: &mut SwkbdState, output: &mut String) -> SwkbdButton {
+    //
+    // SAFETY: `swkbd` must be initialized by `swkbdInit` before calling this function.
+    unsafe fn swkbd_input_text(swkbd: &mut SwkbdState, output: &mut String) -> SwkbdButton {
         use ctru_sys::{
             MEMPERM_READ, MEMPERM_WRITE, R_FAILED, SWKBD_BUTTON_LEFT, SWKBD_BUTTON_MIDDLE,
             SWKBD_BUTTON_NONE, SWKBD_BUTTON_RIGHT, SWKBD_D0_CLICK, SWKBD_D1_CLICK0,
