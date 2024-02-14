@@ -143,7 +143,7 @@ impl<'screen> Console<'screen> {
     /// ```
     pub fn exists() -> bool {
         unsafe {
-            let current_console = ctru_sys::consoleSelect(&mut EMPTY_CONSOLE);
+            let current_console = ctru_sys::consoleSelect(std::ptr::addr_of_mut!(EMPTY_CONSOLE));
 
             let res = (*current_console).consoleInitialised;
 
@@ -364,7 +364,7 @@ impl Drop for Console<'_> {
             // the screen, but it won't crash either.
 
             // Get the current console by replacing it with an empty one.
-            let current_console = ctru_sys::consoleSelect(&mut EMPTY_CONSOLE);
+            let current_console = ctru_sys::consoleSelect(std::ptr::addr_of_mut!(EMPTY_CONSOLE));
 
             if std::ptr::eq(current_console, &*self.context) {
                 // Console dropped while selected. We just replaced it with the
