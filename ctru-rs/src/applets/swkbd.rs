@@ -803,18 +803,16 @@ impl SoftwareKeyboard {
             _ => SWKBD_BUTTON_NONE,
         };
 
-        let text16 = if swkbd.text_length > 0 {
-            unsafe {
+        if swkbd.text_length > 0 {
+            let text16 = unsafe {
                 widestring::Utf16Str::from_slice_unchecked(std::slice::from_raw_parts(
-                    SWKBD_SHARED_MEM.add(swkbd.text_offset as _).cast::<u16>(),
-                    swkbd.text_length as usize,
+                    SWKBD_SHARED_MEM.add(swkbd.text_offset as _).cast(),
+                    swkbd.text_length as _,
                 ))
-            }
-        } else {
-            widestring::utf16str!("")
-        };
+            };
 
-        *output = text16.to_string();
+            *output = text16.to_string();
+        }
 
         if swkbd.save_state_flags & (1 << 0) != 0 {
             unsafe {
