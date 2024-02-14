@@ -8,7 +8,7 @@ use ctru_sys::{
     self, aptLaunchLibraryApplet, aptSetMessageCallback, envGetAptAppId, svcCloseHandle,
     svcCreateMemoryBlock, APT_SendParameter, SwkbdButton, SwkbdDictWord, SwkbdExtra,
     SwkbdLearningData, SwkbdState, SwkbdStatusData, APPID_SOFTWARE_KEYBOARD, APTCMD_MESSAGE,
-    NS_APPID, SWKBD_CALLBACK_OK,
+    NS_APPID,
 };
 
 use bitflags::bitflags;
@@ -723,10 +723,10 @@ impl SoftwareKeyboard {
                         .take(swkbd.max_text_len as _)
                         .chain(once(0));
 
-                let mut initial_text_cursor = SWKBD_SHARED_MEM.cast::<u16>();
+                let mut initial_text_cursor = SWKBD_SHARED_MEM.cast();
 
-                for ch in utf16_iter {
-                    *initial_text_cursor = ch;
+                for code_point in utf16_iter {
+                    *initial_text_cursor = code_point;
                     initial_text_cursor = initial_text_cursor.add(1);
                 }
             }
@@ -860,7 +860,7 @@ impl SoftwareKeyboard {
 
         let text16 = unsafe {
             widestring::Utf16Str::from_slice_unchecked(std::slice::from_raw_parts(
-                SWKBD_SHARED_MEM.add(swkbd.text_offset as _).cast::<u16>(),
+                SWKBD_SHARED_MEM.add(swkbd.text_offset as _).cast(),
                 swkbd.text_length as usize + 1,
             ))
         };
@@ -880,8 +880,8 @@ impl SoftwareKeyboard {
 
         let retmsg = if !retmsg.is_null() {
             unsafe {
-                let len = libc::strlen(retmsg);
-                std::str::from_utf8_unchecked(std::slice::from_raw_parts(retmsg, len + 1))
+                let len = libc::strlen(retmsg) + 1;
+                std::str::from_utf8_unchecked(std::slice::from_raw_parts(retmsg, len))
             }
         } else {
             "\0"
@@ -889,16 +889,12 @@ impl SoftwareKeyboard {
 
         let callback_msg = &mut swkbd.callback_msg;
 
-        if swkbd.callback_result > SWKBD_CALLBACK_OK as _ {
-            for (idx, ch) in retmsg
-                .encode_utf16()
-                .take(callback_msg.len() - 1)
-                .enumerate()
-            {
-                callback_msg[idx] = ch;
-            }
-        } else {
-            callback_msg[0] = 0;
+        for (idx, code_point) in retmsg
+            .encode_utf16()
+            .take(callback_msg.len() - 1)
+            .enumerate()
+        {
+            callback_msg[idx] = code_point;
         }
 
         let _ = APT_SendParameter(
