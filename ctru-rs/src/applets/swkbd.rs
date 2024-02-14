@@ -733,10 +733,10 @@ impl SoftwareKeyboard {
         if !extra.dict.is_null() {
             swkbd.dict_offset = dict_off as _;
             unsafe {
-                libc::memcpy(
-                    SWKBD_SHARED_MEM.add(dict_off),
-                    extra.dict.cast(),
-                    std::mem::size_of::<SwkbdDictWord>() * swkbd.dict_word_count as usize,
+                std::ptr::copy_nonoverlapping(
+                    extra.dict,
+                    SWKBD_SHARED_MEM.add(dict_off).cast(),
+                    swkbd.dict_word_count as _,
                 )
             };
         }
@@ -744,10 +744,10 @@ impl SoftwareKeyboard {
         if swkbd.initial_status_offset >= 0 {
             swkbd.initial_status_offset = status_off as _;
             unsafe {
-                libc::memcpy(
-                    SWKBD_SHARED_MEM.add(status_off),
-                    extra.status_data.cast(),
-                    std::mem::size_of::<SwkbdStatusData>(),
+                std::ptr::copy_nonoverlapping(
+                    extra.status_data,
+                    SWKBD_SHARED_MEM.add(status_off).cast(),
+                    1,
                 )
             };
         }
@@ -755,10 +755,10 @@ impl SoftwareKeyboard {
         if swkbd.initial_learning_offset >= 0 {
             swkbd.initial_learning_offset = learning_off as _;
             unsafe {
-                libc::memcpy(
-                    SWKBD_SHARED_MEM.add(learning_off),
-                    extra.learning_data.cast(),
-                    std::mem::size_of::<SwkbdLearningData>(),
+                std::ptr::copy_nonoverlapping(
+                    extra.learning_data,
+                    SWKBD_SHARED_MEM.add(learning_off).cast(),
+                    1,
                 )
             };
         }
@@ -771,11 +771,7 @@ impl SoftwareKeyboard {
 
         // Launch swkbd
         unsafe {
-            libc::memset(
-                std::ptr::addr_of_mut!(swkbd.__bindgen_anon_1.reserved).cast(),
-                0,
-                swkbd.__bindgen_anon_1.reserved.len(),
-            );
+            swkbd.__bindgen_anon_1.reserved.fill(0);
 
             if extra.callback.is_some() {
                 aptSetMessageCallback(
@@ -821,20 +817,20 @@ impl SoftwareKeyboard {
 
         if swkbd.save_state_flags & (1 << 0) != 0 {
             unsafe {
-                libc::memcpy(
-                    extra.status_data.cast(),
-                    SWKBD_SHARED_MEM.add(swkbd.status_offset as _),
-                    std::mem::size_of::<SwkbdStatusData>(),
+                std::ptr::copy_nonoverlapping(
+                    SWKBD_SHARED_MEM.add(swkbd.status_offset as _).cast(),
+                    extra.status_data,
+                    1,
                 )
             };
         }
 
         if swkbd.save_state_flags & (1 << 1) != 0 {
             unsafe {
-                libc::memcpy(
-                    extra.learning_data.cast(),
-                    SWKBD_SHARED_MEM.add(swkbd.learning_offset as _),
-                    std::mem::size_of::<SwkbdLearningData>(),
+                std::ptr::copy_nonoverlapping(
+                    SWKBD_SHARED_MEM.add(swkbd.learning_offset as _).cast(),
+                    extra.learning_data,
+                    1,
                 )
             };
         }
