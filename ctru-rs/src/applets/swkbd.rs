@@ -862,7 +862,7 @@ impl SoftwareKeyboard {
         let text16 = unsafe {
             widestring::Utf16Str::from_slice_unchecked(std::slice::from_raw_parts(
                 SWKBD_SHARED_MEM.add(swkbd.text_offset as _).cast(),
-                swkbd.text_length as usize + 1,
+                swkbd.text_length as _,
             ))
         };
 
