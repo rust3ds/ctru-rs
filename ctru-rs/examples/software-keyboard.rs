@@ -5,6 +5,8 @@
 use ctru::applets::swkbd::{Button, CallbackResult, SoftwareKeyboard};
 use ctru::prelude::*;
 
+use std::ffi::CString;
+
 fn main() {
     let apt = Apt::new().unwrap();
     let mut hid = Hid::new().unwrap();
@@ -23,7 +25,7 @@ fn main() {
         if text.contains("boo") {
             return (
                 CallbackResult::Retry,
-                Some(String::from("Ah, you scared me!")),
+                Some(CString::new("Ah, you scared me!").unwrap()),
             );
         }
 

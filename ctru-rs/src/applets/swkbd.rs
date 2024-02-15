@@ -14,7 +14,7 @@ use std::fmt::Display;
 use std::iter::once;
 use std::str;
 
-type CallbackFunction = dyn Fn(&str) -> (CallbackResult, Option<String>);
+type CallbackFunction = dyn Fn(&str) -> (CallbackResult, Option<CString>);
 
 /// Configuration structure to setup the Software Keyboard applet.
 #[doc(alias = "SwkbdState")]
@@ -399,6 +399,7 @@ impl SoftwareKeyboard {
     /// # fn main() {
     /// #
     /// use std::borrow::Cow;
+    /// use std::ffi::CString;
     /// use ctru::applets::swkbd::{SoftwareKeyboard, CallbackResult};
     ///
     /// let mut keyboard = SoftwareKeyboard::default();
@@ -407,7 +408,7 @@ impl SoftwareKeyboard {
     ///     if text.contains("boo") {
     ///         return (
     ///             CallbackResult::Retry,
-    ///             Some(String::from("Ah, you scared me!")),
+    ///             Some(CString::new("Ah, you scared me!").unwrap()),
     ///         );
     ///     }
     ///
@@ -442,8 +443,6 @@ impl SoftwareKeyboard {
                     // Due to how `libctru` operates, the user is expected to keep the error message alive until
                     // the end of the Software Keyboard prompt. We ensure that happens by saving it within the configuration.
                     if let Some(error_message) = error_message {
-                        let error_message = CString::from_vec_unchecked(error_message.into_bytes());
-
                         *pp_message = error_message.as_ptr();
 
                         this.error_message = Some(error_message);
