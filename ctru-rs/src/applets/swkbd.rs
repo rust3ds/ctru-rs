@@ -633,6 +633,7 @@ impl SoftwareKeyboard {
     // an intermediate fixed-size buffer
     //
     // SAFETY: `swkbd` must be initialized by `swkbdInit` before calling this function.
+    #[deny(unsafe_op_in_unsafe_fn)]
     unsafe fn swkbd_input_text(swkbd: &mut SwkbdState, output: &mut String) -> SwkbdButton {
         use ctru_sys::{
             MEMPERM_READ, MEMPERM_WRITE, R_FAILED, SWKBD_BUTTON_LEFT, SWKBD_BUTTON_MIDDLE,
@@ -842,15 +843,15 @@ impl SoftwareKeyboard {
     // A reimplementation of `swkbdMessageCallback` from `libctru/source/applets/swkbd.c`.
     // This is only needed because the original function is private to libctru, so we can't
     // simply reuse their version
-    #[allow(non_snake_case)]
+    #[deny(unsafe_op_in_unsafe_fn)]
     unsafe extern "C" fn swkbd_message_callback(
         user: *mut libc::c_void,
         sender: NS_APPID,
         msg: *mut libc::c_void,
         msg_size: libc::size_t,
     ) {
-        let extra = &mut *user.cast::<SwkbdExtra>();
-        let swkbd = &mut *msg.cast::<SwkbdState>();
+        let extra = unsafe { &mut *user.cast::<SwkbdExtra>() };
+        let swkbd = unsafe { &mut *msg.cast::<SwkbdState>() };
 
         if sender != ctru_sys::APPID_SOFTWARE_KEYBOARD
             || msg_size != std::mem::size_of::<SwkbdState>()
@@ -870,12 +871,14 @@ impl SoftwareKeyboard {
         let mut retmsg = std::ptr::null();
 
         if let Some(cb) = extra.callback {
-            swkbd.callback_result = cb(
-                extra.callback_user,
-                &mut retmsg,
-                text8.as_ptr(),
-                text8.len(),
-            ) as _
+            swkbd.callback_result = unsafe {
+                cb(
+                    extra.callback_user,
+                    &mut retmsg,
+                    text8.as_ptr(),
+                    text8.len(),
+                )
+            } as _
         };
 
         let retmsg = if !retmsg.is_null() {
@@ -897,14 +900,16 @@ impl SoftwareKeyboard {
             callback_msg[idx] = code_point;
         }
 
-        let _ = APT_SendParameter(
-            envGetAptAppId(),
-            sender,
-            APTCMD_MESSAGE,
-            swkbd as *mut _ as *mut _,
-            std::mem::size_of::<SwkbdState>() as _,
-            0,
-        );
+        let _ = unsafe {
+            APT_SendParameter(
+                envGetAptAppId(),
+                sender,
+                APTCMD_MESSAGE,
+                swkbd as *mut _ as *mut _,
+                std::mem::size_of::<SwkbdState>() as _,
+                0,
+            )
+        };
     }
 }
 
