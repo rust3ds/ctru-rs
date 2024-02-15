@@ -9,18 +9,18 @@ use ctru_sys::{self, SwkbdState};
 use bitflags::bitflags;
 use libc;
 
-use std::ffi::{CStr, CString};
+use std::ffi::CString;
 use std::fmt::Display;
 use std::iter::once;
 use std::str;
 
-type CallbackFunction = dyn Fn(&CStr) -> (CallbackResult, Option<CString>);
+type CallbackFunction = fn(&str) -> (CallbackResult, Option<String>);
 
 /// Configuration structure to setup the Software Keyboard applet.
 #[doc(alias = "SwkbdState")]
 pub struct SoftwareKeyboard {
     state: Box<SwkbdState>,
-    callback: Option<Box<CallbackFunction>>,
+    callback: Option<CallbackFunction>,
     error_message: Option<CString>,
 }
 
@@ -399,24 +399,23 @@ impl SoftwareKeyboard {
     /// # fn main() {
     /// #
     /// use std::borrow::Cow;
-    /// use std::ffi::CString;
     /// use ctru::applets::swkbd::{SoftwareKeyboard, CallbackResult};
     ///
     /// let mut keyboard = SoftwareKeyboard::default();
     ///
-    /// keyboard.set_filter_callback(Some(Box::new(|str| {
-    ///     if str.to_str().unwrap().contains("boo") {
+    /// keyboard.set_filter_callback(Some(|text| {
+    ///     if text.contains("boo") {
     ///         return (
     ///             CallbackResult::Retry,
-    ///             Some(CString::new("Ah, you scared me!").unwrap()),
+    ///             Some(String::from("Ah, you scared me!")),
     ///         );
     ///     }
     ///
     ///     (CallbackResult::Ok, None)
-    /// })));
+    /// }));
     /// #
     /// # }
-    pub fn set_filter_callback(&mut self, callback: Option<Box<CallbackFunction>>) {
+    pub fn set_filter_callback(&mut self, callback: Option<CallbackFunction>) {
         self.callback = callback;
     }
 
@@ -425,30 +424,32 @@ impl SoftwareKeyboard {
         user: *mut libc::c_void,
         pp_message: *mut *const libc::c_char,
         text: *const libc::c_char,
-        _text_size: libc::size_t,
+        text_size: libc::size_t,
     ) -> ctru_sys::SwkbdCallbackResult {
-        let this: *mut SoftwareKeyboard = user.cast();
+        let this = unsafe { &mut *user.cast::<SoftwareKeyboard>() };
+
+        // Reset any leftover error message.
+        this.error_message = None;
 
         unsafe {
-            // Reset any leftover error message.
-            (*this).error_message = None;
-
-            let text = CStr::from_ptr(text);
+            let text = std::str::from_utf8_unchecked(std::slice::from_raw_parts(text, text_size));
 
             let result = {
                 // Run the callback if still available.
-                if let Some(callback) = &mut (*this).callback {
-                    let (res, cstr) = callback(text);
+                if let Some(callback) = this.callback {
+                    let (result, error_message) = callback(text);
 
                     // Due to how `libctru` operates, the user is expected to keep the error message alive until
                     // the end of the Software Keyboard prompt. We ensure that happens by saving it within the configuration.
-                    (*this).error_message = cstr;
+                    if let Some(error_message) = error_message {
+                        let error_message = CString::from_vec_unchecked(error_message.into_bytes());
 
-                    if let Some(newstr) = &(*this).error_message {
-                        *pp_message = newstr.as_ptr();
+                        *pp_message = error_message.as_ptr();
+
+                        this.error_message = Some(error_message);
                     }
 
-                    res
+                    result
                 } else {
                     CallbackResult::Ok
                 }
