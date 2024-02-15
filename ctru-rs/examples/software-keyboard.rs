@@ -19,7 +19,7 @@ fn main() {
     // Custom filter callback to handle the given input.
     // Using this callback it's possible to integrate the applet
     // with custom error messages when the input is incorrect.
-    keyboard.set_filter_callback(Some(|text| {
+    keyboard.set_filter_callback(Some(Box::new(|text| {
         if text.contains("boo") {
             return (
                 CallbackResult::Retry,
@@ -28,7 +28,7 @@ fn main() {
         }
 
         (CallbackResult::Ok, None)
-    }));
+    })));
 
     println!("Press A to enter some text or press Start to exit.");
 

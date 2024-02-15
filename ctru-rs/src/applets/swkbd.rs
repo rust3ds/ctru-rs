@@ -14,13 +14,13 @@ use std::fmt::Display;
 use std::iter::once;
 use std::str;
 
-type CallbackFunction = fn(&str) -> (CallbackResult, Option<String>);
+type CallbackFunction = dyn Fn(&str) -> (CallbackResult, Option<String>);
 
 /// Configuration structure to setup the Software Keyboard applet.
 #[doc(alias = "SwkbdState")]
 pub struct SoftwareKeyboard {
     state: Box<SwkbdState>,
-    callback: Option<CallbackFunction>,
+    callback: Option<Box<CallbackFunction>>,
     error_message: Option<CString>,
 }
 
@@ -403,7 +403,7 @@ impl SoftwareKeyboard {
     ///
     /// let mut keyboard = SoftwareKeyboard::default();
     ///
-    /// keyboard.set_filter_callback(Some(|text| {
+    /// keyboard.set_filter_callback(Some(Box::new(|text| {
     ///     if text.contains("boo") {
     ///         return (
     ///             CallbackResult::Retry,
@@ -412,10 +412,10 @@ impl SoftwareKeyboard {
     ///     }
     ///
     ///     (CallbackResult::Ok, None)
-    /// }));
+    /// })));
     /// #
     /// # }
-    pub fn set_filter_callback(&mut self, callback: Option<CallbackFunction>) {
+    pub fn set_filter_callback(&mut self, callback: Option<Box<CallbackFunction>>) {
         self.callback = callback;
     }
 
@@ -436,7 +436,7 @@ impl SoftwareKeyboard {
 
             let result = {
                 // Run the callback if still available.
-                if let Some(callback) = this.callback {
+                if let Some(callback) = &mut this.callback {
                     let (result, error_message) = callback(text);
 
                     // Due to how `libctru` operates, the user is expected to keep the error message alive until
