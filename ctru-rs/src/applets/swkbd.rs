@@ -281,7 +281,7 @@ impl SoftwareKeyboard {
                 (self as *mut Self).cast(),
             );
 
-            match Self::swkbd_input_text(&mut self.state, &mut output) {
+            match self.swkbd_input_text(&mut output) {
                 ctru_sys::SWKBD_BUTTON_NONE => Err(self.state.result.into()),
                 ctru_sys::SWKBD_BUTTON_LEFT => Ok((output, Button::Left)),
                 ctru_sys::SWKBD_BUTTON_MIDDLE => Ok((output, Button::Middle)),
@@ -631,10 +631,7 @@ impl SoftwareKeyboard {
     // A reimplementation of `swkbdInputText` from `libctru/source/applets/swkbd.c`. Allows us to
     // get text from the software keyboard and put it directly into a `String` without requiring
     // an intermediate fixed-size buffer
-    //
-    // SAFETY: `swkbd` must be initialized by `swkbdInit` before calling this function.
-    #[deny(unsafe_op_in_unsafe_fn)]
-    unsafe fn swkbd_input_text(swkbd: &mut SwkbdState, output: &mut String) -> SwkbdButton {
+    fn swkbd_input_text(&mut self, output: &mut String) -> SwkbdButton {
         use ctru_sys::{
             MEMPERM_READ, MEMPERM_WRITE, R_FAILED, SWKBD_BUTTON_LEFT, SWKBD_BUTTON_MIDDLE,
             SWKBD_BUTTON_NONE, SWKBD_BUTTON_RIGHT, SWKBD_D0_CLICK, SWKBD_D1_CLICK0,
@@ -642,6 +639,7 @@ impl SoftwareKeyboard {
             SWKBD_FILTER_CALLBACK, SWKBD_OUTOFMEM,
         };
 
+        let swkbd = self.state.as_mut();
         let mut extra = unsafe { swkbd.__bindgen_anon_1.extra };
 
         // Calculate shared mem size
@@ -862,7 +860,7 @@ impl SoftwareKeyboard {
         let text16 = unsafe {
             widestring::Utf16Str::from_slice_unchecked(std::slice::from_raw_parts(
                 SWKBD_SHARED_MEM.add(swkbd.text_offset as _).cast(),
-                swkbd.text_length as _,
+                swkbd.text_length as usize + 1,
             ))
         };
 
