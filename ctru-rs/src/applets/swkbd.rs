@@ -21,15 +21,12 @@ use std::str;
 
 type CallbackFunction = dyn Fn(&CStr) -> (CallbackResult, Option<CString>);
 
-// I hate that we have to use this, but sometimes you gotta smuggle pointers into C callbacks
-// and that's just how things are
-static mut SWKBD_SHARED_MEM: *mut libc::c_void = std::ptr::null_mut();
-
 /// Configuration structure to setup the Software Keyboard applet.
 #[doc(alias = "SwkbdState")]
 pub struct SoftwareKeyboard {
     state: Box<SwkbdState>,
     callback: Option<Box<CallbackFunction>>,
+    callback_data: MessageCallbackData,
     error_message: Option<CString>,
     initial_text: Option<CString>,
 }
@@ -216,6 +213,21 @@ bitflags! {
     }
 }
 
+// Internal book-keeping struct used to send data to `aptSetMessageCallback` when calling the software keyboard
+struct MessageCallbackData {
+    extra: *mut SwkbdExtra,
+    swkbd_shared_mem_ptr: *mut libc::c_void,
+}
+
+impl MessageCallbackData {
+    fn new() -> Self {
+        Self {
+            extra: std::ptr::null_mut(),
+            swkbd_shared_mem_ptr: std::ptr::null_mut(),
+        }
+    }
+}
+
 impl SoftwareKeyboard {
     /// Initialize a new configuration for the Software Keyboard applet depending on how many "exit" buttons are available to the user (1, 2 or 3).
     ///
@@ -244,6 +256,7 @@ impl SoftwareKeyboard {
                 callback: None,
                 error_message: None,
                 initial_text: None,
+                callback_data: MessageCallbackData::new(),
             }
         }
     }
@@ -684,11 +697,11 @@ impl SoftwareKeyboard {
         swkbd.shared_memory_size = shared_mem_size;
 
         // Allocate shared mem
-        unsafe { SWKBD_SHARED_MEM = libc::memalign(0x1000, shared_mem_size).cast() };
+        let swkbd_shared_mem_ptr = unsafe { libc::memalign(0x1000, shared_mem_size) };
 
         let mut swkbd_shared_mem_handle = 0;
 
-        if unsafe { SWKBD_SHARED_MEM.is_null() } {
+        if swkbd_shared_mem_ptr.is_null() {
             swkbd.result = SWKBD_OUTOFMEM;
             return SWKBD_BUTTON_NONE;
         }
@@ -696,7 +709,7 @@ impl SoftwareKeyboard {
         let res = unsafe {
             svcCreateMemoryBlock(
                 &mut swkbd_shared_mem_handle,
-                SWKBD_SHARED_MEM as _,
+                swkbd_shared_mem_ptr as _,
                 shared_mem_size as _,
                 MEMPERM_READ | MEMPERM_WRITE,
                 MEMPERM_READ | MEMPERM_WRITE,
@@ -705,7 +718,7 @@ impl SoftwareKeyboard {
 
         if R_FAILED(res) {
             unsafe {
-                libc::free(SWKBD_SHARED_MEM);
+                libc::free(swkbd_shared_mem_ptr);
                 swkbd.result = SWKBD_OUTOFMEM;
                 return SWKBD_BUTTON_NONE;
             }
@@ -722,7 +735,7 @@ impl SoftwareKeyboard {
                         .take(swkbd.max_text_len as _)
                         .chain(once(0));
 
-                let mut initial_text_cursor = SWKBD_SHARED_MEM.cast();
+                let mut initial_text_cursor = swkbd_shared_mem_ptr.cast();
 
                 for code_point in utf16_iter {
                     *initial_text_cursor = code_point;
@@ -736,7 +749,7 @@ impl SoftwareKeyboard {
             unsafe {
                 std::ptr::copy_nonoverlapping(
                     extra.dict,
-                    SWKBD_SHARED_MEM.add(dict_off).cast(),
+                    swkbd_shared_mem_ptr.add(dict_off).cast(),
                     swkbd.dict_word_count as _,
                 )
             };
@@ -747,7 +760,7 @@ impl SoftwareKeyboard {
             unsafe {
                 std::ptr::copy_nonoverlapping(
                     extra.status_data,
-                    SWKBD_SHARED_MEM.add(status_off).cast(),
+                    swkbd_shared_mem_ptr.add(status_off).cast(),
                     1,
                 )
             };
@@ -758,7 +771,7 @@ impl SoftwareKeyboard {
             unsafe {
                 std::ptr::copy_nonoverlapping(
                     extra.learning_data,
-                    SWKBD_SHARED_MEM.add(learning_off).cast(),
+                    swkbd_shared_mem_ptr.add(learning_off).cast(),
                     1,
                 )
             };
@@ -775,9 +788,12 @@ impl SoftwareKeyboard {
             swkbd.__bindgen_anon_1.reserved.fill(0);
 
             if extra.callback.is_some() {
+                self.callback_data.extra = std::ptr::addr_of_mut!(extra);
+                self.callback_data.swkbd_shared_mem_ptr = swkbd_shared_mem_ptr;
+
                 aptSetMessageCallback(
                     Some(Self::swkbd_message_callback),
-                    std::ptr::addr_of_mut!(extra).cast(),
+                    std::ptr::addr_of_mut!(self.callback_data).cast(),
                 );
             }
 
@@ -805,7 +821,7 @@ impl SoftwareKeyboard {
         if swkbd.text_length > 0 {
             let text16 = unsafe {
                 widestring::Utf16Str::from_slice_unchecked(std::slice::from_raw_parts(
-                    SWKBD_SHARED_MEM.add(swkbd.text_offset as _).cast(),
+                    swkbd_shared_mem_ptr.add(swkbd.text_offset as _).cast(),
                     swkbd.text_length as _,
                 ))
             };
@@ -816,7 +832,7 @@ impl SoftwareKeyboard {
         if swkbd.save_state_flags & (1 << 0) != 0 {
             unsafe {
                 std::ptr::copy_nonoverlapping(
-                    SWKBD_SHARED_MEM.add(swkbd.status_offset as _).cast(),
+                    swkbd_shared_mem_ptr.add(swkbd.status_offset as _).cast(),
                     extra.status_data,
                     1,
                 )
@@ -826,14 +842,14 @@ impl SoftwareKeyboard {
         if swkbd.save_state_flags & (1 << 1) != 0 {
             unsafe {
                 std::ptr::copy_nonoverlapping(
-                    SWKBD_SHARED_MEM.add(swkbd.learning_offset as _).cast(),
+                    swkbd_shared_mem_ptr.add(swkbd.learning_offset as _).cast(),
                     extra.learning_data,
                     1,
                 )
             };
         }
 
-        unsafe { libc::free(SWKBD_SHARED_MEM) };
+        unsafe { libc::free(swkbd_shared_mem_ptr) };
 
         button
     }
@@ -848,8 +864,9 @@ impl SoftwareKeyboard {
         msg: *mut libc::c_void,
         msg_size: libc::size_t,
     ) {
-        let extra = unsafe { &mut *user.cast::<SwkbdExtra>() };
+        let data = unsafe { &mut *user.cast::<MessageCallbackData>() };
         let swkbd = unsafe { &mut *msg.cast::<SwkbdState>() };
+        let extra = unsafe { &mut *data.extra };
 
         if sender != ctru_sys::APPID_SOFTWARE_KEYBOARD
             || msg_size != std::mem::size_of::<SwkbdState>()
@@ -859,7 +876,7 @@ impl SoftwareKeyboard {
 
         let text16 = unsafe {
             widestring::Utf16Str::from_slice_unchecked(std::slice::from_raw_parts(
-                SWKBD_SHARED_MEM.add(swkbd.text_offset as _).cast(),
+                data.swkbd_shared_mem_ptr.add(swkbd.text_offset as _).cast(),
                 swkbd.text_length as usize + 1,
             ))
         };
