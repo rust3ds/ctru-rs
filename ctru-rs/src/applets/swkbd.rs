@@ -22,6 +22,7 @@ pub struct SoftwareKeyboard {
     state: Box<SwkbdState>,
     callback: Option<Box<CallbackFunction>>,
     error_message: Option<CString>,
+    initial_text: Option<CString>,
 }
 
 /// Configuration structure to setup the Parental Lock applet.
@@ -233,6 +234,7 @@ impl SoftwareKeyboard {
                 state,
                 callback: None,
                 error_message: None,
+                initial_text: None,
             }
         }
     }
@@ -497,14 +499,23 @@ impl SoftwareKeyboard {
     /// use ctru::applets::swkbd::SoftwareKeyboard;
     /// let mut keyboard = SoftwareKeyboard::default();
     ///
-    /// keyboard.set_initial_text("Write here what you like!");
+    /// keyboard.set_initial_text(Some("Write here what you like!"));
     /// #
     /// # }
     #[doc(alias = "swkbdSetInitialText")]
-    pub fn set_initial_text(&mut self, text: &str) {
-        unsafe {
-            let nul_terminated: String = text.chars().chain(once('\0')).collect();
-            ctru_sys::swkbdSetInitialText(self.state.as_mut(), nul_terminated.as_ptr());
+    pub fn set_initial_text(&mut self, text: Option<&str>) {
+        if let Some(text) = text {
+            let initial_text = CString::new(text).unwrap();
+
+            unsafe {
+                ctru_sys::swkbdSetInitialText(self.state.as_mut(), initial_text.as_ptr());
+            }
+
+            self.initial_text = Some(initial_text);
+        } else {
+            unsafe { ctru_sys::swkbdSetInitialText(self.state.as_mut(), std::ptr::null()) };
+
+            self.initial_text = None;
         }
     }
 
