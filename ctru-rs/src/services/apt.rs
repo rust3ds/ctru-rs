@@ -97,7 +97,7 @@ impl Apt {
     ///
     /// You can set whether the console is allowed to sleep with [Apt::set_sleep_allowed].
     #[doc(alias = "aptIsSleepAllowed")]
-    pub fn is_sleep_allowed(&mut self) -> bool {
+    pub fn is_sleep_allowed(&self) -> bool {
         unsafe { ctru_sys::aptIsSleepAllowed() }
     }
 
@@ -115,7 +115,7 @@ impl Apt {
     ///
     /// You can set whether the console is allowed to enter the home menu with [Apt::set_home_allowed].
     #[doc(alias = "aptIsHomeAllowed")]
-    pub fn is_home_allowed(&mut self) -> bool {
+    pub fn is_home_allowed(&self) -> bool {
         unsafe { ctru_sys::aptIsHomeAllowed() }
     }
 
