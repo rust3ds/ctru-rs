@@ -82,6 +82,54 @@ impl Apt {
             Ok(())
         }
     }
+
+    /// Set if the console is allowed to enter sleep mode.
+    ///
+    /// You can check whether the console is allowed to sleep with [Apt::is_sleep_allowed].
+    #[doc(alias = "aptSetSleepAllowed")]
+    pub fn set_sleep_allowed(&mut self, allowed: bool) {
+        unsafe {
+            ctru_sys::aptSetSleepAllowed(allowed);
+        }
+    }
+
+    /// Check if the console is allowed to enter sleep mode.
+    ///
+    /// You can set whether the console is allowed to sleep with [Apt::set_sleep_allowed].
+    #[doc(alias = "aptIsSleepAllowed")]
+    pub fn is_sleep_allowed(&mut self) -> bool {
+        unsafe {
+            ctru_sys::aptIsSleepAllowed()
+        }
+    }
+
+    /// Set if the console is allowed to enter the home menu.
+    ///
+    /// You can check whether the console is allowed to enter the home menu with [Apt::is_home_allowed].
+    #[doc(alias = "aptSetHomeAllowed")]
+    pub fn set_home_allowed(&mut self, allowed: bool) {
+        unsafe {
+            ctru_sys::aptSetHomeAllowed(allowed);
+        }
+    }
+
+    /// Check if the console is allowed to enter the home menu.
+    /// 
+    /// You can set whether the console is allowed to enter the home menu with [Apt::set_home_allowed].
+    #[doc(alias = "aptIsHomeAllowed")]
+    pub fn is_home_allowed(&mut self) -> bool {
+        unsafe {
+            ctru_sys::aptIsHomeAllowed()
+        }
+    }
+
+    /// Immediately jumps to the home menu.
+    #[doc(alias = "aptIsHomeAllowed")]
+    pub fn jump_to_home_menu(&mut self) {
+        unsafe {
+            ctru_sys::aptJumpToHomeMenu()
+        }
+    }
 }
 
 impl Drop for Apt {
