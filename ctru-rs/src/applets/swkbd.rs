@@ -799,7 +799,7 @@ impl SoftwareKeyboard {
 
             aptLaunchLibraryApplet(
                 APPID_SOFTWARE_KEYBOARD,
-                swkbd as *mut _ as *mut _,
+                (swkbd as *mut SwkbdState).cast(),
                 std::mem::size_of::<SwkbdState>(),
                 swkbd_shared_mem_handle,
             );
@@ -920,7 +920,7 @@ impl SoftwareKeyboard {
                 envGetAptAppId(),
                 sender,
                 APTCMD_MESSAGE,
-                swkbd as *mut _ as *mut _,
+                (swkbd as *mut SwkbdState).cast(),
                 std::mem::size_of::<SwkbdState>() as _,
                 0,
             )
