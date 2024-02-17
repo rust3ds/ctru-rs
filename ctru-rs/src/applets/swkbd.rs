@@ -26,7 +26,6 @@ type CallbackFunction = dyn Fn(&CStr) -> (CallbackResult, Option<CString>);
 pub struct SoftwareKeyboard {
     state: Box<SwkbdState>,
     callback: Option<Box<CallbackFunction>>,
-    callback_data: MessageCallbackData,
     error_message: Option<CString>,
     initial_text: Option<CString>,
 }
@@ -220,15 +219,6 @@ struct MessageCallbackData {
     swkbd_shared_mem_ptr: *mut libc::c_void,
 }
 
-impl MessageCallbackData {
-    fn new() -> Self {
-        Self {
-            extra: std::ptr::null_mut(),
-            swkbd_shared_mem_ptr: std::ptr::null_mut(),
-        }
-    }
-}
-
 impl SoftwareKeyboard {
     /// Initialize a new configuration for the Software Keyboard applet depending on how many "exit" buttons are available to the user (1, 2 or 3).
     ///
@@ -257,7 +247,6 @@ impl SoftwareKeyboard {
                 callback: None,
                 error_message: None,
                 initial_text: None,
-                callback_data: MessageCallbackData::new(),
             }
         }
     }
@@ -788,13 +777,15 @@ impl SoftwareKeyboard {
         unsafe {
             swkbd.__bindgen_anon_1.reserved.fill(0);
 
-            if extra.callback.is_some() {
-                self.callback_data.extra = std::ptr::addr_of_mut!(extra);
-                self.callback_data.swkbd_shared_mem_ptr = swkbd_shared_mem_ptr;
+            let mut callback_data = MessageCallbackData {
+                extra: std::ptr::addr_of_mut!(extra),
+                swkbd_shared_mem_ptr,
+            };
 
+            if extra.callback.is_some() {
                 aptSetMessageCallback(
                     Some(Self::swkbd_message_callback),
-                    std::ptr::addr_of_mut!(self.callback_data).cast(),
+                    std::ptr::addr_of_mut!(callback_data).cast(),
                 );
             }
 
