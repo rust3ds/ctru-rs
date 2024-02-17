@@ -737,8 +737,8 @@ impl SoftwareKeyboard {
 
                 let mut initial_text_cursor = swkbd_shared_mem_ptr.cast();
 
-                for code_point in utf16_iter {
-                    *initial_text_cursor = code_point;
+                for code_unit in utf16_iter {
+                    *initial_text_cursor = code_unit;
                     initial_text_cursor = initial_text_cursor.add(1);
                 }
             }
@@ -907,12 +907,12 @@ impl SoftwareKeyboard {
 
         let callback_msg = &mut swkbd.callback_msg;
 
-        for (idx, code_point) in retmsg
+        for (idx, code_unit) in retmsg
             .encode_utf16()
             .take(callback_msg.len() - 1)
             .enumerate()
         {
-            callback_msg[idx] = code_point;
+            callback_msg[idx] = code_unit;
         }
 
         let _ = unsafe {
