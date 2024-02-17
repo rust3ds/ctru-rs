@@ -146,8 +146,9 @@ impl<'a> Chainloader<'a> {
 
     /// Checks if the chainloader is set
     #[doc(alias = "aptIsChainload")]
-    pub fn is_set(&mut self) {
-        //unsafe { ctru_sys::aptIsChainload() }
+    pub fn is_set(&self) -> bool {
+        // static funtion not exported
+        unsafe { (ctru_sys::envGetSystemRunFlags() & ctru_sys::RUNFLAG_APTCHAINLOAD) != 0 }
     }
 
     /// Clears the chainloader state.
