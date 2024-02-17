@@ -213,7 +213,8 @@ bitflags! {
     }
 }
 
-// Internal book-keeping struct used to send data to `aptSetMessageCallback` when calling the software keyboard
+// Internal book-keeping struct used to send data to `aptSetMessageCallback` when calling the software keyboard.
+// We only need this because libctru doesn't keep a pointer to the shared memory block in `SwkbdExtra` for whatever reason
 struct MessageCallbackData {
     extra: *mut SwkbdExtra,
     swkbd_shared_mem_ptr: *mut libc::c_void,
@@ -855,8 +856,7 @@ impl SoftwareKeyboard {
     }
 
     // A reimplementation of `swkbdMessageCallback` from `libctru/source/applets/swkbd.c`.
-    // This is only needed because the original function is private to libctru, so we can't
-    // simply reuse their version
+    // This function sets up and then calls the callback set by `swkbdSetFilterCallback`
     #[deny(unsafe_op_in_unsafe_fn)]
     unsafe extern "C" fn swkbd_message_callback(
         user: *mut libc::c_void,
