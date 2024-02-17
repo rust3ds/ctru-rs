@@ -133,6 +133,7 @@ impl Drop for Apt {
     }
 }
 
+/// Can launch other applications when the current one exits.
 pub struct Chainloader<'a> {
     _apt: &'a Apt,
 }
