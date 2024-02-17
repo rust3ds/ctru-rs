@@ -132,3 +132,44 @@ impl Drop for Apt {
         unsafe { ctru_sys::aptExit() };
     }
 }
+
+pub struct Chainloader<'a> {
+    _apt: &'a Apt,
+}
+
+impl<'a> Chainloader<'a> {
+    /// Gets a handle to the chainloader
+    pub fn new(apt: &'a Apt) -> Self {
+        Self { _apt: apt }
+    }
+
+    /// Checks if the chainloader is set
+    #[doc(alias = "aptIsChainload")]
+    pub fn is_set(&mut self) {
+        //unsafe { ctru_sys::aptIsChainload() }
+    }
+
+    /// Clears the chainloader state.
+    #[doc(alias = "aptClearChainloader")]
+    pub fn clear(&mut self) {
+        unsafe { ctru_sys::aptClearChainloader() }
+    }
+
+    /// Configures the chainloader to launch a specific application.
+    #[doc(alias = "aptSetChainloader")]
+    pub fn set_chainloader(&mut self, title: &super::am::Title<'_>) {
+        unsafe { ctru_sys::aptSetChainloader(title.id(), title.media_type() as u8) }
+    }
+
+    /// Configures the chainloader to launch the previous application.
+    #[doc(alias = "aptSetChainloaderToCaller")]
+    pub fn set_chainloader_to_caller(&mut self) {
+        unsafe { ctru_sys::aptSetChainloaderToCaller() }
+    }
+
+    /// Configures the chainloader to relaunch the current application (i.e. soft-reset)
+    #[doc(alias = "aptSetChainloaderToSelf")]
+    pub fn set_chainloader_to_self(&mut self) {
+        unsafe { ctru_sys::aptSetChainloaderToSelf() }
+    }
+}
