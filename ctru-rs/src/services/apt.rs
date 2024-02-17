@@ -98,9 +98,7 @@ impl Apt {
     /// You can set whether the console is allowed to sleep with [Apt::set_sleep_allowed].
     #[doc(alias = "aptIsSleepAllowed")]
     pub fn is_sleep_allowed(&mut self) -> bool {
-        unsafe {
-            ctru_sys::aptIsSleepAllowed()
-        }
+        unsafe { ctru_sys::aptIsSleepAllowed() }
     }
 
     /// Set if the console is allowed to enter the home menu.
@@ -114,21 +112,17 @@ impl Apt {
     }
 
     /// Check if the console is allowed to enter the home menu.
-    /// 
+    ///
     /// You can set whether the console is allowed to enter the home menu with [Apt::set_home_allowed].
     #[doc(alias = "aptIsHomeAllowed")]
     pub fn is_home_allowed(&mut self) -> bool {
-        unsafe {
-            ctru_sys::aptIsHomeAllowed()
-        }
+        unsafe { ctru_sys::aptIsHomeAllowed() }
     }
 
     /// Immediately jumps to the home menu.
     #[doc(alias = "aptIsHomeAllowed")]
     pub fn jump_to_home_menu(&mut self) {
-        unsafe {
-            ctru_sys::aptJumpToHomeMenu()
-        }
+        unsafe { ctru_sys::aptJumpToHomeMenu() }
     }
 }
 
