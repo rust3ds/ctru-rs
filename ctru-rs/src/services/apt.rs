@@ -120,7 +120,7 @@ impl Apt {
     }
 
     /// Immediately jumps to the home menu.
-    #[doc(alias = "aptIsHomeAllowed")]
+    #[doc(alias = "aptJumpToHomeMenu")]
     pub fn jump_to_home_menu(&mut self) {
         unsafe { ctru_sys::aptJumpToHomeMenu() }
     }
@@ -159,19 +159,19 @@ impl<'a> Chainloader<'a> {
 
     /// Configures the chainloader to launch a specific application.
     #[doc(alias = "aptSetChainloader")]
-    pub fn set_chainloader(&mut self, title: &super::am::Title<'_>) {
+    pub fn set(&mut self, title: &super::am::Title<'_>) {
         unsafe { ctru_sys::aptSetChainloader(title.id(), title.media_type() as u8) }
     }
 
     /// Configures the chainloader to launch the previous application.
     #[doc(alias = "aptSetChainloaderToCaller")]
-    pub fn set_chainloader_to_caller(&mut self) {
+    pub fn set_to_caller(&mut self) {
         unsafe { ctru_sys::aptSetChainloaderToCaller() }
     }
 
     /// Configures the chainloader to relaunch the current application (i.e. soft-reset)
     #[doc(alias = "aptSetChainloaderToSelf")]
-    pub fn set_chainloader_to_self(&mut self) {
+    pub fn set_to_self(&mut self) {
         unsafe { ctru_sys::aptSetChainloaderToSelf() }
     }
 }
