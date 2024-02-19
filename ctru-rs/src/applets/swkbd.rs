@@ -114,7 +114,7 @@ pub enum ButtonConfig {
     LeftMiddleRight = 3,
 }
 
-/// Error returned by an unsuccessful [`SoftwareKeyboard::get_string()`].
+/// Error returned by an unsuccessful [`SoftwareKeyboard::launch()`].
 #[doc(alias = "SwkbdResult")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(i32)]
@@ -266,13 +266,13 @@ impl SoftwareKeyboard {
     /// use ctru::applets::swkbd::SoftwareKeyboard;
     /// let mut keyboard = SoftwareKeyboard::default();
     ///
-    /// let (text, button) = keyboard.get_string(&apt, &gfx)?;
+    /// let (text, button) = keyboard.launch(&apt, &gfx)?;
     /// #
     /// # Ok(())
     /// # }
     /// ```
     #[doc(alias = "swkbdInputText")]
-    pub fn get_string(&mut self, _apt: &Apt, _gfx: &Gfx) -> Result<(String, Button), Error> {
+    pub fn launch(&mut self, _apt: &Apt, _gfx: &Gfx) -> Result<(String, Button), Error> {
         let mut output = String::new();
 
         unsafe {
@@ -608,7 +608,7 @@ impl SoftwareKeyboard {
     ///
     /// Keyboard input is converted from UTF-16 to UTF-8 before being handed to Rust,
     /// so this code point limit does not necessarily equal the max number of UTF-8 code points
-    /// receivable by [`SoftwareKeyboard::get_string()`].
+    /// receivable by [`SoftwareKeyboard::launch()`].
     ///
     /// # Example
     ///

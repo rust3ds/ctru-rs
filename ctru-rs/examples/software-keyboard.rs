@@ -44,9 +44,9 @@ fn main() {
 
         // Check if the user request to write some input.
         if hid.keys_down().contains(KeyPad::A) {
-            // Raise the software keyboard. You can perform different actions depending on which
+            // Launch the software keyboard. You can perform different actions depending on which
             // software button the user pressed.
-            match keyboard.get_string(&apt, &gfx) {
+            match keyboard.launch(&apt, &gfx) {
                 Ok((text, Button::Right)) => println!("You entered: {text}"),
                 Ok((_, Button::Left)) => println!("Cancelled"),
                 Ok((_, Button::Middle)) => println!("How did you even press this?"),
