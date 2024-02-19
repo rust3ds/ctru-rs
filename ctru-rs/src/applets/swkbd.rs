@@ -5,14 +5,13 @@
 
 use crate::services::{apt::Apt, gfx::Gfx};
 use ctru_sys::{
-    self, aptLaunchLibraryApplet, aptSetMessageCallback, envGetAptAppId, svcCloseHandle,
+    aptLaunchLibraryApplet, aptSetMessageCallback, envGetAptAppId, svcCloseHandle,
     svcCreateMemoryBlock, APT_SendParameter, SwkbdButton, SwkbdDictWord, SwkbdExtra,
     SwkbdLearningData, SwkbdState, SwkbdStatusData, APPID_SOFTWARE_KEYBOARD, APTCMD_MESSAGE,
     NS_APPID,
 };
 
 use bitflags::bitflags;
-use libc;
 
 use std::ffi::{CStr, CString};
 use std::fmt::Display;
