@@ -16,6 +16,22 @@
 pub mod result;
 pub use result::*;
 
+// Fun fact: bindgen can and will generate enum values of the wrong size, and if a generated struct contains fields
+// using those values, then that struct will have the wrong size and field offsets too. To fix that problem,
+// you have to blocklist the enum type in bindgen and manually define it with the proper data type.
+pub const ERROR_UNKNOWN: errorReturnCode = -1;
+pub const ERROR_NONE: errorReturnCode = 0;
+pub const ERROR_SUCCESS: errorReturnCode = 1;
+pub const ERROR_NOT_SUPPORTED: errorReturnCode = 2;
+pub const ERROR_HOME_BUTTON: errorReturnCode = 10;
+pub const ERROR_SOFTWARE_RESET: errorReturnCode = 11;
+pub const ERROR_POWER_BUTTON: errorReturnCode = 12;
+pub type errorReturnCode = libc::c_schar;
+
+pub const ERROR_NORMAL: errorScreenFlag = 0;
+pub const ERROR_STEREO: errorScreenFlag = 1;
+pub type errorScreenFlag = libc::c_char;
+
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 
 /// In lieu of a proper errno function exposed by libc
