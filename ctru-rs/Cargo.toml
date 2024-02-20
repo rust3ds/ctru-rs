@@ -10,7 +10,7 @@ categories = ["os", "api-bindings", "hardware-support"]
 exclude = ["examples"]
 license = "Zlib"
 edition = "2021"
-rust-version = "1.70"
+rust-version = "1.73"
 
 [lib]
 crate-type = ["rlib"]
@@ -24,6 +24,7 @@ shim-3ds = { git = "https://github.com/rust3ds/shim-3ds.git" }
 pthread-3ds = { git = "https://github.com/rust3ds/pthread-3ds.git" }
 libc = "0.2.121"
 bitflags = "2.3.3"
+widestring = "1.0.2"
 
 [build-dependencies]
 toml = "0.5"
