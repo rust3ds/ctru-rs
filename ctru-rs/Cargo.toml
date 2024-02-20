@@ -10,7 +10,7 @@ categories = ["os", "api-bindings", "hardware-support"]
 exclude = ["examples"]
 license = "Zlib"
 edition = "2021"
-rust-version = "1.70"
+rust-version = "1.73"
 
 [lib]
 crate-type = ["rlib"]
