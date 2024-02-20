@@ -647,13 +647,13 @@ impl SoftwareKeyboard {
         // Calculate shared mem size
         let mut shared_mem_size = 0;
 
-        shared_mem_size +=
-            (std::mem::size_of::<u16>() * (swkbd.max_text_len as usize + 1) + 3) & !3;
+        shared_mem_size += (std::mem::size_of::<u16>() * (swkbd.max_text_len as usize + 1))
+            .next_multiple_of(std::mem::size_of::<usize>());
 
         let dict_off = shared_mem_size;
 
-        shared_mem_size +=
-            (std::mem::size_of::<SwkbdDictWord>() * swkbd.dict_word_count as usize + 3) & !3;
+        shared_mem_size += (std::mem::size_of::<SwkbdDictWord>() * swkbd.dict_word_count as usize)
+            .next_multiple_of(std::mem::size_of::<usize>());
 
         let status_off = shared_mem_size;
 
@@ -681,7 +681,7 @@ impl SoftwareKeyboard {
             shared_mem_size += std::mem::size_of::<SwkbdLearningData>();
         }
 
-        shared_mem_size = (shared_mem_size + 0xFFF) & !0xFFF;
+        shared_mem_size = shared_mem_size.next_multiple_of(0x1000);
 
         swkbd.shared_memory_size = shared_mem_size;
 
