@@ -18,14 +18,14 @@ use std::fmt::Display;
 use std::iter::once;
 use std::str;
 
-type CallbackFunction = dyn Fn(&CStr) -> (CallbackResult, Option<CString>);
+type CallbackFunction = dyn Fn(&str) -> (CallbackResult, Option<String>);
 
 /// Configuration structure to setup the Software Keyboard applet.
 #[doc(alias = "SwkbdState")]
 pub struct SoftwareKeyboard {
     state: Box<SwkbdState>,
     callback: Option<Box<CallbackFunction>>,
-    error_message: Option<CString>,
+    callback_message: Option<String>,
     initial_text: Option<CString>,
 }
 
@@ -244,7 +244,7 @@ impl SoftwareKeyboard {
             Self {
                 state,
                 callback: None,
-                error_message: None,
+                callback_message: None,
                 initial_text: None,
             }
         }
@@ -275,21 +275,23 @@ impl SoftwareKeyboard {
     pub fn launch(&mut self, _apt: &Apt, _gfx: &Gfx) -> Result<(String, Button), Error> {
         let mut output = String::new();
 
-        unsafe {
-            // The filter callback gets reset every time the SoftwareKeyboard is used.
-            ctru_sys::swkbdSetFilterCallback(
-                self.state.as_mut(),
-                Some(Self::internal_callback),
-                (self as *mut Self).cast(),
-            );
-
-            match self.swkbd_input_text(&mut output) {
-                ctru_sys::SWKBD_BUTTON_NONE => Err(self.state.result.into()),
-                ctru_sys::SWKBD_BUTTON_LEFT => Ok((output, Button::Left)),
-                ctru_sys::SWKBD_BUTTON_MIDDLE => Ok((output, Button::Middle)),
-                ctru_sys::SWKBD_BUTTON_RIGHT => Ok((output, Button::Right)),
-                _ => unreachable!(),
+        // Set the filter callback if the user has supplied a closure to run.
+        if self.callback.is_some() {
+            unsafe {
+                ctru_sys::swkbdSetFilterCallback(
+                    self.state.as_mut(),
+                    Some(Self::internal_callback),
+                    (self as *mut Self).cast(),
+                )
             }
+        };
+
+        match self.swkbd_input_text(&mut output) {
+            ctru_sys::SWKBD_BUTTON_NONE => Err(self.state.result.into()),
+            ctru_sys::SWKBD_BUTTON_LEFT => Ok((output, Button::Left)),
+            ctru_sys::SWKBD_BUTTON_MIDDLE => Ok((output, Button::Middle)),
+            ctru_sys::SWKBD_BUTTON_RIGHT => Ok((output, Button::Right)),
+            _ => unreachable!(),
         }
     }
 
@@ -361,10 +363,10 @@ impl SoftwareKeyboard {
     /// let mut keyboard = SoftwareKeyboard::default();
     ///
     /// keyboard.set_filter_callback(Some(Box::new(|str| {
-    ///     if str.to_str().unwrap().contains("boo") {
+    ///     if str.contains("boo") {
     ///         return (
     ///             CallbackResult::Retry,
-    ///             Some(CString::new("Ah, you scared me!").unwrap()),
+    ///             Some(String::from("Ah, you scared me!")),
     ///         );
     ///     }
     ///
@@ -377,41 +379,45 @@ impl SoftwareKeyboard {
     }
 
     /// Internal function called by the filter callback.
-    extern "C" fn internal_callback(
+    #[deny(unsafe_op_in_unsafe_fn)]
+    unsafe extern "C" fn internal_callback(
         user: *mut libc::c_void,
         pp_message: *mut *const libc::c_char,
         text: *const libc::c_char,
-        _text_size: libc::size_t,
+        text_size: libc::size_t,
     ) -> ctru_sys::SwkbdCallbackResult {
-        let this: *mut SoftwareKeyboard = user.cast();
+        let this = unsafe { &mut *user.cast::<SoftwareKeyboard>() };
 
-        unsafe {
-            // Reset any leftover error message.
-            (*this).error_message = None;
+        // Reset any leftover callback message.
+        this.callback_message = None;
 
-            let text = CStr::from_ptr(text);
+        let text =
+            unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(text, text_size)) };
 
-            let result = {
-                // Run the callback if still available.
-                if let Some(callback) = &mut (*this).callback {
-                    let (res, cstr) = callback(text);
+        let result = {
+            // Run the callback if still available.
+            if let Some(callback) = this.callback.as_deref() {
+                let (res, msg) = callback(text);
 
-                    // Due to how `libctru` operates, the user is expected to keep the error message alive until
-                    // the end of the Software Keyboard prompt. We ensure that happens by saving it within the configuration.
-                    (*this).error_message = cstr;
+                // Due to how `libctru` operates, the user is expected to keep the callback message alive until
+                // the end of the Software Keyboard prompt. We ensure that happens by saving it within the configuration.
+                this.callback_message = msg;
 
-                    if let Some(newstr) = &(*this).error_message {
-                        *pp_message = newstr.as_ptr();
+                if let Some(msg) = this.callback_message.as_ref() {
+                    unsafe {
+                        // Since we control the other side of the callback and we've stashed the callback message in a stable location,
+                        // we can do some sneaky pointer shenanigans to pass the message struct directly instead of dealing with c-style strings
+                        *pp_message = std::ptr::addr_of!(*msg).cast();
                     }
-
-                    res
-                } else {
-                    CallbackResult::Ok
                 }
-            };
 
-            result.into()
-        }
+                res
+            } else {
+                CallbackResult::Ok
+            }
+        };
+
+        result.into()
     }
 
     /// Configure the maximum number of digits that can be entered in the keyboard when the [`Filters::DIGITS`] flag is enabled.
@@ -866,19 +872,19 @@ impl SoftwareKeyboard {
         let text16 = unsafe {
             widestring::Utf16Str::from_slice_unchecked(std::slice::from_raw_parts(
                 data.swkbd_shared_mem_ptr.add(swkbd.text_offset as _).cast(),
-                swkbd.text_length as usize + 1,
+                swkbd.text_length as _,
             ))
         };
 
         let text8 = text16.to_string();
 
-        let mut retmsg = std::ptr::null();
+        let mut retmsg: *const String = std::ptr::null();
 
-        if let Some(cb) = extra.callback {
+        if let Some(callback) = extra.callback {
             swkbd.callback_result = unsafe {
-                cb(
+                callback(
                     extra.callback_user,
-                    &mut retmsg,
+                    std::ptr::addr_of_mut!(retmsg).cast(),
                     text8.as_ptr(),
                     text8.len(),
                 )
@@ -886,22 +892,18 @@ impl SoftwareKeyboard {
         };
 
         let retmsg = if !retmsg.is_null() {
-            unsafe {
-                let len = libc::strlen(retmsg) + 1;
-                std::str::from_utf8_unchecked(std::slice::from_raw_parts(retmsg, len))
-            }
+            unsafe { &**retmsg }
         } else {
-            "\0"
+            ""
         };
-
-        let callback_msg = &mut swkbd.callback_msg;
 
         for (idx, code_unit) in retmsg
             .encode_utf16()
-            .take(callback_msg.len() - 1)
+            .chain(once(0))
+            .take(swkbd.callback_msg.len() - 1)
             .enumerate()
         {
-            callback_msg[idx] = code_unit;
+            swkbd.callback_msg[idx] = code_unit;
         }
 
         let _ = unsafe {
