@@ -13,7 +13,6 @@ use ctru_sys::{
 use bitflags::bitflags;
 
 use std::borrow::Cow;
-use std::ffi::{CStr, CString};
 use std::fmt::Display;
 use std::iter::once;
 use std::str;
@@ -25,7 +24,7 @@ type CallbackFunction = dyn Fn(&str) -> (CallbackResult, Option<Cow<'static, str
 pub struct SoftwareKeyboard {
     state: Box<SwkbdState>,
     filter_callback: Option<Box<CallbackFunction>>,
-    initial_text: Option<CString>,
+    initial_text: Option<Cow<'static, str>>,
 }
 
 /// Configuration structure to setup the Parental Lock applet.
@@ -391,33 +390,25 @@ impl SoftwareKeyboard {
     ///
     /// The initial text is the text already written when you open the software keyboard.
     ///
+    /// # Notes
+    ///
+    /// Passing [`None`] will clear the initial text.
+    ///
     /// # Example
     ///
     /// ```
-    /// # let _runner = test_runner::GdbRunner::default();
+    /// # let _runner = test_runner::GdbRunner::default()>;
     /// # fn main() {
     /// #
     /// use ctru::applets::swkbd::SoftwareKeyboard;
     /// let mut keyboard = SoftwareKeyboard::default();
     ///
-    /// keyboard.set_initial_text(Some("Write here what you like!"));
+    /// keyboard.set_initial_text(Some(String::from("Write here what you like!")));
     /// #
     /// # }
     #[doc(alias = "swkbdSetInitialText")]
-    pub fn set_initial_text(&mut self, text: Option<&str>) {
-        if let Some(text) = text {
-            let initial_text = CString::new(text).unwrap();
-
-            unsafe {
-                ctru_sys::swkbdSetInitialText(self.state.as_mut(), initial_text.as_ptr());
-            }
-
-            self.initial_text = Some(initial_text);
-        } else {
-            unsafe { ctru_sys::swkbdSetInitialText(self.state.as_mut(), std::ptr::null()) };
-
-            self.initial_text = None;
-        }
+    pub fn set_initial_text(&mut self, text: Option<Cow<'static, str>>) {
+        self.initial_text = text;
     }
 
     /// Set the hint text for this software keyboard.
@@ -661,19 +652,17 @@ impl SoftwareKeyboard {
         }
 
         // Copy stuff to shared mem
-        if !extra.initial_text.is_null() {
+        if let Some(initial_text) = self.initial_text.as_deref() {
             swkbd.initial_text_offset = 0;
 
-            unsafe {
-                let utf16_iter =
-                    str::from_utf8_unchecked(CStr::from_ptr(extra.initial_text).to_bytes())
-                        .encode_utf16()
-                        .take(swkbd.max_text_len as _)
-                        .chain(once(0));
+            let mut initial_text_cursor = swkbd_shared_mem_ptr.cast();
 
-                let mut initial_text_cursor = swkbd_shared_mem_ptr.cast();
-
-                for code_unit in utf16_iter {
+            for code_unit in initial_text
+                .encode_utf16()
+                .take(swkbd.max_text_len as _)
+                .chain(once(0))
+            {
+                unsafe {
                     *initial_text_cursor = code_unit;
                     initial_text_cursor = initial_text_cursor.add(1);
                 }
