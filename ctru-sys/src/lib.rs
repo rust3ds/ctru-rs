@@ -16,9 +16,11 @@
 pub mod result;
 pub use result::*;
 
-// Fun fact: bindgen can and will generate enum values of the wrong size, and if a generated struct contains fields
-// using those values, then that struct will have the wrong size and field offsets too. To fix that problem,
-// you have to blocklist the enum type in bindgen and manually define it with the proper data type.
+// Fun fact: C compilers are allowed to represent enums as the smallest integer type that can hold all of its variants,
+// meaning that enums are allowed to be the size of a `c_short` or a `c_char` rather than the size of a `c_int`.
+// Libctru's `errorConf` struct contains two enums that depend on this narrowing property for size and alignment purposes,
+// and since `bindgen` generates all enums with `c_int` sizing, we have to blocklist those types and manually define them
+// here with the proper size.
 pub const ERROR_UNKNOWN: errorReturnCode = -1;
 pub const ERROR_NONE: errorReturnCode = 0;
 pub const ERROR_SUCCESS: errorReturnCode = 1;
