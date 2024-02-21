@@ -211,6 +211,7 @@ bitflags! {
 }
 
 // Internal book-keeping struct used to send data to `aptSetMessageCallback` when calling the software keyboard.
+#[derive(Copy, Clone)]
 struct MessageCallbackData {
     filter_callback: *const Box<CallbackFunction>,
     swkbd_shared_mem_ptr: *mut libc::c_void,
@@ -802,14 +803,14 @@ impl SoftwareKeyboard {
         msg: *mut libc::c_void,
         msg_size: libc::size_t,
     ) {
-        let data = unsafe { &mut *user.cast::<MessageCallbackData>() };
-        let swkbd = unsafe { &mut *msg.cast::<SwkbdState>() };
-
         if sender != ctru_sys::APPID_SOFTWARE_KEYBOARD
             || msg_size != std::mem::size_of::<SwkbdState>()
         {
             return;
         }
+
+        let swkbd = unsafe { &mut *msg.cast::<SwkbdState>() };
+        let data = unsafe { *user.cast::<MessageCallbackData>() };
 
         let text16 = unsafe {
             widestring::Utf16Str::from_slice_unchecked(std::slice::from_raw_parts(
