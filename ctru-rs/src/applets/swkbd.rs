@@ -727,8 +727,10 @@ impl SoftwareKeyboard {
                 swkbd_shared_mem_ptr,
             };
 
-            if let Some(callback) = self.callback.as_ref() {
-                callback_data.callback = std::ptr::addr_of!(*callback);
+            // We need to pass a thin pointer to the boxed closure over FFI. Since we know that the callback will finish before
+            // `self` is allowed to be moved again, we can safely use a pointer to the local value contained in `self.callback`
+            if let Some(ref_to_boxed_closure) = self.callback.as_ref() {
+                callback_data.callback = ref_to_boxed_closure as *const _;
 
                 aptSetMessageCallback(
                     Some(Self::swkbd_message_callback),
