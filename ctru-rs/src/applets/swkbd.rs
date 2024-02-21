@@ -12,12 +12,13 @@ use ctru_sys::{
 
 use bitflags::bitflags;
 
+use std::borrow::Cow;
 use std::ffi::{CStr, CString};
 use std::fmt::Display;
 use std::iter::once;
 use std::str;
 
-type CallbackFunction = dyn Fn(&str) -> (CallbackResult, Option<String>);
+type CallbackFunction = dyn Fn(&str) -> (CallbackResult, Option<Cow<str>>);
 
 /// Configuration structure to setup the Software Keyboard applet.
 #[doc(alias = "SwkbdState")]
@@ -342,17 +343,13 @@ impl SoftwareKeyboard {
     /// # fn main() {
     /// #
     /// use std::borrow::Cow;
-    /// use std::ffi::CString;
     /// use ctru::applets::swkbd::{SoftwareKeyboard, CallbackResult};
     ///
     /// let mut keyboard = SoftwareKeyboard::default();
     ///
     /// keyboard.set_filter_callback(Some(Box::new(|str| {
     ///     if str.contains("boo") {
-    ///         return (
-    ///             CallbackResult::Retry,
-    ///             Some(String::from("Ah, you scared me!")),
-    ///         );
+    ///         return (CallbackResult::Retry, Some("Ah, you scared me!".into()));
     ///     }
     ///
     ///     (CallbackResult::Ok, None)

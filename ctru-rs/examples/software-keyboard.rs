@@ -21,10 +21,7 @@ fn main() {
     // with custom error messages when the input is incorrect.
     keyboard.set_filter_callback(Some(Box::new(|str| {
         if str.contains("boo") {
-            return (
-                CallbackResult::Retry,
-                Some(String::from("Ah, you scared me!")),
-            );
+            return (CallbackResult::Retry, Some("Ah, you scared me!".into()));
         }
 
         (CallbackResult::Ok, None)
