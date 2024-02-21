@@ -24,7 +24,7 @@ type CallbackFunction = dyn Fn(&str) -> (CallbackResult, Option<Cow<str>>);
 #[doc(alias = "SwkbdState")]
 pub struct SoftwareKeyboard {
     state: Box<SwkbdState>,
-    callback: Option<Box<CallbackFunction>>,
+    filter_callback: Option<Box<CallbackFunction>>,
     initial_text: Option<CString>,
 }
 
@@ -212,7 +212,7 @@ bitflags! {
 
 // Internal book-keeping struct used to send data to `aptSetMessageCallback` when calling the software keyboard.
 struct MessageCallbackData {
-    callback: *const Box<CallbackFunction>,
+    filter_callback: *const Box<CallbackFunction>,
     swkbd_shared_mem_ptr: *mut libc::c_void,
 }
 
@@ -241,7 +241,7 @@ impl SoftwareKeyboard {
             ctru_sys::swkbdInit(state.as_mut(), keyboard_type.into(), buttons.into(), -1);
             Self {
                 state,
-                callback: None,
+                filter_callback: None,
                 initial_text: None,
             }
         }
@@ -357,7 +357,7 @@ impl SoftwareKeyboard {
     /// #
     /// # }
     pub fn set_filter_callback(&mut self, callback: Option<Box<CallbackFunction>>) {
-        self.callback = callback;
+        self.filter_callback = callback;
     }
 
     /// Configure the maximum number of digits that can be entered in the keyboard when the [`Filters::DIGITS`] flag is enabled.
@@ -712,7 +712,7 @@ impl SoftwareKeyboard {
             };
         }
 
-        if self.callback.is_some() {
+        if self.filter_callback.is_some() {
             swkbd.filter_flags |= SWKBD_FILTER_CALLBACK;
         } else {
             swkbd.filter_flags &= !SWKBD_FILTER_CALLBACK;
@@ -722,19 +722,19 @@ impl SoftwareKeyboard {
         unsafe {
             swkbd.__bindgen_anon_1.reserved.fill(0);
 
-            let mut callback_data = MessageCallbackData {
-                callback: std::ptr::null(),
+            let mut message_callback_data = MessageCallbackData {
+                filter_callback: std::ptr::null(),
                 swkbd_shared_mem_ptr,
             };
 
-            // We need to pass a thin pointer to the boxed closure over FFI. Since we know that the callback will finish before
-            // `self` is allowed to be moved again, we can safely use a pointer to the local value contained in `self.callback`
-            if let Some(ref_to_boxed_closure) = self.callback.as_ref() {
-                callback_data.callback = ref_to_boxed_closure as *const _;
+            // We need to pass a thin pointer to the boxed closure over FFI. Since we know that the message callback will finish before
+            // `self` is allowed to be moved again, we can safely use a pointer to the local value contained in `self.filter_callback`
+            if let Some(ref_to_boxed_closure) = self.filter_callback.as_ref() {
+                message_callback_data.filter_callback = ref_to_boxed_closure as *const _;
 
                 aptSetMessageCallback(
                     Some(Self::swkbd_message_callback),
-                    std::ptr::addr_of_mut!(callback_data).cast(),
+                    std::ptr::addr_of_mut!(message_callback_data).cast(),
                 )
             }
 
@@ -745,7 +745,7 @@ impl SoftwareKeyboard {
                 swkbd_shared_mem_handle,
             );
 
-            if self.callback.is_some() {
+            if self.filter_callback.is_some() {
                 aptSetMessageCallback(None, std::ptr::null_mut());
             }
 
@@ -821,7 +821,7 @@ impl SoftwareKeyboard {
 
         let text8 = text16.to_string();
 
-        let filter_callback = unsafe { &**data.callback };
+        let filter_callback = unsafe { &**data.filter_callback };
 
         let (result, retmsg) = filter_callback(&text8);
 
