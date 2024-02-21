@@ -18,7 +18,7 @@ use std::fmt::Display;
 use std::iter::once;
 use std::str;
 
-type CallbackFunction = dyn Fn(&str) -> (CallbackResult, Option<Cow<str>>);
+type CallbackFunction = dyn Fn(&str) -> (CallbackResult, Option<Cow<'static, str>>);
 
 /// Configuration structure to setup the Software Keyboard applet.
 #[doc(alias = "SwkbdState")]
@@ -722,16 +722,15 @@ impl SoftwareKeyboard {
         unsafe {
             swkbd.__bindgen_anon_1.reserved.fill(0);
 
+            // We need to pass a thin pointer to the boxed closure over FFI. Since we know that the message callback will finish before
+            // `self` is allowed to be moved again, we can safely use a pointer to the local value contained in `self.filter_callback`
+            // The cast here is also sound since the pointer will only be read from if `self.filter_callback.is_some()` returns true.
             let mut message_callback_data = MessageCallbackData {
-                filter_callback: std::ptr::null(),
+                filter_callback: std::ptr::addr_of!(self.filter_callback).cast(),
                 swkbd_shared_mem_ptr,
             };
 
-            // We need to pass a thin pointer to the boxed closure over FFI. Since we know that the message callback will finish before
-            // `self` is allowed to be moved again, we can safely use a pointer to the local value contained in `self.filter_callback`
-            if let Some(ref_to_boxed_closure) = self.filter_callback.as_ref() {
-                message_callback_data.filter_callback = ref_to_boxed_closure as *const _;
-
+            if self.filter_callback.is_some() {
                 aptSetMessageCallback(
                     Some(Self::swkbd_message_callback),
                     std::ptr::addr_of_mut!(message_callback_data).cast(),
