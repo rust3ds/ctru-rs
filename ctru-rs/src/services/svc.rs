@@ -50,19 +50,28 @@ impl HandleExt for Handle {
     ) -> crate::Result<Vec<u32>> {
         // Copy over the request
         let cmd_buffer_ptr = unsafe { ctru_sys::getThreadCommandBuffer() };
-        std::ptr::copy_nonoverlapping(request.as_ptr(), cmd_buffer_ptr, request.len());
 
-        // Send the request
-        ResultCode(ctru_sys::svcSendSyncRequest(self))?;
+        unsafe {
+            std::ptr::copy_nonoverlapping(request.as_ptr(), cmd_buffer_ptr, request.len());
 
-        // Handle the result returned by the service
-        let result = unsafe { std::ptr::read(cmd_buffer_ptr.add(1)) };
-        ResultCode(result as ctru_sys::Result)?;
+            // Send the request
+            ResultCode(ctru_sys::svcSendSyncRequest(self))?;
+
+            // Handle the result returned by the service
+            let result = std::ptr::read(cmd_buffer_ptr.add(1));
+            ResultCode(result as ctru_sys::Result)?;
+        }
 
         // Copy back the response
         request.clear();
         request.resize(expected_response_len, 0);
-        std::ptr::copy_nonoverlapping(cmd_buffer_ptr, request.as_mut_ptr(), expected_response_len);
+        unsafe {
+            std::ptr::copy_nonoverlapping(
+                cmd_buffer_ptr,
+                request.as_mut_ptr(),
+                expected_response_len,
+            );
+        }
 
         Ok(request)
     }
