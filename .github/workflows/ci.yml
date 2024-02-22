@@ -78,12 +78,12 @@ jobs:
         run: cargo 3ds test --no-run --tests
 
       - name: Run lib and integration tests
-        uses: rust3ds/test-runner/run-tests@v1
+        uses: rust3ds/test-runner/run-tests@98a8ed44057c2100447f0f6547c0de1e14be8022
         with:
           args: --tests
 
       - name: Build and run doc tests
-        uses: rust3ds/test-runner/run-tests@v1
+        uses: rust3ds/test-runner/run-tests@98a8ed44057c2100447f0f6547c0de1e14be8022
         with:
           args: --doc
 
