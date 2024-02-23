@@ -847,7 +847,6 @@ impl SoftwareKeyboard {
 
     // A reimplementation of `swkbdMessageCallback` from `libctru/source/applets/swkbd.c`.
     // This function sets up and then calls the callback set by `swkbdSetFilterCallback`
-    #[deny(unsafe_op_in_unsafe_fn)]
     unsafe extern "C" fn swkbd_message_callback(
         user: *mut libc::c_void,
         sender: NS_APPID,

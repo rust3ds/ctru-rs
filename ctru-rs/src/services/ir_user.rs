@@ -347,9 +347,11 @@ impl IrUser {
         let mut shared_mem_guard = IR_USER_STATE.lock().unwrap();
         let shared_mem = shared_mem_guard.as_mut().unwrap();
 
-        shared_mem
-            .service_handle
-            .send_service_request(request, expected_response_len)
+        unsafe {
+            shared_mem
+                .service_handle
+                .send_service_request(request, expected_response_len)
+        }
     }
 }
 
