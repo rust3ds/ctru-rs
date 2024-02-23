@@ -158,6 +158,8 @@ impl<'a> Chainloader<'a> {
     }
 
     /// Configures the chainloader to launch a specific application.
+    ///
+    /// See also [super::am::Title]
     #[doc(alias = "aptSetChainloader")]
     pub fn set(&mut self, title: &super::am::Title<'_>) {
         unsafe { ctru_sys::aptSetChainloader(title.id(), title.media_type() as u8) }
