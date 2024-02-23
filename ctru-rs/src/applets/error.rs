@@ -22,7 +22,24 @@ pub enum Kind {
     Top = ctru_sys::ERROR_TEXT_WORD_WRAP,
 }
 
-impl ErrorApplet {
+/// Error returned by an unsuccessful [`PopUp::launch()`].
+#[doc(alias = "errorReturnCode")]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[repr(i8)]
+pub enum Error {
+    /// Unknown error occurred.
+    Unknown = ctru_sys::ERROR_UNKNOWN,
+    /// Operation not supported.
+    NotSupported = ctru_sys::ERROR_NOT_SUPPORTED,
+    /// Home button pressed while [`PopUp`] was running.
+    HomePressed = ctru_sys::ERROR_HOME_BUTTON,
+    /// Power button pressed while [`PopUp`] was running.
+    PowerPressed = ctru_sys::ERROR_POWER_BUTTON,
+    /// Reset button pressed while [`PopUp`] was running.
+    ResetPressed = ctru_sys::ERROR_SOFTWARE_RESET,
+}
+
+impl PopUp {
     /// Initialize the error applet with the provided text kind.
     #[doc(alias = "errorInit")]
     pub fn new(kind: Kind) -> Self {
@@ -48,7 +65,30 @@ impl ErrorApplet {
 
     /// Launches the error applet.
     #[doc(alias = "errorDisp")]
-    pub fn launch(&mut self, _apt: &Apt, _gfx: &Gfx) {
+    pub fn launch(&mut self, _apt: &Apt, _gfx: &Gfx) -> Result<(), Error> {
         unsafe { ctru_sys::errorDisp(self.state.as_mut()) }
+
+        match self.state.returnCode {
+            ctru_sys::ERROR_NONE | ctru_sys::ERROR_SUCCESS => Ok(()),
+            ctru_sys::ERROR_NOT_SUPPORTED => Err(Error::NotSupported),
+            ctru_sys::ERROR_HOME_BUTTON => Err(Error::HomePressed),
+            ctru_sys::ERROR_POWER_BUTTON => Err(Error::PowerPressed),
+            ctru_sys::ERROR_SOFTWARE_RESET => Err(Error::ResetPressed),
+            _ => Err(Error::Unknown),
+        }
     }
 }
+
+impl std::fmt::Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::NotSupported => write!(f, "operation not supported"),
+            Self::HomePressed => write!(f, "home button pressed while error applet was running"),
+            Self::PowerPressed => write!(f, "power button pressed while error applet was running"),
+            Self::ResetPressed => write!(f, "reset button pressed while error applet was running"),
+            Self::Unknown => write!(f, "an unknown error occurred"),
+        }
+    }
+}
+
+impl std::error::Error for Error {}
