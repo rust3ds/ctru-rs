@@ -1,15 +1,13 @@
 //! Error applet
 //!
 //! This applet displays error text as a pop-up message on the lower screen.
-#![doc(alias = "Error")]
-
 use crate::services::{apt::Apt, gfx::Gfx};
 
 use ctru_sys::errorConf;
 
 /// Configuration struct to set up the Error applet.
 #[doc(alias = "errorConf")]
-pub struct ErrorApplet {
+pub struct PopUp {
     state: Box<errorConf>,
 }
 
