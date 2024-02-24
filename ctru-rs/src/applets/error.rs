@@ -77,6 +77,15 @@ impl PopUp {
             _ => Err(Error::Unknown),
         }
     }
+
+    /// Launches the error applet without requiring an [`Apt`] or [`Gfx`] handle.
+    ///
+    /// # Safety
+    ///
+    /// Causes undefined behavior if the aforementioned services are not actually active when the applet launches.
+    unsafe fn launch_unchecked(&mut self) {
+        unsafe { ctru_sys::errorDisp(self.state.as_mut()) };
+    }
 }
 
 /// Sets a custom panic hook that uses the error applet to display panic messages. You can also choose to have
@@ -104,7 +113,7 @@ pub unsafe fn set_panic_hook(use_stderr: bool) {
         }
 
         unsafe {
-            ctru_sys::errorDisp(popup.state.as_mut());
+            popup.launch_unchecked();
         }
     }))
 }
