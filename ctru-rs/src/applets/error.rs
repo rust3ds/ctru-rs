@@ -79,6 +79,34 @@ impl PopUp {
     }
 }
 
+/// Sets a custom panic hook that uses the error applet to display panic messages. You can also choose to have
+/// messages printed over stderr along with the pop-up display.
+///
+/// SAFETY: The error applet requires that both the [`Apt`] and [`Gfx`] services are active whenever it launches.
+/// By calling this function, you promise that you will keep those services alive until either the program ends or
+/// you unregister this hook with [`std::panic::take_hook`](https://doc.rust-lang.org/std/panic/fn.take_hook.html).
+pub unsafe fn set_panic_hook(use_stderr: bool) {
+    std::panic::set_hook(Box::new(move |panic_info| {
+        let mut popup = PopUp::new(Kind::Top);
+
+        let thread = std::thread::current();
+
+        let name = thread.name().unwrap_or("<unnamed>");
+
+        let payload = format!("thread '{name}' {panic_info}");
+
+        popup.set_text(&payload);
+
+        if use_stderr {
+            eprintln!("{payload}");
+        }
+
+        unsafe {
+            ctru_sys::errorDisp(popup.state.as_mut());
+        }
+    }))
+}
+
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
