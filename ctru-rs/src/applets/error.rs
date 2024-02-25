@@ -91,31 +91,50 @@ impl PopUp {
 /// Sets a custom panic hook that uses the error applet to display panic messages. You can also choose to have
 /// messages printed over stderr along with the pop-up display.
 ///
-/// # Safety
-///
-/// The error applet requires that both the [`Apt`] and [`Gfx`] services are active whenever it launches.
-/// By calling this function, you promise that you will keep those services alive until either the program ends or
-/// you unregister this hook with [`std::panic::take_hook`](https://doc.rust-lang.org/std/panic/fn.take_hook.html).
-pub unsafe fn set_panic_hook(use_stderr: bool) {
+/// If the `Gfx` service is not initialized during a panic, the error applet will not be displayed and the panic
+/// message will be printed over stderr.
+pub fn set_panic_hook(use_stderr: bool) {
+    use crate::services::gfx::GFX_ACTIVE;
+
+    use std::io::Write;
+    use std::sync::TryLockError;
+
     std::panic::set_hook(Box::new(move |panic_info| {
-        let mut popup = PopUp::new(Kind::Top);
+        let _apt = Apt::new();
 
         let thread = std::thread::current();
 
         let name = thread.name().unwrap_or("<unnamed>");
 
-        let payload = format!("thread '{name}' {panic_info}");
+        // If we get a `WouldBlock` error, we know that the `Gfx` service has been initialized.
+        // Otherwise fallback to printing over stderr.
+        match GFX_ACTIVE.try_lock() {
+            Err(TryLockError::WouldBlock) => {
+                if use_stderr {
+                    print_to_stderr(name, panic_info);
+                }
 
-        popup.set_text(&payload);
+                let payload = format!("thread '{name}' {panic_info}");
 
-        if use_stderr {
-            eprintln!("{payload}");
+                let mut popup = PopUp::new(Kind::Top);
+
+                popup.set_text(&payload);
+
+                unsafe {
+                    popup.launch_unchecked();
+                }
+            }
+            _ => {
+                print_to_stderr(name, panic_info);
+            }
         }
+    }));
 
-        unsafe {
-            popup.launch_unchecked();
-        }
-    }))
+    fn print_to_stderr(name: &str, panic_info: &std::panic::PanicInfo) {
+        let mut stderr = std::io::stderr().lock();
+
+        let _ = writeln!(stderr, "thread '{name}' {panic_info}");
+    }
 }
 
 impl std::fmt::Display for Error {
