@@ -436,7 +436,7 @@ impl Uds {
             // Safety: `networks` is malloced in application memory with size = `total_networks`
             unsafe { Vec::from_raw_parts(networks, total_networks, total_networks) }
                 .into_iter()
-                .map(<_ as Into<NetworkScanInfo>>::into)
+                .map(NetworkScanInfo::from)
                 .collect()
         } else {
             vec![]
