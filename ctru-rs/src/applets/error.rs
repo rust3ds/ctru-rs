@@ -108,25 +108,22 @@ pub fn set_panic_hook(use_stderr: bool) {
 
         // If we get a `WouldBlock` error, we know that the `Gfx` service has been initialized.
         // Otherwise fallback to printing over stderr.
-        match GFX_ACTIVE.try_lock() {
-            Err(TryLockError::WouldBlock) => {
-                if use_stderr {
-                    print_to_stderr(name, panic_info);
-                }
-
-                let payload = format!("thread '{name}' {panic_info}");
-
-                let mut popup = PopUp::new(Kind::Top);
-
-                popup.set_text(&payload);
-
-                unsafe {
-                    popup.launch_unchecked();
-                }
-            }
-            _ => {
+        if let Err(TryLockError::WouldBlock) = GFX_ACTIVE.try_lock() {
+            if use_stderr {
                 print_to_stderr(name, panic_info);
             }
+
+            let payload = format!("thread '{name}' {panic_info}");
+
+            let mut popup = PopUp::new(Kind::Top);
+
+            popup.set_text(&payload);
+
+            unsafe {
+                popup.launch_unchecked();
+            }
+        } else {
+            print_to_stderr(name, panic_info);
         }
     }));
 
