@@ -1,6 +1,7 @@
 //! Error applet
 //!
 //! This applet displays error text as a pop-up message on the lower screen.
+
 use crate::services::{apt::Apt, gfx::Gfx};
 
 use ctru_sys::errorConf;
@@ -66,7 +67,16 @@ impl PopUp {
     /// Launches the error applet.
     #[doc(alias = "errorDisp")]
     pub fn launch(&mut self, _apt: &Apt, _gfx: &Gfx) -> Result<(), Error> {
-        unsafe { ctru_sys::errorDisp(self.state.as_mut()) }
+        unsafe { self.launch_unchecked() }
+    }
+
+    /// Launches the error applet without requiring an [`Apt`] or [`Gfx`] handle.
+    ///
+    /// # Safety
+    ///
+    /// Causes undefined behavior if the aforementioned services are not actually active when the applet launches.
+    unsafe fn launch_unchecked(&mut self) -> Result<(), Error> {
+        unsafe { ctru_sys::errorDisp(self.state.as_mut()) };
 
         match self.state.returnCode {
             ctru_sys::ERROR_NONE | ctru_sys::ERROR_SUCCESS => Ok(()),
@@ -76,15 +86,6 @@ impl PopUp {
             ctru_sys::ERROR_SOFTWARE_RESET => Err(Error::ResetPressed),
             _ => Err(Error::Unknown),
         }
-    }
-
-    /// Launches the error applet without requiring an [`Apt`] or [`Gfx`] handle.
-    ///
-    /// # Safety
-    ///
-    /// Causes undefined behavior if the aforementioned services are not actually active when the applet launches.
-    unsafe fn launch_unchecked(&mut self) {
-        unsafe { ctru_sys::errorDisp(self.state.as_mut()) };
     }
 }
 
@@ -123,7 +124,7 @@ pub fn set_panic_hook(call_old_hook: bool) {
             popup.set_text(&payload);
 
             unsafe {
-                popup.launch_unchecked();
+                let _ = popup.launch_unchecked();
             }
         } else {
             old_hook(panic_info);
