@@ -100,15 +100,13 @@ pub fn set_panic_hook(use_stderr: bool) {
     use std::sync::TryLockError;
 
     std::panic::set_hook(Box::new(move |panic_info| {
-        let _apt = Apt::new();
-
         let thread = std::thread::current();
 
         let name = thread.name().unwrap_or("<unnamed>");
 
         // If we get a `WouldBlock` error, we know that the `Gfx` service has been initialized.
         // Otherwise fallback to printing over stderr.
-        if let Err(TryLockError::WouldBlock) = GFX_ACTIVE.try_lock() {
+        if let (Err(TryLockError::WouldBlock), Ok(_apt)) = (GFX_ACTIVE.try_lock(), Apt::new()) {
             if use_stderr {
                 print_to_stderr(name, panic_info);
             }
