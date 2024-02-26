@@ -1,4 +1,4 @@
-//! Error applet
+//! Error applet.
 //!
 //! This applet displays error text as a pop-up message on the lower screen.
 
@@ -12,15 +12,15 @@ pub struct PopUp {
     state: Box<errorConf>,
 }
 
-/// The kind of error applet to display.
+/// Determines whether the Error applet will use word wrapping when displaying a message.
 #[doc(alias = "errorType")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
-pub enum Kind {
-    /// Error text is centered in the error applet window.
-    Center = ctru_sys::ERROR_TEXT,
-    /// Error text starts at the top of the error applet window.
-    Top = ctru_sys::ERROR_TEXT_WORD_WRAP,
+pub enum WordWrap {
+    /// Error text is centered in the error applet window and does not use word wrapping.
+    Disabled = ctru_sys::ERROR_TEXT,
+    /// Error text starts at the top of the error applet window and uses word wrapping.
+    Enabled = ctru_sys::ERROR_TEXT_WORD_WRAP,
 }
 
 /// Error returned by an unsuccessful [`PopUp::launch()`].
@@ -41,17 +41,22 @@ pub enum Error {
 }
 
 impl PopUp {
-    /// Initialize the error applet with the provided text kind.
+    /// Initializes the error applet with the provided word wrap setting.
     #[doc(alias = "errorInit")]
-    pub fn new(kind: Kind) -> Self {
+    pub fn new(word_wrap: WordWrap) -> Self {
         let mut state = Box::<errorConf>::default();
 
-        unsafe { ctru_sys::errorInit(state.as_mut(), kind as _, 0) };
+        unsafe { ctru_sys::errorInit(state.as_mut(), word_wrap as _, 0) };
 
         Self { state }
     }
 
     /// Sets the error text to display.
+    ///
+    /// # Notes
+    ///
+    /// Messages that are too large will be truncated. The exact number of characters displayed can vary depending on factors such as
+    /// the length of individual words in the message and the chosen word wrap setting.
     #[doc(alias = "errorText")]
     pub fn set_text(&mut self, text: &str) {
         for (idx, code_unit) in text
@@ -74,7 +79,7 @@ impl PopUp {
     ///
     /// # Safety
     ///
-    /// Causes undefined behavior if the aforementioned services are not actually active when the applet launches.
+    /// Potentially leads to undefined behavior if the aforementioned services are not actually active when the applet launches.
     unsafe fn launch_unchecked(&mut self) -> Result<(), Error> {
         unsafe { ctru_sys::errorDisp(self.state.as_mut()) };
 
@@ -91,14 +96,18 @@ impl PopUp {
 
 /// Sets a custom [panic hook](https://doc.rust-lang.org/std/panic/fn.set_hook.html) that uses the error applet to display panic messages.
 ///
-/// You can also choose to have the previously registered panic hook called along with the error applet message, which can be useful
+/// You can also choose to have the previously registered panic hook called along with the error applet popup, which can be useful
 /// if you want to use output redirection to display panic messages over `3dslink` or `GDB`.
-///
-/// If the [`Gfx`] service is not initialized during a panic, the error applet will not be displayed and the old
-/// panic hook will be called.
 ///
 /// You can use [`std::panic::take_hook`](https://doc.rust-lang.org/std/panic/fn.take_hook.html) to unregister the panic hook
 /// set by this function.
+///
+/// # Notes
+///
+/// * If the [`Gfx`] service is not initialized during a panic, the error applet will not be displayed and the old panic hook will be called.
+///
+/// * As mentioned in [`PopUp::set_text`], the error applet can only display a finite number of characters and so panic messages that are too long
+/// can potentially end up being truncated. Consider using this hook along with the default hook so that you can capture full panic messages via stderr.
 pub fn set_panic_hook(call_old_hook: bool) {
     use crate::services::gfx::GFX_ACTIVE;
     use std::sync::TryLockError;
@@ -106,22 +115,22 @@ pub fn set_panic_hook(call_old_hook: bool) {
     let old_hook = std::panic::take_hook();
 
     std::panic::set_hook(Box::new(move |panic_info| {
-        let thread = std::thread::current();
-
-        let name = thread.name().unwrap_or("<unnamed>");
-
         // If we get a `WouldBlock` error, we know that the `Gfx` service has been initialized.
-        // Otherwise fallback to printing over stderr.
+        // Otherwise fallback to using the old panic hook.
         if let (Err(TryLockError::WouldBlock), Ok(_apt)) = (GFX_ACTIVE.try_lock(), Apt::new()) {
             if call_old_hook {
                 old_hook(panic_info);
             }
 
-            let payload = format!("thread '{name}' {panic_info}");
+            let thread = std::thread::current();
 
-            let mut popup = PopUp::new(Kind::Top);
+            let name = thread.name().unwrap_or("<unnamed>");
 
-            popup.set_text(&payload);
+            let message = format!("thread '{name}' {panic_info}");
+
+            let mut popup = PopUp::new(WordWrap::Enabled);
+
+            popup.set_text(&message);
 
             unsafe {
                 let _ = popup.launch_unchecked();
