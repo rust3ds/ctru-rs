@@ -89,19 +89,16 @@ impl PopUp {
 }
 
 /// Sets a custom panic hook that uses the error applet to display panic messages. You can also choose to have the
-/// default panic hook called to print the message over stderr.
+/// previously registered panic hook called along with the error applet message, which can be useful if you want
+/// to use input redirection to display panic messages over `3dslink` or `GDB`.
 ///
-/// If the `Gfx` service is not initialized during a panic, the error applet will not be displayed and the default
-/// hook will be called.
-pub fn set_panic_hook(call_default_hook: bool) {
+/// If the `Gfx` service is not initialized during a panic, the error applet will not be displayed and the old
+/// panic hook will be called.
+pub fn set_panic_hook(call_old_hook: bool) {
     use crate::services::gfx::GFX_ACTIVE;
     use std::sync::TryLockError;
 
-    // Ensure we get the default hook instead of a previously registered user hook.
-    let default_hook = {
-        let _ = std::panic::take_hook();
-        std::panic::take_hook()
-    };
+    let old_hook = std::panic::take_hook();
 
     std::panic::set_hook(Box::new(move |panic_info| {
         let thread = std::thread::current();
@@ -111,8 +108,8 @@ pub fn set_panic_hook(call_default_hook: bool) {
         // If we get a `WouldBlock` error, we know that the `Gfx` service has been initialized.
         // Otherwise fallback to printing over stderr.
         if let (Err(TryLockError::WouldBlock), Ok(_apt)) = (GFX_ACTIVE.try_lock(), Apt::new()) {
-            if call_default_hook {
-                default_hook(panic_info);
+            if call_old_hook {
+                old_hook(panic_info);
             }
 
             let payload = format!("thread '{name}' {panic_info}");
@@ -125,7 +122,7 @@ pub fn set_panic_hook(call_default_hook: bool) {
                 popup.launch_unchecked();
             }
         } else {
-            default_hook(panic_info);
+            old_hook(panic_info);
         }
     }));
 }
