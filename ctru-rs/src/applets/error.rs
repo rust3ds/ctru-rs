@@ -61,8 +61,8 @@ impl PopUp {
     pub fn set_text(&mut self, text: &str) {
         for (idx, code_unit) in text
             .encode_utf16()
-            .chain(std::iter::once(0))
             .take(self.state.Text.len() - 1)
+            .chain(std::iter::once(0))
             .enumerate()
         {
             self.state.Text[idx] = code_unit;
