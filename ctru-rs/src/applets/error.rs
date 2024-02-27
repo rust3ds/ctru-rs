@@ -55,8 +55,8 @@ impl PopUp {
     ///
     /// # Notes
     ///
-    /// Messages that are too large will be truncated. The exact number of characters displayed can vary depending on factors such as
-    /// the length of individual words in the message and the chosen word wrap setting.
+    /// The text will be converted to UTF-16 for display with the applet, and the message will be truncated if it exceeds
+    /// 1900 UTF-16 code units in length after conversion.
     #[doc(alias = "errorText")]
     pub fn set_text(&mut self, text: &str) {
         for (idx, code_unit) in text
@@ -105,9 +105,6 @@ impl PopUp {
 /// # Notes
 ///
 /// * If the [`Gfx`] service is not initialized during a panic, the error applet will not be displayed and the old panic hook will be called.
-///
-/// * As mentioned in [`PopUp::set_text`], the error applet can only display a finite number of characters and so panic messages that are too long
-/// can potentially end up being truncated. Consider using this hook along with the default hook so that you can capture full panic messages via stderr.
 pub fn set_panic_hook(call_old_hook: bool) {
     use crate::services::gfx::GFX_ACTIVE;
     use std::sync::TryLockError;
