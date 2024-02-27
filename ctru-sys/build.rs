@@ -79,6 +79,8 @@ fn main() {
         .blocklist_type("u(8|16|32|64)")
         .blocklist_type("__builtin_va_list")
         .blocklist_type("__va_list")
+        .blocklist_type("errorReturnCode")
+        .blocklist_type("errorScreenFlag")
         .opaque_type("MiiData")
         .derive_default(true)
         .wrap_static_fns(true)
