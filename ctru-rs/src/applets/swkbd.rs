@@ -830,8 +830,8 @@ impl SoftwareKeyboard {
         if let Some(msg) = retmsg.as_deref() {
             for (idx, code_unit) in msg
                 .encode_utf16()
-                .chain(once(0))
                 .take(swkbd.callback_msg.len() - 1)
+                .chain(once(0))
                 .enumerate()
             {
                 swkbd.callback_msg[idx] = code_unit;
