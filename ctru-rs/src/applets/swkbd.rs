@@ -272,12 +272,14 @@ impl SoftwareKeyboard {
     pub fn launch(&mut self, _apt: &Apt, _gfx: &Gfx) -> Result<(String, Button), Error> {
         let mut output = String::new();
 
-        match self.swkbd_input_text(&mut output) {
-            ctru_sys::SWKBD_BUTTON_NONE => Err(self.state.result.into()),
-            ctru_sys::SWKBD_BUTTON_LEFT => Ok((output, Button::Left)),
-            ctru_sys::SWKBD_BUTTON_MIDDLE => Ok((output, Button::Middle)),
-            ctru_sys::SWKBD_BUTTON_RIGHT => Ok((output, Button::Right)),
-            _ => unreachable!(),
+        unsafe {
+            match self.swkbd_input_text(&mut output) {
+                ctru_sys::SWKBD_BUTTON_NONE => Err(self.state.result.into()),
+                ctru_sys::SWKBD_BUTTON_LEFT => Ok((output, Button::Left)),
+                ctru_sys::SWKBD_BUTTON_MIDDLE => Ok((output, Button::Middle)),
+                ctru_sys::SWKBD_BUTTON_RIGHT => Ok((output, Button::Right)),
+                _ => unreachable!(),
+            }
         }
     }
 
@@ -583,10 +585,13 @@ impl SoftwareKeyboard {
         self.state.valid_input = ValidInput::FixedLen.into();
     }
 
-    // A reimplementation of `swkbdInputText` from `libctru/source/applets/swkbd.c`. Allows us to
-    // get text from the software keyboard and put it directly into a `String` without requiring
-    // an intermediate fixed-size buffer
-    fn swkbd_input_text(&mut self, output: &mut String) -> SwkbdButton {
+    /// A reimplementation of `swkbdInputText` from `libctru/source/applets/swkbd.c`. Allows us to fix various
+    /// API nits and get rid of awkward type conversions when interacting with the Software Keyboard.
+    ///
+    /// # Safety
+    ///
+    /// The [`Apt`] and [`Gfx`] services must be active when this function is called.
+    unsafe fn swkbd_input_text(&mut self, output: &mut String) -> SwkbdButton {
         use ctru_sys::{
             MEMPERM_READ, MEMPERM_WRITE, R_FAILED, SWKBD_BUTTON_LEFT, SWKBD_BUTTON_MIDDLE,
             SWKBD_BUTTON_NONE, SWKBD_BUTTON_RIGHT, SWKBD_D0_CLICK, SWKBD_D1_CLICK0,
