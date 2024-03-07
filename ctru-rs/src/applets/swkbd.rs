@@ -397,13 +397,13 @@ impl SoftwareKeyboard {
     /// # Example
     ///
     /// ```
-    /// # let _runner = test_runner::GdbRunner::default()>;
+    /// # let _runner = test_runner::GdbRunner::default();
     /// # fn main() {
     /// #
     /// use ctru::applets::swkbd::SoftwareKeyboard;
     /// let mut keyboard = SoftwareKeyboard::default();
     ///
-    /// keyboard.set_initial_text(Some(String::from("Write here what you like!")));
+    /// keyboard.set_initial_text(Some("Write here what you like!".into()));
     /// #
     /// # }
     #[doc(alias = "swkbdSetInitialText")]
@@ -415,6 +415,13 @@ impl SoftwareKeyboard {
     ///
     /// The hint text is the text shown in gray before any text gets written in the input box.
     ///
+    /// # Notes
+    ///
+    /// Passing [`None`] will clear the hint text.
+    ///
+    /// The hint text will be converted to UTF-16 when passed to the software keyboard, and the text will be truncated
+    /// if the length exceeds 64 code units after conversion.
+    ///
     /// # Example
     ///
     /// ```
@@ -424,14 +431,22 @@ impl SoftwareKeyboard {
     /// use ctru::applets::swkbd::SoftwareKeyboard;
     /// let mut keyboard = SoftwareKeyboard::default();
     ///
-    /// keyboard.set_hint_text("Write here what you like!");
+    /// keyboard.set_hint_text(Some("Write here what you like!"));
     /// #
     /// # }
     #[doc(alias = "swkbdSetHintText")]
-    pub fn set_hint_text(&mut self, text: &str) {
-        unsafe {
-            let nul_terminated: String = text.chars().chain(once('\0')).collect();
-            ctru_sys::swkbdSetHintText(self.state.as_mut(), nul_terminated.as_ptr());
+    pub fn set_hint_text(&mut self, text: Option<&str>) {
+        if let Some(text) = text {
+            for (idx, code_point) in text
+                .encode_utf16()
+                .take(self.state.hint_text.len() - 1)
+                .chain(once(0))
+                .enumerate()
+            {
+                self.state.hint_text[idx] = code_point;
+            }
+        } else {
+            self.state.hint_text[0] = 0;
         }
     }
 
