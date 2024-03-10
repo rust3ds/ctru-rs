@@ -37,7 +37,7 @@ pub enum Error {
     /// The provided username was too long.
     UsernameTooLong,
     /// The provided username contained a NULL byte.
-    UsernameContainsNull,
+    UsernameContainsNull(usize),
     /// Not connected to a network.
     NotConnected,
     /// No context bound.
@@ -66,6 +66,12 @@ impl<T> FromResidual<crate::Error> for Result<T, Error> {
     }
 }
 
+impl From<std::ffi::NulError> for Error {
+    fn from(value: std::ffi::NulError) -> Self {
+        Error::UsernameContainsNull(value.nul_position())
+    }
+}
+
 impl Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
@@ -74,7 +80,8 @@ impl Display for Error {
             match self {
                 Self::UsernameTooLong =>
                     "provided username was too long (max 10 bytes, not code points)".into(),
-                Self::UsernameContainsNull => "provided username contained a NULL byte".into(),
+                Self::UsernameContainsNull(pos) =>
+                    format!("provided username contained a NULL byte at position {pos}"),
                 Self::NotConnected => "not connected to a network".into(),
                 Self::NoContext => "no context bound".into(),
                 Self::Spectator => "cannot send data on a network as a spectator".into(),
@@ -89,8 +96,7 @@ impl Display for Error {
 
 impl StdError for Error {}
 
-/// Possible types of connection to a network
-///
+/// Possible types of connection to a network.
 #[doc(alias = "udsConnectionType")]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u32)]
@@ -158,110 +164,219 @@ impl TryFrom<u16> for NodeID {
 }
 
 /// Information about a network node.
-#[allow(missing_docs)]
 #[doc(alias = "udsNodeInfo")]
-#[derive(Debug)]
-// Ported to Rust so that Debug can be derived on it.
-pub struct NodeInfo {
-    pub uds_friendcodeseed: u64,
-    pub username: String,
-    unk_x1c: u16,
-    pub flag: u8,
-    pad_x1f: u8,
-    pub node_id: NodeID,
-    pad_x22: u16,
-    word_x24: u32,
+#[derive(Copy, Clone)]
+pub struct NodeInfo(ctru_sys::udsNodeInfo);
+
+impl Debug for NodeInfo {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "NodeInfo(")?;
+
+        f.debug_struct("udsNodeInfo")
+            .field("uds_friendcodeseed", &self.uds_friendcodeseed())
+            .field("username", &self.username())
+            .field("flag", &self.flag())
+            .field("NetworkNodeID", &self.node_id())
+            .finish()?;
+
+        write!(f, ")")
+    }
 }
 
 impl From<ctru_sys::udsNodeInfo> for NodeInfo {
     fn from(value: ctru_sys::udsNodeInfo) -> Self {
-        unsafe {
-            Self {
-                uds_friendcodeseed: value.uds_friendcodeseed,
-                username: String::from_utf16_lossy(
-                    &value.__bindgen_anon_1.__bindgen_anon_1.username,
-                ),
-                unk_x1c: value.__bindgen_anon_1.__bindgen_anon_1.unk_x1c,
-                flag: value.__bindgen_anon_1.__bindgen_anon_1.flag,
-                pad_x1f: value.__bindgen_anon_1.__bindgen_anon_1.pad_x1f,
-                node_id: value
-                    .NetworkNodeID
-                    .try_into()
-                    .expect("UDS service should always provide a valid NetworkNodeID"),
-                pad_x22: value.pad_x22,
-                word_x24: value.word_x24,
-            }
-        }
+        Self(value)
+    }
+}
+
+impl NodeInfo {
+    /// Friend code seed associated with this network node.
+    pub fn uds_friendcodeseed(&self) -> u64 {
+        self.0.uds_friendcodeseed
+    }
+
+    /// Username associated with this network node.
+    pub fn username(&self) -> String {
+        String::from_utf16_lossy(unsafe { &self.0.__bindgen_anon_1.__bindgen_anon_1.username })
+    }
+
+    /// Flag associated with this network node.
+    pub fn flag(&self) -> u8 {
+        unsafe { self.0.__bindgen_anon_1.__bindgen_anon_1.flag }
+    }
+
+    /// Node ID associated with this network node.
+    pub fn node_id(&self) -> NodeID {
+        self.0
+            .NetworkNodeID
+            .try_into()
+            .expect("UDS service should always provide a valid NetworkNodeID")
     }
 }
 
 /// Information returned from scanning for networks.
 #[doc(alias = "udsNetworkScanInfo")]
-#[derive(Debug)]
-// Ported to Rust so that Debug can be derived on it.
-pub struct NetworkScanInfo {
-    /// NWM output structure.
-    pub datareply_entry: ctru_sys::nwmBeaconDataReplyEntry,
-    /// Information about the network.
-    pub network: ctru_sys::udsNetworkStruct,
-    /// All nodes on the network (first node is the server,
-    /// max 16, `None` means no node connected).
-    pub nodes: [Option<NodeInfo>; 16],
+#[derive(Copy, Clone)]
+pub struct NetworkScanInfo(ctru_sys::udsNetworkScanInfo);
+
+impl Debug for NetworkScanInfo {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "NetworkScanInfo(")?;
+
+        f.debug_struct("udsNetworkScanInfo")
+            .field("datareply_entry", &self.datareply_entry())
+            .field("network", &self.network())
+            .field("nodes", &self.nodes())
+            .finish()?;
+
+        write!(f, ")")
+    }
 }
 
 impl From<ctru_sys::udsNetworkScanInfo> for NetworkScanInfo {
     fn from(value: ctru_sys::udsNetworkScanInfo) -> Self {
-        Self {
-            datareply_entry: value.datareply_entry,
-            network: value.network,
-            nodes: value.nodes.map(|n| {
-                if n.uds_friendcodeseed != 0 {
-                    Some(n.into())
-                } else {
-                    None
-                }
-            }),
+        Self(value)
+    }
+}
+
+impl NetworkScanInfo {
+    /// NWM output structure.
+    pub fn datareply_entry(&self) -> ctru_sys::nwmBeaconDataReplyEntry {
+        self.0.datareply_entry
+    }
+
+    /// Get a reference to the NWM output structure.
+    pub fn datareply_entry_ref(&self) -> &ctru_sys::nwmBeaconDataReplyEntry {
+        &self.0.datareply_entry
+    }
+
+    /// Get a mutable reference to the NWM output structure.
+    pub fn datareply_entry_mut(&mut self) -> &mut ctru_sys::nwmBeaconDataReplyEntry {
+        &mut self.0.datareply_entry
+    }
+
+    /// Information about the network.
+    pub fn network(&self) -> ctru_sys::udsNetworkStruct {
+        self.0.network
+    }
+
+    /// Get a reference to the information about the network.
+    pub fn network_ref(&self) -> &ctru_sys::udsNetworkStruct {
+        &self.0.network
+    }
+
+    /// Get a mutable reference to the information about the network.
+    pub fn network_mut(&mut self) -> &mut ctru_sys::udsNetworkStruct {
+        &mut self.0.network
+    }
+
+    /// All nodes on the network (first node is the server,
+    /// max 16, `None` means no node connected).
+    pub fn nodes(&self) -> [Option<NodeInfo>; 16] {
+        self.0.nodes.map(|n| {
+            if n.uds_friendcodeseed != 0 {
+                Some(n.into())
+            } else {
+                None
+            }
+        })
+    }
+}
+
+/// Possible raw connection status values.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(u32)]
+#[non_exhaustive]
+pub enum ConnectionStatusInfo {
+    /// Not connected to any network.
+    Disconnected = 3,
+    /// Connected as a host.
+    Host = 6,
+    /// Connected as a client.
+    Client = 9,
+    /// Connected as a spectator.
+    Spectator = 10,
+    /// Unknown
+    Unknown = 11,
+}
+
+impl From<ConnectionStatusInfo> for u32 {
+    fn from(value: ConnectionStatusInfo) -> Self {
+        value as Self
+    }
+}
+
+impl TryFrom<u32> for ConnectionStatusInfo {
+    type Error = ();
+
+    fn try_from(value: u32) -> std::result::Result<Self, Self::Error> {
+        match value {
+            3 => Ok(Self::Disconnected),
+            6 => Ok(Self::Host),
+            9 => Ok(Self::Client),
+            10 => Ok(Self::Spectator),
+            11 => Ok(Self::Unknown),
+            _ => Err(()),
         }
     }
 }
 
 /// Status of the connection.
 #[doc(alias = "udsConnectionStatus")]
-#[derive(Debug)]
-pub struct ConnectionStatus {
-    /// Raw status information
-    // TODO: is this in some kind of readable format?
-    pub status: u32,
-    unk_x4: u32,
-    /// Network node ID for the current device.
-    pub cur_node_id: NodeID,
-    unk_xa: u16,
-    unk_xc: [u32; 8],
-    /// Number of nodes connected to the network.
-    pub total_nodes: u8,
-    /// Maximum nodes allowed on this network.
-    pub max_nodes: u8,
-    /// Bitmask for which of the 16 possible nodes are connected
-    /// to this network; bit 0 is the server, bit 1 is the first
-    /// original client, etc.
-    pub node_bitmask: u16,
+#[derive(Clone, Copy)]
+pub struct ConnectionStatus(ctru_sys::udsConnectionStatus);
+
+impl Debug for ConnectionStatus {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "ConnectionStatus(")?;
+
+        f.debug_struct("udsConnectionStatus")
+            .field("status", &self.status())
+            .field("cur_node_id", &self.cur_node_id())
+            .field("total_nodes", &self.total_nodes())
+            .field("max_nodes", &self.max_nodes())
+            .field("node_bitmask", &self.node_bitmask())
+            .finish()?;
+
+        write!(f, ")")
+    }
 }
 
 impl From<ctru_sys::udsConnectionStatus> for ConnectionStatus {
     fn from(value: ctru_sys::udsConnectionStatus) -> Self {
-        Self {
-            status: value.status,
-            unk_x4: value.unk_x4,
-            cur_node_id: value
-                .cur_NetworkNodeID
-                .try_into()
-                .expect("UDS service should always provide a valid NetworkNodeID"),
-            unk_xa: value.unk_xa,
-            unk_xc: value.unk_xc,
-            total_nodes: value.total_nodes,
-            max_nodes: value.max_nodes,
-            node_bitmask: value.node_bitmask,
-        }
+        Self(value)
+    }
+}
+
+impl ConnectionStatus {
+    /// Raw status information.
+    pub fn status(&self) -> Option<ConnectionStatusInfo> {
+        self.0.status.try_into().ok()
+    }
+
+    /// Network node ID for the current device.
+    pub fn cur_node_id(&self) -> NodeID {
+        self.0
+            .cur_NetworkNodeID
+            .try_into()
+            .expect("UDS service should always provide a valid NetworkNodeID")
+    }
+
+    /// Number of nodes connected to the network.
+    pub fn total_nodes(&self) -> u8 {
+        self.0.total_nodes
+    }
+
+    /// Maximum nodes allowed on this network.
+    pub fn max_nodes(&self) -> u8 {
+        self.0.max_nodes
+    }
+
+    /// Bitmask for which of the 16 possible nodes are connected
+    /// to this network; bit 0 is the server, bit 1 is the first
+    /// original client, etc.
+    pub fn node_bitmask(&self) -> u16 {
+        self.0.node_bitmask
     }
 }
 
@@ -307,7 +422,11 @@ impl Uds {
 
     /// The maximum amount of app data any server can provide.
     /// Limited by the size of a struct in libctru.
-    const MAX_APPDATA_SIZE: usize = 200;
+    const MAX_APPDATA_SIZE: usize = Self::size_of_call(|s: ctru_sys::udsNetworkStruct| s.appdata);
+
+    const fn size_of_call<T, U>(_: fn(T) -> U) -> usize {
+        std::mem::size_of::<U>()
+    }
 
     /// Retrieve the current status of the service.
     pub fn service_status(&self) -> ServiceStatus {
@@ -352,15 +471,7 @@ impl Uds {
                 return Err(Error::UsernameTooLong);
             }
         }
-        let cstr = username.map(CString::new);
-        let cstr = if let Some(conv) = cstr {
-            match conv {
-                Ok(c) => Some(c),
-                Err(_) => return Err(Error::UsernameContainsNull),
-            }
-        } else {
-            None
-        };
+        let cstr = username.map(CString::new).transpose()?;
         let handler = ServiceReference::new(
             &UDS_ACTIVE,
             || {
@@ -480,7 +591,7 @@ impl Uds {
 
         ResultCode(unsafe {
             ctru_sys::udsGetNetworkStructApplicationData(
-                &network.network as *const _,
+                network.network_ref() as *const _,
                 appdata_buffer.as_mut_ptr().cast(),
                 appdata_buffer.len(),
                 actual_size.as_mut_ptr(),
@@ -580,7 +691,7 @@ impl Uds {
 
         ResultCode(unsafe {
             ctru_sys::udsConnectNetwork(
-                &network.network as *const _,
+                network.network_ref() as *const _,
                 passphrase.as_ptr().cast(),
                 passphrase.len(),
                 context.as_mut_ptr(),

@@ -9,8 +9,8 @@ fn handle_status_event(uds: &Uds, prev_node_mask: u16) -> ctru::Result<u16> {
     println!("Connection status event signalled");
     let status = uds.get_connection_status()?;
     println!("Status: {status:#02X?}");
-    let left = prev_node_mask & (status.node_bitmask ^ prev_node_mask);
-    let joined = status.node_bitmask & (status.node_bitmask ^ prev_node_mask);
+    let left = prev_node_mask & (status.node_bitmask() ^ prev_node_mask);
+    let joined = status.node_bitmask() & (status.node_bitmask() ^ prev_node_mask);
     for i in 0..16 {
         if left & (1 << i) != 0 {
             println!("Node {} disconnected", i + 1);
@@ -25,7 +25,7 @@ fn handle_status_event(uds: &Uds, prev_node_mask: u16) -> ctru::Result<u16> {
             );
         }
     }
-    Ok(status.node_bitmask)
+    Ok(status.node_bitmask())
 }
 
 fn main() -> Result<(), Error> {
@@ -126,7 +126,7 @@ fn main() -> Result<(), Error> {
                     println!(
                         "{} Username: {}",
                         if index == selected_network { ">" } else { " " },
-                        n.nodes[0].as_ref().unwrap().username
+                        n.nodes()[0].unwrap().username()
                     );
                 }
 
