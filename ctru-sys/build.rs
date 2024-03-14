@@ -73,7 +73,7 @@ fn main() {
         .use_core()
         .trust_clang_mangling(false)
         .must_use_type("Result")
-        .layout_tests(false)
+        .layout_tests(true)
         .ctypes_prefix("::libc")
         .prepend_enum_name(false)
         .blocklist_type("u(8|16|32|64)")
