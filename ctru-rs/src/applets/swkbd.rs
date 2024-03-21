@@ -541,15 +541,18 @@ impl SoftwareKeyboard {
     /// # }
     #[doc(alias = "swkbdSetButton")]
     pub fn configure_button(&mut self, button: Button, text: &str, submit: bool) {
-        unsafe {
-            let nul_terminated: String = text.chars().chain(once('\0')).collect();
-            ctru_sys::swkbdSetButton(
-                self.state.as_mut(),
-                button.into(),
-                nul_terminated.as_ptr(),
-                submit,
-            );
+        let button_text = &mut self.state.button_text[button as usize];
+
+        for (idx, code_unit) in text
+            .encode_utf16()
+            .take(ctru_sys::SWKBD_MAX_BUTTON_TEXT_LEN as _)
+            .chain(once(0))
+            .enumerate()
+        {
+            button_text[idx] = code_unit;
         }
+
+        self.state.button_submits_text[button as usize] = submit;
     }
 
     /// Configure the maximum number of UTF-16 code units that can be entered into the software
