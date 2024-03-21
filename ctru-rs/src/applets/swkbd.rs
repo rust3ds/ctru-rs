@@ -437,13 +437,13 @@ impl SoftwareKeyboard {
     #[doc(alias = "swkbdSetHintText")]
     pub fn set_hint_text(&mut self, text: Option<&str>) {
         if let Some(text) = text {
-            for (idx, code_point) in text
+            for (idx, code_unit) in text
                 .encode_utf16()
                 .take(self.state.hint_text.len() - 1)
                 .chain(once(0))
                 .enumerate()
             {
-                self.state.hint_text[idx] = code_point;
+                self.state.hint_text[idx] = code_unit;
             }
         } else {
             self.state.hint_text[0] = 0;
@@ -732,7 +732,7 @@ impl SoftwareKeyboard {
             // We need to pass a thin pointer to the boxed closure over FFI. Since we know that the message callback will finish before
             // `self` is allowed to be moved again, we can safely use a pointer to the local value contained in `self.filter_callback`
             // The cast here is also sound since the pointer will only be read from if `self.filter_callback.is_some()` returns true.
-            let mut message_callback_data = MessageCallbackData {
+            let mut data = MessageCallbackData {
                 filter_callback: std::ptr::addr_of!(self.filter_callback).cast(),
                 swkbd_shared_mem_ptr,
             };
@@ -740,7 +740,7 @@ impl SoftwareKeyboard {
             if self.filter_callback.is_some() {
                 aptSetMessageCallback(
                     Some(Self::swkbd_message_callback),
-                    std::ptr::addr_of_mut!(message_callback_data).cast(),
+                    std::ptr::addr_of_mut!(data).cast(),
                 )
             }
 
