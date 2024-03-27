@@ -545,7 +545,7 @@ impl SoftwareKeyboard {
 
         for (idx, code_unit) in text
             .encode_utf16()
-            .take(ctru_sys::SWKBD_MAX_BUTTON_TEXT_LEN as _)
+            .take(button_text.len() - 1)
             .chain(once(0))
             .enumerate()
         {
