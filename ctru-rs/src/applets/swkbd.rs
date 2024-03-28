@@ -13,7 +13,6 @@ use ctru_sys::{
 use bitflags::bitflags;
 
 use std::borrow::Cow;
-use std::ffi::{CStr, CString};
 use std::fmt::Display;
 use std::iter::once;
 use std::str;
@@ -25,7 +24,7 @@ type CallbackFunction = dyn Fn(&str) -> (CallbackResult, Option<Cow<'static, str
 pub struct SoftwareKeyboard {
     state: Box<SwkbdState>,
     filter_callback: Option<Box<CallbackFunction>>,
-    initial_text: Option<CString>,
+    initial_text: Option<Cow<'static, str>>,
 }
 
 /// Configuration structure to setup the Parental Lock applet.
@@ -270,10 +269,10 @@ impl SoftwareKeyboard {
     /// # }
     /// ```
     #[doc(alias = "swkbdInputText")]
-    pub fn launch(&mut self, _apt: &Apt, _gfx: &Gfx) -> Result<(String, Button), Error> {
+    pub fn launch(&mut self, apt: &Apt, gfx: &Gfx) -> Result<(String, Button), Error> {
         let mut output = String::new();
 
-        match self.swkbd_input_text(&mut output) {
+        match self.swkbd_input_text(&mut output, apt, gfx) {
             ctru_sys::SWKBD_BUTTON_NONE => Err(self.state.result.into()),
             ctru_sys::SWKBD_BUTTON_LEFT => Ok((output, Button::Left)),
             ctru_sys::SWKBD_BUTTON_MIDDLE => Ok((output, Button::Middle)),
@@ -391,6 +390,10 @@ impl SoftwareKeyboard {
     ///
     /// The initial text is the text already written when you open the software keyboard.
     ///
+    /// # Notes
+    ///
+    /// Passing [`None`] will clear the initial text.
+    ///
     /// # Example
     ///
     /// ```
@@ -400,30 +403,25 @@ impl SoftwareKeyboard {
     /// use ctru::applets::swkbd::SoftwareKeyboard;
     /// let mut keyboard = SoftwareKeyboard::default();
     ///
-    /// keyboard.set_initial_text(Some("Write here what you like!"));
+    /// keyboard.set_initial_text(Some("Write here what you like!".into()));
     /// #
     /// # }
     #[doc(alias = "swkbdSetInitialText")]
-    pub fn set_initial_text(&mut self, text: Option<&str>) {
-        if let Some(text) = text {
-            let initial_text = CString::new(text).unwrap();
-
-            unsafe {
-                ctru_sys::swkbdSetInitialText(self.state.as_mut(), initial_text.as_ptr());
-            }
-
-            self.initial_text = Some(initial_text);
-        } else {
-            unsafe { ctru_sys::swkbdSetInitialText(self.state.as_mut(), std::ptr::null()) };
-
-            self.initial_text = None;
-        }
+    pub fn set_initial_text(&mut self, text: Option<Cow<'static, str>>) {
+        self.initial_text = text;
     }
 
     /// Set the hint text for this software keyboard.
     ///
     /// The hint text is the text shown in gray before any text gets written in the input box.
     ///
+    /// # Notes
+    ///
+    /// Passing [`None`] will clear the hint text.
+    ///
+    /// The hint text will be converted to UTF-16 when passed to the software keyboard, and the text will be truncated
+    /// if the length exceeds 64 code units after conversion.
+    ///
     /// # Example
     ///
     /// ```
@@ -433,14 +431,22 @@ impl SoftwareKeyboard {
     /// use ctru::applets::swkbd::SoftwareKeyboard;
     /// let mut keyboard = SoftwareKeyboard::default();
     ///
-    /// keyboard.set_hint_text("Write here what you like!");
+    /// keyboard.set_hint_text(Some("Write here what you like!"));
     /// #
     /// # }
     #[doc(alias = "swkbdSetHintText")]
-    pub fn set_hint_text(&mut self, text: &str) {
-        unsafe {
-            let nul_terminated: String = text.chars().chain(once('\0')).collect();
-            ctru_sys::swkbdSetHintText(self.state.as_mut(), nul_terminated.as_ptr());
+    pub fn set_hint_text(&mut self, text: Option<&str>) {
+        if let Some(text) = text {
+            for (idx, code_unit) in text
+                .encode_utf16()
+                .take(self.state.hint_text.len() - 1)
+                .chain(once(0))
+                .enumerate()
+            {
+                self.state.hint_text[idx] = code_unit;
+            }
+        } else {
+            self.state.hint_text[0] = 0;
         }
     }
 
@@ -535,15 +541,18 @@ impl SoftwareKeyboard {
     /// # }
     #[doc(alias = "swkbdSetButton")]
     pub fn configure_button(&mut self, button: Button, text: &str, submit: bool) {
-        unsafe {
-            let nul_terminated: String = text.chars().chain(once('\0')).collect();
-            ctru_sys::swkbdSetButton(
-                self.state.as_mut(),
-                button.into(),
-                nul_terminated.as_ptr(),
-                submit,
-            );
+        let button_text = &mut self.state.button_text[button as usize];
+
+        for (idx, code_unit) in text
+            .encode_utf16()
+            .take(button_text.len() - 1)
+            .chain(once(0))
+            .enumerate()
+        {
+            button_text[idx] = code_unit;
         }
+
+        self.state.button_submits_text[button as usize] = submit;
     }
 
     /// Configure the maximum number of UTF-16 code units that can be entered into the software
@@ -577,10 +586,9 @@ impl SoftwareKeyboard {
         self.state.valid_input = ValidInput::FixedLen.into();
     }
 
-    // A reimplementation of `swkbdInputText` from `libctru/source/applets/swkbd.c`. Allows us to
-    // get text from the software keyboard and put it directly into a `String` without requiring
-    // an intermediate fixed-size buffer
-    fn swkbd_input_text(&mut self, output: &mut String) -> SwkbdButton {
+    // A reimplementation of `swkbdInputText` from `libctru/source/applets/swkbd.c`. Allows us to fix various
+    // API nits and get rid of awkward type conversions when interacting with the Software Keyboard.
+    fn swkbd_input_text(&mut self, output: &mut String, _apt: &Apt, _gfx: &Gfx) -> SwkbdButton {
         use ctru_sys::{
             MEMPERM_READ, MEMPERM_WRITE, R_FAILED, SWKBD_BUTTON_LEFT, SWKBD_BUTTON_MIDDLE,
             SWKBD_BUTTON_NONE, SWKBD_BUTTON_RIGHT, SWKBD_D0_CLICK, SWKBD_D1_CLICK0,
@@ -661,19 +669,17 @@ impl SoftwareKeyboard {
         }
 
         // Copy stuff to shared mem
-        if !extra.initial_text.is_null() {
+        if let Some(initial_text) = self.initial_text.as_deref() {
             swkbd.initial_text_offset = 0;
 
-            unsafe {
-                let utf16_iter =
-                    str::from_utf8_unchecked(CStr::from_ptr(extra.initial_text).to_bytes())
-                        .encode_utf16()
-                        .take(swkbd.max_text_len as _)
-                        .chain(once(0));
+            let mut initial_text_cursor = swkbd_shared_mem_ptr.cast();
 
-                let mut initial_text_cursor = swkbd_shared_mem_ptr.cast();
-
-                for code_unit in utf16_iter {
+            for code_unit in initial_text
+                .encode_utf16()
+                .take(swkbd.max_text_len as _)
+                .chain(once(0))
+            {
+                unsafe {
                     *initial_text_cursor = code_unit;
                     initial_text_cursor = initial_text_cursor.add(1);
                 }
@@ -726,7 +732,7 @@ impl SoftwareKeyboard {
             // We need to pass a thin pointer to the boxed closure over FFI. Since we know that the message callback will finish before
             // `self` is allowed to be moved again, we can safely use a pointer to the local value contained in `self.filter_callback`
             // The cast here is also sound since the pointer will only be read from if `self.filter_callback.is_some()` returns true.
-            let mut message_callback_data = MessageCallbackData {
+            let mut data = MessageCallbackData {
                 filter_callback: std::ptr::addr_of!(self.filter_callback).cast(),
                 swkbd_shared_mem_ptr,
             };
@@ -734,7 +740,7 @@ impl SoftwareKeyboard {
             if self.filter_callback.is_some() {
                 aptSetMessageCallback(
                     Some(Self::swkbd_message_callback),
-                    std::ptr::addr_of_mut!(message_callback_data).cast(),
+                    std::ptr::addr_of_mut!(data).cast(),
                 )
             }
 
