@@ -74,32 +74,30 @@ impl Ac {
     ///
     /// let ac = Ac::new()?;
     ///
-    /// println!("Wi-Fi status: {:?}", ac.get_wifi_status()?);
+    /// println!("Wi-Fi status: {:?}", ac.wifi_status()?);
     /// #
     /// # Ok(())
     /// # }
     /// ```
     #[doc(alias = "ACU_GetWifiStatus")]
-    pub fn get_wifi_status(&self) -> crate::Result<NetworkStatus> {
+    pub fn wifi_status(&self) -> crate::Result<NetworkStatus> {
         unsafe {
             let mut ret = 0u32;
             ResultCode(ctru_sys::ACU_GetStatus(&mut ret))?;
 
-            Ok(
-                match ret {
-                    0 => NetworkStatus::None,
-                    1 => NetworkStatus::Idle,
-                    2 => NetworkStatus::LANConnected,
-                    3 => NetworkStatus::WANConnected,
-                    _ => Err(crate::Error::Other(format!("Unknown value {}", ret)))
-                }
-            )
+            Ok(match ret {
+                0 => NetworkStatus::None,
+                1 => NetworkStatus::Idle,
+                2 => NetworkStatus::LANConnected,
+                3 => NetworkStatus::WANConnected,
+                _ => return Err(crate::Error::Other(format!("Unknown value {}", ret))),
+            })
         }
     }
 
     /// Returns the [`SecurityMode`] of the currently connected network, or error if the console isn't connected to any network.
     ///
-    /// You can check if the console is connected to a network using [`Ac::get_wifi_status()`].
+    /// You can check if the console is connected to a network using [`Ac::wifi_status()`].
     /// # Example
     ///
     /// ```
@@ -111,8 +109,8 @@ impl Ac {
     ///
     /// let ac = Ac::new()?;
     ///
-    /// if ac.get_wifi_status()? == NetworkStatus::WANConnected {
-    ///     println!("Network security: {:?}", ac.get_wifi_security()?);
+    /// if ac.wifi_status()? == NetworkStatus::WANConnected {
+    ///     println!("Network security: {:?}", ac.wifi_security()?);
     /// }
     ///
     /// #
@@ -120,7 +118,7 @@ impl Ac {
     /// # }
     /// ```
     #[doc(alias = "ACU_GetWifiSecurityMode")]
-    pub fn get_wifi_security(&self) -> crate::Result<SecurityMode> {
+    pub fn wifi_security(&self) -> crate::Result<SecurityMode> {
         unsafe {
             let mut ret = 0u32;
             ResultCode(ctru_sys::ACU_GetSecurityMode(&mut ret))?;
@@ -139,14 +137,14 @@ impl Ac {
                 6 => SecurityMode::WPA_AES,
                 7 => SecurityMode::WPA2_AES,
 
-                _ => Err(crate::Error::Other(format!("Unknown value {}", ret)))
+                _ => return Err(crate::Error::Other(format!("Unknown value {}", ret))),
             })
         }
     }
 
     /// Returns the SSID of the Wi-Fi network the console is connected to, or error if the console isn't connected to any network.
     ///
-    /// You can check if the console is connected to a network using [`Ac::get_wifi_status()`].
+    /// You can check if the console is connected to a network using [`Ac::wifi_status()`].
     ///
     /// # Example
     ///
@@ -159,13 +157,13 @@ impl Ac {
     ///
     /// let ac = Ac::new()?;
     ///
-    /// println!("The console is connected to the network \"{}\"", ac.get_wifi_ssid().unwrap());
+    /// println!("The console is connected to the network \"{}\"", ac.wifi_ssid().unwrap());
     /// #
     /// # Ok(())
     /// # }
     /// ```
     #[doc(alias = "ACU_GetSSID")]
-    pub fn get_wifi_ssid(&self) -> crate::Result<String> {
+    pub fn wifi_ssid(&self) -> crate::Result<String> {
         unsafe {
             let mut len = 0u32;
             ResultCode(ctru_sys::ACU_GetSSIDLength(&mut len))?;
@@ -189,14 +187,14 @@ impl Ac {
     ///
     /// let ac = Ac::new()?;
     ///
-    /// println!("Proxy enabled: {}", ac.get_proxy_enabled()?);
+    /// println!("Proxy enabled: {}", ac.proxy_enabled()?);
     ///
     /// #
     /// # Ok(())
     /// # }
     /// ```
     #[doc(alias = "ACU_GetProxyEnable")]
-    pub fn get_proxy_enabled(&self) -> crate::Result<bool> {
+    pub fn proxy_enabled(&self) -> crate::Result<bool> {
         unsafe {
             let mut ret = false;
             ResultCode(ctru_sys::ACU_GetProxyEnable(&mut ret))?;
@@ -207,7 +205,7 @@ impl Ac {
 
     /// Returns the connected network's proxy port, if present.
     ///
-    /// You can check if the console is using a proxy with [`Ac::get_proxy_enabled()`]
+    /// You can check if the console is using a proxy with [`Ac::proxy_enabled()`]
     ///
     /// # Example
     ///
@@ -220,13 +218,13 @@ impl Ac {
     ///
     /// let ac = Ac::new()?;
     ///
-    /// println!("Proxy port: {}", ac.get_proxy_port()?);
+    /// println!("Proxy port: {}", ac.proxy_port()?);
     /// #
     /// # Ok(())
     /// # }
     /// ```
     #[doc(alias = "ACU_GetProxyPort")]
-    pub fn get_proxy_port(&self) -> crate::Result<u32> {
+    pub fn proxy_port(&self) -> crate::Result<u32> {
         unsafe {
             let mut ret = 0u32;
             ResultCode(ctru_sys::ACU_GetProxyPort(&mut ret))?;
@@ -237,7 +235,7 @@ impl Ac {
 
     /// Returns the connected network's proxy username, if present.
     ///
-    /// You can check if the console is using a proxy with [`Ac::get_proxy_enabled()`]
+    /// You can check if the console is using a proxy with [`Ac::proxy_enabled()`]
     ///
     /// # Example
     ///
@@ -250,14 +248,14 @@ impl Ac {
     ///
     /// let ac = Ac::new()?;
     ///
-    /// println!("Proxy username: {}", ac.get_proxy_username()?);
+    /// println!("Proxy username: {}", ac.proxy_username()?);
     ///
     /// #
     /// # Ok(())
     /// # }
     /// ```
     #[doc(alias = "ACU_GetProxyUserName")]
-    pub fn get_proxy_username(&self) -> crate::Result<String> {
+    pub fn proxy_username(&self) -> crate::Result<String> {
         unsafe {
             let mut vec = vec![0u8; 0x20];
             ResultCode(ctru_sys::ACU_GetProxyUserName(vec.as_mut_ptr()))?;
@@ -268,7 +266,7 @@ impl Ac {
 
     /// Returns the connected network's proxy password, if present.
     ///
-    /// You can check if the console is using a proxy with [`Ac::get_proxy_enabled()`]
+    /// You can check if the console is using a proxy with [`Ac::proxy_enabled()`]
     ///
     /// # Example
     ///
@@ -281,18 +279,18 @@ impl Ac {
     ///
     /// let ac = Ac::new()?;
     ///
-    /// println!("Proxy password: {}", ac.get_proxy_password()?);
+    /// println!("Proxy password: {}", ac.proxy_password()?);
     /// #
     /// # Ok(())
     /// # }
     /// ```
     #[doc(alias = "ACU_GetProxyPassword")]
-    pub fn get_proxy_password(&self) -> crate::Result<String> {
+    pub fn proxy_password(&self) -> crate::Result<String> {
         unsafe {
             let mut vec = vec![0u8; 0x20];
             ResultCode(ctru_sys::ACU_GetProxyPassword(vec.as_mut_ptr()))?;
 
-            Ok(String::from_utf8(vec)?)
+            Ok(String::from_utf8(vec))
         }
     }
 
@@ -316,7 +314,7 @@ impl Ac {
     /// # }
     /// ```
     #[doc(alias = "ACI_LoadNetworkSetting")]
-    pub fn load_network_slot(&self, slot: NetworkSlot) -> crate::Result<()> {
+    pub fn load_network_slot(&mut self, slot: NetworkSlot) -> crate::Result<()> {
         unsafe {
             ResultCode(ctru_sys::ACI_LoadNetworkSetting(slot as u32))?;
             Ok(())
@@ -380,7 +378,7 @@ pub enum NetworkStatus {
     /// Connected, only LAN.
     LANConnected = 2,
     /// Connected to the Internet.
-    WANConnected = 3
+    WANConnected = 3,
 }
 
 from_impl!(SecurityMode, ctru_sys::acSecurityMode);
