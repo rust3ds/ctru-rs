@@ -11,6 +11,7 @@
 //!
 //! In [`ctru-rs`](crate) some services only allow a single handle to be created at a time, to ensure a safe and controlled environment.
 
+pub mod ac;
 pub mod am;
 pub mod apt;
 pub mod cam;
