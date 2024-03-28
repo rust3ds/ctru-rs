@@ -32,15 +32,17 @@ impl Ac {
     #[doc(alias = "acInit")]
     pub fn new() -> crate::Result<Ac> {
         Ok(Ac {
-            _service_handler: ServiceReference::new(&AC_ACTIVE, 
+            _service_handler: ServiceReference::new(
+                &AC_ACTIVE,
                 || {
                     ResultCode(unsafe { ctru_sys::acInit() })?;
-    
+
                     Ok(())
                 },
                 || unsafe {
                     ctru_sys::acExit();
-                },)?
+                },
+            )?,
         })
     }
 
