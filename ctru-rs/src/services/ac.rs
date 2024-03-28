@@ -336,13 +336,6 @@ impl Ac {
     }
 }
 
-impl Drop for Ac {
-    #[doc(alias = "acExit")]
-    fn drop(&mut self) {
-        unsafe { ctru_sys::acExit() };
-    }
-}
-
 #[doc(alias = "acSecurityMode")]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u32)]
