@@ -15,7 +15,7 @@ jobs:
       matrix:
         toolchain:
           # Run against a "known good" nightly. Rustc version is 1 day behind the toolchain date
-          - nightly-2023-06-01
+          - nightly-2024-02-18
           # Check for breakage on latest nightly
           - nightly
 
@@ -43,17 +43,22 @@ jobs:
       - name: Check formatting
         run: cargo fmt --all --verbose -- --check
 
+      # We always run the next two steps, so that even if formatting fails we
+      # still get compilation errors for the same run (mainly for matchers).
+
       - name: Cargo check ctru-sys (without tests)
         run: cargo 3ds clippy --package ctru-sys --color=always --verbose
+        if: success() || failure()
 
       - name: Cargo check ctru-rs (including tests)
         run: cargo 3ds clippy --package ctru-rs --color=always --verbose --all-targets
+        if: success() || failure()
 
   test:
     strategy:
       matrix:
         toolchain:
-          - nightly-2023-06-01
+          - nightly-2024-02-18
           - nightly
     continue-on-error: ${{ matrix.toolchain == 'nightly' }}
     runs-on: ubuntu-latest

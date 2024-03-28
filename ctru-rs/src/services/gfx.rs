@@ -239,7 +239,7 @@ pub struct Gfx {
     _service_handler: ServiceReference,
 }
 
-static GFX_ACTIVE: Mutex<()> = Mutex::new(());
+pub(crate) static GFX_ACTIVE: Mutex<()> = Mutex::new(());
 
 impl Gfx {
     /// Initialize a new default service handle.

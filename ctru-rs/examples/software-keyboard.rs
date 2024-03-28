@@ -5,8 +5,6 @@
 use ctru::applets::swkbd::{Button, CallbackResult, SoftwareKeyboard};
 use ctru::prelude::*;
 
-use std::ffi::CString;
-
 fn main() {
     let apt = Apt::new().unwrap();
     let mut hid = Hid::new().unwrap();
@@ -21,13 +19,9 @@ fn main() {
     // Custom filter callback to handle the given input.
     // Using this callback it's possible to integrate the applet
     // with custom error messages when the input is incorrect.
-    keyboard.set_filter_callback(Some(Box::new(|str| {
-        // The string is guaranteed to contain valid Unicode text, so we can safely unwrap and use it as a normal `&str`.
-        if str.to_str().unwrap().contains("boo") {
-            return (
-                CallbackResult::Retry,
-                Some(CString::new("Ah, you scared me!").unwrap()),
-            );
+    keyboard.set_filter_callback(Some(Box::new(move |str| {
+        if str.contains("boo") {
+            return (CallbackResult::Retry, Some("Ah, you scared me!".into()));
         }
 
         (CallbackResult::Ok, None)
@@ -44,9 +38,9 @@ fn main() {
 
         // Check if the user request to write some input.
         if hid.keys_down().contains(KeyPad::A) {
-            // Raise the software keyboard. You can perform different actions depending on which
+            // Launch the software keyboard. You can perform different actions depending on which
             // software button the user pressed.
-            match keyboard.get_string(2048, &apt, &gfx) {
+            match keyboard.launch(&apt, &gfx) {
                 Ok((text, Button::Right)) => println!("You entered: {text}"),
                 Ok((_, Button::Left)) => println!("Cancelled"),
                 Ok((_, Button::Middle)) => println!("How did you even press this?"),

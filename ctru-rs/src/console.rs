@@ -5,8 +5,7 @@
 //!
 //! Have a look at [`Soc::redirect_to_3dslink()`](crate::services::soc::Soc::redirect_to_3dslink) for a better alternative when debugging applications.
 
-use std::cell::RefMut;
-use std::default::Default;
+use std::cell::{RefMut, UnsafeCell};
 
 use ctru_sys::{consoleClear, consoleInit, consoleSelect, consoleSetWindow, PrintConsole};
 
@@ -63,7 +62,7 @@ impl<S: Screen + Swap + Flush> ConsoleScreen for S {}
 /// More info in the [`cargo-3ds` docs](https://github.com/rust3ds/cargo-3ds#running-executables).
 #[doc(alias = "PrintConsole")]
 pub struct Console<'screen> {
-    context: Box<PrintConsole>,
+    context: Box<UnsafeCell<PrintConsole>>,
     screen: RefMut<'screen, dyn ConsoleScreen>,
 }
 
@@ -107,9 +106,9 @@ impl<'screen> Console<'screen> {
     /// ```
     #[doc(alias = "consoleInit")]
     pub fn new<S: ConsoleScreen>(screen: RefMut<'screen, S>) -> Self {
-        let mut context = Box::<PrintConsole>::default();
+        let context = Box::<UnsafeCell<PrintConsole>>::default();
 
-        unsafe { consoleInit(screen.as_raw(), context.as_mut()) };
+        unsafe { consoleInit(screen.as_raw(), context.get()) };
 
         Console { context, screen }
     }
@@ -143,7 +142,7 @@ impl<'screen> Console<'screen> {
     /// ```
     pub fn exists() -> bool {
         unsafe {
-            let current_console = ctru_sys::consoleSelect(&mut EMPTY_CONSOLE);
+            let current_console = ctru_sys::consoleSelect(std::ptr::addr_of_mut!(EMPTY_CONSOLE));
 
             let res = (*current_console).consoleInitialised;
 
@@ -190,7 +189,7 @@ impl<'screen> Console<'screen> {
     #[doc(alias = "consoleSelect")]
     pub fn select(&self) {
         unsafe {
-            consoleSelect(self.context.as_ref() as *const _ as *mut _);
+            consoleSelect(self.context.get());
         }
     }
 
@@ -248,7 +247,7 @@ impl<'screen> Console<'screen> {
 
         unsafe {
             consoleSetWindow(
-                self.context.as_mut(),
+                self.context.get(),
                 x.into(),
                 y.into(),
                 width.into(),
@@ -338,7 +337,10 @@ impl Swap for Console<'_> {
     /// This should be called once per frame at most.
     fn swap_buffers(&mut self) {
         self.screen.swap_buffers();
-        self.context.frameBuffer = self.screen.raw_framebuffer().ptr as *mut u16;
+
+        unsafe {
+            (*self.context.get()).frameBuffer = self.screen.raw_framebuffer().ptr as *mut u16
+        };
     }
 
     fn set_double_buffering(&mut self, enabled: bool) {
@@ -364,9 +366,9 @@ impl Drop for Console<'_> {
             // the screen, but it won't crash either.
 
             // Get the current console by replacing it with an empty one.
-            let current_console = ctru_sys::consoleSelect(&mut EMPTY_CONSOLE);
+            let current_console = ctru_sys::consoleSelect(std::ptr::addr_of_mut!(EMPTY_CONSOLE));
 
-            if std::ptr::eq(current_console, &*self.context) {
+            if std::ptr::eq(current_console, self.context.get()) {
                 // Console dropped while selected. We just replaced it with the
                 // empty console so nothing more to do.
             } else {

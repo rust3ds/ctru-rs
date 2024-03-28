@@ -82,11 +82,98 @@ impl Apt {
             Ok(())
         }
     }
+
+    /// Set if the console is allowed to enter sleep mode.
+    ///
+    /// You can check whether the console is allowed to sleep with [Apt::is_sleep_allowed].
+    #[doc(alias = "aptSetSleepAllowed")]
+    pub fn set_sleep_allowed(&mut self, allowed: bool) {
+        unsafe {
+            ctru_sys::aptSetSleepAllowed(allowed);
+        }
+    }
+
+    /// Check if the console is allowed to enter sleep mode.
+    ///
+    /// You can set whether the console is allowed to sleep with [Apt::set_sleep_allowed].
+    #[doc(alias = "aptIsSleepAllowed")]
+    pub fn is_sleep_allowed(&self) -> bool {
+        unsafe { ctru_sys::aptIsSleepAllowed() }
+    }
+
+    /// Set if the console is allowed to enter the home menu.
+    ///
+    /// You can check whether the console is allowed to enter the home menu with [Apt::is_home_allowed].
+    #[doc(alias = "aptSetHomeAllowed")]
+    pub fn set_home_allowed(&mut self, allowed: bool) {
+        unsafe {
+            ctru_sys::aptSetHomeAllowed(allowed);
+        }
+    }
+
+    /// Check if the console is allowed to enter the home menu.
+    ///
+    /// You can set whether the console is allowed to enter the home menu with [Apt::set_home_allowed].
+    #[doc(alias = "aptIsHomeAllowed")]
+    pub fn is_home_allowed(&self) -> bool {
+        unsafe { ctru_sys::aptIsHomeAllowed() }
+    }
+
+    /// Immediately jumps to the home menu.
+    #[doc(alias = "aptJumpToHomeMenu")]
+    pub fn jump_to_home_menu(&mut self) {
+        unsafe { ctru_sys::aptJumpToHomeMenu() }
+    }
 }
 
 impl Drop for Apt {
     #[doc(alias = "aptExit")]
     fn drop(&mut self) {
         unsafe { ctru_sys::aptExit() };
+    }
+}
+
+/// Can launch other applications when the current one exits.
+pub struct Chainloader<'a> {
+    _apt: &'a Apt,
+}
+
+impl<'a> Chainloader<'a> {
+    /// Gets a handle to the chainloader
+    pub fn new(apt: &'a Apt) -> Self {
+        Self { _apt: apt }
+    }
+
+    /// Checks if the chainloader is set
+    #[doc(alias = "aptIsChainload")]
+    pub fn is_set(&self) -> bool {
+        // static funtion not exported
+        unsafe { (ctru_sys::envGetSystemRunFlags() & ctru_sys::RUNFLAG_APTCHAINLOAD) != 0 }
+    }
+
+    /// Clears the chainloader state.
+    #[doc(alias = "aptClearChainloader")]
+    pub fn clear(&mut self) {
+        unsafe { ctru_sys::aptClearChainloader() }
+    }
+
+    /// Configures the chainloader to launch a specific application.
+    ///
+    /// See also [`Title`](crate::services::am::Title]
+    #[doc(alias = "aptSetChainloader")]
+    pub fn set(&mut self, title: &super::am::Title<'_>) {
+        unsafe { ctru_sys::aptSetChainloader(title.id(), title.media_type() as u8) }
+    }
+
+    /// Configures the chainloader to launch the previous application.
+    #[doc(alias = "aptSetChainloaderToCaller")]
+    pub fn set_to_caller(&mut self) {
+        unsafe { ctru_sys::aptSetChainloaderToCaller() }
+    }
+
+    /// Configures the chainloader to relaunch the current application (i.e. soft-reset)
+    #[doc(alias = "aptSetChainloaderToSelf")]
+    pub fn set_to_self(&mut self) {
+        unsafe { ctru_sys::aptSetChainloaderToSelf() }
     }
 }

@@ -21,7 +21,6 @@ use crate::error::ResultCode;
 use crate::services::ServiceReference;
 
 use std::cell::{RefCell, RefMut};
-use std::default::Default;
 use std::error;
 use std::fmt;
 use std::sync::Mutex;
