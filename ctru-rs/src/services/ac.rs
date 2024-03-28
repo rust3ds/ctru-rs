@@ -3,9 +3,14 @@
 //! - Connect to a network or slot
 //! - Get information about a network, such as its SSID or security settings
 use crate::error::ResultCode;
-
+use crate::services::ServiceReference;
+use std::sync::Mutex;
 /// Handle to the Automatic Connection (AC) service, that handles Wi-Fi and network settings.
-pub struct Ac(());
+pub struct Ac {
+    _service_handler: ServiceReference,
+}
+
+static AC_ACTIVE: Mutex<()> = Mutex::new(());
 
 impl Ac {
     /// Initialize a new service handle.
@@ -26,10 +31,17 @@ impl Ac {
     /// ```
     #[doc(alias = "acInit")]
     pub fn new() -> crate::Result<Ac> {
-        unsafe {
-            ResultCode(ctru_sys::acInit())?;
-            Ok(Ac(()))
-        }
+        Ok(Ac {
+            _service_handler: ServiceReference::new(&AC_ACTIVE, 
+                || {
+                    ResultCode(unsafe { ctru_sys::acInit() })?;
+    
+                    Ok(())
+                },
+                || unsafe {
+                    ctru_sys::acExit();
+                },)?
+        })
     }
 
     /// Waits for an internet connection.
