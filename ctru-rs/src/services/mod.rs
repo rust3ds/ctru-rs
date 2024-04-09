@@ -26,6 +26,7 @@ mod reference;
 pub mod soc;
 pub mod sslc;
 pub mod svc;
+pub mod uds;
 
 cfg_if::cfg_if! {
     if #[cfg(all(feature = "romfs", romfs_exists))] {

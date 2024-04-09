@@ -24,6 +24,7 @@ shim-3ds = { git = "https://github.com/rust3ds/shim-3ds.git" }
 pthread-3ds = { git = "https://github.com/rust3ds/pthread-3ds.git" }
 libc = "0.2.121"
 bitflags = "2.3.3"
+macaddr = "1.0.1"
 widestring = "1.0.2"
 
 [build-dependencies]

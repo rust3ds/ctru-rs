@@ -150,7 +150,7 @@ impl IrUser {
                         shared_mem.shared_memory_layout,
                     );
 
-                    Ok(())
+                    Ok::<_, Error>(())
                 })()
                 .unwrap();
             },
