@@ -569,13 +569,13 @@ impl Uds {
     /// let mut uds = Uds::new(None)?;
     ///
     /// let networks = uds.scan(b"HBW\x10", None, None)?;
-    /// let appdata = uds.get_network_appdata(&networks[0], None)?;
+    /// let appdata = uds.network_appdata(&networks[0], None)?;
     /// #
     /// # Ok(())
     /// # }
     /// ```
     #[doc(alias = "udsGetNetworkStructApplicationData")]
-    pub fn get_network_appdata(
+    pub fn network_appdata(
         &self,
         network: &NetworkScanInfo,
         max_size: Option<usize>,
@@ -625,13 +625,13 @@ impl Uds {
     ///
     /// let networks = uds.scan(b"HBW\x10", None, None)?;
     /// uds.connect_network(&networks[0], b"udsdemo passphrase c186093cd2652741\0", ConnectionType::Client, 1)?;
-    /// let appdata = uds.get_appdata(None)?;
+    /// let appdata = uds.appdata(None)?;
     /// #
     /// # Ok(())
     /// # }
     /// ```
     #[doc(alias = "udsGetApplicationData")]
-    pub fn get_appdata(&self, max_size: Option<usize>) -> Result<Vec<u8>, Error> {
+    pub fn appdata(&self, max_size: Option<usize>) -> Result<Vec<u8>, Error> {
         if self.service_status() == ServiceStatus::Disconnected {
             return Err(Error::NotConnected);
         }
@@ -807,13 +807,13 @@ impl Uds {
     ///
     /// let networks = uds.scan(b"HBW\x10", None, None)?;
     /// uds.connect_network(&networks[0], b"udsdemo passphrase c186093cd2652741\0", ConnectionType::Client, 1)?;
-    /// let channel = uds.get_channel()?;
+    /// let channel = uds.channel()?;
     /// #
     /// # Ok(())
     /// # }
     /// ```
     #[doc(alias = "udsGetChannel")]
-    pub fn get_channel(&self) -> Result<u8, Error> {
+    pub fn channel(&self) -> Result<u8, Error> {
         if self.service_status() == ServiceStatus::Disconnected {
             return Err(Error::NotConnected);
         }
@@ -870,8 +870,6 @@ impl Uds {
 
     /// Returns the current [`ConnectionStatus`] struct.
     ///
-    /// TODO: should this return an error if not connected?
-    ///
     /// # Example
     ///
     /// ```
@@ -886,7 +884,7 @@ impl Uds {
     /// uds.connect_network(&networks[0], b"udsdemo passphrase c186093cd2652741\0", ConnectionType::Client, 1)?;
     /// if uds.wait_status_event(false, false)? {
     ///     println!("Connection status event signalled");
-    ///     let status = uds.get_connection_status()?;
+    ///     let status = uds.connection_status()?;
     ///     println!("Status: {status:#X?}");
     /// }
     /// #
@@ -894,7 +892,7 @@ impl Uds {
     /// # }
     /// ```
     #[doc(alias = "udsGetConnectionStatus")]
-    pub fn get_connection_status(&self) -> crate::Result<ConnectionStatus> {
+    pub fn connection_status(&self) -> crate::Result<ConnectionStatus> {
         let mut status = MaybeUninit::uninit();
 
         ResultCode(unsafe { ctru_sys::udsGetConnectionStatus(status.as_mut_ptr()) })?;
@@ -1350,13 +1348,13 @@ impl Uds {
     /// let mut uds = Uds::new(None)?;
     ///
     /// uds.create_network(b"HBW\x10", None, None, b"udsdemo passphrase c186093cd2652741\0", 1)?;
-    /// let node_info = uds.get_node_info(NodeID::Node(2))?;
+    /// let node_info = uds.node_info(NodeID::Node(2))?;
     /// #
     /// # Ok(())
     /// # }
     /// ```
     #[doc(alias = "udsGetNodeInformation")]
-    pub fn get_node_info(&self, address: NodeID) -> Result<NodeInfo, Error> {
+    pub fn node_info(&self, address: NodeID) -> Result<NodeInfo, Error> {
         let NodeID::Node(node) = address else {
             return Err(Error::NotANode);
         };

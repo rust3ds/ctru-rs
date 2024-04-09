@@ -7,7 +7,7 @@ use ctru::services::uds::*;
 
 fn handle_status_event(uds: &Uds, prev_node_mask: u16) -> ctru::Result<u16> {
     println!("Connection status event signalled");
-    let status = uds.get_connection_status()?;
+    let status = uds.connection_status()?;
     println!("Status: {status:#02X?}");
     let left = prev_node_mask & (status.node_bitmask() ^ prev_node_mask);
     let joined = status.node_bitmask() & (status.node_bitmask() ^ prev_node_mask);
@@ -21,7 +21,7 @@ fn handle_status_event(uds: &Uds, prev_node_mask: u16) -> ctru::Result<u16> {
             println!(
                 "Node {} connected: {:?}",
                 i + 1,
-                uds.get_node_info(NodeID::Node(i + 1))
+                uds.node_info(NodeID::Node(i + 1))
             );
         }
     }
@@ -153,7 +153,7 @@ fn main() -> Result<(), Error> {
                 }
             }
             State::Connect => {
-                let appdata = uds.get_network_appdata(&networks[selected_network], None)?;
+                let appdata = uds.network_appdata(&networks[selected_network], None)?;
                 println!("App data: {:02X?}", appdata);
 
                 if let Err(e) = uds.connect_network(
@@ -167,10 +167,10 @@ fn main() -> Result<(), Error> {
                     state = State::Initialised;
                     println!("Press A to start scanning or B to create a new network");
                 } else {
-                    channel = uds.get_channel()?;
+                    channel = uds.channel()?;
                     println!("Connected using channel {}", channel);
 
-                    let appdata = uds.get_appdata(None)?;
+                    let appdata = uds.appdata(None)?;
                     println!("App data: {:02X?}", appdata);
 
                     if uds.wait_status_event(false, false)? {
