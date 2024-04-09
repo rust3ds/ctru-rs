@@ -18,6 +18,7 @@
 #![crate_type = "rlib"]
 #![crate_name = "ctru"]
 #![warn(missing_docs)]
+#![deny(unsafe_op_in_unsafe_fn)]
 #![feature(custom_test_frameworks)]
 #![feature(try_trait_v2)]
 #![feature(allocator_api)]

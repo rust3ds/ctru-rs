@@ -42,6 +42,8 @@ unsafe impl Allocator for LinearAllocator {
 
     #[doc(alias = "linearFree")]
     unsafe fn deallocate(&self, ptr: NonNull<u8>, _layout: Layout) {
-        ctru_sys::linearFree(ptr.as_ptr().cast());
+        unsafe {
+            ctru_sys::linearFree(ptr.as_ptr().cast());
+        }
     }
 }

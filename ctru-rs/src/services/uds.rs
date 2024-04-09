@@ -128,7 +128,7 @@ impl TryFrom<u8> for ConnectionType {
 
 /// ID for a node on the network.
 #[doc(alias = "NetworkNodeID")]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum NodeID {
     /// No node ID set (not connected to a network).
     None,

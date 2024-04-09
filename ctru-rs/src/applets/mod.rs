@@ -8,5 +8,6 @@
 //!
 //! Applets block execution of the thread that launches them as long as the user doesn't close the applet.
 
+pub mod error;
 pub mod mii_selector;
 pub mod swkbd;

@@ -51,6 +51,11 @@ impl<'a> Title<'a> {
     pub fn version(&self) -> u16 {
         self.version
     }
+
+    /// Returns this title's media type
+    pub fn media_type(&self) -> MediaType {
+        self.mediatype
+    }
 }
 
 /// Handle to the Application Manager service.
