@@ -2,6 +2,8 @@
 //!
 //! This modules has all methods and structs required to work with audio waves meant to be played via the [`ndsp`](crate::services::ndsp) service.
 
+use static_assertions::assert_impl_all;
+
 use super::{AudioFormat, Error};
 use crate::linear::LinearAllocator;
 
@@ -222,3 +224,13 @@ impl Drop for Wave {
         }
     }
 }
+
+// Safety: The 2 members we have to watch for are `adpcm_data` and `next`
+// we access neither of them directly in the wave API (at least currently) but
+// `next` at least _is_ used by the ndsp service internally. Given we do not
+// touch `next` ourselves and never should this is not an issue, and as long as
+// `adpcm_data` is not touched it should also be fine
+unsafe impl Send for Wave {}
+unsafe impl Sync for Wave {}
+
+assert_impl_all!(Wave: Send, Sync);

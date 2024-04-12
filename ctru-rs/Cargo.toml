@@ -26,6 +26,7 @@ libc = "0.2.121"
 bitflags = "2.3.3"
 macaddr = "1.0.1"
 widestring = "1.0.2"
+static_assertions = "1.1.0"
 
 [build-dependencies]
 toml = "0.5"
