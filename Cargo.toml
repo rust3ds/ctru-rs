@@ -1,5 +1,5 @@
 [workspace]
-members = ["ctru-rs", "ctru-sys"]
+members = ["ctru-rs", "ctru-sys", "test-runner"]
 default-members = ["ctru-rs", "ctru-sys"]
 resolver = "2"
 
@@ -8,3 +8,8 @@ resolver = "2"
 # like pthread-3ds that rely on ctru-sys, and test-runner which relies on ctru-rs
 ctru-rs = { path = "ctru-rs" }
 ctru-sys = { path = "ctru-sys" }
+test-runner = { path = "test-runner" }
+
+# This was the previous git repo for test-runner
+[patch."https://github.com/rust3ds/test-runner"]
+test-runner = { path = "test-runner" }
