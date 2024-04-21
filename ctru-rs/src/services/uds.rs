@@ -24,9 +24,9 @@ bitflags! {
     #[derive(Debug, Clone, Copy, PartialEq, Eq)]
     pub struct SendFlags: u8 {
         /// Unknown function according to `libctru`.
-        const Default = ctru_sys::UDS_SENDFLAG_Default as u8;
+        const Default = ctru_sys::UDS_SENDFLAG_Default;
         /// Broadcast the data frame even when sending to a non-broadcast address.
-        const Broadcast = ctru_sys::UDS_SENDFLAG_Broadcast as u8;
+        const Broadcast = ctru_sys::UDS_SENDFLAG_Broadcast;
     }
 }
 
