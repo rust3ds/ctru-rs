@@ -219,7 +219,7 @@ pub struct RawFrameBuffer<'screen> {
 /// The top screen of the 3DS can have two separate sets of framebuffers to support its 3D functionality
 #[doc(alias = "gfx3dSide_t")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-#[repr(u32)]
+#[repr(u8)]
 pub enum Side {
     /// The left framebuffer. This framebuffer is also the one used when 3D is disabled
     Left = ctru_sys::GFX_LEFT,

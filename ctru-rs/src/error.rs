@@ -50,8 +50,7 @@ impl Try for ResultCode {
         // Wait timeouts aren't counted as "failures" in libctru, but an unfinished task means unsafety for us.
         // Luckily all summary cases are for system failures (except RS_SUCCESS).
         // I don't know if there are any cases in libctru where a Result holds a "failing" summary but a "success" code, so we'll just check for both.
-        if ctru_sys::R_FAILED(self.0) || ctru_sys::R_SUMMARY(self.0) != ctru_sys::RS_SUCCESS as i32
-        {
+        if ctru_sys::R_FAILED(self.0) || ctru_sys::R_SUMMARY(self.0) != ctru_sys::RS_SUCCESS {
             ControlFlow::Break(self.into())
         } else {
             ControlFlow::Continue(())
@@ -119,7 +118,7 @@ impl Error {
     /// Check if the error is a timeout.
     pub fn is_timeout(&self) -> bool {
         match *self {
-            Error::Os(code) => R_DESCRIPTION(code) == ctru_sys::RD_TIMEOUT as ctru_sys::Result,
+            Error::Os(code) => R_DESCRIPTION(code) == ctru_sys::RD_TIMEOUT,
             _ => false,
         }
     }
@@ -193,7 +192,7 @@ fn result_code_level_str(result: ctru_sys::Result) -> Cow<'static, str> {
         RL_TEMPORARY, RL_USAGE,
     };
 
-    Cow::Borrowed(match R_LEVEL(result) as u32 {
+    Cow::Borrowed(match R_LEVEL(result) {
         RL_SUCCESS => "success",
         RL_INFO => "info",
         RL_FATAL => "fatal",
@@ -214,7 +213,7 @@ fn result_code_summary_str(result: ctru_sys::Result) -> Cow<'static, str> {
         RS_WOULDBLOCK, RS_WRONGARG,
     };
 
-    Cow::Borrowed(match R_SUMMARY(result) as u32 {
+    Cow::Borrowed(match R_SUMMARY(result) {
         RS_SUCCESS => "success",
         RS_NOP => "nop",
         RS_WOULDBLOCK => "would_block",
@@ -242,7 +241,7 @@ fn result_code_description_str(result: ctru_sys::Result) -> Cow<'static, str> {
         RD_SUCCESS, RD_TIMEOUT, RD_TOO_LARGE,
     };
 
-    Cow::Borrowed(match R_DESCRIPTION(result) as u32 {
+    Cow::Borrowed(match R_DESCRIPTION(result) {
         RD_SUCCESS => "success",
         RD_INVALID_RESULT_VALUE => "invalid_result_value",
         RD_TIMEOUT => "timeout",
@@ -292,7 +291,7 @@ fn result_code_module_str(result: ctru_sys::Result) -> Cow<'static, str> {
         RM_TCB, RM_TEST, RM_UART, RM_UDS, RM_UPDATER, RM_UTIL, RM_VCTL, RM_WEB_BROWSER,
     };
 
-    Cow::Borrowed(match R_MODULE(result) as u32 {
+    Cow::Borrowed(match R_MODULE(result) {
         RM_COMMON => "common",
         RM_KERNEL => "kernel",
         RM_UTIL => "util",

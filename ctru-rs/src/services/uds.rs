@@ -99,7 +99,7 @@ impl StdError for Error {}
 /// Possible types of connection to a network.
 #[doc(alias = "udsConnectionType")]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[repr(u32)]
+#[repr(u8)]
 pub enum ConnectionType {
     /// A normal client. Can push packets to the network.
     Client = ctru_sys::UDSCONTYPE_Client,
@@ -118,7 +118,7 @@ impl TryFrom<u8> for ConnectionType {
     type Error = ();
 
     fn try_from(value: u8) -> std::result::Result<Self, Self::Error> {
-        match value as u32 {
+        match value {
             ctru_sys::UDSCONTYPE_Client => Ok(Self::Client),
             ctru_sys::UDSCONTYPE_Spectator => Ok(Self::Spectator),
             _ => Err(()),
@@ -696,7 +696,7 @@ impl Uds {
                 passphrase.len(),
                 context.as_mut_ptr(),
                 NodeID::Broadcast.into(),
-                connection_type as u32,
+                connection_type as u8,
                 channel,
                 Self::RECV_BUF_SIZE,
             )

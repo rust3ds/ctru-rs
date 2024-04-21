@@ -41,7 +41,7 @@ pub struct ParentalLock {
 /// Can be set with [`SoftwareKeyboard::new()`]
 #[doc(alias = "SwkbdType")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-#[repr(u32)]
+#[repr(u8)]
 pub enum Kind {
     /// Normal keyboard composed of several pages (QWERTY, accents, symbols, mobile).
     Normal = ctru_sys::SWKBD_TYPE_NORMAL,
@@ -60,7 +60,7 @@ pub enum Kind {
 /// The custom callback can be set using [`SoftwareKeyboard::set_filter_callback()`].
 #[doc(alias = "SwkbdCallbackResult")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-#[repr(u32)]
+#[repr(u8)]
 pub enum CallbackResult {
     /// The callback yields a positive result.
     Ok = ctru_sys::SWKBD_CALLBACK_OK,
@@ -75,7 +75,7 @@ pub enum CallbackResult {
 /// Button text and behaviour can be customized with [`SoftwareKeyboard::configure_button()`].
 #[doc(alias = "SwkbdButton")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-#[repr(u32)]
+#[repr(u8)]
 pub enum Button {
     /// Left button. Usually corresponds to "Cancel".
     Left = ctru_sys::SWKBD_BUTTON_LEFT,
@@ -90,7 +90,7 @@ pub enum Button {
 /// Can be set using [`SoftwareKeyboard::set_password_mode()`].
 #[doc(alias = "SwkbdPasswordMode")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-#[repr(u32)]
+#[repr(u8)]
 pub enum PasswordMode {
     /// The input text will not be concealed.
     None = ctru_sys::SWKBD_PASSWORD_NONE,
@@ -115,7 +115,7 @@ pub enum ButtonConfig {
 /// Error returned by an unsuccessful [`SoftwareKeyboard::launch()`].
 #[doc(alias = "SwkbdResult")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-#[repr(i32)]
+#[repr(i8)]
 pub enum Error {
     /// Invalid parameters given to the [`SoftwareKeyboard`] configuration.
     InvalidParameters = ctru_sys::SWKBD_INVALID_INPUT,
@@ -152,7 +152,7 @@ pub enum Error {
 /// See [`SoftwareKeyboard::set_validation()`]
 #[doc(alias = "SwkbdValidInput")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-#[repr(u32)]
+#[repr(u8)]
 pub enum ValidInput {
     /// All inputs are accepted.
     Anything = ctru_sys::SWKBD_ANYTHING,
@@ -169,7 +169,7 @@ pub enum ValidInput {
 bitflags! {
     /// Special features that can be activated via [`SoftwareKeyboard::set_features()`].
     #[derive(PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Clone, Copy)]
-    pub struct Features: u32 {
+    pub struct Features: u16 {
         /// Darken top screen while the [`SoftwareKeyboard`] is active.
         const DARKEN_TOP_SCREEN = ctru_sys::SWKBD_DARKEN_TOP_SCREEN;
         /// Enable predictive input (necessary for Kanji on JPN consoles).
@@ -192,7 +192,7 @@ bitflags! {
     ///
     /// See [`SoftwareKeyboard::set_validation()`]
     #[derive(PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Clone, Copy)]
-    pub struct Filters: u32 {
+    pub struct Filters: u8 {
         /// Disallow the usage of numerical digits.
         ///
         /// The maximum number of digits that are allowed to be used while this filter is active
@@ -299,7 +299,7 @@ impl SoftwareKeyboard {
     /// # }
     #[doc(alias = "swkbdSetFeatures")]
     pub fn set_features(&mut self, features: Features) {
-        unsafe { ctru_sys::swkbdSetFeatures(self.state.as_mut(), features.bits()) }
+        unsafe { ctru_sys::swkbdSetFeatures(self.state.as_mut(), features.bits().into()) }
     }
 
     /// Configure input validation for this keyboard.
@@ -323,7 +323,7 @@ impl SoftwareKeyboard {
     /// # }
     pub fn set_validation(&mut self, validation: ValidInput, filters: Filters) {
         self.state.valid_input = validation.into();
-        self.state.filter_flags = filters.bits();
+        self.state.filter_flags = filters.bits().into();
     }
 
     /// Configure a custom filtering function to validate the input.
@@ -469,7 +469,7 @@ impl SoftwareKeyboard {
     #[doc(alias = "swkbdSetPasswordMode")]
     pub fn set_password_mode(&mut self, mode: PasswordMode) {
         unsafe {
-            ctru_sys::swkbdSetPasswordMode(self.state.as_mut(), mode.into());
+            ctru_sys::swkbdSetPasswordMode(self.state.as_mut(), mode as _);
         }
     }
 
@@ -720,9 +720,9 @@ impl SoftwareKeyboard {
         }
 
         if self.filter_callback.is_some() {
-            swkbd.filter_flags |= SWKBD_FILTER_CALLBACK;
+            swkbd.filter_flags |= u32::from(SWKBD_FILTER_CALLBACK);
         } else {
-            swkbd.filter_flags &= !SWKBD_FILTER_CALLBACK;
+            swkbd.filter_flags &= !u32::from(SWKBD_FILTER_CALLBACK);
         }
 
         // Launch swkbd
@@ -846,7 +846,7 @@ impl SoftwareKeyboard {
 
         let _ = unsafe {
             APT_SendParameter(
-                envGetAptAppId(),
+                envGetAptAppId() as _,
                 sender,
                 APTCMD_MESSAGE,
                 (swkbd as *mut SwkbdState).cast(),
@@ -876,7 +876,7 @@ impl ParentalLock {
         unsafe {
             let mut state = Box::<SwkbdState>::default();
             ctru_sys::swkbdInit(state.as_mut(), Kind::Normal.into(), 1, -1);
-            ctru_sys::swkbdSetFeatures(state.as_mut(), ctru_sys::SWKBD_PARENTAL);
+            ctru_sys::swkbdSetFeatures(state.as_mut(), ctru_sys::SWKBD_PARENTAL.into());
             Self { state }
         }
     }
