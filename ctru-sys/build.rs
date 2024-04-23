@@ -79,8 +79,6 @@ fn main() {
         .blocklist_type("u(8|16|32|64)")
         .blocklist_type("__builtin_va_list")
         .blocklist_type("__va_list")
-        .blocklist_type("errorReturnCode")
-        .blocklist_type("errorScreenFlag")
         .opaque_type("MiiData")
         .derive_default(true)
         .wrap_static_fns(true)
@@ -101,6 +99,15 @@ fn main() {
             "-mfpu=vfp",
             "-DARM11",
             "-D__3DS__",
+            // Fun fact: C compilers are allowed to represent enums as the smallest
+            // integer type that can hold all of its variants, meaning that enums are
+            // allowed to be the size of a `c_short` or a `c_char` rather than the size
+            // of a `c_int`. Some of libctru's structs contain enums that depend on
+            // this narrowing property for size and alignment purposes.
+            //
+            // Passing this flag to clang gives approximately the same behavior as
+            // gcc, so bindgen will generate enums with the proper sizes.
+            "-fshort-enums",
         ])
         .parse_callbacks(Box::new(CustomCallbacks))
         .generate()

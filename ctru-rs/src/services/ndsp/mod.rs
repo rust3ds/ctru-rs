@@ -30,7 +30,7 @@ const NUMBER_OF_CHANNELS: u8 = 24;
 /// Audio output mode.
 #[doc(alias = "ndspOutputMode")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-#[repr(u32)]
+#[repr(u8)]
 pub enum OutputMode {
     /// Single-Channel.
     Mono = ctru_sys::NDSP_OUTPUT_MONO,
@@ -42,7 +42,7 @@ pub enum OutputMode {
 
 /// PCM formats supported by the audio engine.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-#[repr(u32)]
+#[repr(u8)]
 pub enum AudioFormat {
     /// PCM 8bit single-channel.
     PCM8Mono = ctru_sys::NDSP_FORMAT_MONO_PCM8,
@@ -73,7 +73,7 @@ pub enum AuxDevice {
 /// Interpolation used between audio frames.
 #[doc(alias = "ndspInterpType")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-#[repr(u32)]
+#[repr(u8)]
 pub enum InterpolationType {
     /// Polyphase interpolation.
     Polyphase = ctru_sys::NDSP_INTERP_POLYPHASE,

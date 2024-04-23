@@ -22,13 +22,13 @@ pub struct Wave {
 /// Playback status of a [`Wave`].
 pub enum Status {
     /// Wave has never been used.
-    Free = ctru_sys::NDSP_WBUF_FREE as u8,
+    Free = ctru_sys::NDSP_WBUF_FREE,
     /// Wave is currently queued for usage.
-    Queued = ctru_sys::NDSP_WBUF_QUEUED as u8,
+    Queued = ctru_sys::NDSP_WBUF_QUEUED,
     /// Wave is currently playing.
-    Playing = ctru_sys::NDSP_WBUF_PLAYING as u8,
+    Playing = ctru_sys::NDSP_WBUF_PLAYING,
     /// Wave has finished playing.
-    Done = ctru_sys::NDSP_WBUF_DONE as u8,
+    Done = ctru_sys::NDSP_WBUF_DONE,
 }
 
 impl Wave {
