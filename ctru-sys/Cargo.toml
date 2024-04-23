@@ -16,13 +16,15 @@ edition = "2021"
 libc = { version = "0.2.121", default-features = false }
 
 [build-dependencies]
-bindgen = { version = "0.65.1", features = ["experimental"] }
+bindgen = { version = "0.66.1", features = ["experimental"] }
 cc = "1.0"
+cpp_build = "0.5.9"
 doxygen-rs = "0.4.2"
 itertools = "0.11.0"
 which = "4.4.0"
 
 [dev-dependencies]
+cpp = "0.5.9"
 shim-3ds = { git = "https://github.com/rust3ds/shim-3ds.git" }
 test-runner = { git = "https://github.com/rust3ds/ctru-rs.git" }
 
