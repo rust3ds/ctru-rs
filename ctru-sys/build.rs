@@ -337,11 +337,11 @@ cpp! {{{{
             }
 
             // TODO: May need to mangle rust names to match what bindgen spits out...
-            writeln!(
+            write!(
                 file,
                 r#"
 #[test]
-fn {strukt}_layout() {{
+fn layout_test_{strukt}() {{
     assert_eq!(
         std::mem::size_of::<{strukt}>(),
         cpp!(unsafe [] -> usize as "size_t" {{ return sizeof({strukt}); }}),
@@ -363,13 +363,33 @@ fn {strukt}_layout() {{
                 // HACK: This will break if some struct actually has a field called `type_`
                 let c_field = if field == "type_" { "type" } else { field };
 
-                // TODO: also check field size + align if reasonably feasible
-                writeln!(
+                write!(
                     file,
                     r#"
     assert_eq!(
         std::mem::offset_of!({strukt}, {field}),
         cpp!(unsafe [] -> usize as "size_t" {{ return offsetof({strukt}, {c_field}); }}),
+    );
+    assert_eq!(
+        align_of_field!({strukt}, {field}),
+        cpp!(unsafe [] -> usize as "size_t" {{ return alignof({strukt}::{c_field}); }}),
+    );
+"#,
+                )?;
+
+                if let ("romfs_dir", "name") | ("romfs_file", "name") | ("sockaddr", "sa_data") =
+                    (strukt.as_str(), field.as_str())
+                {
+                    // These are variable length arrays, so we can't use sizeof()
+                    continue;
+                }
+
+                write!(
+                    file,
+                    r#"
+    assert_eq!(
+        size_of_field!({strukt}, {field}),
+        cpp!(unsafe [] -> usize as "size_t" {{ return sizeof({strukt}::{c_field}); }}),
     );
 "#,
                 )?;
@@ -377,6 +397,8 @@ fn {strukt}_layout() {{
 
             writeln!(file, "}}")?;
         }
+
+        // TODO: we could probably rustfmt here
 
         Ok(output_file)
     }
