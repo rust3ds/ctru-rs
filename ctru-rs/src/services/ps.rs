@@ -12,7 +12,7 @@ use crate::Result;
 /// Type of AES algorithm to use.
 #[doc(alias = "PS_AESAlgorithm")]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[repr(u32)]
+#[repr(u8)]
 pub enum AESAlgorithm {
     /// CBC encryption.
     CbcEnc = ctru_sys::PS_ALGORITHM_CBC_ENC,
@@ -31,7 +31,7 @@ pub enum AESAlgorithm {
 /// PS Key slot to use.
 #[doc(alias = "PS_AESKeyType")]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[repr(u32)]
+#[repr(u8)]
 pub enum AESKeyType {
     /// Keyslot 0x0D.
     Keyslot0D = ctru_sys::PS_KEYSLOT_0D,

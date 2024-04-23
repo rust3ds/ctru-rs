@@ -15,7 +15,7 @@ pub struct PopUp {
 /// Determines whether the Error applet will use word wrapping when displaying a message.
 #[doc(alias = "errorType")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-#[repr(u32)]
+#[repr(u16)]
 pub enum WordWrap {
     /// Error text is centered in the error applet window and does not use word wrapping.
     Disabled = ctru_sys::ERROR_TEXT,

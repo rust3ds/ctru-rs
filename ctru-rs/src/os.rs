@@ -70,7 +70,7 @@ pub fn kernel_version() -> Version {
 /// ```
 #[derive(Clone, Copy, Debug)]
 #[non_exhaustive]
-#[repr(u32)]
+#[repr(u8)]
 pub enum MemRegion {
     /// All memory regions.
     All = ctru_sys::MEMREGION_ALL,
@@ -85,21 +85,21 @@ pub enum MemRegion {
 impl MemRegion {
     /// Get the total size of this memory region, in bytes.
     pub fn size(&self) -> usize {
-        unsafe { ctru_sys::osGetMemRegionSize(*self as u32) }
+        unsafe { ctru_sys::osGetMemRegionSize(*self as u8) }
             .try_into()
             .unwrap()
     }
 
     /// Get the number of bytes used within this memory region.
     pub fn used(&self) -> usize {
-        unsafe { ctru_sys::osGetMemRegionUsed(*self as u32) }
+        unsafe { ctru_sys::osGetMemRegionUsed(*self as u8) }
             .try_into()
             .unwrap()
     }
 
     /// Get the number of bytes free within this memory region.
     pub fn free(&self) -> usize {
-        unsafe { ctru_sys::osGetMemRegionFree(*self as u32) }
+        unsafe { ctru_sys::osGetMemRegionFree(*self as u8) }
             .try_into()
             .unwrap()
     }

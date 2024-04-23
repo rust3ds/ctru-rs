@@ -14,23 +14,23 @@ pub fn R_FAILED(res: Result) -> bool {
 }
 
 /// Returns the level of a result code.
-pub fn R_LEVEL(res: Result) -> Result {
-    (res >> 27) & 0x1F
+pub fn R_LEVEL(res: Result) -> libc::c_uchar {
+    ((res >> 27) & 0x1F) as _
 }
 
 /// Returns the summary of a result code.
-pub fn R_SUMMARY(res: Result) -> Result {
-    (res >> 21) & 0x3F
+pub fn R_SUMMARY(res: Result) -> libc::c_uchar {
+    ((res >> 21) & 0x3F) as _
 }
 
 /// Returns the module ID of a result code.
-pub fn R_MODULE(res: Result) -> Result {
-    (res >> 10) & 0xFF
+pub fn R_MODULE(res: Result) -> libc::c_uchar {
+    ((res >> 10) & 0xFF) as _
 }
 
 /// Returns the description of a result code.
-pub fn R_DESCRIPTION(res: Result) -> Result {
-    res & 0x3FF
+pub fn R_DESCRIPTION(res: Result) -> libc::c_ushort {
+    (res & 0x3FF) as _
 }
 
 /// Builds a result code from its constituent components.

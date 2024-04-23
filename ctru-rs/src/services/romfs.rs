@@ -90,7 +90,7 @@ mod tests {
     fn romfs_lock() {
         let romfs = RomFS::new().unwrap();
 
-        ROMFS_ACTIVE.try_lock().unwrap();
+        drop(ROMFS_ACTIVE.try_lock().unwrap());
 
         drop(romfs);
     }
