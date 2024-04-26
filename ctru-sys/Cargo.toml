@@ -12,6 +12,14 @@ license = "Zlib"
 links = "ctru"
 edition = "2021"
 
+[features]
+layout-tests = []
+
+[[test]]
+path = "tests/layout.rs"
+name = "layout"
+required-features = ["layout-tests"]
+
 [dependencies]
 libc = { version = "0.2.121", default-features = false }
 
@@ -22,9 +30,9 @@ cpp_build = "0.5.9"
 doxygen-rs = "0.4.2"
 itertools = "0.11.0"
 which = "4.4.0"
+binding-helpers = { git = "https://github.com/rust3ds/ctru-rs.git" }
 
 [dev-dependencies]
-cpp = "0.5.9"
 shim-3ds = { git = "https://github.com/rust3ds/shim-3ds.git" }
 test-runner = { git = "https://github.com/rust3ds/ctru-rs.git" }
 

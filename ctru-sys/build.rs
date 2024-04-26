@@ -1,46 +1,21 @@
-use bindgen::callbacks::{DeriveInfo, FieldInfo, ParseCallbacks};
-use bindgen::{Builder, FieldVisibilityKind, RustTarget};
+use bindgen::callbacks::ParseCallbacks;
+use bindgen::{Builder, RustTarget};
+use binding_helpers::gen::LayoutTests;
 use itertools::Itertools;
 use std::io::{self, Write};
 
-use std::cell::RefCell;
-use std::collections::{HashMap, HashSet};
 use std::env;
 use std::error::Error;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output, Stdio};
 use std::rc::Rc;
 
-#[derive(Debug, Default)]
-struct StructInfo {
-    fields: HashMap<String, HashSet<String>>,
-    names: HashSet<String>,
-}
-
 #[derive(Debug)]
-struct CustomCallbacks(Rc<RefCell<StructInfo>>);
+struct CustomCallbacks;
 
 impl ParseCallbacks for CustomCallbacks {
     fn process_comment(&self, comment: &str) -> Option<String> {
         Some(doxygen_rs::transform(comment))
-    }
-
-    fn add_derives(&self, info: &DeriveInfo<'_>) -> Vec<String> {
-        self.0.borrow_mut().names.insert(info.name.to_string());
-        Vec::new()
-    }
-
-    // We don't actually ever change visibility, but this allows us to keep track
-    // of all the fields in the structs bindgen processes.
-    fn field_visibility(&self, info: FieldInfo<'_>) -> Option<FieldVisibilityKind> {
-        self.0
-            .borrow_mut()
-            .fields
-            .entry(info.type_name.to_string())
-            .or_default()
-            .insert(info.field_name.to_string());
-
-        None
     }
 }
 
@@ -93,8 +68,47 @@ fn main() {
     ));
     let errno_header = system_include.join("errno.h");
 
-    let struct_info = Rc::default();
-    let callbacks = CustomCallbacks(Rc::clone(&struct_info));
+    // Compile static inline fns wrapper
+    let cc = Path::new(devkitarm.as_str()).join("bin/arm-none-eabi-gcc");
+    let cpp = Path::new(devkitarm.as_str()).join("bin/arm-none-eabi-g++");
+    let ar = Path::new(devkitarm.as_str()).join("bin/arm-none-eabi-ar");
+
+    let mut builder = cc::Build::new();
+    builder
+        .compiler(cc)
+        .archiver(ar)
+        .include(&include_path)
+        .define("ARM11", None)
+        .define("__3DS__", None)
+        .flag("-march=armv6k")
+        .flag("-mtune=mpcore")
+        .flag("-mfloat-abi=hard")
+        .flag("-mfpu=vfp")
+        .flag("-mtp=soft")
+        .flag("-Wno-deprecated-declarations");
+
+    let clang = builder
+        .clone()
+        .compiler("clang")
+        // bindgen uses clang, so we need to tell it where devkitARM sysroot / libs are:
+        .flag("--sysroot")
+        .flag(sysroot.to_str().unwrap())
+        .flag("-isystem")
+        .flag(system_include.to_str().unwrap())
+        .flag("-isystem")
+        .flag(gcc_include.to_str().unwrap())
+        // Fun fact: C compilers are allowed to represent enums as the smallest
+        // integer type that can hold all of its variants, meaning that enums are
+        // allowed to be the size of a `c_short` or a `c_char` rather than the size
+        // of a `c_int`. Some of libctru's structs contain enums that depend on
+        // this narrowing property for size and alignment purposes.
+        //
+        // Passing this flag to clang gives approximately the same behavior as
+        // gcc, so bindgen will generate enums with the proper sizes.
+        .flag("-fshort-enums")
+        .get_compiler();
+
+    let (test_gen_callbacks, test_generator) = LayoutTests::new();
 
     // Build libctru bindings
     let bindings = Builder::default()
@@ -123,33 +137,9 @@ fn main() {
         .derive_default(true)
         .wrap_static_fns(true)
         .wrap_static_fns_path(out_dir.join("libctru_statics_wrapper"))
-        .clang_args([
-            "--target=arm-none-eabi",
-            "--sysroot",
-            sysroot.to_str().unwrap(),
-            "-isystem",
-            system_include.to_str().unwrap(),
-            "-isystem",
-            gcc_include.to_str().unwrap(),
-            "-I",
-            include_path.to_str().unwrap(),
-            "-mfloat-abi=hard",
-            "-march=armv6k",
-            "-mtune=mpcore",
-            "-mfpu=vfp",
-            "-DARM11",
-            "-D__3DS__",
-            // Fun fact: C compilers are allowed to represent enums as the smallest
-            // integer type that can hold all of its variants, meaning that enums are
-            // allowed to be the size of a `c_short` or a `c_char` rather than the size
-            // of a `c_int`. Some of libctru's structs contain enums that depend on
-            // this narrowing property for size and alignment purposes.
-            //
-            // Passing this flag to clang gives approximately the same behavior as
-            // gcc, so bindgen will generate enums with the proper sizes.
-            "-fshort-enums",
-        ])
-        .parse_callbacks(Box::new(callbacks))
+        .clang_args(clang.args().iter().map(|s| s.to_str().unwrap()))
+        .parse_callbacks(Box::new(CustomCallbacks))
+        .parse_callbacks(Box::new(test_gen_callbacks))
         .generate()
         .expect("unable to generate bindings");
 
@@ -157,37 +147,27 @@ fn main() {
         .write_to_file(out_dir.join("bindings.rs"))
         .expect("Couldn't write bindings!");
 
-    // Compile static inline fns wrapper
-    let cc = Path::new(devkitarm.as_str()).join("bin/arm-none-eabi-gcc");
-    let ar = Path::new(devkitarm.as_str()).join("bin/arm-none-eabi-ar");
-
-    cc::Build::new()
-        .compiler(&cc)
-        .archiver(&ar)
-        .include(&include_path)
+    builder
         .file(out_dir.join("libctru_statics_wrapper.c"))
-        .flag("-march=armv6k")
-        .flag("-mtune=mpcore")
-        .flag("-mfloat-abi=hard")
-        .flag("-mfpu=vfp")
-        .flag("-mtp=soft")
-        .flag("-Wno-deprecated-declarations")
         .compile("ctru_statics_wrapper");
 
-    let struct_info = struct_info.borrow();
-    let generated_test_file = struct_info.build_layout_tests().unwrap();
+    if env::var("CARGO_FEATURE_LAYOUT_TESTS").is_ok() {
+        let test_file = out_dir.join("layout_tests.rs");
+        test_generator
+            .generate_layout_tests(&test_file)
+            .expect("Couldn't write layout tests!");
 
-    cpp_build::Config::default()
-        .compiler(cc)
-        .archiver(ar)
-        .include(include_path)
-        .flag("-march=armv6k")
-        .flag("-mtune=mpcore")
-        .flag("-mfloat-abi=hard")
-        .flag("-mfpu=vfp")
-        .flag("-mtp=soft")
-        .flag("-Wno-deprecated-declarations")
-        .build(generated_test_file);
+        cpp_build::Config::default()
+            .compiler(cpp)
+            .include(include_path)
+            .flag("-march=armv6k")
+            .flag("-mtune=mpcore")
+            .flag("-mfloat-abi=hard")
+            .flag("-mfpu=vfp")
+            .flag("-mtp=soft")
+            .flag("-Wno-deprecated-declarations")
+            .build(test_file);
+    }
 }
 
 fn get_gcc_version(path_to_gcc: PathBuf) -> String {
@@ -288,118 +268,4 @@ fn track_libctru_files(pacman: &Path) -> Result<(), String> {
     }
 
     Ok(())
-}
-
-impl StructInfo {
-    fn build_layout_tests(&self) -> io::Result<PathBuf> {
-        let output_file = PathBuf::from(env::var("OUT_DIR").unwrap()).join("layout_test.rs");
-        let mut file = std::fs::File::create(&output_file)?;
-
-        writeln!(
-            file,
-            r#"
-use cpp::cpp;
-use ctru_sys::*;
-
-cpp! {{{{
-    #include <3ds.h>
-}}}}
-"#,
-        )?;
-
-        for (strukt, fields) in &self.fields {
-            if strukt.contains("bindgen") || !self.names.contains(strukt) {
-                // We don't have an easy way to map the mangled name back to the original name,
-                // so we will just skip testing any structs with names generated by bindgen.
-                //
-                // If we needed to we could maybe hardcode a map for the ones we care about.
-                continue;
-            }
-
-            if let "sigevent"
-            | "siginfo_t"
-            | "sigval"
-            | "bintime"
-            | "fd_set"
-            | "pthread_rwlock_t"
-            | "ExHeader_Arm11CoreInfo"
-            | "ExHeader_Arm11StorageInfo"
-            | "ExHeader_SystemInfoFlags"
-            | "FS_ExtSaveDataInfo"
-            | "FS_SystemSaveDataInfo"
-            | "FS_ProgramInfo"
-            | "Y2RU_ConversionParams" = strukt.as_str()
-            {
-                // Some of these are only forward declared (in stdlibs), or have bitfields, etc.
-                // If we wanted to be more precise we could check specific fields in
-                // these instead of just skipping the whole struct.
-                continue;
-            }
-
-            // TODO: May need to mangle rust names to match what bindgen spits out...
-            write!(
-                file,
-                r#"
-#[test]
-fn layout_test_{strukt}() {{
-    assert_eq!(
-        std::mem::size_of::<{strukt}>(),
-        cpp!(unsafe [] -> usize as "size_t" {{ return sizeof({strukt}); }}),
-    );
-
-    assert_eq!(
-        std::mem::align_of::<{strukt}>(),
-        cpp!(unsafe [] -> usize as "size_t" {{ return alignof({strukt}); }}),
-    );
-"#,
-            )?;
-
-            for field in fields {
-                if field.contains("bindgen") {
-                    // Similar to struct names, just skip these ones
-                    continue;
-                }
-
-                // HACK: This will break if some struct actually has a field called `type_`
-                let c_field = if field == "type_" { "type" } else { field };
-
-                write!(
-                    file,
-                    r#"
-    assert_eq!(
-        std::mem::offset_of!({strukt}, {field}),
-        cpp!(unsafe [] -> usize as "size_t" {{ return offsetof({strukt}, {c_field}); }}),
-    );
-    assert_eq!(
-        align_of_field!({strukt}, {field}),
-        cpp!(unsafe [] -> usize as "size_t" {{ return alignof({strukt}::{c_field}); }}),
-    );
-"#,
-                )?;
-
-                if let ("romfs_dir", "name") | ("romfs_file", "name") | ("sockaddr", "sa_data") =
-                    (strukt.as_str(), field.as_str())
-                {
-                    // These are variable length arrays, so we can't use sizeof()
-                    continue;
-                }
-
-                write!(
-                    file,
-                    r#"
-    assert_eq!(
-        size_of_field!({strukt}, {field}),
-        cpp!(unsafe [] -> usize as "size_t" {{ return sizeof({strukt}::{c_field}); }}),
-    );
-"#,
-                )?;
-            }
-
-            writeln!(file, "}}")?;
-        }
-
-        // TODO: we could probably rustfmt here
-
-        Ok(output_file)
-    }
 }

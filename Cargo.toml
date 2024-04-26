@@ -1,15 +1,23 @@
 [workspace]
+<<<<<<< HEAD
 members = ["ctru-rs", "ctru-sys", "test-runner"]
+=======
+members = ["binding-helpers", "ctru-rs", "ctru-sys"]
+>>>>>>> 2c06946 (Big refactor to use quote and separate crate)
 default-members = ["ctru-rs", "ctru-sys"]
 resolver = "2"
 
-[patch.'https://github.com/rust3ds/ctru-rs']
+[patch.'https://github.com/rust3ds/ctru-rs.git']
 # Make sure all dependencies use the local packages. This is needed for things
 # like pthread-3ds that rely on ctru-sys, and test-runner which relies on ctru-rs
 ctru-rs = { path = "ctru-rs" }
 ctru-sys = { path = "ctru-sys" }
+<<<<<<< HEAD
 test-runner = { path = "test-runner" }
 
 # This was the previous git repo for test-runner
 [patch."https://github.com/rust3ds/test-runner"]
 test-runner = { path = "test-runner" }
+=======
+binding-helpers = { path = "binding-helpers" }
+>>>>>>> 2c06946 (Big refactor to use quote and separate crate)

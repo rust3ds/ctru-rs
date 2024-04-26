@@ -1,0 +1,14 @@
+[package]
+name = "binding-helpers"
+description = "A helper crate for testing Rust bindings' definitions against their C/C++ counterparts."
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bindgen = "*"
+proc-macro2 = "1.0.81"
+quote = "1.0.36"
+rust-format = { version = "0.3.4", features = ["token_stream"] }
+
+# [build-dependencies]cpp = "0.5.9"
+# cpp_build = "0.5.9"

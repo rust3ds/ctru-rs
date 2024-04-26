@@ -12,35 +12,12 @@
 
 extern crate shim_3ds;
 
+use binding_helpers::{align_of, size_of};
+
 // TODO: might want to move this into a test crate so we can avoid compiling it
 // for non-test builds? Idk if there's a reasonable way to do it though.
 
-fn size_of_ret<F, T, U>(_f: F) -> usize
-where
-    F: FnOnce(T) -> U,
-{
-    std::mem::size_of::<U>()
-}
-
-macro_rules! size_of_field {
-    ($ty:ty, $field:ident) => {{
-        #[allow(unused_unsafe)]
-        size_of_ret(|t: $ty| unsafe { t.$field })
-    }};
-}
-
-fn align_of_ret<F, T, U>(_f: F) -> usize
-where
-    F: FnOnce(T) -> U,
-{
-    std::mem::align_of::<U>()
-}
-
-macro_rules! align_of_field {
-    ($ty:ty, $field:ident) => {{
-        #[allow(unused_unsafe)]
-        align_of_ret(|t: $ty| unsafe { t.$field })
-    }};
-}
+use cpp::cpp;
+use std::mem;
 
 include!(concat!(env!("OUT_DIR"), "/layout_test.rs"));
