@@ -1,37 +1,34 @@
 pub mod gen;
 
-#[macro_export]
-macro_rules! size_of {
-    ($ty:ident::$field:ident) => {{
-        $crate::size_of_ret(|x: $ty| x.$field)
-    }};
-    ($ty:ty) => {
-        ::std::mem::size_of::<$ty>()
-    };
-    ($expr:expr) => {
-        ::std::mem::size_of_val(&$expr)
-    };
+use std::{fmt, io};
+
+#[derive(Debug)]
+#[non_exhaustive]
+pub enum Error {
+    Io(io::Error),
+    #[cfg(feature = "rustfmt")]
+    Format(rust_format::Error),
 }
 
-#[macro_export]
-macro_rules! align_of {
-    ($ty:ident::$field:ident) => {{
-        $create::align_of_ret(|x: $ty| x.$field)
-    }};
-    ($ty:ty) => {
-        ::std::mem::align_of::<$ty>()
-    };
-    ($expr:expr) => {
-        ::std::mem::align_of_val(&$expr)
-    };
+impl fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Error::Io(io) => write!(f, "I/O error: {io}"),
+            #[cfg(feature = "rustfmt")]
+            Error::Format(fmt) => write!(f, "Format error: {fmt}"),
+        }
+    }
 }
 
-#[doc(hidden)]
-pub fn size_of_ret<T, U>(_f: impl Fn(U) -> T) -> usize {
-    ::std::mem::size_of::<T>()
+impl From<io::Error> for Error {
+    fn from(e: io::Error) -> Self {
+        Self::Io(e)
+    }
 }
 
-#[doc(hidden)]
-pub fn align_of_ret<T, U>(_f: impl Fn(U) -> T) -> usize {
-    ::std::mem::align_of::<T>()
+#[cfg(feature = "rustfmt")]
+impl From<rust_format::Error> for Error {
+    fn from(e: rust_format::Error) -> Self {
+        Self::Format(e)
+    }
 }

@@ -12,12 +12,6 @@
 
 extern crate shim_3ds;
 
-use binding_helpers::{align_of, size_of};
+use ctru_sys::*;
 
-// TODO: might want to move this into a test crate so we can avoid compiling it
-// for non-test builds? Idk if there's a reasonable way to do it though.
-
-use cpp::cpp;
-use std::mem;
-
-include!(concat!(env!("OUT_DIR"), "/layout_test.rs"));
+include!(concat!(env!("OUT_DIR"), "/generated_layout_test.rs"));

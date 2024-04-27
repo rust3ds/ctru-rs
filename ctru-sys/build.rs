@@ -1,14 +1,12 @@
 use bindgen::callbacks::ParseCallbacks;
 use bindgen::{Builder, RustTarget};
-use binding_helpers::gen::LayoutTests;
+use binding_helpers::gen::LayoutTestCallbacks;
 use itertools::Itertools;
-use std::io::{self, Write};
 
 use std::env;
 use std::error::Error;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output, Stdio};
-use std::rc::Rc;
 
 #[derive(Debug)]
 struct CustomCallbacks;
@@ -108,7 +106,7 @@ fn main() {
         .flag("-fshort-enums")
         .get_compiler();
 
-    let (test_gen_callbacks, test_generator) = LayoutTests::new();
+    let (test_callbacks, test_generator) = LayoutTestCallbacks::new();
 
     // Build libctru bindings
     let bindings = Builder::default()
@@ -139,7 +137,7 @@ fn main() {
         .wrap_static_fns_path(out_dir.join("libctru_statics_wrapper"))
         .clang_args(clang.args().iter().map(|s| s.to_str().unwrap()))
         .parse_callbacks(Box::new(CustomCallbacks))
-        .parse_callbacks(Box::new(test_gen_callbacks))
+        .parse_callbacks(Box::new(test_callbacks))
         .generate()
         .expect("unable to generate bindings");
 
@@ -152,10 +150,23 @@ fn main() {
         .compile("ctru_statics_wrapper");
 
     if env::var("CARGO_FEATURE_LAYOUT_TESTS").is_ok() {
-        let test_file = out_dir.join("layout_tests.rs");
+        let test_file = out_dir.join("generated_layout_test.rs");
         test_generator
+            // We can't figure out it's an opaque type just from callbacks,
+            // so explicitly blocklist generated tests for MiiData:
+            .blocklist_type("MiiData.*")
+            // There are several other bindgen-generated types that we don't
+            // want/need to check as well:
+            .blocklist_type("tag_CMAP.*")
+            .blocklist_type("sig(event|info_t)")
+            .blocklist_type("bintime")
+            .blocklist_type("Thread_tag")
+            .blocklist_type("aptCaptureBufInfo.*")
+            .blocklist_type("fontGlyphPos_s.*")
+            .blocklist_type("__.*_t")
+            .blocklist_type("fd_set")
             .generate_layout_tests(&test_file)
-            .expect("Couldn't write layout tests!");
+            .unwrap_or_else(|err| panic!("Failed to generate layout tests: {err}"));
 
         cpp_build::Config::default()
             .compiler(cpp)

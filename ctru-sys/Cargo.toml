@@ -13,10 +13,14 @@ links = "ctru"
 edition = "2021"
 
 [features]
+default = []
+
+## Enables generating C++/Rust layout comparison tests.
+## Downstream users of `ctru-sys` shouldn't need to use this feature.
 layout-tests = []
 
 [[test]]
-path = "tests/layout.rs"
+path = "tests/layout_test.rs"
 name = "layout"
 required-features = ["layout-tests"]
 
@@ -24,17 +28,18 @@ required-features = ["layout-tests"]
 libc = { version = "0.2.121", default-features = false }
 
 [build-dependencies]
-bindgen = { version = "0.66.1", features = ["experimental"] }
+bindgen = { version = "0.69", features = ["experimental"] }
 cc = "1.0"
 cpp_build = "0.5.9"
 doxygen-rs = "0.4.2"
 itertools = "0.11.0"
 which = "4.4.0"
-binding-helpers = { git = "https://github.com/rust3ds/ctru-rs.git" }
+binding-helpers = { git = "https://github.com/rust3ds/ctru-rs.git", features = ["rustfmt"] }
 
 [dev-dependencies]
 shim-3ds = { git = "https://github.com/rust3ds/shim-3ds.git" }
 test-runner = { git = "https://github.com/rust3ds/ctru-rs.git" }
+cpp = "0.5.9"
 
 [package.metadata.docs.rs]
 default-target = "armv6k-nintendo-3ds"

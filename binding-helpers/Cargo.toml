@@ -8,7 +8,8 @@ edition = "2021"
 bindgen = "*"
 proc-macro2 = "1.0.81"
 quote = "1.0.36"
-rust-format = { version = "0.3.4", features = ["token_stream"] }
+regex = "1.10.4"
+rust-format = { optional = true, version = "0.3.4", features = ["token_stream"] }
 
-# [build-dependencies]cpp = "0.5.9"
-# cpp_build = "0.5.9"
+[features]
+rustfmt = ["dep:rust-format"]
