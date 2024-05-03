@@ -5,7 +5,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-bindgen = "*"
+bindgen = { workspace = true }
 proc-macro2 = "1.0.81"
 quote = "1.0.36"
 regex = "1.10.4"

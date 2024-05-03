@@ -1,7 +1,9 @@
 use bindgen::callbacks::ParseCallbacks;
 use bindgen::{Builder, RustTarget};
-use binding_helpers::gen::LayoutTestCallbacks;
 use itertools::Itertools;
+
+#[cfg(feature = "layout-tests")]
+use binding_helpers::gen::LayoutTestCallbacks;
 
 use std::env;
 use std::error::Error;
@@ -54,25 +56,28 @@ fn main() {
 
     detect_and_track_libctru();
 
-    let gcc_version = get_gcc_version(PathBuf::from(&devkitarm).join("bin/arm-none-eabi-gcc"));
+    let bin_dir = Path::new(devkitarm.as_str()).join("bin");
+    let cc = bin_dir.join("arm-none-eabi-gcc");
+    let ar = bin_dir.join("arm-none-eabi-ar");
 
-    let include_path = PathBuf::from_iter([devkitpro.as_str(), "libctru", "include"]);
+    #[cfg(feature = "layout-tests")]
+    let cpp = bin_dir.join("arm-none-eabi-g++");
+
+    let include_path = Path::new(devkitpro.as_str()).join("libctru/include");
     let ctru_header = include_path.join("3ds.h");
 
     let sysroot = Path::new(&devkitarm).join("arm-none-eabi");
     let system_include = sysroot.join("include");
-    let gcc_include = PathBuf::from(format!(
-        "{devkitarm}/lib/gcc/arm-none-eabi/{gcc_version}/include"
-    ));
     let errno_header = system_include.join("errno.h");
 
-    // Compile static inline fns wrapper
-    let cc = Path::new(devkitarm.as_str()).join("bin/arm-none-eabi-gcc");
-    let cpp = Path::new(devkitarm.as_str()).join("bin/arm-none-eabi-g++");
-    let ar = Path::new(devkitarm.as_str()).join("bin/arm-none-eabi-ar");
+    let gcc_version = get_gcc_version(&cc);
+    let gcc_include = Path::new(&devkitarm)
+        .join("lib/gcc/arm-none-eabi")
+        .join(gcc_version)
+        .join("include");
 
-    let mut builder = cc::Build::new();
-    builder
+    let mut cc_build = cc::Build::new();
+    cc_build
         .compiler(cc)
         .archiver(ar)
         .include(&include_path)
@@ -85,7 +90,7 @@ fn main() {
         .flag("-mtp=soft")
         .flag("-Wno-deprecated-declarations");
 
-    let clang = builder
+    let clang = cc_build
         .clone()
         .compiler("clang")
         // bindgen uses clang, so we need to tell it where devkitARM sysroot / libs are:
@@ -106,10 +111,11 @@ fn main() {
         .flag("-fshort-enums")
         .get_compiler();
 
+    #[cfg(feature = "layout-tests")]
     let (test_callbacks, test_generator) = LayoutTestCallbacks::new();
 
     // Build libctru bindings
-    let bindings = Builder::default()
+    let binding_builder = Builder::default()
         .header(ctru_header.to_str().unwrap())
         .header(errno_header.to_str().unwrap())
         .rust_target(RustTarget::Nightly)
@@ -136,20 +142,23 @@ fn main() {
         .wrap_static_fns(true)
         .wrap_static_fns_path(out_dir.join("libctru_statics_wrapper"))
         .clang_args(clang.args().iter().map(|s| s.to_str().unwrap()))
-        .parse_callbacks(Box::new(CustomCallbacks))
-        .parse_callbacks(Box::new(test_callbacks))
-        .generate()
-        .expect("unable to generate bindings");
+        .parse_callbacks(Box::new(CustomCallbacks));
 
-    bindings
+    #[cfg(feature = "layout-tests")]
+    let binding_builder = binding_builder.parse_callbacks(Box::new(test_callbacks));
+
+    binding_builder
+        .generate()
+        .expect("unable to generate bindings")
         .write_to_file(out_dir.join("bindings.rs"))
         .expect("Couldn't write bindings!");
 
-    builder
+    cc_build
         .file(out_dir.join("libctru_statics_wrapper.c"))
         .compile("ctru_statics_wrapper");
 
-    if env::var("CARGO_FEATURE_LAYOUT_TESTS").is_ok() {
+    #[cfg(feature = "layout-tests")]
+    {
         let test_file = out_dir.join("generated_layout_test.rs");
         test_generator
             // We can't figure out it's an opaque type just from callbacks,
@@ -168,20 +177,13 @@ fn main() {
             .generate_layout_tests(&test_file)
             .unwrap_or_else(|err| panic!("Failed to generate layout tests: {err}"));
 
-        cpp_build::Config::default()
+        cpp_build::Config::from(cc_build)
             .compiler(cpp)
-            .include(include_path)
-            .flag("-march=armv6k")
-            .flag("-mtune=mpcore")
-            .flag("-mfloat-abi=hard")
-            .flag("-mfpu=vfp")
-            .flag("-mtp=soft")
-            .flag("-Wno-deprecated-declarations")
             .build(test_file);
     }
 }
 
-fn get_gcc_version(path_to_gcc: PathBuf) -> String {
+fn get_gcc_version(path_to_gcc: &Path) -> String {
     let Output { stdout, .. } = Command::new(path_to_gcc)
         .arg("--version")
         .stderr(Stdio::inherit())
