@@ -3,6 +3,7 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 #![allow(clippy::all)]
+#![deny(ambiguous_glob_reexports)]
 #![cfg_attr(test, feature(custom_test_frameworks))]
 #![cfg_attr(test, test_runner(test_runner::run_gdb))]
 #![doc(
@@ -16,7 +17,19 @@
 pub mod result;
 pub use result::*;
 
-include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
+// By only exporting the `libc` module in tests, we can catch any potential conflicts between
+// generated bindings and existing `libc` types, since we use #[deny(ambiguous_glob_reexports)].
+#[cfg(test)]
+pub use libc::*;
+
+mod bindings {
+    // Meanwhile, make sure generated bindings can still refer to libc types if needed:
+    use libc::*;
+
+    include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
+}
+
+pub use bindings::*;
 
 /// In lieu of a proper errno function exposed by libc
 /// (<https://github.com/rust-lang/libc/issues/1995>).
