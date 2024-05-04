@@ -6,8 +6,9 @@ This repository is home of the `ctru-rs` project, which aims to bring full contr
 
 This repository is organized as follows:
 
-  * [`ctru-rs`](./ctru-rs) - Safe, idiomatic wrapper around [`ctru-sys`](./ctru-sys).
-  * [`ctru-sys`](./ctru-sys) - Low-level, unsafe bindings to [`libctru`](https://github.com/devkitPro/libctru).
+* [`ctru-rs`](./ctru-rs) - Safe, idiomatic wrapper around [`ctru-sys`](./ctru-sys).
+* [`ctru-sys`](./ctru-sys) - Low-level, unsafe bindings to [`libctru`](https://github.com/devkitPro/libctru).
+* [`test-runner`](./test-runner) - A helper crate for running Rust tests on 3DS (hardware or emulator).
 
 ## Getting Started
 
@@ -23,8 +24,9 @@ installed.
 ## Original version
 
 This project is based on the efforts of the original authors:
-  * [Eidolon](https://github.com/HybridEidolon)
-  * [FenrirWolf](https://github.com/FenrirWolf)
+
+* [Eidolon](https://github.com/HybridEidolon)
+* [FenrirWolf](https://github.com/FenrirWolf)
 
 The old version is archived [here](https://github.com/rust3ds/ctru-rs-old).
 

@@ -36,7 +36,7 @@ cfg-if = "1.0.0"
 ferris-says = "0.2.1"
 futures = "0.3"
 lewton = "0.10.2"
-test-runner = { git = "https://github.com/rust3ds/test-runner.git" }
+test-runner = { git = "https://github.com/rust3ds/ctru-rs.git" }
 time = "0.3.7"
 tokio = { version = "1.16", features = ["rt", "time", "sync", "macros"] }
 
