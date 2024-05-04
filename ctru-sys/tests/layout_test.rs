@@ -12,6 +12,39 @@
 
 extern crate shim_3ds;
 
+use cpp::cpp;
 use ctru_sys::*;
+
+fn size_of_ret<T, U>(_f: impl Fn(U) -> T) -> usize {
+    ::std::mem::size_of::<T>()
+}
+
+macro_rules! size_of {
+    ($ty:ident::$field:ident) => {{
+        size_of_ret(|x: $ty| x.$field)
+    }};
+    ($ty:ty) => {
+        ::std::mem::size_of::<$ty>()
+    };
+    ($expr:expr) => {
+        ::std::mem::size_of_val(&$expr)
+    };
+}
+
+fn align_of_ret<T, U>(_f: impl Fn(U) -> T) -> usize {
+    ::std::mem::align_of::<T>()
+}
+
+macro_rules! align_of {
+    ($ty:ident::$field:ident) => {{
+        align_of_ret(|x: $ty| x.$field)
+    }};
+    ($ty:ty) => {
+        ::std::mem::align_of::<$ty>()
+    };
+    ($expr:expr) => {
+        ::std::mem::align_of_val(&$expr)
+    };
+}
 
 include!(concat!(env!("OUT_DIR"), "/generated_layout_test.rs"));

@@ -127,8 +127,6 @@ impl LayoutTestGenerator {
     fn build_tests(&self) -> TokenStream {
         let mut output = TokenStream::new();
 
-        output.append_all(build_preamble());
-
         'structs: for struct_name in self.fields.borrow().keys() {
             for pattern in self.blocklist.borrow().iter() {
                 if pattern.is_match(struct_name) {
@@ -179,44 +177,6 @@ impl LayoutTestGenerator {
             fn #test_name() {
                 #(#field_tests);*
             }
-        }
-    }
-}
-
-fn build_preamble() -> TokenStream {
-    quote! {
-        use cpp::cpp;
-
-        macro_rules! size_of {
-            ($ty:ident::$field:ident) => {{
-                size_of_ret(|x: $ty| x.$field)
-            }};
-            ($ty:ty) => {
-                ::std::mem::size_of::<$ty>()
-            };
-            ($expr:expr) => {
-                ::std::mem::size_of_val(&$expr)
-            };
-        }
-
-        macro_rules! align_of {
-            ($ty:ident::$field:ident) => {{
-                align_of_ret(|x: $ty| x.$field)
-            }};
-            ($ty:ty) => {
-                ::std::mem::align_of::<$ty>()
-            };
-            ($expr:expr) => {
-                ::std::mem::align_of_val(&$expr)
-            };
-        }
-
-        fn size_of_ret<T, U>(_f: impl Fn(U) -> T) -> usize {
-            ::std::mem::size_of::<T>()
-        }
-
-        fn align_of_ret<T, U>(_f: impl Fn(U) -> T) -> usize {
-            ::std::mem::align_of::<T>()
         }
     }
 }
