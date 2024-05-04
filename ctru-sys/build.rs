@@ -2,13 +2,19 @@ use bindgen::callbacks::ParseCallbacks;
 use bindgen::{Builder, RustTarget};
 use itertools::Itertools;
 
-#[cfg(feature = "layout-tests")]
-use binding_helpers::gen::LayoutTestCallbacks;
-
 use std::env;
 use std::error::Error;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output, Stdio};
+
+// This allows us to have a directory layout of build/*.rs which is a little
+// cleaner than having all the submodules as siblings to build.rs.
+mod build {
+    #[cfg(feature = "layout-tests")]
+    pub mod test_gen;
+}
+
+use build::*;
 
 #[derive(Debug)]
 struct CustomCallbacks;
@@ -111,9 +117,6 @@ fn main() {
         .flag("-fshort-enums")
         .get_compiler();
 
-    #[cfg(feature = "layout-tests")]
-    let (test_callbacks, test_generator) = LayoutTestCallbacks::new();
-
     // Build libctru bindings
     let binding_builder = Builder::default()
         .header(ctru_header.to_str().unwrap())
@@ -144,6 +147,8 @@ fn main() {
         .clang_args(clang.args().iter().map(|s| s.to_str().unwrap()))
         .parse_callbacks(Box::new(CustomCallbacks));
 
+    #[cfg(feature = "layout-tests")]
+    let (test_callbacks, test_generator) = test_gen::LayoutTestCallbacks::new();
     #[cfg(feature = "layout-tests")]
     let binding_builder = binding_builder.parse_callbacks(Box::new(test_callbacks));
 

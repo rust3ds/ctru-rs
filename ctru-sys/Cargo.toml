@@ -17,24 +17,33 @@ default = []
 
 ## Enables generating C++/Rust layout comparison tests.
 ## Downstream users of `ctru-sys` shouldn't need to use this feature.
-layout-tests = ["dep:cpp_build"]
+layout-tests = [
+    "dep:cpp_build",
+    "dep:proc-macro2",
+    "dep:quote",
+    "dep:regex",
+    "dep:rust-format",
+]
 
 [[test]]
 path = "tests/layout_test.rs"
-name = "layout"
+name = "layout_test"
 required-features = ["layout-tests"]
 
 [dependencies]
 libc = { workspace = true }
 
 [build-dependencies]
-bindgen = { workspace = true, features = ["experimental"] }
+bindgen = { version = "0.69", features = ["experimental"] }
 cc = "1.0"
 cpp_build = { optional = true, git = "https://github.com/mystor/rust-cpp.git" }
 doxygen-rs = "0.4.2"
 itertools = "0.11.0"
+proc-macro2 = { version = "1.0.81", optional = true }
+quote = { version = "1.0.36", optional = true }
+regex = { version = "1.10.4", optional = true }
+rust-format = { version = "0.3.4", optional = true, features = ["token_stream"] }
 which = "4.4.0"
-binding-helpers = { git = "https://github.com/rust3ds/ctru-rs.git", features = ["rustfmt"] }
 
 [dev-dependencies]
 shim-3ds = { workspace = true }

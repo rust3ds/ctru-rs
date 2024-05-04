@@ -1,10 +1,9 @@
 [workspace]
-members = ["binding-helpers", "ctru-rs", "ctru-sys", "test-runner"]
+members = ["ctru-rs", "ctru-sys", "test-runner"]
 default-members = ["ctru-rs", "ctru-sys"]
 resolver = "2"
 
 [workspace.dependencies]
-bindgen = "0.69"
 libc = { version = "0.2.121", default-features = false }
 shim-3ds = { git = "https://github.com/rust3ds/shim-3ds.git" }
 pthread-3ds = { git = "https://github.com/rust3ds/pthread-3ds.git" }
@@ -16,7 +15,6 @@ test-runner = { git = "https://github.com/rust3ds/ctru-rs.git" }
 test-runner = { path = "test-runner" }
 ctru-rs = { path = "ctru-rs" }
 ctru-sys = { path = "ctru-sys" }
-binding-helpers = { path = "binding-helpers" }
 
 # This was the previous git repo for test-runner
 [patch."https://github.com/rust3ds/test-runner.git"]
