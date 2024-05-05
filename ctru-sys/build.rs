@@ -14,8 +14,6 @@ mod build {
     pub mod test_gen;
 }
 
-use build::*;
-
 #[derive(Debug)]
 struct CustomCallbacks;
 
@@ -148,7 +146,7 @@ fn main() {
         .parse_callbacks(Box::new(CustomCallbacks));
 
     #[cfg(feature = "layout-tests")]
-    let (test_callbacks, test_generator) = test_gen::LayoutTestCallbacks::new();
+    let (test_callbacks, test_generator) = build::test_gen::LayoutTestCallbacks::new();
     #[cfg(feature = "layout-tests")]
     let binding_builder = binding_builder.parse_callbacks(Box::new(test_callbacks));
 
@@ -166,24 +164,25 @@ fn main() {
     {
         let test_file = out_dir.join("generated_layout_test.rs");
         test_generator
-            // We can't figure out it's an opaque type just from callbacks,
-            // so explicitly blocklist generated tests for MiiData:
-            .blocklist_type("MiiData.*")
-            // There are several other bindgen-generated types that we don't
-            // want/need to check as well:
-            .blocklist_type("tag_CMAP.*")
-            .blocklist_type("sig(event|info_t)")
-            .blocklist_type("bintime")
+            // There are several bindgen-generated types that we don't want/need to check
+            // (because they are opaque, use bitfields, anonymous structs etc.)
             .blocklist_type("Thread_tag")
-            .blocklist_type("aptCaptureBufInfo.*")
-            .blocklist_type("fontGlyphPos_s.*")
-            .blocklist_type("__.*_t")
-            .blocklist_type("fd_set")
+            .blocklist_type("MiiData.*")
+            .blocklist_type("ExHeader_(System|Arm11).*")
+            .blocklist_type("FS_((Ext|System)SaveData|Program)Info")
+            .blocklist_type("FS_ProgramInfo")
+            .blocklist_type("Y2RU_ConversionParams")
+            .blocklist_field("romfs_(dir|file)", "name")
+            // Bindgen generated types have no c++ equivalent:
+            .blocklist_type(".*__bindgen.*")
+            .blocklist_field(".*", "__bindgen.*")
+            // TODO: maybe we could translate type <-> `type_` or something...
+            .blocklist_field(".*", "type_")
             .generate_layout_tests(&test_file)
             .unwrap_or_else(|err| panic!("Failed to generate layout tests: {err}"));
 
         cpp_build::Config::from(cc_build)
-            .compiler(cpp)
+            .compiler(&cpp)
             .build(test_file);
     }
 }

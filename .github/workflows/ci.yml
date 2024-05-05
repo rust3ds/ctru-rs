@@ -80,12 +80,12 @@ jobs:
       # unless cargo-3ds actually runs them as separate commands. See
       # https://github.com/rust3ds/cargo-3ds/issues/44 for more details
       - name: Build lib and integration tests
-        run: cargo 3ds test --no-run --tests
+        run: cargo 3ds test --no-run --tests --all-features
 
       - name: Run lib and integration tests
         uses: rust3ds/test-runner/run-tests@v1
         with:
-          args: --tests
+          args: --tests --all-features
 
       - name: Build and run doc tests
         uses: rust3ds/test-runner/run-tests@v1
