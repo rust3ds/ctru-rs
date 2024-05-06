@@ -17,7 +17,6 @@ use bindgen::callbacks::{
 use bindgen::FieldVisibilityKind;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote, TokenStreamExt};
-
 use regex::Regex;
 use rust_format::{Formatter, RustFmt};
 

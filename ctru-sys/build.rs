@@ -170,7 +170,6 @@ fn main() {
             .blocklist_type("MiiData.*")
             .blocklist_type("ExHeader_(System|Arm11).*")
             .blocklist_type("FS_((Ext|System)SaveData|Program)Info")
-            .blocklist_type("FS_ProgramInfo")
             .blocklist_type("Y2RU_ConversionParams")
             .blocklist_field("romfs_(dir|file)", "name")
             // Bindgen generated types have no c++ equivalent:

@@ -26,7 +26,6 @@ layout-tests = [
 ]
 
 [[test]]
-path = "tests/layout_test.rs"
 name = "layout_test"
 required-features = ["layout-tests"]
 
