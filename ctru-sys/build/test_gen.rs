@@ -109,7 +109,7 @@ impl LayoutTestGenerator {
         // the `#include` directives (they would be missing whitespace/newlines),
         // so we basically need to drop in the include headers here "manually" by
         // writing them into the cpp! macro invocation.
-        file.write_all("cpp! {{".as_bytes())?;
+        file.write_all("cpp! {{\n".as_bytes())?;
         for included_file in self.headers.borrow().iter() {
             writeln!(file, "    #include \"{included_file}\"")?;
         }
@@ -147,12 +147,12 @@ impl LayoutTestGenerator {
 
         let mut field_tests = Vec::new();
         field_tests.push(build_assert_eq(
-            quote!(size_of!(#name)),
-            quote!(sizeof(#name)),
+            &quote!(size_of!(#name)),
+            &quote!(sizeof(#name)),
         ));
         field_tests.push(build_assert_eq(
-            quote!(align_of!(#name)),
-            quote!(alignof(#name)),
+            &quote!(align_of!(#name)),
+            &quote!(alignof(#name)),
         ));
 
         let struct_fields = self.struct_fields.borrow();
@@ -176,18 +176,18 @@ impl LayoutTestGenerator {
                 let field = format_ident!("{field}");
 
                 field_tests.push(build_assert_eq(
-                    quote!(size_of!(#name::#field)),
-                    quote!(sizeof(#name::#field)),
+                    &quote!(size_of!(#name::#field)),
+                    &quote!(sizeof(#name::#field)),
                 ));
 
                 field_tests.push(build_assert_eq(
-                    quote!(align_of!(#name::#field)),
-                    quote!(alignof(#name::#field)),
+                    &quote!(align_of!(#name::#field)),
+                    &quote!(alignof(#name::#field)),
                 ));
 
                 field_tests.push(build_assert_eq(
-                    quote!(offset_of!(#name, #field)),
-                    quote!(offsetof(#name, #field)),
+                    &quote!(offset_of!(#name, #field)),
+                    &quote!(offsetof(#name, #field)),
                 ));
             }
         }
@@ -201,7 +201,7 @@ impl LayoutTestGenerator {
     }
 }
 
-fn build_assert_eq(rust_lhs: TokenStream, cpp_rhs: TokenStream) -> TokenStream {
+fn build_assert_eq(rust_lhs: &TokenStream, cpp_rhs: &TokenStream) -> TokenStream {
     quote! {
         assert_eq!(
             #rust_lhs,
