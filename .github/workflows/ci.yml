@@ -100,3 +100,4 @@ jobs:
           path: |
             target/armv6k-nintendo-3ds/debug/deps/*.txt
             target/armv6k-nintendo-3ds/debug/deps/*.webm
+            target/armv6k-nintendo-3ds/debug/build/ctru-*/out/*
