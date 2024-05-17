@@ -10,6 +10,10 @@
 
 use std::alloc::{AllocError, Allocator, Layout};
 use std::ptr::NonNull;
+use std::rc::{self, Rc};
+use std::sync::{self, Arc};
+
+use crate::sealed::Sealed;
 
 // Implementing an `std::alloc::Allocator` type is the best way to handle this case, since it gives
 // us full control over the normal `std` implementations (like `Box`). The only issue is that this is another unstable feature to add.
@@ -47,3 +51,32 @@ unsafe impl Allocator for LinearAllocator {
         }
     }
 }
+
+/// Trait indicating a type has been allocated using [`LinearAllocator`].
+/// This can be used to enforce that a given slice was allocated in LINEAR memory.
+#[diagnostic::on_unimplemented(
+    message = "{Self} is not allocated with `ctru::linear::LinearAllocator`"
+)]
+pub trait LinearAllocation: Sealed {}
+
+impl<T> Sealed for Vec<T, LinearAllocator> {}
+impl<T> LinearAllocation for Vec<T, LinearAllocator> {}
+
+impl<T: ?Sized> Sealed for Rc<T, LinearAllocator> {}
+impl<T: ?Sized> LinearAllocation for Rc<T, LinearAllocator> {}
+
+impl<T: ?Sized> Sealed for rc::Weak<T, LinearAllocator> {}
+impl<T: ?Sized> LinearAllocation for rc::Weak<T, LinearAllocator> {}
+
+impl<T: ?Sized> Sealed for Arc<T, LinearAllocator> {}
+impl<T: ?Sized> LinearAllocation for Arc<T, LinearAllocator> {}
+
+impl<T: ?Sized> Sealed for sync::Weak<T, LinearAllocator> {}
+impl<T: ?Sized> LinearAllocation for sync::Weak<T, LinearAllocator> {}
+
+impl<T: ?Sized> Sealed for Box<T, LinearAllocator> {}
+impl<T: ?Sized> LinearAllocation for Box<T, LinearAllocator> {}
+
+// We could also impl for various std::collections types, but it seems unlikely
+// those would ever be used for this purpose in practice, since most of the type
+// we're dereferencing to a &[T]. The workaround would just be to convert to a Vec.

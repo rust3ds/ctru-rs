@@ -2,15 +2,17 @@
 //!
 //! This modules has all methods and structs required to work with audio waves meant to be played via the [`ndsp`](crate::services::ndsp) service.
 
+use std::ops::{Deref, DerefMut};
+
 use super::{AudioFormat, Error};
-use crate::linear::LinearAllocator;
+use crate::linear::LinearAllocation;
 
 /// Informational struct holding the raw audio data and playback info.
 ///
 /// You can play audio [`Wave`]s by using [`Channel::queue_wave()`](super::Channel::queue_wave).
-pub struct Wave {
+pub struct Wave<Buffer: LinearAllocation + Deref<Target = [u8]>> {
     /// Data block of the audio wave (and its format information).
-    buffer: Box<[u8], LinearAllocator>,
+    buffer: Buffer,
     audio_format: AudioFormat,
     // Holding the data with the raw format is necessary since `libctru` will access it.
     pub(crate) raw_data: ctru_sys::ndspWaveBuf,
@@ -31,7 +33,10 @@ pub enum Status {
     Done = ctru_sys::NDSP_WBUF_DONE,
 }
 
-impl Wave {
+impl<Buffer> Wave<Buffer>
+where
+    Buffer: LinearAllocation + Deref<Target = [u8]>,
+{
     /// Build a new playable wave object from a raw buffer on [LINEAR memory](`crate::linear`) and some info.
     ///
     /// # Example
@@ -45,16 +50,12 @@ impl Wave {
     /// use ctru::services::ndsp::{AudioFormat, wave::Wave};
     ///
     /// // Zeroed box allocated in the LINEAR memory.
-    /// let audio_data = Box::new_in([0u8; 96], LinearAllocator);
+    /// let audio_data: Box<[_], _> = Box::new_in([0u8; 96], LinearAllocator);
     ///
     /// let wave = Wave::new(audio_data, AudioFormat::PCM16Stereo, false);
     /// # }
     /// ```
-    pub fn new(
-        buffer: Box<[u8], LinearAllocator>,
-        audio_format: AudioFormat,
-        looping: bool,
-    ) -> Self {
+    pub fn new(buffer: Buffer, audio_format: AudioFormat, looping: bool) -> Self {
         let sample_count = buffer.len() / audio_format.size();
 
         // Signal to the DSP processor the buffer's RAM sector.
@@ -98,7 +99,10 @@ impl Wave {
     ///
     /// This function will return an error if the [`Wave`] is currently busy,
     /// with the id to the channel in which it's queued.
-    pub fn get_buffer_mut(&mut self) -> Result<&mut [u8], Error> {
+    pub fn get_buffer_mut(&mut self) -> Result<&mut [u8], Error>
+    where
+        Buffer: DerefMut<Target = [u8]>,
+    {
         match self.status() {
             Status::Playing | Status::Queued => {
                 Err(Error::WaveBusy(self.played_on_channel.unwrap()))
@@ -117,7 +121,7 @@ impl Wave {
     /// # let _runner = test_runner::GdbRunner::default();
     /// #
     /// # use ctru::linear::LinearAllocator;
-    /// # let _audio_data = Box::new_in([0u8; 96], LinearAllocator);
+    /// # let _audio_data: Box<[_], _> = Box::new_in([0u8; 96], LinearAllocator);
     /// #
     /// use ctru::services::ndsp::{AudioFormat, wave::{Wave, Status}};
     ///
@@ -199,7 +203,10 @@ impl TryFrom<u8> for Status {
     }
 }
 
-impl Drop for Wave {
+impl<Buffer> Drop for Wave<Buffer>
+where
+    Buffer: LinearAllocation + Deref<Target = [u8]>,
+{
     fn drop(&mut self) {
         // This was the only way I found I could check for improper drops of `Wave`.
         // A panic was considered, but it would cause issues with drop order against `Ndsp`.

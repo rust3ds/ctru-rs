@@ -5,6 +5,7 @@
 #![feature(allocator_api)]
 
 use std::f32::consts::PI;
+use std::ops::Deref;
 
 use ctru::linear::LinearAllocator;
 use ctru::prelude::*;
@@ -64,10 +65,10 @@ fn main() {
 
     // We create a buffer on the LINEAR memory that will hold our audio data.
     // It's necessary for the buffer to live on the LINEAR memory sector since it needs to be accessed by the DSP processor.
-    let mut audio_data1 = Box::new_in([0u8; AUDIO_WAVE_LENGTH], LinearAllocator);
+    let mut audio_data1: Box<[_], _> = Box::new_in([0u8; AUDIO_WAVE_LENGTH], LinearAllocator);
 
     // Fill the buffer with the first set of data. This simply writes a sine wave into the buffer.
-    fill_buffer(audio_data1.as_mut_slice(), NOTEFREQ[4]);
+    fill_buffer(&mut audio_data1, NOTEFREQ[4]);
 
     // Clone the original buffer to obtain an equal buffer on the LINEAR memory used for double buffering.
     let audio_data2 = audio_data1.clone();
@@ -154,7 +155,7 @@ fn main() {
         }
 
         // Double buffer alternation depending on the one used.
-        let current: &mut Wave = if altern {
+        let current: &mut Wave<_> = if altern {
             &mut wave_info1
         } else {
             &mut wave_info2

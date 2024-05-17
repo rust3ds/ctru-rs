@@ -18,11 +18,13 @@ pub mod wave;
 use wave::{Status, Wave};
 
 use crate::error::ResultCode;
+use crate::linear::LinearAllocation;
 use crate::services::ServiceReference;
 
 use std::cell::{RefCell, RefMut};
 use std::error;
 use std::fmt;
+use std::ops::Deref;
 use std::sync::Mutex;
 
 const NUMBER_OF_CHANNELS: u8 = 24;
@@ -523,7 +525,7 @@ impl Channel<'_> {
     /// let ndsp = Ndsp::new()?;
     /// let mut channel_0 = ndsp.channel(0)?;
     ///
-    /// # let audio_data = Box::new_in([0u8; 96], LinearAllocator);
+    /// # let audio_data: Box<[_], _> = Box::new_in([0u8; 96], LinearAllocator);
     ///
     /// // Provide your own audio data.
     /// let mut wave = Wave::new(audio_data, AudioFormat::PCM16Stereo, false);
@@ -537,7 +539,10 @@ impl Channel<'_> {
     // TODO: Find a better way to handle the wave lifetime problem.
     //       These "alive wave" shenanigans are the most substantial reason why I'd like to fully re-write this service in Rust.
     #[doc(alias = "ndspChnWaveBufAdd")]
-    pub fn queue_wave(&mut self, wave: &mut Wave) -> std::result::Result<(), Error> {
+    pub fn queue_wave<Buffer: LinearAllocation + Deref<Target = [u8]>>(
+        &mut self,
+        wave: &mut Wave<Buffer>,
+    ) -> std::result::Result<(), Error> {
         match wave.status() {
             Status::Playing | Status::Queued => return Err(Error::WaveBusy(self.id)),
             _ => (),
