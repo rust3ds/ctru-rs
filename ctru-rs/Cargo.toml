@@ -20,9 +20,9 @@ name = "ctru"
 cfg-if = "1.0"
 ctru-sys = { path = "../ctru-sys", version = "0.5.0" }
 const-zero = "0.1.0"
-shim-3ds = { git = "https://github.com/rust3ds/shim-3ds.git" }
-pthread-3ds = { git = "https://github.com/rust3ds/pthread-3ds.git" }
-libc = "0.2.121"
+shim-3ds = { workspace = true }
+pthread-3ds = { workspace = true }
+libc = { workspace = true, default-features = true }
 bitflags = "2.3.3"
 macaddr = "1.0.1"
 widestring = "1.0.2"
