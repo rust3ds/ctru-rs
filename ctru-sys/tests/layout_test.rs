@@ -13,9 +13,6 @@ extern crate shim_3ds;
 
 use std::mem::offset_of;
 
-use cpp::cpp;
-use ctru_sys::*;
-
 fn size_of_ret<T, U>(_f: impl Fn(U) -> T) -> usize {
     ::std::mem::size_of::<T>()
 }
@@ -53,13 +50,16 @@ macro_rules! align_of {
 
 #[allow(non_snake_case)]
 #[allow(non_upper_case_globals)]
-mod generated {
+mod generated_tests {
     use super::*;
+
+    use cpp::cpp;
+    use ctru_sys::*;
 
     include!(concat!(env!("OUT_DIR"), "/generated_layout_test.rs"));
 }
 
-mod helper_test {
+mod helper_tests {
     macro_rules! packed_struct {
         ($name:ident, $size:literal) => {
             #[repr(C, packed($size))]

@@ -162,27 +162,13 @@ fn main() {
 
     #[cfg(feature = "layout-tests")]
     {
-        let test_file = out_dir.join("generated_layout_test.rs");
-        test_generator
-            // There are several bindgen-generated types that we don't want/need to check
-            // (because they are opaque, use bitfields, anonymous structs etc.)
-            .blocklist_type("Thread_tag")
-            .blocklist_type("MiiData.*")
-            .blocklist_type("ExHeader_(System|Arm11).*")
-            .blocklist_type("FS_((Ext|System)SaveData|Program)Info")
-            .blocklist_type("Y2RU_ConversionParams")
-            .blocklist_field("romfs_(dir|file)", "name")
-            // Bindgen generated types have no c++ equivalent:
-            .blocklist_type(".*__bindgen.*")
-            .blocklist_field(".*", "__bindgen.*")
-            // TODO: maybe we could translate type <-> `type_` or something...
-            .blocklist_field(".*", "type_")
-            .generate_layout_tests(&test_file)
+        let gen_test_file = out_dir.join("generated_layout_test.rs");
+        generate_layout_tests(&gen_test_file, &test_generator)
             .unwrap_or_else(|err| panic!("Failed to generate layout tests: {err}"));
 
         cpp_build::Config::from(cc_build)
-            .compiler(&cpp)
-            .build(test_file);
+            .compiler(cpp)
+            .build(gen_test_file);
     }
 }
 
@@ -284,4 +270,44 @@ fn track_libctru_files(pacman: &Path) -> Result<(), String> {
     }
 
     Ok(())
+}
+
+#[cfg(feature = "layout-tests")]
+fn generate_layout_tests(
+    output_file: &Path,
+    test_generator: &build::test_gen::LayoutTestGenerator,
+) -> Result<(), Box<dyn Error>> {
+    // There are several bindgen-generated types/fields that we can't check:
+    test_generator
+            // Opaque types:
+            .blocklist_type("MiiData")
+            // Bitfields:
+            .blocklist_field(
+                "ExHeader_SystemInfoFlags",
+                "compress_exefs_code|is_sd_application",
+            )
+            .blocklist_field(
+                "ExHeader_Arm11StorageInfo",
+                "reserved|no_romfs|use_extended_savedata_access",
+            )
+            .blocklist_field(
+                "ExHeader_Arm11CoreInfo",
+                "use_cpu_clockrate_804MHz|enable_l2c|flag[12]_unused|[no]3ds_system_mode|ideal_processor|affinity_mask",
+            )
+            .blocklist_field(
+                "Y2RU_ConversionParams",
+                "(input|output)_format|rotation|block_alignment|standard_coefficient",
+            )
+            .blocklist_field(
+                "FS_(Program|(System|Ext)SaveData)Info",
+                "mediaType"
+            )
+            // Variable-length arrays:
+            .blocklist_field("romfs_(dir|file)", "name")
+            // Bindgen anonymous types (and their associated fields):
+            .blocklist_type(".*__bindgen.*")
+            .blocklist_field(".*", "__bindgen.*")
+            // Bindgen mangles `type` (a Rust keyword) to `type_`:
+            .rename_field("type", "type_")
+            .generate_layout_tests(output_file)
 }

@@ -71,34 +71,44 @@ impl ParseCallbacks for LayoutTestCallbacks {
 
 #[derive(Debug)]
 pub struct LayoutTestGenerator {
-    struct_fields: RefCell<BTreeMap<String, BTreeSet<String>>>,
     blocklist: RefCell<Vec<(Regex, Option<Regex>)>>,
     headers: RefCell<Vec<String>>,
+    renames: RefCell<BTreeMap<String, String>>,
+    struct_fields: RefCell<BTreeMap<String, BTreeSet<String>>>,
 }
 
 impl LayoutTestGenerator {
     fn new() -> Self {
         Self {
-            struct_fields: RefCell::default(),
             blocklist: RefCell::default(),
             headers: RefCell::default(),
+            renames: RefCell::default(),
+            struct_fields: RefCell::default(),
         }
     }
 
     pub fn blocklist_type(&self, pattern: &str) -> &Self {
         self.blocklist
             .borrow_mut()
-            .push((Regex::new(pattern).unwrap(), None));
+            .push((Regex::new(&format!("^({pattern})$")).unwrap(), None));
         self
     }
 
     pub fn blocklist_field(&self, struct_pattern: &str, field_pattern: &str) -> &Self {
         self.blocklist.borrow_mut().push((
-            Regex::new(struct_pattern).unwrap(),
-            Some(Regex::new(field_pattern).unwrap()),
+            Regex::new(&format!("^({struct_pattern})$")).unwrap(),
+            Some(Regex::new(&format!("^({field_pattern})$")).unwrap()),
         ));
         self
     }
+
+    pub fn rename_field(&self, cpp_name: &str, rust_name: &str) -> &Self {
+        self.renames
+            .borrow_mut()
+            .insert(rust_name.to_string(), cpp_name.to_string());
+        self
+    }
+
     pub fn generate_layout_tests(
         &self,
         output_path: impl AsRef<Path>,
@@ -172,21 +182,23 @@ impl LayoutTestGenerator {
                     continue;
                 }
 
-                let field = format_ident!("{field}");
+                let rust_field = format_ident!("{field}");
+                let cpp_field =
+                    format_ident!("{}", self.renames.borrow().get(field).unwrap_or(field));
 
                 field_tests.push(build_assert_eq(
-                    &quote!(size_of!(#name::#field)),
-                    &quote!(sizeof(#name::#field)),
+                    &quote!(size_of!(#name::#rust_field)),
+                    &quote!(sizeof(#name::#cpp_field)),
                 ));
 
                 field_tests.push(build_assert_eq(
-                    &quote!(align_of!(#name::#field)),
-                    &quote!(alignof(#name::#field)),
+                    &quote!(align_of!(#name::#rust_field)),
+                    &quote!(alignof(#name::#cpp_field)),
                 ));
 
                 field_tests.push(build_assert_eq(
-                    &quote!(offset_of!(#name, #field)),
-                    &quote!(offsetof(#name, #field)),
+                    &quote!(offset_of!(#name, #rust_field)),
+                    &quote!(offsetof(#name, #cpp_field)),
                 ));
             }
         }
