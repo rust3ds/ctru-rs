@@ -6,7 +6,6 @@
 //! ABI used by libctru and the devkitARM toolchain, instead of just what libclang
 //! thinks they should be at bindgen time.
 
-#![allow(non_snake_case)]
 #![feature(custom_test_frameworks)]
 #![test_runner(test_runner::run_gdb)]
 
@@ -52,7 +51,13 @@ macro_rules! align_of {
     };
 }
 
-include!(concat!(env!("OUT_DIR"), "/generated_layout_test.rs"));
+#[allow(non_snake_case)]
+#[allow(non_upper_case_globals)]
+mod generated {
+    use super::*;
+
+    include!(concat!(env!("OUT_DIR"), "/generated_layout_test.rs"));
+}
 
 mod helper_test {
     macro_rules! packed_struct {

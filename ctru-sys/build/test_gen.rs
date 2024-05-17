@@ -143,7 +143,6 @@ impl LayoutTestGenerator {
 
     fn build_struct_test(&self, struct_name: &str) -> proc_macro2::TokenStream {
         let name = format_ident!("{struct_name}");
-        let test_name = format_ident!("layout_test_{name}");
 
         let mut field_tests = Vec::new();
         field_tests.push(build_assert_eq(
@@ -194,7 +193,7 @@ impl LayoutTestGenerator {
 
         quote! {
             #[test]
-            fn #test_name() {
+            fn #name() {
                 #(#field_tests);*
             }
         }

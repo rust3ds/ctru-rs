@@ -4,7 +4,7 @@ default-members = ["ctru-rs", "ctru-sys"]
 resolver = "2"
 
 [workspace.dependencies]
-libc = { version = "0.2.121", default-features = false }
+libc = { version = "0.2.153", default-features = false }
 shim-3ds = { git = "https://github.com/rust3ds/shim-3ds.git" }
 pthread-3ds = { git = "https://github.com/rust3ds/pthread-3ds.git" }
 test-runner = { git = "https://github.com/rust3ds/ctru-rs.git" }

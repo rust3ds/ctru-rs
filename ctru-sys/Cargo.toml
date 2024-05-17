@@ -35,6 +35,7 @@ libc = { workspace = true }
 [build-dependencies]
 bindgen = { version = "0.69", features = ["experimental"] }
 cc = "1.0"
+# Use git dependency so we can use https://github.com/mystor/rust-cpp/pull/111
 cpp_build = { optional = true, git = "https://github.com/mystor/rust-cpp.git" }
 doxygen-rs = "0.4.2"
 itertools = "0.11.0"
@@ -47,7 +48,7 @@ which = "4.4.0"
 [dev-dependencies]
 shim-3ds = { workspace = true }
 test-runner = { workspace = true }
-cpp = { git = "https://github.com/mystor/rust-cpp.git" }
+cpp = "0.5.9"
 
 [package.metadata.docs.rs]
 default-target = "armv6k-nintendo-3ds"
