@@ -24,7 +24,6 @@ use crate::services::ServiceReference;
 use std::cell::{RefCell, RefMut};
 use std::error;
 use std::fmt;
-use std::ops::Deref;
 use std::sync::Mutex;
 
 const NUMBER_OF_CHANNELS: u8 = 24;
@@ -539,7 +538,7 @@ impl Channel<'_> {
     // TODO: Find a better way to handle the wave lifetime problem.
     //       These "alive wave" shenanigans are the most substantial reason why I'd like to fully re-write this service in Rust.
     #[doc(alias = "ndspChnWaveBufAdd")]
-    pub fn queue_wave<Buffer: LinearAllocation + Deref<Target = [u8]>>(
+    pub fn queue_wave<Buffer: LinearAllocation + AsRef<[u8]>>(
         &mut self,
         wave: &mut Wave<Buffer>,
     ) -> std::result::Result<(), Error> {

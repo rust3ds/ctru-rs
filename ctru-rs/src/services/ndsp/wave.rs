@@ -2,15 +2,13 @@
 //!
 //! This modules has all methods and structs required to work with audio waves meant to be played via the [`ndsp`](crate::services::ndsp) service.
 
-use std::ops::{Deref, DerefMut};
-
 use super::{AudioFormat, Error};
 use crate::linear::LinearAllocation;
 
 /// Informational struct holding the raw audio data and playback info.
 ///
 /// You can play audio [`Wave`]s by using [`Channel::queue_wave()`](super::Channel::queue_wave).
-pub struct Wave<Buffer: LinearAllocation + Deref<Target = [u8]>> {
+pub struct Wave<Buffer: LinearAllocation + AsRef<[u8]>> {
     /// Data block of the audio wave (and its format information).
     buffer: Buffer,
     audio_format: AudioFormat,
@@ -35,7 +33,7 @@ pub enum Status {
 
 impl<Buffer> Wave<Buffer>
 where
-    Buffer: LinearAllocation + Deref<Target = [u8]>,
+    Buffer: LinearAllocation + AsRef<[u8]>,
 {
     /// Build a new playable wave object from a raw buffer on [LINEAR memory](`crate::linear`) and some info.
     ///
@@ -56,16 +54,17 @@ where
     /// # }
     /// ```
     pub fn new(buffer: Buffer, audio_format: AudioFormat, looping: bool) -> Self {
-        let sample_count = buffer.len() / audio_format.size();
+        let buf = buffer.as_ref();
+        let sample_count = buf.len() / audio_format.size();
 
         // Signal to the DSP processor the buffer's RAM sector.
         // This step may seem delicate, but testing reports failure most of the time, while still having no repercussions on the resulting audio.
         unsafe {
-            let _r = ctru_sys::DSP_FlushDataCache(buffer.as_ptr().cast(), buffer.len() as u32);
+            let _r = ctru_sys::DSP_FlushDataCache(buf.as_ptr().cast(), buf.len() as u32);
         }
 
         let address = ctru_sys::tag_ndspWaveBuf__bindgen_ty_1 {
-            data_vaddr: buffer.as_ptr().cast(),
+            data_vaddr: buf.as_ptr().cast(),
         };
 
         let raw_data = ctru_sys::ndspWaveBuf {
@@ -90,7 +89,7 @@ where
 
     /// Returns a slice to the audio data (on the LINEAR memory).
     pub fn get_buffer(&self) -> &[u8] {
-        &self.buffer
+        self.buffer.as_ref()
     }
 
     /// Returns a mutable slice to the audio data (on the LINEAR memory).
@@ -101,13 +100,13 @@ where
     /// with the id to the channel in which it's queued.
     pub fn get_buffer_mut(&mut self) -> Result<&mut [u8], Error>
     where
-        Buffer: DerefMut<Target = [u8]>,
+        Buffer: AsMut<[u8]>,
     {
         match self.status() {
             Status::Playing | Status::Queued => {
                 Err(Error::WaveBusy(self.played_on_channel.unwrap()))
             }
-            _ => Ok(&mut self.buffer),
+            _ => Ok(self.buffer.as_mut()),
         }
     }
 
@@ -177,7 +176,7 @@ where
             _ => (),
         }
 
-        let max_count = self.buffer.len() / self.audio_format.size();
+        let max_count = self.buffer.as_ref().len() / self.audio_format.size();
 
         if sample_count > max_count {
             return Err(Error::SampleCountOutOfBounds(sample_count, max_count));
@@ -205,7 +204,7 @@ impl TryFrom<u8> for Status {
 
 impl<Buffer> Drop for Wave<Buffer>
 where
-    Buffer: LinearAllocation + Deref<Target = [u8]>,
+    Buffer: LinearAllocation + AsRef<[u8]>,
 {
     fn drop(&mut self) {
         // This was the only way I found I could check for improper drops of `Wave`.
@@ -223,8 +222,8 @@ where
             // Flag the buffer's RAM sector as unused
             // This step has no real effect in normal applications and is skipped even by devkitPRO's own examples.
             let _r = ctru_sys::DSP_InvalidateDataCache(
-                self.buffer.as_ptr().cast(),
-                self.buffer.len().try_into().unwrap(),
+                self.get_buffer().as_ptr().cast(),
+                self.get_buffer().len().try_into().unwrap(),
             );
         }
     }

@@ -5,7 +5,6 @@
 #![feature(allocator_api)]
 
 use std::f32::consts::PI;
-use std::ops::Deref;
 
 use ctru::linear::LinearAllocator;
 use ctru::prelude::*;
