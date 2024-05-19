@@ -1,0 +1,11 @@
+[package]
+name = "bindgen-tests"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bindgen = { workspace = true, features = ["experimental"] }
+proc-macro2 = { version = "1.0.81" }
+quote = { version = "1.0.36" }
+regex = { version = "1.10.4" }
+rust-format = { version = "0.3.4", features = ["token_stream"] }

@@ -19,10 +19,7 @@ default = []
 ## Downstream users of `ctru-sys` shouldn't need to use this feature.
 layout-tests = [
     "dep:cpp_build",
-    "dep:proc-macro2",
-    "dep:quote",
-    "dep:regex",
-    "dep:rust-format",
+    "dep:bindgen-tests",
 ]
 
 [[test]]
@@ -33,16 +30,13 @@ required-features = ["layout-tests"]
 libc = { workspace = true }
 
 [build-dependencies]
-bindgen = { version = "0.69", features = ["experimental"] }
+bindgen = { workspace = true, features = ["experimental"] }
+bindgen-tests = { git = "https://github.com/rust3ds/ctru-rs.git", optional = true }
 cc = "1.0"
 # Use git dependency so we can use https://github.com/mystor/rust-cpp/pull/111
 cpp_build = { optional = true, git = "https://github.com/mystor/rust-cpp.git" }
 doxygen-rs = "0.4.2"
 itertools = "0.11.0"
-proc-macro2 = { version = "1.0.81", optional = true }
-quote = { version = "1.0.36", optional = true }
-regex = { version = "1.10.4", optional = true }
-rust-format = { version = "0.3.4", optional = true, features = ["token_stream"] }
 which = "4.4.0"
 
 [dev-dependencies]

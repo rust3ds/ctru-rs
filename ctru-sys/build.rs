@@ -7,13 +7,6 @@ use std::error::Error;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output, Stdio};
 
-// This allows us to have a directory layout of build/*.rs which is a little
-// cleaner than having all the submodules as siblings to build.rs.
-mod build {
-    #[cfg(feature = "layout-tests")]
-    pub mod test_gen;
-}
-
 #[derive(Debug)]
 struct CustomCallbacks;
 
@@ -146,7 +139,7 @@ fn main() {
         .parse_callbacks(Box::new(CustomCallbacks));
 
     #[cfg(feature = "layout-tests")]
-    let (test_callbacks, test_generator) = build::test_gen::LayoutTestCallbacks::new();
+    let (test_callbacks, test_generator) = bindgen_tests::LayoutTestCallbacks::new();
     #[cfg(feature = "layout-tests")]
     let binding_builder = binding_builder.parse_callbacks(Box::new(test_callbacks));
 
@@ -275,7 +268,7 @@ fn track_libctru_files(pacman: &Path) -> Result<(), String> {
 #[cfg(feature = "layout-tests")]
 fn generate_layout_tests(
     output_file: &Path,
-    test_generator: &build::test_gen::LayoutTestGenerator,
+    test_generator: &bindgen_tests::LayoutTestGenerator,
 ) -> Result<(), Box<dyn Error>> {
     // There are several bindgen-generated types/fields that we can't check:
     test_generator
