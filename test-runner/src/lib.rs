@@ -9,6 +9,7 @@
 #![feature(exitcode_exit_method)]
 #![test_runner(run_gdb)]
 
+extern crate shim_3ds;
 extern crate test;
 
 mod console;

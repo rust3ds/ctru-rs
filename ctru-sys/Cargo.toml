@@ -31,7 +31,7 @@ libc = { workspace = true }
 
 [build-dependencies]
 bindgen = { workspace = true, features = ["experimental"] }
-bindgen-tests = { git = "https://github.com/rust3ds/ctru-rs.git", optional = true }
+bindgen-tests = { git = "https://github.com/rust3ds/ctru-rs.git", optional = true, features = ["generate"] }
 cc = "1.0"
 # Use git dependency so we can use https://github.com/mystor/rust-cpp/pull/111
 cpp_build = { optional = true, git = "https://github.com/mystor/rust-cpp.git" }
@@ -42,6 +42,7 @@ which = "4.4.0"
 [dev-dependencies]
 shim-3ds = { workspace = true }
 test-runner = { workspace = true }
+bindgen-tests = { git = "https://github.com/rust3ds/ctru-rs.git" }
 cpp = "0.5.9"
 
 [package.metadata.docs.rs]

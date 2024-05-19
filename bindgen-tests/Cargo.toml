@@ -3,9 +3,19 @@ name = "bindgen-tests"
 version = "0.1.0"
 edition = "2021"
 
+[features]
+default = []
+generate = [
+    "dep:bindgen",
+    "dep:proc-macro2",
+    "dep:quote",
+    "dep:regex",
+    "dep:rust-format",
+]
+
 [dependencies]
-bindgen = { workspace = true, features = ["experimental"] }
-proc-macro2 = { version = "1.0.81" }
-quote = { version = "1.0.36" }
-regex = { version = "1.10.4" }
-rust-format = { version = "0.3.4", features = ["token_stream"] }
+bindgen = { workspace = true, features = ["experimental"], optional = true }
+proc-macro2 = { version = "1.0.81", optional = true }
+quote = { version = "1.0.36", optional = true }
+regex = { version = "1.10.4", optional = true }
+rust-format = { version = "0.3.4", features = ["token_stream"], optional = true }
