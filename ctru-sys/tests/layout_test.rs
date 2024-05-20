@@ -7,7 +7,7 @@
 //! thinks they should be at bindgen time.
 
 #![feature(custom_test_frameworks)]
-#![test_runner(test_runner::run_console)]
+#![test_runner(test_runner::run_gdb)]
 
 #[allow(non_snake_case)]
 #[allow(non_upper_case_globals)]

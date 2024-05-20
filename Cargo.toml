@@ -1,6 +1,6 @@
 [workspace]
 members = ["bindgen-tests", "ctru-rs", "ctru-sys", "test-runner"]
-default-members = ["ctru-rs", "ctru-sys"]
+default-members = ["ctru-rs", "ctru-sys", "test-runner"]
 resolver = "2"
 
 [workspace.dependencies]
