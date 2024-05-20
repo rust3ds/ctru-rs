@@ -82,15 +82,18 @@ jobs:
           cargo 3ds test --no-run --test layout_test --all-features --package ctru-sys
           cargo 3ds test --no-run --lib --all-features --package ctru-rs
 
+      - name: Run helper tests
+        run: cargo test --package bindgen-tests
+
       - name: Run lib and integration tests
         uses: rust3ds/test-runner/run-tests@v1
         with:
-          args: --tests --all-features --workspace
+          args: --tests --all-features
 
       - name: Build and run doc tests
         uses: rust3ds/test-runner/run-tests@v1
         with:
-          args: --doc --workspace
+          args: --doc
 
       - name: Upload citra logs and capture videos
         uses: actions/upload-artifact@v3
