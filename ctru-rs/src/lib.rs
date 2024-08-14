@@ -23,7 +23,6 @@
 #![feature(try_trait_v2)]
 #![feature(allocator_api)]
 #![feature(new_uninit)]
-#![feature(diagnostic_namespace)]
 #![test_runner(test_runner::run_gdb)] // TODO: does this make sense to have configurable?
 #![doc(
     html_favicon_url = "https://user-images.githubusercontent.com/11131775/225929072-2fa1741c-93ae-4b47-9bdf-af70f3d59910.png"

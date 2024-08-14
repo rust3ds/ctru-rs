@@ -3,6 +3,7 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 #![allow(clippy::all)]
+#![allow(unexpected_cfgs)] // Read below why we necessate a check for rust_analyzer.
 #![deny(ambiguous_glob_reexports)]
 #![cfg_attr(test, feature(custom_test_frameworks))]
 #![cfg_attr(test, test_runner(test_runner::run_gdb))]
