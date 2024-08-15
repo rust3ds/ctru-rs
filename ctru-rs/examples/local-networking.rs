@@ -60,8 +60,8 @@ fn main() -> Result<(), Error> {
 
     let mut mode = ConnectionType::Client;
 
-    let mut channel = 0;
-    let data_channel = 1;
+    let mut channel: u8;
+    let data_channel: u8 = 1;
 
     let mut prev_node_mask = 0;
 
