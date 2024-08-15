@@ -11,7 +11,7 @@ use ctru_sys::{consoleClear, consoleInit, consoleSelect, consoleSetWindow, Print
 
 use crate::services::gfx::{Flush, Screen, Swap};
 
-static mut EMPTY_CONSOLE: PrintConsole = unsafe { const_zero::const_zero!(PrintConsole) };
+static mut EMPTY_CONSOLE: PrintConsole = unsafe { std::mem::zeroed::<PrintConsole>() };
 
 /// Error enum for generic errors within [`Console`].
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]

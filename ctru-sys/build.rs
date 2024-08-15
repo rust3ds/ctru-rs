@@ -239,7 +239,7 @@ fn get_libctru_version(pacman: &Path) -> Result<(String, String, String, String)
 
 fn parse_libctru_version(version: &str) -> Result<(String, String, String, String), String> {
     version
-        .split(|c| c == '.' || c == '-')
+        .split(['.', '-'])
         .map(String::from)
         .collect_tuple()
         .ok_or_else(|| format!("unexpected number of version segments: {version:?}"))

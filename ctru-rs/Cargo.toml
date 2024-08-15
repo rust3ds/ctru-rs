@@ -10,7 +10,7 @@ categories = ["os", "api-bindings", "hardware-support"]
 exclude = ["examples"]
 license = "Zlib"
 edition = "2021"
-rust-version = "1.73"
+rust-version = "1.78"
 
 [lib]
 crate-type = ["rlib"]
@@ -19,13 +19,12 @@ name = "ctru"
 [dependencies]
 cfg-if = "1.0"
 ctru-sys = { path = "../ctru-sys", version = "0.5.0" }
-const-zero = "0.1.0"
 shim-3ds = { workspace = true }
 pthread-3ds = { workspace = true }
 libc = { workspace = true, default-features = true }
-bitflags = "2.3.3"
+bitflags = "2.6.0"
 macaddr = "1.0.1"
-widestring = "1.0.2"
+widestring = "1.1.0"
 
 [build-dependencies]
 toml = "0.5"
