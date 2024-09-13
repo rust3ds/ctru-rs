@@ -7,4 +7,5 @@
 #![doc(alias = "step")]
 #![doc(alias = "power")]
 
+pub mod sysm;
 pub mod user;
