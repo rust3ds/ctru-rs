@@ -29,7 +29,7 @@ pub enum Region {
 /// Language set for the console's OS.
 #[doc(alias = "CFG_Language")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-#[repr(u8)]
+#[repr(i8)]
 pub enum Language {
     /// Japanese.
     Japanese = ctru_sys::CFG_LANGUAGE_JP,
@@ -174,7 +174,7 @@ impl Cfgu {
         let mut language: u8 = 0;
 
         ResultCode(unsafe { ctru_sys::CFGU_GetSystemLanguage(&mut language) })?;
-        Ok(Language::try_from(language).unwrap())
+        Ok(Language::try_from(language as i8).unwrap())
     }
 
     /// Check if NFC is supported by the console.
@@ -244,7 +244,7 @@ impl Drop for Cfgu {
 }
 
 from_impl!(Region, u8);
-from_impl!(Language, u8);
+from_impl!(Language, i8);
 from_impl!(SystemModel, u8);
 
 impl TryFrom<u8> for Region {
@@ -264,10 +264,10 @@ impl TryFrom<u8> for Region {
     }
 }
 
-impl TryFrom<u8> for Language {
+impl TryFrom<i8> for Language {
     type Error = ();
 
-    fn try_from(value: u8) -> Result<Self, Self::Error> {
+    fn try_from(value: i8) -> Result<Self, Self::Error> {
         match value {
             ctru_sys::CFG_LANGUAGE_JP => Ok(Language::Japanese),
             ctru_sys::CFG_LANGUAGE_EN => Ok(Language::English),
