@@ -78,7 +78,7 @@ impl PTMSysM {
     /// let ptm_sysm = PTMSysM::new()?;
     ///
     /// // Request the activation of sleep mode.
-    /// ptm_sysm.request_sleep(Duration::from_nanos(0)).unwrap();
+    /// ptm_sysm.request_sleep().unwrap();
     /// #
     /// # Ok(())
     /// # }
