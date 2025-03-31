@@ -19,7 +19,7 @@ const CPP_POLLING_PERIOD_MS: u8 = 0x32;
 
 // This export tells libctru to not initialize ir:rst when initializing HID.
 // This is necessary on the New 3DS because ir:rst is mutually exclusive with ir:USER.
-#[no_mangle]
+#[unsafe(no_mangle)]
 unsafe extern "C" fn hidShouldUseIrrst() -> bool {
     false
 }
