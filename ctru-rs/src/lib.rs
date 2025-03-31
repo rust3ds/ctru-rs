@@ -22,7 +22,6 @@
 #![feature(custom_test_frameworks)]
 #![feature(try_trait_v2)]
 #![feature(allocator_api)]
-#![feature(new_uninit)]
 #![test_runner(test_runner::run_gdb)] // TODO: does this make sense to have configurable?
 #![doc(
     html_favicon_url = "https://user-images.githubusercontent.com/11131775/225929072-2fa1741c-93ae-4b47-9bdf-af70f3d59910.png"
@@ -41,7 +40,7 @@ extern crate shim_3ds;
 /// It takes effect only if the `big-stack` feature is active. Otherwise, the default stack size should be ~32kB.
 ///
 /// This value was chosen to support crate dependencies which expected more stack than provided. It's suggested to use less stack if possible.
-#[no_mangle]
+#[unsafe(no_mangle)]
 // When building lib tests, we don't want to redefine the same symbol twice,
 // since ctru-rs is both the crate under test and a dev-dependency (non-test).
 // We might also be able to use #[linkage] for similar effect, but this way
