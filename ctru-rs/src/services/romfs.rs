@@ -28,7 +28,6 @@
 #![doc(alias = "filesystem")]
 
 use crate::error::ResultCode;
-use std::ffi::CStr;
 use std::sync::Mutex;
 
 use crate::services::ServiceReference;
@@ -65,13 +64,11 @@ impl RomFS {
         let _service_handler = ServiceReference::new(
             &ROMFS_ACTIVE,
             || {
-                let mount_name = CStr::from_bytes_with_nul(b"romfs\0").unwrap();
-                ResultCode(unsafe { ctru_sys::romfsMountSelf(mount_name.as_ptr()) })?;
+                ResultCode(unsafe { ctru_sys::romfsMountSelf(c"romfs".as_ptr()) })?;
                 Ok(())
             },
             || {
-                let mount_name = CStr::from_bytes_with_nul(b"romfs\0").unwrap();
-                let _ = unsafe { ctru_sys::romfsUnmount(mount_name.as_ptr()) };
+                let _ = unsafe { ctru_sys::romfsUnmount(c"romfs".as_ptr()) };
             },
         )?;
 

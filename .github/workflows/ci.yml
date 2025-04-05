@@ -15,7 +15,7 @@ jobs:
       matrix:
         toolchain:
           # Run against a "known good" nightly. Rustc version is 1 day behind the toolchain date
-          - nightly-2024-03-10
+          - nightly-2025-03-30
           # Check for breakage on latest nightly
           - nightly
 
@@ -54,7 +54,7 @@ jobs:
     strategy:
       matrix:
         toolchain:
-          - nightly-2024-03-10
+          - nightly-2025-03-30
           - nightly
     continue-on-error: ${{ matrix.toolchain == 'nightly' }}
     runs-on: ubuntu-latest

@@ -104,7 +104,9 @@ impl<'a> FileExplorer<'a> {
             }
         };
 
-        println!("Press Start to exit, A to select an entry by number, B to go up a directory, X to set the path.");
+        println!(
+            "Press Start to exit, A to select an entry by number, B to go up a directory, X to set the path."
+        );
     }
 
     fn print_dir_entries(&mut self) {

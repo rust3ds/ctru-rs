@@ -10,10 +10,10 @@
 #![doc(alias = "controller")]
 #![doc(alias = "gamepad")]
 
-use crate::error::ResultCode;
-use crate::services::svc::{make_ipc_header, HandleExt};
-use crate::services::ServiceReference;
 use crate::Error;
+use crate::error::ResultCode;
+use crate::services::ServiceReference;
+use crate::services::svc::{HandleExt, make_ipc_header};
 use ctru_sys::{Handle, MEMPERM_READ, MEMPERM_READWRITE};
 use std::alloc::Layout;
 use std::ffi::CString;

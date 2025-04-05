@@ -120,7 +120,9 @@ fn main() -> Result<(), Error> {
                     if networks.len() == 1 { "" } else { "s" }
                 );
 
-                println!("D-Pad to select, A to connect as client, R + A to connect as spectator, B to create a new network");
+                println!(
+                    "D-Pad to select, A to connect as client, R + A to connect as spectator, B to create a new network"
+                );
 
                 for (index, n) in networks.iter().enumerate() {
                     println!(
@@ -238,7 +240,7 @@ fn main() -> Result<(), Error> {
                         let appdata = [0x69u8, 0x8a, 0x05, 0x5c]
                             .into_iter()
                             .chain((*b"Test appdata.").into_iter())
-                            .chain(std::iter::repeat(0).take(3))
+                            .chain(std::iter::repeat_n(0, 3))
                             .collect::<Vec<_>>();
 
                         uds.set_appdata(&appdata)?;
