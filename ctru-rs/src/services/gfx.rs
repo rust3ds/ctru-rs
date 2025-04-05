@@ -10,8 +10,8 @@ use std::sync::Mutex;
 
 use crate::error::Result;
 use crate::sealed::Sealed;
-use crate::services::gspgpu::{self, FramebufferFormat};
 use crate::services::ServiceReference;
+use crate::services::gspgpu::{self, FramebufferFormat};
 
 /// Trait to handle common functionality for all screens.
 ///
