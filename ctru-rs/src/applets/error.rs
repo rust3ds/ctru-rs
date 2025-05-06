@@ -94,18 +94,7 @@ impl PopUp {
     }
 }
 
-/// Sets a custom [panic hook](https://doc.rust-lang.org/std/panic/fn.set_hook.html) that uses the error applet to display panic messages.
-///
-/// You can also choose to have the previously registered panic hook called along with the error applet popup, which can be useful
-/// if you want to use output redirection to display panic messages over `3dslink` or `GDB`.
-///
-/// You can use [`std::panic::take_hook`](https://doc.rust-lang.org/std/panic/fn.take_hook.html) to unregister the panic hook
-/// set by this function.
-///
-/// # Notes
-///
-/// * If the [`Gfx`] service is not initialized during a panic, the error applet will not be displayed and the old panic hook will be called.
-pub fn set_panic_hook(call_old_hook: bool) {
+pub(crate) fn set_panic_hook(call_old_hook: bool) {
     use crate::services::gfx::GFX_ACTIVE;
     use std::sync::TryLockError;
 
