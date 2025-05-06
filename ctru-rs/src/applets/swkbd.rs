@@ -17,11 +17,13 @@ use std::fmt::Display;
 use std::iter::once;
 use std::str;
 
+type CallbackFunction = dyn FnMut(&str) -> CallbackResult;
+
 /// Configuration structure to setup the Software Keyboard applet.
 #[doc(alias = "SwkbdState")]
 pub struct SoftwareKeyboard {
     state: Box<SwkbdState>,
-    filter_callback: Option<Box<dyn FnMut(&str) -> CallbackResult>>,
+    filter_callback: Option<Box<CallbackFunction>>,
     initial_text: Option<Cow<'static, str>>,
 }
 
@@ -218,7 +220,7 @@ bitflags! {
 
 // Internal book-keeping struct used to send data to `aptSetMessageCallback` when calling the software keyboard.
 struct MessageCallbackData {
-    filter_callback: *mut Box<dyn FnMut(&str) -> CallbackResult>,
+    filter_callback: *mut Box<CallbackFunction>,
     swkbd_shared_mem_ptr: *mut libc::c_void,
 }
 
@@ -362,10 +364,7 @@ impl SoftwareKeyboard {
     /// })));
     /// #
     /// # }
-    pub fn set_filter_callback(
-        &mut self,
-        callback: Option<Box<dyn FnMut(&str) -> CallbackResult>>,
-    ) {
+    pub fn set_filter_callback(&mut self, callback: Option<Box<CallbackFunction>>) {
         self.filter_callback = callback;
     }
 
