@@ -80,6 +80,12 @@ pub struct Console<'screen> {
 }
 
 /// Send output from stderr to the specified [`Destination`]. This function can be used to capture error and panic messages with `GDB` or other debuggers.
+///
+/// # Notes:
+///
+/// This function is similar in purpose to [`Soc::redirect_to_3dslink`](crate::services::soc::Soc::redirect_to_3dslink), but they each offer slightly different functionality.
+/// `redirect_stderr` enables messages printed via `stderr` to show up in `GDB`, while `redirect_to_3dslink` completely replaces the file descriptor for `stderr` with a network socket instead.
+/// As such, `redirect_to_3dslink` will take priority over this function if both of them are called.
 #[doc(alias = "consoleDebugInit")]
 pub fn redirect_stderr(dest: Destination) {
     unsafe { consoleDebugInit(dest as _) }
