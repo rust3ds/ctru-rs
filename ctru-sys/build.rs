@@ -139,6 +139,11 @@ fn main() {
         .blocklist_type("(in_addr|wchar|socklen|suseconds|sa_family|time)_t")
         .blocklist_item("SOL_CONFIG")
         .opaque_type("MiiData")
+        .opaque_type("FriendInfo")
+        .opaque_type("DecryptedApproachContext")
+        .opaque_type("CFLStoreData")
+        .opaque_type("AccountInfo")
+        .opaque_type("ExistentServerAccountData")
         .derive_default(true)
         .wrap_static_fns(true)
         .wrap_static_fns_path(out_dir.join("libctru_statics_wrapper"))
@@ -281,6 +286,11 @@ fn generate_layout_tests(
     test_generator
             // Opaque types:
             .blocklist_type("MiiData")
+            .blocklist_type("FriendInfo")
+            .blocklist_type("DecryptedApproachContext")
+            .blocklist_type("CFLStoreData")
+            .blocklist_type("AccountInfo")
+            .blocklist_type("ExistentServerAccountData")
             // Bitfields:
             .blocklist_field(
                 "ExHeader_SystemInfoFlags",
