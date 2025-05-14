@@ -17,7 +17,7 @@ use std::fmt::Display;
 use std::iter::once;
 use std::str;
 
-type CallbackFunction = dyn Fn(&str) -> (CallbackResult, Option<Cow<'static, str>>);
+type CallbackFunction = dyn FnMut(&str) -> CallbackResult;
 
 /// Configuration structure to setup the Software Keyboard applet.
 #[doc(alias = "SwkbdState")]
@@ -59,15 +59,24 @@ pub enum Kind {
 ///
 /// The custom callback can be set using [`SoftwareKeyboard::set_filter_callback()`].
 #[doc(alias = "SwkbdCallbackResult")]
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 #[repr(u8)]
 pub enum CallbackResult {
     /// The callback yields a positive result.
     Ok = ctru_sys::SWKBD_CALLBACK_OK,
     /// The callback finds the input invalid, but lets the user try again.
-    Retry = ctru_sys::SWKBD_CALLBACK_CONTINUE,
+    Retry(Cow<'static, str>) = ctru_sys::SWKBD_CALLBACK_CONTINUE,
     /// The callback finds the input invalid and closes the Software Keyboard view.
-    Close = ctru_sys::SWKBD_CALLBACK_CLOSE,
+    Close(Cow<'static, str>) = ctru_sys::SWKBD_CALLBACK_CLOSE,
+}
+
+impl CallbackResult {
+    fn discriminant(&self) -> u8 {
+        // SAFETY: Because `Self` is marked `repr(u8)`, its layout is a `repr(C)` `union`
+        // between `repr(C)` structs, each of which has the `u8` discriminant as its first
+        // field, so we can read the discriminant without offsetting the pointer.
+        unsafe { *(self as *const Self).cast() }
+    }
 }
 
 /// Represents which button the user pressed to close the [`SoftwareKeyboard`].
@@ -210,9 +219,8 @@ bitflags! {
 }
 
 // Internal book-keeping struct used to send data to `aptSetMessageCallback` when calling the software keyboard.
-#[derive(Copy, Clone)]
 struct MessageCallbackData {
-    filter_callback: *const Box<CallbackFunction>,
+    filter_callback: *mut Box<CallbackFunction>,
     swkbd_shared_mem_ptr: *mut libc::c_void,
 }
 
@@ -347,12 +355,12 @@ impl SoftwareKeyboard {
     ///
     /// let mut keyboard = SoftwareKeyboard::default();
     ///
-    /// keyboard.set_filter_callback(Some(Box::new(move |str| {
-    ///     if str.contains("boo") {
-    ///         return (CallbackResult::Retry, Some("Ah, you scared me!".into()));
+    /// keyboard.set_filter_callback(Some(Box::new(move |input| {
+    ///     if input.contains("boo") {
+    ///         CallbackResult::Retry("Aaaah, you scared me!".into())
+    ///     } else {
+    ///         CallbackResult::Ok
     ///     }
-    ///
-    ///     (CallbackResult::Ok, None)
     /// })));
     /// #
     /// # }
@@ -733,7 +741,7 @@ impl SoftwareKeyboard {
             // `self` is allowed to be moved again, we can safely use a pointer to the local value contained in `self.filter_callback`
             // The cast here is also sound since the pointer will only be read from if `self.filter_callback.is_some()` returns true.
             let mut data = MessageCallbackData {
-                filter_callback: (&raw const self.filter_callback).cast(),
+                filter_callback: (&raw mut self.filter_callback).cast(),
                 swkbd_shared_mem_ptr,
             };
 
@@ -813,7 +821,8 @@ impl SoftwareKeyboard {
         }
 
         let swkbd = unsafe { &mut *msg.cast::<SwkbdState>() };
-        let data = unsafe { *user.cast::<MessageCallbackData>() };
+
+        let data = unsafe { &*user.cast::<MessageCallbackData>() };
 
         let text16 = unsafe {
             widestring::Utf16Str::from_slice_unchecked(std::slice::from_raw_parts(
@@ -824,13 +833,11 @@ impl SoftwareKeyboard {
 
         let text8 = text16.to_string();
 
-        let filter_callback = unsafe { &**data.filter_callback };
+        let result = unsafe { &mut **data.filter_callback }(&text8);
 
-        let (result, retmsg) = filter_callback(&text8);
+        swkbd.callback_result = result.discriminant().into();
 
-        swkbd.callback_result = result as _;
-
-        if let Some(msg) = retmsg.as_deref() {
+        if let CallbackResult::Retry(msg) | CallbackResult::Close(msg) = result {
             for (idx, code_unit) in msg
                 .encode_utf16()
                 .take(swkbd.callback_msg.len() - 1)
@@ -989,4 +996,3 @@ from_impl!(ValidInput, i32);
 from_impl!(ValidInput, u32);
 from_impl!(ButtonConfig, i32);
 from_impl!(PasswordMode, u32);
-from_impl!(CallbackResult, u32);

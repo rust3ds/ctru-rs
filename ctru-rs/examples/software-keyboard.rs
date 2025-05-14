@@ -19,12 +19,18 @@ fn main() {
     // Custom filter callback to handle the given input.
     // Using this callback it's possible to integrate the applet
     // with custom error messages when the input is incorrect.
-    keyboard.set_filter_callback(Some(Box::new(move |str| {
-        if str.contains("boo") {
-            return (CallbackResult::Retry, Some("Ah, you scared me!".into()));
-        }
+    let mut did_it_again = false;
 
-        (CallbackResult::Ok, None)
+    keyboard.set_filter_callback(Some(Box::new(move |input| {
+        if input.contains("boo") && !did_it_again {
+            did_it_again = true;
+            CallbackResult::Retry("Aaaah, you scared me! Don't use that word again!".into())
+        } else if input.contains("boo") && did_it_again {
+            CallbackResult::Close("Hey, I told you to stop that!".into())
+        } else {
+            did_it_again = false;
+            CallbackResult::Ok
+        }
     })));
 
     println!("Press A to enter some text or press Start to exit.");
