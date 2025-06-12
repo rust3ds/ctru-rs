@@ -203,9 +203,10 @@ impl LayoutTestGenerator {
             }
         }
 
+        let test_name = format_ident!("layout_test_{struct_name}");
         quote! {
             #[test]
-            fn #name() {
+            fn #test_name() {
                 #(#field_tests);*
             }
         }

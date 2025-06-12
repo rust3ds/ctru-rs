@@ -15,11 +15,6 @@
 )]
 #![doc(html_root_url = "https://rust3ds.github.io/ctru-rs/crates")]
 
-// Prevent linking errors from the standard `test` library when running `cargo 3ds test --lib`.
-// See https://github.com/rust-lang/rust-analyzer/issues/14167 for why we use `not(rust_analyzer)`
-#[cfg(all(test, not(rust_analyzer)))]
-extern crate shim_3ds;
-
 pub mod result;
 pub use result::*;
 
