@@ -357,7 +357,7 @@ impl IrUser {
 
 // Internal helper for rounding up a value to a multiple of another value.
 fn round_up(value: usize, multiple: usize) -> usize {
-    if value % multiple != 0 {
+    if !value.is_multiple_of(multiple) {
         (value / multiple) * multiple + multiple
     } else {
         (value / multiple) * multiple
