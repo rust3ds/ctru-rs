@@ -10,7 +10,7 @@ categories = ["os", "api-bindings", "hardware-support"]
 exclude = ["examples"]
 license = "Zlib"
 edition = "2024"
-rust-version = "1.85"
+rust-version = "1.88"
 
 [lib]
 crate-type = ["rlib"]
@@ -27,12 +27,12 @@ macaddr = "1.0.1"
 widestring = "1.1.0"
 
 [build-dependencies]
-toml = "0.5"
+toml = "0.9.4"
 
 [dev-dependencies]
 bytemuck = "1.12.3"
 cfg-if = "1.0.0"
-ferris-says = "0.2.1"
+ferris-says = "0.3.2"
 futures = "0.3"
 lewton = "0.10.2"
 test-runner = { git = "https://github.com/rust3ds/ctru-rs.git" }

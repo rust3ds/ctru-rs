@@ -10,7 +10,7 @@ categories = ["os", "external-ffi-bindings", "no-std", "hardware-support"]
 exclude = ["src/.gitattributes"]
 license = "Zlib"
 links = "ctru"
-edition = "2021"
+edition = "2024"
 
 [features]
 default = []
@@ -33,17 +33,19 @@ required-features = ["layout-tests"]
 libc = { workspace = true }
 
 [build-dependencies]
-bindgen = { version = "0.69", features = ["experimental"] }
+bindgen = { version = "0.72", features = ["experimental"] }
 cc = "1.0"
 # Use git dependency so we can use https://github.com/mystor/rust-cpp/pull/111
 cpp_build = { optional = true, git = "https://github.com/mystor/rust-cpp.git" }
 doxygen-rs = "0.4.2"
-itertools = "0.11.0"
+itertools = "0.14.0"
 proc-macro2 = { version = "1.0.81", optional = true }
 quote = { version = "1.0.36", optional = true }
 regex = { version = "1.10.4", optional = true }
-rust-format = { version = "0.3.4", optional = true, features = ["token_stream"] }
-which = "4.4.0"
+rust-format = { version = "0.3.4", optional = true, features = [
+    "token_stream",
+] }
+which = "8.0.0"
 
 [dev-dependencies]
 shim-3ds = { workspace = true }
