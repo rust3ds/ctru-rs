@@ -310,6 +310,8 @@ fn generate_layout_tests(
             )
             // Variable-length arrays:
             .blocklist_field("romfs_(dir|file)", "name")
+            .blocklist_field("EulaEntry", "textData")
+            .blocklist_field("EulaList", "entries")
             // Bindgen anonymous types (and their associated fields):
             .blocklist_type(".*__bindgen.*")
             .blocklist_field(".*", "__bindgen.*")
