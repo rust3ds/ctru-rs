@@ -16,7 +16,7 @@ fn main() {
     let _console = Console::new(gfx.top_screen.borrow_mut());
 
     // Snazzy message created via `ferris_says`.
-    let out = "Hello fellow Rustaceans, I'm on the Nintendo 3DS!";
+    let out = b"Hello fellow Rustaceans, I'm on the Nintendo 3DS!";
     let width = 24;
 
     let mut writer = BufWriter::new(Vec::new());

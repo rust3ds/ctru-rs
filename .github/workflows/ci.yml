@@ -93,7 +93,7 @@ jobs:
           args: --doc --workspace
 
       - name: Upload citra logs and capture videos
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: success() || failure() # always run unless the workflow was cancelled
         with:
           name: citra-logs-${{ matrix.toolchain }}
