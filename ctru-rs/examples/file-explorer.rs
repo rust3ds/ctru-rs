@@ -119,7 +119,7 @@ impl<'a> FileExplorer<'a> {
                     println!("{i:2} - {}", entry.file_name().to_string_lossy());
                     self.entries.push(entry);
 
-                    if (i + 1) % 20 == 0 {
+                    if (i + 1).is_multiple_of(20) {
                         self.wait_for_page_down();
                     }
                 }

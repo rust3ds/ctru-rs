@@ -147,10 +147,9 @@ impl<'screen> CirclePadProDemo<'screen> {
             if let Err(e) = self
                 .connection_status_event
                 .wait_for_event(Duration::from_millis(100))
+                && !e.is_timeout()
             {
-                if !e.is_timeout() {
-                    panic!("Couldn't initialize circle pad pro connection: {e}");
-                }
+                panic!("Couldn't initialize circle pad pro connection: {e}");
             }
 
             self.print_status_info();
@@ -168,10 +167,9 @@ impl<'screen> CirclePadProDemo<'screen> {
             if let Err(e) = self
                 .connection_status_event
                 .wait_for_event(Duration::from_millis(100))
+                && !e.is_timeout()
             {
-                if !e.is_timeout() {
-                    panic!("Couldn't initialize circle pad pro connection: {e}");
-                }
+                panic!("Couldn't initialize circle pad pro connection: {e}");
             }
         }
 
@@ -225,7 +223,7 @@ impl<'screen> CirclePadProDemo<'screen> {
         // Write data to top screen
         self.top_console.select();
         self.top_console.clear();
-        println!("{:x?}", status_info);
+        println!("{status_info:x?}");
 
         self.ir_user.process_shared_memory(|ir_mem| {
             println!("\nReceiveBufferInfo:");
