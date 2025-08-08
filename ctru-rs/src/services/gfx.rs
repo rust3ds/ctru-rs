@@ -37,7 +37,7 @@ pub trait Screen: Sealed {
     ///
     /// If the [`Gfx`] service was initialised via [`Gfx::with_formats_vram()`] this function will crash the program with an ARM exception.
     #[doc(alias = "gfxGetFramebuffer")]
-    fn raw_framebuffer(&mut self) -> RawFrameBuffer {
+    fn raw_framebuffer(&mut self) -> RawFrameBuffer<'_> {
         let mut width: u16 = 0;
         let mut height: u16 = 0;
         let ptr = unsafe {
@@ -408,12 +408,12 @@ impl Gfx {
 
 impl TopScreen3D<'_> {
     /// Immutably borrow the two sides of the screen as `(left, right)`.
-    pub fn split(&self) -> (Ref<TopScreenLeft>, Ref<TopScreenRight>) {
+    pub fn split(&self) -> (Ref<'_, TopScreenLeft>, Ref<'_, TopScreenRight>) {
         Ref::map_split(self.screen.borrow(), |screen| (&screen.left, &screen.right))
     }
 
     /// Mutably borrow the two sides of the screen as `(left, right)`.
-    pub fn split_mut(&self) -> (RefMut<TopScreenLeft>, RefMut<TopScreenRight>) {
+    pub fn split_mut(&self) -> (RefMut<'_, TopScreenLeft>, RefMut<'_, TopScreenRight>) {
         RefMut::map_split(self.screen.borrow_mut(), |screen| {
             (&mut screen.left, &mut screen.right)
         })

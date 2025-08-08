@@ -190,7 +190,7 @@ impl Ndsp {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn channel(&self, id: u8) -> std::result::Result<Channel, Error> {
+    pub fn channel(&self, id: u8) -> std::result::Result<Channel<'_>, Error> {
         let in_bounds = self.channel_flags.get(id as usize);
 
         match in_bounds {

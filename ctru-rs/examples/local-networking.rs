@@ -156,7 +156,7 @@ fn main() -> Result<(), Error> {
             }
             State::Connect => {
                 let appdata = uds.network_appdata(&networks[selected_network], None)?;
-                println!("App data: {:02X?}", appdata);
+                println!("App data: {appdata:02X?}");
 
                 if let Err(e) = uds.connect_network(
                     &networks[selected_network],
@@ -170,10 +170,10 @@ fn main() -> Result<(), Error> {
                     println!("Press A to start scanning or B to create a new network");
                 } else {
                     channel = uds.channel()?;
-                    println!("Connected using channel {}", channel);
+                    println!("Connected using channel {channel}");
 
                     let appdata = uds.appdata(None)?;
-                    println!("App data: {:02X?}", appdata);
+                    println!("App data: {appdata:02X?}");
 
                     if uds.wait_status_event(false, false)? {
                         prev_node_mask = handle_status_event(&uds, prev_node_mask)?;

@@ -11,12 +11,12 @@ use std::io::Write;
 use std::path::Path;
 use std::rc::Rc;
 
+use bindgen::FieldVisibilityKind;
 use bindgen::callbacks::{
     DeriveInfo, DeriveTrait, FieldInfo, ImplementsTrait, ParseCallbacks, TypeKind,
 };
-use bindgen::FieldVisibilityKind;
 use proc_macro2::TokenStream;
-use quote::{format_ident, quote, TokenStreamExt};
+use quote::{TokenStreamExt, format_ident, quote};
 use regex::Regex;
 use rust_format::{Formatter, RustFmt};
 

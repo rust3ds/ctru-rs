@@ -466,11 +466,12 @@ impl Uds {
     /// ```
     #[doc(alias = "udsInit")]
     pub fn new(username: Option<&str>) -> Result<Self, Error> {
-        if let Some(n) = username {
-            if n.len() > 10 {
-                return Err(Error::UsernameTooLong);
-            }
+        if let Some(n) = username
+            && n.len() > 10
+        {
+            return Err(Error::UsernameTooLong);
         }
+
         let cstr = username.map(CString::new).transpose()?;
         let handler = ServiceReference::new(
             &UDS_ACTIVE,
@@ -535,7 +536,7 @@ impl Uds {
                 additional_id.unwrap_or(0),
                 whitelist_macaddr
                     .map(|m| m.as_bytes().as_ptr())
-                    .unwrap_or(null()),
+                    .unwrap_or_default(),
                 self.service_status() == ServiceStatus::Client,
             )
         })?;
