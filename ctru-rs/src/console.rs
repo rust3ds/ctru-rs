@@ -41,7 +41,7 @@ pub enum Dimension {
 
 /// Destination for stderr redirection with [`redirect_stderr`].
 #[doc(alias = "debugDevice")]
-#[repr(u32)]
+#[repr(u8)]
 pub enum Destination {
     /// Print stderr to the active [`Console`] window. This is the default behavior.
     Console = ctru_sys::debugDevice_CONSOLE,
