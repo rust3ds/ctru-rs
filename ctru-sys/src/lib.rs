@@ -1,4 +1,5 @@
 #![no_std]
+#![expect(unnecessary_transmutes)]
 #![allow(non_upper_case_globals)]
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
@@ -40,5 +41,5 @@ pub use bindings::*;
 /// In lieu of a proper errno function exposed by libc
 /// (<https://github.com/rust-lang/libc/issues/1995>).
 pub unsafe fn errno() -> s32 {
-    *__errno()
+    return unsafe { *__errno() };
 }

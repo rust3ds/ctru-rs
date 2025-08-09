@@ -9,8 +9,8 @@ use std::f32::consts::PI;
 use ctru::linear::LinearAllocator;
 use ctru::prelude::*;
 use ctru::services::ndsp::{
-    wave::{Status, Wave},
     AudioFormat, AudioMix, InterpolationType, Ndsp, OutputMode,
+    wave::{Status, Wave},
 };
 
 // Configuration for the NDSP process and channels.

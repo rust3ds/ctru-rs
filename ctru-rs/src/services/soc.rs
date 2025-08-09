@@ -9,9 +9,9 @@ use libc::memalign;
 use std::net::Ipv4Addr;
 use std::sync::Mutex;
 
+use crate::Error;
 use crate::error::ResultCode;
 use crate::services::ServiceReference;
-use crate::Error;
 
 /// Handle to the Network Socket service.
 pub struct Soc {

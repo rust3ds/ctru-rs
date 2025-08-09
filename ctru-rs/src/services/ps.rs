@@ -6,8 +6,8 @@
 //!
 //! See also <https://www.3dbrew.org/wiki/Process_Services>
 
-use crate::error::ResultCode;
 use crate::Result;
+use crate::error::ResultCode;
 
 /// Type of AES algorithm to use.
 #[doc(alias = "PS_AESAlgorithm")]

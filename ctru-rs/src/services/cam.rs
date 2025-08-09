@@ -5,8 +5,8 @@
 #![doc(alias = "camera")]
 
 use crate::error::{Error, ResultCode};
-use crate::services::gspgpu::FramebufferFormat;
 use crate::services::ServiceReference;
+use crate::services::gspgpu::FramebufferFormat;
 use ctru_sys::Handle;
 use private::Configuration;
 

@@ -119,7 +119,7 @@ fn main() {
     let binding_builder = Builder::default()
         .header(ctru_header.to_str().unwrap())
         .header(errno_header.to_str().unwrap())
-        .rust_target(RustTarget::Nightly)
+        .rust_target(RustTarget::nightly())
         .use_core()
         .trust_clang_mangling(false)
         .must_use_type("Result")
@@ -138,10 +138,11 @@ fn main() {
         .blocklist_type("sockaddr_storage")
         .blocklist_type("(in_addr|wchar|socklen|suseconds|sa_family|time)_t")
         .blocklist_item("SOL_CONFIG")
-        .opaque_type("MiiData")
+        //.opaque_type("MiiData") Looks like MiiData can be built by the latest bindgen
         .derive_default(true)
         .wrap_static_fns(true)
         .wrap_static_fns_path(out_dir.join("libctru_statics_wrapper"))
+        .wrap_unsafe_ops(true)
         .clang_args(clang.args().iter().map(|s| s.to_str().unwrap()))
         .parse_callbacks(Box::new(CustomCallbacks));
 
@@ -281,6 +282,11 @@ fn generate_layout_tests(
     test_generator
             // Opaque types:
             .blocklist_type("MiiData")
+            .blocklist_type("FriendInfo")
+            .blocklist_type("DecryptedApproachContext")
+            .blocklist_type("CFLStoreData")
+            .blocklist_type("AccountInfo")
+            .blocklist_type("ExistentServerAccountData")
             // Bitfields:
             .blocklist_field(
                 "ExHeader_SystemInfoFlags",
@@ -304,6 +310,8 @@ fn generate_layout_tests(
             )
             // Variable-length arrays:
             .blocklist_field("romfs_(dir|file)", "name")
+            .blocklist_field("EulaEntry", "textData")
+            .blocklist_field("EulaList", "entries")
             // Bindgen anonymous types (and their associated fields):
             .blocklist_type(".*__bindgen.*")
             .blocklist_field(".*", "__bindgen.*")

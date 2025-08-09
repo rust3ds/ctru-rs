@@ -120,7 +120,9 @@ fn main() -> Result<(), Error> {
                     if networks.len() == 1 { "" } else { "s" }
                 );
 
-                println!("D-Pad to select, A to connect as client, R + A to connect as spectator, B to create a new network");
+                println!(
+                    "D-Pad to select, A to connect as client, R + A to connect as spectator, B to create a new network"
+                );
 
                 for (index, n) in networks.iter().enumerate() {
                     println!(
@@ -154,7 +156,7 @@ fn main() -> Result<(), Error> {
             }
             State::Connect => {
                 let appdata = uds.network_appdata(&networks[selected_network], None)?;
-                println!("App data: {:02X?}", appdata);
+                println!("App data: {appdata:02X?}");
 
                 if let Err(e) = uds.connect_network(
                     &networks[selected_network],
@@ -168,10 +170,10 @@ fn main() -> Result<(), Error> {
                     println!("Press A to start scanning or B to create a new network");
                 } else {
                     channel = uds.channel()?;
-                    println!("Connected using channel {}", channel);
+                    println!("Connected using channel {channel}");
 
                     let appdata = uds.appdata(None)?;
-                    println!("App data: {:02X?}", appdata);
+                    println!("App data: {appdata:02X?}");
 
                     if uds.wait_status_event(false, false)? {
                         prev_node_mask = handle_status_event(&uds, prev_node_mask)?;
@@ -238,7 +240,7 @@ fn main() -> Result<(), Error> {
                         let appdata = [0x69u8, 0x8a, 0x05, 0x5c]
                             .into_iter()
                             .chain((*b"Test appdata.").into_iter())
-                            .chain(std::iter::repeat(0).take(3))
+                            .chain(std::iter::repeat_n(0, 3))
                             .collect::<Vec<_>>();
 
                         uds.set_appdata(&appdata)?;

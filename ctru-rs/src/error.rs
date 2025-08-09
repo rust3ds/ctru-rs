@@ -178,7 +178,10 @@ impl fmt::Display for Error {
             Self::OutputAlreadyRedirected => {
                 write!(f, "output streams are already redirected to 3dslink")
             }
-            Self::BufferTooShort{provided, wanted} => write!(f, "the provided buffer's length is too short (length = {provided}) to hold the wanted data (size = {wanted})"),
+            Self::BufferTooShort { provided, wanted } => write!(
+                f,
+                "the provided buffer's length is too short (length = {provided}) to hold the wanted data (size = {wanted})"
+            ),
             Self::Other(err) => write!(f, "{err}"),
         }
     }
@@ -236,9 +239,9 @@ fn result_code_description_str(result: ctru_sys::Result) -> Cow<'static, str> {
         RD_ALREADY_DONE, RD_ALREADY_EXISTS, RD_ALREADY_INITIALIZED, RD_BUSY, RD_CANCEL_REQUESTED,
         RD_INVALID_ADDRESS, RD_INVALID_COMBINATION, RD_INVALID_ENUM_VALUE, RD_INVALID_HANDLE,
         RD_INVALID_POINTER, RD_INVALID_RESULT_VALUE, RD_INVALID_SELECTION, RD_INVALID_SIZE,
-        RD_MISALIGNED_ADDRESS, RD_MISALIGNED_SIZE, RD_NOT_AUTHORIZED, RD_NOT_FOUND,
-        RD_NOT_IMPLEMENTED, RD_NOT_INITIALIZED, RD_NO_DATA, RD_OUT_OF_MEMORY, RD_OUT_OF_RANGE,
-        RD_SUCCESS, RD_TIMEOUT, RD_TOO_LARGE,
+        RD_MISALIGNED_ADDRESS, RD_MISALIGNED_SIZE, RD_NO_DATA, RD_NOT_AUTHORIZED, RD_NOT_FOUND,
+        RD_NOT_IMPLEMENTED, RD_NOT_INITIALIZED, RD_OUT_OF_MEMORY, RD_OUT_OF_RANGE, RD_SUCCESS,
+        RD_TIMEOUT, RD_TOO_LARGE,
     };
 
     Cow::Borrowed(match R_DESCRIPTION(result) {
@@ -280,7 +283,7 @@ fn result_code_description_str(result: ctru_sys::Result) -> Cow<'static, str> {
 fn result_code_module_str(result: ctru_sys::Result) -> Cow<'static, str> {
     use ctru_sys::{
         RM_AC, RM_ACC, RM_ACT, RM_AM, RM_AM_LOW, RM_APPLET, RM_APPLICATION, RM_AVD, RM_BOSS,
-        RM_CAM, RM_CARD, RM_CARDNOR, RM_CARD_SPI, RM_CEC, RM_CODEC, RM_COMMON, RM_CONFIG, RM_CSND,
+        RM_CAM, RM_CARD, RM_CARD_SPI, RM_CARDNOR, RM_CEC, RM_CODEC, RM_COMMON, RM_CONFIG, RM_CSND,
         RM_CUP, RM_DBG, RM_DBM, RM_DD, RM_DI, RM_DLP, RM_DMNT, RM_DSP, RM_EC, RM_ENC, RM_FATFS,
         RM_FILE_SERVER, RM_FND, RM_FRIENDS, RM_FS, RM_FSI, RM_GD, RM_GPIO, RM_GSP, RM_GYROSCOPE,
         RM_HID, RM_HIO, RM_HIO_LOW, RM_HTTP, RM_I2C, RM_INVALIDRESVAL, RM_IR, RM_KERNEL, RM_L2B,

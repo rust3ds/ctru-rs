@@ -18,9 +18,7 @@ fn size_of_ret<T, U>(_f: impl Fn(U) -> T) -> usize {
 }
 
 macro_rules! size_of {
-    ($ty:ident::$field:ident) => {{
-        $crate::size_of_ret(|x: $ty| x.$field)
-    }};
+    ($ty:ident::$field:ident) => {{ $crate::size_of_ret(|x: $ty| x.$field) }};
     ($ty:ty) => {
         ::std::mem::size_of::<$ty>()
     };

@@ -190,7 +190,7 @@ impl Ndsp {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn channel(&self, id: u8) -> std::result::Result<Channel, Error> {
+    pub fn channel(&self, id: u8) -> std::result::Result<Channel<'_>, Error> {
         let in_bounds = self.channel_flags.get(id as usize);
 
         match in_bounds {
@@ -766,10 +766,19 @@ impl From<[f32; 12]> for AudioMix {
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Self::InvalidChannel(id) => write!(f, "audio Channel with ID {id} doesn't exist. Valid channels have an ID between 0 and 23"),
-            Self::ChannelAlreadyInUse(id) => write!(f, "audio Channel with ID {id} is already being used. Drop the other instance if you want to use it here"),
+            Self::InvalidChannel(id) => write!(
+                f,
+                "audio Channel with ID {id} doesn't exist. Valid channels have an ID between 0 and 23"
+            ),
+            Self::ChannelAlreadyInUse(id) => write!(
+                f,
+                "audio Channel with ID {id} is already being used. Drop the other instance if you want to use it here"
+            ),
             Self::WaveBusy(id) => write!(f, "the selected Wave is busy playing on channel {id}"),
-            Self::SampleCountOutOfBounds(samples_requested, max_samples) => write!(f, "the sample count requested is too big (requested = {samples_requested}, maximum = {max_samples})"),
+            Self::SampleCountOutOfBounds(samples_requested, max_samples) => write!(
+                f,
+                "the sample count requested is too big (requested = {samples_requested}, maximum = {max_samples})"
+            ),
         }
     }
 }

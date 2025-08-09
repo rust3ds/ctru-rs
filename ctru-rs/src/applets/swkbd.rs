@@ -5,9 +5,9 @@
 
 use crate::services::{apt::Apt, gfx::Gfx};
 use ctru_sys::{
-    aptLaunchLibraryApplet, aptSetMessageCallback, envGetAptAppId, svcCloseHandle,
-    svcCreateMemoryBlock, APT_SendParameter, SwkbdButton, SwkbdDictWord, SwkbdLearningData,
-    SwkbdState, SwkbdStatusData, APPID_SOFTWARE_KEYBOARD, APTCMD_MESSAGE, NS_APPID,
+    APPID_SOFTWARE_KEYBOARD, APT_SendParameter, APTCMD_MESSAGE, NS_APPID, SwkbdButton,
+    SwkbdDictWord, SwkbdLearningData, SwkbdState, SwkbdStatusData, aptLaunchLibraryApplet,
+    aptSetMessageCallback, envGetAptAppId, svcCloseHandle, svcCreateMemoryBlock,
 };
 
 use bitflags::bitflags;
@@ -733,15 +733,12 @@ impl SoftwareKeyboard {
             // `self` is allowed to be moved again, we can safely use a pointer to the local value contained in `self.filter_callback`
             // The cast here is also sound since the pointer will only be read from if `self.filter_callback.is_some()` returns true.
             let mut data = MessageCallbackData {
-                filter_callback: std::ptr::addr_of!(self.filter_callback).cast(),
+                filter_callback: (&raw const self.filter_callback).cast(),
                 swkbd_shared_mem_ptr,
             };
 
             if self.filter_callback.is_some() {
-                aptSetMessageCallback(
-                    Some(Self::swkbd_message_callback),
-                    std::ptr::addr_of_mut!(data).cast(),
-                )
+                aptSetMessageCallback(Some(Self::swkbd_message_callback), (&raw mut data).cast())
             }
 
             aptLaunchLibraryApplet(
