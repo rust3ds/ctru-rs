@@ -6,7 +6,9 @@
 //! Have a look at [`redirect_stderr`] or [`Soc::redirect_to_3dslink`](crate::services::soc::Soc::redirect_to_3dslink) for better alternatives when debugging applications.
 use std::cell::{RefMut, UnsafeCell};
 
-use ctru_sys::{PrintConsole, consoleClear, consoleDebugInit, consoleInit, consoleSelect, consoleSetWindow};
+use ctru_sys::{
+    PrintConsole, consoleClear, consoleDebugInit, consoleInit, consoleSelect, consoleSetWindow,
+};
 
 use crate::services::gfx::{Flush, Screen, Swap};
 
