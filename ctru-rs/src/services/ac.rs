@@ -134,7 +134,7 @@ impl Ac {
     #[doc(alias = "ACU_GetWifiSecurityMode")]
     pub fn wifi_security(&self) -> crate::Result<SecurityMode> {
         unsafe {
-            let mut ret = 0u32;
+            let mut ret = 0u8;
             ResultCode(ctru_sys::ACU_GetSecurityMode(&mut ret))?;
             // fix this, for some reason the bindings have the type as a struct and not enum
             // and so i can't impl TryFrom automatically
@@ -238,9 +238,9 @@ impl Ac {
     /// # }
     /// ```
     #[doc(alias = "ACU_GetProxyPort")]
-    pub fn proxy_port(&self) -> crate::Result<u32> {
+    pub fn proxy_port(&self) -> crate::Result<u16> {
         unsafe {
-            let mut ret = 0u32;
+            let mut ret = 0u16;
             ResultCode(ctru_sys::ACU_GetProxyPort(&mut ret))?;
 
             Ok(ret)
@@ -338,7 +338,7 @@ impl Ac {
 
 #[doc(alias = "acSecurityMode")]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[repr(u32)]
+#[repr(u8)]
 #[non_exhaustive]
 #[allow(non_camel_case_types)]
 /// Represents all the supported Wi-Fi security modes.
