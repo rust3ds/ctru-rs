@@ -104,7 +104,9 @@ impl<'a> FileExplorer<'a> {
             }
         };
 
-        println!("Press Start to exit, A to select an entry by number, B to go up a directory, X to set the path.");
+        println!(
+            "Press Start to exit, A to select an entry by number, B to go up a directory, X to set the path."
+        );
     }
 
     fn print_dir_entries(&mut self) {
@@ -117,7 +119,7 @@ impl<'a> FileExplorer<'a> {
                     println!("{i:2} - {}", entry.file_name().to_string_lossy());
                     self.entries.push(entry);
 
-                    if (i + 1) % 20 == 0 {
+                    if (i + 1).is_multiple_of(20) {
                         self.wait_for_page_down();
                     }
                 }

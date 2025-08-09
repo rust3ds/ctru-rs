@@ -24,6 +24,7 @@ fn main() {
     let romfs_path = PathBuf::from(format!("{manifest_dir}/{romfs_dir_setting}"));
 
     // Check if the romfs path exists so we can compile the module
+    println!("cargo:rustc-check-cfg=cfg(romfs_exists)");
     if romfs_path.exists() {
         println!("cargo:rustc-cfg=romfs_exists");
     }

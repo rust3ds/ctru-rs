@@ -9,8 +9,8 @@ keywords = ["3ds", "libctru"]
 categories = ["os", "api-bindings", "hardware-support"]
 exclude = ["examples"]
 license = "Zlib"
-edition = "2021"
-rust-version = "1.73"
+edition = "2024"
+rust-version = "1.88"
 
 [lib]
 crate-type = ["rlib"]
@@ -19,15 +19,15 @@ name = "ctru"
 [dependencies]
 cfg-if = "1.0"
 ctru-sys = { path = "../ctru-sys", version = "0.5.0" }
-const-zero = "0.1.0"
-shim-3ds = { git = "https://github.com/rust3ds/shim-3ds.git" }
-pthread-3ds = { git = "https://github.com/rust3ds/pthread-3ds.git" }
-libc = "0.2.121"
-bitflags = "2.3.3"
-widestring = "1.0.2"
+shim-3ds = { workspace = true }
+pthread-3ds = { workspace = true }
+libc = { workspace = true, default-features = true }
+bitflags = "2.6.0"
+macaddr = "1.0.1"
+widestring = "1.1.0"
 
 [build-dependencies]
-toml = "0.5"
+toml = "0.9.4"
 
 [dev-dependencies]
 bytemuck = "1.12.3"
@@ -35,7 +35,7 @@ cfg-if = "1.0.0"
 ferris-says = "0.2.1"
 futures = "0.3"
 lewton = "0.10.2"
-test-runner = { git = "https://github.com/rust3ds/test-runner.git" }
+test-runner = { git = "https://github.com/rust3ds/ctru-rs.git" }
 time = "0.3.7"
 tokio = { version = "1.16", features = ["rt", "time", "sync", "macros"] }
 

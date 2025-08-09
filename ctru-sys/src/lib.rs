@@ -1,8 +1,11 @@
 #![no_std]
+#![expect(unnecessary_transmutes)]
 #![allow(non_upper_case_globals)]
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 #![allow(clippy::all)]
+#![allow(unexpected_cfgs)] // Read below why we necessate a check for rust_analyzer.
+#![deny(ambiguous_glob_reexports)]
 #![cfg_attr(test, feature(custom_test_frameworks))]
 #![cfg_attr(test, test_runner(test_runner::run_gdb))]
 #![doc(
@@ -13,35 +16,30 @@
 )]
 #![doc(html_root_url = "https://rust3ds.github.io/ctru-rs/crates")]
 
+// Prevent linking errors from the standard `test` library when running `cargo 3ds test --lib`.
+// See https://github.com/rust-lang/rust-analyzer/issues/14167 for why we use `not(rust_analyzer)`
+#[cfg(all(test, not(rust_analyzer)))]
+extern crate shim_3ds;
+
 pub mod result;
 pub use result::*;
 
-// Fun fact: C compilers are allowed to represent enums as the smallest integer type that can hold all of its variants,
-// meaning that enums are allowed to be the size of a `c_short` or a `c_char` rather than the size of a `c_int`.
-// Libctru's `errorConf` struct contains two enums that depend on this narrowing property for size and alignment purposes,
-// and since `bindgen` generates all enums with `c_int` sizing, we have to blocklist those types and manually define them
-// here with the proper size.
-pub type errorReturnCode = libc::c_schar;
-pub const ERROR_UNKNOWN: errorReturnCode = -1;
-pub const ERROR_NONE: errorReturnCode = 0;
-pub const ERROR_SUCCESS: errorReturnCode = 1;
-pub const ERROR_NOT_SUPPORTED: errorReturnCode = 2;
-pub const ERROR_HOME_BUTTON: errorReturnCode = 10;
-pub const ERROR_SOFTWARE_RESET: errorReturnCode = 11;
-pub const ERROR_POWER_BUTTON: errorReturnCode = 12;
+// By only exporting the `libc` module in tests, we can catch any potential conflicts between
+// generated bindings and existing `libc` types, since we use #[deny(ambiguous_glob_reexports)].
+#[cfg(test)]
+pub use libc::*;
 
-pub type errorScreenFlag = libc::c_char;
-pub const ERROR_NORMAL: errorScreenFlag = 0;
-pub const ERROR_STEREO: errorScreenFlag = 1;
+mod bindings {
+    // Meanwhile, make sure generated bindings can still refer to libc types if needed:
+    use libc::*;
 
-include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
+    include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
+}
+
+pub use bindings::*;
 
 /// In lieu of a proper errno function exposed by libc
 /// (<https://github.com/rust-lang/libc/issues/1995>).
 pub unsafe fn errno() -> s32 {
-    *__errno()
+    return unsafe { *__errno() };
 }
-
-// Prevent linking errors from the standard `test` library when running `cargo 3ds test --lib`.
-#[cfg(test)]
-extern crate shim_3ds;

@@ -10,10 +10,10 @@
 #![doc(alias = "controller")]
 #![doc(alias = "gamepad")]
 
-use crate::error::ResultCode;
-use crate::services::svc::{make_ipc_header, HandleExt};
-use crate::services::ServiceReference;
 use crate::Error;
+use crate::error::ResultCode;
+use crate::services::ServiceReference;
+use crate::services::svc::{HandleExt, make_ipc_header};
 use ctru_sys::{Handle, MEMPERM_READ, MEMPERM_READWRITE};
 use std::alloc::Layout;
 use std::ffi::CString;
@@ -150,7 +150,7 @@ impl IrUser {
                         shared_mem.shared_memory_layout,
                     );
 
-                    Ok(())
+                    Ok::<_, Error>(())
                 })()
                 .unwrap();
             },
@@ -357,7 +357,7 @@ impl IrUser {
 
 // Internal helper for rounding up a value to a multiple of another value.
 fn round_up(value: usize, multiple: usize) -> usize {
-    if value % multiple != 0 {
+    if !value.is_multiple_of(multiple) {
         (value / multiple) * multiple + multiple
     } else {
         (value / multiple) * multiple

@@ -256,7 +256,7 @@ pub struct Mii {
     pub console_identity: ConsoleIdentity,
 
     /// Unique system ID, not dependant on the MAC address
-    pub system_id: [u8; 8],
+    pub system_id: u64,
     /// Console's MAC address.
     pub mac_address: [u8; 6],
 
@@ -287,7 +287,7 @@ pub struct Mii {
     /// Beard details.
     pub beard_details: BeardDetails,
     /// Glasses details.
-    pub glass_details: GlassesDetails,
+    pub glasses_details: GlassesDetails,
     /// Mole details.
     pub mole_details: MoleDetails,
 
@@ -297,74 +297,38 @@ pub struct Mii {
 
 impl From<ctru_sys::MiiData> for Mii {
     fn from(mii_data: ctru_sys::MiiData) -> Self {
-        let raw_mii_data = mii_data._bindgen_opaque_blob;
         // Source for the representation and what each thing means: https://www.3dbrew.org/wiki/Mii
-        let raw_options = vec_bit(raw_mii_data[0x1]);
-        let raw_position = vec_bit(raw_mii_data[0x2]);
-        let raw_device = vec_bit(raw_mii_data[0x3]);
-        let system_id = [
-            raw_mii_data[0x4],
-            raw_mii_data[0x5],
-            raw_mii_data[0x6],
-            raw_mii_data[0x7],
-            raw_mii_data[0x8],
-            raw_mii_data[0x9],
-            raw_mii_data[0xA],
-            raw_mii_data[0xB],
-        ];
-        let mac_address = [
-            raw_mii_data[0x10],
-            raw_mii_data[0x11],
-            raw_mii_data[0x12],
-            raw_mii_data[0x13],
-            raw_mii_data[0x14],
-            raw_mii_data[0x15],
-        ];
-        let raw_details: [bool; 16] = get_and_concat_vec_bit(&raw_mii_data, &[0x18, 0x19])
-            .try_into()
-            .unwrap();
-        let raw_utf16_name = &raw_mii_data[0x1A..0x2D];
-        let height = raw_mii_data[0x2E];
-        let width = raw_mii_data[0x2F];
-        let raw_face_style = vec_bit(raw_mii_data[0x30]);
-        let raw_face_details = vec_bit(raw_mii_data[0x31]);
-        let raw_hair_details = vec_bit(raw_mii_data[0x33]);
-        let raw_eye_details: [bool; 32] =
-            get_and_concat_vec_bit(&raw_mii_data, &[0x34, 0x35, 0x36, 0x37])
-                .try_into()
-                .unwrap();
-        let raw_eyebrow_details: [bool; 32] =
-            get_and_concat_vec_bit(&raw_mii_data, &[0x38, 0x39, 0x3A, 0x3B])
-                .try_into()
-                .unwrap();
-        let raw_nose_details: [bool; 16] = get_and_concat_vec_bit(&raw_mii_data, &[0x3C, 0x3D])
-            .try_into()
-            .unwrap();
-        let raw_mouth_details: [bool; 16] = get_and_concat_vec_bit(&raw_mii_data, &[0x3E, 0x3F])
-            .try_into()
-            .unwrap();
-        let raw_mustache_details: [bool; 16] = get_and_concat_vec_bit(&raw_mii_data, &[0x40, 0x41])
-            .try_into()
-            .unwrap();
-        let raw_beard_details: [bool; 16] = get_and_concat_vec_bit(&raw_mii_data, &[0x42, 0x42])
-            .try_into()
-            .unwrap();
-        let raw_glass_details: [bool; 16] = get_and_concat_vec_bit(&raw_mii_data, &[0x44, 0x45])
-            .try_into()
-            .unwrap();
-        let raw_mole_details: [bool; 16] = get_and_concat_vec_bit(&raw_mii_data, &[0x46, 0x47])
-            .try_into()
-            .unwrap();
-        let raw_utf16_author = &raw_mii_data[0x48..0x5C];
+        let raw_options = mii_data.mii_options._bitfield_1;
+        let raw_position = mii_data.mii_pos._bitfield_1;
+        let raw_device = mii_data.console_identity._bitfield_1;
+        let system_id = mii_data.system_id;
+        let mac_address = mii_data.mac;
+        let raw_details = mii_data.mii_details._bitfield_1;
+        let raw_utf16_name = mii_data.mii_name;
+        let height = mii_data.height;
+        let width = mii_data.width;
+        let raw_face_style = mii_data.face_style._bitfield_1;
+        let raw_face_details = mii_data.face_details._bitfield_1;
+        let raw_hair_style = mii_data.hair_style;
+        let raw_hair_details = mii_data.hair_details._bitfield_1;
+        let raw_eye_details = mii_data.eye_details._bitfield_1;
+        let raw_eyebrow_details = mii_data.eyebrow_details._bitfield_1;
+        let raw_nose_details = mii_data.nose_details._bitfield_1;
+        let raw_mouth_details = mii_data.mouth_details._bitfield_1;
+        let raw_mustache_details = mii_data.mustache_details._bitfield_1;
+        let raw_beard_details = mii_data.beard_details._bitfield_1;
+        let raw_glasses_details = mii_data.glasses_details._bitfield_1;
+        let raw_mole_details = mii_data.mole_details._bitfield_1;
+        let raw_utf16_author = mii_data.author_name;
 
-        let name = utf16_byte_pairs_to_string(raw_utf16_name);
-        let author_name = utf16_byte_pairs_to_string(raw_utf16_author);
+        let name = String::from_utf16_lossy(&raw_utf16_name).replace('\0', "");
+        let author_name = String::from_utf16_lossy(&raw_utf16_author).replace('\0', "");
 
         let options = Options {
-            is_copying_allowed: raw_options[0],
-            is_profanity_flag_enabled: raw_options[1],
+            is_copying_allowed: raw_options.get_bit(0),
+            is_profanity_flag_enabled: raw_options.get_bit(1),
             region_lock: {
-                match (raw_options[3], raw_options[2]) {
+                match (raw_options.get_bit(3), raw_options.get_bit(2)) {
                     (false, false) => RegionLock::None,
                     (false, true) => RegionLock::Japan,
                     (true, false) => RegionLock::USA,
@@ -372,7 +336,7 @@ impl From<ctru_sys::MiiData> for Mii {
                 }
             },
             charset: {
-                match (raw_options[5], raw_options[4]) {
+                match (raw_options.get_bit(5), raw_options.get_bit(4)) {
                     (false, false) => Charset::JapanUSAEurope,
                     (false, true) => Charset::China,
                     (true, false) => Charset::Korea,
@@ -382,13 +346,17 @@ impl From<ctru_sys::MiiData> for Mii {
         };
 
         let selector_position = SelectorPosition {
-            page_index: partial_u8_bits_to_u8(&raw_position[0..=3]),
-            slot_index: partial_u8_bits_to_u8(&raw_position[4..=7]),
+            page_index: raw_position.get(0, 4) as u8, // index 0 to 3
+            slot_index: raw_position.get(4, 4) as u8, // index 4 to 7
         };
 
         let console_identity = ConsoleIdentity {
             origin_console: {
-                match (raw_device[6], raw_device[5], raw_device[4]) {
+                match (
+                    raw_device.get_bit(6),
+                    raw_device.get_bit(5),
+                    raw_device.get_bit(4),
+                ) {
                     (false, false, true) => OriginConsole::Wii,
                     (false, true, false) => OriginConsole::DSi,
                     (false, true, true) => OriginConsole::N3DS,
@@ -399,92 +367,92 @@ impl From<ctru_sys::MiiData> for Mii {
 
         let details = Details {
             sex: {
-                match raw_details[0] {
+                match raw_details.get_bit(0) {
                     true => Sex::Female,
                     false => Sex::Male,
                 }
             },
-            birthday_month: partial_u8_bits_to_u8(&raw_details[1..=4]),
-            birthday_day: partial_u8_bits_to_u8(&raw_details[5..=9]),
-            shirt_color: partial_u8_bits_to_u8(&raw_details[10..=13]),
-            is_favorite: raw_details[14],
-            is_sharing_enabled: !raw_face_style[0],
+            birthday_month: raw_details.get(1, 4) as u8, // index 1 to 4
+            birthday_day: raw_details.get(5, 5) as u8,   // index 5 to 9
+            shirt_color: raw_details.get(10, 4) as u8,   // index 10 to 13
+            is_favorite: raw_details.get_bit(14),
+            is_sharing_enabled: !raw_face_style.get_bit(0),
         };
 
         let face_details = FaceDetails {
             style: FaceStyle {
-                shape: partial_u8_bits_to_u8(&raw_face_style[1..=4]),
-                skin_color: partial_u8_bits_to_u8(&raw_face_style[5..=7]),
+                shape: raw_face_style.get(1, 4) as u8,      // index 1 to 4
+                skin_color: raw_face_style.get(5, 3) as u8, // index 5 to 7
             },
-            wrinkles: partial_u8_bits_to_u8(&raw_face_details[0..=3]),
-            makeup: partial_u8_bits_to_u8(&raw_face_details[4..=7]),
+            wrinkles: raw_face_details.get(0, 4) as u8, // index 0 to 3
+            makeup: raw_face_details.get(4, 4) as u8,   // index 4 to 7
         };
 
         let hair_details = HairDetails {
-            style: raw_mii_data[0x32],
-            color: partial_u8_bits_to_u8(&raw_hair_details[0..=2]),
-            is_flipped: raw_hair_details[3],
+            style: raw_hair_style,
+            color: raw_hair_details.get(0, 3) as u8, // index 0 to 2
+            is_flipped: raw_hair_details.get_bit(3),
         };
 
         let eye_details = EyeDetails {
-            style: partial_u8_bits_to_u8(&raw_eye_details[0..=5]),
-            color: partial_u8_bits_to_u8(&raw_eye_details[6..=8]),
-            scale: partial_u8_bits_to_u8(&raw_eye_details[9..=12]),
-            y_scale: partial_u8_bits_to_u8(&raw_eye_details[13..=15]),
-            rotation: partial_u8_bits_to_u8(&raw_eye_details[16..=20]),
-            x_spacing: partial_u8_bits_to_u8(&raw_eye_details[21..=24]),
-            y_position: partial_u8_bits_to_u8(&raw_eye_details[25..=29]),
+            style: raw_eye_details.get(0, 6) as u8,       // index 0 to 5
+            color: raw_eye_details.get(6, 3) as u8,       // index 6 to 8
+            scale: raw_eye_details.get(9, 4) as u8,       // index 9 to 12
+            y_scale: raw_eye_details.get(13, 3) as u8,    // index 13 to 15
+            rotation: raw_eye_details.get(16, 5) as u8,   // index 16 to 20
+            x_spacing: raw_eye_details.get(21, 4) as u8,  // index 21 to 24
+            y_position: raw_eye_details.get(25, 5) as u8, // index 25 to 29
         };
 
         let eyebrow_details = EyebrowDetails {
-            style: partial_u8_bits_to_u8(&raw_eyebrow_details[0..=4]),
-            color: partial_u8_bits_to_u8(&raw_eyebrow_details[5..=7]),
-            scale: partial_u8_bits_to_u8(&raw_eyebrow_details[8..=11]),
+            style: raw_eyebrow_details.get(0, 5) as u8, // index 0 to 4
+            color: raw_eyebrow_details.get(5, 3) as u8, // index 5 to 7
+            scale: raw_eyebrow_details.get(8, 4) as u8, // index 8 to 11
+            y_scale: raw_eyebrow_details.get(12, 3) as u8, // index 12 to 14
             // Bits are skipped here, following the 3dbrew wiki:
             // https://www.3dbrew.org/wiki/Mii#Mii_format offset 0x38
-            y_scale: partial_u8_bits_to_u8(&raw_eyebrow_details[12..=14]),
-            rotation: partial_u8_bits_to_u8(&raw_eyebrow_details[16..=19]),
-            x_spacing: partial_u8_bits_to_u8(&raw_eyebrow_details[21..=24]),
-            y_position: partial_u8_bits_to_u8(&raw_eyebrow_details[25..=29]),
+            rotation: raw_eyebrow_details.get(16, 4) as u8, // index 16 to 19
+            x_spacing: raw_eyebrow_details.get(21, 4) as u8, // index 21 to 24
+            y_position: raw_eyebrow_details.get(25, 5) as u8, // index 25 to 29
         };
 
         let nose_details = NoseDetails {
-            style: partial_u8_bits_to_u8(&raw_nose_details[0..=4]),
-            scale: partial_u8_bits_to_u8(&raw_nose_details[5..=8]),
-            y_position: partial_u8_bits_to_u8(&raw_nose_details[9..=13]),
+            style: raw_nose_details.get(0, 5) as u8,      // index 0 to 4
+            scale: raw_nose_details.get(5, 4) as u8,      // index 5 to 8
+            y_position: raw_nose_details.get(9, 5) as u8, // index 9 to 13
         };
 
         let mouth_details = MouthDetails {
-            style: partial_u8_bits_to_u8(&raw_mouth_details[0..=5]),
-            color: partial_u8_bits_to_u8(&raw_mouth_details[6..=8]),
-            scale: partial_u8_bits_to_u8(&raw_mouth_details[9..=12]),
-            y_scale: partial_u8_bits_to_u8(&raw_mouth_details[13..=15]),
-            y_position: partial_u8_bits_to_u8(&raw_mustache_details[0..=4]),
+            style: raw_mouth_details.get(0, 6) as u8,    // index 0 to 5
+            color: raw_mouth_details.get(6, 3) as u8,    // index 6 to 8
+            scale: raw_mouth_details.get(9, 4) as u8,    // index 9 to 12
+            y_scale: raw_mouth_details.get(13, 3) as u8, // index 13 to 15
+            y_position: raw_mustache_details.get(0, 5) as u8, // index 0 to 4
         };
 
         let mustache_details = MustacheDetails {
-            mustache_style: partial_u8_bits_to_u8(&raw_mustache_details[5..=7]),
+            mustache_style: raw_mustache_details.get(5, 3) as u8, // index 5 to 7
         };
 
         let beard_details = BeardDetails {
-            style: partial_u8_bits_to_u8(&raw_beard_details[0..=2]),
-            color: partial_u8_bits_to_u8(&raw_beard_details[3..=5]),
-            scale: partial_u8_bits_to_u8(&raw_beard_details[6..=9]),
-            y_position: partial_u8_bits_to_u8(&raw_beard_details[10..=14]),
+            style: raw_beard_details.get(0, 3) as u8, // index 0 to 2
+            color: raw_beard_details.get(3, 6) as u8, // index 3 to 5
+            scale: raw_beard_details.get(6, 4) as u8, // index 6 to 9
+            y_position: raw_beard_details.get(10, 5) as u8, // index 10 to 14
         };
 
-        let glass_details = GlassesDetails {
-            style: partial_u8_bits_to_u8(&raw_glass_details[0..=3]),
-            color: partial_u8_bits_to_u8(&raw_glass_details[4..=6]),
-            scale: partial_u8_bits_to_u8(&raw_glass_details[7..=10]),
-            y_position: partial_u8_bits_to_u8(&raw_glass_details[11..=15]),
+        let glasses_details = GlassesDetails {
+            style: raw_glasses_details.get(0, 4) as u8, // index 0 to 3
+            color: raw_glasses_details.get(4, 3) as u8, // index 4 to 6
+            scale: raw_glasses_details.get(7, 4) as u8, // index 7 to 10
+            y_position: raw_glasses_details.get(11, 5) as u8, // index 11 to 15
         };
 
         let mole_details = MoleDetails {
-            is_enabled: raw_mole_details[0],
-            scale: partial_u8_bits_to_u8(&raw_mole_details[1..=4]),
-            x_position: partial_u8_bits_to_u8(&raw_mole_details[5..=9]),
-            y_position: partial_u8_bits_to_u8(&raw_mole_details[10..=14]),
+            is_enabled: raw_mole_details.get_bit(0),
+            scale: raw_mole_details.get(1, 4) as u8, // index 1 to 4
+            x_position: raw_mole_details.get(5, 5) as u8, // index 5 to 9
+            y_position: raw_mole_details.get(10, 5) as u8, // index 10 to 14
         };
 
         Mii {
@@ -505,50 +473,9 @@ impl From<ctru_sys::MiiData> for Mii {
             mouth_details,
             mustache_details,
             beard_details,
-            glass_details,
+            glasses_details,
             mole_details,
             author_name,
         }
     }
-}
-
-// Methods to handle "_bits_", ``bitvec`` cannot compile to 32-bit targets, so I had to create a few
-// helper methods
-
-/// Transforms a u8 into a [bool; 8]
-fn vec_bit(data: u8) -> [bool; 8] {
-    (0..8)
-        .map(|i| (data & (1 << i)) != 0)
-        .collect::<Vec<bool>>()
-        .try_into()
-        .unwrap()
-}
-
-/// Transforms a [bool; 8] into an u8
-fn vec_bit_to_u8(data: [bool; 8]) -> u8 {
-    data.into_iter()
-        .fold(0, |result, bit| (result << 1) ^ u8::from(bit))
-}
-
-/// Given a series of LE bits, they are filled until a full LE u8 is reached
-fn partial_u8_bits_to_u8(data: &[bool]) -> u8 {
-    let leading_zeroes_to_add = 8 - data.len();
-    let leading_zeroes = vec![false; leading_zeroes_to_add];
-
-    vec_bit_to_u8([data, &leading_zeroes].concat().try_into().unwrap())
-}
-
-/// UTF-16 Strings are give in pairs of bytes (u8), this converts them into an _actual_ string
-fn utf16_byte_pairs_to_string(data: &[u8]) -> String {
-    let raw_utf16_composed = data
-        .chunks_exact(2)
-        .map(|chunk| u16::from_le_bytes([chunk[0], chunk[1]]))
-        .collect::<Vec<u16>>();
-
-    String::from_utf16_lossy(raw_utf16_composed.as_slice()).replace('\0', "")
-}
-
-/// Gets the values from the slice and concatenates them
-fn get_and_concat_vec_bit(data: &[u8], get_values: &[usize]) -> Vec<bool> {
-    get_values.iter().flat_map(|v| vec_bit(data[*v])).collect()
 }
