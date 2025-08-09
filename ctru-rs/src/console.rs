@@ -3,11 +3,12 @@
 //! The [`Console`] works as a virtual shell that renders on screen all output of `stdout`. As such, it is useful as a basic interface to show info to the user,
 //! such as in simple "Hello World" applications or more complex software that does not need much user interaction.
 //!
-//! Have a look at [`Soc::redirect_to_3dslink()`](crate::services::soc::Soc::redirect_to_3dslink) for a better alternative when debugging applications.
-
+//! Have a look at [`redirect_stderr`] or [`Soc::redirect_to_3dslink`](crate::services::soc::Soc::redirect_to_3dslink) for better alternatives when debugging applications.
 use std::cell::{RefMut, UnsafeCell};
 
-use ctru_sys::{PrintConsole, consoleClear, consoleInit, consoleSelect, consoleSetWindow};
+use ctru_sys::{
+    PrintConsole, consoleClear, consoleDebugInit, consoleInit, consoleSelect, consoleSetWindow,
+};
 
 use crate::services::gfx::{Flush, Screen, Swap};
 
@@ -38,6 +39,18 @@ pub enum Dimension {
     Height,
 }
 
+/// Destination for stderr redirection with [`redirect_stderr`].
+#[doc(alias = "debugDevice")]
+#[repr(u8)]
+pub enum Destination {
+    /// Print stderr to the active [`Console`] window. This is the default behavior.
+    Console = ctru_sys::debugDevice_CONSOLE,
+    /// Print stderr via [`ctru_sys::svcOutputDebugString`]. This allows you to capture error and panic messages with `GDB` or other debuggers.
+    Debugger = ctru_sys::debugDevice_SVC,
+    /// Swallow outputs from stderr.
+    Null = ctru_sys::debugDevice_NULL,
+}
+
 /// A [`Screen`] that can be used as a target for [`Console`].
 pub trait ConsoleScreen: Screen + Swap + Flush {}
 impl<S: Screen + Swap + Flush> ConsoleScreen for S {}
@@ -64,6 +77,18 @@ impl<S: Screen + Swap + Flush> ConsoleScreen for S {}
 pub struct Console<'screen> {
     context: Box<UnsafeCell<PrintConsole>>,
     screen: RefMut<'screen, dyn ConsoleScreen>,
+}
+
+/// Send output from stderr to the specified [`Destination`]. This function can be used to capture error and panic messages with `GDB` or other debuggers.
+///
+/// # Notes:
+///
+/// This function is similar in purpose to [`Soc::redirect_to_3dslink`](crate::services::soc::Soc::redirect_to_3dslink), but they each offer slightly different functionality.
+/// `redirect_stderr` enables messages printed via `stderr` to show up in `GDB`, while `redirect_to_3dslink` completely replaces the file descriptor for `stderr` with a network socket instead.
+/// As such, `redirect_to_3dslink` will take priority over this function if both of them are called.
+#[doc(alias = "consoleDebugInit")]
+pub fn redirect_stderr(dest: Destination) {
+    unsafe { consoleDebugInit(dest as _) }
 }
 
 impl<'screen> Console<'screen> {
