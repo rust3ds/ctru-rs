@@ -42,7 +42,7 @@ jobs:
         run: cp -R ./target/armv6k-nintendo-3ds/doc ./_site/crates
 
       - name: Upload docs
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v3
 
   deploy:
     runs-on: ubuntu-latest
