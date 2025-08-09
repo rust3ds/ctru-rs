@@ -50,8 +50,7 @@ impl Try for ResultCode {
         // Wait timeouts aren't counted as "failures" in libctru, but an unfinished task means unsafety for us.
         // Luckily all summary cases are for system failures (except RS_SUCCESS).
         // I don't know if there are any cases in libctru where a Result holds a "failing" summary but a "success" code, so we'll just check for both.
-        if ctru_sys::R_FAILED(self.0) || ctru_sys::R_SUMMARY(self.0) != ctru_sys::RS_SUCCESS as i32
-        {
+        if ctru_sys::R_FAILED(self.0) || ctru_sys::R_SUMMARY(self.0) != ctru_sys::RS_SUCCESS {
             ControlFlow::Break(self.into())
         } else {
             ControlFlow::Continue(())
@@ -119,7 +118,7 @@ impl Error {
     /// Check if the error is a timeout.
     pub fn is_timeout(&self) -> bool {
         match *self {
-            Error::Os(code) => R_DESCRIPTION(code) == ctru_sys::RD_TIMEOUT as ctru_sys::Result,
+            Error::Os(code) => R_DESCRIPTION(code) == ctru_sys::RD_TIMEOUT,
             _ => false,
         }
     }
@@ -179,7 +178,10 @@ impl fmt::Display for Error {
             Self::OutputAlreadyRedirected => {
                 write!(f, "output streams are already redirected to 3dslink")
             }
-            Self::BufferTooShort{provided, wanted} => write!(f, "the provided buffer's length is too short (length = {provided}) to hold the wanted data (size = {wanted})"),
+            Self::BufferTooShort { provided, wanted } => write!(
+                f,
+                "the provided buffer's length is too short (length = {provided}) to hold the wanted data (size = {wanted})"
+            ),
             Self::Other(err) => write!(f, "{err}"),
         }
     }
@@ -193,7 +195,7 @@ fn result_code_level_str(result: ctru_sys::Result) -> Cow<'static, str> {
         RL_TEMPORARY, RL_USAGE,
     };
 
-    Cow::Borrowed(match R_LEVEL(result) as u32 {
+    Cow::Borrowed(match R_LEVEL(result) {
         RL_SUCCESS => "success",
         RL_INFO => "info",
         RL_FATAL => "fatal",
@@ -214,7 +216,7 @@ fn result_code_summary_str(result: ctru_sys::Result) -> Cow<'static, str> {
         RS_WOULDBLOCK, RS_WRONGARG,
     };
 
-    Cow::Borrowed(match R_SUMMARY(result) as u32 {
+    Cow::Borrowed(match R_SUMMARY(result) {
         RS_SUCCESS => "success",
         RS_NOP => "nop",
         RS_WOULDBLOCK => "would_block",
@@ -237,12 +239,12 @@ fn result_code_description_str(result: ctru_sys::Result) -> Cow<'static, str> {
         RD_ALREADY_DONE, RD_ALREADY_EXISTS, RD_ALREADY_INITIALIZED, RD_BUSY, RD_CANCEL_REQUESTED,
         RD_INVALID_ADDRESS, RD_INVALID_COMBINATION, RD_INVALID_ENUM_VALUE, RD_INVALID_HANDLE,
         RD_INVALID_POINTER, RD_INVALID_RESULT_VALUE, RD_INVALID_SELECTION, RD_INVALID_SIZE,
-        RD_MISALIGNED_ADDRESS, RD_MISALIGNED_SIZE, RD_NOT_AUTHORIZED, RD_NOT_FOUND,
-        RD_NOT_IMPLEMENTED, RD_NOT_INITIALIZED, RD_NO_DATA, RD_OUT_OF_MEMORY, RD_OUT_OF_RANGE,
-        RD_SUCCESS, RD_TIMEOUT, RD_TOO_LARGE,
+        RD_MISALIGNED_ADDRESS, RD_MISALIGNED_SIZE, RD_NO_DATA, RD_NOT_AUTHORIZED, RD_NOT_FOUND,
+        RD_NOT_IMPLEMENTED, RD_NOT_INITIALIZED, RD_OUT_OF_MEMORY, RD_OUT_OF_RANGE, RD_SUCCESS,
+        RD_TIMEOUT, RD_TOO_LARGE,
     };
 
-    Cow::Borrowed(match R_DESCRIPTION(result) as u32 {
+    Cow::Borrowed(match R_DESCRIPTION(result) {
         RD_SUCCESS => "success",
         RD_INVALID_RESULT_VALUE => "invalid_result_value",
         RD_TIMEOUT => "timeout",
@@ -281,7 +283,7 @@ fn result_code_description_str(result: ctru_sys::Result) -> Cow<'static, str> {
 fn result_code_module_str(result: ctru_sys::Result) -> Cow<'static, str> {
     use ctru_sys::{
         RM_AC, RM_ACC, RM_ACT, RM_AM, RM_AM_LOW, RM_APPLET, RM_APPLICATION, RM_AVD, RM_BOSS,
-        RM_CAM, RM_CARD, RM_CARDNOR, RM_CARD_SPI, RM_CEC, RM_CODEC, RM_COMMON, RM_CONFIG, RM_CSND,
+        RM_CAM, RM_CARD, RM_CARD_SPI, RM_CARDNOR, RM_CEC, RM_CODEC, RM_COMMON, RM_CONFIG, RM_CSND,
         RM_CUP, RM_DBG, RM_DBM, RM_DD, RM_DI, RM_DLP, RM_DMNT, RM_DSP, RM_EC, RM_ENC, RM_FATFS,
         RM_FILE_SERVER, RM_FND, RM_FRIENDS, RM_FS, RM_FSI, RM_GD, RM_GPIO, RM_GSP, RM_GYROSCOPE,
         RM_HID, RM_HIO, RM_HIO_LOW, RM_HTTP, RM_I2C, RM_INVALIDRESVAL, RM_IR, RM_KERNEL, RM_L2B,
@@ -292,7 +294,7 @@ fn result_code_module_str(result: ctru_sys::Result) -> Cow<'static, str> {
         RM_TCB, RM_TEST, RM_UART, RM_UDS, RM_UPDATER, RM_UTIL, RM_VCTL, RM_WEB_BROWSER,
     };
 
-    Cow::Borrowed(match R_MODULE(result) as u32 {
+    Cow::Borrowed(match R_MODULE(result) {
         RM_COMMON => "common",
         RM_KERNEL => "kernel",
         RM_UTIL => "util",

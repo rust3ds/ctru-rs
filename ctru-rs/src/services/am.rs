@@ -51,6 +51,11 @@ impl<'a> Title<'a> {
     pub fn version(&self) -> u16 {
         self.version
     }
+
+    /// Returns this title's media type
+    pub fn media_type(&self) -> MediaType {
+        self.mediatype
+    }
 }
 
 /// Handle to the Application Manager service.
@@ -135,7 +140,7 @@ impl Am {
     /// # }
     /// ```
     #[doc(alias = "AM_GetTitleList")]
-    pub fn title_list(&self, mediatype: MediaType) -> crate::Result<Vec<Title>> {
+    pub fn title_list(&self, mediatype: MediaType) -> crate::Result<Vec<Title<'_>>> {
         let count = self.title_count(mediatype)?;
         let mut buf = vec![0; count as usize];
         let mut read_amount = 0;

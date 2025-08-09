@@ -1,10 +1,21 @@
 [workspace]
-members = ["ctru-rs", "ctru-sys"]
+members = ["ctru-rs", "ctru-sys", "test-runner"]
 default-members = ["ctru-rs", "ctru-sys"]
 resolver = "2"
 
-[patch.'https://github.com/rust3ds/ctru-rs']
+[workspace.dependencies]
+libc = { version = "0.2.153", default-features = false }
+shim-3ds = { git = "https://github.com/rust3ds/shim-3ds.git" }
+pthread-3ds = { git = "https://github.com/rust3ds/pthread-3ds.git" }
+test-runner = { git = "https://github.com/rust3ds/ctru-rs.git" }
+
+[patch.'https://github.com/rust3ds/ctru-rs.git']
 # Make sure all dependencies use the local packages. This is needed for things
 # like pthread-3ds that rely on ctru-sys, and test-runner which relies on ctru-rs
+test-runner = { path = "test-runner" }
 ctru-rs = { path = "ctru-rs" }
 ctru-sys = { path = "ctru-sys" }
+
+# This was the previous git repo for test-runner
+[patch."https://github.com/rust3ds/test-runner.git"]
+test-runner = { path = "test-runner" }

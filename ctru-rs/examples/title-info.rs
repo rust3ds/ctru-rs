@@ -97,11 +97,11 @@ fn main() {
             if use_nand {
                 println!("Press SELECT to choose SD Card");
                 println!("Current medium: NAND");
-                println!("Title count: {}", nand_count);
+                println!("Title count: {nand_count}");
             } else {
                 println!("Press SELECT to choose NAND");
                 println!("Current medium: SD Card");
-                println!("Title count: {}", sd_count);
+                println!("Title count: {sd_count}");
             }
 
             refresh = false;

@@ -10,8 +10,8 @@ use std::sync::Mutex;
 
 use crate::error::Result;
 use crate::sealed::Sealed;
-use crate::services::gspgpu::{self, FramebufferFormat};
 use crate::services::ServiceReference;
+use crate::services::gspgpu::{self, FramebufferFormat};
 
 /// Trait to handle common functionality for all screens.
 ///
@@ -37,7 +37,7 @@ pub trait Screen: Sealed {
     ///
     /// If the [`Gfx`] service was initialised via [`Gfx::with_formats_vram()`] this function will crash the program with an ARM exception.
     #[doc(alias = "gfxGetFramebuffer")]
-    fn raw_framebuffer(&mut self) -> RawFrameBuffer {
+    fn raw_framebuffer(&mut self) -> RawFrameBuffer<'_> {
         let mut width: u16 = 0;
         let mut height: u16 = 0;
         let ptr = unsafe {
@@ -219,7 +219,7 @@ pub struct RawFrameBuffer<'screen> {
 /// The top screen of the 3DS can have two separate sets of framebuffers to support its 3D functionality
 #[doc(alias = "gfx3dSide_t")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-#[repr(u32)]
+#[repr(u8)]
 pub enum Side {
     /// The left framebuffer. This framebuffer is also the one used when 3D is disabled
     Left = ctru_sys::GFX_LEFT,
@@ -239,7 +239,7 @@ pub struct Gfx {
     _service_handler: ServiceReference,
 }
 
-static GFX_ACTIVE: Mutex<()> = Mutex::new(());
+pub(crate) static GFX_ACTIVE: Mutex<()> = Mutex::new(());
 
 impl Gfx {
     /// Initialize a new default service handle.
@@ -408,12 +408,12 @@ impl Gfx {
 
 impl TopScreen3D<'_> {
     /// Immutably borrow the two sides of the screen as `(left, right)`.
-    pub fn split(&self) -> (Ref<TopScreenLeft>, Ref<TopScreenRight>) {
+    pub fn split(&self) -> (Ref<'_, TopScreenLeft>, Ref<'_, TopScreenRight>) {
         Ref::map_split(self.screen.borrow(), |screen| (&screen.left, &screen.right))
     }
 
     /// Mutably borrow the two sides of the screen as `(left, right)`.
-    pub fn split_mut(&self) -> (RefMut<TopScreenLeft>, RefMut<TopScreenRight>) {
+    pub fn split_mut(&self) -> (RefMut<'_, TopScreenLeft>, RefMut<'_, TopScreenRight>) {
         RefMut::map_split(self.screen.borrow_mut(), |screen| {
             (&mut screen.left, &mut screen.right)
         })

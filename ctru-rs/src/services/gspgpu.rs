@@ -3,7 +3,7 @@
 /// GSPGPU events that can be awaited.
 #[doc(alias = "GSPGPU_Event")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-#[repr(u32)]
+#[repr(u8)]
 pub enum Event {
     /// Memory fill 1 completed.
     Psc0 = ctru_sys::GSPGPU_EVENT_PSC0,
@@ -24,7 +24,7 @@ pub enum Event {
 #[doc(alias = "GSPGPU_FramebufferFormat")]
 /// Framebuffer formats supported by the 3DS' screens.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-#[repr(u32)]
+#[repr(u8)]
 pub enum FramebufferFormat {
     /// RGBA8. 4 bytes per pixel
     Rgba8 = ctru_sys::GSP_RGBA8_OES,

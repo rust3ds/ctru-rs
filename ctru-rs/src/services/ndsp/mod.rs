@@ -18,6 +18,7 @@ pub mod wave;
 use wave::{Status, Wave};
 
 use crate::error::ResultCode;
+use crate::linear::LinearAllocation;
 use crate::services::ServiceReference;
 
 use std::cell::{RefCell, RefMut};
@@ -30,7 +31,7 @@ const NUMBER_OF_CHANNELS: u8 = 24;
 /// Audio output mode.
 #[doc(alias = "ndspOutputMode")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-#[repr(u32)]
+#[repr(u8)]
 pub enum OutputMode {
     /// Single-Channel.
     Mono = ctru_sys::NDSP_OUTPUT_MONO,
@@ -42,7 +43,7 @@ pub enum OutputMode {
 
 /// PCM formats supported by the audio engine.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-#[repr(u32)]
+#[repr(u8)]
 pub enum AudioFormat {
     /// PCM 8bit single-channel.
     PCM8Mono = ctru_sys::NDSP_FORMAT_MONO_PCM8,
@@ -73,7 +74,7 @@ pub enum AuxDevice {
 /// Interpolation used between audio frames.
 #[doc(alias = "ndspInterpType")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-#[repr(u32)]
+#[repr(u8)]
 pub enum InterpolationType {
     /// Polyphase interpolation.
     Polyphase = ctru_sys::NDSP_INTERP_POLYPHASE,
@@ -189,7 +190,7 @@ impl Ndsp {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn channel(&self, id: u8) -> std::result::Result<Channel, Error> {
+    pub fn channel(&self, id: u8) -> std::result::Result<Channel<'_>, Error> {
         let in_bounds = self.channel_flags.get(id as usize);
 
         match in_bounds {
@@ -523,7 +524,7 @@ impl Channel<'_> {
     /// let ndsp = Ndsp::new()?;
     /// let mut channel_0 = ndsp.channel(0)?;
     ///
-    /// # let audio_data = Box::new_in([0u8; 96], LinearAllocator);
+    /// # let audio_data: Box<[_], _> = Box::new_in([0u8; 96], LinearAllocator);
     ///
     /// // Provide your own audio data.
     /// let mut wave = Wave::new(audio_data, AudioFormat::PCM16Stereo, false);
@@ -537,7 +538,10 @@ impl Channel<'_> {
     // TODO: Find a better way to handle the wave lifetime problem.
     //       These "alive wave" shenanigans are the most substantial reason why I'd like to fully re-write this service in Rust.
     #[doc(alias = "ndspChnWaveBufAdd")]
-    pub fn queue_wave(&mut self, wave: &mut Wave) -> std::result::Result<(), Error> {
+    pub fn queue_wave<Buffer: LinearAllocation + AsRef<[u8]>>(
+        &mut self,
+        wave: &mut Wave<Buffer>,
+    ) -> std::result::Result<(), Error> {
         match wave.status() {
             Status::Playing | Status::Queued => return Err(Error::WaveBusy(self.id)),
             _ => (),
@@ -762,10 +766,19 @@ impl From<[f32; 12]> for AudioMix {
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Self::InvalidChannel(id) => write!(f, "audio Channel with ID {id} doesn't exist. Valid channels have an ID between 0 and 23"),
-            Self::ChannelAlreadyInUse(id) => write!(f, "audio Channel with ID {id} is already being used. Drop the other instance if you want to use it here"),
+            Self::InvalidChannel(id) => write!(
+                f,
+                "audio Channel with ID {id} doesn't exist. Valid channels have an ID between 0 and 23"
+            ),
+            Self::ChannelAlreadyInUse(id) => write!(
+                f,
+                "audio Channel with ID {id} is already being used. Drop the other instance if you want to use it here"
+            ),
             Self::WaveBusy(id) => write!(f, "the selected Wave is busy playing on channel {id}"),
-            Self::SampleCountOutOfBounds(samples_requested, max_samples) => write!(f, "the sample count requested is too big (requested = {samples_requested}, maximum = {max_samples})"),
+            Self::SampleCountOutOfBounds(samples_requested, max_samples) => write!(
+                f,
+                "the sample count requested is too big (requested = {samples_requested}, maximum = {max_samples})"
+            ),
         }
     }
 }

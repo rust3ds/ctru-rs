@@ -19,7 +19,7 @@ const CPP_POLLING_PERIOD_MS: u8 = 0x32;
 
 // This export tells libctru to not initialize ir:rst when initializing HID.
 // This is necessary on the New 3DS because ir:rst is mutually exclusive with ir:USER.
-#[no_mangle]
+#[unsafe(no_mangle)]
 unsafe extern "C" fn hidShouldUseIrrst() -> bool {
     false
 }
@@ -147,10 +147,9 @@ impl<'screen> CirclePadProDemo<'screen> {
             if let Err(e) = self
                 .connection_status_event
                 .wait_for_event(Duration::from_millis(100))
+                && !e.is_timeout()
             {
-                if !e.is_timeout() {
-                    panic!("Couldn't initialize circle pad pro connection: {e}");
-                }
+                panic!("Couldn't initialize circle pad pro connection: {e}");
             }
 
             self.print_status_info();
@@ -168,10 +167,9 @@ impl<'screen> CirclePadProDemo<'screen> {
             if let Err(e) = self
                 .connection_status_event
                 .wait_for_event(Duration::from_millis(100))
+                && !e.is_timeout()
             {
-                if !e.is_timeout() {
-                    panic!("Couldn't initialize circle pad pro connection: {e}");
-                }
+                panic!("Couldn't initialize circle pad pro connection: {e}");
             }
         }
 
@@ -225,7 +223,7 @@ impl<'screen> CirclePadProDemo<'screen> {
         // Write data to top screen
         self.top_console.select();
         self.top_console.clear();
-        println!("{:x?}", status_info);
+        println!("{status_info:x?}");
 
         self.ir_user.process_shared_memory(|ir_mem| {
             println!("\nReceiveBufferInfo:");

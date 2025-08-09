@@ -7,14 +7,14 @@ use bitflags::bitflags;
 
 bitflags! {
     #[derive(Default, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Clone, Copy)]
-    struct Open: u32 {
+    struct Open: u8 {
         const FS_OPEN_READ   = ctru_sys::FS_OPEN_READ;
         const FS_OPEN_WRITE  = ctru_sys::FS_OPEN_WRITE;
         const FS_OPEN_CREATE = ctru_sys::FS_OPEN_CREATE;
     }
 
     #[derive(Default, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Clone, Copy)]
-    struct Write: u32 {
+    struct Write: u16 {
         const FS_WRITE_FLUSH       = ctru_sys::FS_WRITE_FLUSH;
         const FS_WRITE_UPDATE_TIME = ctru_sys::FS_WRITE_UPDATE_TIME;
     }
@@ -31,7 +31,7 @@ bitflags! {
 /// Media type used for storage.
 #[doc(alias = "FS_MediaType")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-#[repr(u32)]
+#[repr(u8)]
 pub enum MediaType {
     /// Internal NAND memory.
     Nand = ctru_sys::MEDIATYPE_NAND,
@@ -44,7 +44,7 @@ pub enum MediaType {
 /// Kind of file path.
 #[doc(alias = "FS_PathType")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-#[repr(u32)]
+#[repr(u8)]
 pub enum PathType {
     /// Invalid path.
     Invalid = ctru_sys::PATH_INVALID,

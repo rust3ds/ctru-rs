@@ -8,7 +8,7 @@ use crate::error::ResultCode;
 /// Console region.
 #[doc(alias = "CFG_Region")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-#[repr(u32)]
+#[repr(u8)]
 pub enum Region {
     /// Japan.
     Japan = ctru_sys::CFG_REGION_JPN,
@@ -29,7 +29,7 @@ pub enum Region {
 /// Language set for the console's OS.
 #[doc(alias = "CFG_Language")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-#[repr(u32)]
+#[repr(i8)]
 pub enum Language {
     /// Japanese.
     Japanese = ctru_sys::CFG_LANGUAGE_JP,
@@ -60,7 +60,7 @@ pub enum Language {
 /// Specific model of the console.
 #[doc(alias = "CFG_SystemModel")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-#[repr(u32)]
+#[repr(u8)]
 pub enum SystemModel {
     /// Old Nintendo 3DS.
     Old3DS = ctru_sys::CFG_MODEL_3DS,
@@ -174,7 +174,7 @@ impl Cfgu {
         let mut language: u8 = 0;
 
         ResultCode(unsafe { ctru_sys::CFGU_GetSystemLanguage(&mut language) })?;
-        Ok(Language::try_from(language).unwrap())
+        Ok(Language::try_from(language as i8).unwrap())
     }
 
     /// Check if NFC is supported by the console.
@@ -244,14 +244,14 @@ impl Drop for Cfgu {
 }
 
 from_impl!(Region, u8);
-from_impl!(Language, u8);
+from_impl!(Language, i8);
 from_impl!(SystemModel, u8);
 
 impl TryFrom<u8> for Region {
     type Error = ();
 
     fn try_from(value: u8) -> Result<Self, Self::Error> {
-        match value as u32 {
+        match value {
             ctru_sys::CFG_REGION_JPN => Ok(Region::Japan),
             ctru_sys::CFG_REGION_USA => Ok(Region::USA),
             ctru_sys::CFG_REGION_EUR => Ok(Region::Europe),
@@ -264,11 +264,11 @@ impl TryFrom<u8> for Region {
     }
 }
 
-impl TryFrom<u8> for Language {
+impl TryFrom<i8> for Language {
     type Error = ();
 
-    fn try_from(value: u8) -> Result<Self, Self::Error> {
-        match value as u32 {
+    fn try_from(value: i8) -> Result<Self, Self::Error> {
+        match value {
             ctru_sys::CFG_LANGUAGE_JP => Ok(Language::Japanese),
             ctru_sys::CFG_LANGUAGE_EN => Ok(Language::English),
             ctru_sys::CFG_LANGUAGE_FR => Ok(Language::French),
@@ -290,7 +290,7 @@ impl TryFrom<u8> for SystemModel {
     type Error = ();
 
     fn try_from(value: u8) -> Result<Self, Self::Error> {
-        match value as u32 {
+        match value {
             ctru_sys::CFG_MODEL_3DS => Ok(SystemModel::Old3DS),
             ctru_sys::CFG_MODEL_3DSXL => Ok(SystemModel::Old3DSXL),
             ctru_sys::CFG_MODEL_N3DS => Ok(SystemModel::New3DS),

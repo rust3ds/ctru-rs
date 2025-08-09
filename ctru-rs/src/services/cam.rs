@@ -5,8 +5,8 @@
 #![doc(alias = "camera")]
 
 use crate::error::{Error, ResultCode};
-use crate::services::gspgpu::FramebufferFormat;
 use crate::services::ServiceReference;
+use crate::services::gspgpu::FramebufferFormat;
 use ctru_sys::Handle;
 use private::Configuration;
 
@@ -33,7 +33,7 @@ pub struct Cam {
 /// See [`Camera::flip_image()`] to learn how to use this.
 #[doc(alias = "CAMU_Flip")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-#[repr(u32)]
+#[repr(u8)]
 pub enum FlipMode {
     /// No flip.
     None = ctru_sys::FLIP_NONE,
@@ -50,7 +50,7 @@ pub enum FlipMode {
 /// See [`Camera::set_view_size()`] to learn how to use this.
 #[doc(alias = "CAMU_Size")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-#[repr(u32)]
+#[repr(u8)]
 pub enum ViewSize {
     /// Size of the 3DS' top screen. (400 × 240)
     ///
@@ -79,7 +79,7 @@ pub enum ViewSize {
 /// See [`Camera::set_frame_rate()`] to learn how to use this.
 #[doc(alias = "CAMU_FramRate")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-#[repr(u32)]
+#[repr(u8)]
 pub enum FrameRate {
     /// 15 FPS.
     Fps15 = ctru_sys::FRAME_RATE_15,
@@ -114,7 +114,7 @@ pub enum FrameRate {
 /// See [`Camera::set_white_balance()`] to learn how to use this.
 #[doc(alias = "CAMU_WhiteBalance")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-#[repr(u32)]
+#[repr(u8)]
 pub enum WhiteBalance {
     /// Automatic white balance.
     Auto = ctru_sys::WHITE_BALANCE_AUTO,
@@ -135,7 +135,7 @@ pub enum WhiteBalance {
 /// See [`Camera::set_photo_mode()`] to learn how to use this.
 #[doc(alias = "CAMU_PhotoMode")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-#[repr(u32)]
+#[repr(u8)]
 pub enum PhotoMode {
     /// Normal mode.
     Normal = ctru_sys::PHOTO_MODE_NORMAL,
@@ -154,7 +154,7 @@ pub enum PhotoMode {
 /// See [`Camera::set_effect()`] to learn how to use this.
 #[doc(alias = "CAMU_Effect")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-#[repr(u32)]
+#[repr(u8)]
 pub enum Effect {
     /// No effects.
     None = ctru_sys::EFFECT_NONE,
@@ -177,7 +177,7 @@ pub enum Effect {
 /// See [`Camera::set_contrast()`] to learn how to use this.
 #[doc(alias = "CAMU_Contrast")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-#[repr(u32)]
+#[repr(u8)]
 pub enum Contrast {
     /// Low contrast.
     Low = ctru_sys::CONTRAST_LOW,
@@ -192,7 +192,7 @@ pub enum Contrast {
 /// See [`Camera::set_lens_correction()`] to learn how to use this.
 #[doc(alias = "CAMU_LensCorrection")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-#[repr(u32)]
+#[repr(u8)]
 pub enum LensCorrection {
     /// No lens correction.
     Off = ctru_sys::LENS_CORRECTION_DARK,
@@ -207,7 +207,7 @@ pub enum LensCorrection {
 /// See [`Camera::set_output_format()`] to learn how to use this.
 #[doc(alias = "CAMU_OutputFormat")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-#[repr(u32)]
+#[repr(u8)]
 pub enum OutputFormat {
     /// YUV422 output format. 16 bits per pixel.
     Yuv422 = ctru_sys::OUTPUT_YUV_422,
@@ -220,7 +220,7 @@ pub enum OutputFormat {
 /// See [`Cam::play_shutter_sound()`] to learn how to use this.
 #[doc(alias = "CAMU_ShutterSoundType")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-#[repr(u32)]
+#[repr(u8)]
 pub enum ShutterSound {
     /// Photo shutter sound.
     Normal = ctru_sys::SHUTTER_SOUND_TYPE_NORMAL,
@@ -406,29 +406,29 @@ impl BothOutwardCam {
 
 impl Camera for InwardCam {
     fn camera_as_raw(&self) -> ctru_sys::u32_ {
-        ctru_sys::SELECT_IN1
+        ctru_sys::SELECT_IN1.into()
     }
 }
 
 impl Camera for OutwardRightCam {
     fn camera_as_raw(&self) -> ctru_sys::u32_ {
-        ctru_sys::SELECT_OUT1
+        ctru_sys::SELECT_OUT1.into()
     }
 }
 
 impl Camera for OutwardLeftCam {
     fn camera_as_raw(&self) -> ctru_sys::u32_ {
-        ctru_sys::SELECT_OUT2
+        ctru_sys::SELECT_OUT2.into()
     }
 }
 
 impl Camera for BothOutwardCam {
     fn camera_as_raw(&self) -> ctru_sys::u32_ {
-        ctru_sys::SELECT_OUT1_OUT2
+        ctru_sys::SELECT_OUT1_OUT2.into()
     }
 
     fn port_as_raw(&self) -> ctru_sys::u32_ {
-        ctru_sys::PORT_BOTH
+        ctru_sys::PORT_BOTH.into()
     }
 
     fn take_picture(&mut self, buffer: &mut [u8], timeout: Duration) -> crate::Result<()> {
@@ -473,8 +473,8 @@ impl Camera for BothOutwardCam {
         // Synchronize the two cameras.
         unsafe {
             ResultCode(ctru_sys::CAMU_SynchronizeVsyncTiming(
-                ctru_sys::SELECT_OUT1,
-                ctru_sys::SELECT_OUT2,
+                ctru_sys::SELECT_OUT1.into(),
+                ctru_sys::SELECT_OUT2.into(),
             ))?;
         }
 
@@ -489,7 +489,7 @@ impl Camera for BothOutwardCam {
             ResultCode(ctru_sys::CAMU_SetReceiving(
                 &mut completion_handle,
                 buffer.as_mut_ptr().cast(),
-                ctru_sys::PORT_CAM1,
+                ctru_sys::PORT_CAM1.into(),
                 (max_size / 2) as u32,
                 transfer_unit.try_into().unwrap(),
             ))?;
@@ -503,7 +503,7 @@ impl Camera for BothOutwardCam {
             ResultCode(ctru_sys::CAMU_SetReceiving(
                 &mut completion_handle,
                 buffer[max_size / 2..].as_mut_ptr().cast(),
-                ctru_sys::PORT_CAM2,
+                ctru_sys::PORT_CAM2.into(),
                 (max_size / 2) as u32,
                 transfer_unit.try_into().unwrap(),
             ))?;
@@ -530,7 +530,7 @@ impl Camera for BothOutwardCam {
             // Camera state cleanup
             ResultCode(ctru_sys::CAMU_StopCapture(self.port_as_raw()))?;
             ResultCode(ctru_sys::CAMU_ClearBuffer(self.port_as_raw()))?;
-            ResultCode(ctru_sys::CAMU_Activate(ctru_sys::SELECT_NONE))?;
+            ResultCode(ctru_sys::CAMU_Activate(ctru_sys::SELECT_NONE.into()))?;
 
             wait_result_1?;
             wait_result_2?;
@@ -558,7 +558,7 @@ pub trait Camera: private::ConfigurableCamera {
 
     /// Returns the raw port of the selected camera.
     fn port_as_raw(&self) -> ctru_sys::u32_ {
-        ctru_sys::PORT_CAM1
+        ctru_sys::PORT_CAM1.into()
     }
 
     /// Returns `true` if the camera is busy (receiving data).
@@ -621,7 +621,7 @@ pub trait Camera: private::ConfigurableCamera {
         let mut res: usize = (size.0 as usize * size.1 as usize) * std::mem::size_of::<i16>();
 
         // If we are taking a picture using both outwards cameras, we need to expect 2 images, rather than just 1
-        if self.port_as_raw() == ctru_sys::PORT_BOTH {
+        if self.port_as_raw() == ctru_sys::PORT_BOTH.into() {
             res *= 2;
         }
 
@@ -1088,7 +1088,7 @@ pub trait Camera: private::ConfigurableCamera {
             // Camera state cleanup
             ResultCode(ctru_sys::CAMU_StopCapture(self.port_as_raw()))?;
             ResultCode(ctru_sys::CAMU_ClearBuffer(self.port_as_raw()))?;
-            ResultCode(ctru_sys::CAMU_Activate(ctru_sys::SELECT_NONE))?;
+            ResultCode(ctru_sys::CAMU_Activate(ctru_sys::SELECT_NONE.into()))?;
 
             wait_result?;
         };

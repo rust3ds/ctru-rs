@@ -43,7 +43,7 @@ bitflags! {
     ///
     /// See [`MiiSelector::set_options()`] to learn how to use them.
     #[derive(PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Clone, Copy)]
-    pub struct Options: u32 {
+    pub struct Options: u8 {
         /// Show the cancel button.
         const ENABLE_CANCEL = ctru_sys::MIISELECTOR_CANCEL;
         /// Make guest Miis available to select.
@@ -135,7 +135,7 @@ impl MiiSelector {
     /// ```
     #[doc(alias = "miiSelectorSetOptions")]
     pub fn set_options(&mut self, options: Options) {
-        unsafe { ctru_sys::miiSelectorSetOptions(self.config.as_mut(), options.bits()) }
+        unsafe { ctru_sys::miiSelectorSetOptions(self.config.as_mut(), options.bits().into()) }
     }
 
     /// Allowlist a guest Mii based on its index.

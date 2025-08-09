@@ -6,13 +6,11 @@
 //! Have a look at [`redirect_stderr`] or [`Soc::redirect_to_3dslink`](crate::services::soc::Soc::redirect_to_3dslink) for better alternatives when debugging applications.
 use std::cell::{RefMut, UnsafeCell};
 
-use ctru_sys::{
-    consoleClear, consoleDebugInit, consoleInit, consoleSelect, consoleSetWindow, PrintConsole,
-};
+use ctru_sys::{PrintConsole, consoleClear, consoleDebugInit, consoleInit, consoleSelect, consoleSetWindow};
 
 use crate::services::gfx::{Flush, Screen, Swap};
 
-static mut EMPTY_CONSOLE: PrintConsole = unsafe { const_zero::const_zero!(PrintConsole) };
+static mut EMPTY_CONSOLE: PrintConsole = unsafe { std::mem::zeroed::<PrintConsole>() };
 
 /// Error enum for generic errors within [`Console`].
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -167,7 +165,7 @@ impl<'screen> Console<'screen> {
     /// ```
     pub fn exists() -> bool {
         unsafe {
-            let current_console = ctru_sys::consoleSelect(std::ptr::addr_of_mut!(EMPTY_CONSOLE));
+            let current_console = ctru_sys::consoleSelect(&raw mut EMPTY_CONSOLE);
 
             let res = (*current_console).consoleInitialised;
 
@@ -391,7 +389,7 @@ impl Drop for Console<'_> {
             // the screen, but it won't crash either.
 
             // Get the current console by replacing it with an empty one.
-            let current_console = ctru_sys::consoleSelect(std::ptr::addr_of_mut!(EMPTY_CONSOLE));
+            let current_console = ctru_sys::consoleSelect(&raw mut EMPTY_CONSOLE);
 
             if std::ptr::eq(current_console, self.context.get()) {
                 // Console dropped while selected. We just replaced it with the

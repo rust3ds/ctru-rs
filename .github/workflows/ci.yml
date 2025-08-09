@@ -15,7 +15,7 @@ jobs:
       matrix:
         toolchain:
           # Run against a "known good" nightly. Rustc version is 1 day behind the toolchain date
-          - nightly-2024-02-18
+          - nightly-2025-07-25
           # Check for breakage on latest nightly
           - nightly
 
@@ -43,17 +43,18 @@ jobs:
       - name: Check formatting
         run: cargo fmt --all --verbose -- --check
 
-      - name: Cargo check ctru-sys (without tests)
-        run: cargo 3ds clippy --package ctru-sys --color=always --verbose
+      # We always run the next step, so that even if formatting fails we
+      # still get compilation errors for the same run (mainly for matchers).
 
-      - name: Cargo check ctru-rs (including tests)
-        run: cargo 3ds clippy --package ctru-rs --color=always --verbose --all-targets
+      - name: Cargo check workspace (including tests / examples)
+        run: cargo 3ds clippy --workspace --color=always --verbose --all-targets
+        if: success() || failure()
 
   test:
     strategy:
       matrix:
         toolchain:
-          - nightly-2024-02-18
+          - nightly-2025-07-25
           - nightly
     continue-on-error: ${{ matrix.toolchain == 'nightly' }}
     runs-on: ubuntu-latest
@@ -75,23 +76,28 @@ jobs:
       # unless cargo-3ds actually runs them as separate commands. See
       # https://github.com/rust3ds/cargo-3ds/issues/44 for more details
       - name: Build lib and integration tests
-        run: cargo 3ds test --no-run --tests
+        # Hmm, I guess we really do need to build each target separately due to the above issue:
+        run: |
+          cargo 3ds test --no-run --lib --all-features --package ctru-sys
+          cargo 3ds test --no-run --test layout_test --all-features --package ctru-sys
+          cargo 3ds test --no-run --lib --all-features --package ctru-rs
 
       - name: Run lib and integration tests
         uses: rust3ds/test-runner/run-tests@v1
         with:
-          args: --tests
+          args: --tests --all-features --workspace
 
       - name: Build and run doc tests
         uses: rust3ds/test-runner/run-tests@v1
         with:
-          args: --doc
+          args: --doc --workspace
 
       - name: Upload citra logs and capture videos
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: success() || failure() # always run unless the workflow was cancelled
         with:
           name: citra-logs-${{ matrix.toolchain }}
           path: |
             target/armv6k-nintendo-3ds/debug/deps/*.txt
             target/armv6k-nintendo-3ds/debug/deps/*.webm
+            target/armv6k-nintendo-3ds/debug/build/ctru-*/out/*

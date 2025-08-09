@@ -40,7 +40,7 @@ extern crate shim_3ds;
 /// It takes effect only if the `big-stack` feature is active. Otherwise, the default stack size should be ~32kB.
 ///
 /// This value was chosen to support crate dependencies which expected more stack than provided. It's suggested to use less stack if possible.
-#[no_mangle]
+#[unsafe(no_mangle)]
 // When building lib tests, we don't want to redefine the same symbol twice,
 // since ctru-rs is both the crate under test and a dev-dependency (non-test).
 // We might also be able to use #[linkage] for similar effect, but this way
@@ -69,3 +69,18 @@ mod sealed;
 pub mod services;
 
 pub use crate::error::{Error, Result};
+
+/// Sets a custom [panic hook](https://doc.rust-lang.org/std/panic/fn.set_hook.html) that uses the error applet to display panic messages.
+///
+/// You can also choose to have the previously registered panic hook called along with the error applet popup, which can be useful
+/// if you want to use output redirection to display panic messages over `3dslink` or `GDB`.
+///
+/// You can use [`std::panic::take_hook`](https://doc.rust-lang.org/std/panic/fn.take_hook.html) to unregister the panic hook
+/// set by this function.
+///
+/// # Notes
+///
+/// * If the [`Gfx`] service is not initialized during a panic, the error applet will not be displayed and the old panic hook will be called.
+pub fn set_panic_hook(call_old_hook: bool) {
+    crate::applets::error::set_panic_hook(call_old_hook);
+}
