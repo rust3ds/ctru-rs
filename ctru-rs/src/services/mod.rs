@@ -22,6 +22,7 @@ pub mod hid;
 pub mod ir_user;
 pub mod ndsp;
 pub mod ps;
+pub mod ptm;
 mod reference;
 pub mod soc;
 pub mod sslc;
