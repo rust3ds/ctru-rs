@@ -119,7 +119,7 @@ impl Ac {
     /// # use std::error::Error;
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #
-    /// use ctru::services::ac::Ac;
+    /// use ctru::services::ac::{Ac, NetworkStatus};
     ///
     /// let ac = Ac::new()?;
     ///
@@ -171,20 +171,20 @@ impl Ac {
     ///
     /// let ac = Ac::new()?;
     ///
-    /// println!("The console is connected to the network \"{}\"", ac.wifi_ssid().unwrap());
+    /// println!("The console is connected to the network \"{}\"", String::from_utf8(ac.wifi_ssid()?)?);
     /// #
     /// # Ok(())
     /// # }
     /// ```
     #[doc(alias = "ACU_GetSSID")]
-    pub fn wifi_ssid(&self) -> crate::Result<String> {
+    pub fn wifi_ssid(&self) -> crate::Result<Vec<u8>> {
         unsafe {
             let mut len = 0u32;
             ResultCode(ctru_sys::ACU_GetSSIDLength(&mut len))?;
             // we don't really need space for the terminator
             let mut vec = vec![0u8; len as usize];
             ResultCode(ctru_sys::ACU_GetSSID(vec.as_mut_ptr()))?;
-            Ok(String::from_utf8(vec)?)
+            Ok(vec)
         }
     }
 
@@ -262,19 +262,19 @@ impl Ac {
     ///
     /// let ac = Ac::new()?;
     ///
-    /// println!("Proxy username: {}", ac.proxy_username()?);
+    /// println!("Proxy username: {}", String::from_utf8(ac.proxy_username()?)?);
     ///
     /// #
     /// # Ok(())
     /// # }
     /// ```
     #[doc(alias = "ACU_GetProxyUserName")]
-    pub fn proxy_username(&self) -> crate::Result<String> {
+    pub fn proxy_username(&self) -> crate::Result<Vec<u8>> {
         unsafe {
             let mut vec = vec![0u8; 0x20];
             ResultCode(ctru_sys::ACU_GetProxyUserName(vec.as_mut_ptr()))?;
 
-            Ok(String::from_utf8(vec)?)
+            Ok(vec)
         }
     }
 
@@ -293,18 +293,18 @@ impl Ac {
     ///
     /// let ac = Ac::new()?;
     ///
-    /// println!("Proxy password: {}", ac.proxy_password()?);
+    /// println!("Proxy password: {}", String::from_utf8(ac.proxy_password()?)?);
     /// #
     /// # Ok(())
     /// # }
     /// ```
     #[doc(alias = "ACU_GetProxyPassword")]
-    pub fn proxy_password(&self) -> crate::Result<String> {
+    pub fn proxy_password(&self) -> crate::Result<Vec<u8>> {
         unsafe {
             let mut vec = vec![0u8; 0x20];
             ResultCode(ctru_sys::ACU_GetProxyPassword(vec.as_mut_ptr()))?;
 
-            Ok(String::from_utf8(vec))
+            Ok(vec)
         }
     }
 
@@ -320,7 +320,7 @@ impl Ac {
     /// #
     /// use ctru::services::ac::{Ac, NetworkSlot};
     ///
-    /// let ac = Ac::new()?;
+    /// let mut ac = Ac::new()?;
     ///
     /// ac.load_network_slot(NetworkSlot::Second)?;
     /// #
