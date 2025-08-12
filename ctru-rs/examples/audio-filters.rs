@@ -36,7 +36,7 @@ fn fill_buffer(audio_data: &mut Buffer, frequency: f32) {
         let result = (sample * amplitude) as i16;
 
         // Stereo samples are interleaved: left and right channels.
-        audio_data.0.insert(i, [result, result]);
+        audio_data.0[i] = [result, result];
     }
 }
 
@@ -100,7 +100,7 @@ fn main() {
     println!("\x1b[2;1HPress left/right to change filter");
 
     #[cfg(debug_assertions)]
-    println!("\x1b[3;1HWarning: Running in debug mode is extremely slow.");
+    println!("\x1b[3;1HWarning: Running in debug mode may produce gaps.");
 
     println!("\x1b[4;1Hnote = {} Hz        ", NOTEFREQ[note]);
     println!(
