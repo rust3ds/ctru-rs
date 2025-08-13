@@ -36,7 +36,11 @@ fn fill_buffer(audio_data: &mut Buffer, frequency: f32) {
         let result = (sample * amplitude) as i16;
 
         // Stereo samples are interleaved: left and right channels.
-        audio_data.0[i] = [result, result];
+        if audio_data.0.len() <= i {
+            audio_data.0.push([result, result]);
+        } else {
+            audio_data.0[i] = [result, result];
+        }
     }
 }
 

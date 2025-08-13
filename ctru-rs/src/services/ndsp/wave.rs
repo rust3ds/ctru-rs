@@ -109,7 +109,7 @@ where
 
     /// Returns a slice to the audio data (on the LINEAR memory).
     pub fn get_buffer(&self) -> &[u8] {
-        self.buffer.as_ref()
+        self.get_raw_buffer().as_ref()
     }
 
     /// Returns a mutable slice to the audio data (on the LINEAR memory).
@@ -122,12 +122,7 @@ where
     where
         Buffer: AsMut<[u8]>,
     {
-        match self.status() {
-            Status::Playing | Status::Queued => {
-                Err(Error::WaveBusy(self.played_on_channel.unwrap()))
-            }
-            _ => Ok(self.buffer.as_mut()),
-        }
+        Ok(self.get_raw_buffer_mut()?.as_mut())
     }
 
     /// Returns this wave's playback status.
