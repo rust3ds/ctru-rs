@@ -6,28 +6,29 @@
 
 use std::f32::consts::PI;
 
-use ctru::linear::LinearAllocator;
+use ctru::linear::{LinearAllocation, LinearAllocator};
 use ctru::prelude::*;
 use ctru::services::ndsp::{
     AudioFormat, AudioMix, InterpolationType, Ndsp, OutputMode,
     wave::{Status, Wave},
 };
 
+// Buffer holding type (defined separately to implement the AsRef trait)
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct Buffer(Vec<[i16; 2], LinearAllocator>);
+
 // Configuration for the NDSP process and channels.
 const SAMPLE_RATE: usize = 22050;
 const SAMPLES_PER_BUF: usize = SAMPLE_RATE / 10; // 2205
-const BYTES_PER_SAMPLE: usize = AudioFormat::PCM16Stereo.size();
-const AUDIO_WAVE_LENGTH: usize = SAMPLES_PER_BUF * BYTES_PER_SAMPLE;
 
 // Note frequencies.
 const NOTEFREQ: [f32; 7] = [220., 440., 880., 1760., 3520., 7040., 14080.];
 
-fn fill_buffer(audio_data: &mut [u8], frequency: f32) {
+fn fill_buffer(audio_data: &mut Buffer, frequency: f32) {
     // The audio format is Stereo PCM16.
     // As such, a sample is made up of 2 "Mono" samples (2 * i16), one for each channel (left and right).
-    let formatted_data = bytemuck::cast_slice_mut::<_, [i16; 2]>(audio_data);
 
-    for (i, chunk) in formatted_data.iter_mut().enumerate() {
+    for i in 0..SAMPLES_PER_BUF {
         // This is a simple sine wave, with a frequency of `frequency` Hz, and an amplitude 30% of maximum.
         let sample: f32 = (frequency * (i as f32 / SAMPLE_RATE as f32) * 2. * PI).sin();
         let amplitude = 0.3 * i16::MAX as f32;
@@ -35,7 +36,11 @@ fn fill_buffer(audio_data: &mut [u8], frequency: f32) {
         let result = (sample * amplitude) as i16;
 
         // Stereo samples are interleaved: left and right channels.
-        *chunk = [result, result];
+        if audio_data.0.len() <= i {
+            audio_data.0.push([result, result]);
+        } else {
+            audio_data.0[i] = [result, result];
+        }
     }
 }
 
@@ -64,7 +69,7 @@ fn main() {
 
     // We create a buffer on the LINEAR memory that will hold our audio data.
     // It's necessary for the buffer to live on the LINEAR memory sector since it needs to be accessed by the DSP processor.
-    let mut audio_data1: Box<[_], _> = Box::new_in([0u8; AUDIO_WAVE_LENGTH], LinearAllocator);
+    let mut audio_data1 = Buffer(Vec::with_capacity_in(SAMPLES_PER_BUF, LinearAllocator));
 
     // Fill the buffer with the first set of data. This simply writes a sine wave into the buffer.
     fill_buffer(&mut audio_data1, NOTEFREQ[4]);
@@ -97,6 +102,10 @@ fn main() {
 
     println!("\x1b[1;1HPress up/down to change tone frequency");
     println!("\x1b[2;1HPress left/right to change filter");
+
+    #[cfg(debug_assertions)]
+    println!("\x1b[3;1HWarning: Running in debug mode may produce gaps.");
+
     println!("\x1b[4;1Hnote = {} Hz        ", NOTEFREQ[note]);
     println!(
         "\x1b[5;1Hfilter = {}         ",
@@ -163,7 +172,7 @@ fn main() {
         // If the current buffer has finished playing, we can refill it with new data and re-queue it.
         let status = current.status();
         if let Status::Done = status {
-            fill_buffer(current.get_buffer_mut().unwrap(), NOTEFREQ[note]);
+            fill_buffer(current.get_raw_buffer_mut().unwrap(), NOTEFREQ[note]);
 
             channel_zero.queue_wave(current).unwrap();
 
@@ -173,3 +182,17 @@ fn main() {
         gfx.wait_for_vblank();
     }
 }
+
+impl AsRef<[u8]> for Buffer {
+    fn as_ref(&self) -> &[u8] {
+        bytemuck::cast_slice(&self.0)
+    }
+}
+
+impl AsMut<[u8]> for Buffer {
+    fn as_mut(&mut self) -> &mut [u8] {
+        bytemuck::cast_slice_mut(&mut self.0)
+    }
+}
+
+unsafe impl LinearAllocation for Buffer {}
