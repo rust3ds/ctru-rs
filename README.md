@@ -2,6 +2,13 @@
 
 This repository is home of the `ctru-rs` project, which aims to bring full control of the Nintendo 3DS console to homebrew developers using Rust.
 
+<a href="https://discord.gg/FYNeZWxjcH">
+  <img src="https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" />
+</a>
+<a href="https://rust3ds.github.io/ctru-rs/crates">
+  <img src="https://img.shields.io/badge/Docs-black?style=for-the-badge&logo=rust&logoColor=#E57324" />
+</a>
+
 ## Structure
 
 This repository is organized as follows:
