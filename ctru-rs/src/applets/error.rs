@@ -94,8 +94,30 @@ impl PopUp {
     }
 }
 
+struct ErrorConfWriter<'a> {
+    error_conf: &'a mut errorConf,
+    index: usize,
+}
+
+impl std::fmt::Write for ErrorConfWriter<'_> {
+    fn write_str(&mut self, s: &str) -> Result<(), std::fmt::Error> {
+        for code_unit in s.encode_utf16() {
+            if self.index == self.error_conf.Text.len() - 1 {
+                self.error_conf.Text[self.index] = 0;
+                return Err(std::fmt::Error);
+            } else {
+                self.error_conf.Text[self.index] = code_unit;
+                self.index += 1;
+            }
+        }
+
+        Ok(())
+    }
+}
+
 pub(crate) fn set_panic_hook(call_old_hook: bool) {
     use crate::services::gfx::GFX_ACTIVE;
+    use std::fmt::Write;
     use std::sync::{Mutex, TryLockError};
 
     static ERROR_CONF: Mutex<errorConf> = unsafe { Mutex::new(std::mem::zeroed()) };
@@ -118,52 +140,16 @@ pub(crate) fn set_panic_hook(call_old_hook: bool) {
 
             let error_conf = unsafe { (&raw mut *lock).as_mut().unwrap() };
 
-            let mut buf1 = itoa::Buffer::new();
-
-            let mut buf2 = itoa::Buffer::new();
+            let mut writer = ErrorConfWriter {
+                error_conf,
+                index: 0,
+            };
 
             let thread = std::thread::current();
 
             let name = thread.name().unwrap_or("<unnamed>");
 
-            let location = panic_info.location().unwrap();
-
-            let file = location.file();
-
-            let line = buf1.format(location.line());
-
-            let column = buf2.format(location.column());
-
-            let payload = if let Some(s) = panic_info.payload().downcast_ref::<&str>() {
-                s
-            } else if let Some(s) = panic_info.payload().downcast_ref::<String>() {
-                s.as_str()
-            } else {
-                ""
-            };
-
-            let message = [
-                "thread '",
-                name,
-                "' panicked at ",
-                file,
-                ":",
-                line,
-                ":",
-                column,
-                ":",
-                payload,
-            ];
-
-            for (idx, code_unit) in message
-                .into_iter()
-                .flat_map(str::encode_utf16)
-                .take(error_conf.Text.len() - 1)
-                .chain(std::iter::once(0))
-                .enumerate()
-            {
-                error_conf.Text[idx] = code_unit;
-            }
+            let _ = write!(writer, "thread '{name}' {panic_info}\0");
 
             unsafe {
                 errorDisp(error_conf);
