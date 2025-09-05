@@ -96,11 +96,13 @@ impl PopUp {
 
 pub(crate) fn set_panic_hook(call_old_hook: bool) {
     use crate::services::gfx::GFX_ACTIVE;
-    use std::sync::TryLockError;
+    use std::sync::{Mutex, TryLockError};
 
-    static mut ERROR_CONF: errorConf = unsafe { std::mem::zeroed() };
+    static ERROR_CONF: Mutex<errorConf> = unsafe { Mutex::new(std::mem::zeroed()) };
 
-    unsafe { errorInit(&raw mut ERROR_CONF, WordWrap::Enabled as _, 0) };
+    let mut lock = ERROR_CONF.lock().unwrap();
+
+    unsafe { errorInit(&raw mut *lock, WordWrap::Enabled as _, 0) };
 
     let old_hook = std::panic::take_hook();
 
@@ -112,7 +114,9 @@ pub(crate) fn set_panic_hook(call_old_hook: bool) {
                 old_hook(panic_info);
             }
 
-            let error_conf = unsafe { (&raw mut ERROR_CONF).as_mut().unwrap() };
+            let mut lock = ERROR_CONF.lock().unwrap();
+
+            let error_conf = unsafe { (&raw mut *lock).as_mut().unwrap() };
 
             let mut buf1 = itoa::Buffer::new();
 
