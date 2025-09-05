@@ -4,7 +4,9 @@
 
 use crate::services::{apt::Apt, gfx::Gfx};
 
-use ctru_sys::errorConf;
+use ctru_sys::{errorConf, errorDisp};
+
+use std::cell::UnsafeCell;
 
 /// Configuration struct to set up the Error applet.
 #[doc(alias = "errorConf")]
@@ -94,11 +96,31 @@ impl PopUp {
     }
 }
 
+struct PanicHookConfig {
+    error_app: UnsafeCell<PopUp>,
+}
+
+impl PanicHookConfig {
+    fn new() -> Self {
+        Self {
+            error_app: UnsafeCell::new(PopUp::new(WordWrap::Enabled)),
+        }
+    }
+
+    unsafe fn get(&self) -> *mut errorConf {
+        unsafe { (*self.error_app.get()).state.as_mut() }
+    }
+}
+
+unsafe impl Sync for PanicHookConfig {}
+
 pub(crate) fn set_panic_hook(call_old_hook: bool) {
     use crate::services::gfx::GFX_ACTIVE;
     use std::sync::TryLockError;
 
     let old_hook = std::panic::take_hook();
+
+    let config = PanicHookConfig::new();
 
     std::panic::set_hook(Box::new(move |panic_info| {
         // If we get a `WouldBlock` error, we know that the `Gfx` service has been initialized.
@@ -108,18 +130,57 @@ pub(crate) fn set_panic_hook(call_old_hook: bool) {
                 old_hook(panic_info);
             }
 
+            let error_conf = unsafe { &mut *config.get() };
+
+            let mut buf1 = itoa::Buffer::new();
+
+            let mut buf2 = itoa::Buffer::new();
+
             let thread = std::thread::current();
 
             let name = thread.name().unwrap_or("<unnamed>");
 
-            let message = format!("thread '{name}' {panic_info}");
+            let location = panic_info.location().unwrap();
 
-            let mut popup = PopUp::new(WordWrap::Enabled);
+            let file = location.file();
 
-            popup.set_text(&message);
+            let line = buf1.format(location.line());
+
+            let column = buf2.format(location.column());
+
+            let payload = if let Some(s) = panic_info.payload().downcast_ref::<&str>() {
+                s
+            } else if let Some(s) = panic_info.payload().downcast_ref::<String>() {
+                s.as_str()
+            } else {
+                ""
+            };
+
+            let message = [
+                "thread '",
+                name,
+                "' panicked at ",
+                file,
+                ":",
+                line,
+                ":",
+                column,
+                ":",
+                payload,
+            ];
+
+            for (idx, code_unit) in message
+                .into_iter()
+                .flat_map(str::encode_utf16)
+                .take(error_conf.Text.len() - 1)
+                .chain(std::iter::once(0))
+                .enumerate()
+            {
+                error_conf.Text[idx] = code_unit;
+            }
 
             unsafe {
-                let _ = popup.launch_unchecked();
+                errorDisp(error_conf);
             }
         } else {
             old_hook(panic_info);
