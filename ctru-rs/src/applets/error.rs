@@ -4,9 +4,7 @@
 
 use crate::services::{apt::Apt, gfx::Gfx};
 
-use ctru_sys::{errorConf, errorDisp};
-
-use std::cell::UnsafeCell;
+use ctru_sys::{errorConf, errorDisp, errorInit};
 
 /// Configuration struct to set up the Error applet.
 #[doc(alias = "errorConf")]
@@ -48,7 +46,7 @@ impl PopUp {
     pub fn new(word_wrap: WordWrap) -> Self {
         let mut state = Box::<errorConf>::default();
 
-        unsafe { ctru_sys::errorInit(state.as_mut(), word_wrap as _, 0) };
+        unsafe { errorInit(state.as_mut(), word_wrap as _, 0) };
 
         Self { state }
     }
@@ -96,33 +94,15 @@ impl PopUp {
     }
 }
 
-struct PanicHookConfig {
-    error_app: UnsafeCell<PopUp>,
-}
-
-impl PanicHookConfig {
-    fn new() -> Self {
-        Self {
-            error_app: UnsafeCell::new(PopUp::new(WordWrap::Enabled)),
-        }
-    }
-
-    // There can only be one invocation of an applet active at any given time, so our `UnsafeCell`
-    // crimes *should* be okay here.
-    unsafe fn get(&self) -> *mut errorConf {
-        unsafe { (*self.error_app.get()).state.as_mut() }
-    }
-}
-
-unsafe impl Sync for PanicHookConfig {}
-
 pub(crate) fn set_panic_hook(call_old_hook: bool) {
     use crate::services::gfx::GFX_ACTIVE;
     use std::sync::TryLockError;
 
-    let old_hook = std::panic::take_hook();
+    static mut ERROR_CONF: errorConf = unsafe { std::mem::zeroed() };
 
-    let config = PanicHookConfig::new();
+    unsafe { errorInit(&raw mut ERROR_CONF, WordWrap::Enabled as _, 0) };
+
+    let old_hook = std::panic::take_hook();
 
     std::panic::set_hook(Box::new(move |panic_info| {
         // If we get a `WouldBlock` error, we know that the `Gfx` service has been initialized.
@@ -132,7 +112,7 @@ pub(crate) fn set_panic_hook(call_old_hook: bool) {
                 old_hook(panic_info);
             }
 
-            let error_conf = unsafe { &mut *config.get() };
+            let error_conf = unsafe { (&raw mut ERROR_CONF).as_mut().unwrap() };
 
             let mut buf1 = itoa::Buffer::new();
 
