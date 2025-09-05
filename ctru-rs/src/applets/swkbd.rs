@@ -3,7 +3,9 @@
 //! This applet opens a virtual keyboard on the console's bottom screen which lets the user write UTF-16 valid text.
 #![doc(alias = "keyboard")]
 
+use crate::Utf16Writer;
 use crate::services::{apt::Apt, gfx::Gfx};
+
 use ctru_sys::{
     APPID_SOFTWARE_KEYBOARD, APT_SendParameter, APTCMD_MESSAGE, NS_APPID, SwkbdButton,
     SwkbdDictWord, SwkbdLearningData, SwkbdState, SwkbdStatusData, aptLaunchLibraryApplet,
@@ -13,8 +15,7 @@ use ctru_sys::{
 use bitflags::bitflags;
 
 use std::borrow::Cow;
-use std::fmt::Display;
-use std::iter::once;
+use std::fmt::{Display, Write};
 use std::str;
 
 type CallbackFunction = dyn FnMut(&str) -> CallbackResult;
@@ -445,14 +446,9 @@ impl SoftwareKeyboard {
     #[doc(alias = "swkbdSetHintText")]
     pub fn set_hint_text(&mut self, text: Option<&str>) {
         if let Some(text) = text {
-            for (idx, code_unit) in text
-                .encode_utf16()
-                .take(self.state.hint_text.len() - 1)
-                .chain(once(0))
-                .enumerate()
-            {
-                self.state.hint_text[idx] = code_unit;
-            }
+            let mut writer = Utf16Writer::new(&mut self.state.hint_text);
+
+            let _ = writer.write_str(text);
         } else {
             self.state.hint_text[0] = 0;
         }
@@ -551,14 +547,9 @@ impl SoftwareKeyboard {
     pub fn configure_button(&mut self, button: Button, text: &str, submit: bool) {
         let button_text = &mut self.state.button_text[button as usize];
 
-        for (idx, code_unit) in text
-            .encode_utf16()
-            .take(button_text.len() - 1)
-            .chain(once(0))
-            .enumerate()
-        {
-            button_text[idx] = code_unit;
-        }
+        let mut writer = Utf16Writer::new(button_text);
+
+        let _ = writer.write_str(text);
 
         self.state.button_submits_text[button as usize] = submit;
     }
@@ -678,20 +669,13 @@ impl SoftwareKeyboard {
 
         // Copy stuff to shared mem
         if let Some(initial_text) = self.initial_text.as_deref() {
-            swkbd.initial_text_offset = 0;
+            let slice = unsafe {
+                std::slice::from_raw_parts_mut(swkbd_shared_mem_ptr.cast(), initial_text.len())
+            };
 
-            let mut initial_text_cursor = swkbd_shared_mem_ptr.cast();
+            let mut writer = Utf16Writer::new(slice);
 
-            for code_unit in initial_text
-                .encode_utf16()
-                .take(swkbd.max_text_len as _)
-                .chain(once(0))
-            {
-                unsafe {
-                    *initial_text_cursor = code_unit;
-                    initial_text_cursor = initial_text_cursor.add(1);
-                }
-            }
+            let _ = writer.write_str(initial_text);
         }
 
         if !extra.dict.is_null() {
@@ -838,14 +822,9 @@ impl SoftwareKeyboard {
         swkbd.callback_result = result.discriminant().into();
 
         if let CallbackResult::Retry(msg) | CallbackResult::Close(msg) = result {
-            for (idx, code_unit) in msg
-                .encode_utf16()
-                .take(swkbd.callback_msg.len() - 1)
-                .chain(once(0))
-                .enumerate()
-            {
-                swkbd.callback_msg[idx] = code_unit;
-            }
+            let mut writer = Utf16Writer::new(&mut swkbd.callback_msg);
+
+            let _ = writer.write_str(&msg);
         }
 
         let _ = unsafe {

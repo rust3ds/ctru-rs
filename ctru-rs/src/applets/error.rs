@@ -2,9 +2,12 @@
 //!
 //! This applet displays error text as a pop-up message on the lower screen.
 
+use crate::Utf16Writer;
 use crate::services::{apt::Apt, gfx::Gfx};
 
 use ctru_sys::{errorConf, errorDisp, errorInit};
+
+use std::fmt::Write;
 
 /// Configuration struct to set up the Error applet.
 #[doc(alias = "errorConf")]
@@ -59,14 +62,9 @@ impl PopUp {
     /// 1900 UTF-16 code units in length after conversion.
     #[doc(alias = "errorText")]
     pub fn set_text(&mut self, text: &str) {
-        for (idx, code_unit) in text
-            .encode_utf16()
-            .take(self.state.Text.len() - 1)
-            .chain(std::iter::once(0))
-            .enumerate()
-        {
-            self.state.Text[idx] = code_unit;
-        }
+        let mut writer = Utf16Writer::new(&mut self.state.Text);
+
+        let _ = writer.write_str(text);
     }
 
     /// Launches the error applet.
