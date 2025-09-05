@@ -107,6 +107,8 @@ impl PanicHookConfig {
         }
     }
 
+    // There can only be one invocation of an applet active at any given time, so our `UnsafeCell`
+    // crimes *should* be okay here.
     unsafe fn get(&self) -> *mut errorConf {
         unsafe { (*self.error_app.get()).state.as_mut() }
     }
