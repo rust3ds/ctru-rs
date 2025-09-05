@@ -772,13 +772,13 @@ impl SoftwareKeyboard {
 
         if swkbd.text_length > 0 {
             let text16 = unsafe {
-                widestring::Utf16Str::from_slice_unchecked(std::slice::from_raw_parts(
+                std::slice::from_raw_parts(
                     swkbd_shared_mem_ptr.add(swkbd.text_offset as _).cast(),
                     swkbd.text_length as _,
-                ))
+                )
             };
 
-            *output = text16.to_string();
+            *output = String::from_utf16(text16).unwrap();
         }
 
         if swkbd.save_state_flags & (1 << 0) != 0 {
@@ -825,13 +825,13 @@ impl SoftwareKeyboard {
         let data = unsafe { &*user.cast::<MessageCallbackData>() };
 
         let text16 = unsafe {
-            widestring::Utf16Str::from_slice_unchecked(std::slice::from_raw_parts(
+            std::slice::from_raw_parts(
                 data.swkbd_shared_mem_ptr.add(swkbd.text_offset as _).cast(),
                 swkbd.text_length as _,
-            ))
+            )
         };
 
-        let text8 = text16.to_string();
+        let text8 = String::from_utf16(text16).unwrap();
 
         let result = unsafe { &mut **data.filter_callback }(&text8);
 
