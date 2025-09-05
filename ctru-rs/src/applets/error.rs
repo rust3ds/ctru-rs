@@ -101,8 +101,10 @@ struct ErrorConfWriter<'a> {
 
 impl std::fmt::Write for ErrorConfWriter<'_> {
     fn write_str(&mut self, s: &str) -> Result<(), std::fmt::Error> {
+        let max = self.error_conf.Text.len() - 1;
+
         for code_unit in s.encode_utf16() {
-            if self.index == self.error_conf.Text.len() - 1 {
+            if self.index == max {
                 self.error_conf.Text[self.index] = 0;
                 return Err(std::fmt::Error);
             } else {
@@ -110,6 +112,8 @@ impl std::fmt::Write for ErrorConfWriter<'_> {
                 self.index += 1;
             }
         }
+
+        self.error_conf.Text[self.index] = 0;
 
         Ok(())
     }
@@ -149,7 +153,7 @@ pub(crate) fn set_panic_hook(call_old_hook: bool) {
 
             let name = thread.name().unwrap_or("<unnamed>");
 
-            let _ = write!(writer, "thread '{name}' {panic_info}\0");
+            let _ = write!(writer, "thread '{name}' {panic_info}");
 
             unsafe {
                 errorDisp(error_conf);
