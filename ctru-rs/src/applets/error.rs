@@ -128,7 +128,7 @@ pub(crate) fn set_panic_hook(call_old_hook: bool) {
 
     let mut lock = ERROR_CONF.lock().unwrap();
 
-    unsafe { errorInit(&raw mut *lock, WordWrap::Enabled as _, 0) };
+    unsafe { errorInit(&mut *lock, WordWrap::Enabled as _, 0) };
 
     let old_hook = std::panic::take_hook();
 
@@ -142,7 +142,7 @@ pub(crate) fn set_panic_hook(call_old_hook: bool) {
 
             let mut lock = ERROR_CONF.lock().unwrap();
 
-            let error_conf = unsafe { (&raw mut *lock).as_mut().unwrap() };
+            let error_conf = &mut *lock;
 
             let mut writer = ErrorConfWriter {
                 error_conf,
