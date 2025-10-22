@@ -92,31 +92,6 @@ impl PopUp {
     }
 }
 
-struct ErrorConfWriter<'a> {
-    error_conf: &'a mut errorConf,
-    index: usize,
-}
-
-impl std::fmt::Write for ErrorConfWriter<'_> {
-    fn write_str(&mut self, s: &str) -> Result<(), std::fmt::Error> {
-        let max = self.error_conf.Text.len() - 1;
-
-        for code_unit in s.encode_utf16() {
-            if self.index == max {
-                self.error_conf.Text[self.index] = 0;
-                return Err(std::fmt::Error);
-            } else {
-                self.error_conf.Text[self.index] = code_unit;
-                self.index += 1;
-            }
-        }
-
-        self.error_conf.Text[self.index] = 0;
-
-        Ok(())
-    }
-}
-
 pub(crate) fn set_panic_hook(call_old_hook: bool) {
     use crate::services::gfx::GFX_ACTIVE;
     use std::fmt::Write;
@@ -142,10 +117,7 @@ pub(crate) fn set_panic_hook(call_old_hook: bool) {
 
             let error_conf = &mut *lock;
 
-            let mut writer = ErrorConfWriter {
-                error_conf,
-                index: 0,
-            };
+            let mut writer = Utf16Writer::new(&mut error_conf.Text);
 
             let thread = std::thread::current();
 
