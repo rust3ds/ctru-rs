@@ -31,6 +31,7 @@ fn main() {
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-env-changed=DEVKITPRO");
     println!("cargo:rustc-link-search=native={devkitpro}/libctru/lib");
+    println!("cargo:rerun-if-changed={devkitpro}/libctru");
 
     // https://github.com/rust3ds/cargo-3ds/issues/14#issuecomment-1783991872
     // To link properly, this must be the same as the library linked by cargo-3ds when building
@@ -215,10 +216,6 @@ fn detect_and_track_libctru() {
         }
         Err(err) => println!("cargo:warning=unknown libctru version: {err}"),
     }
-
-    if let Err(err) = track_libctru_files(&pacman) {
-        println!("cargo:warning=unable to track `libctru` files for changes: {err}");
-    }
 }
 
 fn get_libctru_version(pacman: &Path) -> Result<(String, String, String, String), Box<dyn Error>> {
@@ -244,33 +241,6 @@ fn parse_libctru_version(version: &str) -> Result<(String, String, String, Strin
         .map(String::from)
         .collect_tuple()
         .ok_or_else(|| format!("unexpected number of version segments: {version:?}"))
-}
-
-fn track_libctru_files(pacman: &Path) -> Result<(), String> {
-    let stdout = match Command::new(pacman)
-        .args(["--query", "--list", "libctru"])
-        .stderr(Stdio::inherit())
-        .output()
-    {
-        Ok(Output { stdout, status, .. }) if status.success() => stdout,
-        Ok(Output { status, .. }) => {
-            return Err(format!("pacman query failed with status {status}"));
-        }
-        Err(err) => {
-            return Err(format!("pacman query failed: {err}"));
-        }
-    };
-
-    for line in String::from_utf8_lossy(&stdout).lines() {
-        let Some((_pkg, file)) = line.split_once(char::is_whitespace) else {
-            println!("cargo:warning=unexpected line from pacman query: {line:?}");
-            continue;
-        };
-
-        println!("cargo:rerun-if-changed={file}");
-    }
-
-    Ok(())
 }
 
 #[cfg(feature = "layout-tests")]
