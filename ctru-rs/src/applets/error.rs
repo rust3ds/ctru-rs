@@ -4,7 +4,7 @@
 
 use crate::services::{apt::Apt, gfx::Gfx};
 
-use ctru_sys::errorConf;
+use ctru_sys::{errorConf, errorDisp, errorInit};
 
 /// Configuration struct to set up the Error applet.
 #[doc(alias = "errorConf")]
@@ -46,7 +46,7 @@ impl PopUp {
     pub fn new(word_wrap: WordWrap) -> Self {
         let mut state = Box::<errorConf>::default();
 
-        unsafe { ctru_sys::errorInit(state.as_mut(), word_wrap as _, 0) };
+        unsafe { errorInit(state.as_mut(), word_wrap as _, 0) };
 
         Self { state }
     }
@@ -94,9 +94,41 @@ impl PopUp {
     }
 }
 
+struct ErrorConfWriter<'a> {
+    error_conf: &'a mut errorConf,
+    index: usize,
+}
+
+impl std::fmt::Write for ErrorConfWriter<'_> {
+    fn write_str(&mut self, s: &str) -> Result<(), std::fmt::Error> {
+        let max = self.error_conf.Text.len() - 1;
+
+        for code_unit in s.encode_utf16() {
+            if self.index == max {
+                self.error_conf.Text[self.index] = 0;
+                return Err(std::fmt::Error);
+            } else {
+                self.error_conf.Text[self.index] = code_unit;
+                self.index += 1;
+            }
+        }
+
+        self.error_conf.Text[self.index] = 0;
+
+        Ok(())
+    }
+}
+
 pub(crate) fn set_panic_hook(call_old_hook: bool) {
     use crate::services::gfx::GFX_ACTIVE;
-    use std::sync::TryLockError;
+    use std::fmt::Write;
+    use std::sync::{Mutex, TryLockError};
+
+    static ERROR_CONF: Mutex<errorConf> = unsafe { Mutex::new(std::mem::zeroed()) };
+
+    let mut lock = ERROR_CONF.lock().unwrap();
+
+    unsafe { errorInit(&mut *lock, WordWrap::Enabled as _, 0) };
 
     let old_hook = std::panic::take_hook();
 
@@ -108,18 +140,23 @@ pub(crate) fn set_panic_hook(call_old_hook: bool) {
                 old_hook(panic_info);
             }
 
+            let mut lock = ERROR_CONF.lock().unwrap();
+
+            let error_conf = &mut *lock;
+
+            let mut writer = ErrorConfWriter {
+                error_conf,
+                index: 0,
+            };
+
             let thread = std::thread::current();
 
             let name = thread.name().unwrap_or("<unnamed>");
 
-            let message = format!("thread '{name}' {panic_info}");
-
-            let mut popup = PopUp::new(WordWrap::Enabled);
-
-            popup.set_text(&message);
+            let _ = write!(writer, "thread '{name}' {panic_info}");
 
             unsafe {
-                let _ = popup.launch_unchecked();
+                errorDisp(error_conf);
             }
         } else {
             old_hook(panic_info);
