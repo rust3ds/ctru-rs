@@ -7,8 +7,6 @@ use crate::services::{apt::Apt, gfx::Gfx};
 
 use ctru_sys::{errorConf, errorDisp, errorInit};
 
-use std::fmt::Write;
-
 /// Configuration struct to set up the Error applet.
 #[doc(alias = "errorConf")]
 pub struct PopUp {
@@ -54,17 +52,30 @@ impl PopUp {
         Self { state }
     }
 
-    /// Sets the error text to display.
+    /// Returns a [`Utf16Writer`] that writes its output to the [`PopUp`]'s internal text buffer.
     ///
     /// # Notes
     ///
-    /// The text will be converted to UTF-16 for display with the applet, and the message will be truncated if it exceeds
-    /// 1900 UTF-16 code units in length after conversion.
+    /// The input string be converted to UTF-16 for display with the applet, and the message will be
+    /// truncated if it exceeds 1900 UTF-16 code units in length after conversion.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
+    /// # fn main() {
+    /// #
+    /// use std::fmt::Write;
+    ///
+    /// let mut popup = PopUp::new(WordWrap::Enabled);
+    ///
+    /// let _ = write!(popup.writer(), "Look mom, I'm a custom error message!");
+    /// #
+    /// # }
+    /// ```
     #[doc(alias = "errorText")]
-    pub fn set_text(&mut self, text: &str) {
-        let mut writer = Utf16Writer::new(&mut self.state.Text);
-
-        let _ = writer.write_str(text);
+    pub fn writer<'a>(&'a mut self) -> Utf16Writer<'a> {
+        Utf16Writer::new(&mut self.state.Text)
     }
 
     /// Launches the error applet.
