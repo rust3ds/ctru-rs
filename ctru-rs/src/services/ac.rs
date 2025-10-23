@@ -104,7 +104,7 @@ impl Ac {
                 1 => NetworkStatus::Idle,
                 2 => NetworkStatus::LANConnected,
                 3 => NetworkStatus::WANConnected,
-                _ => return Err(crate::Error::Other(format!("Unknown value {}", ret))),
+                _ => return Err(crate::Error::Other(format!("Unknown value {ret}"))),
             })
         }
     }
@@ -151,7 +151,7 @@ impl Ac {
                 6 => SecurityMode::WPA_AES,
                 7 => SecurityMode::WPA2_AES,
 
-                _ => return Err(crate::Error::Other(format!("Unknown value {}", ret))),
+                _ => return Err(crate::Error::Other(format!("Unknown value {ret}"))),
             })
         }
     }

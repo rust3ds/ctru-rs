@@ -35,7 +35,7 @@ fn main() {
 
 fn print_network_info(ac: &Ac) -> Result<(), Box<dyn Error>> {
     let status = ac.wifi_status()?;
-    println!("Wi-Fi status: {:?}", status);
+    println!("Wi-Fi status: {status:?}");
 
     // Some methods error out if the console isn't connected
     if matches!(
@@ -45,7 +45,7 @@ fn print_network_info(ac: &Ac) -> Result<(), Box<dyn Error>> {
         println!("Wi-Fi SSID: {}", String::from_utf8(ac.wifi_ssid()?)?);
         println!("Wi-Fi security: {:?}", ac.wifi_security()?);
         let proxied = ac.proxy_enabled()?;
-        println!("Proxy enabled: {}", proxied);
+        println!("Proxy enabled: {proxied}");
         if proxied {
             println!("Proxy port: {}", ac.proxy_port()?);
             println!(

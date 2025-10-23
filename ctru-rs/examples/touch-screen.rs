@@ -31,7 +31,7 @@ fn main() {
         // from what it was on the previous frame.
         if touch != old_touch {
             // Move the cursor back to the top of the screen and print the coordinates.
-            print!("\x1b[1;1HTouch Screen position: {:#?}", touch);
+            print!("\x1b[1;1HTouch Screen position: {touch:#?}");
 
             // Special case for when the user lifts the stylus/finger from the screen.
             // This is done to avoid some screen tearing.
