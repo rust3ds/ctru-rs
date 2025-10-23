@@ -84,3 +84,38 @@ pub use crate::error::{Error, Result};
 pub fn set_panic_hook(call_old_hook: bool) {
     crate::applets::error::set_panic_hook(call_old_hook);
 }
+
+/// A helper type for writing string data into UTF-16 text buffers. Useful for interoperating with `libctru` APIs that expect UTF-16 as input.
+///
+/// The writer ensures that the text is written in-bounds and properly nul-terminated.
+pub struct Utf16Writer<'a> {
+    buf: &'a mut [u16],
+    index: usize,
+}
+
+impl<'a> Utf16Writer<'a> {
+    /// Creates a new [Utf16Writer] that writes its output into the provided buffer.
+    pub fn new(buf: &'a mut [u16]) -> Self {
+        Self { buf, index: 0 }
+    }
+}
+
+impl std::fmt::Write for Utf16Writer<'_> {
+    fn write_str(&mut self, s: &str) -> std::fmt::Result {
+        let max = self.buf.len() - 1;
+
+        for code_unit in s.encode_utf16() {
+            if self.index == max {
+                self.buf[self.index] = 0;
+                return Err(std::fmt::Error);
+            } else {
+                self.buf[self.index] = code_unit;
+                self.index += 1;
+            }
+        }
+
+        self.buf[self.index] = 0;
+
+        Ok(())
+    }
+}
