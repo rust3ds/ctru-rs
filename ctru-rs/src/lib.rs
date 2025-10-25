@@ -85,9 +85,10 @@ pub fn set_panic_hook(call_old_hook: bool) {
     crate::applets::error::set_panic_hook(call_old_hook);
 }
 
-/// A helper type for writing string data into UTF-16 text buffers. Useful for interoperating with `libctru` APIs that expect UTF-16 as input.
+/// A helper type for writing string data into `[u16]` buffers.
 ///
-/// The writer ensures that the text is written in-bounds and properly nul-terminated.
+/// This type is mainly useful for interop with `libctru` APIs that expect UTF-16 text as input. The writer implements the
+/// [`std::fmt::Write`](https://doc.rust-lang.org/std/fmt/trait.Write.html) trait and ensures that the text is written in-bounds and properly nul-terminated.
 pub struct Utf16Writer<'a> {
     buf: &'a mut [u16],
     index: usize,

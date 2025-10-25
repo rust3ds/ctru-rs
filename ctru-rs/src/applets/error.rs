@@ -56,7 +56,7 @@ impl PopUp {
     ///
     /// # Notes
     ///
-    /// The input string be converted to UTF-16 for display with the applet, and the message will be
+    /// The input will be converted to UTF-16 for display with the applet, and the message will be
     /// truncated if it exceeds 1900 UTF-16 code units in length after conversion.
     ///
     /// # Example
