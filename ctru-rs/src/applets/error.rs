@@ -65,6 +65,7 @@ impl PopUp {
     /// # let _runner = test_runner::GdbRunner::default();
     /// # fn main() {
     /// #
+    /// use ctru::applets::error::{PopUp, WordWrap};
     /// use std::fmt::Write;
     ///
     /// let mut popup = PopUp::new(WordWrap::Enabled);

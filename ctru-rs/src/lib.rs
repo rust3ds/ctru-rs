@@ -89,6 +89,14 @@ pub fn set_panic_hook(call_old_hook: bool) {
 ///
 /// This type is mainly useful for interop with `libctru` APIs that expect UTF-16 text as input. The writer implements the
 /// [`std::fmt::Write`](https://doc.rust-lang.org/std/fmt/trait.Write.html) trait and ensures that the text is written in-bounds and properly nul-terminated.
+///
+/// # Notes
+///
+/// Subsequent writes to the same `Utf16Writer` will append to the buffer instead of overwriting the existing contents. If you want to start over from the
+/// beginning of the buffer, simply create a new `Utf16Writer`.
+///
+/// If a write causes the buffer to reach the end of its capacity, `std::fmt::Error` will be returned, but all string data up until the end of the capacity will
+/// still be written.
 pub struct Utf16Writer<'a> {
     buf: &'a mut [u16],
     index: usize,
