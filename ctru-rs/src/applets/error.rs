@@ -74,7 +74,7 @@ impl PopUp {
     /// # }
     /// ```
     #[doc(alias = "errorText")]
-    pub fn writer<'a>(&'a mut self) -> Utf16Writer<'a> {
+    pub fn writer(&mut self) -> Utf16Writer<'_> {
         Utf16Writer::new(&mut self.state.Text)
     }
 

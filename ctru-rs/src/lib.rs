@@ -94,10 +94,10 @@ pub struct Utf16Writer<'a> {
     index: usize,
 }
 
-impl<'a> Utf16Writer<'a> {
+impl Utf16Writer<'_> {
     /// Creates a new [Utf16Writer] that writes its output into the provided buffer.
-    pub fn new(buf: &'a mut [u16]) -> Self {
-        Self { buf, index: 0 }
+    pub fn new(buf: &mut [u16]) -> Utf16Writer<'_> {
+        Utf16Writer { buf, index: 0 }
     }
 }
 
