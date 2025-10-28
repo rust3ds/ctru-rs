@@ -2,6 +2,7 @@
 //!
 //! This applet displays error text as a pop-up message on the lower screen.
 
+use crate::Utf16Writer;
 use crate::services::{apt::Apt, gfx::Gfx};
 
 use ctru_sys::{errorConf, errorDisp, errorInit};
@@ -51,22 +52,31 @@ impl PopUp {
         Self { state }
     }
 
-    /// Sets the error text to display.
+    /// Returns a [`Utf16Writer`] that writes its output to the [`PopUp`]'s internal text buffer.
     ///
     /// # Notes
     ///
-    /// The text will be converted to UTF-16 for display with the applet, and the message will be truncated if it exceeds
-    /// 1900 UTF-16 code units in length after conversion.
+    /// The input will be converted to UTF-16 for display with the applet, and the message will be
+    /// truncated if it exceeds 1900 UTF-16 code units in length after conversion.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # let _runner = test_runner::GdbRunner::default();
+    /// # fn main() {
+    /// #
+    /// use ctru::applets::error::{PopUp, WordWrap};
+    /// use std::fmt::Write;
+    ///
+    /// let mut popup = PopUp::new(WordWrap::Enabled);
+    ///
+    /// let _ = write!(popup.writer(), "Look mom, I'm a custom error message!");
+    /// #
+    /// # }
+    /// ```
     #[doc(alias = "errorText")]
-    pub fn set_text(&mut self, text: &str) {
-        for (idx, code_unit) in text
-            .encode_utf16()
-            .take(self.state.Text.len() - 1)
-            .chain(std::iter::once(0))
-            .enumerate()
-        {
-            self.state.Text[idx] = code_unit;
-        }
+    pub fn writer(&mut self) -> Utf16Writer<'_> {
+        Utf16Writer::new(&mut self.state.Text)
     }
 
     /// Launches the error applet.
@@ -91,31 +101,6 @@ impl PopUp {
             ctru_sys::ERROR_SOFTWARE_RESET => Err(Error::ResetPressed),
             _ => Err(Error::Unknown),
         }
-    }
-}
-
-struct ErrorConfWriter<'a> {
-    error_conf: &'a mut errorConf,
-    index: usize,
-}
-
-impl std::fmt::Write for ErrorConfWriter<'_> {
-    fn write_str(&mut self, s: &str) -> Result<(), std::fmt::Error> {
-        let max = self.error_conf.Text.len() - 1;
-
-        for code_unit in s.encode_utf16() {
-            if self.index == max {
-                self.error_conf.Text[self.index] = 0;
-                return Err(std::fmt::Error);
-            } else {
-                self.error_conf.Text[self.index] = code_unit;
-                self.index += 1;
-            }
-        }
-
-        self.error_conf.Text[self.index] = 0;
-
-        Ok(())
     }
 }
 
@@ -144,10 +129,7 @@ pub(crate) fn set_panic_hook(call_old_hook: bool) {
 
             let error_conf = &mut *lock;
 
-            let mut writer = ErrorConfWriter {
-                error_conf,
-                index: 0,
-            };
+            let mut writer = Utf16Writer::new(&mut error_conf.Text);
 
             let thread = std::thread::current();
 
