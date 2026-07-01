@@ -20,7 +20,7 @@ use std::process::{ExitCode, Termination};
 pub use console::ConsoleRunner;
 pub use gdb::GdbRunner;
 pub use socket::SocketRunner;
-use test::{ColorConfig, OutputFormat, TestDescAndFn, TestFn, TestOpts};
+use test::{ColorConfig, OutputFormat, TestDescAndFn, TestFn, TestList, TestListOrder, TestOpts};
 
 /// Run tests using the [`GdbRunner`].
 /// This function can be used with the `#[test_runner]` attribute.
@@ -60,7 +60,10 @@ fn run<Runner: TestRunner>(tests: &[&TestDescAndFn]) {
         ..test::test::parse_opts(&[]).unwrap().unwrap()
     };
 
-    let tests = tests.iter().map(|t| make_owned_test(t)).collect();
+    let tests = TestList::new(
+        tests.iter().map(make_owned_test).collect(),
+        TestListOrder::Unsorted,
+    );
     let result = test::run_tests_console(&opts, tests);
 
     drop(ctx);
