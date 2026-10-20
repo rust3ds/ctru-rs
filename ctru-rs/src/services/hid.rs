@@ -151,9 +151,6 @@ impl Hid {
                 Ok(())
             },
             || unsafe {
-                let _ = ctru_sys::HIDUSER_DisableGyroscope();
-                let _ = ctru_sys::HIDUSER_DisableAccelerometer();
-
                 ctru_sys::hidExit();
             },
         )?;
@@ -538,6 +535,22 @@ impl Hid {
             pitch: res.y,
             yaw: res.z,
         })
+    }
+}
+
+impl Drop for Hid {
+    fn drop(&mut self) {
+        if self.active_accelerometer {
+            unsafe {
+                let _ = ctru_sys::HIDUSER_DisableAccelerometer();
+            };
+        }
+
+        if self.active_gyroscope {
+            unsafe {
+                let _ = ctru_sys::HIDUSER_DisableGyroscope();
+            };
+        }
     }
 }
 
