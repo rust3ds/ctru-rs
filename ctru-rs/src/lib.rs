@@ -21,7 +21,7 @@
 #![deny(unsafe_op_in_unsafe_fn)]
 #![feature(custom_test_frameworks)]
 #![feature(try_trait_v2)]
-#![feature(allocator_api)]
+#![feature(allocator_ext)]
 #![test_runner(test_runner::run_gdb)] // TODO: does this make sense to have configurable?
 #![doc(
     html_favicon_url = "https://user-images.githubusercontent.com/11131775/225929072-2fa1741c-93ae-4b47-9bdf-af70f3d59910.png"
