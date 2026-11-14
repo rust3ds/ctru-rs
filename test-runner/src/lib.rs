@@ -20,7 +20,7 @@ use std::process::{ExitCode, Termination};
 pub use console::ConsoleRunner;
 pub use gdb::GdbRunner;
 pub use socket::SocketRunner;
-use test::{ColorConfig, OutputFormat, TestDescAndFn, TestFn, TestList, TestListOrder, TestOpts};
+use test::{ColorConfig, OutputFormat, TestDescAndFn, TestList, TestListOrder, TestOpts};
 
 /// Run tests using the [`GdbRunner`].
 /// This function can be used with the `#[test_runner]` attribute.
@@ -61,7 +61,7 @@ fn run<Runner: TestRunner>(tests: &[&TestDescAndFn]) {
     };
 
     let tests = TestList::new(
-        tests.iter().map(|t| make_owned_test(*t)).collect(),
+        tests,
         TestListOrder::Unsorted,
     );
     let result = test::run_tests_console(&opts, tests);
@@ -75,24 +75,6 @@ fn run<Runner: TestRunner>(tests: &[&TestDescAndFn]) {
     };
 
     let _ = runner.cleanup(reportable_result);
-}
-
-/// Adapted from [`test::make_owned_test`].
-/// Clones static values for putting into a dynamic vector, which `test_main()`
-/// needs to hand out ownership of tests to parallel test runners.
-///
-/// This will panic when fed any dynamic tests, because they cannot be cloned.
-fn make_owned_test(test: &TestDescAndFn) -> TestDescAndFn {
-    let testfn = match test.testfn {
-        TestFn::StaticTestFn(f) => TestFn::StaticTestFn(f),
-        TestFn::StaticBenchFn(f) => TestFn::StaticBenchFn(f),
-        _ => panic!("non-static tests passed to test::test_main_static"),
-    };
-
-    TestDescAndFn {
-        testfn,
-        desc: test.desc.clone(),
-    }
 }
 
 /// A helper trait to make the behavior of test runners consistent.
